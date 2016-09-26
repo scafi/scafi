@@ -59,8 +59,8 @@ pomExtra := (
 ) 
 // Common settings across projects
 lazy val commonSettings = Seq(
-  organization := "it.unibo", // organization/group ID
-  version := "1.1",           // the version/revision of the current module
+  organization := "it.unibo.scafi.scafiteam", // organization/group ID
+  version := "0.1.0",         // the version/revision of the current module
   scalaVersion := "2.11.8"    // the version of Scala used for building
 )
 
