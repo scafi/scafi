@@ -32,27 +32,31 @@ publishTo := {                   // set up the repository
 pomIncludeRepository := { _ => false } // no repositories show up in the POM file
 sonatypeProfileName := "org.example"   // profile name of the sonatype account
 pomExtra := (
-  <url>http://your.project.url</url>
+  <url>http://scafi.apice.unibo.it</url>
   <licenses>
     <license>
-      <name>BSD-style</name>
-      <url>http://www.opensource.org/licenses/bsd-license.php</url>
+      <name>Apache 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:your-account/your-project.git</url>
-    <connection>scm:git:git@github.com:your-account/your-project.git</connection>
+    <url>https://bitbucket.org/scafiteam/scafi</url>
+    <connection>scm:git:git@bitbucket.org:scafiteam/scafi.git</connection>
   </scm>
   <developers>
     <developer>
-      <id>you</id>
-      <name>Your Name</name>
-      <url>http://your.url</url>
+      <id>metaphori</id>
+      <name>Roberto Casadei</name>
+      <url>http://robertocasadei.apice.unibo.it</url>
+    </developer>
+    <developer>
+      <id>mviroli</id>
+      <name>Mirko Viroli</name>
+      <url>http://mirkoviroli.apice.unibo.it</url>
     </developer>
   </developers>
-) // TODO: ADD REAL METADATA -- ASK PROF. MIRKO VIROLI AND ROBERTO CASADEI
-
+) 
 // Common settings across projects
 lazy val commonSettings = Seq(
   organization := "it.unibo", // organization/group ID
