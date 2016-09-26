@@ -1,0 +1,34 @@
+# References
+#  - http://stackoverflow.com/questions/24297331/whats-recommended-gitignore-for-scala-sbt-project-in-intellij-idea
+#
+
+bin/
+.cache-main
+
+# Scala
+*.class
+*.log
+
+# For IntelliJ Idea
+*.iml
+*.ipr
+*.iws
+.idea
+out
+
+# For sbt
+target/
+project/target
+project/project
+
+# For Mac OS X
+.DS_Store
+
+# For Eclipse (Scala IDE)
+# Todo: untrack files and readd all while respecting git ignores
+build
+.classpath
+.project
+.settings
+org.scala-ide.sdt.core/META-INF/MANIFEST.MF
+org.scala-ide.sdt.update-site/site.xml
