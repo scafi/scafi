@@ -1,0 +1,56 @@
+package it.unibo.scafi.distrib.actor.patterns
+
+import akka.actor.Actor
+import it.unibo.scafi.distrib.actor.{GoOn, MsgWithInput}
+
+/**
+ * Abstract actor, which is an [[ObservableActorBehavior]] with [[PeriodicBehavior]], that
+ *  is intended to notify its observers with messages with a key-value format.
+ * @param name The name of the input provider, or the 'key' tag for the notification messages.
+ * @tparam K The type of the name.
+ * @tparam V The type of the value.
+ */
+abstract class PeriodicObservableInputProviderActor[K,V](val name: K) extends Actor
+  with PeriodicBehavior
+  with ObservableActorBehavior {
+
+  /* Abstract members */
+
+  var value: Option[V] = None
+
+  /**
+   * Template method with the responsibility of producing the next value to be provided, if any.
+   * @return {Some(v)} for a value 'v' or {None} if there is no value to return
+   */
+  def provideNextValue(): Option[V]
+  
+  /* Utility members */
+
+  protected val logger = akka.event.Logging(context.system, this)
+
+  /* Reactive behaviors */
+
+  def receive: Receive = workingBehavior
+    .orElse(inputManagementBehavior)
+    .orElse(observersManagementBehavior)
+
+  def workingBehavior: Receive = {
+    case GoOn => {
+      DoJob()
+      HandleLifecycle()
+    }
+  }
+
+  def inputManagementBehavior: Receive = Map.empty
+
+  /* Passive behavior */
+
+  def DoJob() = {
+    this.value = provideNextValue()
+    this.value.foreach(_ => NotifyObservers())
+  }
+
+  override def CurrentStateMessage: Any = {
+    MsgWithInput(name,value)
+  }
+}
