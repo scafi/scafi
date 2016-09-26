@@ -1,6 +1,6 @@
 // Resolvers
-resolvers += Resolver.sonatypeRepo("snapshots") // Sonatype OSS Maven Repository
-resolvers += Resolver.typesafeRepo("releases")  // Typesafe Repository
+resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += Resolver.typesafeRepo("releases")
 
 // Constants
 val akkaVersion = "2.3.7" // NOTE: Akka 2.4.0 REQUIRES Java 8!
@@ -16,9 +16,9 @@ val scopt      = "com.github.scopt"  % "scopt_2.11"       % "3.3.0"
 crossScalaVersions := Seq("2.11.8")
 
 // Maven publishing settings
-publishArtifact in Test := false // do not publish test artifacts
+publishArtifact in Test := false
 publishMavenStyle := true        // ensure POMs are generated and pushed
-publishTo := {                   // set up the repository
+publishTo := {
   val nexus = "https://oss.sonatype.org/" // OSSRH base URL
   if (isSnapshot.value)
     // Deploy to 'snapshots'
@@ -30,7 +30,7 @@ publishTo := {                   // set up the repository
 
 // POM metadata
 pomIncludeRepository := { _ => false } // no repositories show up in the POM file
-sonatypeProfileName := "org.example"   // profile name of the sonatype account
+
 pomExtra := (
   <url>http://scafi.apice.unibo.it</url>
   <licenses>
@@ -56,27 +56,29 @@ pomExtra := (
       <url>http://mirkoviroli.apice.unibo.it</url>
     </developer>
   </developers>
-) 
+)
+
 // Common settings across projects
 lazy val commonSettings = Seq(
-  organization := "it.unibo.apice.scafiteam", // organization/group ID
-  version := "0.1.0",         // the version/revision of the current module
-  scalaVersion := "2.11.8"    // the version of Scala used for building
+  organization := "it.unibo.apice.scafiteam",
+  scalaVersion := "2.11.8"
 )
 
 // 'core' project definition
 lazy val core = project.
-  settings(commonSettings: _*). // common settings import
-  settings(                     // project specific settings
-    name := "scafi-core",       // project name
+  settings(commonSettings: _*).
+  settings(
+    name := "scafi-core",
+    version := "0.1.0",
     libraryDependencies += scalatest
   )
 
 // 'simulator' project definition
 lazy val simulator = project.
-  dependsOn(core). // classpath dependency
+  dependsOn(core).
   settings(commonSettings: _*).
   settings(
+    version := "0.1.0",
     name := "scafi-simulator"
   )
 
@@ -85,6 +87,7 @@ lazy val distributed = project.
   dependsOn(core).
   settings(commonSettings: _*).
   settings(
+    version := "0.1.0",
     name := "scafi-distributed",
     libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt)
   )
@@ -94,6 +97,7 @@ lazy val tests = project.
   dependsOn(core, simulator).
   settings(commonSettings: _*).
   settings(
+    version := "0.1.0",
     name := "scafi-tests",
     libraryDependencies += scalatest
   )
@@ -103,5 +107,6 @@ lazy val demos = project.
   dependsOn(core, distributed, simulator).
   settings(commonSettings: _*).
   settings(
+    version := "0.1.0",
     name := "scafi-demos"
   )
