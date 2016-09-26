@@ -16,6 +16,7 @@ val scopt      = "com.github.scopt"  % "scopt_2.11"       % "3.3.0"
 crossScalaVersions := Seq("2.11.8")
 
 // Maven publishing settings
+sonatypeProfileName := "it.unibo.apice.scafiteam"
 publishArtifact in Test := false
 publishMavenStyle := true        // ensure POMs are generated and pushed
 publishTo := {
@@ -27,6 +28,8 @@ publishTo := {
     // Deploy to 'releases'
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
+// Prevents aggregated project (root) to be published
+packagedArtifacts in file(".") := Map.empty
 
 // POM metadata
 pomIncludeRepository := { _ => false } // no repositories show up in the POM file
