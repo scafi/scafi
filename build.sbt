@@ -102,7 +102,8 @@ lazy val tests = project.
   settings(
     version := "0.1.0",
     name := "scafi-tests",
-    libraryDependencies += scalatest
+    libraryDependencies += scalatest,
+    packagedArtifacts := Map.empty
   )
 
 // 'demos' project definition
