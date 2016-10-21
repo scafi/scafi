@@ -24,7 +24,7 @@ val scafi_platform = "it.unibo.apice.scafiteam" % "scafi-distributed_2.11"  % "0
 libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 ```
 
-* Use the API
+* Use the API (e.g., to set up a simple simulation)
 
 
 ```
