@@ -58,22 +58,7 @@ class SimulationImpl() extends Simulation {
 
     sensors.foreach(se => net.addSensor(se.getName, se.getValue)) //non gli aggiungo già qui
 
-    val ap = new AggregateProgramSpecification with ExecutionTemplate with Constructs with Builtins {
-      override type MainResult = Double
-
-      def isSource = sense[Boolean](SensorEnum.SOURCE.getName)
-      def isObstacole = sense[Boolean](SensorEnum.OBSTACLE.getName)
-
-      //gradiente
-      override def main(): Double =
-      if (isObstacole) {
-        Double.MaxValue
-      } else {
-        rep(Double.MaxValue) {
-          distance => mux(isSource) { 0.0 } { minHoodPlus { nbr { distance } + nbrvar[Double](NBR_RANGE_NAME) } }
-        }
-      }
-    }
+    val ap = Class.forName(program.toString).newInstance().asInstanceOf[CONTEXT=>EXPORT]
     this.runProgram = () => net.exec(ap)
   }
 

@@ -89,7 +89,6 @@ public class SimulationManagerImpl implements SimulationManager {
 
     private void runSingleSimulationStep(){
         Tuple2<Object, Core.Export> exp = simulation.getRunProgram().apply();
-        System.out.println(exp);
         simulation.getNetwork().getNodes().forEach(n -> {
             if (n.getId() == (Integer) exp._1()) n.setExport(exp._2().root());
         });
