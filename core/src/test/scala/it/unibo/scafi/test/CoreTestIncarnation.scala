@@ -16,7 +16,7 @@ object CoreTestIncarnation extends Incarnation {
 
   implicit val NBR_RANGE_NAME: NSNS = "nbrRange"
 
-  class Execution extends ExecutionTemplate with Builtins {
+  class Execution extends ExecutionTemplate with Constructs with Builtins {
     override type MainResult = AnyRef
     override def main(): AnyRef = null
   }
