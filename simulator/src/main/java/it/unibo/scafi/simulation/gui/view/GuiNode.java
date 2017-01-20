@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 public class GuiNode extends JInternalFrame {
 
     //costante per il font del valore visualizzato (valueShow)
-    private final Font DEFAULT_FONT = new Font("Arial", Font.PLAIN, 14);
+    private final Font DEFAULT_FONT = new Font("Arial", Font.BOLD, 14);
 
     private final JLabel valueShow;
     private final JButton button;

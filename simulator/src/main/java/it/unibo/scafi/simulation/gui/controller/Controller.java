@@ -11,6 +11,8 @@ import it.unibo.scafi.simulation.gui.view.GuiNode;
 import it.unibo.scafi.simulation.gui.view.NodeInfoPanel;
 import it.unibo.scafi.simulation.gui.view.SimulationPanel;
 import it.unibo.scafi.simulation.gui.view.SimulatorUI;
+import it.unibo.scafi.space.SpaceHelper;
+import it.unibo.scafi.space.SpaceHelper$;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -51,8 +53,7 @@ public class Controller {
     }
 
     //metodi gestione simulazione
-    public void startSimulation(final int numNodes, Object policyNeighborhood, Object runProgram, Double deltaRound, Object strategy) {
-
+    public void startSimulation(final int numNodes, String topology, Object policyNeighborhood, Object runProgram, Double deltaRound, Object strategy) {
         for(int i = 0; i<numNodes; i++){
             GuiNode guiNode = new GuiNode();
             Node node = new NodeImpl(i, new Point2D.Double( new Random().nextDouble(), new Random().nextDouble()));

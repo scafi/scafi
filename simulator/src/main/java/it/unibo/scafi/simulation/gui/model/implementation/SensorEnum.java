@@ -8,6 +8,7 @@ import it.unibo.scafi.simulation.gui.model.Sensor;
 public enum SensorEnum implements Sensor {
 
     SOURCE("Source", false),
+    DESTINATION("Destination", false),
     TEMPERATURE("Temperature", 20.00),
     OBSTACLE("Obstacle", false);
 

@@ -8,6 +8,7 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
+import java.util.Vector;
 
 /**
  * This class represent the panel where the user can
@@ -26,6 +27,7 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
     private final JFormattedTextField nodeNumberField;
     private final JFormattedTextField neinghborsAreaField;
     private final JFormattedTextField deltaRoundField;
+    private final JComboBox<String> topologyField;
     private final JTextField runProgram;
     private final JTextField strategy;
     private final JButton addFile;
@@ -47,6 +49,13 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
         nodeNumberField.setColumns(10);
         nodeNumberField.addPropertyChangeListener(this);
 
+        //Create the text fields and set them up.
+        Vector<String> vtop = new Vector<>();
+        vtop.add("Random");
+        vtop.add("Grid");
+        topologyField = new JComboBox<String>(vtop);
+        topologyField.addPropertyChangeListener(this);
+
         deltaRoundField = new JFormattedTextField(NumberFormat.getNumberInstance());
         deltaRoundField.setValue(10.0);
         deltaRoundField.setColumns(10);
@@ -58,6 +67,7 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
         neinghborsAreaField.addPropertyChangeListener(this);
 
         runProgram = new JTextField();
+        runProgram.setText("sims.");
         runProgram.setColumns(10);
         runProgram.addPropertyChangeListener(this);
 
@@ -85,11 +95,12 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
         gbc.gridwidth = 1;
         gbc.insets = new Insets(5, 0, 0, 10);
         insertRow("Number of nodes: ", nodeNumberField, p1);
-        insertRow("Neighborhood policy: ", neinghborsAreaField, p1);
-        insertRow("∆ round: ", deltaRoundField, p1);
+        //insertRow("Topology", topologyField, p1);
+        //insertRow("Neighborhood policy: ", neinghborsAreaField, p1);
+        //insertRow("∆ round: ", deltaRoundField, p1);
         insertRow("Run program: ", runProgram, p1);
-        insertRow("Strategy: ", strategy, p1);
-        insertRow("Add configuration file: ", addFile, p1);
+        //insertRow("Strategy: ", strategy, p1);
+        //insertRow("Add configuration file: ", addFile, p1);
 
         //Button
         submitButton = new JButton("Start");
@@ -114,7 +125,8 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
                 double deltaRound = ((Number) deltaRoundField.getValue()).doubleValue();
                 String runP = runProgram.getText();
                 String str = strategy.getText();
-                controller.startSimulation(nNodes, policyNeighborhood, runP, deltaRound, str);
+                String topology = topologyField.getSelectedItem() != null ? topologyField.getSelectedItem().toString() : "";
+                controller.startSimulation(nNodes, topology, policyNeighborhood, runP, deltaRound, str);
                 dispose();
             }catch (Exception ex){
                 ex.printStackTrace();
