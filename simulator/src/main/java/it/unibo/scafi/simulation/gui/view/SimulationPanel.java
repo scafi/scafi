@@ -42,7 +42,7 @@ public class SimulationPanel extends JDesktopPane {
     }
 
     /**
-     * set the background image
+     * Set the background image
      * @param bkgImage
      */
     public void setBackgroundImage(final Image bkgImage){
@@ -50,7 +50,7 @@ public class SimulationPanel extends JDesktopPane {
     }
 
     /**
-     * show the panel where rappresents the connection of neighbors
+     * Shows the panel representing the neighbourhood
      * @param show
      */
     public void showNeighbours(final boolean show){//mostro il pannello che visualizza i collegamenti con i vicini
@@ -58,8 +58,6 @@ public class SimulationPanel extends JDesktopPane {
         this.revalidate();
         this.repaint();
     }
-
-//metodi utilizzati dal MouseListener
 
     public void setRectSelection(Rectangle r){
         this.captureRect.setRect(r);

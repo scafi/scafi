@@ -116,7 +116,7 @@ public class SimulationPanelMouseListener extends MouseAdapter {
 
             panel.setRectSelection(captureRect);
             panel.repaint();
-            controller.selectNodes(captureRect);    //seleziona i nodi all'interno dell'area
+            controller.selectNodes(captureRect); // Selects nodes within area
         }
     }
 

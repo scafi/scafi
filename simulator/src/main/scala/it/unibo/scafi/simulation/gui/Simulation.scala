@@ -10,11 +10,9 @@ import BasicSpatialIncarnation._
   */
 
 trait Simulation {
-  def getNetwork: Network
+  var network: Network
 
   def getRunProgram: ()=>(Int,Export)
-
-  def setNetwork(network: Network)
 
   def setRunProgram(program: Any)
 
@@ -22,7 +20,7 @@ trait Simulation {
 
   def setStrategy(strategy: Any)
 
-  def setSensor(sensor: String, ids: java.util.Set[Node], value: AnyRef)
+  def setSensor(sensor: String, nodes: Set[Node], value: Any)
 
   def setPosition(n: Node)
 }

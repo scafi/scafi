@@ -62,12 +62,12 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
         deltaRoundField.addPropertyChangeListener(this);
 
         neinghborsAreaField = new JFormattedTextField(NumberFormat.getNumberInstance());
-        neinghborsAreaField.setValue(0.2);
+        neinghborsAreaField.setValue(0.15);
         neinghborsAreaField.setColumns(10);
         neinghborsAreaField.addPropertyChangeListener(this);
 
         runProgram = new JTextField();
-        runProgram.setText("sims.");
+        runProgram.setText("sims.Gradient");
         runProgram.setColumns(10);
         runProgram.addPropertyChangeListener(this);
 
@@ -77,7 +77,6 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
 
         addFile = new JButton("File");
         addFile.addActionListener(e->{
-            //TODO aggiungi filter?
             JFileChooser choose = new JFileChooser();
             choose.showOpenDialog(this);
             addFile.setText(choose.getSelectedFile().getName());
@@ -95,8 +94,8 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
         gbc.gridwidth = 1;
         gbc.insets = new Insets(5, 0, 0, 10);
         insertRow("Number of nodes: ", nodeNumberField, p1);
-        //insertRow("Topology", topologyField, p1);
-        //insertRow("Neighborhood policy: ", neinghborsAreaField, p1);
+        insertRow("Topology", topologyField, p1);
+        insertRow("Neighborhood radius: ", neinghborsAreaField, p1);
         //insertRow("∆ round: ", deltaRoundField, p1);
         insertRow("Run program: ", runProgram, p1);
         //insertRow("Strategy: ", strategy, p1);
@@ -126,6 +125,7 @@ public class ConfigurationPanel extends JDialog implements PropertyChangeListene
                 String runP = runProgram.getText();
                 String str = strategy.getText();
                 String topology = topologyField.getSelectedItem() != null ? topologyField.getSelectedItem().toString() : "";
+                System.out.println("Configuration: \n topology=" + topology + "; \n nbr radius=" + policyNeighborhood + ";\n numNodes=" + nNodes + ";\n delta=" + deltaRound);
                 controller.startSimulation(nNodes, topology, policyNeighborhood, runP, deltaRound, str);
                 dispose();
             }catch (Exception ex){

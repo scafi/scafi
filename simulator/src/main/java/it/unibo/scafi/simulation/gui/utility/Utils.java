@@ -147,7 +147,7 @@ public final class Utils {
      */
     public static Point calculatedGuiNodePosition(final Point2D position ){ // position.x : 1 = res.x : frame.getWidth();
         Point res = new Point();
-        res.x = (int)(position.getX()*(frameDimension.getWidth()-getSizeGuiNode().getWidth()));  //posizionamento del centro del frame
+        res.x = (int)(position.getX()*(frameDimension.getWidth()-getSizeGuiNode().getWidth()));  // Placing at the center of the frame
         res.y = (int) (position.getY()*(frameDimension.getHeight()-getSizeGuiNode().getHeight()));
         return res;
     }
@@ -159,6 +159,6 @@ public final class Utils {
      */
     public static Point2D calculatedNodePosition(final Point position){
         return new Point2D.Double(position.getX()/ (getFrameDimension().getWidth()-getSizeGuiNode().getWidth()),
-                position.getY()/ (getFrameDimension().getHeight()-getSizeGuiNode().getHeight()));
+                position.getY()/ (getFrameDimension().getHeight()-getSizeGuiNode().getHeight()) );
     }
 }

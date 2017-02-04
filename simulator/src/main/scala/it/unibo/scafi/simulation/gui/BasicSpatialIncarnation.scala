@@ -13,7 +13,7 @@ object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation
 
   trait MyEuclideanStrategy extends EuclideanStrategy {
     this: Basic3DSpace[_] =>
-    override val proximityThreshold = 1.0
+    override val proximityThreshold = 0.15
   }
 
   override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] =

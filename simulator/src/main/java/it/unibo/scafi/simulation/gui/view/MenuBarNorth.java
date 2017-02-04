@@ -12,7 +12,8 @@ import java.util.List;
 
 /**
  * This class represent the Application menu
- * Created by chiara on 19/10/16.
+ * Created by Varini on 19/10/16.
+ * Updated by Casadei on 3/02/17
  */
 public class MenuBarNorth extends JMenuBar {
 
@@ -21,22 +22,18 @@ public class MenuBarNorth extends JMenuBar {
 
     public MenuBarNorth(){
 
-        //Menu File
         JMenu file = new JMenu("File");
         JMenu newFile = new JMenu("New");
-        //gestione nuova configuirazione
         JMenuItem simulation = new JMenuItem("Scafi Simulation");
+
         simulation.addActionListener(e-> new ConfigurationPanel());
         newFile.add(simulation);
+
         JMenuItem open = new JMenuItem("Open");
         JMenuItem save = new JMenuItem("Save");
         file.add(newFile);
-//        file.add(open);
-//        file.add(save);
 
-        //Menu Simulation
         JMenu simConfig = new JMenu("Simulation");
-        //gestione aggiunta/rimozione immagine di sfondo
         JMenuItem close = new JMenuItem("Close");
         close.addActionListener(e->{
             controller.clearSimulation();
@@ -69,18 +66,16 @@ public class MenuBarNorth extends JMenuBar {
             start.setEnabled(false);
             pause.setEnabled(true);
         });
-        start.setEnabled(false);
-        //gestione avanzamento di n-step nella simulazione
-        JMenuItem step = new JMenuItem("Step", Utils.getScaledImage("step.png",dim,dim));
-        step.addActionListener(e-> new StepDialog());
-        //gestione pausa Simulazione
-
         pause.addActionListener(e->{
             controller.pauseSimulation();
             start.setEnabled(true);
             pause.setEnabled(false);
         });
-        //gestione stop Simulazione
+        start.setEnabled(false);
+
+        JMenuItem step = new JMenuItem("Step", Utils.getScaledImage("step.png",dim,dim));
+        step.addActionListener(e-> new StepDialog());
+
         JMenuItem stop = new JMenuItem("Stop", Utils.getScaledImage("stop.png",dim,dim));
         stop.addActionListener(e->controller.stopSimulation());
         simConfig.add(close);

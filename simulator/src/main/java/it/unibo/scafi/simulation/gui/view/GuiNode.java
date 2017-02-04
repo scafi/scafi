@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.gui.view;
 
+import it.unibo.scafi.simulation.gui.model.Node;
 import it.unibo.scafi.simulation.gui.utility.Utils;
 
 import javax.swing.*;
@@ -22,11 +23,12 @@ public class GuiNode extends JInternalFrame {
     private final JButton button;
     private NodeInfoPanel infoPanel;    //pannello delle informazioni del nodo
     private boolean isSelected;
+    private Node node = null;
 
-    public GuiNode() {
-
+    public GuiNode(Node node) {
         //initial settings
         super();
+        this.node = node;
         this.valueShow = new JLabel("");
         this.button = new JButton(Utils.createImageIcon("node.png"));
         setSize(Utils.getSizeGuiNode());
@@ -63,6 +65,8 @@ public class GuiNode extends JInternalFrame {
             e.printStackTrace();
         }
     }
+
+    public Node getNode(){ return this.node; }
 
     //gestione dimensione nodo
     @Override
