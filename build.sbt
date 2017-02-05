@@ -22,10 +22,8 @@ publishMavenStyle := true        // ensure POMs are generated and pushed
 publishTo := {
   val nexus = "https://oss.sonatype.org/" // OSSRH base URL
   if (isSnapshot.value)
-    // Deploy to 'snapshots'
     Some("snapshots" at nexus + "content/repositories/snapshots")
   else
-    // Deploy to 'releases'
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 // Prevents aggregated project (root) to be published
@@ -61,13 +59,11 @@ pomExtra := (
   </developers>
 )
 
-// Common settings across projects
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
   scalaVersion := "2.11.8"
 )
 
-// 'core' project definition
 lazy val core = project.
   settings(commonSettings: _*).
   settings(
@@ -76,13 +72,20 @@ lazy val core = project.
     libraryDependencies += scalatest
   )
 
-// 'simulator' project definition
 lazy val simulator = project.
   dependsOn(core).
   settings(commonSettings: _*).
   settings(
     version := "0.1.0",
     name := "scafi-simulator"
+  )
+
+lazy val `simulator-gui` = project.
+  dependsOn(core,simulator).
+  settings(commonSettings: _*).
+  settings(
+    version := "0.1.0",
+    name := "scafi-simulator-gui"
   )
 
 // 'distributed' project definition
