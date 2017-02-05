@@ -5,6 +5,8 @@ import javax.swing._
 import java.awt._
 import java.awt.event.ActionEvent
 
+import it.unibo.scafi.simulation.gui.utility.Utils
+
 /**
   * Created by Varini on 12/11/16.
   * Converted/refactored to Scala by Casadei on 04/02/17
@@ -14,13 +16,17 @@ class SensorOptionPane(title: String) extends JDialog {
   final private val operators: JComboBox[String] = new JComboBox[String]
   final private val controller: Controller = Controller.getIstance
 
-  setTitle(title)
-  setSize(600, 300)
-  this.setLocationRelativeTo(null)
+  val sensorNameField: JTextField = new JTextField(20)
   val valueField: JTextField = new JTextField(10)
   val enter: JButton = new JButton("OK")
   val cancel: JButton = new JButton("Cancel")
+
+  setTitle(title)
+  setSize(600, 300)
+  this.setLocationRelativeTo(null)
+
   enter.addActionListener((e:ActionEvent) => {
+    /*
     if (operators.getItemCount() > 1) {
       controller.checkSensor(sensorsChoice.getSelectedItem().toString,
         operators.getSelectedItem().toString,
@@ -31,6 +37,11 @@ class SensorOptionPane(title: String) extends JDialog {
         valueField.getText()
       )
     }
+    */
+    val sensorName = sensorNameField.getText
+
+    controller.setSensor(sensorName, Utils.parseSensorValue(valueField.getText))
+
     this.dispose()
   })
   cancel.addActionListener((e:ActionEvent) => this.dispose())
@@ -40,7 +51,8 @@ class SensorOptionPane(title: String) extends JDialog {
   c.fill = GridBagConstraints.HORIZONTAL
   c.gridx = 0
   c.gridy = 0
-  panel.add(sensorsChoice, c)
+  //panel.add(sensorsChoice, c)
+  panel.add(sensorNameField, c)
   c.anchor = GridBagConstraints.CENTER
   c.gridx = 1
   c.gridy = 0

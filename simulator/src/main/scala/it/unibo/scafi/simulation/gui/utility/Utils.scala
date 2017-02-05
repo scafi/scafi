@@ -24,6 +24,32 @@ object Utils {
 
   val klass = this.getClass
 
+  def parseSensorValue(str: String) = {
+    val sensorValueParts = str.split(" ", 2)
+
+    var (sensorType,sensorValueStr) = if(sensorValueParts.length==1)
+      ("string",sensorValueParts(0))
+    else
+      (sensorValueParts(0).toLowerCase, sensorValueParts(1))
+
+    sensorType match {
+      case "bool" => sensorValueStr.toBoolean
+      case "int" => sensorValueStr.toInt
+      case "double" => sensorValueStr.toDouble
+      case _ => sensorValueStr
+    }
+  }
+
+  def parseSensors(str: String): Map[String,Any] = {
+    val sensorStrings = str.split("\\n")
+    sensorStrings.map(parseSensor(_)).toMap
+  }
+
+  def parseSensor(str: String): (String,Any) = {
+    val sensorStrParts = str.split(" ", 2)
+    sensorStrParts(0) -> parseSensorValue(sensorStrParts(1))
+  }
+
   /*
       * Get the extension of a file.
       */ def getExtension(f: File): String = {

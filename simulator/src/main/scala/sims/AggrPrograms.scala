@@ -92,7 +92,7 @@ class Channel extends AggrProgram {
   override def main() = channel(isSource,isDest,0) //if(channel(isSource, isDest, 0)) 1 else 0
 
   def isSource = sense[Boolean](SensorEnum.SOURCE.name)
-  def isDest = sense[Boolean](SensorEnum.OBSTACLE.name)
+  def isDest = sense[Boolean]("dest")
 
   def nbrRange():Double = nbrvar[Double](NBR_RANGE_NAME)
 

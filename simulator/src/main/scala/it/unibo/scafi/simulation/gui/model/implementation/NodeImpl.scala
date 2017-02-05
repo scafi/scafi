@@ -54,5 +54,5 @@ class NodeImpl(val id: Int, var position: Point2D) extends Node {
     this.sensors += sensor -> value
 
   def setSensor(sensorName: String, value: Any) =
-    this.sensors += sensors.find(_._1.name==sensorName).get._1 -> value
+    this.sensors += new Sensor(sensorName, value) -> value
 }

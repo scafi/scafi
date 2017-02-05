@@ -40,7 +40,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
         n.setSensor(sensorName, value)
         setImage(sensorName, value, g)
       }}
-      controller.simManager.simulation.setSensor(sensorName, controller.nodes.values.map(_._1).toSet, value.toString.toBoolean)
+      controller.simManager.simulation.setSensor(sensorName, controller.nodes.values.map(_._1).toSet, value)
     }
   }
 
@@ -142,13 +142,13 @@ class ControllerPrivate (val gui: SimulatorUI) {
       setSensor(SensorEnum.SOURCE.name, true);
     })
     this.gui.getSimulationPanel.getPopUpMenu.addAction("Obstacle", (e:ActionEvent) => {
-      setSensor(SensorEnum.OBSTACLE.name, true);
+      setSensor(SensorEnum.OBSTACLE.name, true)
     })
     this.gui.getSimulationPanel.getPopUpMenu.addAction("Not Source", (e:ActionEvent) => {
-      setSensor(SensorEnum.SOURCE.name, false);
+      setSensor(SensorEnum.SOURCE.name, false)
     })
     this.gui.getSimulationPanel.getPopUpMenu.addAction("Not Obstacle", (e:ActionEvent) => {
-      setSensor(SensorEnum.OBSTACLE.name, false);
+      setSensor(SensorEnum.OBSTACLE.name, false)
     })
     this.gui.getSimulationPanel.getPopUpMenu.addAction("Set Sensor", (e:ActionEvent) => {
       val sensPane = new SensorOptionPane("Set Sensor")

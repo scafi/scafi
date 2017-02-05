@@ -3,12 +3,9 @@ package it.unibo.scafi.simulation.gui.controller
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.config.SimpleRandomSettings
 import it.unibo.scafi.simulation.gui.Simulation
-import it.unibo.scafi.simulation.gui.model.SimulationManager
-import it.unibo.scafi.simulation.gui.model.implementation.NodeImpl
-import it.unibo.scafi.simulation.gui.model.implementation.SimulationImpl
+import it.unibo.scafi.simulation.gui.model.{Node, Sensor, SimulationManager}
+import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationImpl}
 import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.model.Node
-import it.unibo.scafi.simulation.gui.model.implementation.NetworkImpl
 import it.unibo.scafi.simulation.gui.view.GuiNode
 import it.unibo.scafi.simulation.gui.view.NodeInfoPanel
 import it.unibo.scafi.simulation.gui.view.SimulationPanel
@@ -50,7 +47,16 @@ class Controller () {
 
   def getNeighborhood: Map[Node, Set[Node]] = this.simManager.simulation.network.neighbourhood
 
-  def startSimulation(numNodes: Int, topology: String, policyNeighborhood: Any, runProgram: Any, deltaRound: Double, strategy: Any) {
+  def startSimulation(numNodes: Int,
+                      topology: String,
+                      policyNeighborhood: Any,
+                      runProgram: Any,
+                      deltaRound: Double,
+                      strategy: Any,
+                      sensorValues: String) {
+    val sensorVals: Map[String,Any] = Utils.parseSensors(sensorValues)
+    sensorVals.foreach(kv => SensorEnum.sensors += new Sensor(kv._1, kv._2))
+
     val ncols: Long = Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
     if (topology == "Grid") {
@@ -75,6 +81,7 @@ class Controller () {
     simulation.setDeltaRound(deltaRound)
     simulation.setRunProgram(runProgram)
     simulation.setStrategy(strategy)
+
     simManager.simulation = simulation
     simManager.setPauseFire(deltaRound)
     simManager.start()
