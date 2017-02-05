@@ -17,8 +17,8 @@ import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.space.SpaceHelper
 
 import scala.collection.immutable.List
-import scala.collection.JavaConversions._
 import java.awt._
+
 /**
   * Created by Varini on 14/11/16.
   * Converted/refactored to Scala by Casadei on 3/02/17
@@ -142,7 +142,7 @@ class Controller () {
 
   def moveNode(guiNode: GuiNode, position: Point) {
     controllerUtility.revalidateSimulationPanel()
-    val n = guiNode.getNode
+    val n = guiNode.node
     n.position = Utils.calculatedNodePosition(position)
     simManager.simulation.setPosition(n)
 

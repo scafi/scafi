@@ -91,7 +91,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
   def calculatedInfo(infoPanel: NodeInfoPanel) {
     controller.nodes.values.foreach(kv => {
       val (n, g) = kv
-      if (n.id == infoPanel.getId()) {
+      if (n.id == infoPanel.getId) {
         infoPanel.addInfo("position", "x: " + f"${n.position.getX() * 100}%.02f" // * MyDimension.getFrameDimension().getWidth() se volessi vedere le posizioni int dei frame
           + " \t y: " + f"${n.position.getY() * 100}%.02f")
         infoPanel.addInfo("Export: ", n.export.toString())
@@ -116,8 +116,8 @@ class ControllerPrivate (val gui: SimulatorUI) {
 
   def addObservation() {
     //network.getObservableValue().forEach( s -> gui.getSimulationPanel().getPopUpMenu().addObservation(s, e->{}));
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Show Neighbours", (e:ActionEvent) => gui.getSimulationPanel().showNeighbours(true))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Hide Neighbours", (e:ActionEvent) => gui.getSimulationPanel().showNeighbours(false))
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Show Neighbours", (e:ActionEvent) => gui.getSimulationPanel.showNeighbours(true))
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Hide Neighbours", (e:ActionEvent) => gui.getSimulationPanel.showNeighbours(false))
     this.gui.getSimulationPanel.getPopUpMenu.addObservation("Id", (e:ActionEvent) => controller.setShowValue("ID"))
     this.gui.getSimulationPanel.getPopUpMenu.addObservation("Export", (e:ActionEvent) => controller.setShowValue("EXPORT"))
     this.gui.getSimulationPanel.getPopUpMenu.addObservation("Nothing", (e:ActionEvent) => controller.setShowValue("NONE"))
