@@ -2,19 +2,18 @@ package it.unibo.scafi.simulation.gui.controller
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.config.SimpleRandomSettings
-import it.unibo.scafi.simulation.gui.Simulation
+import it.unibo.scafi.simulation.gui.{Defaults, Simulation}
 import it.unibo.scafi.simulation.gui.model.{Node, Sensor, SimulationManager}
 import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationImpl}
 import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.GuiNode
-import it.unibo.scafi.simulation.gui.view.NodeInfoPanel
-import it.unibo.scafi.simulation.gui.view.SimulationPanel
-import it.unibo.scafi.simulation.gui.view.SimulatorUI
+import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
 import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.space.SpaceHelper
 
 import scala.collection.immutable.List
 import java.awt._
+
+import it.unibo.scafi.simulation.gui.view.ConfigurationPanel.Topologies._
 
 /**
   * Created by Varini on 14/11/16.
@@ -59,12 +58,19 @@ class Controller () {
 
     val ncols: Long = Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
-    if (topology == "Grid") {
+    if (List(Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar) contains topology) {
       val nPerSide = Math.sqrt(numNodes)
-      positions = SpaceHelper.GridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, 1.0/nPerSide, 1.0/nPerSide))
+      val tolerance = topology match {
+        case Grid => 0
+        case Grid_LoVar => Defaults.Grid_LoVar_Eps
+        case Grid_MedVar => Defaults.Grid_MedVar_Eps
+        case Grid_HighVar => Defaults.Grid_HiVar_Eps
+      }
+      val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
+      positions = SpaceHelper.GridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety))
     }
     else {
-      positions = SpaceHelper.RandomLocations(new SimpleRandomSettings(0.0, 1.0), numNodes)
+      positions = SpaceHelper.RandomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes)
     }
 
     var i: Int = 0

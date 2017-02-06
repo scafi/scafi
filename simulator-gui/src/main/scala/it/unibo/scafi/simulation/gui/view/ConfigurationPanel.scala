@@ -9,7 +9,8 @@ import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.text.NumberFormat
 
-import scala.beans.BeanProperty
+import it.unibo.scafi.simulation.gui.Defaults
+import it.unibo.scafi.simulation.gui.view.ConfigurationPanel.Topologies._
 
 /**
   * This class represent the panel where the user can configure a new simulation.
@@ -17,7 +18,7 @@ import scala.beans.BeanProperty
   * Created by Varini on 19/10/16.
   * Converted/refactored to Scala by Casadei on 05/02/17
   */
-class ConfigurationPanel() extends JDialog with PropertyChangeListener {
+class ConfigurationPanel extends JDialog with PropertyChangeListener {
   final private val controller: Controller = Controller.getIstance
   final private var err: JLabel = null
   final private var gbc: GridBagConstraints = null
@@ -41,28 +42,27 @@ class ConfigurationPanel() extends JDialog with PropertyChangeListener {
   setAlwaysOnTop(true)
 
   nodeNumberField = new JFormattedTextField(NumberFormat.getIntegerInstance)
-  nodeNumberField.setValue(20)
+  nodeNumberField.setValue(Defaults.Sim_NumNodes)
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)
 
-  var vtop = Vector[String]()
-  vtop = vtop :+ "Random"
-  vtop = vtop :+ "Grid"
+  var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
+
   topologyField = new JComboBox[String](vtop.toArray)
   topologyField.addPropertyChangeListener(this)
 
   deltaRoundField = new JFormattedTextField(NumberFormat.getNumberInstance)
-  deltaRoundField.setValue(10.0)
+  deltaRoundField.setValue(Defaults.Sim_DeltaRound)
   deltaRoundField.setColumns(10)
   deltaRoundField.addPropertyChangeListener(this)
 
   neinghborsAreaField = new JFormattedTextField(NumberFormat.getNumberInstance)
-  neinghborsAreaField.setValue(0.15)
+  neinghborsAreaField.setValue(Defaults.Sim_NbrRadius)
   neinghborsAreaField.setColumns(10)
   neinghborsAreaField.addPropertyChangeListener(this)
 
   runProgram = new JTextField
-  runProgram.setText("sims.Gradient")
+  runProgram.setText(Defaults.Sim_ProgramClass)
   runProgram.setColumns(10)
   runProgram.addPropertyChangeListener(this)
 
@@ -70,7 +70,7 @@ class ConfigurationPanel() extends JDialog with PropertyChangeListener {
   strategy.setColumns(10)
   strategy.addPropertyChangeListener(this)
 
-  sensors = new JTextArea("sensor1 bool true\nsensor2 int 77", 4,20)
+  sensors = new JTextArea(Defaults.Sim_Sensors, 4,20)
 
   addFile = new JButton("File")
   addFile.addActionListener((e: ActionEvent) => {
@@ -93,7 +93,7 @@ class ConfigurationPanel() extends JDialog with PropertyChangeListener {
   insertRow("Number of nodes: ", nodeNumberField, p1)
   insertRow("Topology", topologyField, p1)
   insertRow("Neighborhood radius: ", neinghborsAreaField, p1)
-  //insertRow("∆ round: ", deltaRoundField, p1);
+  insertRow("∆ round: ", deltaRoundField, p1)
   insertRow("Run program: ", runProgram, p1)
   //insertRow("Strategy: ", strategy, p1);
   //insertRow("Add configuration file: ", addFile, p1);
@@ -194,5 +194,15 @@ class ConfigurationPanel() extends JDialog with PropertyChangeListener {
     gbc.gridy = y
     err.setVisible(true)
     getContentPane.add(err, gbc)
+  }
+}
+
+object ConfigurationPanel {
+  object Topologies {
+    val Random = "Random"
+    val Grid = "Grid"
+    val Grid_LoVar = "Grid LoVar"
+    val Grid_MedVar = "Grid MedVar"
+    val Grid_HighVar = "Grid HiVar"
   }
 }

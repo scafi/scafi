@@ -15,12 +15,22 @@ import scala.concurrent.duration.Duration
   *
   */
 
-trait AggrProgram extends AggregateProgramSpecification with ExecutionTemplate with Constructs with Builtins
+trait AggrProgram extends AggregateProgramSpecification with ExecutionTemplate with Constructs with Builtins {}
 
-class Mid extends AggrProgram {
-  override type MainResult = ID
+trait GenericAggrProgram extends AggrProgram {
+  override type MainResult = Any
+}
 
+class Mid extends GenericAggrProgram {
   override def main(): Int = mid()
+}
+
+class P1 extends GenericAggrProgram {
+  override def main() = "aa"
+}
+
+class P2 extends GenericAggrProgram {
+  override def main() = ("aa",Math.random())
 }
 
 class CountRounds extends AggrProgram {
