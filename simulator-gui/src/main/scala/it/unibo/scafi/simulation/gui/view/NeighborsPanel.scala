@@ -26,11 +26,11 @@ class NeighborsPanel private[view]() extends JPanel {
       val (n, nghb) = kv
       val p1 = Utils.calculatedGuiNodePosition(n.position)
       val p1x = (p1.x + (Utils.getSizeGuiNode().getWidth() / 2))
-      val p1y = (p1.y + (Utils.getSizeGuiNode().getHeight() / 2))
+      val p1y = (p1.y + (Utils.getSizeGuiNode().getHeight() / 3 * 2))
       nghb.foreach(ng => {
         val p2 = Utils.calculatedGuiNodePosition(ng.position)
         val p2x =  (p2.x + (Utils.getSizeGuiNode().getWidth() / 2))
-        val p2y = (p2.y + (Utils.getSizeGuiNode().getHeight() / 2))
+        val p2y = (p2.y + (Utils.getSizeGuiNode().getHeight() / 3 * 2))
         g.drawLine(p1x.toInt, p1y.toInt, p2x.toInt, p2y.toInt)
       })
     })

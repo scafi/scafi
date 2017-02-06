@@ -41,7 +41,6 @@ class GuiNode(val node: Node) extends JInternalFrame {
   pBotton.add(button)
   button.setBorderPainted(false)
   button.setOpaque(false)
-  button.setOpaque(false)
   button.addMouseListener(new GuiNodeListeners(this)) //listener dei movimentis
   button.addMouseMotionListener(new GuiNodeListeners(this))
   backgroundPanel.add(pBotton, BorderLayout.SOUTH)
