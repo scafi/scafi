@@ -9,8 +9,7 @@ import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.text.NumberFormat
 
-import it.unibo.scafi.simulation.gui.Defaults
-import it.unibo.scafi.simulation.gui.view.ConfigurationPanel.Topologies._
+import it.unibo.scafi.simulation.gui.{Settings}
 
 /**
   * This class represent the panel where the user can configure a new simulation.
@@ -42,27 +41,28 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
   setAlwaysOnTop(true)
 
   nodeNumberField = new JFormattedTextField(NumberFormat.getIntegerInstance)
-  nodeNumberField.setValue(Defaults.Sim_NumNodes)
+  nodeNumberField.setValue(Settings.Sim_NumNodes)
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)
 
+  import Settings.Topologies._
   var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
 
   topologyField = new JComboBox[String](vtop.toArray)
   topologyField.addPropertyChangeListener(this)
 
   deltaRoundField = new JFormattedTextField(NumberFormat.getNumberInstance)
-  deltaRoundField.setValue(Defaults.Sim_DeltaRound)
+  deltaRoundField.setValue(Settings.Sim_DeltaRound)
   deltaRoundField.setColumns(10)
   deltaRoundField.addPropertyChangeListener(this)
 
   neinghborsAreaField = new JFormattedTextField(NumberFormat.getNumberInstance)
-  neinghborsAreaField.setValue(Defaults.Sim_NbrRadius)
+  neinghborsAreaField.setValue(Settings.Sim_NbrRadius)
   neinghborsAreaField.setColumns(10)
   neinghborsAreaField.addPropertyChangeListener(this)
 
   runProgram = new JTextField
-  runProgram.setText(Defaults.Sim_ProgramClass)
+  runProgram.setText(Settings.Sim_ProgramClass)
   runProgram.setColumns(10)
   runProgram.addPropertyChangeListener(this)
 
@@ -70,7 +70,7 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
   strategy.setColumns(10)
   strategy.addPropertyChangeListener(this)
 
-  sensors = new JTextArea(Defaults.Sim_Sensors, 4,20)
+  sensors = new JTextArea(Settings.Sim_Sensors, 4,20)
 
   addFile = new JButton("File")
   addFile.addActionListener((e: ActionEvent) => {
@@ -113,18 +113,14 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
 
   submitButton.addActionListener((e: ActionEvent) => {
     try {
-      val nNodes = nodeNumberField.getText.toInt
-      val policyNeighborhood = neinghborsAreaField.getText.toDouble
-      val deltaRound = deltaRoundField.getText.toDouble
-      val runP = runProgram.getText()
-      val str = strategy.getText()
-      val topology = if(topologyField.getSelectedItem() != null) topologyField.getSelectedItem().toString() else ""
-      val sensorValues = sensors.getText
-
-      println("Configuration: \n topology=" + topology + "; \n nbr radius=" + policyNeighborhood + ";\n numNodes=" + nNodes +
-        ";\n delta=" + deltaRound + ";\n sensors = " + sensorValues)
-
-      controller.startSimulation(nNodes, topology, policyNeighborhood, runP, deltaRound, str, sensorValues)
+      Settings.Sim_NumNodes = nodeNumberField.getText.toInt
+      Settings.Sim_NbrRadius = neinghborsAreaField.getText.toDouble
+      Settings.Sim_DeltaRound = deltaRoundField.getText.toInt
+      Settings.Sim_ProgramClass = runProgram.getText()
+      Settings.Sim_ExecStrategy = strategy.getText()
+      if(topologyField.getSelectedItem() != null) Settings.Sim_Topology = topologyField.getSelectedItem().toString()
+      Settings.Sim_Sensors = sensors.getText
+      controller.startSimulation()
       dispose();
     } catch {
       case ex: Throwable => ex.printStackTrace(); showErr(0)
@@ -194,15 +190,5 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
     gbc.gridy = y
     err.setVisible(true)
     getContentPane.add(err, gbc)
-  }
-}
-
-object ConfigurationPanel {
-  object Topologies {
-    val Random = "Random"
-    val Grid = "Grid"
-    val Grid_LoVar = "Grid LoVar"
-    val Grid_MedVar = "Grid MedVar"
-    val Grid_HighVar = "Grid HiVar"
   }
 }

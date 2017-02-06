@@ -85,7 +85,8 @@ lazy val `simulator-gui` = project.
   settings(commonSettings: _*).
   settings(
     version := "0.1.0",
-    name := "scafi-simulator-gui"
+    name := "scafi-simulator-gui",
+    libraryDependencies ++= Seq(scopt)
   )
 
 // 'distributed' project definition

@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.model.implementation
 
 import it.unibo.scafi.simulation.gui.Simulation
 import it.unibo.scafi.simulation.gui.controller.Controller
-import it.unibo.scafi.simulation.gui.model.{Network, Node, Sensor}
+import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, Network, Node, Sensor}
 import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation._
 
@@ -27,7 +27,9 @@ class SimulationImpl() extends Simulation {
     val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D (n.position.getX, n.position.getY)) // Map id->position
     net = new SpaceAwareSimulator(
       space = new Basic3DSpace(devsToPos,
-        proximityThreshold = this.network.neighbourhoodPolicy.asInstanceOf[Double]),
+        proximityThreshold = this.network.neighbourhoodPolicy match {
+          case EuclideanDistanceNbr(radius) => radius
+        }),
         devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
           lsns => if (lsns == "sensor" && d == 3) 1 else 0,
           nsns => nbr => null)

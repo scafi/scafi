@@ -1,13 +1,14 @@
 package it.unibo.scafi.simulation.gui.model.implementation
 
 
-import it.unibo.scafi.simulation.gui.model.{Network, Node}
+import it.unibo.scafi.simulation.gui.Settings
+import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, NbrPolicy, Network, Node}
 
 /**
   * Created by Varini on 14/11/16.
   * Converted to Scala by Casadei on 3/02/17
   */
-class NetworkImpl(val nodes: Map[Int,Node], var neighbourhoodPolicy: Any) extends Network {
+class NetworkImpl(val nodes: Map[Int,Node], var neighbourhoodPolicy: NbrPolicy) extends Network {
   calculateNeighbours
 
   def neighbourhood: Map[Node, Set[Node]] = {
@@ -25,10 +26,12 @@ class NetworkImpl(val nodes: Map[Int,Node], var neighbourhoodPolicy: Any) extend
   private def calculateNeighbours: Map[Node, Set[Node]] = {
     var neighbours = Set[Node]()
     var res = Map[Node, Set[Node]]()
-    var nbrRadius: Double = 0.2 // Default
-    if (neighbourhoodPolicy.isInstanceOf[Double]) {
-      nbrRadius = neighbourhoodPolicy.asInstanceOf[Double]
+
+    var nbrRadius: Double = neighbourhoodPolicy match {
+      case EuclideanDistanceNbr(radius) => radius
+      case _ => Settings.Sim_NbrRadius
     }
+
     for (n <- nodes.values) {
       neighbours = Set()
       n.removeAllNeghbours

@@ -10,7 +10,7 @@ trait Network {
 
   def neighbourhood: Map[Node, Set[Node]]
 
-  def neighbourhoodPolicy: Any
+  def neighbourhoodPolicy: NbrPolicy
 
   def observableValue: Set[String]
 }

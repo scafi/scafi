@@ -2,18 +2,20 @@ package it.unibo.scafi.simulation.gui.controller
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.config.SimpleRandomSettings
-import it.unibo.scafi.simulation.gui.{Defaults, Simulation}
-import it.unibo.scafi.simulation.gui.model.{Node, Sensor, SimulationManager}
+import it.unibo.scafi.simulation.gui.{Settings, Simulation}
+import it.unibo.scafi.simulation.gui.Settings.Topologies._
+import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationImpl}
 import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
+import it.unibo.scafi.simulation.gui.view.{GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
 import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.space.SpaceHelper
 
 import scala.collection.immutable.List
 import java.awt._
 
-import it.unibo.scafi.simulation.gui.view.ConfigurationPanel.Topologies._
+import it.unibo.scafi.simulation.gui.Settings.NbrHoodPolicies
+
 
 /**
   * Created by Varini on 14/11/16.
@@ -46,13 +48,25 @@ class Controller () {
 
   def getNeighborhood: Map[Node, Set[Node]] = this.simManager.simulation.network.neighbourhood
 
-  def startSimulation(numNodes: Int,
-                      topology: String,
-                      policyNeighborhood: Any,
-                      runProgram: Any,
-                      deltaRound: Double,
-                      strategy: Any,
-                      sensorValues: String) {
+  def startSimulation() {
+
+    println("Configuration: \n topology=" + Settings.Sim_Topology +
+      "; \n nbr radius=" + Settings.Sim_NbrRadius +
+      ";\n numNodes=" + Settings.Sim_NumNodes +
+      ";\n delta=" + Settings.Sim_DeltaRound +
+      ";\n sensors = " + Settings.Sim_Sensors)
+
+    val numNodes = Settings.Sim_NumNodes
+    val topology = Settings.Sim_Topology
+    val runProgram = Settings.Sim_ProgramClass
+    val deltaRound = Settings.Sim_DeltaRound
+    val strategy = Settings.Sim_ExecStrategy
+    val sensorValues = Settings.Sim_Sensors
+    val policyNeighborhood: NbrPolicy = Settings.Sim_Policy_Nbrhood match {
+      case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
+      case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
+    }
+
     val sensorVals: Map[String,Any] = Utils.parseSensors(sensorValues)
     sensorVals.foreach(kv => SensorEnum.sensors += new Sensor(kv._1, kv._2))
 
@@ -62,9 +76,9 @@ class Controller () {
       val nPerSide = Math.sqrt(numNodes)
       val tolerance = topology match {
         case Grid => 0
-        case Grid_LoVar => Defaults.Grid_LoVar_Eps
-        case Grid_MedVar => Defaults.Grid_MedVar_Eps
-        case Grid_HighVar => Defaults.Grid_HiVar_Eps
+        case Grid_LoVar => Settings.Grid_LoVar_Eps
+        case Grid_MedVar => Settings.Grid_MedVar_Eps
+        case Grid_HighVar => Settings.Grid_HiVar_Eps
       }
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
       positions = SpaceHelper.GridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety))
