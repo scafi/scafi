@@ -13,7 +13,6 @@ import java.nio.file.Paths
   * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class GuiNode(val node: Node) extends JInternalFrame {
-  //costante per il font del valore visualizzato (valueShow)
   final private val DEFAULT_FONT: Font = new Font("Arial", Font.BOLD, 14)
   final private var valueShow: JLabel = null
   final private var button: JButton = null
@@ -29,13 +28,13 @@ class GuiNode(val node: Node) extends JInternalFrame {
   setContentPane(backgroundPanel)
   valueShow.setFont(DEFAULT_FONT)
 
-  //pannello in cui visualizzo una singola info (id, export,...)
+  // Panel showing result "above" the node
   val north: JPanel = new JPanel
   north.setOpaque(false)
   north.add(valueShow)
   backgroundPanel.add(north, BorderLayout.NORTH)
 
-  //pannello con il bottone con l'icona del nodo
+  // Panel with button and node icon
   val pBotton: JPanel = new JPanel
   pBotton.setOpaque(false)
   pBotton.add(button)
@@ -59,30 +58,26 @@ class GuiNode(val node: Node) extends JInternalFrame {
     }
   }
 
-  //gestione dimensione nodo
   override def setSize(d: Dimension) {
     super.setSize(d)
     val nameImg: String = Paths.get((button.getIcon.asInstanceOf[ImageIcon]).getDescription).getFileName.toString
-    //path icona presente sul bottone
-    val dividendo: Int = if (getWidth < getHeight) getWidth
-    else getHeight
-    //ridimensionamento icone
+    val dividendo: Int = if (getWidth < getHeight) getWidth  else getHeight
+
     button.setIcon(Utils.getScaledImage(nameImg, dividendo / 2, dividendo / 2))
-    //ridimensionamento font
+
     if (d.getHeight < (Utils.getFrameDimension.getHeight / 2)) {
       this.valueShow.setFont(DEFAULT_FONT.deriveFont(DEFAULT_FONT.getSize / 2))
     }
     else {
       this.valueShow.setFont(DEFAULT_FONT)
     }
-    //ridimensionamento infoPanel
+
     if (infoPanel != null) {
       infoPanel.setSize(Utils.getMenuSimulationPanelDim)
       infoPanel.setLocation(this.getLocation().x + getWidth, this.getLocation().y)
     }
   }
 
-  //gestione posizionamento nodo e pannello informazioni
   override def setLocation(x: Int, y: Int) {
     super.setLocation(x, y)
     if (this.infoPanel != null) {
@@ -104,7 +99,6 @@ class GuiNode(val node: Node) extends JInternalFrame {
     isSelected = selected
   }
 
-  //gestione visualizzazione valori
   def setValueToShow(text: String) {
     this.valueShow.setText("<html>" + text.replaceAll("\n", "<br>"))
   }

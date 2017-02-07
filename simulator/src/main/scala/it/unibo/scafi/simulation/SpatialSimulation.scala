@@ -30,7 +30,10 @@ trait SpatialSimulation extends Simulation { self: Platform.PlatformDependency w
       space.asInstanceOf[MutableSpace[ID]].setLocation(id,newPos)
     }
 
-    override def addSensor[A](name: LSNS, value: A): Unit = chgSensorValue(name, devs.keySet, value)
+    override def addSensor[A](name: LSNS, value: A): Unit = {
+      sensors += name -> value
+      chgSensorValue(name, devs.keySet, value)
+    }
 
     override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = {
       ids.foreach(id => {

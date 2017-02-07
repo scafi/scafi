@@ -182,11 +182,16 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
 
     def exports(): IMap[ID, Option[EXPORT]] = ids.map(id => (id, export(id))).toMap
 
+    protected var sensors = Map[LSNS,Any]()
+
     // **********************
     // SimulatorOps interface
     // **********************
 
+    def getSensor(name: LSNS): Option[Any] = sensors.get(name)
+
     def addSensor[A](name: LSNS, value: A) {
+      this.sensors += name -> value
       lsnsMap += (name -> MMap(idArray.map((_: ID) -> value).toSeq: _*))
     }
 

@@ -6,8 +6,6 @@ package it.unibo.scafi.simulation.gui
   */
 
 object Settings {
-  var ShowConfigPanel = true
-
   object NbrHoodPolicies{
     val Euclidean = "Euclidean"
   }
@@ -19,11 +17,12 @@ object Settings {
   var Sim_ExecStrategy = ExecStrategies.Random
 
   var Sim_Topology = Topologies.Random
-  var Sim_Sensors = "sensor1 bool true\nsensor2 int 77"
+  var Sim_Sensors = "someSensor bool true\nanotherSensor int 77"
   var Sim_ProgramClass = "sims.Gradient"
   var Sim_NbrRadius = 0.15
   var Sim_DeltaRound = 10
   var Sim_NumNodes = 50
+  var ShowConfigPanel = true
 
   object Topologies {
     val Random = "Random"

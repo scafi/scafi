@@ -23,6 +23,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
   panel.add(this.center, BorderLayout.CENTER)
   setContentPane(panel)
   this.setJMenuBar(menuBarNorth)
+
   this.addComponentListener(new ComponentAdapter() {
     override def componentResized(e: ComponentEvent) {
       super.componentResized(e)
@@ -39,6 +40,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
       oldDim = getSize
     }
   })
+
   setVisible(true)
 
   /**

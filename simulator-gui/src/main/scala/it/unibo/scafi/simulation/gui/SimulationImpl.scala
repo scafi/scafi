@@ -36,7 +36,7 @@ class SimulationImpl() extends Simulation {
         }
     )
 
-    SensorEnum.values.foreach(se => { println(se); net.addSensor(se.name, se.value) })
+    SensorEnum.sensors.foreach(se => { println(se); net.addSensor(se.name, se.value) })
 
     val ap = Class.forName(program.toString).newInstance().asInstanceOf[CONTEXT=>EXPORT]
     this.runProgram = () => net.exec(ap)
@@ -52,9 +52,20 @@ class SimulationImpl() extends Simulation {
 
   def getRunProgram: ()=>(Int,Export) = this.runProgram
 
-  override def setSensor(sensor: String, nodes: Set[Node], value: Any): Unit = {
-    val idSet: Set[Int] = nodes.map(_.id).toSet
-    net.chgSensorValue(sensor, idSet, value)
+  private var sensors = Map[String,Any]()
+
+  override def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit = {
+    val idSet: Set[Int] = nodes.map(_.id)
+    if(nodes.size==0) {
+      net.addSensor(sensor, value)
+      sensors += sensor -> value
+    }
+    else
+      net.chgSensorValue(sensor, idSet, value)
+  }
+
+  def getSensorValue(sensorName: String): Option[Any] = {
+    net.getSensor(sensorName)
   }
 
   override def setPosition(n: Node): Unit ={

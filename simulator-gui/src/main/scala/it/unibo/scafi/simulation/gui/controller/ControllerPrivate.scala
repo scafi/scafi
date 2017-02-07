@@ -21,7 +21,6 @@ class ControllerPrivate (val gui: SimulatorUI) {
     def actionPerformed(e: ActionEvent) { f(e) }
   }
 
-  //metodi per gestire i sensori: Settarli, vedere quale nodo ha un sensore con un certo valore...
   def setSensor(sensorName: String, value: Any) {
     var applyAll: Boolean = true
     for (ng <- controller.nodes.values) {
@@ -31,7 +30,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
         n.setSensor(sensorName, value)
         var set = Set[Node]()
         set += n
-        controller.simManager.simulation.setSensor(sensorName, set, value.toString.toBoolean)
+        controller.simManager.simulation.setSensor(sensorName, value.toString.toBoolean, set)
         setImage(sensorName, value, g)
       }
     }
@@ -40,8 +39,12 @@ class ControllerPrivate (val gui: SimulatorUI) {
         n.setSensor(sensorName, value)
         setImage(sensorName, value, g)
       }}
-      controller.simManager.simulation.setSensor(sensorName, controller.nodes.values.map(_._1).toSet, value)
+      controller.simManager.simulation.setSensor(sensorName, value)
     }
+  }
+
+  def getSensorValue(s: String) = {
+    controller.simManager.simulation.getSensorValue(s)
   }
 
   def checkSensor(sensor: String, operator: String, value: String) {
@@ -129,7 +132,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
       sensPane.addOperator("<")
       sensPane.addOperator("<=")
       sensPane.addOperator("!=")
-      for (s <- SensorEnum.values) sensPane.addSensor(s.name)
+      for (s <- SensorEnum.sensors) sensPane.addSensor(s.name)
     })
   }
 
@@ -153,7 +156,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     this.gui.getSimulationPanel.getPopUpMenu.addAction("Set Sensor", (e:ActionEvent) => {
       val sensPane = new SensorOptionPane("Set Sensor")
       sensPane.addOperator("=")
-      for (s <- SensorEnum.values)  sensPane.addSensor(s.name)
+      for (s <- SensorEnum.sensors)  sensPane.addSensor(s.name)
     })
   }
 

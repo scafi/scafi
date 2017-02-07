@@ -20,7 +20,9 @@ trait Simulation {
 
   def setStrategy(strategy: Any)
 
-  def setSensor(sensor: String, nodes: Set[Node], value: Any)
+  def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit
+
+  def getSensorValue(s: String): Option[Any]
 
   def setPosition(n: Node)
 }
