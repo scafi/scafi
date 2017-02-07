@@ -35,6 +35,20 @@ class SimulationPanel() extends JDesktopPane {
   amap.put(SensorEnum.SENS2.name, createSensorAction[Boolean](SensorEnum.SENS2.name, default = false, map = !_))
   imap.put(KeyStroke.getKeyStroke('3'), SensorEnum.SENS3.name)
   amap.put(SensorEnum.SENS3.name, createSensorAction[Boolean](SensorEnum.SENS3.name, default = false, map = !_))
+  imap.put(KeyStroke.getKeyStroke("DOWN"), "Quicker")
+  imap.put(KeyStroke.getKeyStroke("UP"), "Slower")
+  amap.put("Quicker", createAction((e: ActionEvent)=>{
+    val currVal = ctrl.simManager.simulation.getDeltaRound()
+    val newVal = if(currVal-10 < 0) 0 else currVal-10
+    println(s"Setting delta round = $newVal")
+    ctrl.simManager.simulation.setDeltaRound(newVal)
+  }))
+  amap.put("Slower", createAction((e: ActionEvent)=>{
+    val currVal = ctrl.simManager.simulation.getDeltaRound()
+    val newVal = currVal+10
+    println(s"Setting delta round = $newVal")
+    ctrl.simManager.simulation.setDeltaRound(newVal)
+  }))
 
   override def paintComponent(g: Graphics) {
     if (bkgImage != null) {

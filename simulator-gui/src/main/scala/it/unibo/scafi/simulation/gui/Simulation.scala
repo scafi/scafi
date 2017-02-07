@@ -18,6 +18,8 @@ trait Simulation {
 
   def setDeltaRound(deltaRound: Double)
 
+  def getDeltaRound(): Double
+
   def setStrategy(strategy: Any)
 
   def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit

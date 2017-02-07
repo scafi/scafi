@@ -44,7 +44,10 @@ class SimulationImpl() extends Simulation {
 
   def setDeltaRound(deltaRound: Double) {
     this.deltaRound = deltaRound
+    this.controller.simManager.setPauseFire(deltaRound)
   }
+
+  def getDeltaRound() = this.deltaRound
 
   def setStrategy(strategy: Any) {
     this.strategy = strategy

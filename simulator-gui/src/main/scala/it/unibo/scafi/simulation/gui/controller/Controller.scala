@@ -32,7 +32,7 @@ object Controller {
 
 class Controller () {
   private var gui: SimulatorUI = null
-  protected[controller] var simManager: SimulationManager = null
+  protected[gui] var simManager: SimulationManager = null
   final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
   private var valueShowed: String = "EXPORT"
   private var controllerUtility: ControllerPrivate = null
