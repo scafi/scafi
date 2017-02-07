@@ -181,6 +181,22 @@ class Controller () {
     this.valueShowed = value
   }
 
+  def formatExport(v: Any) = {
+    if (v.isInstanceOf[Double])
+      f"${v.toString.toDouble}%5.2g"
+    else
+      v.toString
+  }
+
+  def updateNodeValue(nodeId: Int): Unit = {
+    val (node, guiNode) = this.nodes(nodeId)
+    valueShowed match {
+      case "ID" => guiNode.setValueToShow(node.id.toString)
+      case "EXPORT" => guiNode.setValueToShow(formatExport(node.export))
+      case _ => guiNode.setValueToShow("")
+    }
+  }
+
   def updateValue() {
     valueShowed match {
       case "ID" =>
@@ -188,14 +204,9 @@ class Controller () {
       case "EXPORT" =>
         nodes.values.foreach(kv => {
           val (n,g) = kv
-          val str = if (n.export.isInstanceOf[Double])
-                       f"${n.export.toString.toDouble}%5.2g"
-                    else
-                       n.export.toString()
-          g.setValueToShow(str)
+          g.setValueToShow(formatExport(n.export))
         })
-      case "NONE" =>
-        nodes.values.foreach{ case (n, g) => g.setValueToShow("") }
+      case _ => nodes.values.foreach{ case (n, g) => g.setValueToShow("") }
     }
   }
 

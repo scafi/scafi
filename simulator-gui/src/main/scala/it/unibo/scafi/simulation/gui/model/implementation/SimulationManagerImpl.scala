@@ -72,9 +72,7 @@ class SimulationManagerImpl extends SimulationManager { self =>
 
   private def runSingleSimulationStep() {
     val exp = simulation.getRunProgram.apply
-    simulation.network.nodes.values.foreach(n => {
-      if (n.id == exp._1) n.export = exp._2.root()
-    })
-    Controller.getIstance.updateValue
+    simulation.network.nodes(exp._1).export = exp._2.root()
+    Controller.getIstance.updateNodeValue(exp._1)
   }
 }
