@@ -121,7 +121,7 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
       if(topologyField.getSelectedItem() != null) Settings.Sim_Topology = topologyField.getSelectedItem().toString()
       Settings.Sim_Sensors = sensors.getText
       controller.startSimulation()
-      dispose();
+      dispose()
     } catch {
       case ex: Throwable => ex.printStackTrace(); showErr(0)
     }
