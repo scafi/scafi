@@ -13,36 +13,48 @@ import java.nio.file.Paths
   * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class GuiNode(val node: Node) extends JInternalFrame {
+  final private val NODE_SYMBOL_FONT: Font = new Font("Arial", Font.BOLD, 28)
   final private val DEFAULT_FONT: Font = new Font("Arial", Font.BOLD, 14)
   final private var valueShow: JLabel = null
   final private var button: JButton = null
-  private var infoPanel: NodeInfoPanel = null //pannello delle informazioni del nodo
+  private var infoPanel: NodeInfoPanel = null
 
   this.valueShow = new JLabel("")
-  this.button = new JButton(Utils.createImageIcon("node.png"))
+  this.valueShow.setBackground(null)
+  this.valueShow.setBorder(null)
+
+  this.button = new JButton(Utils.createImageIcon("node_point.png"))
+  this.button.setFont(NODE_SYMBOL_FONT)
   setSize(Utils.getSizeGuiNode)
   setBorder(null)
 
-  val backgroundPanel: JPanel = new JPanel(new BorderLayout)
+  val backgroundPanel: JPanel = new JPanel()
+  backgroundPanel.setLayout(new BoxLayout(backgroundPanel, BoxLayout.Y_AXIS))
   backgroundPanel.setOpaque(false)
   setContentPane(backgroundPanel)
   valueShow.setFont(DEFAULT_FONT)
 
   // Panel showing result "above" the node
   val north: JPanel = new JPanel
-  north.setOpaque(false)
   north.add(valueShow)
-  backgroundPanel.add(north, BorderLayout.NORTH)
+  north.setMaximumSize(new Dimension(100, 22))
+  north.setOpaque(false)
 
   // Panel with button and node icon
   val pBotton: JPanel = new JPanel
   pBotton.setOpaque(false)
   pBotton.add(button)
-  button.setBorderPainted(false)
+  pBotton.setMaximumSize(pBotton.getPreferredSize)
+
+  button.setBorder(BorderFactory.createEmptyBorder())
   button.setOpaque(false)
-  button.addMouseListener(new GuiNodeListeners(this)) //listener dei movimentis
+  button.setMaximumSize(new Dimension(10,6))
+
+  button.addMouseListener(new GuiNodeListeners(this))
   button.addMouseMotionListener(new GuiNodeListeners(this))
-  backgroundPanel.add(pBotton, BorderLayout.SOUTH)
+
+  backgroundPanel.add(north)
+  backgroundPanel.add(pBotton)
 
   revalidate()
   repaint()
@@ -60,10 +72,10 @@ class GuiNode(val node: Node) extends JInternalFrame {
 
   override def setSize(d: Dimension) {
     super.setSize(d)
-    val nameImg: String = Paths.get((button.getIcon.asInstanceOf[ImageIcon]).getDescription).getFileName.toString
+    //val nameImg: String = Paths.get((button.getIcon.asInstanceOf[ImageIcon]).getDescription).getFileName.toString
     val dividendo: Int = if (getWidth < getHeight) getWidth  else getHeight
 
-    button.setIcon(Utils.getScaledImage(nameImg, dividendo / 2, dividendo / 2))
+    //button.setIcon(Utils.getScaledImage(nameImg, dividendo / 2, dividendo / 2))
 
     if (d.getHeight < (Utils.getFrameDimension.getHeight / 2)) {
       this.valueShow.setFont(DEFAULT_FONT.deriveFont(DEFAULT_FONT.getSize / 2))
@@ -89,11 +101,11 @@ class GuiNode(val node: Node) extends JInternalFrame {
   override def setSelected(selected: Boolean) {
     //non faccio la super perchè se no non riesco a selezionarne più di uno
     if (selected) {
-      this.button.setIcon(Utils.getSelectedIcon(button.getIcon))
+      //this.button.setIcon(Utils.getSelectedIcon(button.getIcon))
       this.valueShow.setForeground(Color.lightGray)
     }
     else {
-      this.button.setIcon(Utils.getNotSelectIcon(button.getIcon))
+      //this.button.setIcon(Utils.getNotSelectIcon(button.getIcon))
       this.valueShow.setForeground(Color.black)
     }
     isSelected = selected
@@ -118,7 +130,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
   def setImageButton(res: String) {
     val dividendo: Int = if (getWidth < getHeight) getWidth
     else getHeight
-    button.setIcon(Utils.getScaledImage(res, dividendo / 2, dividendo / 2))
+    //button.setIcon(Utils.getScaledImage(res, dividendo / 2, dividendo / 2))
   }
 
   def showInfo(show: Boolean) {
