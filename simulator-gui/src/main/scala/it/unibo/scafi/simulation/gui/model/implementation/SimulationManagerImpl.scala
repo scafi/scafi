@@ -56,11 +56,13 @@ class SimulationManagerImpl extends SimulationManager { self =>
         while (i < step_num && !self.isStopped) {{
             // Core logic
             runSingleSimulationStep()
-            try {
-              Thread.sleep((pauseFire).longValue)
-            }
-            catch {
-              case e: InterruptedException => e.printStackTrace()
+            if(pauseFire>0) {
+              try {
+                Thread.sleep((pauseFire).longValue)
+              }
+              catch {
+                case e: InterruptedException => e.printStackTrace()
+              }
             }
             i += 1
           }
