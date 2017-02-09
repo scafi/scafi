@@ -112,7 +112,7 @@ lazy val tests = project.
 
 // 'demos' project definition
 lazy val demos = project.
-  dependsOn(core, distributed, simulator).
+  dependsOn(core, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(
     version := "0.1.0",

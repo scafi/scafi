@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui
 
-import Settings.Topologies._
+import SettingsSpace.Topologies._
 import Settings._
 
 /**

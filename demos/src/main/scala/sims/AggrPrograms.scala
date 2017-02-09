@@ -33,10 +33,8 @@ class P2 extends GenericAggrProgram {
   override def main() = ("aa",Math.random())
 }
 
-class CountRounds extends AggrProgram {
-  override type MainResult = Int
-
-  override def main(): Int = rep(0)(x => x+1)
+class CountRounds extends GenericAggrProgram {
+  override def main() = rep(0)(x => x+1)
 }
 
 class NumNbrs extends AggrProgram {

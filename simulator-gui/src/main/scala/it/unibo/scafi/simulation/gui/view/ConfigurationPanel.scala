@@ -9,7 +9,7 @@ import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.text.NumberFormat
 
-import it.unibo.scafi.simulation.gui.{Settings}
+import it.unibo.scafi.simulation.gui.{Settings,SettingsSpace}
 
 /**
   * This class represent the panel where the user can configure a new simulation.
@@ -45,7 +45,7 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)
 
-  import Settings.Topologies._
+  import SettingsSpace.Topologies._
   var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
 
   topologyField = new JComboBox[String](vtop.toArray)

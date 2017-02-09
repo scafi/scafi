@@ -3,18 +3,19 @@ package it.unibo.scafi.simulation.gui.controller
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.config.SimpleRandomSettings
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
-import it.unibo.scafi.simulation.gui.Settings.Topologies._
+import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies._
 import it.unibo.scafi.simulation.gui.model._
-import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationImpl}
+import it.unibo.scafi.simulation.gui.model.implementation._
 import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.{GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
+import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
 import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.space.SpaceHelper
 
 import scala.collection.immutable.List
 import java.awt._
+import javax.swing.SwingUtilities
 
-import it.unibo.scafi.simulation.gui.Settings.NbrHoodPolicies
+import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
 
 
 /**
@@ -27,6 +28,17 @@ object Controller {
   def getIstance: Controller = {
     if (SINGLETON == null) SINGLETON = new Controller
     SINGLETON
+  }
+
+  def startup: Unit = {
+    SwingUtilities.invokeLater(new Runnable() {
+      def run() {
+        Controller.getIstance.setGui(new SimulatorUI)
+        Controller.getIstance.setSimManager(new SimulationManagerImpl)
+        if(Settings.ShowConfigPanel) new ConfigurationPanel
+        else Controller.getIstance.startSimulation()
+      }
+    })
   }
 }
 

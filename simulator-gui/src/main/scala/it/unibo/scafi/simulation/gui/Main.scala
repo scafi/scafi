@@ -11,13 +11,5 @@ import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, SimulatorUI}
   */
 object Main extends App {
   SimulationCmdLine.parse(args, Settings)
-
-  SwingUtilities.invokeLater(new Runnable() {
-    def run() {
-      Controller.getIstance.setGui(new SimulatorUI)
-      Controller.getIstance.setSimManager(new SimulationManagerImpl)
-      if(Settings.ShowConfigPanel) new ConfigurationPanel
-      else Controller.getIstance.startSimulation()
-    }
-  })
+  Controller.startup
 }
