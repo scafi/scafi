@@ -17,6 +17,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
   final private val DEFAULT_FONT: Font = new Font("Arial", Font.BOLD, 14)
   final private var valueShow: JLabel = null
   final private var button: JButton = null
+  final private var valueString: String = null
   private var infoPanel: NodeInfoPanel = null
 
   this.valueShow = new JLabel("")
@@ -112,8 +113,11 @@ class GuiNode(val node: Node) extends JInternalFrame {
   }
 
   def setValueToShow(text: String) {
+    this.valueString = text
     this.valueShow.setText("<html>" + text.replaceAll("\n", "<br>"))
   }
+
+  def getValueToShow(): String = this.valueString
 
   def setLabelFont(font: Font) {
     this.valueShow.setFont(font)

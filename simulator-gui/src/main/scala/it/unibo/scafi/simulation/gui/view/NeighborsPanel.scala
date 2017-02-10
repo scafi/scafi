@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.gui.view
 
 import it.unibo.scafi.simulation.gui.controller.Controller
 import it.unibo.scafi.simulation.gui.utility.Utils
+import it.unibo.scafi.simulation.gui.Settings
 import javax.swing._
 import java.awt._
 
@@ -14,13 +15,13 @@ import java.awt._
 class NeighborsPanel private[view]() extends JPanel {
   this.setSize(Toolkit.getDefaultToolkit.getScreenSize)
   this.setOpaque(false)
-  this.setVisible(false)
+  this.setVisible(true)
   private[view] val controller: Controller = Controller.getIstance
 
   override protected def paintComponent(g: Graphics) {
     super.paintComponent(g)
     this.removeAll()
-    g.setColor(Color.black)
+    g.setColor(Settings.Color_link)
     //call the neighborhood to the network object
     controller.getNeighborhood.foreach(kv => {
       val (n, nghb) = kv

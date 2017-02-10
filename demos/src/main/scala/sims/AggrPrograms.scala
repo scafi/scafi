@@ -58,11 +58,10 @@ class MaxId extends AggrProgram {
   }
 }
 
-class Gradient extends AggrProgram {
-  override type MainResult = Double
+class Gradient extends GenericAggrProgram {
 
-  def isSource = sense[Boolean](SensorEnum.SOURCE.name)
-  def isObstacle = sense[Boolean](SensorEnum.OBSTACLE.name)
+  def isSource = sense[Boolean](SensorEnum.SENS1.name)
+  def isObstacle = sense[Boolean](SensorEnum.SENS2.name)
 
   //gradiente
   override def main(): Double =

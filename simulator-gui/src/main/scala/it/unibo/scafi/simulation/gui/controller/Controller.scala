@@ -48,6 +48,9 @@ class Controller () {
   final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
   private var valueShowed: String = "EXPORT"
   private var controllerUtility: ControllerPrivate = null
+  private val updateFrequency = Settings.Sim_NumNodes / 4
+  private var counter = 0
+
 
   def setGui(simulatorGui: SimulatorUI) {
     this.gui = simulatorGui
@@ -59,6 +62,8 @@ class Controller () {
   }
 
   def getNeighborhood: Map[Node, Set[Node]] = this.simManager.simulation.network.neighbourhood
+
+  def getNodes: Iterable[(Node,GuiNode)] = this.nodes.values
 
   def startSimulation() {
 
@@ -104,8 +109,8 @@ class Controller () {
       val node: Node = new NodeImpl(i, new java.awt.geom.Point2D.Double(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
       guiNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
-      this.nodes +=  i -> (node -> guiNode)
-      gui.getSimulationPanel.add(guiNode, 0)
+      this.nodes +=  i -> (node,guiNode)
+      //gui.getSimulationPanel.add(guiNode, 0)
       i = i + 1
     })
     val simulation: Simulation = new SimulationImpl
@@ -207,6 +212,12 @@ class Controller () {
       case "EXPORT" => guiNode.setValueToShow(formatExport(node.export))
       case _ => guiNode.setValueToShow("")
     }
+    counter = counter + 1
+    if (counter % updateFrequency == 0) {
+      this.gui.revalidate()
+      this.gui.repaint()
+    }
+
   }
 
   def updateValue() {
