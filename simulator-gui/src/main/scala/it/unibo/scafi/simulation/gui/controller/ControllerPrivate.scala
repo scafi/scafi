@@ -15,7 +15,7 @@ import it.unibo.scafi.simulation.gui.view.SimulatorUI
   * Converted/refactored to Scala by Casadei on 3/02/17
   */
 class ControllerPrivate (val gui: SimulatorUI) {
-  final private val controller: Controller = Controller.getIstance
+  final private val controller: Controller = Controller.getInstance
 
   implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
     def actionPerformed(e: ActionEvent) { f(e) }

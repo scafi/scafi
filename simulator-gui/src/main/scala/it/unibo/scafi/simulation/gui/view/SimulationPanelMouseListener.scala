@@ -15,7 +15,7 @@ import java.beans.PropertyVetoException
 class SimulationPanelMouseListener private[view](val panel: SimulationPanel) extends MouseAdapter {
   // private final ControllerView controllerView = ControllerView.getIstance();
   final private var captureRect: Rectangle = null
-  private[view] val controller: Controller = Controller.getIstance
+  private[view] val controller: Controller = Controller.getInstance
   final private val start: Point = new Point // End point of the selection
   private var flag: Boolean = false          // Indicates if we have pressed on a selected area
 

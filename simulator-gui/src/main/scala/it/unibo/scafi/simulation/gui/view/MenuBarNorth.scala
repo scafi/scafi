@@ -78,7 +78,7 @@ class MenuBarNorth() extends JMenuBar {
   menus = menus :+ file
   menus = menus :+ simConfig
   menus.foreach(m => add(m))
-  private[view] val controller: Controller = Controller.getIstance
+  private[view] val controller: Controller = Controller.getInstance
 
   override def setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)

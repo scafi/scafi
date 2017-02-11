@@ -28,7 +28,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
 
   val imap = panel.getInputMap()
   val amap = panel.getActionMap()
-  val ctrl = Controller.getIstance
+  val ctrl = Controller.getInstance
   imap.put(KeyStroke.getKeyStroke('1'), SensorEnum.SENS1.name)
   amap.put(SensorEnum.SENS1.name, createSensorAction[Boolean](SensorEnum.SENS1.name, default = false, map = !_))
   imap.put(KeyStroke.getKeyStroke('2'), SensorEnum.SENS2.name)

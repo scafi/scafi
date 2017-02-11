@@ -17,7 +17,7 @@ class SimulationImpl() extends Simulation {
   var runProgram: Function0[(Int,Export)] = null
   var deltaRound: Double = .0
   var strategy: Any = null
-  final private val controller: Controller = Controller.getIstance
+  final private val controller: Controller = Controller.getInstance
 
   this.deltaRound = 0.00
   this.strategy = null

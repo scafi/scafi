@@ -24,19 +24,22 @@ import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
   */
 object Controller {
   private var SINGLETON: Controller = null
+  private val gui = new SimulatorUI
 
-  def getIstance: Controller = {
+  def getInstance: Controller = {
     if (SINGLETON == null) SINGLETON = new Controller
     SINGLETON
   }
 
+  def getUI: SimulatorUI = gui
+
   def startup: Unit = {
     SwingUtilities.invokeLater(new Runnable() {
       def run() {
-        Controller.getIstance.setGui(new SimulatorUI)
-        Controller.getIstance.setSimManager(new SimulationManagerImpl)
+        Controller.getInstance.setGui(gui)
+        Controller.getInstance.setSimManager(new SimulationManagerImpl)
         if(Settings.ShowConfigPanel) new ConfigurationPanel
-        else Controller.getIstance.startSimulation()
+        else Controller.getInstance.startSimulation()
       }
     })
   }
@@ -61,7 +64,8 @@ class Controller () {
     this.simManager = simManager
   }
 
-  def getNeighborhood: Map[Node, Set[Node]] = this.simManager.simulation.network.neighbourhood
+  def getNeighborhood: Map[Node, Set[Node]] =
+    try{ this.simManager.simulation.network.neighbourhood } catch { case _ => Map()}
 
   def getNodes: Iterable[(Node,GuiNode)] = this.nodes.values
 
