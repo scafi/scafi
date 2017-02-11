@@ -30,7 +30,7 @@ class ValuesPanel private[view]() extends JPanel {
       val (n,gn) = ng
       val p1 = Utils.calculatedGuiNodePosition(n.position)
       val p1x = (p1.x + (Utils.getSizeGuiNode().getWidth() / 2))
-      val p1y = (p1.y + (Utils.getSizeGuiNode().getHeight() / 160 * 71 ))
+      val p1y = (p1.y + (Utils.getSizeGuiNode().getHeight() / 2 ))
       //println(n.id,n.getSensorValue(SensorEnum.SENS1.name).asInstanceOf[Tuple2[Any,Boolean]]._2)
       //controller.getSensorValueForNode(SensorEnum.SENS3.name, n).map(_==true).getOrElse(false) // too expensive
       val color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else

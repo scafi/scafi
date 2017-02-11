@@ -26,7 +26,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     val ss: Set[(Node,GuiNode)] = selectedSensors
     ss.foreach(ng => {
       setImage(sensorName, value, ng._2)
-      println("Setting " + ng._1.id + " => " + sensorName + "="+value)
+      //println("Setting " + ng._1.id + " => " + sensorName + "="+value)
       ng._1.setSensor(sensorName, value)
     })
     controller.simManager.simulation.setSensor(sensorName, value.toString.toBoolean, ss.map(_._1))
@@ -48,7 +48,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     var ss: Iterable[(Node,GuiNode)] = selectedSensors
     if(ss.isEmpty) ss = controller.nodes.values
     //controller.simManager.simulation.getSensorValue(s, ss.map(_._1).toSet)
-    println(ss.map(n => n._1.id + " => " +n._1.getSensorValue(s)))
+    //println(ss.map(n => n._1.id + " => " +n._1.getSensorValue(s)))
     Some(ss.head._1.getSensorValue(s))
   }
 

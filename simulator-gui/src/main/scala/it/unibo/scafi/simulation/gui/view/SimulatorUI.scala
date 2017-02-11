@@ -101,7 +101,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     createAction((e: ActionEvent) => {
       val currVal = ctrl.getSensor(sensorName).getOrElse(default).asInstanceOf[T]
       val newVal = map(currVal)
-      println(s"Setting '$sensorName' from ${currVal} to ${newVal}")
+      //println(s"Setting '$sensorName' from ${currVal} to ${newVal}")
       ctrl.setSensor(sensorName, newVal)
     })
   }
