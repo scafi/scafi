@@ -40,13 +40,13 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
   amap.put("Quicker", createAction((e: ActionEvent)=>{
     val currVal = ctrl.simManager.simulation.getDeltaRound()
     val newVal = if(currVal-10 < 0) 0 else currVal-10
-    println(s"Setting delta round = $newVal")
+    // TODO: println(s"Setting delta round = $newVal")
     ctrl.simManager.simulation.setDeltaRound(newVal)
   }))
   amap.put("Slower", createAction((e: ActionEvent)=>{
     val currVal = ctrl.simManager.simulation.getDeltaRound()
     val newVal = currVal+10
-    println(s"Setting delta round = $newVal")
+    // TODO: println(s"Setting delta round = $newVal")
     ctrl.simManager.simulation.setDeltaRound(newVal)
   }))
 
@@ -101,7 +101,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     createAction((e: ActionEvent) => {
       val currVal = ctrl.getSensor(sensorName).getOrElse(default).asInstanceOf[T]
       val newVal = map(currVal)
-      //println(s"Setting '$sensorName' from ${currVal} to ${newVal}")
+      //TODO println(s"Setting '$sensorName' from ${currVal} to ${newVal}")
       ctrl.setSensor(sensorName, newVal)
     })
   }

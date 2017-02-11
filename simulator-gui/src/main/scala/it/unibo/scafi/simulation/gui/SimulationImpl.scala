@@ -36,7 +36,10 @@ class SimulationImpl() extends Simulation {
         }
     )
 
-    SensorEnum.sensors.foreach(se => { println(se); net.addSensor(se.name, se.value) })
+    SensorEnum.sensors.foreach(se => {
+      // TODO: println(se);
+      net.addSensor(se.name, se.value) }
+    )
 
     val ap = Class.forName(program.toString).newInstance().asInstanceOf[CONTEXT=>EXPORT]
     this.runProgram = () => net.exec(ap)

@@ -66,12 +66,12 @@ class Controller () {
   def getNodes: Iterable[(Node,GuiNode)] = this.nodes.values
 
   def startSimulation() {
-
-    println("Configuration: \n topology=" + Settings.Sim_Topology +
+    /* TODO println("Configuration: \n topology=" + Settings.Sim_Topology +
       "; \n nbr radius=" + Settings.Sim_NbrRadius +
       ";\n numNodes=" + Settings.Sim_NumNodes +
       ";\n delta=" + Settings.Sim_DeltaRound +
       ";\n sensors = " + Settings.Sim_Sensors)
+    */
 
     val numNodes = Settings.Sim_NumNodes
     val topology = Settings.Sim_Topology
@@ -125,16 +125,16 @@ class Controller () {
     controllerUtility.addObservation()
     controllerUtility.addAction()
     controllerUtility.enableMenu(true)
-    System.out.println("START")
+    // TODO: System.out.println("START")
   }
 
   def resumeSimulation() {
-    System.out.println("RESUME")
+    // TODO: System.out.println("RESUME")
     simManager.resume()
   }
 
   def stopSimulation() {
-    System.out.println("STOP")
+    // TODO: System.out.println("STOP")
     simManager.stop()
   }
 
