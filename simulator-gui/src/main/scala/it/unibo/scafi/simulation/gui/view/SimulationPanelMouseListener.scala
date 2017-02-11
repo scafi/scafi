@@ -33,19 +33,10 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
       flag = false
     }
     if (!flag) {
-      for (jf <- panel.getAllFrames) {
-        //deselezionare dei nodi
-        try {
-          jf.setSelected(false) //deseleziono tutti i nodi
-        }
-        catch {
-          case e1: PropertyVetoException => {
-            e1.printStackTrace()
-          }
-        }
-      }
-      captureRect.setBounds(0, 0, 0, 0) //= new Rectangle(); //creo una nuova area di selezione
-      panel.maybeShowPopup(e) //nascondo il menu
+      // Let's deselect all the nodes
+      controller.getNodes.foreach(_._2.setSelected(false))
+      captureRect.setBounds(0, 0, 0, 0) //= new Rectangle(); // Let's create a new selection area
+      panel.maybeShowPopup(e) // Let's hide the menu
       panel.repaint()
     }
   }
