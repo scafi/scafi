@@ -43,7 +43,7 @@ object Controller {
 }
 
 class Controller () {
-  private var gui: SimulatorUI = null
+  private[gui] var gui: SimulatorUI = null
   protected[gui] var simManager: SimulationManager = null
   final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
   private var valueShowed: String = "EXPORT"
@@ -197,6 +197,8 @@ class Controller () {
   def setShowValue(value: String) {
     this.valueShowed = value
   }
+
+  def selectionAttempted = this.gui.center.getCaptureRect.width!=0
 
   def formatExport(v: Any) = {
     if (v.isInstanceOf[Double])

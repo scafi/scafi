@@ -31,7 +31,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     })
     controller.simManager.simulation.setSensor(sensorName, value.toString.toBoolean, ss.map(_._1))
 
-    if (ss.isEmpty) {
+    if (ss.isEmpty && !controller.selectionAttempted) {
       controller.nodes.values.foreach{ case (n, g) => {
         n.setSensor(sensorName, value)
         setImage(sensorName, value, g)
@@ -46,10 +46,10 @@ class ControllerPrivate (val gui: SimulatorUI) {
 
   def getSensorValue(s: String): Option[Any] = {
     var ss: Iterable[(Node,GuiNode)] = selectedSensors
-    if(ss.isEmpty) ss = controller.nodes.values
+    if(ss.isEmpty && !controller.selectionAttempted) ss = controller.nodes.values
     //controller.simManager.simulation.getSensorValue(s, ss.map(_._1).toSet)
-    //println(ss.map(n => n._1.id + " => " +n._1.getSensorValue(s)))
-    Some(ss.head._1.getSensorValue(s))
+    //TODO: println(ss.map(n => n._1.id + " => " +n._1.getSensorValue(s)))
+    ss.headOption.map(_._1.getSensorValue(s))
   }
 
   def checkSensor(sensor: String, operator: String, value: String) {

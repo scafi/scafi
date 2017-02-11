@@ -14,7 +14,7 @@ import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
   * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class SimulatorUI() extends JFrame("SCAFI Simulator") {
-  private var center: SimulationPanel = new SimulationPanel //JDesktopPane per visualizzare le simulazioni
+  private[gui] var center: SimulationPanel = new SimulationPanel //JDesktopPane per visualizzare le simulazioni
   final private val menuBarNorth: JMenuBar = new MenuBarNorth //barra del menù in alto
   private var oldDim: Dimension = null //utilizzato per la riposizione dei nodi quando il frame viene rimpicciolito
 

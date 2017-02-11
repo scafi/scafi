@@ -62,7 +62,7 @@ class SimulationImpl() extends Simulation {
 
   override def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit = {
     val idSet: Set[Int] = nodes.map(_.id)
-    if(nodes.size==0) {
+    if(nodes.size==0 && !controller.selectionAttempted) {
       net.addSensor(sensor, value)
       sensors += sensor -> value
     }
