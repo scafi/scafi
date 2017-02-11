@@ -267,11 +267,9 @@ class Controller () {
     controllerUtility.setSensor(sensorName, value)
   }
 
-  def getSensor(s: String): Option[Any] = {
+  def getSensor(s: String): Option[Any] =
     controllerUtility.getSensorValue(s)
-  }
 
-  def checkSensor(sensor: String, operator: String, value: String) {
+  def checkSensor(sensor: String, operator: String, value: String) =
     controllerUtility.checkSensor(sensor, operator, value)
-  }
 }

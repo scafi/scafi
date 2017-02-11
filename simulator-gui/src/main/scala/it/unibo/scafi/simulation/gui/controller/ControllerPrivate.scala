@@ -23,18 +23,15 @@ class ControllerPrivate (val gui: SimulatorUI) {
 
   def setSensor(sensorName: String, value: Any) {
     var applyAll: Boolean = true
-    for (ng <- controller.nodes.values) {
-      val (n,g) = ng
-      if (g.isSelected) {
-        applyAll = false
-        n.setSensor(sensorName, value)
-        var set = Set[Node]()
-        set += n
-        controller.simManager.simulation.setSensor(sensorName, value.toString.toBoolean, set)
-        setImage(sensorName, value, g)
-      }
-    }
-    if (applyAll) {
+    val ss: Set[(Node,GuiNode)] = selectedSensors
+    ss.foreach(ng => {
+      setImage(sensorName, value, ng._2)
+      println("Setting " + ng._1.id + " => " + sensorName + "="+value)
+      ng._1.setSensor(sensorName, value)
+    })
+    controller.simManager.simulation.setSensor(sensorName, value.toString.toBoolean, ss.map(_._1))
+
+    if (ss.isEmpty) {
       controller.nodes.values.foreach{ case (n, g) => {
         n.setSensor(sensorName, value)
         setImage(sensorName, value, g)
@@ -43,8 +40,16 @@ class ControllerPrivate (val gui: SimulatorUI) {
     }
   }
 
-  def getSensorValue(s: String) = {
-    controller.simManager.simulation.getSensorValue(s)
+  private def selectedSensors(): Set[(Node,GuiNode)] = {
+    controller.nodes.values.collect { case ng if ng._2.isSelected => ng }.toSet
+  }
+
+  def getSensorValue(s: String): Option[Any] = {
+    var ss: Iterable[(Node,GuiNode)] = selectedSensors
+    if(ss.isEmpty) ss = controller.nodes.values
+    //controller.simManager.simulation.getSensorValue(s, ss.map(_._1).toSet)
+    println(ss.map(n => n._1.id + " => " +n._1.getSensorValue(s)))
+    Some(ss.head._1.getSensorValue(s))
   }
 
   def checkSensor(sensor: String, operator: String, value: String) {

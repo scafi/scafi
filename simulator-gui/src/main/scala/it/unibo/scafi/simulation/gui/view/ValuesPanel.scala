@@ -32,9 +32,10 @@ class ValuesPanel private[view]() extends JPanel {
       val p1x = (p1.x + (Utils.getSizeGuiNode().getWidth() / 2))
       val p1y = (p1.y + (Utils.getSizeGuiNode().getHeight() / 160 * 71 ))
       //println(n.id,n.getSensorValue(SensorEnum.SENS1.name).asInstanceOf[Tuple2[Any,Boolean]]._2)
-      val color = if (n.getSensorValue(SensorEnum.SENS1.name).asInstanceOf[Tuple2[Any,Boolean]]._2==true) Settings.Color_device1 else
-                  if (n.getSensorValue(SensorEnum.SENS2.name).asInstanceOf[Tuple2[Any,Boolean]]._2==true) Settings.Color_device2 else
-                  if (n.getSensorValue(SensorEnum.SENS3.name).asInstanceOf[Tuple2[Any,Boolean]]._2==true) Settings.Color_device3 else Settings.Color_device
+      //controller.getSensorValueForNode(SensorEnum.SENS3.name, n).map(_==true).getOrElse(false) // too expensive
+      val color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else
+                  if (n.getSensorValue(SensorEnum.SENS2.name)==true) Settings.Color_device2 else
+                  if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else Settings.Color_device
       g.setColor(color)
       g.fillOval(p1x.toInt-5,p1y.toInt-5,10,10)
       if (gn!=null && gn.getValueToShow()!=null)
