@@ -20,40 +20,27 @@ class Mid extends AggregateProgram {
   override def main() = mid()
 }
 
-class P1 extends AggregateProgram {
-  override def main() = "aa"
-}
-
-class P2 extends AggregateProgram {
-  override def main() = ("aa", Math.random())
+class Types extends AggregateProgram {
+  override def main() = ("a", 1, List(10,20))
 }
 
 class CountRounds extends AggregateProgram {
   override def main() = rep(0)(x => x + 1)
 }
 
-class NumNbrs extends AggregateProgram {
-  override def main() = foldhood(0)(_ + _) {
-    nbr {
-      1
-    }
-  }
+class CountNeighbours extends AggregateProgram {
+  override def main() = foldhood(0)(_ + _) { nbr { 1 } }
 }
 
-class NumNbrsExceptMyself extends AggregateProgram {
+class CountNeighboursExceptMyself extends AggregateProgram {
   override def main() = foldhood(0)(_ + _) {
-    if (nbr {
-      mid()
-    } == mid()) 0
-    else 1
+    if (nbr { mid() } == mid()) 0 else 1
   }
 }
 
 class MaxId extends AggregateProgram {
   override def main() = {
-    val maxId = foldhood(Int.MinValue)(Math.max(_, _)) {
-      nbr(mid())
-    }
+    val maxId = foldhood(Int.MinValue)(Math.max(_, _)) { nbr(mid()) }
     (mid(), maxId)
   }
 }
@@ -61,27 +48,19 @@ class MaxId extends AggregateProgram {
 class Gradient extends AggregateProgram {
 
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
-
   def isObstacle = sense[Boolean](SensorEnum.SENS2.name)
+  def nbrDistance = nbrvar[Double](NBR_RANGE_NAME)
 
-  //gradiente
   override def main(): Double =
-  if (isObstacle) {
-    Double.MaxValue
-  } else {
-    rep(Double.MaxValue) {
-      distance => mux(isSource) {
-        0.0
-      } {
-        minHoodPlus {
-          nbr {
-            distance
-          } + nbrvar[Double](NBR_RANGE_NAME)
+    branch (isObstacle) { Double.MaxValue } {
+      rep(Double.MaxValue) {
+        distance => mux(isSource) { 0.0 } {
+          minHoodPlus { nbr { distance } + nbrDistance }
         }
       }
     }
-  }
 }
+
 
 class GradientHop extends AggregateProgram {
 

@@ -23,6 +23,8 @@ object Settings {
   var Grid_MedVar_Eps = 0.09
   var Grid_LoVar_Eps = 0.02
 
+  var Size_Device_Relative = 100
+
   var Color_background = java.awt.Color.white
   var Color_selection = new java.awt.Color(30,30,30,30)
   var Color_device = java.awt.Color.black
