@@ -45,7 +45,7 @@ class MyPopupMenu() extends JPopupMenu {
             observations.getItem(i).setEnabled(true)
             i += 1; i - 1
         }
-        observation.setEnabled(false)
+        //observation.setEnabled(false)
       }
     }
 
