@@ -8,6 +8,8 @@ import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.Settings
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
+import scala.util.Try
+
 /**
   * This is the panel where are represents
   * the connection of neighbors.
@@ -37,11 +39,21 @@ class ValuesPanel private[view]() extends JPanel {
       val color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else
                   if (n.getSensorValue(SensorEnum.SENS2.name)==true) Settings.Color_device2 else
                   if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else Settings.Color_device
-      g.setColor(color)
       var dim = (getWidth/Settings.Size_Device_Relative).min(getHeight/Settings.Size_Device_Relative)
       g.fillOval(p1x.toInt-dim/2,p1y.toInt-dim/2,dim,dim)
-      if (gn!=null && gn.getValueToShow()!=null)
-        g.drawChars(gn.getValueToShow().toCharArray,0,gn.getValueToShow().length,p1x.toInt,p1y.toInt-10)
+      println(n.export)
+      if (Try(Settings.Led_Activator(n.export).asInstanceOf[Boolean]) getOrElse false) {
+        println("in!!")
+        g.setColor(Settings.Color_actuator);
+        g.fillOval(p1x.toInt-dim,p1y.toInt-dim,dim*2,dim*2)
+      }
+      g.setColor(color)
+      g.fillOval(p1x.toInt-dim/2,p1y.toInt-dim/2,dim,dim)
+      if (gn!=null && gn.getValueToShow()!=null) {
+        val toShow = if (Settings.To_String!=null) Settings.To_String(n.export) else gn.getValueToShow()
+        println()
+        g.drawChars(toShow.toCharArray, 0, toShow.length, p1x.toInt, p1y.toInt - 10)
+      }
     })
   }
 }

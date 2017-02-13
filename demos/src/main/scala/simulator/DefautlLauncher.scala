@@ -10,6 +10,8 @@ object DefautlLauncher extends App {
     Settings.Sim_ProgramClass = "sims."
     Settings.ShowConfigPanel = true
     Settings.Sim_Sensors = ""
+    Settings.Led_Activator = (a:Any)=>a.asInstanceOf[Boolean]
+    //Settings.To_String = SettingsSpace.ToStrings.Default_Double
     SimulationCmdLine.parse(args, Settings)
     Controller.startup
 }

@@ -205,8 +205,9 @@ class Controller () {
   def selectionAttempted = this.gui.center.getCaptureRect.width!=0
 
   def formatExport(v: Any) = {
-    if (v.isInstanceOf[Double])
-      f"${v.toString.toDouble}%5.2g"
+    if (v.isInstanceOf[Double]) {
+      if (v.isInstanceOf[Double]==Double.MaxValue) "inf" else f"${v.toString.toDouble}%5.2g"
+    }
     else
       v.toString
   }

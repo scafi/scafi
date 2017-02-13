@@ -32,5 +32,9 @@ object Settings {
   var Color_device2 = java.awt.Color.green
   var Color_device3 = java.awt.Color.blue
   var Color_link = java.awt.Color.lightGray
+  var Color_actuator = java.awt.Color.yellow
+
+  var Led_Activator: Any=>Boolean = (_)=>false
+  var To_String: Any=>String = null
 
 }

@@ -49,71 +49,56 @@ class Gradient extends AggregateProgram {
 
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
   def isObstacle = sense[Boolean](SensorEnum.SENS2.name)
-  def nbrDistance = nbrvar[Double](NBR_RANGE_NAME)
+  def nbrRange = nbrvar[Double](NBR_RANGE_NAME)
 
   override def main(): Double =
     branch (isObstacle) { Double.MaxValue } {
       rep(Double.MaxValue) {
         distance => mux(isSource) { 0.0 } {
-          minHoodPlus { nbr { distance } + nbrDistance }
+          minHoodPlus { nbr { distance } + nbrRange }
         }
       }
     }
 }
 
+trait Blocks { self: AggregateProgram =>
 
-class GradientHop extends AggregateProgram {
-
-  def isSource = sense[Boolean](SensorEnum.SOURCE.name)
-
-  def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
-    rep((Double.MaxValue, field)) { dv =>
-      mux(source) {
-        (0.0, field)
-      } {
+  def G[V: OrderingFoldable](source: Boolean)
+                            (field: V)
+                            (acc: V => V = (v:V)=>v)
+                            (metric: => Double = nbrvar[Double](NBR_RANGE_NAME)): V =
+    rep((Double.MaxValue, field)) { dv => mux(source) { (0.0, field) }{
         minHoodPlus {
-          val (d, v) = nbr {
-            (dv._1, dv._2)
-          }
+          val (d, v) = nbr { dv }
           (d + metric, acc(v))
         }
       }
     }._2
+}
 
-  def hopGradientByG(src: Boolean): Double = G[Double](src, 0, _ + 1, 1)
+
+class GradientHop extends AggregateProgram with Blocks {
+
+  def isSource = sense[Boolean](SensorEnum.SENS1.name)
+
+  def hopGradientByG(src: Boolean): Double = G(src)(0)(_ + 1)(1)
 
   override def main(): Int = hopGradientByG(isSource).toInt
 }
 
-class Channel extends AggregateProgram {
+class Channel extends AggregateProgram with Blocks {
 
-  override def main() = channel(isSource, isDest, 0) //if(channel(isSource, isDest, 0)) 1 else 0
+  override def main() = channel(isSource, isDest, 0.05)
 
-  def isSource = sense[Boolean](SensorEnum.SOURCE.name)
-
-  def isDest = sense[Boolean]("dest")
-
+  def isSource = sense[Boolean](SensorEnum.SENS1.name)
+  def isDest = sense[Boolean](SensorEnum.SENS2.name)
   def nbrRange(): Double = nbrvar[Double](NBR_RANGE_NAME)
 
-  def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
-    rep((Double.MaxValue, field)) { dv =>
-      mux(source) {
-        (0.0, field)
-      } {
-        minHoodPlus {
-          val (d, v) = nbr {
-            (dv._1, dv._2)
-          }
-          (d + metric, acc(v))
-        }
-      }
-    }._2
-
-  def distanceTo(source: Boolean): Double =
-    G[Double](source, 0, _ + nbrRange(), nbrRange())
+   def distanceTo(source: Boolean): Double =
+     G(source)(0.0)(_ + nbrRange)()
 
   def broadcast[V: OrderingFoldable](source: Boolean, field: V): V =
-    G[V](source, field, x => x, nbrRange())
+    G(source)(field)()()
 
   def distanceBetween(source: Boolean, target: Boolean): Double =
     broadcast(source, distanceTo(target))
@@ -122,8 +107,7 @@ class Channel extends AggregateProgram {
     (distanceTo(source).formatted("%.2f"), distanceTo(target).formatted("%.2f"), distanceBetween(source, target).formatted("%.2f"))
 
   def channel(source: Boolean, target: Boolean, width: Double): Boolean =
-    distanceTo(source) + distanceTo(target) <=
-      distanceBetween(source, target) + width
+    distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 }
 
 class Timer extends AggregateProgram {
