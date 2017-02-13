@@ -55,10 +55,13 @@ class SimulationPanel() extends JDesktopPane {
     * @param show
     */
   def showNeighbours(show: Boolean) {
-    //mostro il pannello che visualizza i collegamenti con i vicini
     neighborsPanel.setVisible(show)
     this.revalidate()
     this.repaint()
+  }
+
+  def toggleNeighbours() {
+    neighborsPanel.setVisible(!neighborsPanel.isVisible)
   }
 
   def setRectSelection(r: Rectangle) {

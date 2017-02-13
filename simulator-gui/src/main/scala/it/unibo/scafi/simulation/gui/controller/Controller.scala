@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.controller
 
+import java.awt.{Image, Point, Rectangle}
+
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.config.SimpleRandomSettings
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
@@ -12,10 +14,10 @@ import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.space.SpaceHelper
 
 import scala.collection.immutable.List
-import java.awt._
 import javax.swing.SwingUtilities
 
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
+
 
 
 /**
@@ -49,11 +51,10 @@ class Controller () {
   private[gui] var gui: SimulatorUI = null
   protected[gui] var simManager: SimulationManager = null
   final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
-  private var valueShowed: String = "EXPORT"
+  private var valueShowed: NodeValue = NodeValue.EXPORT
   private var controllerUtility: ControllerPrivate = null
   private val updateFrequency = Settings.Sim_NumNodes / 4
   private var counter = 0
-
 
   def setGui(simulatorGui: SimulatorUI) {
     this.gui = simulatorGui
@@ -198,8 +199,8 @@ class Controller () {
       controllerUtility.calculatedInfo(guiNode.getInfoPanel)
   }
 
-  def setShowValue(value: String) {
-    this.valueShowed = value
+  def setShowValue(kind: NodeValue) {
+    this.valueShowed = kind
   }
 
   def selectionAttempted = this.gui.center.getCaptureRect.width!=0
@@ -212,11 +213,22 @@ class Controller () {
       v.toString
   }
 
+  def formatPosition(pos: java.awt.geom.Point2D): String = {
+    f"(${pos.getX}%5.2g ; ${pos.getY}%5.2g)"
+  }
+
+  def formatPosition(pos: java.awt.Point): String = {
+    s"(${pos.getX.toInt}; ${pos.getY.toInt})"
+  }
+
   def updateNodeValue(nodeId: Int): Unit = {
     val (node, guiNode) = this.nodes(nodeId)
     valueShowed match {
-      case "ID" => guiNode.setValueToShow(node.id.toString)
-      case "EXPORT" => guiNode.setValueToShow(formatExport(node.export))
+      case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
+      case NodeValue.EXPORT => guiNode.setValueToShow(formatExport(node.export))
+      case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position))
+      case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position)))
+      case NodeValue.SENSOR(name) => guiNode.setValueToShow(node.getSensorValue(name).toString)
       case _ => guiNode.setValueToShow("")
     }
     counter = counter + 1
@@ -229,13 +241,16 @@ class Controller () {
 
   def updateValue() {
     valueShowed match {
-      case "ID" =>
-        nodes.values.foreach{ case (n, g) => g.setValueToShow(n.id + "") }
-      case "EXPORT" =>
-        nodes.values.foreach(kv => {
-          val (n,g) = kv
-          g.setValueToShow(formatExport(n.export))
-        })
+      case NodeValue.ID =>
+        nodes.values.foreach { case (n, g) => g.setValueToShow(n.id + "") }
+      case NodeValue.EXPORT =>
+        nodes.values.foreach { case (n, g) => g.setValueToShow(formatExport(n.export)) }
+      case NodeValue.POSITION =>
+        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(n.position)) }
+      case NodeValue.POSITION_IN_GUI =>
+        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(n.position))) }
+      case NodeValue.SENSOR(name) =>
+        nodes.values.foreach { case (n, g) => g.setValueToShow(n.getSensorValue(name).toString) }
       case _ => nodes.values.foreach{ case (n, g) => g.setValueToShow("") }
     }
   }
