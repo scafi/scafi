@@ -12,7 +12,7 @@ object Settings {
 
   var Sim_Topology = Topologies.Random
   var Sim_Sensors = "someSensor bool true\nanotherSensor int 77"
-  var Sim_ProgramClass = "sims.Gradient"
+  var Sim_ProgramClass = ""
   var Sim_NbrRadius = 0.15
   var Sim_DeltaRound = 0
   var Sim_NumNodes = 100
