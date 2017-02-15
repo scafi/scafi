@@ -40,15 +40,17 @@ class ValuesPanel private[view]() extends JPanel {
                   if (n.getSensorValue(SensorEnum.SENS2.name)==true) Settings.Color_device2 else
                   if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else Settings.Color_device
       var dim = (getWidth/Settings.Size_Device_Relative).min(getHeight/Settings.Size_Device_Relative)
-      g.fillOval(p1x.toInt-dim/2,p1y.toInt-dim/2,dim,dim)
-      println(n.export)
       if (Try(Settings.Led_Activator(n.export).asInstanceOf[Boolean]) getOrElse false) {
         println("in!!")
         g.setColor(Settings.Color_actuator);
-        g.fillOval(p1x.toInt-dim,p1y.toInt-dim,dim*2,dim*2)
+        g.fillOval(p1x.toInt-dim*10/16,p1y.toInt-dim*10/16,dim*10/8,dim*10/8)
+        g.setColor(color)
+        g.drawOval(p1x.toInt-dim*10/16,p1y.toInt-dim*10/16,dim*10/8,dim*10/8)
+        g.fillOval(p1x.toInt-dim*6/16,p1y.toInt-dim*6/16,dim*6/8,dim*6/8)
+      } else {
+        g.setColor(color)
+        g.fillOval(p1x.toInt - dim / 2, p1y.toInt - dim / 2, dim, dim)
       }
-      g.setColor(color)
-      g.fillOval(p1x.toInt-dim/2,p1y.toInt-dim/2,dim,dim)
       if (gn!=null && gn.getValueToShow()!=null) {
         val toShow = if (Settings.To_String!=null) Settings.To_String(n.export) else gn.getValueToShow()
         println()

@@ -154,11 +154,7 @@ class Timer extends AggregateProgram {
 
 class SparseChoice extends AggregateProgram {
 
-  override def main() = S(0.35, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
-
-  def isSource = sense[Boolean](SensorEnum.SOURCE.name)
-
-  def isDest = sense[Boolean](SensorEnum.OBSTACLE.name)
+  override def main() = S(0.2, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
 
   def nbrRange(): Double = nbrvar[Double](NBR_RANGE_NAME)
 
