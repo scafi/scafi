@@ -207,7 +207,9 @@ class Controller () {
 
   def formatExport(v: Any) = {
     if (v.isInstanceOf[Double]) {
-      if (v.isInstanceOf[Double]==Double.MaxValue) "inf" else f"${v.toString.toDouble}%5.2g"
+      if (v.asInstanceOf[Double]==Double.MaxValue) "inf" else
+      if (v.asInstanceOf[Double]==Double.MinValue) "-inf" else
+        f"${v.toString.toDouble}%5.2g"
     }
     else
       v.toString

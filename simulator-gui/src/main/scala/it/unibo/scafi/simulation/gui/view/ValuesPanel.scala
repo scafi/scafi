@@ -41,7 +41,7 @@ class ValuesPanel private[view]() extends JPanel {
                   if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else Settings.Color_device
       var dim = (getWidth/Settings.Size_Device_Relative).min(getHeight/Settings.Size_Device_Relative)
       if (Try(Settings.Led_Activator(n.export).asInstanceOf[Boolean]) getOrElse false) {
-        println("in!!")
+        //println("in!!")
         g.setColor(Settings.Color_actuator);
         g.fillOval(p1x.toInt-dim*10/16,p1y.toInt-dim*10/16,dim*10/8,dim*10/8)
         g.setColor(color)
@@ -53,7 +53,7 @@ class ValuesPanel private[view]() extends JPanel {
       }
       if (gn!=null && gn.getValueToShow()!=null) {
         val toShow = if (Settings.To_String!=null) Settings.To_String(n.export) else gn.getValueToShow()
-        println()
+        //println()
         g.drawChars(toShow.toCharArray, 0, toShow.length, p1x.toInt, p1y.toInt - 10)
       }
     })

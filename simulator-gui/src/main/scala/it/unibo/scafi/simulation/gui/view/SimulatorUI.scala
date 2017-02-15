@@ -49,6 +49,8 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     // TODO: println(s"Setting delta round = $newVal")
     ctrl.simManager.simulation.setDeltaRound(newVal)
   }))
+  imap.put(KeyStroke.getKeyStroke('q'), "Quit")
+  amap.put("Quit", createAction(e=>System.exit(0)))
 
   this.addComponentListener(new ComponentAdapter() {
     override def componentResized(e: ComponentEvent) {
