@@ -209,7 +209,8 @@ class Controller () {
     if (v.isInstanceOf[Double]) {
       if (v.asInstanceOf[Double]==Double.MaxValue) "inf" else
       if (v.asInstanceOf[Double]==Double.MinValue) "-inf" else
-        f"${v.toString.toDouble}%5.2g"
+        f"${v.toString.toDouble}%5.2f"
+
     }
     else
       v.toString

@@ -77,8 +77,11 @@ object CollectionDemo extends Launcher {
 
 trait BlockC { self: AggregateProgram with SensorDefinitions =>
 
+  def smaller[V: OrderingFoldable](a: V, b: V):Boolean =
+    implicitly[OrderingFoldable[V]].compare(a,b)<0
+
   def findParent[V:OrderingFoldable](potential: V): ID = {
-    mux(implicitly[OrderingFoldable[V]].compare(minHood { nbr(potential) }, potential) < 0) {
+    mux(smaller(minHood { nbr(potential) }, potential)) {
       minHood { nbr { (potential, mid()) } }._2
     } {
       Int.MaxValue
@@ -105,3 +108,37 @@ class Collection extends AggregateProgram with SensorDefinitions with BlockC wit
 
   override def main() = summarize(sense1, _+_, if (sense2) 1.0 else 0.0, 0.0)
 }
+
+object TimerDemo extends Launcher {
+  // Configuring simulation
+  Settings.Sim_ProgramClass = "sims.SimpleTimer" // starting class, via Reflection
+  Settings.ShowConfigPanel = false // show a configuration panel at startup
+  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
+  Settings.Sim_NumNodes = 100 // number of nodes
+  //Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
+  //Settings.To_String = (b: Any) => ""
+  launch()
+}
+
+trait BlockT { self: AggregateProgram with SensorDefinitions =>
+
+  def implicitMin[V: Numeric](a:V, b:V): V = implicitly[Numeric[V]].min(a,b)
+
+  def implicitMax[V: Numeric](a:V, b:V): V = implicitly[Numeric[V]].max(a,b)
+
+  def T[V: Numeric](initial: V)(floor: V)(decay: V => V): V = {
+    rep(initial) { v => implicitMin(initial, implicitMax(floor, decay(v))) }
+  }
+
+  def linearFlow(time: Double): Double =
+    T(time)(0.0)(v => v-1)
+
+  def timer(time: Double): Boolean =
+    linearFlow(time) == 0.0
+}
+
+class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT {
+
+  override def main() = branch(sense1){linearFlow(100)}{0}
+}
+
