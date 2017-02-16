@@ -12,7 +12,7 @@ import java.awt.event.MouseEvent
   * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class GuiNodeListeners private[view](val node: GuiNode) extends MouseAdapter {
-  final private val controller: Controller = Controller.getIstance
+  final private val controller: Controller = Controller.getInstance
   final private val p: Point = new Point
 
   //apre il pannello delle informazioni

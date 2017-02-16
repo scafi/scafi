@@ -17,7 +17,7 @@ class SimulationImpl() extends Simulation {
   var runProgram: Function0[(Int,Export)] = null
   var deltaRound: Double = .0
   var strategy: Any = null
-  final private val controller: Controller = Controller.getIstance
+  final private val controller: Controller = Controller.getInstance
 
   this.deltaRound = 0.00
   this.strategy = null
@@ -36,7 +36,10 @@ class SimulationImpl() extends Simulation {
         }
     )
 
-    SensorEnum.sensors.foreach(se => { println(se); net.addSensor(se.name, se.value) })
+    SensorEnum.sensors.foreach(se => {
+      // TODO: println(se);
+      net.addSensor(se.name, se.value) }
+    )
 
     val ap = Class.forName(program.toString).newInstance().asInstanceOf[CONTEXT=>EXPORT]
     this.runProgram = () => net.exec(ap)
@@ -59,7 +62,7 @@ class SimulationImpl() extends Simulation {
 
   override def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit = {
     val idSet: Set[Int] = nodes.map(_.id)
-    if(nodes.size==0) {
+    if(nodes.size==0 && !controller.selectionAttempted) {
       net.addSensor(sensor, value)
       sensors += sensor -> value
     }

@@ -15,10 +15,9 @@ import java.beans.PropertyVetoException
 class SimulationPanelMouseListener private[view](val panel: SimulationPanel) extends MouseAdapter {
   // private final ControllerView controllerView = ControllerView.getIstance();
   final private var captureRect: Rectangle = null
-  private[view] val controller: Controller = Controller.getIstance
-  final private val point: Point = new Point
-  private var flag: Boolean = false
-  private[view] var start: Point = new Point
+  private[view] val controller: Controller = Controller.getInstance
+  final private val start: Point = new Point // End point of the selection
+  private var flag: Boolean = false          // Indicates if we have pressed on a selected area
 
   captureRect = panel.getCaptureRect
 
@@ -33,33 +32,20 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
       flag = false
     }
     if (!flag) {
-      for (jf <- panel.getAllFrames) {
-        //deselezionare dei nodi
-        try {
-          jf.setSelected(false) //deseleziono tutti i nodi
-        }
-        catch {
-          case e1: PropertyVetoException => {
-            e1.printStackTrace()
-          }
-        }
-      }
-      captureRect.setBounds(0, 0, 0, 0) //= new Rectangle(); //creo una nuova area di selezione
-      panel.maybeShowPopup(e) //nascondo il menu
+      // Let's deselect all the nodes
+      controller.getNodes.foreach(_._2.setSelected(false))
+      captureRect.setBounds(0, 0, 0, 0) //= new Rectangle(); // Let's create a new selection area
+      panel.maybeShowPopup(e) // Let's hide the menu
       panel.repaint()
     }
-  }
-
-  override def mouseMoved(me: MouseEvent) {
-    start = me.getPoint
   }
 
   override def mousePressed(e: MouseEvent) {
     val a: Double = captureRect.x + captureRect.getWidth
     val b: Double = captureRect.y + captureRect.getHeight
     if (!e.isMetaDown) {
-      point.x = e.getX
-      point.y = e.getY
+      start.x = e.getX
+      start.y = e.getY
       if (e.getX > captureRect.x && e.getX < a && e.getY > captureRect.y && e.getY < b) {
         flag = true
       }
@@ -76,9 +62,11 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
 
   override def mouseDragged(me: MouseEvent) {
     if (flag) {
+      // Dragging a selected area
       moveRectangle(me)
     }
     else {
+      // Dragging to expand the area to be selected
       val end: Point = me.getPoint
       if (end.x < start.x && end.y < start.y) {
         captureRect.setRect(end.x, end.y, start.x - end.x, start.y - end.y) // = new Rectangle(end, new Dimension(start.x - end.x, start.y - end.y));
@@ -102,11 +90,11 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
 
   def moveRectangle(e: MouseEvent) {
     if (!e.isMetaDown) {
-      captureRect.setLocation(captureRect.getLocation.x + e.getX - point.x, captureRect.getLocation.y + e.getY - point.y)
+      captureRect.setLocation(captureRect.getLocation.x + e.getX - start.x, captureRect.getLocation.y + e.getY - start.y)
       panel.setRectSelection(captureRect)
-      controller.moveNodeSelect(new Point(e.getX - point.x, e.getY - point.y))
-      point.x = e.getX
-      point.y = e.getY
+      controller.moveNodeSelect(new Point(e.getX - start.x, e.getY - start.y))
+      start.x = e.getX
+      start.y = e.getY
       panel.repaint()
     }
   }

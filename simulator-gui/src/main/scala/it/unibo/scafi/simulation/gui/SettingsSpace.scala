@@ -19,4 +19,11 @@ object SettingsSpace {
     val Grid_MedVar = "Grid MedVar"
     val Grid_HighVar = "Grid HiVar"
   }
+  object ToStrings {
+    val Default_Double = (a:Any)=> a match {
+      case d: Double if d==Double.MaxValue => "inf"
+      case d: Double if d==Double.MinValue => "-inf"
+      case d: Double => f"$d%5.3f";
+      case _ => "???"}
+  }
 }

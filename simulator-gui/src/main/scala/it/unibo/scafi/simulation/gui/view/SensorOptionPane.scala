@@ -14,7 +14,7 @@ import it.unibo.scafi.simulation.gui.utility.Utils
 class SensorOptionPane(title: String) extends JDialog {
   final private val sensorsChoice: JComboBox[String] = new JComboBox[String]
   final private val operators: JComboBox[String] = new JComboBox[String]
-  final private val controller: Controller = Controller.getIstance
+  final private val controller: Controller = Controller.getInstance
 
   val sensorNameField: JTextField = new JTextField(20)
   val valueField: JTextField = new JTextField(10)

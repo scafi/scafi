@@ -16,7 +16,10 @@ class NodeImpl(val id: Int, var position: Point2D) extends Node {
   var sensors = Map[Sensor, Any](
     SensorEnum.TEMPERATURE -> 0,
     SensorEnum.SOURCE -> false,
-    SensorEnum.OBSTACLE -> false
+    SensorEnum.OBSTACLE -> false,
+    SensorEnum.SENS1 -> false,
+    SensorEnum.SENS2 -> false,
+    SensorEnum.SENS3 -> false
   )
 
   def this(id: Int) {
@@ -42,7 +45,7 @@ class NodeImpl(val id: Int, var position: Point2D) extends Node {
     this.neighbours = Set()
 
   def getSensorValue(sensor: String): Any =
-    this.sensors.find(_._1.name==sensor).getOrElse(null)
+    this.sensors.find(_._1.name==sensor).map(_._2).getOrElse(null)
 
   def getSensorValue(sensor: Sensor): Any =
     this.sensors.get(sensor).get

@@ -17,8 +17,8 @@ import it.unibo.scafi.simulation.gui.{Settings,SettingsSpace}
   * Created by Varini on 19/10/16.
   * Converted/refactored to Scala by Casadei on 05/02/17
   */
-class ConfigurationPanel extends JDialog with PropertyChangeListener {
-  final private val controller: Controller = Controller.getIstance
+class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeListener {
+  final private val controller: Controller = Controller.getInstance
   final private var err: JLabel = null
   final private var gbc: GridBagConstraints = null
 
@@ -90,14 +90,14 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
     insets = new Insets(5, 0, 0, 10)
   }
 
+  insertRow("Run program: ", runProgram, p1)
   insertRow("Number of nodes: ", nodeNumberField, p1)
   insertRow("Topology", topologyField, p1)
   insertRow("Neighborhood radius: ", neinghborsAreaField, p1)
   insertRow("∆ round: ", deltaRoundField, p1)
-  insertRow("Run program: ", runProgram, p1)
   //insertRow("Strategy: ", strategy, p1);
   //insertRow("Add configuration file: ", addFile, p1);
-  insertRow("Sensors", sensors, p1)
+  //insertRow("Sensors", sensors, p1)
 
   submitButton = new JButton("Start")
   gbc.gridx = 2
@@ -119,7 +119,7 @@ class ConfigurationPanel extends JDialog with PropertyChangeListener {
       Settings.Sim_ProgramClass = runProgram.getText()
       Settings.Sim_ExecStrategy = strategy.getText()
       if(topologyField.getSelectedItem() != null) Settings.Sim_Topology = topologyField.getSelectedItem().toString()
-      Settings.Sim_Sensors = sensors.getText
+      //Settings.Sim_Sensors = sensors.getText
       controller.startSimulation()
       dispose()
     } catch {

@@ -14,7 +14,7 @@ import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
   * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class SimulatorUI() extends JFrame("SCAFI Simulator") {
-  private var center: SimulationPanel = new SimulationPanel //JDesktopPane per visualizzare le simulazioni
+  private[gui] var center: SimulationPanel = new SimulationPanel //JDesktopPane per visualizzare le simulazioni
   final private val menuBarNorth: JMenuBar = new MenuBarNorth //barra del menù in alto
   private var oldDim: Dimension = null //utilizzato per la riposizione dei nodi quando il frame viene rimpicciolito
 
@@ -28,7 +28,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
 
   val imap = panel.getInputMap()
   val amap = panel.getActionMap()
-  val ctrl = Controller.getIstance
+  val ctrl = Controller.getInstance
   imap.put(KeyStroke.getKeyStroke('1'), SensorEnum.SENS1.name)
   amap.put(SensorEnum.SENS1.name, createSensorAction[Boolean](SensorEnum.SENS1.name, default = false, map = !_))
   imap.put(KeyStroke.getKeyStroke('2'), SensorEnum.SENS2.name)
@@ -40,15 +40,17 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
   amap.put("Quicker", createAction((e: ActionEvent)=>{
     val currVal = ctrl.simManager.simulation.getDeltaRound()
     val newVal = if(currVal-10 < 0) 0 else currVal-10
-    println(s"Setting delta round = $newVal")
+    // TODO: println(s"Setting delta round = $newVal")
     ctrl.simManager.simulation.setDeltaRound(newVal)
   }))
   amap.put("Slower", createAction((e: ActionEvent)=>{
     val currVal = ctrl.simManager.simulation.getDeltaRound()
     val newVal = currVal+10
-    println(s"Setting delta round = $newVal")
+    // TODO: println(s"Setting delta round = $newVal")
     ctrl.simManager.simulation.setDeltaRound(newVal)
   }))
+  imap.put(KeyStroke.getKeyStroke('q'), "Quit")
+  amap.put("Quit", createAction(e=>System.exit(0)))
 
   this.addComponentListener(new ComponentAdapter() {
     override def componentResized(e: ComponentEvent) {
@@ -101,7 +103,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     createAction((e: ActionEvent) => {
       val currVal = ctrl.getSensor(sensorName).getOrElse(default).asInstanceOf[T]
       val newVal = map(currVal)
-      println(s"Setting '$sensorName' to ${newVal}")
+      //TODO println(s"Setting '$sensorName' from ${currVal} to ${newVal}")
       ctrl.setSensor(sensorName, newVal)
     })
   }

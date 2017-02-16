@@ -13,7 +13,7 @@ import java.awt.event.ActionListener
   * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class MyPopupMenu() extends JPopupMenu {
-  final private val controller: Controller = Controller.getIstance
+  final private val controller: Controller = Controller.getInstance
   final private val observations: JMenu = new JMenu("Observe")
   final private val actions: JMenu = new JMenu("Actions")
   val clear: JMenuItem = new JMenuItem("Clear")
@@ -45,7 +45,7 @@ class MyPopupMenu() extends JPopupMenu {
             observations.getItem(i).setEnabled(true)
             i += 1; i - 1
         }
-        observation.setEnabled(false)
+        //observation.setEnabled(false)
       }
     }
 

@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.gui.view
 
+import it.unibo.scafi.simulation.gui.Settings
 import javax.swing._
 import javax.swing.border.LineBorder
 import java.awt._
@@ -12,13 +13,15 @@ import java.awt.event.MouseEvent
   */
 class SimulationPanel() extends JDesktopPane {
   final private val neighborsPanel: NeighborsPanel = new NeighborsPanel //pannello visualizzazione vicini
+  final private val valuesPanel: ValuesPanel = new ValuesPanel //pannello visualizzazione valori
   private var bkgImage: Image = null
   final private val captureRect: Rectangle = new Rectangle //rettangolo di selezione
   final private val popup: MyPopupMenu = new MyPopupMenu //menu tasto destro
 
-  this.setBackground(Color.decode("#9EB3C2")) //azzurro
+  this.setBackground(Settings.Color_background) //azzurro
   setBorder(new LineBorder(Color.black))
-  this.add(neighborsPanel, 1)
+  this.add(valuesPanel, 1)
+  this.add(neighborsPanel, 2)
   val motion: SimulationPanelMouseListener = new SimulationPanelMouseListener(this)
   this.addMouseListener(motion) //gestisco quando appare il pannello delle opzioni
   this.addMouseMotionListener(motion) //creo e gestisco l'era di selezione
@@ -30,9 +33,9 @@ class SimulationPanel() extends JDesktopPane {
     }
     if (captureRect != null) {
       // Shows selection area
-      g.setColor(Color.lightGray)
+      g.setColor(Settings.Color_selection)
       g.drawRect(captureRect.getX.toInt, captureRect.getY.toInt, captureRect.getWidth.toInt, captureRect.getHeight.toInt)
-      g.setColor(new Color(255, 255, 255, 150))
+      g.setColor(Settings.Color_selection)
       g.fillRect(captureRect.getX.toInt, captureRect.getY.toInt, captureRect.getWidth.toInt, captureRect.getHeight.toInt)
     }
   }
@@ -52,10 +55,13 @@ class SimulationPanel() extends JDesktopPane {
     * @param show
     */
   def showNeighbours(show: Boolean) {
-    //mostro il pannello che visualizza i collegamenti con i vicini
     neighborsPanel.setVisible(show)
     this.revalidate()
     this.repaint()
+  }
+
+  def toggleNeighbours() {
+    neighborsPanel.setVisible(!neighborsPanel.isVisible)
   }
 
   def setRectSelection(r: Rectangle) {

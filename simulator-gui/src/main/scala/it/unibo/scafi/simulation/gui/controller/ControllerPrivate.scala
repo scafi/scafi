@@ -1,8 +1,9 @@
 package it.unibo.scafi.simulation.gui.controller
 
 import java.awt.event.{ActionEvent, ActionListener}
+import javax.swing.JOptionPane
 
-import it.unibo.scafi.simulation.gui.model.Node
+import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.view.GuiNode
 import it.unibo.scafi.simulation.gui.view.NodeInfoPanel
@@ -15,7 +16,7 @@ import it.unibo.scafi.simulation.gui.view.SimulatorUI
   * Converted/refactored to Scala by Casadei on 3/02/17
   */
 class ControllerPrivate (val gui: SimulatorUI) {
-  final private val controller: Controller = Controller.getIstance
+  final private val controller: Controller = Controller.getInstance
 
   implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
     def actionPerformed(e: ActionEvent) { f(e) }
@@ -23,18 +24,15 @@ class ControllerPrivate (val gui: SimulatorUI) {
 
   def setSensor(sensorName: String, value: Any) {
     var applyAll: Boolean = true
-    for (ng <- controller.nodes.values) {
-      val (n,g) = ng
-      if (g.isSelected) {
-        applyAll = false
-        n.setSensor(sensorName, value)
-        var set = Set[Node]()
-        set += n
-        controller.simManager.simulation.setSensor(sensorName, value.toString.toBoolean, set)
-        setImage(sensorName, value, g)
-      }
-    }
-    if (applyAll) {
+    val ss: Set[(Node,GuiNode)] = selectedNodes
+    ss.foreach(ng => {
+      setImage(sensorName, value, ng._2)
+      //println("Setting " + ng._1.id + " => " + sensorName + "="+value)
+      ng._1.setSensor(sensorName, value)
+    })
+    controller.simManager.simulation.setSensor(sensorName, value.toString.toBoolean, ss.map(_._1))
+
+    if (ss.isEmpty && !controller.selectionAttempted) {
       controller.nodes.values.foreach{ case (n, g) => {
         n.setSensor(sensorName, value)
         setImage(sensorName, value, g)
@@ -43,8 +41,16 @@ class ControllerPrivate (val gui: SimulatorUI) {
     }
   }
 
-  def getSensorValue(s: String) = {
-    controller.simManager.simulation.getSensorValue(s)
+  private def selectedNodes(): Set[(Node,GuiNode)] = {
+    controller.nodes.values.collect { case ng if ng._2.isSelected => ng }.toSet
+  }
+
+  def getSensorValue(s: String): Option[Any] = {
+    var ss: Iterable[(Node,GuiNode)] = selectedNodes
+    if(ss.isEmpty && !controller.selectionAttempted) ss = controller.nodes.values
+    //controller.simManager.simulation.getSensorValue(s, ss.map(_._1).toSet)
+    //TODO: println(ss.map(n => n._1.id + " => " +n._1.getSensorValue(s)))
+    ss.headOption.map(_._1.getSensorValue(s))
   }
 
   def checkSensor(sensor: String, operator: String, value: String) {
@@ -119,20 +125,18 @@ class ControllerPrivate (val gui: SimulatorUI) {
 
   def addObservation() {
     //network.getObservableValue().forEach( s -> gui.getSimulationPanel().getPopUpMenu().addObservation(s, e->{}));
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Show Neighbours", (e:ActionEvent) => gui.getSimulationPanel.showNeighbours(true))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Hide Neighbours", (e:ActionEvent) => gui.getSimulationPanel.showNeighbours(false))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Id", (e:ActionEvent) => controller.setShowValue("ID"))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Export", (e:ActionEvent) => controller.setShowValue("EXPORT"))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Nothing", (e:ActionEvent) => controller.setShowValue("NONE"))
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Toggle Neighbours", (e:ActionEvent) => gui.getSimulationPanel.toggleNeighbours())
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Id", (e:ActionEvent) => controller.setShowValue(NodeValue.ID))
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Export", (e:ActionEvent) => controller.setShowValue(NodeValue.EXPORT))
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Position", (e:ActionEvent) => controller.setShowValue(NodeValue.POSITION))
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Position in GUI", (e:ActionEvent) => controller.setShowValue(NodeValue.POSITION_IN_GUI))
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Nothing", (e:ActionEvent) => controller.setShowValue(NodeValue.NONE))
     this.gui.getSimulationPanel.getPopUpMenu.addObservation("Sensor", (e:ActionEvent) => {
-      val sensPane = new SensorOptionPane("Observe Sensor");
-      sensPane.addOperator("=")
-      sensPane.addOperator(">")
-      sensPane.addOperator(">=")
-      sensPane.addOperator("<")
-      sensPane.addOperator("<=")
-      sensPane.addOperator("!=")
-      for (s <- SensorEnum.sensors) sensPane.addSensor(s.name)
+      try {
+        var sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
+          SensorEnum.sensors.map(_.name).mkString(", ") + ")")
+        controller.setShowValue(NodeValue.SENSOR(sensorName))
+      } catch { case _: Throwable => () }
     })
   }
 

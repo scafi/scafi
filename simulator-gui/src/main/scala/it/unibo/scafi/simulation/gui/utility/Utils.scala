@@ -41,6 +41,7 @@ object Utils {
   }
 
   def parseSensors(str: String): Map[String,Any] = {
+    if (str==null || str == "") return Map()
     val sensorStrings = str.split("\\n")
     sensorStrings.map(parseSensor(_)).toMap
   }
