@@ -53,7 +53,7 @@ trait Semantics extends Core with Language {
 
   implicit val factory: Factory
 
-  trait AggregateProgramSpecification extends Constructs {
+  trait AggregateProgramSpecification { constructs: Constructs =>
     type MainResult
     def main(): MainResult
   }
@@ -61,7 +61,9 @@ trait Semantics extends Core with Language {
   /**
    * It implements the whole operational semantics.
    */
-  trait ExecutionTemplate extends (CONTEXT => EXPORT) with AggregateProgramSpecification {
+  trait ExecutionTemplate extends (CONTEXT => EXPORT) with Constructs with AggregateProgramSpecification {
+    self:Constructs =>
+
     import ExecutionTemplate._
 
     @transient private var ctx: CONTEXT = _

@@ -12,16 +12,65 @@ import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
  */
 
 trait SpatialSimulation extends Simulation { self: Platform.PlatformDependency with MetricSpatialAbstraction =>
-  case class DevInfo(id: ID, pos: P, lsns: Map[LSNS, Any], nsns: Map[NSNS, Any])
+  class DevInfo(val id: ID, var pos: P, var lsns: LSNS=>Any, var nsns: (NSNS)=>(ID)=>Any){
+    override def toString: String = s"Device[id: $id, pos: $pos]"
+  }
 
-  private class SpaceAwareSimulator(
+  class SpaceAwareSimulator(
     val space: SPACE[ID],
     val devs: Map[ID, DevInfo],
     toStr: NetworkSimulator => String = SpaceAwareSimulator.DefaultRepr
   ) extends NetworkSimulator(idArray = MArray(devs.keys.toSeq:_*), toStr = toStr) {
     override val ids: Set[ID] = devs.keySet
     override def neighbourhood(id: ID): Set[ID] = space.getNeighbors(id).toSet
+
+
+    def setPosition(id: ID, newPos: P)(implicit ev: space.type <:< MutableSpace[ID]) = {
+      devs(id).pos = newPos
+      space.asInstanceOf[MutableSpace[ID]].setLocation(id,newPos)
+    }
+
+    override def addSensor[A](name: LSNS, value: A): Unit = {
+      sensors += name -> value
+      chgSensorValue(name, devs.keySet, value)
+    }
+
+    override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = {
+      ids.foreach(id => {
+        val f = devs(id).lsns
+        devs(id).lsns = sname => if(name==sname) value else f(sname)
+      })
+    }
+
+    /*
+    override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = {
+      ids.foreach { id => lsnsMap += name -> (lsnsMap.getOrElse(name,MMap()) + (id -> value)) }
+    }
+     */
+
+    override def context(id: ID): CONTEXT = {
+      val nhood = neighbourhood(id) + id
+
+      new ContextImpl(
+        selfId = id,
+        exports = eMap.filter(kv => nhood.contains(kv._1)),
+        localSensor = Map(),
+        nbrSensor = Map()
+      ) {
+        override def sense[T](lsns: LSNS): Option[T] = {
+          lsnsMap.get(lsns).flatMap(_.get(selfId)).orElse(devs.get(id).map(_.lsns(lsns))).map(_.asInstanceOf[T])
+        }
+        override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = {
+          if(nsns == "nbrRange"){
+            val dist = space.getDistance(space.getLocation(selfId), space.getLocation(nbr))
+            Some(dist).map(_.asInstanceOf[T])
+          }
+          else devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])
+        }
+      }
+    }
   }
+
   object SpaceAwareSimulator {
     def DefaultRepr(_net: NetworkSimulator): String = {
       val net = _net.asInstanceOf[SpaceAwareSimulator]
@@ -64,9 +113,8 @@ trait SpatialSimulation extends Simulation { self: Platform.PlatformDependency w
       }
 
       val devs: Map[ID,DevInfo] = ((ids map lId.fromNum) zip positions).map {
-        case (id:ID, pos:P) => (id, DevInfo(id, pos, lsnsById.getOrElse(id, Map()), nsnsById.getOrElse(id, Map())))
+        case (id:ID, pos:P) => (id, new DevInfo(id, pos, lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns)))
       }.toMap
-      println(devs)
       val space = buildNewSpace(devs mapValues(v => v.pos))
       new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.GridRepr(n))
     }
@@ -88,7 +136,7 @@ trait SpatialSimulation extends Simulation { self: Platform.PlatformDependency w
       }
 
       val devs: Map[ID,DevInfo] = (idArray zip positions).map {
-        case (id:ID, pos:P) => (id, DevInfo(id, pos, lsnsById(id), nsnsById(id)))
+        case (id:ID, pos:P) => (id, new DevInfo(id, pos, lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns) ))
       }.toMap
       val space = buildNewSpace(devs mapValues(v => v.pos))
       new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.DefaultRepr)

@@ -20,9 +20,9 @@ trait BasicAbstractIncarnation extends Incarnation {
 
   implicit val NBR_RANGE_NAME: NSNS = "nbrRange"
 
-  trait AggregateProgramSpec extends AggregateProgramSpecification with Builtins
+  trait AggregateProgramSpec extends AggregateProgramSpecification with Constructs with Builtins
 
-  trait AggregateProgram extends ExecutionTemplate with Builtins with Serializable {
+  trait AggregateProgram extends ExecutionTemplate with Constructs with Builtins with Serializable {
     override type MainResult = Any
   }
 

@@ -39,6 +39,8 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
     def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit)
 
     def execInOrderAndReturn(node: EXECUTION, exp: => Any, firingSeq: Seq[ID]): NETWORK
+
+    def exec(ap: CONTEXT=>EXPORT): (ID,EXPORT)
   }
 
   trait SimulatorFactory {
@@ -162,7 +164,7 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
                          ) extends Network with SimulatorOps {
     self: NETWORK =>
 
-    private val eMap: MMap[ID, EXPORT] = MMap()
+    protected val eMap: MMap[ID, EXPORT] = MMap()
 
     // *****************
     // Network interface
@@ -180,11 +182,16 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
 
     def exports(): IMap[ID, Option[EXPORT]] = ids.map(id => (id, export(id))).toMap
 
+    protected var sensors = Map[LSNS,Any]()
+
     // **********************
     // SimulatorOps interface
     // **********************
 
+    def getSensor(name: LSNS): Option[Any] = sensors.get(name)
+
     def addSensor[A](name: LSNS, value: A) {
+      this.sensors += name -> value
       lsnsMap += (name -> MMap(idArray.map((_: ID) -> value).toSeq: _*))
     }
 
@@ -204,9 +211,9 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
       nbrSensor = IMap()
       ) {
         override def sense[T](lsns: LSNS): Option[T] =
-        lsnsMap(lsns).get(this.selfId).map(_.asInstanceOf[T])
+          lsnsMap(lsns).get(this.selfId).map(_.asInstanceOf[T])
         override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] =
-        nsnsMap(nsns)(this.selfId).get(nbr).map(_.asInstanceOf[T])
+          nsnsMap(nsns)(this.selfId).get(nbr).map(_.asInstanceOf[T])
       }
     }
 
@@ -233,10 +240,17 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
       execMany(node, node.main(), size, action)
     }
 
-    override def execInOrderAndReturn(
-                                       node: EXECUTION,
-                                       exp: => Any,
-                                       firingSeq: Seq[ID]): Network with SimulatorOps = {
+    def exec(ap: CONTEXT=>EXPORT): (ID,EXPORT) = {
+      val idToRun = idArray(scala.util.Random.nextInt(idArray.size))
+      val c = context(idToRun)
+      val (nextIdToRun,exp) = idToRun -> ap(c)
+      eMap += idToRun -> exp
+      idToRun -> exp
+    }
+
+    override def execInOrderAndReturn(node: EXECUTION,
+                                      exp: => Any,
+                                      firingSeq: Seq[ID]): Network with SimulatorOps = {
       firingSeq.foreach(id => exec(node, exp, id))
       this
     }

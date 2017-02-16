@@ -78,6 +78,8 @@ object DemoSequence extends AggregateProgram with MyLib {
 
   def potentialField = distanceTo(isSource)
 
+  //def main = (potentialField, mid()+"->"+findParent(potentialField), C[Double](potentialField, _+_, 1, 0.0))
+
   /*def main() = C(distanceTo(isSource),
     (_:Double)+(_:Double),
     1,//1.0,
@@ -94,9 +96,9 @@ object DemoSequence extends AggregateProgram with MyLib {
   //def main = timer[Int](1000)
   //def main = limitedMemory("xxx", "exp", 1000)
 
-  //def main = S(3, 1)
+  def main = if(S(3, 1)) "x" else "."
   //def main = minId()
-  def main = S2(3)
+  //def main = S2(3)
 
   //def main = distanceAvoidingObstacles(isSource, isObstacle)
   //def main = broadcastRegion(isObstacle, isSource, 1)
@@ -116,8 +118,8 @@ object DemoSequence extends AggregateProgram with MyLib {
 object DemoSequenceLauncher extends App {
 
   val net = simulatorFactory.gridLike(
-    n = 10,
-    m = 10,
+    n = 6,
+    m = 4,
     stepx = 1,
     stepy = 1,
     eps = 0.0,
@@ -134,7 +136,7 @@ object DemoSequenceLauncher extends App {
     rng = 1.5)
   */
 
-  /*
+
   net.addSensor(name = "sensor", value = 0)
   net.chgSensorValue(name = "sensor", ids = Set(1), value = 1)
   net.addSensor(name = "source", value = false)
@@ -146,6 +148,7 @@ object DemoSequenceLauncher extends App {
   net.addSensor(name = "label", value = "no")
   net.chgSensorValue(name = "label", ids = Set(1), value = "go")
 
+  /*
   val rand = new scala.util.Random(3)
   net.addSensor(name = "value", value = 0.0)
 
