@@ -13,7 +13,7 @@ object SensorEnum {
   val OBSTACLE = Sensor("Obstacle", false)
   val SENS1 = Sensor("sens1", false)
   val SENS2 = Sensor("sens2", false)
-  val SENS3 = Sensor("sens3", true)
+  val SENS3 = Sensor("sens3", false)
 
   var sensors = Set(SOURCE, DESTINATION, TEMPERATURE, OBSTACLE, SENS1, SENS2, SENS3)
 }
