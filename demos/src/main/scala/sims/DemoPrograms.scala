@@ -86,7 +86,7 @@ class GradientHop extends AggregateProgram with Blocks {
   override def main(): Int = hopGradientByG(isSource).toInt
 }
 
-class Channel extends AggregateProgram with Blocks {
+class RouteChannel extends AggregateProgram with Blocks {
 
   override def main() = channel(isSource, isDest, 0.05)
 
