@@ -109,6 +109,22 @@ class Collection extends AggregateProgram with SensorDefinitions with BlockC wit
   override def main() = summarize(sense1, _+_, if (sense2) 1.0 else 0.0, 0.0)
 }
 
+class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
+
+  def summarize[V:OrderingFoldable](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
+    C[(Double,V)]((distanceTo(sink),local), (a,b) => (a._1, acc(a._2,b._2)), (0.0,local), (0.0,Null))._2
+
+  implicit val ofset = new BasicSpatialIncarnation.Builtins.OrderingFoldable[Set[ID]] {
+    override def top: Set[ID] = Set()
+
+    override def bottom: Set[ID] = Set()
+
+    override def compare(a: Set[ID], b: Set[ID]): Int = a.size.compare(b.size)
+  }
+
+  override def main() = summarize[Set[ID]](sense1, (_:Set[ID])++(_:Set[ID]), if(sense2) Set(mid()) else Set(), Set())
+}
+
 object TimerDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.SimpleTimer" // starting class, via Reflection
