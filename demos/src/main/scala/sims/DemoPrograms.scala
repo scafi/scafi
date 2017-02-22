@@ -211,19 +211,11 @@ trait BlockS { self: AggregateProgram with SensorDefinitions with BlockG =>
         //   the min(t1,t2) is defined according the 1st element, or
         //   according to the 2nd elem in case of breakeven on the first one.
         //   (minHood uses min to select the candidate leader tuple)
-        minHood {
-          mux(nbr {
-            d
-          } + metric >= 0.5 * grain) {
-            nbr {
-              inf
-            }
-          } {
-            nbr {
-              lead
-            }
-          }
-        }
+        minHood { mux(nbr { d } + metric >= 0.5 * grain){
+          nbr { inf }
+        }{
+          nbr { lead }
+        } }
       }
     }
   }
