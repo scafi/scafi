@@ -81,4 +81,7 @@ class SimulationPanel() extends JDesktopPane {
   def getPopUpMenu: MyPopupMenu = {
     return this.popup
   }
+
+  def increaseFontSize() { this.valuesPanel.increaseFontSize() }
+  def decreaseFontSize() { this.valuesPanel.decreaseFontSize() }
 }

@@ -49,6 +49,14 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     // TODO: println(s"Setting delta round = $newVal")
     ctrl.simManager.simulation.setDeltaRound(newVal)
   }))
+  imap.put(KeyStroke.getKeyStroke('p'), "FontBigger")
+  amap.put("FontBigger", createAction((e: ActionEvent)=>{
+    ctrl.gui.getSimulationPanel.increaseFontSize()
+  }))
+  imap.put(KeyStroke.getKeyStroke('o'), "FontSmaller")
+  amap.put("FontSmaller", createAction((e: ActionEvent)=>{
+    ctrl.gui.getSimulationPanel.decreaseFontSize()
+  }))
   imap.put(KeyStroke.getKeyStroke('q'), "Quit")
   amap.put("Quit", createAction(e=>System.exit(0)))
 

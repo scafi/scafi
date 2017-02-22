@@ -17,6 +17,8 @@ import scala.util.Try
   * Converted/refactored to Scala by Casadei on 3/02/17
   */
 class ValuesPanel private[view]() extends JPanel {
+  private var nodeLabelFont: Font = new Font("Arial", Font.BOLD, 14)
+
   this.setSize(Toolkit.getDefaultToolkit.getScreenSize)
   this.setOpaque(false)
   this.setVisible(true)
@@ -27,6 +29,8 @@ class ValuesPanel private[view]() extends JPanel {
     this.removeAll()
     //g.setColor(Settings.Color_device)
     //call the neighborhood to the network object
+
+    this.setFont(nodeLabelFont)
 
     controller.getNodes.foreach(ng => {
       val (n,gn) = ng
@@ -58,4 +62,7 @@ class ValuesPanel private[view]() extends JPanel {
       }
     })
   }
+
+  def increaseFontSize() { this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D+1) }
+  def decreaseFontSize() { this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D-1) }
 }
