@@ -46,7 +46,6 @@ class MaxId extends AggregateProgram {
 }
 
 class Gradient extends AggregateProgram {
-
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
   def isObstacle = sense[Boolean](SensorEnum.SENS2.name)
   def nbrRange = nbrvar[Double](NBR_RANGE_NAME)
@@ -61,47 +60,16 @@ class Gradient extends AggregateProgram {
     }
 }
 
-trait Blocks { self: AggregateProgram =>
-
-  def G[V: OrderingFoldable](source: Boolean)
-                            (field: V)
-                            (acc: V => V = (v:V)=>v)
-                            (metric: => Double = nbrvar[Double](NBR_RANGE_NAME)): V =
-    rep((Double.MaxValue, field)) { dv => mux(source) { (0.0, field) }{
-        minHoodPlus {
-          val (d, v) = nbr { dv }
-          (d + metric, acc(v))
-        }
-      }
-    }._2
-}
-
-
-class GradientHop extends AggregateProgram with Blocks {
-
+class GradientHop extends AggregateProgram with SensorDefinitions with BlockG {
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
 
-  def hopGradientByG(src: Boolean): Double = G(src)(0)(_ + 1)(1)
+  def hopGradientByG(src: Boolean): Double = G2(src)(0)(_ + 1)(1)
 
   override def main(): Int = hopGradientByG(isSource).toInt
 }
 
-class RouteChannel extends AggregateProgram with Blocks {
-
-  override def main() = channel(isSource, isDest, 0.05)
-
-  def isSource = sense[Boolean](SensorEnum.SENS1.name)
-  def isDest = sense[Boolean](SensorEnum.SENS2.name)
-  def nbrRange(): Double = nbrvar[Double](NBR_RANGE_NAME)
-
-   def distanceTo(source: Boolean): Double =
-     G(source)(0.0)(_ + nbrRange)()
-
-  def broadcast[V: OrderingFoldable](source: Boolean, field: V): V =
-    G(source)(field)()()
-
-  def distanceBetween(source: Boolean, target: Boolean): Double =
-    broadcast(source, distanceTo(target))
+class RouteChannel extends AggregateProgram with SensorDefinitions with BlockG {
+  override def main() = channel(sense1, sense2, 0.05)
 
   def channel2(source: Boolean, target: Boolean, width: Double): (String, String, String) =
     (distanceTo(source).formatted("%.2f"), distanceTo(target).formatted("%.2f"), distanceBetween(source, target).formatted("%.2f"))
@@ -110,10 +78,14 @@ class RouteChannel extends AggregateProgram with Blocks {
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 }
 
-class Timer extends AggregateProgram {
+class Timer extends AggregateProgram with BlockT {
+  override def main() = Duration(
+    branch(!sense[Boolean](SensorEnum.SENS1.name)){ timer(Duration(30, TimeUnit.SECONDS)) } { 0 },
+    TimeUnit.NANOSECONDS
+  ).toMillis + "ms"
+}
 
-  override def main() = Duration(timer(Duration(10, TimeUnit.SECONDS)), TimeUnit.MILLISECONDS).toSeconds + "ms" //if(channel(isSource, isDest, 0)) 1 else 0
-
+trait BlockT { self: AggregateProgram =>
   def T[V](initial: V, floor: V, decay: V => V)
           (implicit ev: Numeric[V]): V = {
     rep(initial) { v =>
@@ -150,31 +122,19 @@ class Timer extends AggregateProgram {
       else (expTime, expTime - ct)
     }._2 // Selects the component expressing remaining time
   }
+
+  def recentlyTrue(dur: Duration, cond: => Boolean): Boolean =
+    rep(false){ happened =>
+      branch(cond){ true } { branch(!happened){ false }{ timer(dur)>0 } }
+    }
+
 }
 
-class SparseChoice extends AggregateProgram {
-
+class SparseChoice extends AggregateProgram with BlockG with BlockS with SensorDefinitions {
   override def main() = S(0.2, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
+}
 
-  def nbrRange(): Double = nbrvar[Double](NBR_RANGE_NAME)
-
-  def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
-    rep((Double.MaxValue, field)) { dv =>
-      mux(source) {
-        (0.0, field)
-      } {
-        minHoodPlus {
-          val (d, v) = nbr {
-            (dv._1, dv._2)
-          }
-          (d + metric, acc(v))
-        }
-      }
-    }._2
-
-  def distanceTo(source: Boolean): Double =
-    G[Double](source, 0, _ + nbrRange(), nbrRange())
-
+trait BlockS { self: AggregateProgram with SensorDefinitions with BlockG =>
   def S(grain: Double,
         metric: => Double): Boolean =
     breakUsingUids(randomUid, grain, metric)
@@ -212,16 +172,16 @@ class SparseChoice extends AggregateProgram {
                      grain: Double,
                      metric: => Double): Boolean =
   // Initially, each device is a candidate leader, competing for leadership.
-  uid == rep(uid) { lead: (Double, ID) =>
-    // Distance from current device (uid) to the current leader (lead).
-    val dist = G[Double](uid == lead, 0, (_: Double) + metric, metric)
+    uid == rep(uid) { lead: (Double, ID) =>
+      // Distance from current device (uid) to the current leader (lead).
+      val dist = G[Double](uid == lead, 0, (_: Double) + metric, metric)
 
-    // Initially, current device is candidate, so the distance ('dist')
-    // will be 0; the same will be for other devices.
-    // To solve the conflict, devices abdicate in favor of devices with
-    // lowest UID, according to 'distanceCompetition'.
-    distanceCompetition(dist, lead, uid, grain, metric)
-  }
+      // Initially, current device is candidate, so the distance ('dist')
+      // will be 0; the same will be for other devices.
+      // To solve the conflict, devices abdicate in favor of devices with
+      // lowest UID, according to 'distanceCompetition'.
+      distanceCompetition(dist, lead, uid, grain, metric)
+    }
 
   /**
     * Candidate leader devices surrender leadership to the lowest nearby UID.
@@ -267,6 +227,4 @@ class SparseChoice extends AggregateProgram {
       }
     }
   }
-
-
 }

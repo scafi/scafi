@@ -4,6 +4,7 @@ import it.unibo.scafi.simulation.gui._
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation.Builtins._
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation.ID
+import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
 //import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation.{AggregateProgram => _, _}
 
@@ -32,15 +33,29 @@ object ChannelDemo extends Launcher {
 }
 
 trait SensorDefinitions { self: AggregateProgram =>
-  def sense1 = sense[Boolean]("sens1")
-  def sense2 = sense[Boolean]("sens2")
-  def sense3 = sense[Boolean]("sens3")
-  def nbrRange = nbrvar[Double]("nbrRange") * 100
+  def sense1 = sense[Boolean](SensorEnum.SENS1.name)
+  def sense2 = sense[Boolean](SensorEnum.SENS2.name)
+  def sense3 = sense[Boolean](SensorEnum.SENS3.name)
+  def nbrRange() = nbrvar[Double]("nbrRange") * 100
 }
 
 trait BlockG { self: AggregateProgram with SensorDefinitions =>
 
-  def G[V: OrderingFoldable](source: Boolean)(field: V)(acc: V => V)(metric: => Double = nbrRange): V =
+  def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+    rep((Double.MaxValue, field)) { dv =>
+      mux(source) {
+        (0.0, field)
+      } {
+        minHoodPlus {
+          val (d, v) = nbr {
+            (dv._1, dv._2)
+          }
+          (d + metric, acc(v))
+        }
+      }
+    }._2
+
+  def G2[V: OrderingFoldable](source: Boolean)(field: V)(acc: V => V)(metric: => Double = nbrRange): V =
     rep((Double.MaxValue, field)) { case (d,v) =>
       mux(source) { (0.0, field) } {
         minHoodPlus { (nbr{d} + metric, acc(nbr{v})) }
@@ -48,10 +63,10 @@ trait BlockG { self: AggregateProgram with SensorDefinitions =>
     }._2
 
   def distanceTo(source: Boolean): Double =
-    G(source)(0.0)(_ + nbrRange)()
+    G2(source)(0.0)(_ + nbrRange)()
 
   def broadcast[V: OrderingFoldable](source: Boolean, field: V): V =
-    G(source)(field)(v=>v)()
+    G2(source)(field)(v=>v)()
 
   def distanceBetween(source: Boolean, target: Boolean): Double =
     broadcast(source, distanceTo(target))
@@ -75,8 +90,7 @@ object CollectionDemo extends Launcher {
 }
 
 
-trait BlockC { self: AggregateProgram with SensorDefinitions =>
-
+trait BlockC { self: AggregateProgram  =>
   def findParent[V:OrderingFoldable](potential: V): ID = {
     mux(implicitly[OrderingFoldable[V]].compare(minHood { nbr(potential) }, potential) < 0) {
       minHood { nbr { (potential, mid()) } }._2
@@ -98,10 +112,28 @@ trait BlockC { self: AggregateProgram with SensorDefinitions =>
   }
 }
 
+trait BlocksWithGC { self: BlockC with BlockG =>
+  def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
+    broadcast(sink, C(distanceTo(sink), acc, local, Null))
+
+  def average(sink: Boolean, value: Double): Double =
+    summarize(sink, (a,b)=>{a+b}, value, 0.0) / summarize(sink, (a,b)=>a+b, 1, 0.0)
+}
+
 class Collection extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
   override def main() = summarize(sense1, _+_, if (sense2) 1.0 else 0.0, 0.0)
+}
+
+class CExample extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
+
+  def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
+    broadcast(sink, C(distanceTo(sink), acc, local, Null))
+
+  def p = distanceTo(sense1)
+
+  override def main() = (SettingsSpace.ToStrings.Default_Double(p), mid()+"->"+findParent(p), C[Double](p, _+_, 1, 0.0))
 }
