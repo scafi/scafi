@@ -30,8 +30,6 @@ class ValuesPanel private[view]() extends JPanel {
     //g.setColor(Settings.Color_device)
     //call the neighborhood to the network object
 
-    this.setFont(nodeLabelFont)
-
     controller.getNodes.foreach(ng => {
       val (n,gn) = ng
       val p1 = Utils.calculatedGuiNodePosition(n.position)
@@ -63,6 +61,17 @@ class ValuesPanel private[view]() extends JPanel {
     })
   }
 
-  def increaseFontSize() { this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D+1) }
-  def decreaseFontSize() { this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D-1) }
+  def increaseFontSize() {
+    this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D+1)
+    updateFont(this.nodeLabelFont)
+  }
+
+  def decreaseFontSize() {
+    this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D-1)
+    updateFont(this.nodeLabelFont)
+  }
+
+  private def updateFont(font: Font): Unit ={
+    this.setFont(font)
+  }
 }
