@@ -38,13 +38,16 @@ class ValuesPanel private[view]() extends JPanel {
       val p1y = (p1.y + dy)
       //println(n.id,n.getSensorValue(SensorEnum.SENS1.name).asInstanceOf[Tuple2[Any,Boolean]]._2)
       //controller.getSensorValueForNode(SensorEnum.SENS3.name, n).map(_==true).getOrElse(false) // too expensive
-      val color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else
+      var color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else
                   if (n.getSensorValue(SensorEnum.SENS2.name)==true) Settings.Color_device2 else
                   if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else Settings.Color_device
+
+      if(controller.getObservation()(n.export)) color = Settings.Color_observation
+
       var dim = (getWidth/Settings.Size_Device_Relative).min(getHeight/Settings.Size_Device_Relative)
       if (Try(Settings.Led_Activator(n.export).asInstanceOf[Boolean]) getOrElse false) {
         //println("in!!")
-        g.setColor(Settings.Color_actuator);
+        g.setColor(Settings.Color_actuator)
         g.fillOval(p1x.toInt-dim*10/16,p1y.toInt-dim*10/16,dim*10/8,dim*10/8)
         g.setColor(color)
         g.drawOval(p1x.toInt-dim*10/16,p1y.toInt-dim*10/16,dim*10/8,dim*10/8)

@@ -55,6 +55,51 @@ class Controller () {
   private var controllerUtility: ControllerPrivate = null
   private val updateFrequency = Settings.Sim_NumNodes / 4
   private var counter = 0
+  private var observation: Any=>Boolean = (_)=>false
+
+  def setObservation(obs: Any=>Boolean): Unit = {
+    this.observation = obs
+  }
+
+  def setObservation(obs: String): Unit = {
+    val split = obs.trim.split(" ", 2)
+    val (operatorStr, valueStr) = (split(0), split(1))
+    val (valueType, value) = Utils.parseValue(valueStr)
+
+    def anyToDouble(any: Any): Option[Double] = {
+      if(valueType=="bool"){
+        if(any.asInstanceOf[Boolean]==true) Some(1.0) else Some(0.0)
+      }
+      else if(valueType=="int" || valueType=="double"){
+        Some(any.asInstanceOf[Double])
+      }
+      else{
+        None
+      }
+    }
+
+    val obsFun = (v:Any) => {
+      try {
+        (operatorStr, anyToDouble(v), anyToDouble(value)) match {
+          case ("==", Some(v1), Some(v2)) => v1 == v2
+          case (">=", Some(v1), Some(v2)) => v1 >= v2
+          case (">",  Some(v1), Some(v2)) => v1 > v2
+          case ("<=", Some(v1), Some(v2)) => v1 <= v2
+          case ("<",  Some(v1), Some(v2)) => v1 < v2
+          case _ => value.toString==v.toString
+        }
+      } catch {
+        case ex => { println("Errore: " + ex); false }
+      }
+    }
+    setObservation(obsFun)
+  }
+
+  def isObserved(id: Int): Boolean = {
+    this.observation(nodes(id)._1.export)
+  }
+
+  def getObservation(): Any=>Boolean = this.observation
 
   def setGui(simulatorGui: SimulatorUI) {
     this.gui = simulatorGui

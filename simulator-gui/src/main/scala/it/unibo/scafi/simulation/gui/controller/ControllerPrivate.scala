@@ -138,6 +138,12 @@ class ControllerPrivate (val gui: SimulatorUI) {
         controller.setShowValue(NodeValue.SENSOR(sensorName))
       } catch { case _: Throwable => () }
     })
+    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Generic observation", (e:ActionEvent) => {
+      try {
+        var observationStringRepr = JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)")
+        controller.setObservation(observationStringRepr)
+      } catch { case _: Throwable => () }
+    })
   }
 
   def addAction() {
