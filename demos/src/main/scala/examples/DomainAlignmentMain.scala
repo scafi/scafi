@@ -7,6 +7,7 @@ package examples
 
 import examples.DemoSequence._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import lib.DomainAlignmentLib
 
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
 import scala.util.Random

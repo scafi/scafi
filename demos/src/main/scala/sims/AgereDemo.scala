@@ -1,9 +1,8 @@
 package sims
 
-import java.util.concurrent.TimeUnit
-
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
 import it.unibo.scafi.simulation.gui.Settings
-import it.unibo.scafi.simulation.gui.model.AggregateProgram
+import lib.{BuildingBlocks, SensorDefinitions}
 import sims.BasicDemo.launch
 
 import scala.concurrent.duration._
@@ -21,8 +20,6 @@ object AgereDemoMain extends App {
   Settings.Sim_NumNodes = 50 // number of nodes
   launch()
 }
-
-trait BuildingBlocks extends BlockG with BlockC with BlockS with BlockT with BlocksWithGC { self: AggregateProgram with SensorDefinitions => }
 
 class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefinitions {
   /* Parameters */

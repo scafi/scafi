@@ -1,19 +1,16 @@
 package sims
 
-import java.util.concurrent.TimeUnit
-
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation.NBR_RANGE_NAME
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation._
-import Builtins.OrderingFoldable
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ID
+
+import lib.{BlockG, BlockS, BlockT, SensorDefinitions}
 
 import scala.concurrent.duration.Duration
-import it.unibo.scafi.simulation.gui.model.AggregateProgram
+import java.util.concurrent.TimeUnit
 
 /**
   * @author Roberto Casadei
-  *
   */
 
 class Mid extends AggregateProgram {
@@ -85,138 +82,8 @@ class Timer extends AggregateProgram with BlockT {
   ).toMillis + "ms"
 }
 
-trait BlockT { self: AggregateProgram =>
-  def T[V](initial: V, floor: V, decay: V => V)
-          (implicit ev: Numeric[V]): V = {
-    rep(initial) { v =>
-      ev.min(initial, ev.max(floor, decay(v)))
-    }
-  }
-
-  def T[V](initial: V, decay: V => V)
-          (implicit ev: Numeric[V]): V = {
-    T(initial, ev.zero, decay)
-  }
-
-  def T[V](initial: V)
-          (implicit ev: Numeric[V]): V = {
-    T(initial, (t: V) => ev.minus(t, ev.one))
-  }
-
-  def timer[V](length: V)
-              (implicit ev: Numeric[V]) =
-    T[V](length)
-
-  def limitedMemory[V, T](value: V, expValue: V, timeout: T)
-                         (implicit ev: Numeric[T]) = {
-    val t = timer[T](timeout)
-    (if (ev.gt(t, ev.zero)) value else expValue, t)
-  }
-
-  def timer(dur: Duration): Long = {
-    val ct = System.nanoTime() // Current time
-    val et = ct + dur.toNanos // Time-to-expire (bootstrap)
-
-    rep((et, dur.toNanos)) { case (expTime, remaining) =>
-      if (remaining <= 0) (et, 0)
-      else (expTime, expTime - ct)
-    }._2 // Selects the component expressing remaining time
-  }
-
-  def recentlyTrue(dur: Duration, cond: => Boolean): Boolean =
-    rep(false){ happened =>
-      branch(cond){ true } { branch(!happened){ false }{ timer(dur)>0 } }
-    }
-
-}
-
 class SparseChoice extends AggregateProgram with BlockG with BlockS with SensorDefinitions {
   override def main() = S(0.2, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
 }
 
-trait BlockS { self: AggregateProgram with SensorDefinitions with BlockG =>
-  def S(grain: Double,
-        metric: => Double): Boolean =
-    breakUsingUids(randomUid, grain, metric)
 
-  def minId(): ID = {
-    rep(Int.MaxValue) { mmid => math.min(mid(), minHood(nbr {
-      mmid
-    }))
-    }
-  }
-
-  def S2(grain: Double): Boolean =
-    branch(distanceTo(mid() == minId()) < grain) {
-      mid() == minId()
-    } {
-      S2(grain)
-    }
-
-  /**
-    * Generates a field of random unique identifiers.
-    *
-    * @return a tuple where the first element is a random number,
-    *         end the second element is the device identifier to
-    *         ensure uniqueness of the field elements.
-    */
-  def randomUid: (Double, ID) = rep((Math.random()), mid()) { v =>
-    (v._1, mid())
-  }
-
-  /**
-    * Breaks simmetry using UIDs. UIDs are used to break symmetry
-    * by a competition between devices for leadership.
-    */
-  def breakUsingUids(uid: (Double, ID),
-                     grain: Double,
-                     metric: => Double): Boolean =
-  // Initially, each device is a candidate leader, competing for leadership.
-    uid == rep(uid) { lead: (Double, ID) =>
-      // Distance from current device (uid) to the current leader (lead).
-      val dist = G[Double](uid == lead, 0, (_: Double) + metric, metric)
-
-      // Initially, current device is candidate, so the distance ('dist')
-      // will be 0; the same will be for other devices.
-      // To solve the conflict, devices abdicate in favor of devices with
-      // lowest UID, according to 'distanceCompetition'.
-      distanceCompetition(dist, lead, uid, grain, metric)
-    }
-
-  /**
-    * Candidate leader devices surrender leadership to the lowest nearby UID.
-    *
-    * @return
-    */
-  def distanceCompetition(d: Double,
-                          lead: (Double, ID),
-                          uid: (Double, ID),
-                          grain: Double,
-                          metric: => Double) = {
-    val inf: (Double, ID) = (Double.PositiveInfinity, uid._2)
-    mux(d > grain) {
-      // If the current device has a distance to the current candidate leader
-      //   which is > grain, then the device candidate itself for another region.
-      // Remember: 'grain' represents, in the algorithm,
-      //   the mean distance between two leaders.
-      uid
-    } {
-      mux(d >= (0.5 * grain)) {
-        // If the current device is at an intermediate distance to the
-        //   candidate leader, then it abdicates (by returning 'inf').
-        inf
-      } {
-        // Otherwise, elect the leader with lowest UID.
-        // Note: it works because Tuple2 has an OrderingFoldable where
-        //   the min(t1,t2) is defined according the 1st element, or
-        //   according to the 2nd elem in case of breakeven on the first one.
-        //   (minHood uses min to select the candidate leader tuple)
-        minHood { mux(nbr { d } + metric >= 0.5 * grain){
-          nbr { inf }
-        }{
-          nbr { lead }
-        } }
-      }
-    }
-  }
-}
