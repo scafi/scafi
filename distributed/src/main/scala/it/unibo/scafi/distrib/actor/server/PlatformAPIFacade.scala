@@ -126,7 +126,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
     import akka.pattern.ask
 
     import scala.concurrent.ExecutionContext.Implicits.global
-    implicit val timeout: akka.util.Timeout = 2 seconds
+    implicit val timeout: akka.util.Timeout = 2.seconds
     val logger = actorSys.log
 
     override def newAggregateApplication(appSettings: AggregateApplicationSettings,

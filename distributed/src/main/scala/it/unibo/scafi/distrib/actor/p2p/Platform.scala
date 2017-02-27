@@ -22,7 +22,7 @@ trait Platform extends BasePlatform
     override def defaultProfileSettings(): ProfileSettings = P2PActorSystemSettings()
     override def defaultSettings(): Settings = {
       val s = super.defaultSettings()
-      s.copy(execution = s.execution.copy(scope = DeviceDelegated(DelayedDeviceExecStrategy(Some(1 second), 1 second))))
+      s.copy(execution = s.execution.copy(scope = DeviceDelegated(DelayedDeviceExecStrategy(Some(1.second), 1.second))))
     }
   }
 

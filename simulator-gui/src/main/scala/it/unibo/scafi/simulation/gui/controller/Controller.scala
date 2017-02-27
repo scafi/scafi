@@ -66,7 +66,7 @@ class Controller () {
   }
 
   def getNeighborhood: Map[Node, Set[Node]] =
-    try{ this.simManager.simulation.network.neighbourhood } catch { case _ => Map()}
+    try{ this.simManager.simulation.network.neighbourhood } catch { case _: Throwable => Map()}
 
   def getNodes: Iterable[(Node,GuiNode)] = this.nodes.values
 

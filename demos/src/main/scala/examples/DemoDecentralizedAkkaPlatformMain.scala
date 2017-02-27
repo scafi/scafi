@@ -42,7 +42,7 @@ object DemoDecentralizedAkkaPlatformMain extends App {
     profile = P2PActorSystemSettings(),
     execution = ExecutionSettings(scope =
     //Global(null)
-    DeviceDelegated(DelayedDeviceExecStrategy(Some(10 second)))
+    DeviceDelegated(DelayedDeviceExecStrategy(Some(10.second)))
     // DeviceDelegated(PeriodicDeviceExecStrategy())
     ))
 

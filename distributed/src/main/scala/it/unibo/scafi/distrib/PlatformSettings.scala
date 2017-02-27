@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 trait PlatformSettings { self: Platform.Subcomponent =>
 
   type ProfileSettings <: ConfigurableSettings[ProfileSettings]
-  @transient val settingsFactory: SettingsFactory
+  val settingsFactory: SettingsFactory
 
   trait SettingsFactory extends Serializable {
     def defaultProfileSettings(): ProfileSettings

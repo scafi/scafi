@@ -113,7 +113,7 @@ trait SpatialSimulation extends Simulation { self: Platform.PlatformDependency w
       }
 
       val devs: Map[ID,DevInfo] = ((ids map lId.fromNum) zip positions).map {
-        case (id:ID, pos:P) => (id, new DevInfo(id, pos, lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns)))
+        case (id, pos) => (id, new DevInfo(id, pos.asInstanceOf[P], lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns)))
       }.toMap
       val space = buildNewSpace(devs mapValues(v => v.pos))
       new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.GridRepr(n))
@@ -136,7 +136,7 @@ trait SpatialSimulation extends Simulation { self: Platform.PlatformDependency w
       }
 
       val devs: Map[ID,DevInfo] = (idArray zip positions).map {
-        case (id:ID, pos:P) => (id, new DevInfo(id, pos, lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns) ))
+        case (id, pos) => (id, new DevInfo(id, pos.asInstanceOf[P], lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns) ))
       }.toMap
       val space = buildNewSpace(devs mapValues(v => v.pos))
       new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.DefaultRepr)
