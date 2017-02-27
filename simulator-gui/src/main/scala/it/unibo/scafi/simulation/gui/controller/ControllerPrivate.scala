@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.controller
 
+import scala.language.implicitConversions
+
 import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing.JOptionPane
 

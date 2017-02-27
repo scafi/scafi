@@ -1,5 +1,7 @@
 package it.unibo.scafi.distrib
 
+import scala.language.postfixOps
+
 import com.typesafe.config.{ConfigObject, ConfigFactory, Config}
 import scala.concurrent.duration._
 
