@@ -5,7 +5,7 @@ package it.unibo.scafi.test.functional
  * Created on date: 30/10/15
  */
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
 
@@ -21,7 +21,7 @@ class TestRep extends FlatSpec with Matchers {
   private[this] trait SimulationContextFixture {
     var net: Network with SimulatorOps =
       simulatorFactory.gridLike(n = 3, m = 3, stepx = 1, stepy = 1, eps = 0, rng = 1.5)
-    implicit val node = new Execution
+    implicit val node = BasicAggregateInterpreter
   }
 
   REP should "allow devices to count the number of rounds they execute" in new SimulationContextFixture {

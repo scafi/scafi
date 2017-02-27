@@ -16,14 +16,20 @@ trait BasicAbstractIncarnation extends Incarnation {
   override type LSNS = String
   override type NSNS = String
   override type ID = Int
-  override type EXECUTION = AggregateProgram
+  override type EXECUTION = AggregateInterpreter
 
   implicit val NBR_RANGE_NAME: NSNS = "nbrRange"
 
   trait AggregateProgramSpec extends AggregateProgramSpecification with Constructs with Builtins
 
-  trait AggregateProgram extends ExecutionTemplate with Constructs with Builtins with Serializable {
-    override type MainResult = Any
+  trait AggregateInterpreter extends ExecutionTemplate with Constructs with Builtins with Serializable {
+    type MainResult = Any
+  }
+
+  trait AggregateProgram extends AggregateInterpreter
+
+  object BasicAggregateInterpreter extends AggregateInterpreter {
+    override def main() = ???
   }
 
   @transient implicit override val linearID: Linearizable[ID] = new Linearizable[ID] {

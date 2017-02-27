@@ -5,7 +5,7 @@ package it.unibo.scafi.test.functional
  * Created on date: 30/10/15
  */
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
@@ -17,7 +17,7 @@ class TestNeighbors extends FlatSpec with Matchers {
   private[this] trait SimulationContextFixture {
     var net: Network with SimulatorOps =
       simulatorFactory.gridLike(n = 3, m = 3, stepx = 1, stepy = 1, eps = 0, rng = 1.5)
-    implicit val node = new Execution
+    implicit val node = BasicAggregateInterpreter
   }
 
   it should "be possible to count neighbors" in new SimulationContextFixture {
