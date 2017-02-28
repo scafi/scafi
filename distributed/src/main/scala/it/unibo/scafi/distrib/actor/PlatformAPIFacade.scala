@@ -49,7 +49,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
     override def newDevice(id: ID, program: Option[ExecutionTemplate] = None, nbs: Set[ID] = Set()): DeviceManager = {
       import akka.pattern._
       import scala.concurrent.ExecutionContext.Implicits.global
-      implicit val to: akka.util.Timeout = 10 seconds
+      implicit val to: akka.util.Timeout = 10.seconds
       var dm: DeviceManager = null
 
       val dmf = (appRef ? MsgAddDevice(id, deviceProps(id, program.orElse(appSettings.program())))).andThen {

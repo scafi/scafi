@@ -53,7 +53,7 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
   /* Behavior */
 
   // GUI will update at 100 ms interval
-  context.system.scheduler.schedule(1 millis, 100 millis) { self ! GoOn }
+  context.system.scheduler.schedule(1.millis, 100.millis) { self ! GoOn }
 
   val map = MMap[ID,ActorRef]()
   val nrounds = MMap[ID,Int]()

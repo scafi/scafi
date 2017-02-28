@@ -41,7 +41,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     with ObservableDeviceActor
     with QueryableDeviceActorBehavior
     with DeviceNbrManagementBehavior {
-    val NEIGHBORHOOD_LOOKUP_INTERVAL = 2 seconds
+    val NEIGHBORHOOD_LOOKUP_INTERVAL = 2.seconds
 
     override def AfterJob() = {
       super.AfterJob()

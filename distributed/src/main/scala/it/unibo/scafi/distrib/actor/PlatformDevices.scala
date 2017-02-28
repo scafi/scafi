@@ -44,7 +44,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // OVERRIDES TO CUSTOM LIFECYCLE
 
-    override var workInterval = 1 day // Ignored in HandleLifecycle()
+    override var workInterval = 1.day // Ignored in HandleLifecycle()
     import context.dispatcher
 
     override def HandleLifecycle() = execScope match {
@@ -55,6 +55,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
         case PeriodicDeviceExecStrategy(_,period) => {
           tick = tick.orElse(Some(context.system.scheduler.schedule(period,period,self,GoOn)))
         }
+        case _ => // Do nothing
       }
       case _ => // Do nothing
     }
@@ -67,8 +68,9 @@ trait PlatformDevices { self: Platform.Subcomponent =>
           // which essentially schedules a cycle with 'initialDelay' (if set)
           PeriodicBehaviorPreStart()
         }
+        case _ => // Do nothing
       }
-      case _ =>
+      case _ => // Do nothing
     }
 
     override def LifecyclePostStop() = {

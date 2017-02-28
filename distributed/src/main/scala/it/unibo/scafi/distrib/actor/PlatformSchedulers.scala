@@ -96,7 +96,7 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
 
   object AutonomousScheduler extends Serializable {
     def props(exec: ExecStrategy,
-              wInterval: FiniteDuration = 1 millisecond,
+              wInterval: FiniteDuration = 1.millisecond,
               initialDelay: Option[FiniteDuration] = None) =
       Props(classOf[AutonomousScheduler], self, exec, initialDelay, wInterval)
   }
