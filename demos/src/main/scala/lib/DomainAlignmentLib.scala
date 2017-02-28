@@ -7,7 +7,7 @@ package lib
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
-trait DomainAlignmentLib extends MyLib { self: Constructs with Builtins =>
+trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
 
   //def nbrRange():Double = nbrvar[Double](NBR_RANGE_NAME)
   def time = rep(0)(_+1)
@@ -17,12 +17,20 @@ trait DomainAlignmentLib extends MyLib { self: Constructs with Builtins =>
   // domain-aligned updatable function //
   ///////////////////////////////////////
 
+  /**
+    * @param ver Version of the function
+    * @param fun Function
+    */
   case class VersionedFunction(ver: Int, fun: ()=>Double) {
     def max(o: VersionedFunction) = {
       if (ver > o.ver) this else o
     }
   }
 
+  /**
+    * Executes every function in list 'procs' which is not older than any version currently used by a neighbour.
+    * @return the outcome of the function with the highest version number that is shared by all neighbours
+    */
   def exec(procs: List[VersionedFunction], maxp: Int, curp: Int, nnum: Int, init: ()=>Double): (Double,Int) = aggregate{
     val d_cur = branch (minHood(nbr{curp}) <= procs.head.ver) {procs.head.fun()} {init()}
     val x: (Double,Int) = branch (procs.head.ver < maxp) {
@@ -33,6 +41,16 @@ trait DomainAlignmentLib extends MyLib { self: Constructs with Builtins =>
     mux(ncurp<0 && nnum == foldhood(0)(_+_){1}) { (d_cur, procs.head.ver) } { x }
   }
 
+  /**
+    * procs: list of functions ever executed on the network
+    * maxp: the max version number in procs
+    * curp: the version number of the function used in previous round
+    * field: the output field
+    *
+    * @param metric The "injecter" of the functions.
+    * @param init Initial version of the function.
+    * @return
+    */
   def safeup(metric: ()=>VersionedFunction, init: ()=>Double) = aggregate{
     (rep ((List[VersionedFunction](), -1, -1, nbr{0.0})) {
       case ((procs:List[VersionedFunction], maxp:Int, curp:Int, field:Double)) => aggregate {

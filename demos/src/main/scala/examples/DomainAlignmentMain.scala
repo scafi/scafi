@@ -5,14 +5,10 @@ package examples
  * This program is used to launch simulations on a grid-like network.
  */
 
-import examples.DemoSequence._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import lib.DomainAlignmentLib
+import lib.{DomainAlignmentLib, SensorDefinitions}
 
-import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
-import scala.util.Random
-
-object DemoAlignment extends AggregateProgram with DomainAlignmentLib {
+object DemoAlignment extends AggregateProgram with SensorDefinitions with DomainAlignmentLib {
   def isSource = sense[Boolean]("source")
 
   //def main() = hopGradientByG(isSource) //
