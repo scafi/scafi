@@ -26,21 +26,21 @@ class TestEngine extends FunSpec with Matchers {
         val path1 = factory.path(Nbr(0), Rep(0))
 
         // ASSERT (initial, empty state)
-        exp.get(emptyPath) shouldBe None
-        exp.get(path1) shouldBe None
+        exp.get[Nothing](emptyPath) shouldBe None
+        exp.get[Nothing](path1) shouldBe None
 
         // ACT + ASSERT (insertion at root path)
         exp.put(emptyPath, "foo")
-        exp.get(emptyPath) shouldBe Some("foo")
-        exp.get(emptyPath).get shouldBe exp.root[String]()
+        exp.get[String](emptyPath) shouldBe Some("foo")
+        exp.get[String](emptyPath).get shouldBe exp.root[String]()
 
         // ACT + ASSERT (insertion at different path)
         exp.put(path1, "bar")
-        exp.get(path1).get shouldBe "bar"
+        exp.get[String](path1).get shouldBe "bar"
 
         // ACT + ASSERT (overwriting with a different data type)
         exp.put(emptyPath, 77)
-        exp.get(emptyPath).get shouldBe 77
+        exp.get[Int](emptyPath).get shouldBe 77
       }
     } // END describe("Export implementation")
 

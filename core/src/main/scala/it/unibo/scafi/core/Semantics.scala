@@ -40,7 +40,7 @@ trait Semantics extends Core with Language {
 
   trait ExportOps { self: EXPORT =>
     def put[A](path: Path, value: A): A
-    def get(path: Path): Option[Any]
+    def get[A](path: Path): Option[A]
   }
 
   trait Factory {

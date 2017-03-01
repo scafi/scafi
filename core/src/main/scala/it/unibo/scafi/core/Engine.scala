@@ -20,8 +20,8 @@ trait Engine extends Semantics {
   class ExportImpl() extends Export with ExportOps with Serializable { self: EXPORT =>
     private val map = MMap[Path,Any]()
     def put[A](path: Path, value: A) : A = { map += (path -> value); value }
-    def get(path: Path): Option[Any] = map.get(path)
-    def root[A](): A = get(factory.emptyPath()).get.asInstanceOf[A]
+    def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
+    def root[A](): A = get[A](factory.emptyPath()).get
 
     override def toString: String = map.toString
   }
@@ -61,7 +61,7 @@ trait Engine extends Semantics {
     override def exports(): Iterable[(ID, ExportImpl)] = exportsMap
 
     def readSlot[A](i: ID, p:Path): Option[A] = {
-      exportsMap get(i) flatMap (_.get(p)) map (_.asInstanceOf[A])
+      exportsMap get(i) flatMap (_.get[A](p))
     }
   }
 
