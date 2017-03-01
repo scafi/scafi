@@ -90,4 +90,21 @@ trait Engine extends Semantics {
     }
   }
 
+  trait Interop[T] extends Serializable {
+    def toString: String
+    def fromString(s: String): T
+  }
+
+  trait LinearizableTo[T,N] extends Serializable {
+    def toNum(v: T): N
+    def fromNum(n: N): T
+  }
+  trait Linearizable[T] extends LinearizableTo[T,Int]
+
+  def log(msg: String) = {}
+
+  implicit val linearID: Linearizable[ID]
+  implicit val interopID: Interop[ID]
+  implicit val interopLSNS: Interop[LSNS]
+  implicit val interopNSNS: Interop[NSNS]
 }
