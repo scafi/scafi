@@ -51,19 +51,23 @@ trait Engine extends Semantics {
   }
 
   abstract class BaseContextImpl(val selfId: ID,
-                                 val exports: GMap[ID,EXPORT])
+                                 _exports: Iterable[(ID, EXPORT)])
     extends Context with ContextOps with Serializable { self: CONTEXT =>
 
-    def updateExport(id: ID, export:EXPORT) = exports + (id -> export)
+    private val exportsMap : MMap[ID,EXPORT] = MMap() ++ _exports
+
+    def updateExport(id: ID, export:EXPORT) = exportsMap + (id -> export)
+
+    override def exports(): Iterable[(ID, ExportImpl)] = exportsMap
 
     def readSlot[A](i: ID, p:Path): Option[A] = {
-      exports.get(i).flatMap(_.get(p)).map(_.asInstanceOf[A])
+      exportsMap get(i) flatMap (_.get(p)) map (_.asInstanceOf[A])
     }
   }
 
   class ContextImpl(
       selfId: ID,
-      exports: GMap[ID,EXPORT],
+      exports: Iterable[(ID,EXPORT)],
       val localSensor: GMap[LSNS,Any],
       val nbrSensor: GMap[NSNS,GMap[ID,Any]])
     extends BaseContextImpl(selfId, exports) { self: CONTEXT =>

@@ -54,7 +54,7 @@ trait Core {
 
   trait Context {
     def selfId: ID
-    def exports: scala.collection.Map[ID, EXPORT]
+    def exports(): Iterable[(ID,EXPORT)]
     def sense[T](lsns: LSNS): Option[T]
     def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T]
   }

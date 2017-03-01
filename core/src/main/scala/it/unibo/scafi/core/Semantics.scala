@@ -170,7 +170,7 @@ trait Semantics extends Core with Language {
     private[this] def aligned(): List[ID] =
       ctx.exports
         .filter(p => p._1 != ctx.selfId && (if (status.path.matches(factory.emptyPath())) true else p._2.get(status.path).isDefined))
-        .keySet
+        .map(_._1)
         .toList
         .++(List(ctx.selfId))
   }
