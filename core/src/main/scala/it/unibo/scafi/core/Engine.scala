@@ -32,9 +32,12 @@ trait Engine extends Semantics {
       case s :: p => new PathImpl(p)
       case _ => throw new Exception();
     }
-    def matches(p: Path): Boolean = this == p
+
+    override def isRoot: Boolean = path.isEmpty
 
     override def toString(): String = "P:/"+path.mkString("/")
+
+    def matches(p: Path): Boolean = this == p
 
     def canEqual(other: Any) = {
       other.isInstanceOf[Engine.this.PathImpl]

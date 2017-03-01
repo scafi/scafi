@@ -36,6 +36,7 @@ trait Semantics extends Core with Language {
     def push(slot: Slot): Path
     def pull(): Path
     def matches(path: Path): Boolean
+    def isRoot: Boolean
   }
 
   trait ExportOps { self: EXPORT =>
@@ -161,7 +162,7 @@ trait Semantics extends Core with Language {
 
     private[this] def aligned(): List[ID] =
       ctx.exports
-        .filter(p => p._1 != ctx.selfId && (if (status.path.matches(factory.emptyPath())) true else p._2.get(status.path).isDefined))
+        .filter(p => p._1 != ctx.selfId && (status.path.isRoot || p._2.get(status.path).isDefined))
         .map(_._1)
         .toList
         .++(List(ctx.selfId))
