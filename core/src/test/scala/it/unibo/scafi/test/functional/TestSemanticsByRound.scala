@@ -45,8 +45,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     val ctx1 = ctx(selfId = 0, Map(), Map("sensor" -> 5))
     def expr1 = 1
     def expr2 = rep(7)(_+1)
-    def expr3 = branch(mid()==0)("a")("b")
-    def expr4 = foldhood(0)(_+_)(nbr(sense[Int]("sensor")))
+    def expr3 = foldhood(0)(_+_)(nbr(sense[Int]("sensor")))
 
     /* Given expr 'e' produces exports 'o'
      * What exports are produced by 'e + e + e + e' ?
@@ -55,18 +54,15 @@ class TestSemanticsByRound extends FunSpec with Matchers {
       export(emptyPath() -> 4)
     round(ctx1, expr2 + expr2 + expr2 + expr2) shouldEqual
       export(emptyPath() -> 32, path(Rep(0)) -> 8, path(Rep(1)) -> 8, path(Rep(2)) -> 8, path(Rep(3)) -> 8)
-    /*
     round(ctx1, expr3 + expr3 + expr3 + expr3) shouldEqual
-      export(emptyPath() -> "aaaa", path(If(0,true)) -> "a", path(If(1,true)) -> "a",
-        path(If(2,true)) -> "a", path(If(3, true)) -> "a")
-        */
-    round(ctx1, expr4 + expr4 + expr4 + expr4) shouldEqual
       export(emptyPath() -> 20, path(Nbr(0)) -> 5, path(Nbr(1)) -> 5, path(Nbr(2)) -> 5,
         path(Nbr(3)) -> 5)
+
     // Note: with the current implementation, the following, commented tested expression
     //  is not aligned with the previous one.
     //  Current impl of foldHood increments the index even though Nbr is not
     //  used inside. It shouldn't be an issue as foldHood is to be used with Nbr.
+    // def expr4 = foldhood(0)(_+_)(nbr(sense[Int]("sensor")))
     // round(ctx1, expr4 + expr4 + foldhood(0)(_+_)(1) + expr4 + expr4) shouldEqual
     //  export(emptyPath() -> 21, path(Nbr(0)) -> 5, path(Nbr(1)) -> 5, path(Nbr(2)) -> 5,
     //    path(Nbr(3)) -> 5)
@@ -79,12 +75,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     round(ctx1,  rep(0){x => rep(0){ y => expr2 }}) shouldEqual
       export(emptyPath() -> 8, path(Rep(0)) -> 8, path(Rep(0), Rep(0)) -> 8,
         path(Rep(0), Rep(0), Rep(0)) -> 8)
-    /*
-    round(ctx1,  rep(""){x => rep(""){ y => expr3 }}) shouldEqual
-      export(emptyPath() -> "a", path(Rep(0)) -> "a", path(Rep(0),Rep(0)) -> "a",
-        path(If(0,true), Rep(0), Rep(0)) -> "a")
-    */
-    round(ctx1,  rep(0){x => rep(0){ y => expr4 }}) shouldEqual
+    round(ctx1,  rep(0){x => rep(0){ y => expr3 }}) shouldEqual
       export(emptyPath() -> 5, path(Rep(0)) -> 5, path(Rep(0),Rep(0)) -> 5,
         path(Nbr(0), Rep(0), Rep(0)) -> 5)
 
@@ -162,7 +153,6 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     intercept[Exception]{ round(ctx1, foldhood(0)(_+_)(rep(0)(_+1))) }
   }
 
-  /*
   BRANCH("should support domain restriction, thus affecting the structure of exports") {
     // ARRANGE
     def program = {
@@ -172,18 +162,18 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     val exp = round(ctx(0), program)
     // ASSERT
     exp.root[Int]() shouldBe 1
-    exp.get(path(If(0, true), Rep(0))) shouldBe Some(7)
-    exp.get(path(If(0, false), Rep(0))) shouldBe None
+    //exp.get(path(If(0, true), Rep(0))) shouldBe Some(7)
+    //exp.get(path(If(0, false), Rep(0))) shouldBe None
 
     // ACT
     val ctx2 = ctx(0, Map(0 -> export(path(Rep(0)) -> 1)))
     val exp2 = round(ctx2, program)
 
     exp2.root[Int]() shouldBe 2
-    exp2.get(path(If(0, true), Rep(0))) shouldBe None
-    exp2.get(path(If(0, false), Rep(0))) shouldBe Some(4)
-    exp2.get(path(Rep(0), If(0, false), Rep(0))) shouldBe Some(4)
-  }*/
+    //exp2.get(path(If(0, true), Rep(0))) shouldBe None
+    //exp2.get(path(If(0, false), Rep(0))) shouldBe Some(4)
+    //exp2.get(path(Rep(0), If(0, false), Rep(0))) shouldBe Some(4)
+  }
 
   SENSE("should simply evaluate to the last value read by sensor") {
     // ARRANGE

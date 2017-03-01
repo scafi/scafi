@@ -81,18 +81,14 @@ class TestEngine extends FunSpec with Matchers {
         // ACT
         val path1 = emptyPath.push(Nbr(0))
         val path2a = path1.push(Rep(0))
-        //val path2b = path1.push(If(0,true))
         val tail1a = path2a.pull()
-        //val tail1b = path2b.pull()
         val tail2a = tail1a.pull()
 
         // ASSERT
         intercept[Exception]{ tail2a.pull() }
         path1.matches(new PathImpl(List(Nbr(0)))) shouldBe true
         path2a.matches(new PathImpl(List(Rep(0), Nbr(0)))) shouldBe true
-        //path2b.matches(new PathImpl(List(If(0,true), Nbr(0)))) shouldBe true
         tail1a.matches(new PathImpl(List(Nbr(0)))) shouldBe true
-        //tail1b.matches(new PathImpl(List(Nbr(0)))) shouldBe true
         tail2a.matches(new PathImpl(List())) shouldBe true
       }
     } // END describe("Path implementation")
