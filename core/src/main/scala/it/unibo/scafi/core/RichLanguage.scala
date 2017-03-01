@@ -14,7 +14,7 @@ trait RichLanguage extends Language { self: Core =>
   trait Builtins { this: Constructs =>
     import Builtins._
 
-    def branch2[A](cond: => Boolean)(th: => A)(el: => A): A =
+    def branch[A](cond: => Boolean)(th: => A)(el: => A): A =
       mux(cond)(() => aggregate{ th })(() => aggregate{ el })()
 
     def mux[A](cond: Boolean)(th: A)(el: A): A = if (cond) th else el

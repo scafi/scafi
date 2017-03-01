@@ -25,7 +25,6 @@ trait Language { self: Core =>
     def mid(): ID
     def nbr[A](expr: => A): A
     def rep[A](init: A)(fun: (A) => A): A
-    def branch[A](cond: => Boolean)(th: => A)(el: => A): A
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A
     def aggregate[A](f: => A): A
     def sense[A](name: LSNS): A
