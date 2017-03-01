@@ -99,9 +99,8 @@ trait Engine extends Semantics {
     def toNum(v: T): N
     def fromNum(n: N): T
   }
-  trait Linearizable[T] extends LinearizableTo[T,Int]
 
-  def log(msg: String) = {}
+  trait Linearizable[T] extends LinearizableTo[T,Int]
 
   implicit val linearID: Linearizable[ID]
   implicit val interopID: Interop[ID]
