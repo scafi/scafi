@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation.NBR_RANGE_NAME
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation._
-import Builtins.OrderingFoldable
+import Builtins.Bounded
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ID
 
 import scala.concurrent.duration.Duration
@@ -63,10 +63,10 @@ class Gradient extends AggregateProgram {
 
 trait Blocks { self: AggregateProgram =>
 
-  def G[V: OrderingFoldable](source: Boolean)
-                            (field: V)
-                            (acc: V => V = (v:V)=>v)
-                            (metric: => Double = nbrvar[Double](NBR_RANGE_NAME)): V =
+  def G[V: Bounded](source: Boolean)
+                   (field: V)
+                   (acc: V => V = (v:V)=>v)
+                   (metric: => Double = nbrvar[Double](NBR_RANGE_NAME)): V =
     rep((Double.MaxValue, field)) { dv => mux(source) { (0.0, field) }{
         minHoodPlus {
           val (d, v) = nbr { dv }
@@ -97,7 +97,7 @@ class RouteChannel extends AggregateProgram with Blocks {
    def distanceTo(source: Boolean): Double =
      G(source)(0.0)(_ + nbrRange)()
 
-  def broadcast[V: OrderingFoldable](source: Boolean, field: V): V =
+  def broadcast[V: Bounded](source: Boolean, field: V): V =
     G(source)(field)()()
 
   def distanceBetween(source: Boolean, target: Boolean): Double =
@@ -158,7 +158,7 @@ class SparseChoice extends AggregateProgram {
 
   def nbrRange(): Double = nbrvar[Double](NBR_RANGE_NAME)
 
-  def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+  def G[V: Bounded](source: Boolean, field: V, acc: V => V, metric: => Double): V =
     rep((Double.MaxValue, field)) { dv =>
       mux(source) {
         (0.0, field)

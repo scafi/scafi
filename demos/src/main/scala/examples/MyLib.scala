@@ -17,7 +17,7 @@ trait MyLib { self: Constructs with Builtins =>
    * @return globally, a field of values calculated by accumulation along
    *         the gradient; locally, the accumulated value for each device.
    */
-  def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+  def G[V: Bounded](source: Boolean, field: V, acc: V => V, metric: => Double): V =
     rep( (Double.MaxValue, field) ){ dv =>
       mux(source) {
         (0.0, field)
@@ -30,7 +30,7 @@ trait MyLib { self: Constructs with Builtins =>
   def distanceTo(source:Boolean): Double =
     G[Double](source,0, _ + nbrRange(), nbrRange())
 
-  def broadcast[V: OrderingFoldable](source:Boolean, field: V):V =
+  def broadcast[V: Bounded](source:Boolean, field: V):V =
     G[V](source,field, x=>x , nbrRange())
 
   def distanceBetween(source:Boolean, target:Boolean):Double =
@@ -47,7 +47,7 @@ trait MyLib { self: Constructs with Builtins =>
    * @return the ID of the neighbour whose 'potential' value is minimum
    *         among the neighbours.
    */
-  def findParent[V](potential: V)(implicit ev: OrderingFoldable[V]): ID = {
+  def findParent[V](potential: V)(implicit ev: Bounded[V]): ID = {
     mux(ev.compare(minHood{ nbr(potential) }, potential)<0 ){
       minHood{ nbr{ Tuple2[V,ID](potential, mid()) } }._2
     }{
@@ -58,7 +58,7 @@ trait MyLib { self: Constructs with Builtins =>
   /** accumulate-hood uses the function in its first argument
     * to combine values from the field in its second argument,
     */
-  def accumulateHood[V: OrderingFoldable](acc:(V,V)=>V)(field:V): V = {
+  def accumulateHood[V: Bounded](acc:(V,V)=>V)(field:V): V = {
     acc(field, field)
   }
 
@@ -74,7 +74,7 @@ trait MyLib { self: Constructs with Builtins =>
    * @tparam V type of the potential field and the accumulated value.
    * @return the final result of the accumulation along the potential field.
    */
-  def C[V: OrderingFoldable](potential: V, acc: (V,V)=>V, local:V, Null:V): V = {
+  def C[V: Bounded](potential: V, acc: (V,V)=>V, local:V, Null:V): V = {
     rep(local){ v =>
       acc(local, foldhood(Null)(acc){
         mux(nbr(findParent(potential)) == mid()){
@@ -214,7 +214,7 @@ trait MyLib { self: Constructs with Builtins =>
   def distanceAvoidingObstacles(src: Boolean, obstacle: Boolean): Double =
     branch(obstacle){Double.PositiveInfinity}{distanceTo(src)}
 
-  def broadcastRegion[V:OrderingFoldable](region: Boolean, src: Boolean, value: V): Option[V] =
+  def broadcastRegion[V:Bounded](region: Boolean, src: Boolean, value: V): Option[V] =
     branch[Option[V]](region){ Some[V](broadcast(src, value)) }{ None }
 
   def groupSize(region: Boolean): Double =
@@ -326,7 +326,7 @@ trait MyLib { self: Constructs with Builtins =>
 
   //;; Evaluate a function field, running ’f’ from ’source’ within ’range’ meters, and ’no-op’ elsewhere
     def deploy[T](range:Double, source:Boolean, g: ()=>T, noOp: ()=>T)
-                 (implicit ev: OrderingFoldable[T]): T = {
+                 (implicit ev: Bounded[T]): T = {
       val f: ()=>T = if (distanceTo(source) < range) {
         G(source, g, identity[()=>T], nbrRange())
       } else {

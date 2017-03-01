@@ -40,7 +40,7 @@ trait SensorDefinitions { self: AggregateProgram =>
 
 trait BlockG { self: AggregateProgram with SensorDefinitions =>
 
-  def G[V: OrderingFoldable](source: Boolean)(field: V)(acc: V => V)(metric: => Double = nbrRange): V =
+  def G[V: Bounded](source: Boolean)(field: V)(acc: V => V)(metric: => Double = nbrRange): V =
     rep((Double.MaxValue, field)) { case (d,v) =>
       mux(source) { (0.0, field) } {
         minHoodPlus { (nbr{d} + metric, acc(nbr{v})) }
@@ -50,7 +50,7 @@ trait BlockG { self: AggregateProgram with SensorDefinitions =>
   def distanceTo(source: Boolean): Double =
     G(source)(0.0)(_ + nbrRange)()
 
-  def broadcast[V: OrderingFoldable](source: Boolean, field: V): V =
+  def broadcast[V: Bounded](source: Boolean, field: V): V =
     G(source)(field)(v=>v)()
 
   def distanceBetween(source: Boolean, target: Boolean): Double =
@@ -77,15 +77,15 @@ object CollectionDemo extends Launcher {
 
 trait BlockC { self: AggregateProgram with SensorDefinitions =>
 
-  def findParent[V:OrderingFoldable](potential: V): ID = {
-    mux(implicitly[OrderingFoldable[V]].compare(minHood { nbr(potential) }, potential) < 0) {
+  def findParent[V:Bounded](potential: V): ID = {
+    mux(implicitly[Bounded[V]].compare(minHood { nbr(potential) }, potential) < 0) {
       minHood { nbr { (potential, mid()) } }._2
     } {
       Int.MaxValue
     }
   }
 
-  def C[V: OrderingFoldable](potential: V, acc: (V, V) => V, local: V, Null: V): V = {
+  def C[V: Bounded](potential: V, acc: (V, V) => V, local: V, Null: V): V = {
     rep(local) { v =>
       acc(local, foldhood(Null)(acc) {
         mux(nbr(findParent(potential)) == mid()) {
