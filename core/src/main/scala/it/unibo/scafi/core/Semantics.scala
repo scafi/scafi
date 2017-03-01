@@ -30,7 +30,6 @@ trait Semantics extends Core with Language {
   trait Slot extends Serializable
   sealed case class Nbr[A](index: Int) extends Slot
   sealed case class Rep[A](index: Int) extends Slot
-  //sealed case class If[A](index: Int, b: Boolean) extends Slot
   sealed case class FunCall[A](index: Int, funId: Any) extends Slot
 
   trait Path {
@@ -134,15 +133,6 @@ trait Semantics extends Core with Language {
 
       nest(FunCall[T](status.index, funId)) { f }
     }
-
-    /*
-    def branch[A](cond: => Boolean)(th: => A)(el: => A): A = {
-      val b = cond
-      nest(If[A](status.index, b)){
-        if (b) th else el
-      }
-    }
-    */
 
     def sense[A](name: LSNS): A = ctx.sense[A](name).getOrElse(throw new SensorUnknownException(ctx.selfId, name))
 
