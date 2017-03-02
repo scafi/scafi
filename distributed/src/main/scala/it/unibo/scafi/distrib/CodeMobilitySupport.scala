@@ -24,7 +24,7 @@ class CustomClassLoader(parent: ClassLoader) extends URLClassLoader(Array[URL]()
       try {
         result = findSystemClass(name);
       } catch {
-        case _ => // Ignore
+        case _: Throwable => // Ignore
       }
     }
     if (result == null && toreg) {
@@ -45,13 +45,13 @@ class CustomClassLoader(parent: ClassLoader) extends URLClassLoader(Array[URL]()
 
   def defineClass(name: String, code: Array[Byte]): Class[_] = {
     try {
-      println(s"\nFindin class ${name} with code $code")
+      println(s"\nFindin class ${name} with code $code") // TODO: proper loggin
       val klass = this.findLoadedClass(name)
       klass.getClass
     }
     catch {
-      case _ => {
-       println("*** defining class")
+      case _: Throwable => {
+       println("*** defining class") // TODO: proper logging
         this.defineClass(name, code, 0, code.length)
       }
     }
@@ -102,7 +102,7 @@ class DependencyEmitter(var klass: JavaClass) extends EmptyVisitor {
     //     Couldn't find: [Ljava/lang/Object;.class
     try {
       result += cname -> Repository.lookupClass(cname).getBytes
-    } catch { case _ => }
+    } catch { case _: Throwable => }
   }
 }
 

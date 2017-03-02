@@ -72,8 +72,8 @@ trait Core {
 
   def log(msg: String) = {}
 
-  @transient implicit val linearID: Linearizable[ID]
-  @transient implicit val interopID: Interop[ID]
-  @transient implicit val interopLSNS: Interop[LSNS]
-  @transient implicit val interopNSNS: Interop[NSNS]
+  implicit val linearID: Linearizable[ID]
+  implicit val interopID: Interop[ID]
+  implicit val interopLSNS: Interop[LSNS]
+  implicit val interopNSNS: Interop[NSNS]
 }

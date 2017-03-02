@@ -1,5 +1,7 @@
 package it.unibo.scafi.space
 
+import scala.language.higherKinds // Removes warnings associated to use of higher kinds
+
 import it.unibo.utils.BiMap
 
 /**

@@ -14,6 +14,8 @@ package examples
 import examples.gui.ServerGUIActor
 import it.unibo.scafi.incarnations.BasicActorServerBased
 
+import scala.io.StdIn
+
 // STEP 1: CHOOSE INCARNATION
 import it.unibo.scafi.incarnations.BasicActorServerBased._
 
@@ -69,15 +71,15 @@ object DemoCentralizedCodeMobilityMain extends App {
 
     // STEP 9: INITIATE PROGRAM SHIPPING BY SENDING THE PROGRAM TO THE DISTRIBUTOR
     if(s.profile.startServer) {
-      readLine()
+      StdIn.readLine()
 
       sys.server ! MsgShipProgram(MsgProgram(new MyAggregateProgram {}, Set(this.getClass)))
 
-      readLine()
+      StdIn.readLine()
 
       sys.startScheduling
 
-      readLine()
+      StdIn.readLine()
 
       sys.server ! MsgShipProgram(MsgProgram(new AggregateProgram with Serializable {
         override def main(): Any = "CODE_MOBILITY"

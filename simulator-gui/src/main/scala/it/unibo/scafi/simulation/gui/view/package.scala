@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui
 
+import scala.language.implicitConversions
+
 import java.awt.event.{ActionEvent, ActionListener}
 
 /**
