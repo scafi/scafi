@@ -5,7 +5,7 @@ package it.unibo.scafi.test.functional
  * Created on date: 30/10/15
  */
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest.Matchers
 
 object ScafiAssertions extends Matchers {
