@@ -37,6 +37,8 @@ trait Semantics extends Core with Language {
     def pull(): Path
     def matches(path: Path): Boolean
     def isRoot: Boolean
+
+    def /(slot: Slot) = push(slot)
   }
 
   trait ExportOps { self: EXPORT =>
