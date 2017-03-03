@@ -1,7 +1,7 @@
 package sims
 
-import it.unibo.scafi.simulation.gui._
-import it.unibo.scafi.simulation.gui.model._
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object DISIDemo extends Launcher {
   Settings.Sim_ProgramClass = "sims.Main" + (if(args.length == 0) "" else args(0))
@@ -11,7 +11,7 @@ object DISIDemo extends Launcher {
   launch()
 }
 
-abstract class DISIDemoAggregateProgram extends AggregateProgram{
+abstract class DISIDemoAggregateProgram extends AggregateProgram {
   def sense1 = sense[Boolean]("sens1")
   def sense2 = sense[Boolean]("sens2")
   def sense3 = sense[Boolean]("sens3")

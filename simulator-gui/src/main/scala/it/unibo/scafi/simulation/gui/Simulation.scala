@@ -1,8 +1,7 @@
 package it.unibo.scafi.simulation.gui
 
+import it.unibo.scafi.incarnations.BasicAbstractIncarnation
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
-
-import BasicSpatialIncarnation._
 
 /**
   * @author Roberto Casadei
@@ -12,7 +11,7 @@ import BasicSpatialIncarnation._
 trait Simulation {
   var network: Network
 
-  def getRunProgram: ()=>(Int,Export)
+  def getRunProgram: ()=>(Int,BasicAbstractIncarnation#Export)
 
   def setRunProgram(program: Any)
 
