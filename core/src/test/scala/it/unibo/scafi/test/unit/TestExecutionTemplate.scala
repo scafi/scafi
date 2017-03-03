@@ -28,7 +28,7 @@ class TestExecutionTemplate extends FunSpec with Matchers {
         // ASSERT
         status.path shouldEqual factory.emptyPath()
         status.index shouldBe 0
-        status.neighbour shouldBe None
+        status.nbrStack shouldBe empty
       }
 
       it("should allow un/folding in the context of a neighbor") {
@@ -36,19 +36,21 @@ class TestExecutionTemplate extends FunSpec with Matchers {
         val status = ExecutionTemplate.Status()
 
         // ASSERT
-        status.neighbour shouldBe None
+        status.nbrStack shouldBe empty
 
         // ACT
         val s1 = status.foldInto(7)
         val s2 = status.foldInto(8)
-        val s3 = status.foldOut()
 
-        s1.neighbour shouldBe Some(7)
+        status.nbrStack shouldBe empty
+        status.isFolding shouldBe false
+        intercept[Exception]{ status.foldOut() }
+
+        s1.nbrStack shouldEqual List(7)
         s1.isFolding shouldBe true
-        s2.neighbour shouldBe Some(8)
+
+        s2.nbrStack shouldEqual List(8)
         s2.isFolding shouldBe true
-        s3.neighbour shouldBe None
-        s3.isFolding shouldBe false
       }
 
       it("should work as a stack"){
@@ -69,19 +71,19 @@ class TestExecutionTemplate extends FunSpec with Matchers {
         // ASSERT
         intercept[Exception]{ s8.pop() }
         s4.index shouldBe 1
-        s4.neighbour shouldBe Some(8)
+        s4.nbrStack shouldEqual List(8, 7)
         s4.path.matches(root / Rep(4) / Nbr(2))
 
         s6.index shouldBe 1
-        s6.neighbour shouldBe None
+        s6.nbrStack shouldBe List(7)
         s6.path.matches(root / Rep(4) / Nbr(2))
 
         s7.index shouldBe 0
-        s7.neighbour shouldBe Some(7)
+        s7.nbrStack shouldEqual List(7)
         s7.path.matches(root / Nbr(2))
 
         s8.index shouldBe 0
-        s8.neighbour shouldBe None
+        s8.nbrStack shouldBe empty
         s8.path.matches(root)
       }
 

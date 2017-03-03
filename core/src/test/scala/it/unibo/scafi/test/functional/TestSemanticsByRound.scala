@@ -100,13 +100,6 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     round(ctx2, foldhood(-5)(_+_)(if(nbr(false)) 0 else 1)).root[Int]() shouldBe -14
   }
 
-  FOLDHOOD("must not be nested") {
-    // ARRANGE
-    val ctx1 = ctx(selfId = 0, exports = Map())
-    // ACT + ASSERT
-    intercept[Exception]{ round(ctx1, foldhood(0)(_+_)(foldhood(0)(_+_)(1))) }
-  }
-
   NBR("must be nested into fold") {
     // ARRANGE
     val ctx1 = ctx(selfId = 0)
@@ -144,13 +137,6 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ASSERT (build upon previous state)
     exp2.root[Int]() shouldBe 14
     exp2.get(path(Rep(0))) shouldBe Some(14)
-  }
-
-  REP("must not be nested into fold") {
-    // ARRANGE
-    val ctx1 = ctx(selfId = 0, exports = Map())
-    // ACT + ASSERT
-    intercept[Exception]{ round(ctx1, foldhood(0)(_+_)(rep(0)(_+1))) }
   }
 
   BRANCH("should support domain restriction, thus affecting the structure of exports") {
