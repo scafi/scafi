@@ -5,7 +5,7 @@ package it.unibo.scafi.test.functional
  * Created on date: 31/10/15
  */
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
 class TestFunctionCall extends FlatSpec with Matchers {
@@ -15,7 +15,11 @@ class TestFunctionCall extends FlatSpec with Matchers {
   val AggregateFunctionCall = new ItWord
 
   private[this] trait SimulationContextFixture {
-    implicit val node = new Node
+    implicit val node = new Node {
+      override type MainResult = Any
+      override def main() = ???
+    }
+
     val net: Network with SimulatorOps =
       simulatorFactory.gridLike(n = 6, m = 6, stepx = 1, stepy = 1, eps = 0, rng = 1.1)
     net.addSensor(name = "source", value = false)
@@ -32,8 +36,7 @@ class TestFunctionCall extends FlatSpec with Matchers {
   // 30 31 32 33 34 35
   // For each device, its neighbors are the direct devices at the top/bottom/left/right
 
-
-  private[this] class Node extends Execution {
+  private[this] trait Node extends AggregateProgram {
     def isObstacle = sense[Boolean]("obstacle")
     def isSource = sense[Boolean]("source")
 

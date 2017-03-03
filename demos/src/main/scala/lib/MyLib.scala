@@ -1,7 +1,7 @@
-package examples
+package lib
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.Builtins._
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
 trait MyLib { self: Constructs with Builtins =>
   def nbrRange():Double = nbrvar[Double](NBR_RANGE_NAME)
@@ -250,104 +250,4 @@ trait MyLib { self: Constructs with Builtins =>
     map.map(tp => tp._1 -> f(tp._2))
   }
 
-  /***********************************/
-  /* IEEE Computer: Crowd estimation */
-  /***********************************/
-
-  val (high,low,none) = (2,1,0) // crowd level
-  def managementRegions(grain: Double, metric: => Double): Boolean =
-    S(grain, metric) /*{
-    breakUsingUids(randomUid, grain, metric)
-  }*/
-
-  def unionHoodPlus[A](expr: => A): List[A] =
-    foldhoodPlus(List[A]())(_++_){ List[A](expr) }
-
-  def densityEst(p: Double, range: Double): Double = {
-    val nearby = unionHoodPlus(
-      mux (nbrRange < range) { nbr(List(mid())) } { List() }
-    )
-
-    val footprint = 1 /*if(self.hasEnvironmentVariable("footprint")) {
-      self.getEnvironmentVariable("footprint") } else { 1 }*/
-    nearby.size / p / (Math.PI * Math.pow(range,2) * footprint)
-  }
-
-  def rtSub(started: Boolean, state: Boolean, memoryTime: Double): Boolean = {
-    if(state) {
-      true
-    } else {
-      limitedMemory[Boolean,Double](started, false, memoryTime)._1
-    }
-  }
-
-  def recentTrue(state: Boolean, memoryTime: Double): Boolean = {
-    rtSub(timer(10) == 0, state, memoryTime)
-  }
-
-  def dangerousDensity(p: Double, r: Double) = {
-    val mr = managementRegions(r*2, nbrRange)
-    val danger = average(mr, densityEst(p, r)) > 2.17 &&
-      summarize(mr, (_:Double)+(_:Double), 1 / p, 0) > 300
-    if(danger) { high } else { low }
-  }
-
-  def crowdTracking(p: Double, r: Double, t: Double) = {
-    val crowdRgn = recentTrue(densityEst(p, r)>1.08, t)
-    if(crowdRgn) { dangerousDensity(p, r) } else { none }
-  }
-
-  /**
-   *
-   * @param p estimates the proportion of people with a device running the app
-   * @param r is the range in which the neighbours are counted
-   * @param warn estimates fraction of walkable space in the local urban env
-   * @param t is the memory time
-   * @return a boolean indicating whether there is warning or not.
-   */
-  def crowdWarning(p: Double, r: Double, warn: Double, t: Double): Boolean = {
-    distanceTo(crowdTracking(p,r,t) == high) < warn
-  }
-
-  /*****************************************/
-  /* FORTE15: Code Mobility Meets Self-Org */
-  /*****************************************/
-
-  def snsInjectedFun: ()=>Double = forte15logic //sense("injectedFun")
-  def snsSource: Boolean = sense("source")
-  def snsInjectionPoint: Boolean = sense("injectionPoint")
-  def snsPatron: Double = if(sense("patron")){ 1 } else { 0 }
-  // ;; Simple low-pass filter for smoothing noisy signal ’value’ with rate constant ’alpha’
-  def lowPass(alpha: Double, value: Double): Double = {
-    rep(value){ filtered =>
-      (value * alpha) + (filtered * (1 - alpha))
-    }
-  }
-
-  //;; Evaluate a function field, running ’f’ from ’source’ within ’range’ meters, and ’no-op’ elsewhere
-    def deploy[T](range:Double, source:Boolean, g: ()=>T, noOp: ()=>T)
-                 (implicit ev: Bounded[T]): T = {
-      val f: ()=>T = if (distanceTo(source) < range) {
-        G(source, g, identity[()=>T], nbrRange())
-      } else {
-        noOp
-      }
-      f()
-    }
-
-  /**
-   * The entry-point function executed to run the virtual machine on each device.
-   * @return
-   */
-  def virtualMachine(): Double = {
-    deploy(nbrRange, snsInjectionPoint, snsInjectedFun, ()=>0.0)
-  }
-
-  def forte15logic() = lowPass(alpha = 0.5,
-            value = C[Double](potential = distanceTo(snsInjectionPoint),
-            acc = _+_, local = snsPatron, Null = 0.0))
-
-  def forte15example() = {
-    virtualMachine()
-  }
 }
