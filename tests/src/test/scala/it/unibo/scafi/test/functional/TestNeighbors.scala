@@ -17,7 +17,7 @@ class TestNeighbors extends FlatSpec with Matchers {
   private[this] trait SimulationContextFixture {
     var net: Network with SimulatorOps =
       simulatorFactory.gridLike(n = 3, m = 3, stepx = 1, stepy = 1, eps = 0, rng = 1.5)
-    implicit val node = BasicAggregateInterpreter
+    implicit val node = new BasicAggregateInterpreter
   }
 
   it should "be possible to count neighbors" in new SimulationContextFixture {

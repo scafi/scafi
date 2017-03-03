@@ -15,7 +15,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
   val LocalValues, Alignment, Exports, FOLDHOOD, NBR, REP, BRANCH = new ItWord
   val SENSE, MID, NBRVAR, BUILTIN = new ItWord
 
-  implicit val node = BasicAggregateInterpreter
+  implicit val node = new BasicAggregateInterpreter
   import node._
   import factory._
 

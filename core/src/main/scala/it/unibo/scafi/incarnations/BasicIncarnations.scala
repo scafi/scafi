@@ -28,7 +28,7 @@ trait BasicAbstractIncarnation extends Incarnation {
 
   trait AggregateProgram extends AggregateInterpreter
 
-  object BasicAggregateInterpreter extends AggregateInterpreter {
+  class BasicAggregateInterpreter extends AggregateInterpreter {
     override def main() = ???
   }
 

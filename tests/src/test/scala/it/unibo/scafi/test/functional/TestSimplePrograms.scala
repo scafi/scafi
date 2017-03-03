@@ -15,7 +15,7 @@ class TestSimplePrograms extends FlatSpec with Matchers {
   private[this] trait SimulationContextFixture {
     val net: Network with SimulatorOps =
       SetupNetwork(simulatorFactory.gridLike(n = 3, m = 3, stepx = 1, stepy = 1, eps = 0, rng = 1.5))
-    implicit val node = BasicAggregateInterpreter
+    implicit val node = new BasicAggregateInterpreter
   }
 
   private[this] def SetupNetwork(n: Network with SimulatorOps) = {
