@@ -1,5 +1,6 @@
 package it.unibo.scafi.core
 
+import scala.collection.immutable.Stack
 import scala.util.control.Exception._
 
 /**
@@ -86,11 +87,9 @@ trait Semantics extends Core with Language {
 
     def mid(): ID = ctx.selfId
 
-    def neighbour(): Option[ID] = status.neighbour
+    def foldingNeighbour(): ID = status.nbrStack.head
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      ensure(status.neighbour.isEmpty, "can't nest rep into fold")
-
       nest(Rep[A](status.index)) {
         val in = ctx.readSlot(ctx.selfId, status.path).getOrElse(init)
         fun(in)
@@ -98,20 +97,15 @@ trait Semantics extends Core with Language {
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      ensure(status.neighbour.isEmpty, "can't nest fold constructs")
-
       try {
         val v = aligned()
         val res = v.map { i =>
           handling(classOf[OutOfDomainException]) by (_ => init) apply {
-            frozen { status = status.foldInto(i); expr }
+            frozen { evalInContext(i, expr) }
           }
         }
         res.fold(init)(aggr)
       } finally {
-        status = status.foldOut()
-        // FIX: increment index for correct sequencing of NBRs
-        // NOTE: it increments the index even though NBR is not used
         status = status.incIndex()
       }
     }
@@ -122,11 +116,11 @@ trait Semantics extends Core with Language {
     def nbr[A](expr: => A): A = {
       ensure(status.isFolding, "nbr should be nested into fold")
       nest(Nbr[A](status.index)) {
-        if (status.neighbour.get == ctx.selfId){
-          status = status.foldOut(); expr
+        if (foldingNeighbour == ctx.selfId){
+          expr
         } else {
-          ctx.readSlot[A](status.neighbour.get, status.path)
-             .getOrElse(throw new OutOfDomainException(ctx.selfId, status.neighbour.get, status.path))
+          ctx.readSlot[A](foldingNeighbour, status.path)
+             .getOrElse(throw new OutOfDomainException(ctx.selfId, foldingNeighbour, status.path))
         }
       }
     }
@@ -140,16 +134,26 @@ trait Semantics extends Core with Language {
     def sense[A](name: LSNS): A = ctx.sense[A](name).getOrElse(throw new SensorUnknownException(ctx.selfId, name))
 
     def nbrvar[A](name: NSNS): A = {
-      val nbr = status.neighbour.get
-      ctx.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(ctx.selfId, name, nbr))
+      ctx.nbrSense(name)(foldingNeighbour).getOrElse{
+        throw new NbrSensorUnknownException(ctx.selfId, name, foldingNeighbour)
+      }
     }
 
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
       try {
         status = status.push().nest(slot)  // prepare nested call
-        exp.put(status.path, expr) // function return value is result of expr
+        exp.put(status.path, expr)         // function return value is result of expr
       } finally {
-        status = status.pop().incIndex(); // do not forger to restore the status
+        status = status.pop().incIndex();  // do not forget to restore the status
+      }
+    }
+
+    private[this] def evalInContext[A](id: ID, expr: => A): A = {
+      try {
+        status = status.foldInto(id)
+        expr
+      } finally {
+        status = status.foldOut()
       }
     }
 
@@ -175,7 +179,7 @@ trait Semantics extends Core with Language {
     trait Status extends Serializable {
       val path: Path
       val index: Int
-      val neighbour: Option[ID]
+      val nbrStack: List[ID]
 
       def isFolding: Boolean
       def foldInto(id: ID): Status
@@ -189,19 +193,19 @@ trait Semantics extends Core with Language {
     private case class StatusImpl(
         path: Path = factory.emptyPath(),
         index: Int = 0,
-        neighbour: Option[ID] = None,
-        stack: List[(Path, Int, Option[ID])] = List()) extends Status {
+        nbrStack: List[ID] = List(),
+        stack: List[(Path, Int, List[ID])] = List()) extends Status {
 
-      def isFolding: Boolean = neighbour.isDefined
-      def foldInto(id: ID): Status = StatusImpl(path, index, Some(id), stack)
-      def foldOut(): Status = StatusImpl(path, index, None, stack)
-      def push(): Status = StatusImpl(path, index, neighbour, (path, index, neighbour) :: stack)
+      def isFolding: Boolean = !nbrStack.isEmpty
+      def foldInto(id: ID): Status = StatusImpl(path, index, id :: nbrStack, stack)
+      def foldOut(): Status = StatusImpl(path, index, nbrStack.tail, stack)
+      def push(): Status = StatusImpl(path, index, nbrStack, (path, index, nbrStack) :: stack)
       def pop(): Status = stack match {
         case (p, i, n) :: s => StatusImpl(p, i, n, s)
         case _           => throw new Exception()
       }
-      def nest(s: Slot): Status = StatusImpl(path.push(s), 0, neighbour, stack)
-      def incIndex(): Status = StatusImpl(path, index + 1, neighbour, stack)
+      def nest(s: Slot): Status = StatusImpl(path.push(s), 0, nbrStack, stack)
+      def incIndex(): Status = StatusImpl(path, index + 1, nbrStack, stack)
     }
 
     object Status {
