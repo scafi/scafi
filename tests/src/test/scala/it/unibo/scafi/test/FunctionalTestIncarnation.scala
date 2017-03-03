@@ -1,5 +1,6 @@
 package it.unibo.scafi.test
 
+import it.unibo.scafi.incarnations.AbstractTestIncarnation
 import it.unibo.scafi.simulation.Simulation
 
 /**

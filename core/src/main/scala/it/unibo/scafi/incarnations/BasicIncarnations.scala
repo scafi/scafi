@@ -49,3 +49,5 @@ trait BasicAbstractIncarnation extends Incarnation {
     def fromString(str: String): NSNS = str
   }
 }
+
+class AbstractTestIncarnation extends BasicAbstractIncarnation
