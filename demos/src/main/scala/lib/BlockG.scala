@@ -10,25 +10,14 @@ import Builtins._
 trait BlockG { self: AggregateProgram with SensorDefinitions =>
 
   def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
-    rep((Double.MaxValue, field)) { dv =>
-      mux(source) {
-        (0.0, field)
-      } {
-        minHoodPlus {
-          val (d, v) = nbr {
-            (dv._1, dv._2)
-          }
-          (d + metric, acc(v))
-        }
+    rep((Double.MaxValue, field)) { case (dist, value) =>
+      mux(source) { (0.0, field)  } {
+        minHoodPlus { (nbr{dist} + metric, acc(nbr{ value })) }
       }
     }._2
 
   def G2[V: OrderingFoldable](source: Boolean)(field: V)(acc: V => V)(metric: => Double = nbrRange): V =
-    rep((Double.MaxValue, field)) { case (d,v) =>
-      mux(source) { (0.0, field) } {
-        minHoodPlus { (nbr{d} + metric, acc(nbr{v})) }
-      }
-    }._2
+    G(source, field, acc, metric)
 
   def distanceTo(source: Boolean): Double =
     G2(source)(0.0)(_ + nbrRange)()

@@ -7,16 +7,8 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
   *
   */
 trait BlockS { self: AggregateProgram with SensorDefinitions with BlockG =>
-  def S(grain: Double,
-        metric: => Double): Boolean =
+  def S(grain: Double, metric: => Double): Boolean =
     breakUsingUids(randomUid, grain, metric)
-
-  def minId(): ID = {
-    rep(Int.MaxValue) { mmid => math.min(mid(), minHood(nbr {
-      mmid
-    }))
-    }
-  }
 
   def S2(grain: Double): Boolean =
     branch(distanceTo(mid() == minId()) < grain) {
@@ -24,6 +16,12 @@ trait BlockS { self: AggregateProgram with SensorDefinitions with BlockG =>
     } {
       S2(grain)
     }
+
+  def minId(): ID = {
+    rep(Int.MaxValue) { mmid =>
+      math.min(mid(), minHood(nbr { mmid }))
+    }
+  }
 
   /**
     * Generates a field of random unique identifiers.

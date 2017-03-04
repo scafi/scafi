@@ -83,7 +83,7 @@ class Timer extends AggregateProgram with BlockT {
 }
 
 class SparseChoice extends AggregateProgram with BlockG with BlockS with SensorDefinitions {
-  override def main() = S(0.2, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
+  override def main() = S(0.2, nbrRange)
 }
 
 
