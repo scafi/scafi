@@ -68,22 +68,6 @@ class TestEquivalence extends FunSpec with Matchers {
     }{
       Math.pow(foldhood(0)(_+_){1}, 2)
     }
-
-    // fold.fold : performance
-    assertEquivalence(devicesAndNbrs, execSequence){
-      foldhood(0)(_+_){
-        foldhood(0)(_+_){
-          foldhood(0)(_+_){
-            foldhood(0)(_+_){
-              foldhood(0)(_+_){
-                foldhood(0)(_+_){
-                  foldhood(0)(_+_){
-                    foldhood(0)(_+_){
-                      foldhood(0)(_+_){
-                        foldhood(0)(_+_){1}}}}}}}}}}
-    }{
-      Math.pow(foldhood(0)(_+_){1}, 10)
-    }
   }
 
 }
