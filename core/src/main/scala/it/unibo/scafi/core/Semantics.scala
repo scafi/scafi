@@ -73,6 +73,19 @@ trait Semantics extends Core with Language {
       var status: Status = Status()
 
       def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+      def self: ID = vm.context.selfId
+      def neighbour: Option[ID] = status.neighbour
+      def index: Int = vm.status.index
+      def path: Path = vm.status.path
+      def previousStateVal[A](path: Path): Option[A] = context.readSlot[A](vm.self, path)
+      def inFoldhood: Boolean = vm.neighbour.isEmpty
+
+      def alignedNeighbours(): List[ID] =
+        context.exports
+          .filter(p => p._1 != self && (status.path.isRoot || p._2.get(status.path).isDefined))
+          .map(_._1)
+          .toList
+          .++(List(self))
     }
 
     @transient private var vm: RoundVM = _
@@ -88,24 +101,23 @@ trait Semantics extends Core with Language {
         vm.export
     }
 
-    def mid(): ID = vm.context.selfId
+    def mid(): ID = vm.self
 
-    def neighbour(): Option[ID] = vm.status.neighbour
+    def neighbour(): Option[ID] = vm.neighbour
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      ensure(vm.status.neighbour.isEmpty, "can't nest rep into fold")
+      ensure(!vm.inFoldhood, "can't nest rep into fold")
 
-      nest(Rep[A](vm.status.index)) {
-        fun(vm.context.readSlot(vm.context.selfId, vm.status.path).getOrElse(init))
+      nest(Rep[A](vm.index)) {
+        fun(vm.previousStateVal(vm.path).getOrElse(init))
       }
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      ensure(vm.status.neighbour.isEmpty, "can't nest fold constructs")
+      ensure(!vm.inFoldhood, "can't nest fold constructs")
 
       try {
-        val v = alignedNeighbours()
-        val res = v.map { i =>
+        val res = vm.alignedNeighbours.map { i =>
           handling(classOf[OutOfDomainException]) by (_ => init) apply {
             frozen { vm.status = vm.status.foldInto(i); expr }
           }
@@ -125,7 +137,7 @@ trait Semantics extends Core with Language {
     def nbr[A](expr: => A): A = {
       ensure(vm.status.isFolding, "nbr should be nested into fold")
       nest(Nbr[A](vm.status.index)) {
-        if (vm.status.neighbour.get == vm.context.selfId){
+        if (vm.neighbour.get == vm.self){
           vm.status = vm.status.foldOut(); expr
         } else {
           vm.context.readSlot[A](vm.status.neighbour.get, vm.status.path)
@@ -144,7 +156,7 @@ trait Semantics extends Core with Language {
 
     def nbrvar[A](name: NSNS): A = {
       val nbr = vm.status.neighbour.get
-      vm.context.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(vm.context.selfId, name, nbr))
+      vm.context.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(vm.self, name, nbr))
     }
 
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
@@ -164,13 +176,6 @@ trait Semantics extends Core with Language {
         vm.status = vm.status.pop()
       }
     }
-
-    private[this] def alignedNeighbours(): List[ID] =
-      vm.context.exports
-        .filter(p => p._1 != vm.context.selfId && (vm.status.path.isRoot || p._2.get(vm.status.path).isDefined))
-        .map(_._1)
-        .toList
-        .++(List(vm.context.selfId))
   }
 
   private[scafi] object ExecutionTemplate extends Serializable {
