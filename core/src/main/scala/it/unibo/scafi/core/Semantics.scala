@@ -68,52 +68,54 @@ trait Semantics extends Core with Language {
 
     import ExecutionTemplate._
 
-    class RoundVM(val context: CONTEXT, var export: EXPORT, var status: Status){}
-    
-    @transient private var context: CONTEXT = _
-    @transient private var export: EXPORT = _
-    @transient private var status: Status = _
+    class RoundVM(val context: CONTEXT){
+      var export: EXPORT = factory.emptyExport
+      var status: Status = Status()
+
+      def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+    }
+
+    @transient private var vm: RoundVM = _
 
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-        context = c
-        export = factory.emptyExport
-        status = Status()
-        export.put(factory.emptyPath, e)
-        this.export
+        vm = new RoundVM(c)
+        val computationResult = e
+        vm.registerRoot(computationResult)
+        vm.export
     }
 
-    def mid(): ID = context.selfId
+    def mid(): ID = vm.context.selfId
 
-    def neighbour(): Option[ID] = status.neighbour
+    def neighbour(): Option[ID] = vm.status.neighbour
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      ensure(status.neighbour.isEmpty, "can't nest rep into fold")
+      ensure(vm.status.neighbour.isEmpty, "can't nest rep into fold")
 
-      nest(Rep[A](status.index)) {
-        fun(context.readSlot(context.selfId, status.path).getOrElse(init))
+      nest(Rep[A](vm.status.index)) {
+        fun(vm.context.readSlot(vm.context.selfId, vm.status.path).getOrElse(init))
       }
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      ensure(status.neighbour.isEmpty, "can't nest fold constructs")
+      ensure(vm.status.neighbour.isEmpty, "can't nest fold constructs")
 
       try {
         val v = alignedNeighbours()
         val res = v.map { i =>
           handling(classOf[OutOfDomainException]) by (_ => init) apply {
-            frozen { status = status.foldInto(i); expr }
+            frozen { vm.status = vm.status.foldInto(i); expr }
           }
         }
         res.fold(init)(aggr)
       } finally {
-        status = status.foldOut()
+        vm.status = vm.status.foldOut()
         // FIX: increment index for correct sequencing of NBRs
         // NOTE: it increments the index even though NBR is not used
-        status = status.incIndex()
+        vm.status = vm.status.incIndex()
       }
     }
 
@@ -121,13 +123,13 @@ trait Semantics extends Core with Language {
     // Why? Because nest performs 'exp.put(status.path, expr)'
     // So the export must be overridden by the current device (at last).
     def nbr[A](expr: => A): A = {
-      ensure(status.isFolding, "nbr should be nested into fold")
-      nest(Nbr[A](status.index)) {
-        if (status.neighbour.get == context.selfId){
-          status = status.foldOut(); expr
+      ensure(vm.status.isFolding, "nbr should be nested into fold")
+      nest(Nbr[A](vm.status.index)) {
+        if (vm.status.neighbour.get == vm.context.selfId){
+          vm.status = vm.status.foldOut(); expr
         } else {
-          context.readSlot[A](status.neighbour.get, status.path)
-             .getOrElse(throw new OutOfDomainException(context.selfId, status.neighbour.get, status.path))
+          vm.context.readSlot[A](vm.status.neighbour.get, vm.status.path)
+             .getOrElse(throw new OutOfDomainException(vm.context.selfId, vm.status.neighbour.get, vm.status.path))
         }
       }
     }
@@ -135,40 +137,40 @@ trait Semantics extends Core with Language {
     def aggregate[T](f: => T): T = {
       var funId = Thread.currentThread().getStackTrace()(3)
 
-      nest(FunCall[T](status.index, funId)) { f }
+      nest(FunCall[T](vm.status.index, funId)) { f }
     }
 
-    def sense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(context.selfId, name))
+    def sense[A](name: LSNS): A = vm.context.sense[A](name).getOrElse(throw new SensorUnknownException(vm.context.selfId, name))
 
     def nbrvar[A](name: NSNS): A = {
-      val nbr = status.neighbour.get
-      context.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(context.selfId, name, nbr))
+      val nbr = vm.status.neighbour.get
+      vm.context.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(vm.context.selfId, name, nbr))
     }
 
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
       try {
-        status = status.push().nest(slot)  // prepare nested call
-        export.put(status.path, expr) // function return value is result of expr
+        vm.status = vm.status.push().nest(slot)  // prepare nested call
+        vm.export.put(vm.status.path, expr) // function return value is result of expr
       } finally {
-        status = status.pop().incIndex(); // do not forger to restore the status
+        vm.status = vm.status.pop().incIndex(); // do not forger to restore the status
       }
     }
 
     private[this] def frozen[A](expr: => A): A = {
       try {
-        status = status.push()
+        vm.status = vm.status.push()
         expr
       } finally {
-        status = status.pop()
+        vm.status = vm.status.pop()
       }
     }
 
     private[this] def alignedNeighbours(): List[ID] =
-      context.exports
-        .filter(p => p._1 != context.selfId && (status.path.isRoot || p._2.get(status.path).isDefined))
+      vm.context.exports
+        .filter(p => p._1 != vm.context.selfId && (vm.status.path.isRoot || p._2.get(vm.status.path).isDefined))
         .map(_._1)
         .toList
-        .++(List(context.selfId))
+        .++(List(vm.context.selfId))
   }
 
   private[scafi] object ExecutionTemplate extends Serializable {
