@@ -68,8 +68,10 @@ trait Semantics extends Core with Language {
 
     import ExecutionTemplate._
 
-    @transient private var ctx: CONTEXT = _
-    @transient private var exp: EXPORT = _
+    class RoundVM(val context: CONTEXT, var export: EXPORT, var status: Status){}
+    
+    @transient private var context: CONTEXT = _
+    @transient private var export: EXPORT = _
     @transient private var status: Status = _
 
     def apply(c: CONTEXT): EXPORT = {
@@ -77,14 +79,14 @@ trait Semantics extends Core with Language {
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-        ctx = c
-        exp = factory.emptyExport
+        context = c
+        export = factory.emptyExport
         status = Status()
-        exp.put(factory.emptyPath, e)
-        this.exp
+        export.put(factory.emptyPath, e)
+        this.export
     }
 
-    def mid(): ID = ctx.selfId
+    def mid(): ID = context.selfId
 
     def neighbour(): Option[ID] = status.neighbour
 
@@ -92,7 +94,7 @@ trait Semantics extends Core with Language {
       ensure(status.neighbour.isEmpty, "can't nest rep into fold")
 
       nest(Rep[A](status.index)) {
-        fun(ctx.readSlot(ctx.selfId, status.path).getOrElse(init))
+        fun(context.readSlot(context.selfId, status.path).getOrElse(init))
       }
     }
 
@@ -100,7 +102,7 @@ trait Semantics extends Core with Language {
       ensure(status.neighbour.isEmpty, "can't nest fold constructs")
 
       try {
-        val v = aligned()
+        val v = alignedNeighbours()
         val res = v.map { i =>
           handling(classOf[OutOfDomainException]) by (_ => init) apply {
             frozen { status = status.foldInto(i); expr }
@@ -121,11 +123,11 @@ trait Semantics extends Core with Language {
     def nbr[A](expr: => A): A = {
       ensure(status.isFolding, "nbr should be nested into fold")
       nest(Nbr[A](status.index)) {
-        if (status.neighbour.get == ctx.selfId){
+        if (status.neighbour.get == context.selfId){
           status = status.foldOut(); expr
         } else {
-          ctx.readSlot[A](status.neighbour.get, status.path)
-             .getOrElse(throw new OutOfDomainException(ctx.selfId, status.neighbour.get, status.path))
+          context.readSlot[A](status.neighbour.get, status.path)
+             .getOrElse(throw new OutOfDomainException(context.selfId, status.neighbour.get, status.path))
         }
       }
     }
@@ -136,17 +138,17 @@ trait Semantics extends Core with Language {
       nest(FunCall[T](status.index, funId)) { f }
     }
 
-    def sense[A](name: LSNS): A = ctx.sense[A](name).getOrElse(throw new SensorUnknownException(ctx.selfId, name))
+    def sense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(context.selfId, name))
 
     def nbrvar[A](name: NSNS): A = {
       val nbr = status.neighbour.get
-      ctx.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(ctx.selfId, name, nbr))
+      context.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(context.selfId, name, nbr))
     }
 
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
       try {
         status = status.push().nest(slot)  // prepare nested call
-        exp.put(status.path, expr) // function return value is result of expr
+        export.put(status.path, expr) // function return value is result of expr
       } finally {
         status = status.pop().incIndex(); // do not forger to restore the status
       }
@@ -161,12 +163,12 @@ trait Semantics extends Core with Language {
       }
     }
 
-    private[this] def aligned(): List[ID] =
-      ctx.exports
-        .filter(p => p._1 != ctx.selfId && (status.path.isRoot || p._2.get(status.path).isDefined))
+    private[this] def alignedNeighbours(): List[ID] =
+      context.exports
+        .filter(p => p._1 != context.selfId && (status.path.isRoot || p._2.get(status.path).isDefined))
         .map(_._1)
         .toList
-        .++(List(ctx.selfId))
+        .++(List(context.selfId))
   }
 
   private[scafi] object ExecutionTemplate extends Serializable {
