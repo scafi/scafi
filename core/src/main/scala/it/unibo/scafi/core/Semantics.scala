@@ -23,10 +23,6 @@ trait Semantics extends Core with Language {
   override type EXPORT <: Export with ExportOps
   override type EXECUTION <: ExecutionTemplate
 
-  trait ContextOps { self: CONTEXT =>
-    def readSlot[A](i: ID, p: Path): Option[A]
-  }
-
   trait Slot extends Serializable
   sealed case class Nbr[A](index: Int) extends Slot
   sealed case class Rep[A](index: Int) extends Slot
@@ -43,10 +39,14 @@ trait Semantics extends Core with Language {
     def get[A](path: Path): Option[A]
   }
 
+  trait ContextOps { self: CONTEXT =>
+    def readSlot[A](i: ID, p: Path): Option[A]
+  }
+
   trait Factory {
     def emptyPath(): Path
     def emptyExport(): EXPORT
-    def path(path: Slot*): Path
+    def path(slots: Slot*): Path
     def export(exps: (Path,Any)*): EXPORT
   }
 
@@ -89,8 +89,7 @@ trait Semantics extends Core with Language {
       ensure(status.neighbour.isEmpty, "can't nest rep into fold")
 
       nest(Rep[A](status.index)) {
-        val in = ctx.readSlot(ctx.selfId, status.path).getOrElse(init)
-        fun(in)
+        fun(ctx.readSlot(ctx.selfId, status.path).getOrElse(init))
       }
     }
 
