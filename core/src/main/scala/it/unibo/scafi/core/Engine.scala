@@ -32,9 +32,12 @@ trait Engine extends Semantics {
       case s :: p => new PathImpl(p)
       case _ => throw new Exception();
     }
-    def matches(p: Path): Boolean = this == p
+
+    override def isRoot: Boolean = path.isEmpty
 
     override def toString(): String = "P:/"+path.mkString("/")
+
+    def matches(p: Path): Boolean = this == p
 
     def canEqual(other: Any) = {
       other.isInstanceOf[Engine.this.PathImpl]
@@ -99,9 +102,8 @@ trait Engine extends Semantics {
     def toNum(v: T): N
     def fromNum(n: N): T
   }
-  trait Linearizable[T] extends LinearizableTo[T,Int]
 
-  def log(msg: String) = {}
+  trait Linearizable[T] extends LinearizableTo[T,Int]
 
   implicit val linearID: Linearizable[ID]
   implicit val interopID: Interop[ID]

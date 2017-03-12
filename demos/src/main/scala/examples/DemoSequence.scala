@@ -6,6 +6,7 @@ package examples
  */
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import lib.MyLib
 
 object DemoSequence extends AggregateProgram with MyLib {
   def mySensor():Int = sense[Int]("sensor")

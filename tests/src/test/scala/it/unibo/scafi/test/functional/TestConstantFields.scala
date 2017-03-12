@@ -5,7 +5,7 @@ package it.unibo.scafi.test.functional
  * Created on date: 30/10/15
  */
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
 class TestConstantFields extends FlatSpec with Matchers {
@@ -13,7 +13,10 @@ class TestConstantFields extends FlatSpec with Matchers {
   import ScafiTestUtils._
 
   private[this] trait SimulationContextFixture {
-    implicit val node = new Execution
+    implicit val node = new AggregateInterpreter {
+      override type MainResult = Any
+      override def main() = ???
+    }
     var net: Network with SimulatorOps =
       simulatorFactory.gridLike(n = 10, m = 10, stepx = 1, stepy = 1, eps = 100, rng = 1)
   }

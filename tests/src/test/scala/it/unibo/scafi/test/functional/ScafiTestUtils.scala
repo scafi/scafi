@@ -1,7 +1,8 @@
 package it.unibo.scafi.test.functional
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalactic.Equality
+
 import scala.collection.Map
 
 /**
@@ -13,7 +14,7 @@ object ScafiTestUtils {
 
   def runProgram(exp: => Any, ntimes: Int = 500)
                 (net: Network with SimulatorOps)
-                (implicit node: Execution): Network ={
+                (implicit node: AggregateInterpreter): Network ={
     var endNet: Network = null
     net.execMany(
       node = node,
@@ -29,7 +30,7 @@ object ScafiTestUtils {
   def runProgramInOrder(firingSeq: Seq[ID])
                        (exp: => Any)
                        (net: Network with SimulatorOps)
-                       (implicit node: Execution): Network ={
+                       (implicit node: AggregateInterpreter): Network ={
     net.execInOrderAndReturn(node, exp, firingSeq)
   }
 

@@ -5,7 +5,7 @@ package it.unibo.scafi.test.functional
  * Created on date: 31/10/15
  */
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
 class TestGradient extends FlatSpec with Matchers {
@@ -21,7 +21,10 @@ class TestGradient extends FlatSpec with Matchers {
     implicit val node = new Node
   }
 
-  private[this] class Node extends Execution {
+  private[this] class Node extends AggregateProgram {
+    override type MainResult = Any
+    override def main() = ???
+
     def mySensor():Int = sense[Int]("sensor")
 
     def hopGradient(source: Boolean): Int = {
