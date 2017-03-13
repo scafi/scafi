@@ -79,6 +79,9 @@ trait Semantics extends Core with Language {
       def path: Path = vm.status.path
       def previousStateVal[A](path: Path): Option[A] = context.readSlot[A](vm.self, path)
       def inFoldhood: Boolean = vm.neighbour.isEmpty
+      def foldAtNeighbour(id: ID): Unit = vm.status = vm.status.foldInto(id)
+      def exitFolding(): Unit = vm.status = vm.status.foldOut()
+
 
       def alignedNeighbours(): List[ID] =
         context.exports
@@ -96,8 +99,8 @@ trait Semantics extends Core with Language {
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
         vm = new RoundVM(c)
-        val computationResult = e
-        vm.registerRoot(computationResult)
+        val result = e
+        vm.registerRoot(result)
         vm.export
     }
 
@@ -117,14 +120,14 @@ trait Semantics extends Core with Language {
       ensure(!vm.inFoldhood, "can't nest fold constructs")
 
       try {
-        val res = vm.alignedNeighbours.map { i =>
+        val result = vm.alignedNeighbours.map { id =>
           handling(classOf[OutOfDomainException]) by (_ => init) apply {
-            frozen { vm.status = vm.status.foldInto(i); expr }
+            frozen { vm.foldAtNeighbour(id); expr }
           }
         }
-        res.fold(init)(aggr)
+        result.fold(init)(aggr)
       } finally {
-        vm.status = vm.status.foldOut()
+        vm.exitFolding()
         // FIX: increment index for correct sequencing of NBRs
         // NOTE: it increments the index even though NBR is not used
         vm.status = vm.status.incIndex()
