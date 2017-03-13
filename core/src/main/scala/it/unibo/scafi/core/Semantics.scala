@@ -17,16 +17,11 @@ import scala.util.control.Exception._
  * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
  */
 
-
 trait Semantics extends Core with Language {
 
   override type CONTEXT <: Context with ContextOps
   override type EXPORT <: Export with ExportOps
   override type EXECUTION <: ExecutionTemplate
-
-  trait ContextOps { self: CONTEXT =>
-    def readSlot[A](i: ID, p: Path): Option[A]
-  }
 
   trait Slot extends Serializable
   sealed case class Nbr[A](index: Int) extends Slot
@@ -47,10 +42,14 @@ trait Semantics extends Core with Language {
     def get[A](path: Path): Option[A]
   }
 
+  trait ContextOps { self: CONTEXT =>
+    def readSlot[A](i: ID, p: Path): Option[A]
+  }
+
   trait Factory {
     def emptyPath(): Path
     def emptyExport(): EXPORT
-    def path(path: Slot*): Path
+    def path(slots: Slot*): Path
     def export(exps: (Path,Any)*): EXPORT
   }
 
@@ -69,58 +68,82 @@ trait Semantics extends Core with Language {
 
     import ExecutionTemplate._
 
-    @transient private var ctx: CONTEXT = _
-    @transient private var exp: EXPORT = _
-    @transient private var status: Status = _
+    class RoundVM(val context: CONTEXT){
+      var export: EXPORT = factory.emptyExport
+      var status: Status = Status()
+
+      def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+      def self: ID = vm.context.selfId
+      def neighbour: Option[ID] = status.neighbour
+      def index: Int = vm.status.index
+      def path: Path = vm.status.path
+      def previousRoundVal[A]: Option[A] = context.readSlot[A](vm.self, vm.path)
+      def neighbourVal[A]: A = context.readSlot[A](neighbour.get, vm.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, path))
+      def inFolding: Boolean = !vm.neighbour.isEmpty
+      //def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
+      //def exitFolding(): Unit = status = vm.status.foldOut()
+      def incIndex(): Unit = status = vm.status.incIndex()
+      def nestedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
+        handling(classOf[OutOfDomainException]) by (_ => None) apply {
+          try {
+            status = status.push()
+            status = status.foldInto(id)
+            Some(expr)
+          } finally {
+            status = status.pop()
+          }
+        }
+      def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
+      def neighbourSense[A](name: NSNS): A = vm.context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+
+      // self should be the last one to make nbrWork!
+      // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
+      // So the export must be overridden by the current device (at last).
+      def alignedNeighbours(): List[ID] =
+        context.exports
+          .filter(p => p._1 != self && (status.path.isRoot || p._2.get(status.path).isDefined))
+          .map(_._1)
+          .toList
+          .++(List(self))
+    }
+
+    @transient private var vm: RoundVM = _
 
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-        ctx = c
-        exp = factory.emptyExport
-        status = Status()
-        exp.put(factory.emptyPath, e)
-        this.exp
+        vm = new RoundVM(c)
+        val result = e
+        vm.registerRoot(result)
+        vm.export
     }
 
-    def mid(): ID = ctx.selfId
+    def mid(): ID = vm.self
 
-    def foldingNeighbour(): ID = status.nbrStack.head
+    def neighbour(): Option[ID] = vm.neighbour
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      nest(Rep[A](status.index)) {
-        val in = ctx.readSlot(ctx.selfId, status.path).getOrElse(init)
-        fun(in)
+      nest(Rep[A](vm.index)) {
+        fun(vm.previousRoundVal.getOrElse(init))
       }
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
       try {
-        val v = aligned()
-        val res = v.map { i =>
-          handling(classOf[OutOfDomainException]) by (_ => init) apply {
-            frozen { evalInContext(i, expr) }
-          }
-        }
-        res.fold(init)(aggr)
+        vm.alignedNeighbours.map(id => vm.nestedEval(expr)(Some[ID](id)).getOrElse(init)).fold(init)(aggr)
       } finally {
-        status = status.incIndex()
+        vm.incIndex()
       }
     }
 
-    // Works only if aligned yields self as last element..
-    // Why? Because nest performs 'exp.put(status.path, expr)'
-    // So the export must be overridden by the current device (at last).
     def nbr[A](expr: => A): A = {
-      ensure(status.isFolding, "nbr should be nested into fold")
-      nest(Nbr[A](status.index)) {
-        if (foldingNeighbour == ctx.selfId){
-          expr
-        } else {
-          ctx.readSlot[A](foldingNeighbour, status.path)
-             .getOrElse(throw new OutOfDomainException(ctx.selfId, foldingNeighbour, status.path))
+      ensure(vm.status.isFolding, "nbr should be nested into fold")
+      nest(Nbr[A](vm.index)) {
+        vm.neighbour.get == vm.self match {
+          case true => expr
+          case false => vm.neighbourVal
         }
       }
     }
@@ -128,50 +151,21 @@ trait Semantics extends Core with Language {
     def aggregate[T](f: => T): T = {
       var funId = Thread.currentThread().getStackTrace()(3)
 
-      nest(FunCall[T](status.index, funId)) { f }
+      nest(FunCall[T](vm.index, funId)) { f }
     }
 
-    def sense[A](name: LSNS): A = ctx.sense[A](name).getOrElse(throw new SensorUnknownException(ctx.selfId, name))
+    def sense[A](name: LSNS): A = vm.localSense(name)
 
-    def nbrvar[A](name: NSNS): A = {
-      ctx.nbrSense(name)(foldingNeighbour).getOrElse{
-        throw new NbrSensorUnknownException(ctx.selfId, name, foldingNeighbour)
-      }
-    }
+    def nbrvar[A](name: NSNS): A = vm .neighbourSense(name)
 
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
       try {
-        status = status.push().nest(slot)  // prepare nested call
-        exp.put(status.path, expr)         // function return value is result of expr
+        vm.status = vm.status.push().nest(slot)  // prepare nested call
+        vm.export.put(vm.status.path, expr) // function return value is result of expr
       } finally {
-        status = status.pop().incIndex();  // do not forget to restore the status
+        vm.status = vm.status.pop().incIndex(); // do not forger to restore the status
       }
     }
-
-    private[this] def evalInContext[A](id: ID, expr: => A): A = {
-      try {
-        status = status.foldInto(id)
-        expr
-      } finally {
-        status = status.foldOut()
-      }
-    }
-
-    private[this] def frozen[A](expr: => A): A = {
-      try {
-        status = status.push()
-        expr
-      } finally {
-        status = status.pop()
-      }
-    }
-
-    private[this] def aligned(): List[ID] =
-      ctx.exports
-        .filter(p => p._1 != ctx.selfId && (status.path.isRoot || p._2.get(status.path).isDefined))
-        .map(_._1)
-        .toList
-        .++(List(ctx.selfId))
   }
 
   private[scafi] object ExecutionTemplate extends Serializable {
@@ -179,10 +173,10 @@ trait Semantics extends Core with Language {
     trait Status extends Serializable {
       val path: Path
       val index: Int
-      val nbrStack: List[ID]
+      val neighbour: Option[ID]
 
       def isFolding: Boolean
-      def foldInto(id: ID): Status
+      def foldInto(id: Option[ID]): Status
       def foldOut(): Status
       def nest(s: Slot): Status
       def incIndex(): Status
@@ -193,19 +187,19 @@ trait Semantics extends Core with Language {
     private case class StatusImpl(
         path: Path = factory.emptyPath(),
         index: Int = 0,
-        nbrStack: List[ID] = List(),
-        stack: List[(Path, Int, List[ID])] = List()) extends Status {
+        neighbour: Option[ID] = None,
+        stack: List[(Path, Int, Option[ID])] = List()) extends Status {
 
-      def isFolding: Boolean = !nbrStack.isEmpty
-      def foldInto(id: ID): Status = StatusImpl(path, index, id :: nbrStack, stack)
-      def foldOut(): Status = StatusImpl(path, index, nbrStack.tail, stack)
-      def push(): Status = StatusImpl(path, index, nbrStack, (path, index, nbrStack) :: stack)
+      def isFolding: Boolean = neighbour.isDefined
+      def foldInto(id: Option[ID]): Status = StatusImpl(path, index, id, stack)
+      def foldOut(): Status = StatusImpl(path, index, None, stack)
+      def push(): Status = StatusImpl(path, index, neighbour, (path, index, neighbour) :: stack)
       def pop(): Status = stack match {
         case (p, i, n) :: s => StatusImpl(p, i, n, s)
         case _           => throw new Exception()
       }
-      def nest(s: Slot): Status = StatusImpl(path.push(s), 0, nbrStack, stack)
-      def incIndex(): Status = StatusImpl(path, index + 1, nbrStack, stack)
+      def nest(s: Slot): Status = StatusImpl(path.push(s), 0, neighbour, stack)
+      def incIndex(): Status = StatusImpl(path, index + 1, neighbour, stack)
     }
 
     object Status {

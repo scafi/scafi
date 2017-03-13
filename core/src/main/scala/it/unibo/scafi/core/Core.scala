@@ -43,11 +43,6 @@ trait Core {
    */
   type EXECUTION <: (CONTEXT => EXPORT)
 
-  trait Callable {
-    type MainResult
-    def main(): MainResult
-  }
-
   trait Export {
     def root[A](): A
   }
