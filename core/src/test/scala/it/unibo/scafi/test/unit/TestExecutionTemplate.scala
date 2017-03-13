@@ -39,8 +39,8 @@ class TestExecutionTemplate extends FunSpec with Matchers {
         status.neighbour shouldBe None
 
         // ACT
-        val s1 = status.foldInto(7)
-        val s2 = status.foldInto(8)
+        val s1 = status.foldInto(Some(7))
+        val s2 = status.foldInto(Some(8))
         val s3 = status.foldOut()
 
         s1.neighbour shouldBe Some(7)
@@ -58,8 +58,8 @@ class TestExecutionTemplate extends FunSpec with Matchers {
 
         // ACT
         val s1 = status.push()
-        val s2 = s1.foldInto(7).nest(Nbr(2)).push()
-        val s3 = s2.foldInto(8).nest(Rep(4)).incIndex().push()
+        val s2 = s1.foldInto(Some(7)).nest(Nbr(2)).push()
+        val s3 = s2.foldInto(Some(8)).nest(Rep(4)).incIndex().push()
         val s4 = s3.pop()
         val s5 = s4.foldOut().push()
         val s6 = s5.pop()

@@ -77,25 +77,26 @@ trait Semantics extends Core with Language {
       def neighbour: Option[ID] = status.neighbour
       def index: Int = vm.status.index
       def path: Path = vm.status.path
-      def previousStateVal[A](path: Path): Option[A] = context.readSlot[A](vm.self, path)
+      def previousRoundVal[A]: Option[A] = context.readSlot[A](vm.self, vm.path)
+      def neighbourVal[A]: A = context.readSlot[A](neighbour.get, vm.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, path))
       def inFolding: Boolean = !vm.neighbour.isEmpty
-      def foldAtNeighbour(id: ID): Unit = vm.status = vm.status.foldInto(id)
-      def exitFolding(): Unit = {
-        status = vm.status.foldOut()
-        status = vm.status.incIndex()
-      }
-      def foldEval[A](init: =>A, expr: =>A)(id:ID): A =
-        handling(classOf[OutOfDomainException]) by (_ => init) apply {
+      def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
+      def exitFolding(): Unit = status = vm.status.foldOut()
+      def incIndex(): Unit = status = vm.status.incIndex()
+      def nestedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
+        handling(classOf[OutOfDomainException]) by (_ => None) apply {
           try {
             status = status.push()
-            foldAtNeighbour(id);
-            expr
+            foldInto(id)
+            Some(expr)
           } finally {
             status = status.pop()
           }
         }
 
-
+      // self should be the last one to make nbrWork!
+      // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
+      // So the export must be overridden by the current device (at last).
       def alignedNeighbours(): List[ID] =
         context.exports
           .filter(p => p._1 != self && (status.path.isRoot || p._2.get(status.path).isDefined))
@@ -123,33 +124,26 @@ trait Semantics extends Core with Language {
 
     def rep[A](init: A)(fun: (A) => A): A = {
       ensure(!vm.inFolding, "can't nest rep into fold")
-
       nest(Rep[A](vm.index)) {
-        fun(vm.previousStateVal(vm.path).getOrElse(init))
+        fun(vm.previousRoundVal.getOrElse(init))
       }
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
       ensure(!vm.inFolding, "can't nest fold constructs")
-
       try {
-        vm.alignedNeighbours.map(vm.foldEval(init,expr)(_)).fold(init)(aggr)
+        vm.alignedNeighbours.map(id => vm.nestedEval(expr)(Some[ID](id)).getOrElse(init)).fold(init)(aggr)
       } finally {
-        vm.exitFolding()
+        vm.incIndex()
       }
     }
 
-    // Works only if aligned yields self as last element..
-    // Why? Because nest performs 'exp.put(status.path, expr)'
-    // So the export must be overridden by the current device (at last).
     def nbr[A](expr: => A): A = {
       ensure(vm.status.isFolding, "nbr should be nested into fold")
-      nest(Nbr[A](vm.status.index)) {
-        if (vm.neighbour.get == vm.self){
-          vm.status = vm.status.foldOut(); expr
-        } else {
-          vm.context.readSlot[A](vm.status.neighbour.get, vm.status.path)
-             .getOrElse(throw new OutOfDomainException(vm.context.selfId, vm.status.neighbour.get, vm.status.path))
+      nest(Nbr[A](vm.index)) {
+        vm.neighbour.get == vm.self match {
+          case true => vm.nestedEval(expr)(None).get
+          case false => vm.neighbourVal
         }
       }
     }
@@ -185,7 +179,7 @@ trait Semantics extends Core with Language {
       val neighbour: Option[ID]
 
       def isFolding: Boolean
-      def foldInto(id: ID): Status
+      def foldInto(id: Option[ID]): Status
       def foldOut(): Status
       def nest(s: Slot): Status
       def incIndex(): Status
@@ -200,7 +194,7 @@ trait Semantics extends Core with Language {
         stack: List[(Path, Int, Option[ID])] = List()) extends Status {
 
       def isFolding: Boolean = neighbour.isDefined
-      def foldInto(id: ID): Status = StatusImpl(path, index, Some(id), stack)
+      def foldInto(id: Option[ID]): Status = StatusImpl(path, index, id, stack)
       def foldOut(): Status = StatusImpl(path, index, None, stack)
       def push(): Status = StatusImpl(path, index, neighbour, (path, index, neighbour) :: stack)
       def pop(): Status = stack match {
