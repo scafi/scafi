@@ -81,11 +81,19 @@ trait Semantics extends Core with Language {
       def inFolding: Boolean = !vm.neighbour.isEmpty
       def foldAtNeighbour(id: ID): Unit = vm.status = vm.status.foldInto(id)
       def exitFolding(): Unit = {
-        vm.status = vm.status.foldOut()
-        // FIX: increment index for correct sequencing of NBRs
-        // NOTE: it increments the index even though NBR is not used
-        vm.status = vm.status.incIndex()
+        status = vm.status.foldOut()
+        status = vm.status.incIndex()
       }
+      def foldEval[A](init: =>A, expr: =>A)(id:ID): A =
+        handling(classOf[OutOfDomainException]) by (_ => init) apply {
+          try {
+            status = status.push()
+            foldAtNeighbour(id);
+            expr
+          } finally {
+            status = status.pop()
+          }
+        }
 
 
       def alignedNeighbours(): List[ID] =
@@ -125,16 +133,11 @@ trait Semantics extends Core with Language {
       ensure(!vm.inFolding, "can't nest fold constructs")
 
       try {
-        vm.alignedNeighbours.map { foldEval(init,expr)(_)}.fold(init)(aggr)
+        vm.alignedNeighbours.map(vm.foldEval(init,expr)(_)).fold(init)(aggr)
       } finally {
         vm.exitFolding()
       }
     }
-
-    private[this] def foldEval[A](init: =>A, expr: =>A)(id:ID): A =
-      handling(classOf[OutOfDomainException]) by (_ => init) apply {
-        frozen { vm.foldAtNeighbour(id); expr }
-      }
 
     // Works only if aligned yields self as last element..
     // Why? Because nest performs 'exp.put(status.path, expr)'
@@ -170,15 +173,6 @@ trait Semantics extends Core with Language {
         vm.export.put(vm.status.path, expr) // function return value is result of expr
       } finally {
         vm.status = vm.status.pop().incIndex(); // do not forger to restore the status
-      }
-    }
-
-    private[this] def frozen[A](expr: => A): A = {
-      try {
-        vm.status = vm.status.push()
-        expr
-      } finally {
-        vm.status = vm.status.pop()
       }
     }
   }
