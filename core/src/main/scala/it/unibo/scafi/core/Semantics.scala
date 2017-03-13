@@ -78,9 +78,14 @@ trait Semantics extends Core with Language {
       def index: Int = vm.status.index
       def path: Path = vm.status.path
       def previousStateVal[A](path: Path): Option[A] = context.readSlot[A](vm.self, path)
-      def inFoldhood: Boolean = vm.neighbour.isEmpty
+      def inFolding: Boolean = !vm.neighbour.isEmpty
       def foldAtNeighbour(id: ID): Unit = vm.status = vm.status.foldInto(id)
-      def exitFolding(): Unit = vm.status = vm.status.foldOut()
+      def exitFolding(): Unit = {
+        vm.status = vm.status.foldOut()
+        // FIX: increment index for correct sequencing of NBRs
+        // NOTE: it increments the index even though NBR is not used
+        vm.status = vm.status.incIndex()
+      }
 
 
       def alignedNeighbours(): List[ID] =
@@ -109,7 +114,7 @@ trait Semantics extends Core with Language {
     def neighbour(): Option[ID] = vm.neighbour
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      ensure(!vm.inFoldhood, "can't nest rep into fold")
+      ensure(!vm.inFolding, "can't nest rep into fold")
 
       nest(Rep[A](vm.index)) {
         fun(vm.previousStateVal(vm.path).getOrElse(init))
@@ -117,22 +122,19 @@ trait Semantics extends Core with Language {
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      ensure(!vm.inFoldhood, "can't nest fold constructs")
+      ensure(!vm.inFolding, "can't nest fold constructs")
 
       try {
-        val result = vm.alignedNeighbours.map { id =>
-          handling(classOf[OutOfDomainException]) by (_ => init) apply {
-            frozen { vm.foldAtNeighbour(id); expr }
-          }
-        }
-        result.fold(init)(aggr)
+        vm.alignedNeighbours.map { foldEval(init,expr)(_)}.fold(init)(aggr)
       } finally {
         vm.exitFolding()
-        // FIX: increment index for correct sequencing of NBRs
-        // NOTE: it increments the index even though NBR is not used
-        vm.status = vm.status.incIndex()
       }
     }
+
+    private[this] def foldEval[A](init: =>A, expr: =>A)(id:ID): A =
+      handling(classOf[OutOfDomainException]) by (_ => init) apply {
+        frozen { vm.foldAtNeighbour(id); expr }
+      }
 
     // Works only if aligned yields self as last element..
     // Why? Because nest performs 'exp.put(status.path, expr)'
