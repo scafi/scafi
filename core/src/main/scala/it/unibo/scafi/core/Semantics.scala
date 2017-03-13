@@ -109,6 +109,9 @@ trait Semantics extends Core with Language {
 
     @transient private var vm: RoundVM = _
 
+    private var strictEvaluation: Boolean = false
+    def setStrict(strict: Boolean) = this.strictEvaluation = strict
+
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
@@ -139,11 +142,11 @@ trait Semantics extends Core with Language {
     }
 
     def nbr[A](expr: => A): A = {
-      ensure(vm.status.isFolding, "nbr should be nested into fold")
       nest(Nbr[A](vm.index)) {
-        vm.neighbour.get == vm.self match {
-          case true => expr
-          case false => vm.neighbourVal
+        vm.neighbour match {
+          case Some(nbr) if nbr == vm.self => expr
+          case Some(_) => vm.neighbourVal
+          case None => if(!strictEvaluation) expr else throw new Exception("NBR must be nested into FOLD in strict mode!")
         }
       }
     }

@@ -99,12 +99,22 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     round(ctx2, foldhood(-5)(_+_)(if(nbr(false)) 0 else 1)).root[Int]() shouldBe -14
   }
 
-  NBR("must be nested into fold") {
+  NBR("must be nested into fold when strict mode is used") {
+    setStrict(true)
     // ARRANGE
     val ctx1 = ctx(selfId = 0)
     // ACT + ASSERT (invariant for nbr: must be nested into fold)
     intercept[Exception]{ round(ctx1, { nbr(1) }) }
     intercept[Exception]{ round(ctx1, { rep(0)(_+nbr(1)) }) }
+  }
+
+  NBR("needs not to be nested into fold when using non-strict mode") {
+    setStrict(false)
+    // ARRANGE
+    val ctx1 = ctx(selfId = 0)
+    // ACT + ASSERT (invariant for nbr: must be nested into fold)
+    round(ctx1, { nbr(1) })
+    round(ctx1, { rep(0)(_+nbr(1)) })
   }
 
   NBR("should support interaction between aligned devices") {
