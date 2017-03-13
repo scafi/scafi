@@ -80,19 +80,21 @@ trait Semantics extends Core with Language {
       def previousRoundVal[A]: Option[A] = context.readSlot[A](vm.self, vm.path)
       def neighbourVal[A]: A = context.readSlot[A](neighbour.get, vm.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, path))
       def inFolding: Boolean = !vm.neighbour.isEmpty
-      def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
-      def exitFolding(): Unit = status = vm.status.foldOut()
+      //def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
+      //def exitFolding(): Unit = status = vm.status.foldOut()
       def incIndex(): Unit = status = vm.status.incIndex()
       def nestedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
         handling(classOf[OutOfDomainException]) by (_ => None) apply {
           try {
             status = status.push()
-            foldInto(id)
+            status = status.foldInto(id)
             Some(expr)
           } finally {
             status = status.pop()
           }
         }
+      def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
+      def neighbourSense[A](name: NSNS): A = vm.context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
 
       // self should be the last one to make nbrWork!
       // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
@@ -142,7 +144,7 @@ trait Semantics extends Core with Language {
       ensure(vm.status.isFolding, "nbr should be nested into fold")
       nest(Nbr[A](vm.index)) {
         vm.neighbour.get == vm.self match {
-          case true => vm.nestedEval(expr)(None).get
+          case true => expr
           case false => vm.neighbourVal
         }
       }
@@ -151,15 +153,12 @@ trait Semantics extends Core with Language {
     def aggregate[T](f: => T): T = {
       var funId = Thread.currentThread().getStackTrace()(3)
 
-      nest(FunCall[T](vm.status.index, funId)) { f }
+      nest(FunCall[T](vm.index, funId)) { f }
     }
 
-    def sense[A](name: LSNS): A = vm.context.sense[A](name).getOrElse(throw new SensorUnknownException(vm.context.selfId, name))
+    def sense[A](name: LSNS): A = vm.localSense(name)
 
-    def nbrvar[A](name: NSNS): A = {
-      val nbr = vm.status.neighbour.get
-      vm.context.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(vm.self, name, nbr))
-    }
+    def nbrvar[A](name: NSNS): A = vm .neighbourSense(name)
 
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
       try {
