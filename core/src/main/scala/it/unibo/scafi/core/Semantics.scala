@@ -108,9 +108,6 @@ trait Semantics extends Core with Language {
 
     @transient private var vm: RoundVM = _
 
-    private var strictEvaluation: Boolean = false
-    def setStrict(strict: Boolean) = this.strictEvaluation = strict
-
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
@@ -126,10 +123,8 @@ trait Semantics extends Core with Language {
 
     def neighbour(): Option[ID] = vm.neighbour
 
-    def rep[A](init: A)(fun: (A) => A): A = {
-      nest(Rep[A](vm.index)) {
-        fun(vm.previousRoundVal.getOrElse(init))
-      }
+    def rep[A](init: A)(fun: (A) => A): A = nest(Rep[A](vm.index)) {
+      fun(vm.previousRoundVal.getOrElse(init))
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
@@ -140,13 +135,11 @@ trait Semantics extends Core with Language {
       }
     }
 
-    def nbr[A](expr: => A): A = {
-      nest(Nbr[A](vm.index)) {
-        vm.neighbour match {
-          case Some(nbr) if nbr == vm.self => expr
-          case Some(_) => vm.neighbourVal
-          case None => if(!strictEvaluation) expr else throw new Exception("NBR must be nested into FOLD in strict mode!")
-        }
+    def nbr[A](expr: => A): A = nest(Nbr[A](vm.index)) {
+      vm.neighbour match {
+        case Some(nbr) if nbr == vm.self => expr
+        case Some(_) => vm.neighbourVal
+        case None => expr
       }
     }
 
