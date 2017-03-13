@@ -16,7 +16,6 @@ import scala.util.control.Exception._
  * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
  */
 
-
 trait Semantics extends Core with Language {
 
   override type CONTEXT <: Context with ContextOps
@@ -109,6 +108,9 @@ trait Semantics extends Core with Language {
 
     @transient private var vm: RoundVM = _
 
+    private var strictEvaluation: Boolean = false
+    def setStrict(strict: Boolean) = this.strictEvaluation = strict
+
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
@@ -125,14 +127,12 @@ trait Semantics extends Core with Language {
     def neighbour(): Option[ID] = vm.neighbour
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      ensure(!vm.inFolding, "can't nest rep into fold")
       nest(Rep[A](vm.index)) {
         fun(vm.previousRoundVal.getOrElse(init))
       }
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      ensure(!vm.inFolding, "can't nest fold constructs")
       try {
         vm.alignedNeighbours.map(id => vm.nestedEval(expr)(Some[ID](id)).getOrElse(init)).fold(init)(aggr)
       } finally {
@@ -141,11 +141,11 @@ trait Semantics extends Core with Language {
     }
 
     def nbr[A](expr: => A): A = {
-      ensure(vm.status.isFolding, "nbr should be nested into fold")
       nest(Nbr[A](vm.index)) {
-        vm.neighbour.get == vm.self match {
-          case true => expr
-          case false => vm.neighbourVal
+        vm.neighbour match {
+          case Some(nbr) if nbr == vm.self => expr
+          case Some(_) => vm.neighbourVal
+          case None => if(!strictEvaluation) expr else throw new Exception("NBR must be nested into FOLD in strict mode!")
         }
       }
     }
@@ -163,9 +163,9 @@ trait Semantics extends Core with Language {
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
       try {
         vm.status = vm.status.push().nest(slot)  // prepare nested call
-        vm.export.put(vm.status.path, expr) // function return value is result of expr
+        vm.export.put(vm.status.path, expr)      // function return value is result of expr
       } finally {
-        vm.status = vm.status.pop().incIndex(); // do not forger to restore the status
+        vm.status = vm.status.pop().incIndex();  // do not forget to restore the status
       }
     }
   }

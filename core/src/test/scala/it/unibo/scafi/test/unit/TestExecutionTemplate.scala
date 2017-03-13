@@ -41,14 +41,16 @@ class TestExecutionTemplate extends FunSpec with Matchers {
         // ACT
         val s1 = status.foldInto(Some(7))
         val s2 = status.foldInto(Some(8))
-        val s3 = status.foldOut()
 
-        s1.neighbour shouldBe Some(7)
+        status.neighbour shouldBe None
+        status.isFolding shouldBe false
+        //intercept[Exception]{ status.foldOut() }
+
+        s1.neighbour shouldEqual Option(7)
         s1.isFolding shouldBe true
-        s2.neighbour shouldBe Some(8)
+
+        s2.neighbour shouldEqual Option(8)
         s2.isFolding shouldBe true
-        s3.neighbour shouldBe None
-        s3.isFolding shouldBe false
       }
 
       it("should work as a stack"){
@@ -61,28 +63,23 @@ class TestExecutionTemplate extends FunSpec with Matchers {
         val s2 = s1.foldInto(Some(7)).nest(Nbr(2)).push()
         val s3 = s2.foldInto(Some(8)).nest(Rep(4)).incIndex().push()
         val s4 = s3.pop()
-        val s5 = s4.foldOut().push()
+        val s5 = s4.pop()
         val s6 = s5.pop()
-        val s7 = s6.pop()
-        val s8 = s7.pop()
 
         // ASSERT
-        intercept[Exception]{ s8.pop() }
+        intercept[Exception]{ s6.pop() }
+
         s4.index shouldBe 1
-        s4.neighbour shouldBe Some(8)
+        s4.neighbour shouldEqual Some(8)
         s4.path.matches(root / Rep(4) / Nbr(2))
 
-        s6.index shouldBe 1
-        s6.neighbour shouldBe None
-        s6.path.matches(root / Rep(4) / Nbr(2))
+        s5.index shouldBe 0
+        s5.neighbour shouldBe Some(7)
+        s5.path.matches(root / Rep(4) / Nbr(2))
 
-        s7.index shouldBe 0
-        s7.neighbour shouldBe Some(7)
-        s7.path.matches(root / Nbr(2))
-
-        s8.index shouldBe 0
-        s8.neighbour shouldBe None
-        s8.path.matches(root)
+        s6.index shouldBe 0
+        s6.neighbour shouldEqual None
+        s6.path.matches(root / Nbr(2))
       }
 
       it("should use indexes to avoid clashes"){

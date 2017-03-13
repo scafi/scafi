@@ -12,8 +12,7 @@ import it.unibo.scafi.test.CoreTestUtils._
 
 class TestSemanticsByRound extends FunSpec with Matchers {
 
-  val LocalValues, Alignment, Exports, FOLDHOOD, NBR, REP, BRANCH = new ItWord
-  val SENSE, MID, NBRVAR, BUILTIN = new ItWord
+  val LocalValues, Alignment, Exports, FOLDHOOD, NBR, REP, BRANCH, SENSE, MID, NBRVAR, BUILTIN, Nesting = new ItWord
 
   implicit val node = new BasicAggregateInterpreter
   import node._
@@ -100,19 +99,22 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     round(ctx2, foldhood(-5)(_+_)(if(nbr(false)) 0 else 1)).root[Int]() shouldBe -14
   }
 
-  FOLDHOOD("must not be nested") {
-    // ARRANGE
-    val ctx1 = ctx(selfId = 0, exports = Map())
-    // ACT + ASSERT
-    intercept[Exception]{ round(ctx1, foldhood(0)(_+_)(foldhood(0)(_+_)(1))) }
-  }
-
-  NBR("must be nested into fold") {
+  NBR("must be nested into fold when strict mode is used") {
+    setStrict(true)
     // ARRANGE
     val ctx1 = ctx(selfId = 0)
     // ACT + ASSERT (invariant for nbr: must be nested into fold)
     intercept[Exception]{ round(ctx1, { nbr(1) }) }
     intercept[Exception]{ round(ctx1, { rep(0)(_+nbr(1)) }) }
+  }
+
+  NBR("needs not to be nested into fold when using non-strict mode") {
+    setStrict(false)
+    // ARRANGE
+    val ctx1 = ctx(selfId = 0)
+    // ACT + ASSERT (invariant for nbr: must be nested into fold)
+    round(ctx1, { nbr(1) })
+    round(ctx1, { rep(0)(_+nbr(1)) })
   }
 
   NBR("should support interaction between aligned devices") {
@@ -144,13 +146,6 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ASSERT (build upon previous state)
     exp2.root[Int]() shouldBe 14
     exp2.get(path(Rep(0))) shouldBe Some(14)
-  }
-
-  REP("must not be nested into fold") {
-    // ARRANGE
-    val ctx1 = ctx(selfId = 0, exports = Map())
-    // ACT + ASSERT
-    intercept[Exception]{ round(ctx1, foldhood(0)(_+_)(rep(0)(_+1))) }
   }
 
   BRANCH("should support domain restriction, thus affecting the structure of exports") {
@@ -241,5 +236,45 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ACT + ASSERT
     round(ctx2, minHoodPlus(nbr(sense[Int]("sensor")))).root[Int] shouldBe 5
     round(ctx2, maxHoodPlus(nbr(sense[Int]("sensor2")))).root[Int] shouldBe 10
+  }
+
+  Nesting("REP into FOLDHOOD should be supported") {
+    // ARRANGE
+    val ctx1 = ctx(0, Map(1 -> export(), 2 -> export()))
+    def program1 = foldhood("init")(_+_){ rep(0)(_+1) + "" }
+
+    val ctx2 = ctx(0, Map(1 -> export(), 2 -> export(emptyPath() / Nbr(0) -> 7)))
+    def program2 = foldhood("init")(_+_){ nbr { rep(0)(_+1) } + "" }
+
+    // ACT + ASSERT
+    val exp1 = round(ctx1, program1)
+    exp1.root[String] shouldEqual "init111"
+    ctx1.updateExport(0, exp1)
+    round(ctx1, program1).root[String] shouldEqual "init222"
+
+    val exp2 = round(ctx2, program2)
+    List("init7init1", "initinit71") should contain (
+      // NOTE: depends on order in which the neighbours are folded (not known)
+      // NOTE: if there's no alignment, the fold uses the initial value in place of the disaligned neighbour (e.g., 1 in this case)
+      // We only assume that "self" is folded as last
+      exp2.root[String]
+    )
+    ctx2.updateExport(0, exp2)
+    List("init7init2", "initinit72") should contain ( round(ctx2, program2).root[String] )
+  }
+
+  Nesting("FOLDHOOD into FOLDHOOD should be supported") {
+    // ARRANGE
+    val ctx1 = ctx(0, Map(1 -> export(), 2 -> export(emptyPath() / Nbr(0) -> 7)))
+
+    // ACT + ASSERT
+    round(ctx1, foldhood("init")(_+_){ foldhood(0)(_+_){ 1 } + "" } ).root[String] shouldEqual "init333"
+
+    List("init7init2", "initinit72") should contain (
+      // NOTE: depends on order in which the neighbours are folded (not known)
+      // NOTE: if there's no alignment, the fold uses the initial value in place of the disaligned neighbour (e.g., 1 in this case)
+      // We only assume that "self" is folded as last
+      round(ctx1, foldhood("init")(_+_){ nbr { foldhood(0)(_+_){ 1 } } + "" } ).root[String]
+    )
   }
 }

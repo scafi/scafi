@@ -59,7 +59,7 @@ trait Engine extends Semantics {
 
     private val exportsMap : MMap[ID,EXPORT] = MMap() ++ _exports
 
-    def updateExport(id: ID, export:EXPORT) = exportsMap + (id -> export)
+    def updateExport(id: ID, export:EXPORT) = exportsMap.put(id, export)
 
     override def exports(): Iterable[(ID, ExportImpl)] = exportsMap
 
