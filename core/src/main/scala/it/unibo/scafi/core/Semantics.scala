@@ -1,6 +1,5 @@
 package it.unibo.scafi.core
 
-import scala.collection.immutable.Stack
 import scala.util.control.Exception._
 
 /**
@@ -164,9 +163,9 @@ trait Semantics extends Core with Language {
     private[this] def nest[A](slot: Slot)(expr: => A): A = {
       try {
         vm.status = vm.status.push().nest(slot)  // prepare nested call
-        vm.export.put(vm.status.path, expr) // function return value is result of expr
+        vm.export.put(vm.status.path, expr)      // function return value is result of expr
       } finally {
-        vm.status = vm.status.pop().incIndex(); // do not forger to restore the status
+        vm.status = vm.status.pop().incIndex();  // do not forget to restore the status
       }
     }
   }

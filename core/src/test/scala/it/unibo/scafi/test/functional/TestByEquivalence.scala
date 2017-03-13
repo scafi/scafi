@@ -12,7 +12,7 @@ import org.scalatest._
 import scala.collection.Map
 import scala.util.Random
 
-class TestEquivalence extends FunSpec with Matchers {
+class TestByEquivalence extends FunSpec with Matchers {
 
   val checkThat = new ItWord
 
@@ -29,15 +29,23 @@ class TestEquivalence extends FunSpec with Matchers {
     val devicesAndNbrs = fullyConnectedTopologyMap(List(0,1,2))
   }
 
+  checkThat("multiple nbrs in fold work well") {
+    val fixture = new Fixture
+
+    assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
+      foldhood(0)(_+_){ nbr{1} + nbr{2} + nbr{mid()} }
+    }{
+      foldhood(0)(_+_){ nbr{1 + 2 + mid()} }
+    }
+  }
+
   checkThat("nbr.nbr is to be ignored") {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)(_+_){
-        nbr{mid()+nbr{mid()}}
-      }
+      foldhood(0)(_+_){ nbr{ mid() + nbr{ mid() } } }
     }{
-      2 * foldhood(0)(_+_){nbr{mid()}}
+      2 * foldhood(0)(_+_){ nbr{ mid() } }
     }
   }
 
