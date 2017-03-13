@@ -150,11 +150,7 @@ trait Semantics extends Core with Language {
       }
     }
 
-    def aggregate[T](f: => T): T = {
-      var funId = Thread.currentThread().getStackTrace()(3)
-
-      nest(FunCall[T](vm.index, funId)) { f }
-    }
+    def aggregate[T](f: => T): T = nest(FunCall[T](vm.index, elicitAggregateFunctionTag())) { f }
 
     def sense[A](name: LSNS): A = vm.localSense(name)
 
@@ -168,6 +164,8 @@ trait Semantics extends Core with Language {
         vm.status = vm.status.pop().incIndex();  // do not forget to restore the status
       }
     }
+
+    private def elicitAggregateFunctionTag() = Thread.currentThread().getStackTrace()(4)
   }
 
   private[scafi] object ExecutionTemplate extends Serializable {
