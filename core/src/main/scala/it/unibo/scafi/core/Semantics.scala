@@ -95,6 +95,16 @@ trait Semantics extends Core with Language {
       def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
       def neighbourSense[A](name: NSNS): A = vm.context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
 
+      def nest[A](slot: Slot)(expr: => A): A = {
+        try {
+          status = status.push().nest(slot)  // prepare nested call
+          export.put(status.path, expr)      // function return value is result of expr
+        } finally {
+          status = status.pop().incIndex();  // do not forget to restore the status
+        }
+      }
+
+
       // self should be the last one to make nbrWork!
       // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
       // So the export must be overridden by the current device (at last).
@@ -127,7 +137,7 @@ trait Semantics extends Core with Language {
     def neighbour(): Option[ID] = vm.neighbour
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      nest(Rep[A](vm.index)) {
+      vm.nest(Rep[A](vm.index)) {
         fun(vm.previousRoundVal.getOrElse(init))
       }
     }
@@ -141,7 +151,7 @@ trait Semantics extends Core with Language {
     }
 
     def nbr[A](expr: => A): A = {
-      nest(Nbr[A](vm.index)) {
+      vm.nest(Nbr[A](vm.index)) {
         vm.neighbour match {
           case Some(nbr) if nbr == vm.self => expr
           case Some(_) => vm.neighbourVal
@@ -150,20 +160,14 @@ trait Semantics extends Core with Language {
       }
     }
 
-    def aggregate[T](f: => T): T = nest(FunCall[T](vm.index, elicitAggregateFunctionTag())) { f }
+    def aggregate[T](f: => T): T =
+      vm.nest(FunCall[T](vm.index, elicitAggregateFunctionTag())) {
+        f
+      }
 
     def sense[A](name: LSNS): A = vm.localSense(name)
 
     def nbrvar[A](name: NSNS): A = vm .neighbourSense(name)
-
-    private[this] def nest[A](slot: Slot)(expr: => A): A = {
-      try {
-        vm.status = vm.status.push().nest(slot)  // prepare nested call
-        vm.export.put(vm.status.path, expr)      // function return value is result of expr
-      } finally {
-        vm.status = vm.status.pop().incIndex();  // do not forget to restore the status
-      }
-    }
 
     private def elicitAggregateFunctionTag() = Thread.currentThread().getStackTrace()(4)
   }
