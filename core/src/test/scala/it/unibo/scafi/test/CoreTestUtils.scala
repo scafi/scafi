@@ -28,7 +28,7 @@ trait CoreTestUtils {
       val currCtx = ctx(curr, exports = states.filter(nbrs(curr).contains(_)))
       val exp1 = interpreter.round(currCtx, program1)
       val exp2 = interpreter.round(currCtx, program2)
-      if(exp1.root() != exp2.root()) throw new Exception(s"Not equivalent: \n$exp1\n$exp2")
+      if(exp1.root() != exp2.root()) throw new Exception(s"Not equivalent: \n$exp1\n$exp2\n$currCtx")
       states.put(curr, exp1)
     })
     true
@@ -37,6 +37,8 @@ trait CoreTestUtils {
   implicit val exportEquality = new Equality[EXPORT] {
     override def areEqual(e: EXPORT, b: Any): Boolean = e.toString == b.toString
   }
+
+  def fullyConnectedTopologyMap(elems: Iterable[ID]): Map[ID,List[ID]] = elems.map(elem => elem -> elems.toList).toMap
 }
 
 object CoreTestUtils extends CoreTestUtils

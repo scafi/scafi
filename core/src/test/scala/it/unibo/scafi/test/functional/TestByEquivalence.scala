@@ -21,8 +21,6 @@ class TestByEquivalence extends FunSpec with Matchers {
   import node._
   import CoreTestUtils._
 
-  def fullyConnectedTopologyMap(elems: Iterable[ID]): Map[ID,List[ID]] = elems.map(elem => elem -> elems.toList).toMap
-
   class Fixture {
     val random = new Random(0)
     val execSequence = Stream.continually(Random.nextInt(3)).take(100)
