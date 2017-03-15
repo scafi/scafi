@@ -93,7 +93,7 @@ trait Semantics extends Core with Language {
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      vm.nest(FoldHood[A](vm.index))(false) {
+      vm.nest(FoldHood[A](vm.index))(true) {
         vm.alignedNeighbours.map(id => vm.nestedEval(expr)(Some[ID](id)).getOrElse(init)).fold(init)(aggr)
       }
     }
