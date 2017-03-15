@@ -26,6 +26,7 @@ trait Semantics extends Core with Language {
   sealed case class Nbr[A](index: Int) extends Slot
   sealed case class Rep[A](index: Int) extends Slot
   sealed case class FunCall[A](index: Int, funId: Any) extends Slot
+  sealed case class FoldHood[A](index: Int) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
@@ -92,10 +93,8 @@ trait Semantics extends Core with Language {
     }
 
     def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      try {
+      vm.nest(FoldHood[A](vm.index))(false) {
         vm.alignedNeighbours.map(id => vm.nestedEval(expr)(Some[ID](id)).getOrElse(init)).fold(init)(aggr)
-      } finally {
-        vm.incIndex()
       }
     }
 
