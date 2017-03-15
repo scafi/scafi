@@ -18,6 +18,7 @@ class TestExecutionTemplate extends FunSpec with Matchers {
 
     val semantics = getSemantics
     import semantics._
+    import factory./
 
     describe("Status implementation") {
 
@@ -26,7 +27,7 @@ class TestExecutionTemplate extends FunSpec with Matchers {
         val status = ExecutionTemplate.Status()
 
         // ASSERT
-        status.path shouldEqual factory.emptyPath()
+        status.path shouldEqual /
         status.index shouldBe 0
         status.neighbour shouldBe None
       }
@@ -56,7 +57,6 @@ class TestExecutionTemplate extends FunSpec with Matchers {
       it("should work as a stack"){
         // ARRANGE
         val status = ExecutionTemplate.Status()
-        val root = factory.emptyPath()
 
         // ACT
         val s1 = status.push()
@@ -71,15 +71,15 @@ class TestExecutionTemplate extends FunSpec with Matchers {
 
         s4.index shouldBe 1
         s4.neighbour shouldEqual Some(8)
-        s4.path.matches(root / Rep(4) / Nbr(2))
+        s4.path.matches(/ / Rep(4) / Nbr(2))
 
         s5.index shouldBe 0
         s5.neighbour shouldBe Some(7)
-        s5.path.matches(root / Rep(4) / Nbr(2))
+        s5.path.matches(/ / Rep(4) / Nbr(2))
 
         s6.index shouldBe 0
         s6.neighbour shouldEqual None
-        s6.path.matches(root / Nbr(2))
+        s6.path.matches(/ / Nbr(2))
       }
 
       it("should use indexes to avoid clashes"){

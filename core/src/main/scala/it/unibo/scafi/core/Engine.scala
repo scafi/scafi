@@ -83,6 +83,7 @@ trait Engine extends Semantics {
   }
 
   override implicit val factory = new Factory with Serializable {
+    def /(): Path = emptyPath()
     def emptyPath(): Path = new PathImpl(List())
     def emptyExport(): EXPORT = new ExportImpl
     def path(slots: Slot*): Path = new PathImpl(List(slots:_*))
