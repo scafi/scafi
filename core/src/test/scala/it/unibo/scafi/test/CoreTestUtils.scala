@@ -22,14 +22,16 @@ trait CoreTestUtils {
                    (program1: => Any)
                    (program2: => Any)
                    (implicit interpreter: EXECUTION): Boolean = {
-    val states = mutable.Map[ID,ExportImpl]()
-
+    val states = mutable.Map[ID,(ExportImpl,ExportImpl)]()
     execOrder.foreach(curr => {
-      val currCtx = ctx(curr, exports = states.filter(nbrs(curr).contains(_)))
-      val exp1 = interpreter.round(currCtx, program1)
-      val exp2 = interpreter.round(currCtx, program2)
-      if(exp1.root() != exp2.root()) throw new Exception(s"Not equivalent: \n$exp1\n$exp2\n$currCtx")
-      states.put(curr, exp1)
+      val nbrExports = states.filterKeys(nbrs(curr).contains(_))
+      val currCtx1 = ctx(curr, exports = nbrExports.mapValues(_._1))
+      val currCtx2 = ctx(curr, exports = nbrExports.mapValues(_._2))
+
+      val exp1 = interpreter.round(currCtx1, program1)
+      val exp2 = interpreter.round(currCtx2, program2)
+      if(exp1.root() != exp2.root()) throw new Exception(s"Not equivalent: \n$exp1\n$currCtx1\n--------\n$exp2\n$currCtx2")
+      states.put(curr, (exp1, exp2))
     })
     true
   }

@@ -30,12 +30,12 @@ trait Engine extends Semantics {
     def push(s: Slot): Path = new PathImpl(s :: path)
     def pull(): Path = path match {
       case s :: p => new PathImpl(p)
-      case _ => throw new Exception();
+      case _ => throw new Exception()
     }
 
     override def isRoot: Boolean = path.isEmpty
 
-    override def toString(): String = "P:/"+path.mkString("/")
+    override def toString(): String = "P:/"+path.reverse.mkString("/")
 
     def matches(p: Path): Boolean = this == p
 

@@ -84,8 +84,6 @@ trait Semantics extends Core with Language {
 
     def mid(): ID = vm.self
 
-    def neighbour(): Option[ID] = vm.neighbour
-
     def rep[A](init: A)(fun: (A) => A): A = {
       vm.nest(Rep[A](vm.index))(true) {
         fun(vm.previousRoundVal.getOrElse(init))
