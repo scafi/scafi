@@ -242,14 +242,13 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     round(ctx1, program1).root[String] shouldEqual "init222"
 
     val exp2 = round(ctx2, program2)
-    List("init7init1", "initinit71") should contain (
-      // NOTE: depends on order in which the neighbours are folded (not known)
-      // NOTE: if there's no alignment, the fold uses the initial value in place of the disaligned neighbour (e.g., 1 in this case)
-      // We only assume that "self" is folded as last
+    assertPossibleFolds("init", List("init","7","1")) {
       exp2.root[String]
-    )
+    }
     ctx2.updateExport(0, exp2)
-    List("init7init2", "initinit72") should contain ( round(ctx2, program2).root[String] )
+    assertPossibleFolds("init", List("init","7","2")){
+      round(ctx2, program2).root[String]
+    }
   }
 
   Nesting("FOLDHOOD into FOLDHOOD should be supported") {
@@ -259,11 +258,12 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ACT + ASSERT
     round(ctx1, foldhood("init")(_+_){ foldhood(0)(_+_){ 1 } + "" } ).root[String] shouldEqual "init333"
 
-    List("init7init2", "initinit72") should contain (
-      // NOTE: depends on order in which the neighbours are folded (not known)
-      // NOTE: if there's no alignment, the fold uses the initial value in place of the disaligned neighbour (e.g., 1 in this case)
-      // We only assume that "self" is folded as last
+    assertPossibleFolds("init", List("init","7","2")){
       round(ctx1, foldhood("init")(_+_){ nbr { foldhood(0)(_+_){ 1 } } + "" } ).root[String]
-    )
+    }
+  }
+
+  private def assertPossibleFolds(init: Any, a: List[Any])(expr: => Any): Unit = {
+    a.permutations.map(l => init + l.mkString).toList should contain (expr)
   }
 }
