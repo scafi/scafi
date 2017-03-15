@@ -67,54 +67,6 @@ trait Semantics extends Core with Language {
 
     import ExecutionTemplate._
 
-    class RoundVM(val context: CONTEXT){
-      var export: EXPORT = factory.emptyExport
-      var status: Status = Status()
-
-      def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
-      def self: ID = vm.context.selfId
-      def neighbour: Option[ID] = status.neighbour
-      def index: Int = vm.status.index
-      def path: Path = vm.status.path
-      def previousRoundVal[A]: Option[A] = context.readSlot[A](vm.self, vm.path)
-      def neighbourVal[A]: A = context.readSlot[A](neighbour.get, vm.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, path))
-      def inFolding: Boolean = !vm.neighbour.isEmpty
-      //def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
-      //def exitFolding(): Unit = status = vm.status.foldOut()
-      def incIndex(): Unit = status = vm.status.incIndex()
-      def nestedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
-        handling(classOf[OutOfDomainException]) by (_ => None) apply {
-          try {
-            status = status.push()
-            status = status.foldInto(id)
-            Some(expr)
-          } finally {
-            status = status.pop()
-          }
-        }
-      def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
-      def neighbourSense[A](name: NSNS): A = vm.context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
-
-      def nest[A](slot: Slot)(expr: => A): A = {
-        try {
-          status = status.push().nest(slot)  // prepare nested call
-          export.put(status.path, expr)      // function return value is result of expr
-        } finally {
-          status = status.pop().incIndex();  // do not forget to restore the status
-        }
-      }
-
-
-      // self should be the last one to make nbrWork!
-      // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
-      // So the export must be overridden by the current device (at last).
-      def alignedNeighbours(): List[ID] =
-        context.exports
-          .filter(p => p._1 != self && (status.path.isRoot || p._2.get(status.path).isDefined))
-          .map(_._1)
-          .toList
-          .++(List(self))
-    }
 
     @transient private var vm: RoundVM = _
 
@@ -134,7 +86,7 @@ trait Semantics extends Core with Language {
     def neighbour(): Option[ID] = vm.neighbour
 
     def rep[A](init: A)(fun: (A) => A): A = {
-      vm.nest(Rep[A](vm.index)) {
+      vm.nest(Rep[A](vm.index))(true) {
         fun(vm.previousRoundVal.getOrElse(init))
       }
     }
@@ -148,27 +100,76 @@ trait Semantics extends Core with Language {
     }
 
     def nbr[A](expr: => A): A =
-      vm.nest(Nbr[A](vm.index)) {
+      vm.nest(Nbr[A](vm.index))(vm.neighbour.isEmpty || vm.neighbour.get==vm.self) {
         vm.neighbour match {
-          case Some(nbr) if nbr == vm.self => expr
-          case Some(_) => vm.neighbourVal
-          case None => expr
+          case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
+          case _  => expr
         }
     }
 
     def aggregate[T](f: => T): T =
-      vm.nest(FunCall[T](vm.index, elicitAggregateFunctionTag())) {
+      vm.nest(FunCall[T](vm.index, elicitAggregateFunctionTag()))(true) {
         f
       }
 
     def sense[A](name: LSNS): A = vm.localSense(name)
 
-    def nbrvar[A](name: NSNS): A = vm .neighbourSense(name)
+    def nbrvar[A](name: NSNS): A = vm.neighbourSense(name)
 
     private def elicitAggregateFunctionTag() = Thread.currentThread().getStackTrace()(4)
   }
 
   private[scafi] object ExecutionTemplate extends Serializable {
+
+    class RoundVM(val context: CONTEXT){
+      var export: EXPORT = factory.emptyExport
+      var status: Status = Status()
+
+      def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+      def self: ID = context.selfId
+      def neighbour: Option[ID] = status.neighbour
+      def index: Int = status.index
+      def path: Path = status.path
+      def previousRoundVal[A]: Option[A] = context.readSlot[A](self, path)
+      def neighbourVal[A]: A = context.readSlot[A](neighbour.get, path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, path))
+      def inFolding: Boolean = !neighbour.isEmpty
+      //def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
+      //def exitFolding(): Unit = status = vm.status.foldOut()
+      def incIndex(): Unit = status = status.incIndex()
+      def nestedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
+        handling(classOf[OutOfDomainException]) by (_ => None) apply {
+          try {
+            status = status.push()
+            status = status.foldInto(id)
+            Some(expr)
+          } finally {
+            status = status.pop()
+          }
+        }
+      def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
+      def neighbourSense[A](name: NSNS): A = context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+
+      def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
+        try {
+          status = status.push().nest(slot)  // prepare nested call
+          if (write) export.put(status.path, expr) else expr      // function return value is result of expr
+        } finally {
+          status = status.pop().incIndex();  // do not forget to restore the status
+        }
+      }
+
+
+      // self should be the last one to make nbrWork!
+      // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
+      // So the export must be overridden by the current device (at last).
+      def alignedNeighbours(): List[ID] = self ::
+      context.exports
+        .filter(_._1 != self)
+        .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
+        .map(_._1)
+        .toList
+    }
+
 
     trait Status extends Serializable {
       val path: Path
