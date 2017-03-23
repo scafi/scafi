@@ -63,13 +63,13 @@ trait Semantics extends Core with Language {
   /**
    * It implements the whole operational semantics.
    */
-  trait ExecutionTemplate extends (CONTEXT => EXPORT) with Constructs with AggregateProgramSpecification {
+  trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with AggregateProgramSpecification {
     self:Constructs =>
 
     import ExecutionTemplate._
 
 
-    @transient private var vm: RoundVM = _
+    @transient var vm: RoundVM = _
 
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
@@ -81,6 +81,10 @@ trait Semantics extends Core with Language {
         vm.registerRoot(result)
         vm.export
     }
+  }
+
+  trait ConstructsSemantics extends Constructs {
+    self:ExecutionTemplate =>
 
     override def mid(): ID = vm.self
 
@@ -106,10 +110,10 @@ trait Semantics extends Core with Language {
           case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
           case _  => expr
         }
-    }
+      }
 
     override def aggregate[T](f: => T): T =
-      vm.nest(FunCall[T](vm.index, elicitAggregateFunctionTag()))(true) {
+      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(true) {
         f
       }
 
@@ -117,8 +121,8 @@ trait Semantics extends Core with Language {
 
     def nbrvar[A](name: NSNS): A = vm.neighbourSense(name)
 
-    private def elicitAggregateFunctionTag() = Thread.currentThread().getStackTrace()(4)
   }
+
 
   private[scafi] object ExecutionTemplate extends Serializable {
 
@@ -179,6 +183,9 @@ trait Semantics extends Core with Language {
         .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
         .map(_._1)
         .toList
+
+      def elicitAggregateFunctionTag() = Thread.currentThread().getStackTrace()(4)
+
     }
 
 
