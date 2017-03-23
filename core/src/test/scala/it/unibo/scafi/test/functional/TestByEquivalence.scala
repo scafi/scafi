@@ -47,7 +47,21 @@ class TestByEquivalence extends FunSpec with Matchers {
     }
   }
 
-  checkThat("rep.nbr is to be ignored") {
+  checkThat("rep.nbr is to be ignored on first argument") {
+    val fixture = new Fixture
+
+    assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
+      foldhood(0)(_+_){
+        rep (nbr{mid()}) { (old) => old }
+      }
+    }{
+      foldhood(0)(_+_){
+        rep (mid()) { (old) => old }
+      }
+    }
+  }
+
+  checkThat("rep.nbr is to be ignored overall") {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){

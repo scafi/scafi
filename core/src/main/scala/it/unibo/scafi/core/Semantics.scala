@@ -82,21 +82,25 @@ trait Semantics extends Core with Language {
         vm.export
     }
 
-    def mid(): ID = vm.self
+    override def mid(): ID = vm.self
 
-    def rep[A](init: A)(fun: (A) => A): A = {
+    override def rep[A](init: =>A)(fun: (A) => A): A = {
       vm.nest(Rep[A](vm.index))(true) {
-        fun(vm.previousRoundVal.getOrElse(init))
+        vm.locally {
+          fun(vm.previousRoundVal.getOrElse(init))
+        }
       }
     }
 
-    def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
+    override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
       vm.nest(FoldHood[A](vm.index))(true) {
-        vm.alignedNeighbours.map(id => vm.nestedEval(expr)(Some[ID](id)).getOrElse(init)).fold(init)(aggr)
+        vm.alignedNeighbours
+          .map(id => vm.foldedEval(expr)(Some[ID](id)).getOrElse(vm.locally { init }))
+          .fold(vm.locally { init })(aggr)
       }
     }
 
-    def nbr[A](expr: => A): A =
+    override def nbr[A](expr: => A): A =
       vm.nest(Nbr[A](vm.index))(vm.neighbour.isEmpty || vm.neighbour.get==vm.self) {
         vm.neighbour match {
           case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
@@ -104,7 +108,7 @@ trait Semantics extends Core with Language {
         }
     }
 
-    def aggregate[T](f: => T): T =
+    override def aggregate[T](f: => T): T =
       vm.nest(FunCall[T](vm.index, elicitAggregateFunctionTag()))(true) {
         f
       }
@@ -119,6 +123,7 @@ trait Semantics extends Core with Language {
   private[scafi] object ExecutionTemplate extends Serializable {
 
     class RoundVM(val context: CONTEXT){
+
       var export: EXPORT = factory.emptyExport
       var status: Status = Status()
 
@@ -133,7 +138,7 @@ trait Semantics extends Core with Language {
       //def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
       //def exitFolding(): Unit = status = vm.status.foldOut()
       def incIndex(): Unit = status = status.incIndex()
-      def nestedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
+      def foldedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
         handling(classOf[OutOfDomainException]) by (_ => None) apply {
           try {
             status = status.push()
@@ -152,6 +157,15 @@ trait Semantics extends Core with Language {
           if (write) export.put(status.path, expr) else expr      // function return value is result of expr
         } finally {
           status = status.pop().incIndex();  // do not forget to restore the status
+        }
+      }
+      def locally[A](a: =>A): A = {
+        val currentNeighbour = neighbour
+        try{
+          status = status.foldOut()
+          a
+        } finally {
+          status = status.foldInto(currentNeighbour)
         }
       }
 
