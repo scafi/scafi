@@ -76,7 +76,7 @@ trait Semantics extends Core with Language {
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-        vm = new RoundVM(c)
+        vm = new RoundVMImpl(c)
         val result = e
         vm.registerRoot(result)
         vm.export
@@ -126,23 +126,50 @@ trait Semantics extends Core with Language {
 
   private[scafi] object ExecutionTemplate extends Serializable {
 
-    class RoundVM(val context: CONTEXT){
+    trait RoundVM {
+
+      def export: EXPORT
+
+      def registerRoot(v: Any): Unit
+
+      def self: ID
+
+      def neighbour: Option[ID]
+
+      def index: Int
+
+      def previousRoundVal[A]: Option[A]
+
+      def neighbourVal[A]: A
+
+      def foldedEval[A](expr: => A)(id: Option[ID]): Option[A]
+
+      def localSense[A](name: LSNS): A
+
+      def neighbourSense[A](name: NSNS): A
+
+      def nest[A](slot: Slot)(write: Boolean)(expr: => A): A
+
+      def locally[A](a: => A): A
+
+      def alignedNeighbours(): List[Semantics.this.ID]
+
+      def elicitAggregateFunctionTag(): Any
+    }
+
+
+    class RoundVMImpl(val context: CONTEXT) extends RoundVM {
 
       var export: EXPORT = factory.emptyExport
       var status: Status = Status()
 
-      def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
-      def self: ID = context.selfId
-      def neighbour: Option[ID] = status.neighbour
-      def index: Int = status.index
-      def path: Path = status.path
-      def previousRoundVal[A]: Option[A] = context.readSlot[A](self, path)
-      def neighbourVal[A]: A = context.readSlot[A](neighbour.get, path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, path))
-      def inFolding: Boolean = !neighbour.isEmpty
-      //def foldInto(id: Option[ID]): Unit = vm.status = vm.status.foldInto(id)
-      //def exitFolding(): Unit = status = vm.status.foldOut()
-      def incIndex(): Unit = status = status.incIndex()
-      def foldedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
+      override def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+      override def self: ID = context.selfId
+      override def neighbour: Option[ID] = status.neighbour
+      override def index: Int = status.index
+      override def previousRoundVal[A]: Option[A] = context.readSlot[A](self, status.path)
+      override def neighbourVal[A]: A = context.readSlot[A](neighbour.get, status.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+      override def foldedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
         handling(classOf[OutOfDomainException]) by (_ => None) apply {
           try {
             status = status.push()
@@ -152,10 +179,10 @@ trait Semantics extends Core with Language {
             status = status.pop()
           }
         }
-      def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
-      def neighbourSense[A](name: NSNS): A = context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+      override def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
+      override def neighbourSense[A](name: NSNS): A = context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
 
-      def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
+      override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
         try {
           status = status.push().nest(slot)  // prepare nested call
           if (write) export.put(status.path, expr) else expr      // function return value is result of expr
@@ -163,7 +190,7 @@ trait Semantics extends Core with Language {
           status = status.pop().incIndex();  // do not forget to restore the status
         }
       }
-      def locally[A](a: =>A): A = {
+      override def locally[A](a: =>A): A = {
         val currentNeighbour = neighbour
         try{
           status = status.foldOut()
@@ -177,14 +204,14 @@ trait Semantics extends Core with Language {
       // self should be the last one to make nbrWork!
       // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
       // So the export must be overridden by the current device (at last).
-      def alignedNeighbours(): List[ID] = self ::
-      context.exports
-        .filter(_._1 != self)
-        .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
-        .map(_._1)
-        .toList
+      override def alignedNeighbours(): List[ID] = self ::
+        context.exports
+          .filter(_._1 != self)
+          .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
+          .map(_._1)
+          .toList
 
-      def elicitAggregateFunctionTag() = Thread.currentThread().getStackTrace()(4)
+      override def elicitAggregateFunctionTag():Any = Thread.currentThread().getStackTrace()(4)
 
     }
 
