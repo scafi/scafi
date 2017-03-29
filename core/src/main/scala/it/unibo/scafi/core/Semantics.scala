@@ -152,7 +152,7 @@ trait Semantics extends Core with Language {
 
       def locally[A](a: => A): A
 
-      def alignedNeighbours(): List[Semantics.this.ID]
+      def alignedNeighbours(): List[ID]
 
       def elicitAggregateFunctionTag(): Any
     }
