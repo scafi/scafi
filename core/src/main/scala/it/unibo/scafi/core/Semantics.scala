@@ -185,11 +185,12 @@ trait Semantics extends Core with Language {
       override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
         try {
           status = status.push().nest(slot)  // prepare nested call
-          if (write) export.put(status.path, expr) else expr      // function return value is result of expr
+          if (write) export.put(status.path, expr) else expr  // function return value is result of expr
         } finally {
           status = status.pop().incIndex();  // do not forget to restore the status
         }
       }
+
       override def locally[A](a: =>A): A = {
         val currentNeighbour = neighbour
         try{
@@ -200,10 +201,6 @@ trait Semantics extends Core with Language {
         }
       }
 
-
-      // self should be the last one to make nbrWork!
-      // Why? Because in nbr nest performs 'exp.put(status.path, expr)'
-      // So the export must be overridden by the current device (at last).
       override def alignedNeighbours(): List[ID] = self ::
         context.exports
           .filter(_._1 != self)
@@ -212,7 +209,6 @@ trait Semantics extends Core with Language {
           .toList
 
       override def elicitAggregateFunctionTag():Any = Thread.currentThread().getStackTrace()(4)
-
     }
 
 
