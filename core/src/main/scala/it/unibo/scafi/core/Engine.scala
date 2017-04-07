@@ -16,6 +16,9 @@ trait Engine extends Semantics {
 
   override type EXPORT = ExportImpl
   override type CONTEXT = ContextImpl
+  override type FACTORY = EngineFactory
+
+  override implicit val factory = new EngineFactory with Serializable
 
   class ExportImpl() extends Export with ExportOps with Serializable { self: EXPORT =>
     private val map = MMap[Path,Any]()
@@ -82,7 +85,7 @@ trait Engine extends Semantics {
     override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nbrSensor.get(nsns).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
   }
 
-  override implicit val factory = new Factory with Serializable {
+  class EngineFactory extends Factory {
     def /(): Path = emptyPath()
     def emptyPath(): Path = new PathImpl(List())
     def emptyExport(): EXPORT = new ExportImpl
@@ -92,6 +95,8 @@ trait Engine extends Semantics {
       exps.foreach { case (p,v) => exp.put(p,v) }
       exp
     }
+    def context(selfId: ID, exports: Map[ID,EXPORT], lsens: Map[LSNS,Any], nbsens: Map[NSNS,Map[ID,Any]]): CONTEXT =
+      new ContextImpl(selfId, exports, lsens, nbsens)
   }
 
   trait Interop[T] extends Serializable {

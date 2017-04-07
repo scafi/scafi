@@ -21,6 +21,9 @@ trait Semantics extends Core with Language {
   override type CONTEXT <: Context with ContextOps
   override type EXPORT <: Export with ExportOps
   override type EXECUTION <: ExecutionTemplate
+  type FACTORY <: Factory
+
+  implicit val factory: Factory
 
   trait Slot extends Serializable
   sealed case class Nbr[A](index: Int) extends Slot
@@ -52,8 +55,6 @@ trait Semantics extends Core with Language {
     def path(slots: Slot*): Path
     def export(exps: (Path,Any)*): EXPORT
   }
-
-  implicit val factory: Factory
 
   trait AggregateProgramSpecification { constructs: Constructs =>
     type MainResult
@@ -105,7 +106,7 @@ trait Semantics extends Core with Language {
     }
 
     override def nbr[A](expr: => A): A =
-      vm.nest(Nbr[A](vm.index))(vm.neighbour.isEmpty || vm.neighbour.get==vm.self) {
+      vm.nest(Nbr[A](vm.index))(vm.neighbour.map(_==vm.self).getOrElse(false)) {
         vm.neighbour match {
           case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
           case _  => expr

@@ -7,7 +7,6 @@ package it.unibo.scafi.test.functional
 
 import org.scalatest._
 
-import scala.collection.Map
 import it.unibo.scafi.test.CoreTestIncarnation._
 import it.unibo.scafi.test.CoreTestUtils._
 

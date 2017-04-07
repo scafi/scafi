@@ -3,7 +3,7 @@ package it.unibo.scafi.test
 import CoreTestIncarnation._
 import org.scalactic.Equality
 
-import scala.collection.{Map, mutable}
+import scala.collection.{mutable}
 
 /**
   * @author Roberto Casadei
@@ -16,7 +16,7 @@ trait CoreTestUtils {
           lsens: Map[String,Any] = Map(),
           nbsens: Map[String, Map[Int,Any]] = Map())
          (implicit node: EXECUTION): CONTEXT =
-    new ContextImpl(selfId, exports, lsens, nbsens)
+    factory.context(selfId, exports, lsens, nbsens)
 
   def assertEquivalence(nbrs: Map[ID,List[ID]], execOrder: Iterable[ID])
                    (program1: => Any)
@@ -25,8 +25,8 @@ trait CoreTestUtils {
     val states = mutable.Map[ID,(ExportImpl,ExportImpl)]()
     execOrder.foreach(curr => {
       val nbrExports = states.filterKeys(nbrs(curr).contains(_))
-      val currCtx1 = ctx(curr, exports = nbrExports.mapValues(_._1))
-      val currCtx2 = ctx(curr, exports = nbrExports.mapValues(_._2))
+      val currCtx1 = ctx(curr, exports = nbrExports.mapValues(_._1).toMap)
+      val currCtx2 = ctx(curr, exports = nbrExports.mapValues(_._2).toMap)
 
       val exp1 = interpreter.round(currCtx1, program1)
       val exp2 = interpreter.round(currCtx2, program2)
