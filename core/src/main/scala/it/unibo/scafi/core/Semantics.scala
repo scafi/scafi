@@ -76,10 +76,10 @@ trait Semantics extends Core with Language {
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-        vm = new RoundVMImpl(c)
-        val result = e
-        vm.registerRoot(result)
-        vm.export
+      vm = new RoundVMImpl(c)
+      val result = e
+      vm.registerRoot(result)
+      vm.export
     }
   }
 
@@ -99,7 +99,7 @@ trait Semantics extends Core with Language {
     override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
       vm.nest(FoldHood[A](vm.index))(true) {
         vm.alignedNeighbours
-          .map(id => vm.foldedEval(expr)(Some[ID](id)).getOrElse(vm.locally { init }))
+          .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
           .fold(vm.locally { init })(aggr)
       }
     }
@@ -142,7 +142,7 @@ trait Semantics extends Core with Language {
 
       def neighbourVal[A]: A
 
-      def foldedEval[A](expr: => A)(id: Option[ID]): Option[A]
+      def foldedEval[A](expr: => A)(id: ID): Option[A]
 
       def localSense[A](name: LSNS): A
 
@@ -169,11 +169,11 @@ trait Semantics extends Core with Language {
       override def index: Int = status.index
       override def previousRoundVal[A]: Option[A] = context.readSlot[A](self, status.path)
       override def neighbourVal[A]: A = context.readSlot[A](neighbour.get, status.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
-      override def foldedEval[A](expr: =>A)(id: Option[ID]): Option[A] =
+      override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
         handling(classOf[OutOfDomainException]) by (_ => None) apply {
           try {
             status = status.push()
-            status = status.foldInto(id)
+            status = status.foldInto(Some(id))
             Some(expr)
           } finally {
             status = status.pop()
