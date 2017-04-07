@@ -87,9 +87,10 @@ trait Engine extends Semantics {
 
   class EngineFactory extends Factory {
     def /(): Path = emptyPath()
+    def /(s: Slot): Path = path(s)
     def emptyPath(): Path = new PathImpl(List())
     def emptyExport(): EXPORT = new ExportImpl
-    def path(slots: Slot*): Path = new PathImpl(List(slots:_*))
+    def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
     def export(exps: (Path,Any)*): EXPORT = {
       val exp = new ExportImpl()
       exps.foreach { case (p,v) => exp.put(p,v) }

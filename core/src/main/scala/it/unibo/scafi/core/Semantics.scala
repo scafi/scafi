@@ -25,7 +25,10 @@ trait Semantics extends Core with Language {
 
   implicit val factory: Factory
 
-  trait Slot extends Serializable
+  trait Slot extends Serializable{
+    def ->(v: Any): (Path,Any) = (factory.path(this), v)
+    def /(s: Slot): Path = factory.path(this, s)
+  }
   sealed case class Nbr[A](index: Int) extends Slot
   sealed case class Rep[A](index: Int) extends Slot
   sealed case class FunCall[A](index: Int, funId: Any) extends Slot
