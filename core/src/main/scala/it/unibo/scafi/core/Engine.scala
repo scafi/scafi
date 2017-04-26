@@ -96,7 +96,7 @@ trait Engine extends Semantics {
       exps.foreach { case (p,v) => exp.put(p,v) }
       exp
     }
-    def context(selfId: ID, exports: Map[ID,EXPORT], lsens: Map[LSNS,Any], nbsens: Map[NSNS,Map[ID,Any]]): CONTEXT =
+    def context(selfId: ID, exports: Map[ID,EXPORT], lsens: Map[LSNS,Any] = Map(), nbsens: Map[NSNS,Map[ID,Any]] = Map()): CONTEXT =
       new ContextImpl(selfId, exports, lsens, nbsens)
   }
 

@@ -184,7 +184,10 @@ trait Semantics extends Core with Language {
           }
         }
       override def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
-      override def neighbourSense[A](name: NSNS): A = context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+      override def neighbourSense[A](name: NSNS): A = {
+        ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
+        context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+      }
 
       override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
         try {

@@ -84,7 +84,6 @@ trait RichLanguage extends Language { self: Core =>
           def compare(a: (T1, T2), b: (T1, T2)): Int =
             if (of1.compare(a._1, b._1) == 0) of2.compare(a._2, b._2) else of1.compare(a._1, b._1)
         }
-
     }
 
   }
