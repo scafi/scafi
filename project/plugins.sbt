@@ -12,5 +12,8 @@ addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "4.0.0")
 // Provide support for Scalastyle
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.8.0")
 
+// For code coverage reporting
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
+
 // Publish projects to the Maven Central Repository (sonatypeRelease)
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1")
