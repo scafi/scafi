@@ -15,9 +15,7 @@ trait BlockG { self: AggregateProgram with SensorDefinitions =>
         (0.0, field)
       } {
         minHoodPlus {
-          val (d, v) = nbr {
-            (dv._1, dv._2)
-          }
+          val (d, v) = nbr { (dv._1, dv._2) }
           (d + metric, acc(v))
         }
       }
