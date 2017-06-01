@@ -30,8 +30,6 @@ class ValuesPanel private[view]() extends JPanel {
     //g.setColor(Settings.Color_device)
     //call the neighborhood to the network object
 
-    this.setFont(nodeLabelFont)
-
     controller.getNodes.foreach(ng => {
       val (n,gn) = ng
       val p1 = Utils.calculatedGuiNodePosition(n.position)
@@ -40,13 +38,16 @@ class ValuesPanel private[view]() extends JPanel {
       val p1y = (p1.y + dy)
       //println(n.id,n.getSensorValue(SensorEnum.SENS1.name).asInstanceOf[Tuple2[Any,Boolean]]._2)
       //controller.getSensorValueForNode(SensorEnum.SENS3.name, n).map(_==true).getOrElse(false) // too expensive
-      val color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else
+      var color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else
                   if (n.getSensorValue(SensorEnum.SENS2.name)==true) Settings.Color_device2 else
                   if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else Settings.Color_device
+
+      if(controller.getObservation()(n.export)) color = Settings.Color_observation
+
       var dim = (getWidth/Settings.Size_Device_Relative).min(getHeight/Settings.Size_Device_Relative)
       if (Try(Settings.Led_Activator(n.export).asInstanceOf[Boolean]) getOrElse false) {
         //println("in!!")
-        g.setColor(Settings.Color_actuator);
+        g.setColor(Settings.Color_actuator)
         g.fillOval(p1x.toInt-dim*10/16,p1y.toInt-dim*10/16,dim*10/8,dim*10/8)
         g.setColor(color)
         g.drawOval(p1x.toInt-dim*10/16,p1y.toInt-dim*10/16,dim*10/8,dim*10/8)
@@ -63,6 +64,17 @@ class ValuesPanel private[view]() extends JPanel {
     })
   }
 
-  def increaseFontSize() { this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D+1) }
-  def decreaseFontSize() { this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D-1) }
+  def increaseFontSize() {
+    this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D+1)
+    updateFont(this.nodeLabelFont)
+  }
+
+  def decreaseFontSize() {
+    this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D-1)
+    updateFont(this.nodeLabelFont)
+  }
+
+  private def updateFont(font: Font): Unit ={
+    this.setFont(font)
+  }
 }

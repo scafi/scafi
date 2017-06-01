@@ -40,6 +40,22 @@ object Utils {
     }
   }
 
+  def parseValue(str: String): (String,Any) = {
+    val valueParts = str.split(" ", 2)
+
+    var (valueType,valueStr) = if(valueParts.length==1)
+      ("string",valueParts(0))
+    else
+      (valueParts(0).toLowerCase, valueParts(1))
+
+    (valueType, valueType match {
+      case "bool" => valueStr.toBoolean
+      case "int" => valueStr.toInt
+      case "double" => valueStr.toDouble
+      case _ => valueStr
+    })
+  }
+
   def parseSensors(str: String): Map[String,Any] = {
     if (str==null || str == "") return Map()
     val sensorStrings = str.split("\\n")
