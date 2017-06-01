@@ -15,7 +15,7 @@ val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
 
 // Cross-Building
-crossScalaVersions := Seq("2.11.8","2.12.2","2.13.0-M1")
+crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
 
 // Prevents aggregated project (root) to be published
 packagedArtifacts in file(".") := Map.empty
@@ -46,14 +46,17 @@ lazy val sharedPublishSettings = Seq(
   )
 )
 
+// Enable cross release
+releaseCrossBuild := true
+
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
   runClean,
   runTest,
   setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
+  //commitReleaseVersion,
+  //tagRelease,
   ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true)
   //setNextVersion,
   //commitNextVersion,
