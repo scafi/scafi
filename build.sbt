@@ -6,11 +6,11 @@ resolvers += Resolver.typesafeRepo("releases")
 val akkaVersion = "2.3.7" // NOTE: Akka 2.4.0 REQUIRES Java 8!
 
 // Managed dependencies
-val akkaActor  = "com.typesafe.akka" % "akka-actor_2.11"  % akkaVersion
-val akkaRemote = "com.typesafe.akka" % "akka-remote_2.11" % akkaVersion
+val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
+val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel       = "org.apache.bcel"   % "bcel"             % "5.2"
-val scalatest  = "org.scalatest"     % "scalatest_2.11"   % "2.2.4"     % "test"
-val scopt      = "com.github.scopt"  % "scopt_2.11"       % "3.3.0"
+val scalatest  = "org.scalatest"     %% "scalatest"   % "2.2.4"     % "test"
+val scopt      = "com.github.scopt"  %% "scopt"       % "3.3.0"
 
 // Cross-Building
 crossScalaVersions := Seq("2.11.8")

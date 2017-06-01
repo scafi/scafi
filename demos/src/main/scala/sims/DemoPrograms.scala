@@ -1,10 +1,9 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation.NBR_RANGE_NAME
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-
 import lib.{BlockG, BlockS, BlockT, SensorDefinitions}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
 
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
@@ -82,8 +81,6 @@ class Timer extends AggregateProgram with BlockT {
   ).toMillis + "ms"
 }
 
-class SparseChoice extends AggregateProgram with BlockG with BlockS with SensorDefinitions {
-  override def main() = S(0.2, nbrRange)
+class SparseChoice extends AggregateProgram with SensorDefinitions with BlockG with BlockS {
+  override def main() = S(20, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
 }
-
-

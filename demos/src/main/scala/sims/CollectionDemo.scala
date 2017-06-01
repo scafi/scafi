@@ -38,10 +38,10 @@ class CExample extends AggregateProgram with SensorDefinitions with BlockC with 
 
 class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
 
-  def summarize[V:OrderingFoldable](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
+  def summarize[V: Bounded](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
     C[(Double,V)]((distanceTo(sink),local), (a,b) => (a._1, acc(a._2,b._2)), (0.0,local), (0.0,Null))._2
 
-  implicit val ofset = new Builtins.OrderingFoldable[Set[ID]] {
+  implicit val ofset = new Builtins.Bounded[Set[ID]] {
     override def top: Set[ID] = Set()
 
     override def bottom: Set[ID] = Set()
