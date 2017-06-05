@@ -57,19 +57,34 @@ class TestFunctionCall extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram({
+    var endNet = runProgram({
       mux(isObstacle)(() => aggregate { -numOfNeighbors } )(() => aggregate { numOfNeighbors })()
     }, ntimes = 1000)(net)
     // ASSERT
-    assertNetworkValues((0 to 35).zip(List(
+    // Expected network: note how the number of neighbors for "obstacle" devices are restricted
+    var expectedNet = (0 to 35).zip(List(
       3, 4, 4,  4,  4, 3,
       4, 5, 5,  5,  5, 4,
       4, 5, 5,  4,  4, 4,
       4, 5, 4, -3, -3, 3,
       4, 5, 4, -4, -3, 3,
       3, 4, 3, -2,  2, 3
-    )).toMap)
-    // NOTE how the number of neighbors for "obstacle" devices are restricted
+    )).toMap
+    assertNetworkValues(expectedNet)(endNet)
+
+    val aggregateLambdaForObstacles = () => aggregate { -numOfNeighbors }
+    val aggregateLambdaForNormalNodes = () => aggregate { numOfNeighbors }
+    endNet = runProgram({
+      mux(isObstacle)(aggregateLambdaForObstacles)(aggregateLambdaForNormalNodes)()
+    }, ntimes = 1000)(net)
+    assertNetworkValues(expectedNet)(endNet)
+
+    def aggregateMethodForObstacles = () => aggregate { -numOfNeighbors }
+    def aggregateMethodForNormalNodes = () => aggregate { numOfNeighbors }
+    endNet = runProgram({
+      mux(isObstacle)(aggregateLambdaForObstacles)(aggregateLambdaForNormalNodes)()
+    }, ntimes = 1000)(net)
+    assertNetworkValues(expectedNet)(endNet)
   }
 
   AggregateFunctionCall should "work, e.g., when calculating hop gradient" in new SimulationContextFixture {
