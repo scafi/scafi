@@ -64,9 +64,13 @@ releaseProcess := Seq[ReleaseStep](
   //pushChanges
 )
 
+lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
+
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
-  scalaVersion := "2.11.8"
+  scalaVersion := "2.11.8",
+  compileScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
+  (compile in Compile) <<= (compile in Compile) dependsOn compileScalastyle
 ) ++ sharedPublishSettings
 
 lazy val core = project.
