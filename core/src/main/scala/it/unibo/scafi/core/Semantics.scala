@@ -1,5 +1,7 @@
 package it.unibo.scafi.core
 
+import it.unibo.scafi.PlatformDependentConstants
+
 import scala.util.control.Exception._
 
 /**
@@ -215,7 +217,8 @@ trait Semantics extends Core with Language {
           .map(_._1)
           .toList
 
-      override def elicitAggregateFunctionTag():Any = Thread.currentThread().getStackTrace()(4)
+      override def elicitAggregateFunctionTag():Any =
+        Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
     }
 
 
