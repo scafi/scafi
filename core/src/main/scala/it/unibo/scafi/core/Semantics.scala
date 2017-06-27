@@ -192,7 +192,7 @@ trait Semantics extends Core with Language {
       override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
         try {
           status = status.push().nest(slot)  // prepare nested call
-          if (write) export.put(status.path, expr) else expr  // function return value is result of expr
+          if (write) export.get(status.path).getOrElse(export.put(status.path, expr)) else expr  // function return value is result of expr
         } finally {
           status = status.pop().incIndex();  // do not forget to restore the status
         }

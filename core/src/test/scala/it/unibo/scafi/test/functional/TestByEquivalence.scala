@@ -104,6 +104,28 @@ class TestByEquivalence extends FunSpec with Matchers {
     }
   }
 
+  checkThat("Performance does not degrade when nesting foldhoods"){
+    val execSequence = Stream.continually(Random.nextInt(100)).take(1000)
+    val devicesAndNbrs = fullyConnectedTopologyMap(0 to 99)
+
+    // fold.fold : performance
+    // NOTE: pay attention to double overflow
+    assertEquivalence(devicesAndNbrs, execSequence, (x:Double,y:Double)=>Math.abs(x-y)/Math.max(Math.abs(x),Math.abs(y))<0.000001){
+      foldhood(0.0)(_+_){
+        foldhood(0.0)(_+_){
+          foldhood(0.0)(_+_){
+            foldhood(0.0)(_+_){
+              foldhood(0.0)(_+_){
+                foldhood(0.0)(_+_){
+                  foldhood(0.0)(_+_){
+                    foldhood(0.0)(_+_){
+                      foldhood(0.0)(_+_){
+                        foldhood(0.0)(_+_){1.0}}}}}}}}}}
+    }{
+      Math.pow(foldhood(0.0)(_+_){1.0}, 10)
+    }
+  }
+
 //  checkThat("fold.aggregate.fold is to be ignore") {
 //    val fixture = new Fixture
 //

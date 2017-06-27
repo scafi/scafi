@@ -85,7 +85,7 @@ trait Engine extends Semantics {
     override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nbrSensor.get(nsns).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
   }
 
-  class EngineFactory extends Factory {
+  class EngineFactory extends Factory { self: FACTORY =>
     def /(): Path = emptyPath()
     def /(s: Slot): Path = path(s)
     def emptyPath(): Path = new PathImpl(List())
