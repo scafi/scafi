@@ -126,15 +126,15 @@ class TestByEquivalence extends FunSpec with Matchers {
     }
   }
 
-//  checkThat("fold.aggregate.fold is to be ignore") {
-//    val fixture = new Fixture
-//
-//    assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-//      foldhood(0)(aggregate { foldhood(0)(_+_){1} + _ + _ }){1}
-//    }{
-//      foldhood(0)(_+_){1}
-//    }
-//  }
+  checkThat("fold.aggregate.fold is to be ignored") {
+    val fixture = new Fixture
+
+    assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
+      foldhood(0)((x,y) => aggregate { foldhood(0)(_+_){1} + foldhood(0)(_+_){1} + x + y }){1}
+    }{
+      foldhood(0)(_+_){1}
+    }
+  }
 
   checkThat("fold.aggregate.nbr is to be ignored") {
     val fixture = new Fixture
