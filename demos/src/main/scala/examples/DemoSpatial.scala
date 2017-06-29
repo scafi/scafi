@@ -1,14 +1,15 @@
 package examples
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicAbstractSpatialSimulationIncarnation
-import it.unibo.scafi.space.Point2D
+import it.unibo.scafi.space.{Point2D, SpaceHelper}
 
 object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation {
   override type P = Point2D
 
   trait MyEuclideanStrategy extends EuclideanStrategy {
     this: Basic3DSpace[_] =>
-    override val proximityThreshold = 1.8
+    override val proximityThreshold = 0.1
   }
 
   override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] =
@@ -20,29 +21,26 @@ import BasicSpatialIncarnation._
 object DemoSpatialLauncher extends App {
   object DemoSpatial extends AggregateProgram {
     def mySensor():Int = sense[Int]("sensor")
-    def gradient(source: Boolean): Double =
-      rep(Double.MaxValue){
-        distance => mux(source) { 0.0 } {
-          foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE_NAME))}}
+    def gradient(source: Boolean): Double = rep(Double.MaxValue){
+      distance => mux(source) { 0.0 } {
+        minHoodPlus { nbr{distance}+nbrvar[Double](NBR_RANGE_NAME) }
+      }
+    }
     def main() = foldhood(0)(_+_){1} //gradient(mySensor()==1)
   }
 
-  val net = simulatorFactory.gridLike(
-    n = 3,
-    m = 3,
-    stepx = 1,
-    stepy = 1,
-    eps = 0,
-    rng = 1.2)
-
-  net.addSensor(name = "sensor", value = 0)
-  net.chgSensorValue(name = "sensor", ids = Set(1), value = 1)
-  net.addSensor(name = "sensor2", value = 0)
-  net.chgSensorValue(name = "sensor2", ids = Set(98), value = 1)
-  net.addSensor(name = "obstacle", value = false)
-  net.chgSensorValue(name = "obstacle", ids = Set(44,45,46,54,55,56,64,65,66), value = true)
-  net.addSensor(name = "label", value = "no")
-  net.chgSensorValue(name = "label", ids = Set(1), value = "go")
+  val (ncols,nrows) = (3,3)
+  val (stepx,stepy) = (1,1)
+  val positions = SpaceHelper.GridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
+  val ids = for(i <- 1 to ncols*nrows) yield i
+  val devsToPos = ids.zip(positions).toMap
+  val net = new SpaceAwareSimulator(
+    space = new Basic3DSpace(devsToPos, proximityThreshold = 1.8),
+    devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
+      lsns => if (lsns == "sensor" && d == 3) 1 else 0,
+      nsns => nbr => null)
+      }
+    )
 
   var v = java.lang.System.currentTimeMillis()
 
@@ -55,6 +53,10 @@ object DemoSpatialLauncher extends App {
         val newv = java.lang.System.currentTimeMillis()
         println(newv-v)
         v=newv
+      }
+      if(i>0 && i % 50000 == 0){
+        //net.chgSensorValue("sensor", Set(3), 0)
+        net.setPosition(3, new Point2D(0,0))
       }
     })
 }

@@ -43,37 +43,14 @@ trait Core {
    */
   type EXECUTION <: (CONTEXT => EXPORT)
 
-  trait Callable {
-    type MainResult
-    def main(): MainResult
-  }
-
   trait Export {
     def root[A](): A
   }
 
   trait Context {
     def selfId: ID
-    def exports: scala.collection.Map[ID, EXPORT]
+    def exports(): Iterable[(ID,EXPORT)]
     def sense[T](lsns: LSNS): Option[T]
     def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T]
   }
-
-  trait Interop[T] extends Serializable {
-    def toString: String
-    def fromString(s: String): T
-  }
-
-  trait LinearizableTo[T,N] extends Serializable {
-    def toNum(v: T): N
-    def fromNum(n: N): T
-  }
-  trait Linearizable[T] extends LinearizableTo[T,Int]
-
-  def log(msg: String) = {}
-
-  @transient implicit val linearID: Linearizable[ID]
-  @transient implicit val interopID: Interop[ID]
-  @transient implicit val interopLSNS: Interop[LSNS]
-  @transient implicit val interopNSNS: Interop[NSNS]
 }

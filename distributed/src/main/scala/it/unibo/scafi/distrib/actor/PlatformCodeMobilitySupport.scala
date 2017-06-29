@@ -95,7 +95,7 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
 
     import akka.pattern.ask
     import context.dispatcher
-    implicit val timeout: Timeout = 2 seconds
+    implicit val timeout: Timeout = 2.seconds
 
     def shipProgram(program: ExecutionTemplate,
                     dependencies: Set[Class[_]] = Set(),

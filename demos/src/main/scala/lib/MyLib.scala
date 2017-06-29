@@ -1,7 +1,7 @@
-package examples
+package lib
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.Builtins._
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
 trait MyLib { self: Constructs with Builtins =>
   def nbrRange():Double = nbrvar[Double](NBR_RANGE_NAME)
@@ -17,7 +17,7 @@ trait MyLib { self: Constructs with Builtins =>
    * @return globally, a field of values calculated by accumulation along
    *         the gradient; locally, the accumulated value for each device.
    */
-  def G[V: OrderingFoldable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+  def G[V: Bounded](source: Boolean, field: V, acc: V => V, metric: => Double): V =
     rep( (Double.MaxValue, field) ){ dv =>
       mux(source) {
         (0.0, field)
@@ -30,7 +30,7 @@ trait MyLib { self: Constructs with Builtins =>
   def distanceTo(source:Boolean): Double =
     G[Double](source,0, _ + nbrRange(), nbrRange())
 
-  def broadcast[V: OrderingFoldable](source:Boolean, field: V):V =
+  def broadcast[V: Bounded](source:Boolean, field: V):V =
     G[V](source,field, x=>x , nbrRange())
 
   def distanceBetween(source:Boolean, target:Boolean):Double =
@@ -47,7 +47,7 @@ trait MyLib { self: Constructs with Builtins =>
    * @return the ID of the neighbour whose 'potential' value is minimum
    *         among the neighbours.
    */
-  def findParent[V](potential: V)(implicit ev: OrderingFoldable[V]): ID = {
+  def findParent[V](potential: V)(implicit ev: Bounded[V]): ID = {
     mux(ev.compare(minHood{ nbr(potential) }, potential)<0 ){
       minHood{ nbr{ Tuple2[V,ID](potential, mid()) } }._2
     }{
@@ -58,7 +58,7 @@ trait MyLib { self: Constructs with Builtins =>
   /** accumulate-hood uses the function in its first argument
     * to combine values from the field in its second argument,
     */
-  def accumulateHood[V: OrderingFoldable](acc:(V,V)=>V)(field:V): V = {
+  def accumulateHood[V: Bounded](acc:(V,V)=>V)(field:V): V = {
     acc(field, field)
   }
 
@@ -74,7 +74,7 @@ trait MyLib { self: Constructs with Builtins =>
    * @tparam V type of the potential field and the accumulated value.
    * @return the final result of the accumulation along the potential field.
    */
-  def C[V: OrderingFoldable](potential: V, acc: (V,V)=>V, local:V, Null:V): V = {
+  def C[V: Bounded](potential: V, acc: (V,V)=>V, local:V, Null:V): V = {
     rep(local){ v =>
       acc(local, foldhood(Null)(acc){
         mux(nbr(findParent(potential)) == mid()){
@@ -214,7 +214,7 @@ trait MyLib { self: Constructs with Builtins =>
   def distanceAvoidingObstacles(src: Boolean, obstacle: Boolean): Double =
     branch(obstacle){Double.PositiveInfinity}{distanceTo(src)}
 
-  def broadcastRegion[V:OrderingFoldable](region: Boolean, src: Boolean, value: V): Option[V] =
+  def broadcastRegion[V:Bounded](region: Boolean, src: Boolean, value: V): Option[V] =
     branch[Option[V]](region){ Some[V](broadcast(src, value)) }{ None }
 
   def groupSize(region: Boolean): Double =
@@ -250,104 +250,4 @@ trait MyLib { self: Constructs with Builtins =>
     map.map(tp => tp._1 -> f(tp._2))
   }
 
-  /***********************************/
-  /* IEEE Computer: Crowd estimation */
-  /***********************************/
-
-  val (high,low,none) = (2,1,0) // crowd level
-  def managementRegions(grain: Double, metric: => Double): Boolean =
-    S(grain, metric) /*{
-    breakUsingUids(randomUid, grain, metric)
-  }*/
-
-  def unionHoodPlus[A](expr: => A): List[A] =
-    foldhoodPlus(List[A]())(_++_){ List[A](expr) }
-
-  def densityEst(p: Double, range: Double): Double = {
-    val nearby = unionHoodPlus(
-      mux (nbrRange < range) { nbr(List(mid())) } { List() }
-    )
-
-    val footprint = 1 /*if(self.hasEnvironmentVariable("footprint")) {
-      self.getEnvironmentVariable("footprint") } else { 1 }*/
-    nearby.size / p / (Math.PI * Math.pow(range,2) * footprint)
-  }
-
-  def rtSub(started: Boolean, state: Boolean, memoryTime: Double): Boolean = {
-    if(state) {
-      true
-    } else {
-      limitedMemory[Boolean,Double](started, false, memoryTime)._1
-    }
-  }
-
-  def recentTrue(state: Boolean, memoryTime: Double): Boolean = {
-    rtSub(timer(10) == 0, state, memoryTime)
-  }
-
-  def dangerousDensity(p: Double, r: Double) = {
-    val mr = managementRegions(r*2, nbrRange)
-    val danger = average(mr, densityEst(p, r)) > 2.17 &&
-      summarize(mr, (_:Double)+(_:Double), 1 / p, 0) > 300
-    if(danger) { high } else { low }
-  }
-
-  def crowdTracking(p: Double, r: Double, t: Double) = {
-    val crowdRgn = recentTrue(densityEst(p, r)>1.08, t)
-    if(crowdRgn) { dangerousDensity(p, r) } else { none }
-  }
-
-  /**
-   *
-   * @param p estimates the proportion of people with a device running the app
-   * @param r is the range in which the neighbours are counted
-   * @param warn estimates fraction of walkable space in the local urban env
-   * @param t is the memory time
-   * @return a boolean indicating whether there is warning or not.
-   */
-  def crowdWarning(p: Double, r: Double, warn: Double, t: Double): Boolean = {
-    distanceTo(crowdTracking(p,r,t) == high) < warn
-  }
-
-  /*****************************************/
-  /* FORTE15: Code Mobility Meets Self-Org */
-  /*****************************************/
-
-  def snsInjectedFun: ()=>Double = forte15logic //sense("injectedFun")
-  def snsSource: Boolean = sense("source")
-  def snsInjectionPoint: Boolean = sense("injectionPoint")
-  def snsPatron: Double = if(sense("patron")){ 1 } else { 0 }
-  // ;; Simple low-pass filter for smoothing noisy signal ’value’ with rate constant ’alpha’
-  def lowPass(alpha: Double, value: Double): Double = {
-    rep(value){ filtered =>
-      (value * alpha) + (filtered * (1 - alpha))
-    }
-  }
-
-  //;; Evaluate a function field, running ’f’ from ’source’ within ’range’ meters, and ’no-op’ elsewhere
-    def deploy[T](range:Double, source:Boolean, g: ()=>T, noOp: ()=>T)
-                 (implicit ev: OrderingFoldable[T]): T = {
-      val f: ()=>T = if (distanceTo(source) < range) {
-        G(source, g, identity[()=>T], nbrRange())
-      } else {
-        noOp
-      }
-      f()
-    }
-
-  /**
-   * The entry-point function executed to run the virtual machine on each device.
-   * @return
-   */
-  def virtualMachine(): Double = {
-    deploy(nbrRange, snsInjectionPoint, snsInjectedFun, ()=>0.0)
-  }
-
-  def forte15logic() = lowPass(alpha = 0.5,
-            value = C[Double](potential = distanceTo(snsInjectionPoint),
-            acc = _+_, local = snsPatron, Null = 0.0))
-
-  def forte15example() = {
-    virtualMachine()
-  }
 }

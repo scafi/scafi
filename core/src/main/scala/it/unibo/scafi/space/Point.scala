@@ -1,5 +1,7 @@
 package it.unibo.scafi.space
 
+import scala.language.implicitConversions // Remove warnings associated to definition of implicit conversions
+
 class Point3D(val x: Double, val y: Double, val z: Double) extends Serializable {
   import scala.math.{sqrt, pow}
 

@@ -45,7 +45,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     def PropagateExportToNeighbors(export: EXPORT) = {
       import context.dispatcher
 
-      val NBR_LOOKUP_TIMEOUT = 2 seconds
+      val NBR_LOOKUP_TIMEOUT = 2.seconds
 
       nbrs.foreach { case (idn, NbrInfo(_, expOpt, mailboxOpt, pathOpt)) =>
         mailboxOpt match {

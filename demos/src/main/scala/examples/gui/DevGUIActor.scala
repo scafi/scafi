@@ -76,7 +76,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
       neighbors.removeAllElements()
       m.nbrs.foreach { n => neighbors.addElement(n.toString)}
     }
-    case m:I.MsgLocalSensorValue[Any] => invokeLater {
+    case m:I.MsgLocalSensorValue[_] => invokeLater {
       val index = localSensors.toArray.indexWhere{
         case s:String => s.startsWith(m.name.toString)
       }
@@ -120,7 +120,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
         JOptionPane.PLAIN_MESSAGE));
       //dev ! MsgWithExport(nbrId, factory.emptyExport())
       import akka.pattern.ask
-      implicit val timeout: Timeout = 1 second
+      implicit val timeout: Timeout = 1.second
 
       if(registry!=null){
         (registry ? I.MsgLookup(nbrId)).onSuccess {
@@ -226,7 +226,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
     // GUI will update at 500 ms interval
     //context.system.scheduler.schedule(1 second, 100 millis) { self ! GoOn }
 
-    context.system.scheduler.scheduleOnce(5 seconds) {
+    context.system.scheduler.scheduleOnce(5.seconds) {
       frame.addComponentListener(new ComponentListener {
         override def componentShown(e: ComponentEvent): Unit = {}
 

@@ -1,5 +1,7 @@
 package it.unibo.scafi.space
 
+import scala.language.postfixOps
+
 import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
 
 import scala.util.Random

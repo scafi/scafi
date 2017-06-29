@@ -1,5 +1,7 @@
 package it.unibo.scafi.core
 
+import it.unibo.scafi.PlatformDependentConstants
+
 import scala.util.control.Exception._
 
 /**
@@ -16,44 +18,50 @@ import scala.util.control.Exception._
  * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
  */
 
-
 trait Semantics extends Core with Language {
 
   override type CONTEXT <: Context with ContextOps
   override type EXPORT <: Export with ExportOps
   override type EXECUTION <: ExecutionTemplate
+  type FACTORY <: Factory
 
-  trait ContextOps { self: CONTEXT =>
-    def readSlot[A](i: ID, p: Path): Option[A]
+  implicit val factory: Factory
+
+  trait Slot extends Serializable{
+    def ->(v: Any): (Path,Any) = (factory.path(this), v)
+    def /(s: Slot): Path = factory.path(this, s)
   }
-
-  trait Slot extends Serializable
   sealed case class Nbr[A](index: Int) extends Slot
   sealed case class Rep[A](index: Int) extends Slot
-  sealed case class If[A](index: Int, b: Boolean) extends Slot
   sealed case class FunCall[A](index: Int, funId: Any) extends Slot
+  sealed case class FoldHood[A](index: Int) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
     def pull(): Path
     def matches(path: Path): Boolean
+    def isRoot: Boolean
+
+    def /(slot: Slot) = push(slot)
   }
 
   trait ExportOps { self: EXPORT =>
     def put[A](path: Path, value: A): A
-    def get(path: Path): Option[Any]
+    def get[A](path: Path): Option[A]
+  }
+
+  trait ContextOps { self: CONTEXT =>
+    def readSlot[A](i: ID, p: Path): Option[A]
   }
 
   trait Factory {
     def emptyPath(): Path
     def emptyExport(): EXPORT
-    def path(path: Slot*): Path
+    def path(slots: Slot*): Path
     def export(exps: (Path,Any)*): EXPORT
   }
 
-  implicit val factory: Factory
-
-  trait AggregateProgramSpecification extends Constructs {
+  trait AggregateProgramSpecification { constructs: Constructs =>
     type MainResult
     def main(): MainResult
   }
@@ -61,119 +69,173 @@ trait Semantics extends Core with Language {
   /**
    * It implements the whole operational semantics.
    */
-  trait ExecutionTemplate extends (CONTEXT => EXPORT) with AggregateProgramSpecification {
+  trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with AggregateProgramSpecification {
+    self:Constructs =>
+
     import ExecutionTemplate._
 
-    @transient private var ctx: CONTEXT = _
-    @transient private var exp: EXPORT = _
-    @transient private var status: Status = _
+
+    @transient var vm: RoundVM = _
 
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-        ctx = c
-        exp = factory.emptyExport
-        status = Status()
-        exp.put(factory.emptyPath, e)
-        this.exp
+      vm = new RoundVMImpl(c)
+      val result = e
+      vm.registerRoot(result)
+      vm.export
     }
-
-    def mid(): ID = ctx.selfId
-
-    def neighbour(): Option[ID] = status.neighbour
-
-    def rep[A](init: A)(fun: (A) => A): A = {
-      ensure(status.neighbour.isEmpty, "can't nest rep into fold")
-
-      nest(Rep[A](status.index)) {
-        val in = ctx.readSlot(ctx.selfId, status.path).getOrElse(init)
-        fun(in)
-      }
-    }
-
-    def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      ensure(status.neighbour.isEmpty, "can't nest fold constructs")
-
-      try {
-        val v = aligned()
-        val res = v.map { i =>
-          handling(classOf[OutOfDomainException]) by (_ => init) apply {
-            frozen { status = status.foldInto(i); expr }
-          }
-        }
-        res.fold(init)(aggr)
-      } finally {
-        status = status.foldOut()
-        // FIX: increment index for correct sequencing of NBRs
-        // NOTE: it increments the index even though NBR is not used
-        status = status.incIndex()
-      }
-    }
-
-    // Works only if aligned yields self as last element..
-    // Why? Because nest performs 'exp.put(status.path, expr)'
-    // So the export must be overridden by the current device (at last).
-    def nbr[A](expr: => A): A = {
-      ensure(status.isFolding, "nbr should be nested into fold")
-      nest(Nbr[A](status.index)) {
-        if (status.neighbour.get == ctx.selfId){
-          status = status.foldOut(); expr
-        } else {
-          ctx.readSlot[A](status.neighbour.get, status.path)
-             .getOrElse(throw new OutOfDomainException(ctx.selfId, status.neighbour.get, status.path))
-        }
-      }
-    }
-
-    def aggregate[T](f: => T): T = {
-      var funId = Thread.currentThread().getStackTrace()(3)
-
-      nest(FunCall[T](status.index, funId)) { f }
-    }
-
-    def branch[A](cond: => Boolean)(th: => A)(el: => A): A = {
-      val b = cond
-      nest(If[A](status.index, b)){
-        if (b) th else el
-      }
-    }
-
-    def sense[A](name: LSNS): A = ctx.sense[A](name).getOrElse(throw new SensorUnknownException(ctx.selfId, name))
-
-    def nbrvar[A](name: NSNS): A = {
-      val nbr = status.neighbour.get
-      ctx.nbrSense(name)(nbr).getOrElse(throw new NbrSensorUnknownException(ctx.selfId, name, nbr))
-    }
-
-    private[this] def nest[A](slot: Slot)(expr: => A): A = {
-      try {
-        status = status.push().nest(slot)  // prepare nested call
-        exp.put(status.path, expr) // function return value is result of expr
-      } finally {
-        status = status.pop().incIndex(); // do not forger to restore the status
-      }
-    }
-
-    private[this] def frozen[A](expr: => A): A = {
-      try {
-        status = status.push()
-        expr
-      } finally {
-        status = status.pop()
-      }
-    }
-
-    private[this] def aligned(): List[ID] =
-      ctx.exports
-        .filter(p => p._1 != ctx.selfId && (if (status.path.matches(factory.emptyPath())) true else p._2.get(status.path).isDefined))
-        .keySet
-        .toList
-        .++(List(ctx.selfId))
   }
 
+  trait ConstructsSemantics extends Constructs {
+    self:ExecutionTemplate =>
+
+    override def mid(): ID = vm.self
+
+    override def rep[A](init: =>A)(fun: (A) => A): A = {
+      vm.nest(Rep[A](vm.index))(true) {
+        vm.locally {
+          fun(vm.previousRoundVal.getOrElse(init))
+        }
+      }
+    }
+
+    override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
+      vm.nest(FoldHood[A](vm.index))(true) {
+        val nbrField = vm.alignedNeighbours
+          .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
+        vm.isolate { nbrField.fold(vm.locally { init })((x,y) => aggr(x,y) ) }
+      }
+    }
+
+    override def nbr[A](expr: => A): A =
+      vm.nest(Nbr[A](vm.index))(vm.neighbour.map(_==vm.self).getOrElse(false)) {
+        vm.neighbour match {
+          case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
+          case _  => expr
+        }
+      }
+
+    override def aggregate[T](f: => T): T =
+      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(true) {
+        f
+      }
+
+    def sense[A](name: LSNS): A = vm.localSense(name)
+
+    def nbrvar[A](name: NSNS): A = vm.neighbourSense(name)
+
+  }
+
+
   private[scafi] object ExecutionTemplate extends Serializable {
+
+    trait RoundVM {
+
+      def export: EXPORT
+
+      def registerRoot(v: Any): Unit
+
+      def self: ID
+
+      def neighbour: Option[ID]
+
+      def index: Int
+
+      def previousRoundVal[A]: Option[A]
+
+      def neighbourVal[A]: A
+
+      def foldedEval[A](expr: => A)(id: ID): Option[A]
+
+      def localSense[A](name: LSNS): A
+
+      def neighbourSense[A](name: NSNS): A
+
+      def nest[A](slot: Slot)(write: Boolean)(expr: => A): A
+
+      def locally[A](a: => A): A
+
+      def alignedNeighbours(): List[ID]
+
+      def elicitAggregateFunctionTag(): Any
+
+      def isolate[A](expr: => A): A
+    }
+
+
+    class RoundVMImpl(val context: CONTEXT) extends RoundVM {
+
+      var export: EXPORT = factory.emptyExport
+      var status: Status = Status()
+      var isolated = false // When true, neighbours are scoped out
+
+      override def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+      override def self: ID = context.selfId
+      override def neighbour: Option[ID] = status.neighbour
+      override def index: Int = status.index
+      override def previousRoundVal[A]: Option[A] = context.readSlot[A](self, status.path)
+      override def neighbourVal[A]: A = context.readSlot[A](neighbour.get, status.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+      override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
+        handling(classOf[OutOfDomainException]) by (_ => None) apply {
+          try {
+            status = status.push()
+            status = status.foldInto(Some(id))
+            Some(expr)
+          } finally {
+            status = status.pop()
+          }
+        }
+      override def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
+      override def neighbourSense[A](name: NSNS): A = {
+        ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
+        context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+      }
+
+      override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
+        try {
+          status = status.push().nest(slot)  // prepare nested call
+          if (write) export.get(status.path).getOrElse(export.put(status.path, expr)) else expr  // function return value is result of expr
+        } finally {
+          status = status.pop().incIndex();  // do not forget to restore the status
+        }
+      }
+
+      override def locally[A](a: =>A): A = {
+        val currentNeighbour = neighbour
+        try{
+          status = status.foldOut()
+          a
+        } finally {
+          status = status.foldInto(currentNeighbour)
+        }
+      }
+
+      override def alignedNeighbours(): List[ID] =
+        if(isolated)
+          List()
+        else self ::
+          context.exports
+          .filter(_._1 != self)
+          .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
+          .map(_._1)
+          .toList
+
+      override def elicitAggregateFunctionTag():Any =
+        Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+
+      override def isolate[A](expr: => A): A = {
+        val wasIsolated = this.isolated
+        try {
+          this.isolated = true
+          expr
+        } finally {
+          this.isolated = wasIsolated
+        }
+      }
+    }
 
     trait Status extends Serializable {
       val path: Path
@@ -181,7 +243,7 @@ trait Semantics extends Core with Language {
       val neighbour: Option[ID]
 
       def isFolding: Boolean
-      def foldInto(id: ID): Status
+      def foldInto(id: Option[ID]): Status
       def foldOut(): Status
       def nest(s: Slot): Status
       def incIndex(): Status
@@ -196,7 +258,7 @@ trait Semantics extends Core with Language {
         stack: List[(Path, Int, Option[ID])] = List()) extends Status {
 
       def isFolding: Boolean = neighbour.isDefined
-      def foldInto(id: ID): Status = StatusImpl(path, index, Some(id), stack)
+      def foldInto(id: Option[ID]): Status = StatusImpl(path, index, id, stack)
       def foldOut(): Status = StatusImpl(path, index, None, stack)
       def push(): Status = StatusImpl(path, index, neighbour, (path, index, neighbour) :: stack)
       def pop(): Status = stack match {

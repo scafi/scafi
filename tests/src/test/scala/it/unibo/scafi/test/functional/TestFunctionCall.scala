@@ -5,7 +5,7 @@ package it.unibo.scafi.test.functional
  * Created on date: 31/10/15
  */
 
-import it.unibo.scafi.test.TestIncarnation._
+import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
 class TestFunctionCall extends FlatSpec with Matchers {
@@ -15,7 +15,11 @@ class TestFunctionCall extends FlatSpec with Matchers {
   val AggregateFunctionCall = new ItWord
 
   private[this] trait SimulationContextFixture {
-    implicit val node = new Node
+    implicit val node = new Node {
+      override type MainResult = Any
+      override def main() = ???
+    }
+
     val net: Network with SimulatorOps =
       simulatorFactory.gridLike(n = 6, m = 6, stepx = 1, stepy = 1, eps = 0, rng = 1.1)
     net.addSensor(name = "source", value = false)
@@ -32,8 +36,7 @@ class TestFunctionCall extends FlatSpec with Matchers {
   // 30 31 32 33 34 35
   // For each device, its neighbors are the direct devices at the top/bottom/left/right
 
-
-  private[this] class Node extends Execution {
+  private[this] trait Node extends AggregateProgram {
     def isObstacle = sense[Boolean]("obstacle")
     def isSource = sense[Boolean]("source")
 
@@ -54,19 +57,34 @@ class TestFunctionCall extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram({
+    var endNet = runProgram({
       mux(isObstacle)(() => aggregate { -numOfNeighbors } )(() => aggregate { numOfNeighbors })()
     }, ntimes = 1000)(net)
     // ASSERT
-    assertNetworkValues((0 to 35).zip(List(
+    // Expected network: note how the number of neighbors for "obstacle" devices are restricted
+    var expectedNet = (0 to 35).zip(List(
       3, 4, 4,  4,  4, 3,
       4, 5, 5,  5,  5, 4,
       4, 5, 5,  4,  4, 4,
       4, 5, 4, -3, -3, 3,
       4, 5, 4, -4, -3, 3,
       3, 4, 3, -2,  2, 3
-    )).toMap)
-    // NOTE how the number of neighbors for "obstacle" devices are restricted
+    )).toMap
+    assertNetworkValues(expectedNet)(endNet)
+
+    val aggregateLambdaForObstacles = () => aggregate { -numOfNeighbors }
+    val aggregateLambdaForNormalNodes = () => aggregate { numOfNeighbors }
+    endNet = runProgram({
+      mux(isObstacle)(aggregateLambdaForObstacles)(aggregateLambdaForNormalNodes)()
+    }, ntimes = 1000)(net)
+    assertNetworkValues(expectedNet)(endNet)
+
+    def aggregateMethodForObstacles = () => aggregate { -numOfNeighbors }
+    def aggregateMethodForNormalNodes = () => aggregate { numOfNeighbors }
+    endNet = runProgram({
+      mux(isObstacle)(aggregateLambdaForObstacles)(aggregateLambdaForNormalNodes)()
+    }, ntimes = 1000)(net)
+    assertNetworkValues(expectedNet)(endNet)
   }
 
   AggregateFunctionCall should "work, e.g., when calculating hop gradient" in new SimulationContextFixture {
