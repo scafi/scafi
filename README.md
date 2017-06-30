@@ -5,8 +5,6 @@
 
 **scafi** is an Scala-based aggregate-programming framework which implements the Field Calculus semantics and provides an API for simulation and execution of aggregate programming applications
 
-* Current version: 0.1
-
 ### Usage ###
 
 Steps
@@ -17,9 +15,10 @@ Steps
 ```
 #!scala
 
-val scafi_core  = "it.unibo.apice.scafiteam" % "scafi-core_2.11"  % "0.1.0"
-val scafi_simulator  = "it.unibo.apice.scafiteam" % "scafi-simulator_2.11"  % "0.1.0"
-val scafi_platform = "it.unibo.apice.scafiteam" % "scafi-distributed_2.11"  % "0.1.0"
+val scafi_core  = "it.unibo.apice.scafiteam" %% "scafi-core"  % "0.2.0"
+val scafi_simulator  = "it.unibo.apice.scafiteam" %% "scafi-simulator"  % "0.2.0"
+val scafi_simulator_gui  = "it.unibo.apice.scafiteam" %% "scafi-simulator-gui"  % "0.2.0"
+val scafi_platform = "it.unibo.apice.scafiteam" %% "scafi-distributed"  % "0.2.0"
 
 libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 ```
@@ -76,6 +75,14 @@ object MyTest extends App {
 }
 ```
 
+### Release notes ###
+
+**0.2.0** (2017-06-28)
+
+* several important adjustments to the core operational semantics (and more tests)
+* refactoring of the field calculus interpreter
+* a basic graphical simulator has been added as a separate module `simulator-gui`
+* cross compilation for Scala 2.11 and 2.12
 
 ### References ###
 
