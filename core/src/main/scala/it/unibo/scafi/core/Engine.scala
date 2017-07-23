@@ -14,9 +14,9 @@ import scala.collection.mutable.{ Map => MMap}
 
 trait Engine extends Semantics {
 
-  override type EXPORT = ExportImpl
-  override type CONTEXT = ContextImpl
-  override type FACTORY = EngineFactory
+  override type EXPORT = Export with ExportOps with Serializable
+  override type CONTEXT = Context with ContextOps
+  override type FACTORY = Factory
 
   override implicit val factory = new EngineFactory
 
@@ -60,11 +60,11 @@ trait Engine extends Semantics {
                                  _exports: Iterable[(ID, EXPORT)])
     extends Context with ContextOps with Serializable { self: CONTEXT =>
 
-    private val exportsMap : MMap[ID,EXPORT] = MMap() ++ _exports
+    private var exportsMap : Map[ID,EXPORT] = _exports.toMap
 
-    def updateExport(id: ID, export:EXPORT) = exportsMap.put(id, export)
+    def updateExport(id: ID, export:EXPORT) = exportsMap += id -> export
 
-    override def exports(): Iterable[(ID, ExportImpl)] = exportsMap
+    override def exports(): Iterable[(ID, EXPORT)] = exportsMap
 
     def readSlot[A](i: ID, p:Path): Option[A] = {
       exportsMap get(i) flatMap (_.get[A](p))

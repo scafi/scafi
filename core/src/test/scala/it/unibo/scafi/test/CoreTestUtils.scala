@@ -12,17 +12,17 @@ import scala.collection.{mutable}
 
 trait CoreTestUtils {
   def ctx(selfId: Int,
-          exports: Map[Int,ExportImpl] = Map(),
+          exports: Map[Int,EXPORT] = Map(),
           lsens: Map[String,Any] = Map(),
           nbsens: Map[String, Map[Int,Any]] = Map())
-         (implicit node: EXECUTION): CONTEXT =
-    factory.context(selfId, exports, lsens, nbsens)
+         (implicit node: EXECUTION): ContextImpl =
+    new ContextImpl(selfId, exports, lsens, nbsens)
 
   def assertEquivalence[T](nbrs: Map[ID,List[ID]], execOrder: Iterable[ID], comparer:(T,T)=>Boolean = (_:Any)==(_:Any))
                    (program1: => Any)
                    (program2: => Any)
                    (implicit interpreter: EXECUTION): Boolean = {
-    val states = mutable.Map[ID,(ExportImpl,ExportImpl)]()
+    val states = mutable.Map[ID,(EXPORT,EXPORT)]()
     execOrder.foreach(curr => {
       val nbrExports = states.filterKeys(nbrs(curr).contains(_))
       val currCtx1 = ctx(curr, exports = nbrExports.mapValues(_._1).toMap)
