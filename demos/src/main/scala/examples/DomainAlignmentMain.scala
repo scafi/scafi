@@ -6,7 +6,8 @@ package examples
  */
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import lib.{DomainAlignmentLib, SensorDefinitions}
+import lib.DomainAlignmentLib
+import sims.SensorDefinitions
 
 object DemoAlignment extends AggregateProgram with SensorDefinitions with DomainAlignmentLib {
   def isSource = sense[Boolean]("source")

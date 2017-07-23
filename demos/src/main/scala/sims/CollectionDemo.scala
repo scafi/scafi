@@ -3,7 +3,6 @@ package sims
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import Builtins._
 import it.unibo.scafi.simulation.gui.{Launcher, Settings, SettingsSpace}
-import lib.{BlockC, BlockG, SensorDefinitions}
 
 /**
   * @author Roberto Casadei

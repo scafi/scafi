@@ -1,8 +1,7 @@
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT2}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import lib.{BlockT2, SensorDefinitions}
 
 /**
   * @author Roberto Casadei
