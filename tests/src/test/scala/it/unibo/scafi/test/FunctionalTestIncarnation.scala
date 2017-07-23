@@ -8,4 +8,6 @@ import it.unibo.scafi.simulation.Simulation
  * Created on date: 11/12/15
  */
 
-object FunctionalTestIncarnation extends AbstractTestIncarnation with Simulation
+object FunctionalTestIncarnation extends AbstractTestIncarnation with Simulation {
+  override val LSNS_RANDOM: String = "randomGenerator"
+}

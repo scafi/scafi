@@ -2,23 +2,32 @@ package it.unibo.scafi.incarnations
 
 import it.unibo.scafi.lib.StandardLibrary
 import it.unibo.scafi.simulation.{Simulation, SpatialSimulation}
-import it.unibo.scafi.space.BasicSpatialAbstraction
+import it.unibo.scafi.space.{BasicSpatialAbstraction, Point3D}
+import it.unibo.scafi.time.BasicTimeAbstraction
 
 /**
   * @author Roberto Casadei
   *
   */
 
-object BasicSimulationIncarnation
+trait BasicAbstractSimulationIncarnation
   extends BasicAbstractIncarnation
+  with Simulation
+  with BasicTimeAbstraction {
+
+  override val LSNS_RANDOM: String = "randomGenerator"
+}
+
+object BasicSimulationIncarnation
+  extends BasicAbstractSimulationIncarnation
     with StandardLibrary
-    with BasicPrograms
-    with Simulation {
+    with BasicPrograms {
+
   import Builtins.Bounded
   override implicit val idBounded: Bounded[ID] = Builtins.Bounded.of_i
 }
 
 class BasicAbstractSpatialSimulationIncarnation
-  extends BasicAbstractIncarnation
+  extends BasicAbstractSimulationIncarnation
     with SpatialSimulation
     with BasicSpatialAbstraction

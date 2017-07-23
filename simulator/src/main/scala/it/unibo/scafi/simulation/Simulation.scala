@@ -1,10 +1,11 @@
 package it.unibo.scafi.simulation
 
 import it.unibo.scafi.core.{Core, Engine}
-import it.unibo.scafi.platform.{Platform}
+import it.unibo.scafi.platform.{Platform, SimulationPlatform}
+
 import scala.collection.{Map => GMap}
 import scala.collection.immutable.{Map => IMap}
-import scala.collection.mutable.{Map => MMap, ArrayBuffer => MArray}
+import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
 import scala.util.Random
 
 /**
@@ -18,7 +19,7 @@ import scala.util.Random
  *
  */
 
-trait Simulation extends Platform { self: Platform.PlatformDependency =>
+trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformDependency =>
 
   override type NETWORK = Network with SimulatorOps
 
@@ -44,6 +45,10 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
   }
 
   trait SimulatorFactory {
+    lazy val configurationSeed: Long = System.currentTimeMillis()
+    lazy val simulationSeed: Long = System.currentTimeMillis()
+    lazy val randomSeed: Long = System.currentTimeMillis()
+
     def basicSimulator(idArray: MArray[ID] = MArray(),
                        nbrMap: MMap[ID, Set[ID]] = MMap(),
                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
@@ -80,7 +85,7 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
                         lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                         nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
                         ): NETWORK =
-      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.DefaultRepr)
+      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.DefaultRepr, simulationSeed, randomSeed)
 
     def gridLike(n: Int,
                  m: Int,
@@ -110,7 +115,7 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
       ): _*)
       nsnsMap += (nbrRangeName -> MMap(idArray.toList.map(i => i -> nbsExportsInGridFor(i)): _*))
 
-      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.GridRepr(n))
+      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.GridRepr(n), simulationSeed, randomSeed)
     }
 
     /*
@@ -160,11 +165,16 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
                          val nbrMap: MMap[ID, Set[ID]] = MMap(),
                          val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                          val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
-                         val toStr: NetworkSimulator => String = NetworkSimulator.DefaultRepr
+                         val toStr: NetworkSimulator => String = NetworkSimulator.DefaultRepr,
+                         val simulationSeed: Long,
+                         val randomSensorSeed: Long
                          ) extends Network with SimulatorOps {
     self: NETWORK =>
 
     protected val eMap: MMap[ID, EXPORT] = MMap()
+
+    private val simulationRandom = new Random(simulationSeed)
+    private val randomSensor = new Random(randomSensorSeed)
 
     // *****************
     // Network interface
@@ -230,7 +240,7 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
      */
     def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Unit = {
       for (i <- 0 until size) {
-        val nextIdToRun = idArray(scala.util.Random.nextInt(idArray.size))
+        val nextIdToRun = idArray(simulationRandom.nextInt(idArray.size))
         exec(node, exp, nextIdToRun)
         action(this, i)
       }
@@ -241,7 +251,7 @@ trait Simulation extends Platform { self: Platform.PlatformDependency =>
     }
 
     def exec(ap: CONTEXT=>EXPORT): (ID,EXPORT) = {
-      val idToRun = idArray(scala.util.Random.nextInt(idArray.size))
+      val idToRun = idArray(simulationRandom.nextInt(idArray.size))
       val c = context(idToRun)
       val (nextIdToRun,exp) = idToRun -> ap(c)
       eMap += idToRun -> exp

@@ -39,7 +39,9 @@ object DemoSpatialLauncher extends App {
     devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
       lsns => if (lsns == "sensor" && d == 3) 1 else 0,
       nsns => nbr => null)
-      }
+      },
+    simulationSeed = System.currentTimeMillis(),
+    randomSensorSeed = System.currentTimeMillis()
     )
 
   var v = java.lang.System.currentTimeMillis()
