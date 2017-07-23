@@ -18,19 +18,7 @@ trait BasicAbstractIncarnation extends Incarnation {
   override type ID = Int
   override type EXECUTION = AggregateInterpreter
 
-  implicit val NBR_RANGE_NAME: NSNS = "nbrRange"
-
-  trait AggregateProgramSpec extends AggregateProgramSpecification with Constructs with Builtins
-
-  trait AggregateInterpreter extends ExecutionTemplate with Constructs with Builtins with Serializable {
-    type MainResult = Any
-  }
-
-  trait AggregateProgram extends AggregateInterpreter
-
-  class BasicAggregateInterpreter extends AggregateInterpreter {
-    override def main() = ???
-  }
+  override implicit val NBR_RANGE_NAME: NSNS = "nbrRange"
 
   @transient implicit override val linearID: Linearizable[ID] = new Linearizable[ID] {
     override def toNum(v: ID): Int = v
