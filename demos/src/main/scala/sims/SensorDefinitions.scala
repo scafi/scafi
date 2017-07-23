@@ -1,10 +1,10 @@
-package lib
+package sims
 
 /**
   * @author Roberto Casadei
   *
   */
 
-trait DomainAlignmentLib {
+trait SensorDefinitions {
 
 }

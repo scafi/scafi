@@ -81,8 +81,17 @@ lazy val core = project.
     libraryDependencies += scalatest
   )
 
-lazy val simulator = project.
+lazy val stdlib = project.
   dependsOn(core).
+  settings(commonSettings: _*).
+  settings(
+    name := "scafi-lib",
+    version := "0.1.0",
+    libraryDependencies += scalatest
+  )
+
+lazy val simulator = project.
+  dependsOn(core, stdlib).
   settings(commonSettings: _*).
   settings(
     version := "0.1.0",
@@ -121,7 +130,7 @@ lazy val tests = project.
 
 // 'demos' project definition
 lazy val demos = project.
-  dependsOn(core, distributed, simulator, `simulator-gui`).
+  dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(
     version := "0.1.0",
