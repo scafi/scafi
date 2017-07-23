@@ -1,11 +1,9 @@
-# scafi #
+# scafi (**sca**la **fi**elds) #
 
 
 ### Introduction ###
 
 **scafi** is an Scala-based aggregate-programming framework which implements the Field Calculus semantics and provides an API for simulation and execution of aggregate programming applications
-
-* Current version: 0.1
 
 ### Usage ###
 
@@ -17,9 +15,10 @@ Steps
 ```
 #!scala
 
-val scafi_core  = "it.unibo.apice.scafiteam" % "scafi-core_2.11"  % "0.1.0"
-val scafi_simulator  = "it.unibo.apice.scafiteam" % "scafi-simulator_2.11"  % "0.1.0"
-val scafi_platform = "it.unibo.apice.scafiteam" % "scafi-distributed_2.11"  % "0.1.0"
+val scafi_core  = "it.unibo.apice.scafiteam" %% "scafi-core"  % "0.2.0"
+val scafi_simulator  = "it.unibo.apice.scafiteam" %% "scafi-simulator"  % "0.2.0"
+val scafi_simulator_gui  = "it.unibo.apice.scafiteam" %% "scafi-simulator-gui"  % "0.2.0"
+val scafi_platform = "it.unibo.apice.scafiteam" %% "scafi-distributed"  % "0.2.0"
 
 libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 ```
@@ -29,53 +28,42 @@ libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 
 ```
 #!scala
+package experiments
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
 
 object MyAggregateProgram extends AggregateProgram {
+  
+  override def main() = gradient(isSource)
+
   def gradient(source: Boolean): Double =
-    rep(Double.MaxValue){
-      distance => mux(source) { 0.0 } {
-        foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE_NAME))
+    rep(Double.PositiveInfinity){ distance => 
+      mux(source) { 0.0 } {
+        foldhood(Double.PositiveInfinity)(Math.min)(nbr{distance}+nbrRange)
       }
     }
 
   def isSource = sense[Boolean]("source")
-
-  override def main() = gradient(isSource)
+  def nbrRange = nbrvar[Double](NBR_RANGE_NAME)
 }
 
+import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
-object MyTest extends App {
-
-  val net = simulatorFactory.gridLike(
-    n = 10,
-    m = 10,
-    stepx = 1,
-    stepy = 1,
-    eps = 0.0,
-    rng = 1.1)
-
-  net.addSensor(name = "source", value = false)
-  net.chgSensorValue(name = "source", ids = Set(3), value = true)
-
-  var v = java.lang.System.currentTimeMillis()
-
-  net.executeMany(
-    node = MyAggregateProgram,
-    size = 100000,
-    action = (n,i) => {
-      if (i % 1000 == 0) {
-        println(net)
-        val newv = java.lang.System.currentTimeMillis()
-        println(newv-v)
-        println(net.context(4))
-        v=newv
-      }
-    })
+object SimulationRunner extends Launcher {
+  Settings.Sim_ProgramClass = "experiments.MyAggregateProgram")
+  Settings.ShowConfigPanel = true
+  launch()
 }
 ```
 
+### Release notes ###
+
+**0.2.0** (2017-06-28)
+
+* several important adjustments to the core operational semantics (and more tests)
+* refactoring of the field calculus interpreter
+* a basic graphical simulator has been added as a separate module `simulator-gui`
+* cross compilation for Scala 2.11 and 2.12
 
 ### References ###
 
