@@ -1,14 +1,19 @@
 package it.unibo.scafi.lib
 
+import it.unibo.scafi.core.Core
+
 /**
   * @author Roberto Casadei
   *
   */
 
-trait BlockC {
-  self: StandardLibrary.Subcomponent =>
+trait Stdlib_BlockC {
+  selfcomp: StandardLibrary.Subcomponent =>
 
   import Builtins.Bounded
+  import Bounded._
+
+  implicit val idBounded: Bounded[ID]
 
   trait BlockC {
     self: AggregateProgram with StandardSensors =>
@@ -16,7 +21,7 @@ trait BlockC {
     def smaller[V: Bounded](a: V, b: V): Boolean =
       implicitly[Bounded[V]].compare(a, b) < 0
 
-    def findParent[V: Bounded, ID:Bounded](potential: V): ID = {
+    def findParent[V: Bounded](potential: V): ID = {
       mux(smaller(minHood {
         nbr(potential)
       }, potential)) {

@@ -5,7 +5,7 @@ package it.unibo.scafi.lib
   *
   */
 
-trait BlockG {
+trait Stdlib_BlockG {
   self: StandardLibrary.Subcomponent =>
 
   import Builtins._

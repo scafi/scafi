@@ -5,7 +5,7 @@ package it.unibo.scafi.lib
   *
   */
 
-trait BlocksWithGC {
+trait Stdlib_BlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
   import Builtins._

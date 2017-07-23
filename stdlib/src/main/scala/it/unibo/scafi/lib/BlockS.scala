@@ -4,7 +4,7 @@ package it.unibo.scafi.lib
   * @author Roberto Casadei
   *
   */
-trait BlockS {
+trait Stdlib_BlockS {
   self: StandardLibrary.Subcomponent =>
 
   import Builtins._
@@ -23,10 +23,9 @@ trait BlockS {
       }
 
     def minId(): ID = {
-      rep(Int.MaxValue) { mmid =>
-        math.min(mid(), minHood(nbr {
-          mmid
-        }))
+      val boundedId = implicitly[Bounded[ID]]
+      rep(boundedId.top) { mmid =>
+        boundedId.min(mid(), minHood(nbr { mmid }))
       }
     }
 

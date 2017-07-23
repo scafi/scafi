@@ -6,7 +6,7 @@ import scala.concurrent.duration.Duration
   * @author Roberto Casadei
   *
   */
-trait BlockT {
+trait Stdlib_BlockT {
   self: StandardLibrary.Subcomponent =>
 
   trait BlockT {

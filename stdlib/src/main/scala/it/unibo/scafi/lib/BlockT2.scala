@@ -4,7 +4,7 @@ package it.unibo.scafi.lib
   * @author Roberto Casadei
   *
   */
-trait BlockT2 {
+trait Stdlib_BlockT2 {
   self: StandardLibrary.Subcomponent =>
 
   trait BlockT2 {
