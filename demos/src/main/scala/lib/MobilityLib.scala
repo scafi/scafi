@@ -2,6 +2,7 @@ package lib
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import Builtins.Bounded
+import sims.SensorDefinitions
 
 /**
   * @author Roberto Casadei

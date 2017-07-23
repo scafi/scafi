@@ -1,8 +1,7 @@
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockS, BlockT, Builtins}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import lib.{BlockG, BlockS, BlockT, SensorDefinitions}
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
 
 import scala.concurrent.duration.Duration
@@ -59,6 +58,7 @@ class Gradient extends AggregateProgram {
 class GradientHop extends AggregateProgram with SensorDefinitions with BlockG {
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
 
+  import Builtins.Bounded.of_i
   def hopGradientByG(src: Boolean): Double = G2(src)(0)(_ + 1)(1)
 
   override def main(): Int = hopGradientByG(isSource).toInt

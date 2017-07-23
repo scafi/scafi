@@ -1,6 +1,6 @@
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ AggregateProgram, Builtins }
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object DISIDemo extends Launcher {
@@ -69,6 +69,8 @@ class Main11 extends DISIDemoAggregateProgram {
 }
 
 class Main12 extends DISIDemoAggregateProgram {
+  import Builtins.Bounded.of_i
+
   override def main() = maxHoodPlus(boolToInt(nbr{sense1}))
 }
 
@@ -77,6 +79,8 @@ class Main13 extends DISIDemoAggregateProgram {
 }
 
 class Main14 extends DISIDemoAggregateProgram {
+  import Builtins.Bounded.of_i
+
   override def main() = rep(0){ x => boolToInt(sense1) max maxHoodPlus( nbr{x}) }
 }
 

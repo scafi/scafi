@@ -8,6 +8,24 @@ import it.unibo.scafi.core.{RichLanguage, Engine, Core}
  */
 
 trait Incarnation extends Core with Engine with RichLanguage {
+  val NBR_RANGE_NAME: NSNS
+
+  trait AggregateProgramSpec extends AggregateProgramSpecification with Constructs with Builtins
+
+  trait AggregateInterpreter extends ExecutionTemplate with Constructs with Builtins with Serializable {
+    type MainResult = Any
+  }
+
+  trait AggregateProgram extends AggregateInterpreter
+
+  class BasicAggregateInterpreter extends AggregateInterpreter {
+    override def main() = ???
+  }
+
+  trait StandardSensors { self: AggregateProgram =>
+    def nbrRange() = nbrvar[Double](NBR_RANGE_NAME)
+  }
+
   class ScafiDSL extends Constructs with Builtins {
     var engine: ExecutionTemplate = _
 
