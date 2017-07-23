@@ -1,6 +1,8 @@
 package it.unibo.scafi.platform
 
-import it.unibo.scafi.core.{Language, Engine, Core}
+import it.unibo.scafi.core.{Core, Engine, Language}
+import it.unibo.scafi.space.SpatialAbstraction
+import it.unibo.scafi.time.TimeAbstraction
 
 /**
  * @author mirko
@@ -10,7 +12,40 @@ import it.unibo.scafi.core.{Language, Engine, Core}
  *
  */
 
-trait Platform { self: Platform.PlatformDependency =>
+trait Platform {
+  self: Platform.PlatformDependency =>
+}
+
+object Platform {
+  type PlatformDependency = Core with Engine
+}
+
+trait TimeAwarePlatform extends Platform {
+  self: Platform.PlatformDependency with TimeAbstraction =>
+
+  val LSNS_TIME: LSNS
+  val NBR_DELAY: NSNS
+}
+
+trait SpaceAwarePlatform extends Platform {
+  self: Platform.PlatformDependency with SpatialAbstraction =>
+
+  val LSNS_POSITION: LSNS
+  val NBR_RANGE_NAME: NSNS
+}
+
+trait SpaceTimeAwarePlatform extends SpaceAwarePlatform with TimeAwarePlatform {
+  self: SpaceTimeAwarePlatform.PlatformDependency =>
+}
+
+object SpaceTimeAwarePlatform {
+  type PlatformDependency = Platform.PlatformDependency with SpatialAbstraction with TimeAbstraction
+}
+
+trait SimulationPlatform extends SpaceTimeAwarePlatform {
+  self: SpaceTimeAwarePlatform.PlatformDependency =>
+
+  val LSNS_RANDOM: NSNS
 
   type NETWORK <: Network
 
@@ -22,9 +57,8 @@ trait Platform { self: Platform.PlatformDependency =>
     def export(id: ID): Option[EXPORT]
     def exports(): Map[ID, Option[EXPORT]]
   }
-
 }
 
-object Platform {
-  type PlatformDependency = Core with Engine
+object SimulationPlatform {
+  type PlatformDependency = SpaceTimeAwarePlatform.PlatformDependency
 }

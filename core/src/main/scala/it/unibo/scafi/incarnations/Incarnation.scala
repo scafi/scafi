@@ -1,14 +1,23 @@
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.core.{RichLanguage, Engine, Core}
+import it.unibo.scafi.core.{Core, Engine, RichLanguage}
+import it.unibo.scafi.platform.SpaceTimeAwarePlatform
+import it.unibo.scafi.space.BasicSpatialAbstraction
+import it.unibo.scafi.time.TimeAbstraction
+
+import scala.util.Random
 
 /**
  * @author Roberto Casadei
  *
  */
 
-trait Incarnation extends Core with Engine with RichLanguage {
-  val NBR_RANGE_NAME: NSNS
+trait Incarnation extends Core
+  with Engine
+  with RichLanguage
+  with SpaceTimeAwarePlatform
+  with BasicSpatialAbstraction
+  with TimeAbstraction {
 
   trait AggregateProgramSpec extends AggregateProgramSpecification with Constructs with Builtins
 
@@ -23,7 +32,9 @@ trait Incarnation extends Core with Engine with RichLanguage {
   }
 
   trait StandardSensors { self: AggregateProgram =>
-    def nbrRange() = nbrvar[Double](NBR_RANGE_NAME)
+    def nbrRange(): D = nbrvar[D](NBR_RANGE_NAME)
+    def currentPosition(): P = sense[P](LSNS_POSITION)
+    def currentTime(): T = sense[T](LSNS_TIME)
   }
 
   class ScafiDSL extends Constructs with Builtins {
