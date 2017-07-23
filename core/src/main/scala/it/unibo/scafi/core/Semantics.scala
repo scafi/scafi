@@ -1,5 +1,7 @@
 package it.unibo.scafi.core
 
+import it.unibo.scafi.PlatformDependentConstants
+
 import scala.util.control.Exception._
 
 /**
@@ -102,9 +104,9 @@ trait Semantics extends Core with Language {
 
     override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
       vm.nest(FoldHood[A](vm.index))(true) {
-        vm.alignedNeighbours
+        val nbrField = vm.alignedNeighbours
           .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
-          .fold(vm.locally { init })(aggr)
+        vm.isolate { nbrField.fold(vm.locally { init })((x,y) => aggr(x,y) ) }
       }
     }
 
@@ -159,6 +161,8 @@ trait Semantics extends Core with Language {
       def alignedNeighbours(): List[ID]
 
       def elicitAggregateFunctionTag(): Any
+
+      def isolate[A](expr: => A): A
     }
 
 
@@ -166,6 +170,7 @@ trait Semantics extends Core with Language {
 
       var export: EXPORT = factory.emptyExport
       var status: Status = Status()
+      var isolated = false // When true, neighbours are scoped out
 
       override def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
       override def self: ID = context.selfId
@@ -192,7 +197,7 @@ trait Semantics extends Core with Language {
       override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
         try {
           status = status.push().nest(slot)  // prepare nested call
-          if (write) export.put(status.path, expr) else expr  // function return value is result of expr
+          if (write) export.get(status.path).getOrElse(export.put(status.path, expr)) else expr  // function return value is result of expr
         } finally {
           status = status.pop().incIndex();  // do not forget to restore the status
         }
@@ -208,16 +213,29 @@ trait Semantics extends Core with Language {
         }
       }
 
-      override def alignedNeighbours(): List[ID] = self ::
-        context.exports
+      override def alignedNeighbours(): List[ID] =
+        if(isolated)
+          List()
+        else self ::
+          context.exports
           .filter(_._1 != self)
           .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
           .map(_._1)
           .toList
 
-      override def elicitAggregateFunctionTag():Any = Thread.currentThread().getStackTrace()(4)
-    }
+      override def elicitAggregateFunctionTag():Any =
+        Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
 
+      override def isolate[A](expr: => A): A = {
+        val wasIsolated = this.isolated
+        try {
+          this.isolated = true
+          expr
+        } finally {
+          this.isolated = wasIsolated
+        }
+      }
+    }
 
     trait Status extends Serializable {
       val path: Path
