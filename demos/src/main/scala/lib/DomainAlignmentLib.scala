@@ -6,6 +6,7 @@ package lib
  */
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import sims.SensorDefinitions
 
 trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
 

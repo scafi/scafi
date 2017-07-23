@@ -1,8 +1,7 @@
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BuildingBlocks}
 import it.unibo.scafi.simulation.gui.Settings
-import lib.{BuildingBlocks, SensorDefinitions}
 import sims.BasicDemo.launch
 
 import scala.concurrent.duration._

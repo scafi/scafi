@@ -1,8 +1,7 @@
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import lib.{BlockG, SensorDefinitions}
 
 object ChannelDemo extends Launcher {
   // Configuring simulation
