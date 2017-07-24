@@ -32,7 +32,9 @@ trait Incarnation extends Core
     override def main() = ???
   }
 
-  trait StandardSensors { self: AggregateProgram =>
+  trait StandardSensors {
+    self: AggregateProgram =>
+
     /**
       * Time forward view: expected time from the device computation to neighbor's next computation
       * incorporating that information.

@@ -1,11 +1,14 @@
 package it.unibo.scafi.platform
 
-import it.unibo.scafi.core.{Core, Engine, Language}
-import it.unibo.scafi.space.SpatialAbstraction
+import it.unibo.scafi.core.{Core, Engine}
+import it.unibo.scafi.space.MetricSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
 
+import scala.concurrent.duration.FiniteDuration
+
 /**
- * @author mirko
+ * @author Mirko Viroli
+ * @author Roberto Casadei
  *
  * This trait defines a component that requires to be "attached" to Core
  * It defines a whole platform view, with a NETWORK type modelling the whole computational system
@@ -23,6 +26,16 @@ object Platform {
 trait TimeAwarePlatform extends Platform {
   self: Platform.PlatformDependency with TimeAbstraction =>
 
+  trait TimeAwareDevice {
+    def currentTime(): Time
+    //def lastExecutionTime(): Time
+    def deltaTime(): FiniteDuration
+
+    //def nbrLastExecutionTime(): Time
+    def nbrDelay(): FiniteDuration
+    def nbrLag(): FiniteDuration
+  }
+
   val LSNS_TIME: LSNS
   val LSNS_DELTA_TIME: LSNS
   val NBR_LAG: NSNS
@@ -30,7 +43,14 @@ trait TimeAwarePlatform extends Platform {
 }
 
 trait SpaceAwarePlatform extends Platform {
-  self: Platform.PlatformDependency with SpatialAbstraction =>
+  self: Platform.PlatformDependency with MetricSpatialAbstraction =>
+
+  trait SpaceAwareDevice {
+    def currentPosition(): P
+
+    def nbrRange(): D
+    def nbrVector(): P
+  }
 
   val LSNS_POSITION: LSNS
   val NBR_VECTOR: NSNS
@@ -39,10 +59,14 @@ trait SpaceAwarePlatform extends Platform {
 
 trait SpaceTimeAwarePlatform extends SpaceAwarePlatform with TimeAwarePlatform {
   self: SpaceTimeAwarePlatform.PlatformDependency =>
+
+  trait SpaceTimeAwareDevice
+    extends SpaceAwareDevice
+      with TimeAwareDevice
 }
 
 object SpaceTimeAwarePlatform {
-  type PlatformDependency = Platform.PlatformDependency with SpatialAbstraction with TimeAbstraction
+  type PlatformDependency = Platform.PlatformDependency with MetricSpatialAbstraction with TimeAbstraction
 }
 
 trait SimulationPlatform extends SpaceTimeAwarePlatform {
