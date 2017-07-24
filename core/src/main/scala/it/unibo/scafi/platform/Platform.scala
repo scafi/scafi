@@ -24,6 +24,7 @@ trait TimeAwarePlatform extends Platform {
   self: Platform.PlatformDependency with TimeAbstraction =>
 
   val LSNS_TIME: LSNS
+  val LSNS_DELTA_TIME: LSNS
   val NBR_DELAY: NSNS
 }
 
@@ -45,7 +46,7 @@ object SpaceTimeAwarePlatform {
 trait SimulationPlatform extends SpaceTimeAwarePlatform {
   self: SpaceTimeAwarePlatform.PlatformDependency =>
 
-  val LSNS_RANDOM: NSNS
+  val LSNS_RANDOM: LSNS
 
   type NETWORK <: Network
 

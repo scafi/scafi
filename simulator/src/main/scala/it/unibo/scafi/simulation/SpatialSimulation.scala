@@ -69,12 +69,12 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
         override def sense[T](lsns: LSNS): Option[T] = {
           lsnsMap.get(lsns).flatMap(_.get(selfId)).orElse(devs.get(id).map(_.lsns(lsns))).map(_.asInstanceOf[T])
         }
-        override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = {
-          if(nsns == "nbrRange"){
+        override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
+          case NBR_RANGE_NAME => {
             val dist = space.getDistance(space.getLocation(selfId), space.getLocation(nbr))
             Some(dist).map(_.asInstanceOf[T])
           }
-          else devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])
+          case _ => devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])
         }
       }
     }
@@ -100,17 +100,17 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     }
   }
 
-  override def simulatorFactory = new SimulatorFactory {
-    def gridLike(n: Int,
+  override def simulatorFactory = new BasicSimulatorFactory {
+    override def gridLike(n: Int,
                  m: Int,
                  stepx: Double = 1,
                  stepy: Double = 1,
                  eps: Double = 0.0,
                  rng: Double,
                  lsnsMap: MMap[LSNS,MMap[ID,Any]] = MMap(),
-                 nsnsMap: MMap[NSNS,MMap[ID,MMap[ID,Any]]] = MMap())
-                (implicit nbrRangeName: NSNS, lId: Linearizable[ID]): NETWORK = {
-      val positions = SpaceHelper.GridLocations(GridSettings(n,m,stepx,stepy,eps))
+                 nsnsMap: MMap[NSNS,MMap[ID,MMap[ID,Any]]] = MMap(),
+                 seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
+      val positions = SpaceHelper.GridLocations(GridSettings(n,m,stepx,stepy,eps), seeds.configSeed)
       val ids = for(i <- 1 to n*m) yield i
       var lsnsById = Map[ID, Map[LSNS,Any]]()
       var nsnsById = Map[ID, Map[NSNS,Any]]()
@@ -125,14 +125,15 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
         case (id, pos) => (id, new DevInfo(id, pos.asInstanceOf[P], lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns)))
       }.toMap
       val space = buildNewSpace(devs mapValues(v => v.pos))
-      new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.GridRepr(n), simulationSeed, randomSeed)
+      new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.GridRepr(n), seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
-    def basicSimulator(idArray: MArray[ID] = MArray(),
+    // TODO: basicSimulator shouldn't use randomness!!! fix it!!!
+    override def basicSimulator(idArray: MArray[ID] = MArray(),
                        nbrMap: MMap[ID, Set[ID]] = MMap(),
                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                       nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
-                       ): NETWORK = {
+                       nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
+
       val positions = SpaceHelper.RandomLocations(SimpleRandomSettings(), idArray.length)
 
       var lsnsById = Map[ID, Map[LSNS,Any]]()
@@ -148,7 +149,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
         case (id, pos) => (id, new DevInfo(id, pos.asInstanceOf[P], lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns) ))
       }.toMap
       val space = buildNewSpace(devs mapValues(v => v.pos))
-      new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.DefaultRepr, simulationSeed, randomSeed)
+      new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.DefaultRepr, SIM_SEED, RANDOM_SENSOR_SEED)
     }
   }
 

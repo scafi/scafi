@@ -5,6 +5,7 @@ import it.unibo.scafi.platform.SpaceTimeAwarePlatform
 import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
 
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Random
 
 /**
@@ -35,6 +36,7 @@ trait Incarnation extends Core
     def nbrRange(): D = nbrvar[D](NBR_RANGE_NAME)
     def currentPosition(): P = sense[P](LSNS_POSITION)
     def currentTime(): T = sense[T](LSNS_TIME)
+    def deltaTime(): FiniteDuration = sense[FiniteDuration](LSNS_DELTA_TIME)
   }
 
   class ScafiDSL extends Constructs with Builtins {

@@ -21,9 +21,10 @@ trait BasicAbstractIncarnation extends Incarnation {
   override type ID = Int
   override type EXECUTION = AggregateInterpreter
 
-  override implicit val NBR_RANGE_NAME: NSNS = "nbrRange"
   override val LSNS_POSITION: String = "position"
   override val LSNS_TIME: String = "currentTime"
+  override val LSNS_DELTA_TIME: String = "deltaTime"
+  override val NBR_RANGE_NAME: NSNS = "nbrRange"
   override val NBR_DELAY: String = "nbrDelay"
 
   @transient implicit override val linearID: Linearizable[ID] = new Linearizable[ID] {
@@ -51,5 +52,6 @@ class AbstractTestIncarnation
   override type P = Point3D
   override val LSNS_POSITION: String = "position"
   override val LSNS_TIME: String = "currentTime"
+  override val LSNS_DELTA_TIME: String = "deltaTime"
   override val NBR_DELAY: String = "nbrDelay"
 }
