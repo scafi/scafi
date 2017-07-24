@@ -6,9 +6,9 @@ package it.unibo.scafi.time
   */
 
 trait TimeAbstraction {
-  type T
+  type Time
 }
 
 trait BasicTimeAbstraction extends TimeAbstraction {
-  type T = java.time.LocalTime
+  type Time = java.time.LocalTime
 }

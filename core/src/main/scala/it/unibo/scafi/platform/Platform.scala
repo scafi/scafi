@@ -25,6 +25,7 @@ trait TimeAwarePlatform extends Platform {
 
   val LSNS_TIME: LSNS
   val LSNS_DELTA_TIME: LSNS
+  val NBR_LAG: NSNS
   val NBR_DELAY: NSNS
 }
 
@@ -32,6 +33,7 @@ trait SpaceAwarePlatform extends Platform {
   self: Platform.PlatformDependency with SpatialAbstraction =>
 
   val LSNS_POSITION: LSNS
+  val NBR_VECTOR: NSNS
   val NBR_RANGE_NAME: NSNS
 }
 

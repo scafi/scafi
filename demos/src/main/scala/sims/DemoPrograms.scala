@@ -1,6 +1,6 @@
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockS, BlockT, Builtins}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockS, BlockT, Builtins, FieldUtils, StandardSensors}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
 
@@ -83,4 +83,36 @@ class Timer extends AggregateProgram with BlockT {
 
 class SparseChoice extends AggregateProgram with SensorDefinitions with BlockG with BlockS {
   override def main() = S(20, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
+}
+
+class SensorNbrRange extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = mid() + " => " + reifyField("%.2f".format(nbrRange()))
+}
+
+class SensorCurrTime extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = currentTime().toString
+}
+
+class SensorCurrPos extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = currentPosition()
+}
+
+class SensorNbrVector extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = mid() + " => " + reifyField(nbrVector())
+}
+
+class SensorDeltaTime extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = deltaTime().toMillis + "ms"
+}
+
+class SensorNbrDelay extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = mid() + " => " + reifyField(nbrDelay().toMillis+"ms")
+}
+
+class SensorNbrLag extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = deltaTime().toMillis  + "ms -- " + mid() + " => " + reifyField(nbrLag().toMillis+"ms")
+}
+
+class SensorNbrDelayLag extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = mid() + " => " + reifyField(s"${nbrDelay().toMillis}ms; ${nbrLag().toMillis}ms")
 }

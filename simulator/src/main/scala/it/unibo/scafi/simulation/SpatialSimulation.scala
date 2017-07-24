@@ -1,10 +1,14 @@
 package it.unibo.scafi.simulation
 
+import java.time.LocalTime
+import java.util.concurrent.TimeUnit
+
 import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
 import it.unibo.scafi.platform.{Platform, SimulationPlatform, SpaceAwarePlatform}
 import it.unibo.scafi.space._
 
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
+import scala.concurrent.duration.Duration
 
 /**
  * @author Roberto Casadei
@@ -57,27 +61,34 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     }
      */
 
-    override def context(id: ID): CONTEXT = {
-      val nhood = neighbourhood(id) + id
+    class SpatialSimulatorContextImpl(id: ID) extends SimulatorContextImpl(id){
 
-      new ContextImpl(
-        selfId = id,
-        exports = eMap.filter(kv => nhood.contains(kv._1)),
-        localSensor = Map(),
-        nbrSensor = Map()
-      ) {
-        override def sense[T](lsns: LSNS): Option[T] = {
-          lsnsMap.get(lsns).flatMap(_.get(selfId)).orElse(devs.get(id).map(_.lsns(lsns))).map(_.asInstanceOf[T])
+      import NetworkSimulator.Optionable
+
+      override def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
+        lsnsMap.get(lsns).flatMap(_.get(selfId)).orElse(devs.get(id).map(_.lsns(lsns))).map(_.asInstanceOf[T])
+
+      override def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
+        devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])
+
+      override def sense[T](lsns: LSNS): Option[T] = lsns match {
+        case LSNS_POSITION => space.getLocation(id).some[T]
+        case _ => super.sense(lsns)
+      }
+
+      override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
+        case NBR_RANGE_NAME =>
+          space.getDistance(space.getLocation(selfId), space.getLocation(nbr)).some[T]
+        case NBR_VECTOR => {
+          val (mypos, npos) = (space.getLocation(selfId), space.getLocation(nbr))
+          Point3D(npos.x-mypos.x, npos.y-mypos.y, npos.z-mypos.z).some[T]
         }
-        override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
-          case NBR_RANGE_NAME => {
-            val dist = space.getDistance(space.getLocation(selfId), space.getLocation(nbr))
-            Some(dist).map(_.asInstanceOf[T])
-          }
-          case _ => devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])
-        }
+        case _ => super.nbrSense(nsns)(nbr)
       }
     }
+
+    override def context(id: ID): CONTEXT =
+      new SpatialSimulatorContextImpl(id)
   }
 
   object SpaceAwareSimulator {
@@ -133,7 +144,6 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
                        nbrMap: MMap[ID, Set[ID]] = MMap(),
                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                        nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
-
       val positions = SpaceHelper.RandomLocations(SimpleRandomSettings(), idArray.length)
 
       var lsnsById = Map[ID, Map[LSNS,Any]]()

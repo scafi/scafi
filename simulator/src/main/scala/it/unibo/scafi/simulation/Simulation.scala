@@ -1,13 +1,14 @@
 package it.unibo.scafi.simulation
 
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 import it.unibo.scafi.platform.SimulationPlatform
 
 import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.Random
 
 /**
@@ -163,6 +164,10 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
   }
 
   object NetworkSimulator extends Serializable {
+    implicit class Optionable[T](obj: T) {
+      def some[U] = Option[U](obj.asInstanceOf[U])
+    }
+
     def DefaultRepr(net: NetworkSimulator): String = {
       net.idArray.map {
         i => net.export(i).map { e => e.root().toString }.getOrElse("_")
@@ -191,8 +196,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     protected val eMap: MMap[ID, EXPORT] = MMap()
     protected var lastRound: Map[ID,LocalTime] = Map()
 
-    private val simulationRandom = new Random(simulationSeed)
-    private val randomSensor = new Random(randomSensorSeed)
+    protected val simulationRandom = new Random(simulationSeed)
+    protected val randomSensor = new Random(randomSensorSeed)
 
     // *****************
     // Network interface
@@ -229,43 +234,52 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     override def clearExports(): Unit = eMap.clear()
 
-    def context(id: ID): CONTEXT = {
-      implicit class Optionable[T](obj: T) {
-        def some[U] = Option[U](obj.asInstanceOf[U])
+    class SimulatorContextImpl(id: ID)
+      extends ContextImpl(
+        selfId = id,
+        exports = eMap.filter(kv => (neighbourhood(id)+id).contains(kv._1)),
+        localSensor = IMap(),
+        nbrSensor = IMap()){
+
+      import NetworkSimulator.Optionable
+
+      def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
+        lsnsMap(lsns).get(id).map (_.asInstanceOf[T] )
+
+      def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
+        nsnsMap(nsns)(id).get(nbr).map(_.asInstanceOf[T])
+
+      override def sense[T](lsns: LSNS): Option[T] = lsns match {
+        case LSNS_RANDOM => randomSensor.some[T]
+        case LSNS_TIME => LocalTime.now().some[T]
+        case LSNS_DELTA_TIME => FiniteDuration(
+          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalTime.now())).getOrElse(0L),
+          TimeUnit.NANOSECONDS).some[T]
+        case _ => localSensorRetrieve(lsns, id)
       }
 
-      val nhood = neighbourhood(id)+id
-
-      new ContextImpl(
-        selfId = id,
-        exports = eMap.filter(kv => nhood.contains(kv._1)),
-      localSensor = IMap(),
-      nbrSensor = IMap()
-      ) {
-        override def sense[T](lsns: LSNS): Option[T] = lsns match {
-          case LSNS_RANDOM => randomSensor.some[T]
-          case LSNS_TIME => LocalTime.now().some[T]
-          case LSNS_DELTA_TIME => Duration(
-            lastRound.get(id).map(t => LocalTime.now().getNano-t.getNano).getOrElse(0),
-            TimeUnit.NANOSECONDS).some[T]
-          case _ => lsnsMap (lsns).get (this.selfId).map (_.asInstanceOf[T] )
-        }
-
-        override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
-          case NBR_DELAY => Duration(
-            lastRound.get(id).map(t => t.getNano.toLong +
-              lastRound.get(selfId).map(st => LocalTime.now().getNano.toLong-st.getNano).getOrElse(0L) -
-              LocalTime.now().getNano).getOrElse(Long.MaxValue),
-            TimeUnit.NANOSECONDS
-          ).some[T]
-          case _ => nsnsMap(nsns)(this.selfId).get(nbr).map(_.asInstanceOf[T])
-        }
+      override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
+        case NBR_LAG => lastRound.get(nbr).map(nbrLast =>
+          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, LocalTime.now()), TimeUnit.NANOSECONDS)
+        ).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
+        case NBR_DELAY => lastRound.get(nbr).map(nbrLast =>
+          FiniteDuration(
+            ChronoUnit.NANOS.between(
+              nbrLast.plusNanos(
+                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalTime.now())).getOrElse(0L)),
+              LocalTime.now()),
+          TimeUnit.NANOSECONDS
+        )).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
+        case _ => nbrSensorRetrieve(nsns, id, nbr)
       }
     }
+
+    def context(id: ID): CONTEXT = new SimulatorContextImpl(id)
 
     def exec(node: EXECUTION, exp: => Any, id: ID): Unit = {
       val c = context(id)
       eMap += (id -> node.round(c, exp))
+      lastRound += id -> LocalTime.now()
     }
 
     /**
@@ -289,7 +303,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     def exec(ap: CONTEXT=>EXPORT): (ID,EXPORT) = {
       val idToRun = idArray(simulationRandom.nextInt(idArray.size))
       val c = context(idToRun)
-      val (nextIdToRun,exp) = idToRun -> ap(c)
+      val (_,exp) = idToRun -> ap(c)
+      lastRound += idToRun -> LocalTime.now()
       eMap += idToRun -> exp
       idToRun -> exp
     }

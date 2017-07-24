@@ -24,8 +24,10 @@ trait BasicAbstractIncarnation extends Incarnation {
   override val LSNS_POSITION: String = "position"
   override val LSNS_TIME: String = "currentTime"
   override val LSNS_DELTA_TIME: String = "deltaTime"
-  override val NBR_RANGE_NAME: NSNS = "nbrRange"
+  override val NBR_RANGE_NAME: String = "nbrRange"
   override val NBR_DELAY: String = "nbrDelay"
+  override val NBR_LAG: String = "nbrLag"
+  override val NBR_VECTOR: String = "nbrVector"
 
   @transient implicit override val linearID: Linearizable[ID] = new Linearizable[ID] {
     override def toNum(v: ID): Int = v
@@ -54,4 +56,6 @@ class AbstractTestIncarnation
   override val LSNS_TIME: String = "currentTime"
   override val LSNS_DELTA_TIME: String = "deltaTime"
   override val NBR_DELAY: String = "nbrDelay"
+  override val NBR_LAG: String = "nbrLag"
+  override val NBR_VECTOR: String = "nbrVector"
 }

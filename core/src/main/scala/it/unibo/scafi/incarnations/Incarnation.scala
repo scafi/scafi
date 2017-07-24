@@ -33,9 +33,12 @@ trait Incarnation extends Core
   }
 
   trait StandardSensors { self: AggregateProgram =>
+    def nbrDelay(): FiniteDuration = nbrvar[FiniteDuration](NBR_DELAY)
+    def nbrLag(): FiniteDuration = nbrvar[FiniteDuration](NBR_LAG)
     def nbrRange(): D = nbrvar[D](NBR_RANGE_NAME)
+    def nbrVector(): P = nbrvar[P](NBR_VECTOR)
     def currentPosition(): P = sense[P](LSNS_POSITION)
-    def currentTime(): T = sense[T](LSNS_TIME)
+    def currentTime(): Time = sense[Time](LSNS_TIME)
     def deltaTime(): FiniteDuration = sense[FiniteDuration](LSNS_DELTA_TIME)
   }
 
