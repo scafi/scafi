@@ -21,6 +21,8 @@ package it.unibo.scafi.lib
 trait Stdlib_BlockC {
   selfcomp: StandardLibrary.Subcomponent =>
 
+  // scalastyle:off method.name
+
   import Builtins.Bounded
   import Bounded._
 

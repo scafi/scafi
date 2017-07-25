@@ -21,6 +21,8 @@ package it.unibo.scafi.lib
 trait Stdlib_BlockG {
   self: StandardLibrary.Subcomponent =>
 
+  // scalastyle:off method.name
+
   import Builtins._
 
   trait BlockG {

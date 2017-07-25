@@ -21,6 +21,8 @@ package it.unibo.scafi.lib
 trait Stdlib_BlockT2 {
   self: StandardLibrary.Subcomponent =>
 
+  // scalastyle:off method.name
+
   trait BlockT2 {
     self: AggregateProgram =>
 

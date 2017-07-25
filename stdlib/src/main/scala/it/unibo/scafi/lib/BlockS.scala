@@ -21,6 +21,8 @@ package it.unibo.scafi.lib
 trait Stdlib_BlockS {
   self: StandardLibrary.Subcomponent =>
 
+  // scalastyle:off method.name
+
   import Builtins._
 
   trait BlockS {
@@ -82,7 +84,7 @@ trait Stdlib_BlockS {
                             lead: (Double, ID),
                             uid: (Double, ID),
                             grain: Double,
-                            metric: => Double) = {
+                            metric: => Double): (Double, ID) = {
       val inf: (Double, ID) = (Double.PositiveInfinity, uid._2)
       mux(d > grain) {
         // If the current device has a distance to the current candidate leader
