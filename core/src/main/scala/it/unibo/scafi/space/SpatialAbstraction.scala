@@ -51,7 +51,7 @@ trait SpatialAbstraction {
   trait MutableSpace[E] extends Space[E] {
     def add(e: E, p: P): Unit
     def remove(e: E): Unit
-    def setLocation(e: E, p: P)
+    def setLocation(e: E, p: P): Unit
   }
 }
 

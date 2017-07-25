@@ -43,7 +43,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
   override type NETWORK = Network with SimulatorOps
 
-  def simulatorFactory = new BasicSimulatorFactory
+  def simulatorFactory: SimulatorFactory = new BasicSimulatorFactory
 
   trait SimulatorOps {
     self: Network =>
@@ -96,7 +96,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                         lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                         nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
                         ): NETWORK =
-      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.DefaultRepr, SIM_SEED, RANDOM_SENSOR_SEED)
+      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.defaultRepr, SIM_SEED, RANDOM_SENSOR_SEED)
 
     def gridLike(gsettings: GridSettings,
                  rng: Double,
@@ -130,7 +130,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       nsnsMap += (NBR_RANGE_NAME -> MMap(idArray.toList.map(i => i -> nbsExportsInGridFor(i)): _*))
 
       new NetworkSimulator(
-        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.GridRepr(rows),
+        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.gridRepr(rows),
         seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
@@ -162,16 +162,16 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
   object NetworkSimulator extends Serializable {
     implicit class Optionable[T](obj: T) {
-      def some[U] = Option[U](obj.asInstanceOf[U])
+      def some[U]: Option[U] = Option[U](obj.asInstanceOf[U])
     }
 
-    def DefaultRepr(net: NetworkSimulator): String = {
+    def defaultRepr(net: NetworkSimulator): String = {
       net.idArray.map {
         i => net.export(i).map { e => e.root().toString }.getOrElse("_")
       }.mkString("", "\t", "")
     }
 
-    def GridRepr(numCols: Int)(net: NetworkSimulator): String = {
+    def gridRepr(numCols: Int)(net: NetworkSimulator): String = {
       net.idArray.map {
         i => net.export(i).map { e => e.root().toString }.getOrElse("_")
       }.zipWithIndex
@@ -184,7 +184,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                          val nbrMap: MMap[ID, Set[ID]] = MMap(),
                          val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                          val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
-                         val toStr: NetworkSimulator => String = NetworkSimulator.DefaultRepr,
+                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
                          val simulationSeed: Long,
                          val randomSensorSeed: Long
                          ) extends Network with SimulatorOps {
