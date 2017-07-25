@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.test.functional
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
@@ -30,7 +31,7 @@ class TestGradient extends FlatSpec with Matchers {
 
   private[this] trait SimulationContextFixture {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(n = 3, m = 3, stepx = stepx, stepy = stepy, eps = 0, rng = 11))
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 11))
     implicit val node = new Node
   }
 

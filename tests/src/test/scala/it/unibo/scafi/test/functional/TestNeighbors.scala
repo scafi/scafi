@@ -18,8 +18,10 @@
 
 package it.unibo.scafi.test.functional
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
+
 import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
 
@@ -29,7 +31,7 @@ class TestNeighbors extends FlatSpec with Matchers {
 
   private[this] trait SimulationContextFixture {
     var net: Network with SimulatorOps =
-      simulatorFactory.gridLike(n = 3, m = 3, stepx = 1, stepy = 1, eps = 0, rng = 1.5)
+      simulatorFactory.gridLike(GridSettings(3, 3, 1, 1), rng = 1.5)
     implicit val node = new BasicAggregateInterpreter
   }
 

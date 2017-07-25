@@ -122,17 +122,13 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
   }
 
   override def simulatorFactory = new BasicSimulatorFactory {
-    override def gridLike(n: Int,
-                 m: Int,
-                 stepx: Double = 1,
-                 stepy: Double = 1,
-                 eps: Double = 0.0,
+    override def gridLike(gsettings: GridSettings,
                  rng: Double,
                  lsnsMap: MMap[LSNS,MMap[ID,Any]] = MMap(),
                  nsnsMap: MMap[NSNS,MMap[ID,MMap[ID,Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
-      val positions = SpaceHelper.gridLocations(GridSettings(n,m,stepx,stepy,eps), seeds.configSeed)
-      val ids = for(i <- 1 to n*m) yield i
+      val positions = SpaceHelper.gridLocations(gsettings, seeds.configSeed)
+      val ids = for(i <- 1 to gsettings.nrows * gsettings.ncols) yield i
       var lsnsById = Map[ID, Map[LSNS,Any]]()
       var nsnsById = Map[ID, Map[NSNS,Any]]()
       for(lsn <- lsnsMap.keys; (dev,v) <- lsnsMap(lsn)) {
@@ -146,7 +142,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
         case (id, pos) => (id, new DevInfo(id, pos.asInstanceOf[P], lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns)))
       }.toMap
       val space = buildNewSpace(devs mapValues(v => v.pos))
-      new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.GridRepr(n), seeds.simulationSeed, seeds.randomSensorSeed)
+      new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.GridRepr(gsettings.nrows), seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
     // TODO: basicSimulator shouldn't use randomness!!! fix it!!!

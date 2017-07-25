@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.test.functional
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
@@ -31,7 +32,7 @@ class TestConstantFields extends FlatSpec with Matchers {
       override def main() = ???
     }
     var net: Network with SimulatorOps =
-      simulatorFactory.gridLike(n = 10, m = 10, stepx = 1, stepy = 1, eps = 100, rng = 1)
+      simulatorFactory.gridLike(GridSettings(nrows = 10, ncols = 10, stepx = 1, stepy = 1, tolerance = 100), rng = 1)
   }
 
   it should "evaluate an int constant field" in new SimulationContextFixture {

@@ -18,6 +18,7 @@
 
 package examples
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import lib.DomainAlignmentLib
 import sims.SensorDefinitions
@@ -51,13 +52,7 @@ object DomainAlignmentMain extends App {
 //    nsnsMap = nsnsMap
 //  )
 
-  val net = simulatorFactory.gridLike(
-    n = 15,
-    m = 15,
-    stepx = 1,
-    stepy = 1,
-    eps = 0.3,
-    rng = 1.5)
+  val net = simulatorFactory.gridLike(GridSettings(15, 15, stepx = 1, stepy = 1, tolerance = 0.3), rng = 1.5)
 
   net.addSensor(name = "source", value = false)
   net.chgSensorValue(name = "source", ids = Set(3), value = true)

@@ -22,6 +22,7 @@ package examples
  * This program is used to launch simulations on a grid-like network.
  */
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import lib.MyLib
 
@@ -135,13 +136,7 @@ object DemoSequence extends AggregateProgram with MyLib {
 
 object DemoSequenceLauncher extends App {
 
-  val net = simulatorFactory.gridLike(
-    n = 6,
-    m = 4,
-    stepx = 1,
-    stepy = 1,
-    eps = 0.0,
-    rng = 1.1)
+  val net = simulatorFactory.gridLike(GridSettings(6, 4, stepx = 1, stepy = 1), rng = 1.1)
 
   // For channel:
   /*
@@ -153,7 +148,6 @@ object DemoSequenceLauncher extends App {
     eps = 1.0,
     rng = 1.5)
   */
-
 
   net.addSensor(name = "sensor", value = 0)
   net.chgSensorValue(name = "sensor", ids = Set(1), value = 1)

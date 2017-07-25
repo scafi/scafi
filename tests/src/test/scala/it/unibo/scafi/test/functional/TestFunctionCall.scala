@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.test.functional
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
@@ -34,7 +35,7 @@ class TestFunctionCall extends FlatSpec with Matchers {
     }
 
     val net: Network with SimulatorOps =
-      simulatorFactory.gridLike(n = 6, m = 6, stepx = 1, stepy = 1, eps = 0, rng = 1.1)
+      simulatorFactory.gridLike(GridSettings(nrows = 6, ncols = 6, stepx = 1, stepy = 1, tolerance = 0), rng = 1.1)
     net.addSensor(name = "source", value = false)
     net.chgSensorValue(name = "source", ids = Set(2), value = true)
     net.addSensor(name = "obstacle", value = false)
