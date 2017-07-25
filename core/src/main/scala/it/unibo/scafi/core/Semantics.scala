@@ -1,13 +1,27 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.core
 
 import it.unibo.scafi.PlatformDependentConstants
-
 import scala.util.control.Exception._
 
 /**
- * @author Mirko Viroli
- * @author Roberto Casadei
- *
  * This trait defines a component that extends Core and Language
  * It starts concretising the framework by implementing the key element of field-calculus semantics, namely:
  * - An export is a map from paths to values, and a value is a list of slots
@@ -42,7 +56,7 @@ trait Semantics extends Core with Language {
     def matches(path: Path): Boolean
     def isRoot: Boolean
 
-    def /(slot: Slot) = push(slot)
+    def /(slot: Slot): Path = push(slot)
   }
 
   trait ExportOps { self: EXPORT =>
@@ -173,11 +187,19 @@ trait Semantics extends Core with Language {
       var isolated = false // When true, neighbours are scoped out
 
       override def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+
       override def self: ID = context.selfId
+
       override def neighbour: Option[ID] = status.neighbour
+
       override def index: Int = status.index
+
       override def previousRoundVal[A]: Option[A] = context.readSlot[A](self, status.path)
-      override def neighbourVal[A]: A = context.readSlot[A](neighbour.get, status.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+
+      override def neighbourVal[A]: A = context
+        .readSlot[A](neighbour.get, status.path)
+        .getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+
       override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
         handling(classOf[OutOfDomainException]) by (_ => None) apply {
           try {
@@ -188,7 +210,11 @@ trait Semantics extends Core with Language {
             status = status.pop()
           }
         }
-      override def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
+
+      override def localSense[A](name: LSNS): A = context
+        .sense[A](name)
+        .getOrElse(throw new SensorUnknownException(self, name))
+
       override def neighbourSense[A](name: NSNS): A = {
         ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
         context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
@@ -214,14 +240,16 @@ trait Semantics extends Core with Language {
       }
 
       override def alignedNeighbours(): List[ID] =
-        if(isolated)
+        if(isolated) {
           List()
-        else self ::
-          context.exports
-          .filter(_._1 != self)
-          .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
-          .map(_._1)
-          .toList
+        } else {
+          self ::
+            context.exports
+              .filter(_._1 != self)
+              .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
+              .map(_._1)
+              .toList
+        }
 
       override def elicitAggregateFunctionTag():Any =
         Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)

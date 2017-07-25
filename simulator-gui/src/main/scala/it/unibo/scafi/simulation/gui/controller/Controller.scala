@@ -148,10 +148,10 @@ class Controller () {
         case Grid_HighVar => Settings.Grid_HiVar_Eps
       }
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
-      positions = SpaceHelper.GridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety))
+      positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety))
     }
     else {
-      positions = SpaceHelper.RandomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes)
+      positions = SpaceHelper.randomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes)
     }
 
     var i: Int = 0

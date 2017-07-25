@@ -14,8 +14,6 @@ import it.unibo.scafi.platform.{Platform => BasePlatform}
 trait Platform extends BasePlatform
   with PlatformAPIFacade
   with PlatformSettings { self: BasePlatform.PlatformDependency =>
-
-  override type EXPORT <: Export with ExportOps with Serializable
 }
 
 object Platform {

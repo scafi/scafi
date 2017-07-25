@@ -31,7 +31,7 @@ object DemoSpatialLauncher extends App {
 
   val (ncols,nrows) = (3,3)
   val (stepx,stepy) = (1,1)
-  val positions = SpaceHelper.GridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
+  val positions = SpaceHelper.gridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
   val ids = for(i <- 1 to ncols*nrows) yield i
   val devsToPos = ids.zip(positions).toMap
   val net = new SpaceAwareSimulator(
@@ -39,7 +39,9 @@ object DemoSpatialLauncher extends App {
     devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
       lsns => if (lsns == "sensor" && d == 3) 1 else 0,
       nsns => nbr => null)
-      }
+      },
+    simulationSeed = System.currentTimeMillis(),
+    randomSensorSeed = System.currentTimeMillis()
     )
 
   var v = java.lang.System.currentTimeMillis()

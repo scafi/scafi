@@ -16,19 +16,12 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.config
+package it.unibo.scafi.time
 
+trait TimeAbstraction {
+  type Time
+}
 
-abstract class ShapeSettings(val seed: Option[Long] = None)
-
-// scalastyle:off magic.number
-case class GridSettings(nrows: Int = 10,
-                        ncols: Int = 10,
-                        stepx: Double = 100,
-                        stepy: Double = 80,
-                        tolerance: Double = 0,
-                        offsetx: Double = 0,
-                        offsety: Double = 0) extends ShapeSettings
-
-case class SimpleRandomSettings(min: Double = 0,
-                                max: Double = 1000) extends ShapeSettings
+trait BasicTimeAbstraction extends TimeAbstraction {
+  type Time = java.time.LocalTime
+}

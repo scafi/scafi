@@ -10,9 +10,8 @@ import sims.SensorDefinitions
 
 trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
 
-  //def nbrRange():Double = nbrvar[Double](NBR_RANGE_NAME)
-  def time = rep(0)(_+1)
   val inf = Double.PositiveInfinity
+  def time = rep(0){_+1}
 
   ///////////////////////////////////////
   // domain-aligned updatable function //

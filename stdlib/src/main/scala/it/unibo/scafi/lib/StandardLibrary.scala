@@ -15,7 +15,8 @@ trait StandardLibrary extends
     with Stdlib_BlockT2
     with Stdlib_BlockS
     with Stdlib_BlocksWithGC
-    with Stdlib_BuildingBlocks { self: Incarnation => }
+    with Stdlib_BuildingBlocks
+    with FieldUtils { self: Incarnation => }
 
 object StandardLibrary {
   type Subcomponent = StandardLibrary with Incarnation
