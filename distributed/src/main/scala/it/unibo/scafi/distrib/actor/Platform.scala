@@ -40,8 +40,8 @@ trait Platform extends DistributedPlatform
                      export: Option[EXPORT] = None,
                      mailbox: Option[ActorRef] = None,
                      path: Option[String] = None){
-    override def hashCode = nid.hashCode
-    override def equals(other: Any) = other match {
+    override def hashCode: Int = nid.hashCode
+    override def equals(other: Any): Boolean = other match {
       case NbrInfo(id,_,_,_) => id == nid
       case _ => false
     }

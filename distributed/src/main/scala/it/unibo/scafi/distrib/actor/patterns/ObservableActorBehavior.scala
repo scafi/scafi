@@ -38,7 +38,7 @@ trait ObservableActorBehavior {
 
   /* Abstract members */
 
-  def CurrentStateMessage: Any = { throw new NotImplementedError() }
+  def currentStateMessage: Any = { throw new NotImplementedError() }
 
   /* Key structures */
 
@@ -47,16 +47,16 @@ trait ObservableActorBehavior {
   /* Behavior */
 
   def observersManagementBehavior: Receive = {
-    case MsgAddObserver(o) => { observers += o; ObserverAdded(o) }
+    case MsgAddObserver(o) => { observers += o; observerAdded(o) }
     case MsgRemoveObserver(o) => observers -= o
   }
 
-  def NotifyObservers() = {
-    val currState = CurrentStateMessage
+  def notifyObservers(): Unit = {
+    val currState = currentStateMessage
     observers.foreach(o => o ! currState)
   }
 
-  def NotifyObservers(msg: Any) = observers.foreach(o => o ! msg)
+  def notifyObservers(msg: Any): Unit = observers.foreach(o => o ! msg)
 
-  def ObserverAdded(ref: ActorRef) = { }
+  def observerAdded(ref: ActorRef): Unit = { }
 }

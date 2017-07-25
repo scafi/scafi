@@ -27,7 +27,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    * Neighbourhood management for devices in a server-based platform.
    */
   trait DeviceNbrManagementBehavior extends BaseDeviceActor with BaseNbrManagementBehavior { selfActor: Actor =>
-    override def inputManagementBehavior = super.inputManagementBehavior.orElse {
+    override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse {
       // Neighborhood management
       case MsgNeighborhood(this.selfId, nbs) => updateNeighborhood(nbs, clear = true)
       case MsgExports(exports) => updateNeighborsState(exports.mapValues(Some(_)), clear = true)
@@ -56,12 +56,12 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     with DeviceNbrManagementBehavior {
     val NEIGHBORHOOD_LOOKUP_INTERVAL = 2.seconds
 
-    override def AfterJob() = {
-      super.AfterJob()
+    override def afterJob(): Unit = {
+      super.afterJob()
       lastExport.foreach(server ! MsgExport(selfId, _))
     }
 
-    override def preStart() = {
+    override def preStart(): Unit = {
       super.preStart()
       import context.dispatcher
       context.system.scheduler.schedule(NEIGHBORHOOD_LOOKUP_INTERVAL,
@@ -71,7 +71,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       server ! MsgRegistration(selfId)
     }
 
-    override def updateSensorValues() = {
+    override def updateSensorValues(): Unit = {
       super.updateSensorValues()
       sensorValues.foreach(sns => notifySensorValueToServer(sns._1, sns._2))
     }
@@ -81,12 +81,12 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       notifySensorValueToServer(name, value)
     }
 
-    def notifySensorValueToServer(name: LSNS, value: Any) = {
+    def notifySensorValueToServer(name: LSNS, value: Any): Unit = {
       server ! MsgSensorValue(selfId, name, value)
       logger.debug(s"\nSENSOR ${name} => ${value}")
     }
 
-    override def PropagateExportToNeighbors(export: EXPORT) =
+    override def propagateExportToNeighbors(export: EXPORT): Unit =
       server ! MsgExport(selfId, export)
   }
 

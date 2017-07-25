@@ -60,10 +60,10 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     override var workInterval = 1.day // Ignored in HandleLifecycle()
     import context.dispatcher
 
-    override def HandleLifecycle() = execScope match {
+    override def handleLifecycle(): Unit = execScope match {
       case DeviceDelegated(strategy) => strategy match {
         case DelayedDeviceExecStrategy(_,delay) => {
-          ScheduleNextWorkingCycle(delay)
+          scheduleNextWorkingCycle(delay)
         }
         case PeriodicDeviceExecStrategy(_,period) => {
           tick = tick.orElse(Some(context.system.scheduler.schedule(period,period,self,GoOn)))
@@ -73,21 +73,21 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       case _ => // Do nothing
     }
 
-    override def LifecyclePreStart() = execScope match {
+    override def lifecyclePreStart(): Unit = execScope match {
       case DeviceDelegated(strategy) => strategy match {
         case DelayedDeviceExecStrategy(_,_)
              | PeriodicDeviceExecStrategy(_,_) => {
           // Reuse default periodic behavior pre-start
           // which essentially schedules a cycle with 'initialDelay' (if set)
-          PeriodicBehaviorPreStart()
+          periodicBehaviorPreStart()
         }
         case _ => // Do nothing
       }
       case _ => // Do nothing
     }
 
-    override def LifecyclePostStop() = {
-      super.LifecyclePostStop()
+    override def lifecyclePostStop(): Unit = {
+      super.lifecyclePostStop()
       tick.foreach(_.cancel())
     }
   }
@@ -105,13 +105,13 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // REACTIVE BEHAVIOR
 
-    def SensingBehavior: Receive = {
+    def sensingBehavior: Receive = {
       case MsgLocalSensorValue(name, value) => setLocalSensorValue(name, value)
       case MsgNbrSensorValue(name, map) => setNbrSensorValue(name, map)
     }
 
     override def inputManagementBehavior: Receive =
-      super.inputManagementBehavior.orElse(SensingBehavior)
+      super.inputManagementBehavior.orElse(sensingBehavior)
 
     // BEHAVIOR METHODS
 
@@ -119,7 +119,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       sensorValues += name -> value
     }
 
-    def setNbrSensorValue(name: NSNS, map: Map[ID,Any]) =
+    def setNbrSensorValue(name: NSNS, map: Map[ID,Any]): Unit =
       nbrSensorValues(name) = MMap(map.toSeq:_*)
   }
 
@@ -133,13 +133,13 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // REACTIVE BEHAVIOR
 
-    def SensorManagementBehavior: Receive = {
+    def sensorManagementBehavior: Receive = {
       case MsgAddPushSensor(ref) => { ref ! MsgAddObserver(self); ref ! GoOn }
       case MsgAddSensor(name, provider) => setLocalSensor(name, provider)
     }
 
     override def inputManagementBehavior: Receive =
-      super.inputManagementBehavior.orElse(SensorManagementBehavior)
+      super.inputManagementBehavior.orElse(sensorManagementBehavior)
 
     // BEHAVIOR METHODS
 
@@ -157,19 +157,19 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // REACTIVE BEHAVIOR
 
-    def ActuatorManagementBehavior: Receive = {
+    def actuatorManagementBehavior: Receive = {
       case MsgAddActuator(name, consumer) => setActuator(name, consumer)
     }
 
     override def inputManagementBehavior: Receive =
-      super.inputManagementBehavior.orElse(ActuatorManagementBehavior)
+      super.inputManagementBehavior.orElse(actuatorManagementBehavior)
 
     // BEHAVIOR METHODS
 
     def setActuator(name: LSNS, consumer: (Any)=>Unit): Unit =
       actuators += name -> consumer
 
-    def executeActuators(value: Any) =
+    def executeActuators(value: Any): Unit =
       actuators.foreach{ case (name,consumer) => consumer(value) }
   }
 
@@ -181,7 +181,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     var nbrs = Map[ID,NbrInfo]()
 
     // BEHAVIOR METHODS
-    def mergeNeighborInfo(idn: ID, info: NbrInfo) = {
+    def mergeNeighborInfo(idn: ID, info: NbrInfo): Unit = {
       var toAdd = this.nbrs.get(idn)
         .orElse(Some(NbrInfo(idn,None,None,None))).get
       // No let's merge, by assuming that 'info' has is more up-to-date
@@ -213,7 +213,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       }
     }
 
-    def removeNeighbor(idn: ID) = {
+    def removeNeighbor(idn: ID): Unit = {
       logger.debug(s"\nRemoving neighbor $idn")
       nbrs -= idn
     }
@@ -239,7 +239,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // ABSTRACT MEMBERS
 
-    def PropagateExportToNeighbors(export: EXPORT)
+    def propagateExportToNeighbors(export: EXPORT)
     var aggregateExecutor: Option[ExecutionTemplate]
 
     // CONCRETE FIELDS
@@ -249,7 +249,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // ACTOR LIFECYCLE
 
-    override def preStart() = {
+    override def preStart(): Unit = {
       super.preStart()
       logger.info(s"\nHello. I am ${selfId} and I am about to start.\n" +
         s"My program is $aggregateExecutor\n")
@@ -257,22 +257,22 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // CALLBACKS
 
-    def BeforeJob(){ }
-    def AfterJob(){ }
+    def beforeJob(): Unit = { }
+    def afterJob(): Unit = { }
 
     // REACTIVE BEHAVIOR
 
     override def workingBehavior: Receive = {
       case GoOn => {
-        BeforeJob()
-        DoJob()
-        AfterJob()
+        beforeJob()
+        doJob()
+        afterJob()
       }
     }
 
     // BEHAVIOR METHODS
 
-    def DoJob() = aggregateExecutor.foreach { program =>
+    def doJob(): Unit = aggregateExecutor.foreach { program =>
       rounds = rounds + 1
 
       var nbrExports = nbrs.filter(_._2.export.isDefined).mapValues(_.export.get)
@@ -292,7 +292,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
       logger.debug(s"\nExecuted round $rounds => $export\nBY $context\n$nbrs")
 
-      PropagateExportToNeighbors(export)
+      propagateExportToNeighbors(export)
 
       executeActuators(export.root())
     }
@@ -302,7 +302,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       exp
     }
 
-    def updateSensorValues() = localSensors.foreach { case (name,provider) =>
+    def updateSensorValues(): Unit = localSensors.foreach { case (name,provider) =>
       setLocalSensorValue(name, provider())
     }
   }
@@ -314,14 +314,14 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    */
   trait DynamicComputationDeviceActor
     extends ComputationDeviceActor with DynamicDeviceLifecycleBehavior {
-    override def preStart() = {
+    override def preStart(): Unit = {
       super.preStart()
-      LifecyclePreStart()
+      lifecyclePreStart()
     }
 
-    override def AfterJob() = {
-      super.AfterJob()
-      HandleLifecycle()
+    override def afterJob(): Unit = {
+      super.afterJob()
+      handleLifecycle()
     }
   }
 
@@ -352,38 +352,38 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait ObservableDeviceActor extends ComputationDeviceActor with ObservableActorBehavior {
     override def receive: Receive = super.receive.orElse(observersManagementBehavior)
 
-    override def AfterJob() = {
-      super.AfterJob()
-      NotifyObservers(MsgRound(selfId, this.rounds))
-      NotifyObservers(MsgExport(selfId, this.lastExport.get))
+    override def afterJob(): Unit = {
+      super.afterJob()
+      notifyObservers(MsgRound(selfId, this.rounds))
+      notifyObservers(MsgExport(selfId, this.lastExport.get))
     }
 
-    override def ObserverAdded(ref: ActorRef) = {
+    override def observerAdded(ref: ActorRef): Unit = {
       ref ! MyNameIs(selfId)
       ref ! MsgNeighborhood(selfId, this.nbrs.keySet)
     }
 
     override def setLocalSensorValue(name: LSNS, value: Any): Unit = {
       super.setLocalSensorValue(name, value)
-      NotifyObservers(MsgLocalSensorValue(name, value))
+      notifyObservers(MsgLocalSensorValue(name, value))
     }
 
-    override def updateNeighborhood(neighbors: Set[ID], clear: Boolean = false) = {
+    override def updateNeighborhood(neighbors: Set[ID], clear: Boolean = false): Unit = {
       super.updateNeighborhood(neighbors, clear)
-      NotifyObservers(MsgNeighborhood(selfId, this.nbrs.keySet))
+      notifyObservers(MsgNeighborhood(selfId, this.nbrs.keySet))
     }
 
-    override def removeNeighbor(idn: ID) = {
+    override def removeNeighbor(idn: ID): Unit = {
       super.removeNeighbor(idn)
-      NotifyObservers(MsgNeighborhood(selfId, this.nbrs.keySet))
+      notifyObservers(MsgNeighborhood(selfId, this.nbrs.keySet))
     }
 
-    override def updateNeighborsState(nexps: Map[ID,Option[EXPORT]], clear: Boolean = false) = {
+    override def updateNeighborsState(nexps: Map[ID,Option[EXPORT]], clear: Boolean = false): Unit = {
       super.updateNeighborsState(nexps, clear)
 
       // Trailing .map(identity) is needed because mapValues() results in a non-serializable object
       // See: http://stackoverflow.com/questions/17709995/notserializableexception-for-mapstring-string-alias
-      NotifyObservers(MsgExports(this.nbrs.filter(_._2.export.isDefined).
+      notifyObservers(MsgExports(this.nbrs.filter(_._2.export.isDefined).
         mapValues(_.export.get).map(identity)))
     }
   }

@@ -41,7 +41,7 @@ abstract class PeriodicObservableInputProviderActor[K,V](val name: K) extends Ac
    * @return {Some(v)} for a value 'v' or {None} if there is no value to return
    */
   def provideNextValue(): Option[V]
-  
+
   /* Utility members */
 
   protected val logger = akka.event.Logging(context.system, this)
@@ -54,8 +54,8 @@ abstract class PeriodicObservableInputProviderActor[K,V](val name: K) extends Ac
 
   def workingBehavior: Receive = {
     case GoOn => {
-      DoJob()
-      HandleLifecycle()
+      doJob()
+      handleLifecycle()
     }
   }
 
@@ -63,12 +63,12 @@ abstract class PeriodicObservableInputProviderActor[K,V](val name: K) extends Ac
 
   /* Passive behavior */
 
-  def DoJob() = {
+  def doJob(): Unit = {
     this.value = provideNextValue()
-    this.value.foreach(_ => NotifyObservers())
+    this.value.foreach(_ => notifyObservers())
   }
 
-  override def CurrentStateMessage: Any = {
+  override def currentStateMessage: Any = {
     MsgWithInput(name,value)
   }
 }

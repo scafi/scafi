@@ -24,7 +24,7 @@ import akka.serialization.{JavaSerializer, Serializer}
 class CustomSerializer(ext: ExtendedActorSystem) extends Serializer {
   val javaSerializer = new JavaSerializer(ext)
 
-  override def identifier: Int = 999
+  override val identifier: Int = 999
 
   override def includeManifest: Boolean = false
 
@@ -44,7 +44,7 @@ class CustomSerializer(ext: ExtendedActorSystem) extends Serializer {
       }
       case exc: NoClassDefFoundError => {
         val missingClass = exc.getMessage.drop(1).dropRight(1).replace('/','.')
-        ext.log.debug(s"\nCannot deserialize (NoClassDefFound): ${exc.getMessage}"+
+        ext.log.debug(s"\nCannot deserialize (NoClassDefFound): ${exc.getMessage}" +
           s"\nMissing class: $missingClass")
         SystemMsgClassNotFound(missingClass)
       }
@@ -52,7 +52,7 @@ class CustomSerializer(ext: ExtendedActorSystem) extends Serializer {
   }
 
   override def toBinary(o: AnyRef): Array[Byte] = {
-    //println(s"\n### SERIALIZING: ${o}\n")
+    //ext.log.debug(s"\n### SERIALIZING: ${o}\n")
     javaSerializer.toBinary(o)
   }
 }

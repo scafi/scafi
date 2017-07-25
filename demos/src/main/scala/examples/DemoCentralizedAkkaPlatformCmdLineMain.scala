@@ -52,7 +52,7 @@ object DemoCentralizedAkkaPlatformCmdLineMain extends App {
   }
 
   // STEP 4: PARSE COMMAND-LINE ARGS TO SETTINGS
-  CmdLineParser.parse(args, Settings()) foreach{ settings =>
+  cmdLineParser.parse(args, Settings()) foreach{ settings =>
     // STEP 5: ADJUST SETTINGS
     val s: Settings = settings.copy(
       aggregate = settings.aggregate.copy(

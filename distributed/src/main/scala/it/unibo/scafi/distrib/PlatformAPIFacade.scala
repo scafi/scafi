@@ -32,7 +32,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   trait SystemMain extends App with Serializable {
     def programBuilder: Option[ExecutionTemplate] = None
 
-    def setupSystem(settings: Settings) = {
+    def setupSystem(settings: Settings): Unit = {
       val s = refineSettings(settings)
       val pc = self.platformFactory.buildPlatformConfigurator()
       val platform = pc.setupPlatform(s.platform, s.profile)
@@ -49,26 +49,26 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       }
     }
 
-    def onPlatformReady(platform: PlatformFacade) = { }
-    def onReady(app: SystemFacade) = { }
-    def onDeviceStarted(dm: DeviceManager, sys: SystemFacade) = { }
+    def onPlatformReady(platform: PlatformFacade): Unit = { }
+    def onReady(app: SystemFacade): Unit = { }
+    def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = { }
     def refineSettings(s: Settings): Settings = { s }
   }
 
   class CmdLineMain extends SystemMain {
-    override def main(args: Array[String]) = {
-      CmdLineParser.parse(args, Settings()) foreach (s => setupSystem(s))
+    override def main(args: Array[String]): Unit = {
+      cmdLineParser.parse(args, Settings()) foreach (s => setupSystem(s))
     }
   }
 
   class BasicMain(val settings: Settings) extends SystemMain {
-    override def main(args: Array[String]) = {
+    override def main(args: Array[String]): Unit = {
       setupSystem(settings)
     }
   }
 
   class FileMain(val configFile: String) extends SystemMain {
-    override def main(args: Array[String]) = {
+    override def main(args: Array[String]): Unit = {
       setupSystem(Settings.fromConfig(configFile))
     }
   }
@@ -83,8 +83,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
     def newDevice(id: ID,
                   program: Option[ExecutionTemplate] = None,
                   neighbors: Set[ID] = Set()): DeviceManager
-    def addNeighbor(id: ID, idn: ID)
-    def start()
+    def addNeighbor(id: ID, idn: ID): Unit
+    def start(): Unit
   }
 
   trait AbstractPlatformFacade {

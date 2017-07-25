@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.distrib.actor
 
-import akka.actor.{Props, Actor}
+import akka.actor.{Actor, ActorRef, Props}
 
 trait PlatformActors { self: Platform.Subcomponent =>
 
@@ -58,16 +58,17 @@ trait PlatformActors { self: Platform.Subcomponent =>
       }
     }
 
-    override def preStart() = {
+    override def preStart(): Unit = {
       super.preStart()
       logger.info(s"\nSTARTED AGGREGATE APPLICATION '${settings.name}'")
     }
 
     val DEV_NAME_PREFIX = "dev-"
 
-    private def deviceActors = context.children.filter(_.path.name.startsWith(DEV_NAME_PREFIX))
+    private def deviceActors: Iterable[ActorRef] =
+      context.children.filter(_.path.name.startsWith(DEV_NAME_PREFIX))
 
-    private def deviceNameFromId(id: ID) = DEV_NAME_PREFIX+id
+    private def deviceNameFromId(id: ID): String = DEV_NAME_PREFIX + id
   }
   object AggregateApplicationActor extends Serializable {
     def props(as: AggregateApplicationSettings): Props =

@@ -79,7 +79,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
             protocol = "akka.tcp",
             host = Some(osys.subsystemDeployment.host),
             port = Some(osys.subsystemDeployment.port)
-          ).toString + "/user/" + appRef.path.name + "/dev-"+idn
+          ).toString + "/user/" + appRef.path.name + "/dev-" + idn
           appRef ! MsgDeliverTo(id, NbrInfo(idn,None,None,Some(path)))
         }
         case None => appRef ! MsgNeighbor(id, idn)

@@ -29,7 +29,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    * Neighbourhood management for devices in a P2P platform.
    */
   trait P2pNbrManagementBehavior extends BaseNbrManagementBehavior { selfActor: Actor =>
-    def NeighbourhoodManagementBehavior: Receive = {
+    def neighbourhoodManagementBehavior: Receive = {
       case info @ NbrInfo(idn,_,_,_) => mergeNeighborInfo(idn,info)
       case MsgDeviceLocation(idn, ref) => mergeNeighborInfo(idn,NbrInfo(idn,None,Some(ref),None))
       case MsgExport(from, export) => {
@@ -40,7 +40,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     }
 
     override def inputManagementBehavior: Receive =
-      super.inputManagementBehavior.orElse(NeighbourhoodManagementBehavior)
+      super.inputManagementBehavior.orElse(neighbourhoodManagementBehavior)
   }
 
   /**
@@ -55,7 +55,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     with MissingCodeManagementBehavior
     with P2pNbrManagementBehavior {
 
-    def PropagateExportToNeighbors(export: EXPORT) = {
+    def propagateExportToNeighbors(export: EXPORT): Unit = {
       import context.dispatcher
 
       val NBR_LOOKUP_TIMEOUT = 2.seconds
@@ -84,7 +84,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   object DeviceActor extends Serializable {
     def props(selfId: ID,
               program: Option[ExecutionTemplate],
-              execStrategy: ExecScope) =
+              execStrategy: ExecScope): Props =
       Props(classOf[DeviceActor], self, selfId, program, execStrategy)
   }
 }

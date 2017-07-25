@@ -195,10 +195,12 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   /**
    * Template method for extending the parser in specialized platform components.
    */
-  def extendParser(p: scopt.OptionParser[Settings]) = { }
+  def extendParser(p: scopt.OptionParser[Settings]): Unit = { }
 
-  def CmdLineParser(implicit ev: Interop[ID]) =
-    new scopt.OptionParser[Settings]("<scafi distributed system>") {
+  def cmdLineParser: scopt.OptionParser[Settings] =
+    new ScafiCmdLineParser
+
+  class ScafiCmdLineParser extends scopt.OptionParser[Settings]("<scafi distributed system>") {
       extendParser(this)
 
       opt[String]("loglevel") valueName ("<off|info|warning|debug>") action { (x, c) =>
@@ -264,7 +266,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
           val xs = subsysDesc.split(":")
           val host = xs(0)
           val port = xs(1).toInt
-          val ids = xs.drop(2).map(ev.fromString(_)).toSet
+          val ids = xs.drop(2).map(interopID.fromString(_)).toSet
 
           ss += SubsystemSettings(
             ids = ids,
@@ -292,9 +294,9 @@ trait PlatformSettings { self: Platform.Subcomponent =>
         }
 
         c.copy(deviceConfig = c.deviceConfig.copy(
-          ids = parsedIds.map(ev.fromString(_)),
+          ids = parsedIds.map(interopID.fromString(_)),
           nbs = parserNbs.map {
-            case (k, v) => ev.fromString(k) -> v.map(ev.fromString(_))
+            case (k, v) => interopID.fromString(k) -> v.map(interopID.fromString(_))
           }))
       } } text ("Neighbors")
 

@@ -100,7 +100,8 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
   trait CodeMobilitySupportBehavior { selfType: Actor =>
     def codeShippingRecipients(): Set[ActorRef]
 
-    def isLocalActor(aRef: ActorRef) = aRef.path.root == self.path.root
+    def isLocalActor(aRef: ActorRef): Boolean =
+      aRef.path.root == self.path.root
 
     def codeMobilitySupportBehavior: Receive = {
       case MsgShipProgram(MsgProgram(program, deps)) =>
@@ -113,7 +114,7 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
 
     def shipProgram(program: ExecutionTemplate,
                     dependencies: Set[Class[_]] = Set(),
-                    recipients: Set[ActorRef]) = {
+                    recipients: Set[ActorRef]): Unit = {
       // Load the code associated to the program and its dependencies
       var classes = LoadClassBytes(program.getClass)
       dependencies.foreach(classes ++= LoadClassBytes(_))

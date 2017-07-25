@@ -24,7 +24,7 @@ trait PlatformSensors { self: Platform.Subcomponent =>
 
   abstract class PeriodicObservableSensorActor[T](name: LSNS) extends
   PeriodicObservableInputProviderActor[LSNS,T](name) {
-    override def CurrentStateMessage: Any = {
+    override def currentStateMessage: Any = {
       new MsgLocalSensorValue(name,value.get)
     }
   }

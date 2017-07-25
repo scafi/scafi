@@ -54,7 +54,7 @@ trait Platform extends BasePlatform
   /******** CMD-LINE PARSER ********/
   /*********************************/
 
-  override def extendParser(p: scopt.OptionParser[Settings]) = {
+  override def extendParser(p: scopt.OptionParser[Settings]): Unit = {
     p.head("** Scafi Decentralized Actor System Command Line Program **")
 
     p.opt[Boolean]('g', "gui") action { (x, c) =>

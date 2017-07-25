@@ -23,18 +23,22 @@ import java.net.{URL, URLClassLoader}
 object CodeMobilityUtilities {
   // Apply a generator to create a function with safe decoupled closures
   // See: http://erikerlandson.github.io/blog/2015/03/31/hygienic-closures-for-scala-function-serialization/
-  def closureFunction[E,D,R](enclosed: E)(gen: E => (D => R)) = gen(enclosed)
+  def closureFunction[E,D,R](enclosed: E)(gen: E => (D => R)): D => R = gen(enclosed)
+
+  def log(s: String): Unit = Console.println(s)
 }
 
 class CustomClassLoader(parent: ClassLoader) extends URLClassLoader(Array[URL](), parent) {
   import CustomClassLoaderRegistry._
+  import CodeMobilityUtilities._
+
   override protected def findClass(name: String) : Class[_] = {
-    Console.println(s"Looking for class ${name}")
-    var result = findLoadedClass(name);
+    log(s"Looking for class ${name}")
+    var result = findLoadedClass(name)
     var toreg = classesToRegister.contains(name)
     if (result == null && !toreg) {
       try {
-        result = findSystemClass(name);
+        result = findSystemClass(name)
       } catch {
         case _: Throwable => // Ignore
       }
@@ -42,10 +46,10 @@ class CustomClassLoader(parent: ClassLoader) extends URLClassLoader(Array[URL]()
     if (result == null && toreg) {
       try {
         val classBytes = classesToRegister(name)
-        Console.println(s"Defining class ${name}")
+        log(s"Defining class ${name}")
         result = defineClass(name, classBytes, 0, classBytes.length)
         save(name)
-        Console.println(s"Class ${name} defined!")
+        log(s"Class ${name} defined!")
       } catch {
         case e: Exception => {
           throw new ClassNotFoundException(name)
@@ -57,13 +61,13 @@ class CustomClassLoader(parent: ClassLoader) extends URLClassLoader(Array[URL]()
 
   def defineClass(name: String, code: Array[Byte]): Class[_] = {
     try {
-      println(s"\nFindin class ${name} with code $code") // TODO: proper loggin
+      log(s"\nFindin class ${name} with code $code") // TODO: proper loggin
       val klass = this.findLoadedClass(name)
       klass.getClass
     }
     catch {
       case _: Throwable => {
-       println("*** defining class") // TODO: proper logging
+        log("*** defining class") // TODO: proper logging
         this.defineClass(name, code, 0, code.length)
       }
     }
@@ -74,18 +78,18 @@ object CustomClassLoaderRegistry {
   var classesToRegister: Map[String, Array[Byte]] = Map()
   var registeredClasses: Map[String, Array[Byte]] = Map()
 
-  def register(name: String, classBytes: Array[Byte]) {
+  def register(name: String, classBytes: Array[Byte]): Unit = {
     classesToRegister += (name -> classBytes)
   }
 
-  def save(name: String): Unit ={
+  def save(name: String): Unit = {
     registeredClasses += (name -> classesToRegister(name))
     classesToRegister -= name
   }
 }
 
 object LoadClassBytes {
-  def   apply(clazz: Class[_]) : Map[String, Array[Byte]] = {
+  def apply(clazz: Class[_]) : Map[String, Array[Byte]] = {
     DependencyEmitter.classDependencies(clazz)
       .map(kv => (kv._1.replace('/','.'), kv._2))
       .filter(k => !(k._1.contains("scala.")
@@ -104,7 +108,7 @@ import org.apache.bcel.classfile._
 class DependencyEmitter(var klass: JavaClass) extends EmptyVisitor {
   var result = Map[String,Array[Byte]]()
 
-  override def visitConstantClass(obj: ConstantClass) {
+  override def visitConstantClass(obj: ConstantClass): Unit = {
     val cp = klass.getConstantPool()
     val cname = obj.getBytes(cp)
 
@@ -130,9 +134,9 @@ object DependencyEmitter {
   }
 
   def javaClassDependencies(jc: JavaClass): Map[String,Array[Byte]] = {
-    val visitor = new DependencyEmitter(jc);
-    val dv = new DescendingVisitor(jc, visitor);
-    dv.visit();
+    val visitor = new DependencyEmitter(jc)
+    val dv = new DescendingVisitor(jc, visitor)
+    dv.visit()
     visitor.result
   }
 }

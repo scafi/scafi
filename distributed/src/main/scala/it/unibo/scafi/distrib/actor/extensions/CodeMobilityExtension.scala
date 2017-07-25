@@ -29,7 +29,7 @@ class CodeMobilityExtensionImpl(val system: ExtendedActorSystem) extends Extensi
 object CodeMobilityExtension extends ExtensionId[CodeMobilityExtensionImpl]
   with ExtensionIdProvider {
 
-  override def createExtension(system: ExtendedActorSystem) =
+  override def createExtension(system: ExtendedActorSystem): CodeMobilityExtensionImpl =
     new CodeMobilityExtensionImpl(system)
 
   override def lookup(): ExtensionId[_ <: Extension] = CodeMobilityExtension

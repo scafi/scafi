@@ -37,7 +37,7 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
   trait GenericScheduler { self: Actor =>
     var nextToRun: () => Option[ID]
     def recipientForExecution(id: ID): ActorRef
-    def OnDone() {}
+    def onDone() {}
 
     val logger = akka.event.Logging(context.system, this)
 
@@ -46,11 +46,11 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
         case Some(id) => {
           logger.debug(s"\nScheduling $id to run")
           recipientForExecution(id) ! GoOn
-          OnDone()
+          onDone()
         }
         case None => {
           logger.debug("\nNo device to schedule.")
-          OnDone()
+          onDone()
         }
       }
     }
@@ -94,7 +94,7 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
       }
     }
 
-    def receive = setupBehavior orElse syncReceive
+    def receive: Receive = setupBehavior orElse syncReceive
 
     def setupBehavior: Receive = {
       case MsgWithDevices(map) => {
@@ -104,13 +104,13 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
       }
     }
 
-    override def OnDone(){ ScheduleNextWorkingCycle() }
+    override def onDone(): Unit = { scheduleNextWorkingCycle() }
   }
 
   object AutonomousScheduler extends Serializable {
     def props(exec: ExecStrategy,
               wInterval: FiniteDuration = 1.millisecond,
-              initialDelay: Option[FiniteDuration] = None) =
+              initialDelay: Option[FiniteDuration] = None): Props =
       Props(classOf[AutonomousScheduler], self, exec, initialDelay, wInterval)
   }
 

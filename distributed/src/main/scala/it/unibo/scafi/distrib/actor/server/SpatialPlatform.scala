@@ -62,14 +62,14 @@ trait SpatialPlatform extends BasePlatform {
         // TODO: it is not very efficient (especially in dynamic nets)...
         this.space.getAll().foreach(id => {
           val nbs = this.space.getNeighbors(id)
-          NotifyObservers(MsgNeighborhood(id,nbs.toSet))
+          notifyObservers(MsgNeighborhood(id,nbs.toSet))
         })
       }
     }
   }
 
   object SpatialServerActor extends Serializable {
-    def props(sched: Option[ActorRef] = None) =
+    def props(sched: Option[ActorRef] = None): Props =
       Props(classOf[SpatialServerActor], thisVery, buildNewSpace(Seq()), sched)
   }
 }

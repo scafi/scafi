@@ -29,16 +29,15 @@ import scala.concurrent.duration._
  * ({{ScheduleNextWorkingCycle}}) and some template methods/hooks for lifecycle.
  */
 trait LifecycleBehavior { thisVery: Actor =>
-  def HandleLifecycle(): Unit
+  def handleLifecycle(): Unit
 
   import context.dispatcher
 
-  def ScheduleNextWorkingCycle(delay: FiniteDuration, msg: Any = GoOn): Unit = {
+  def scheduleNextWorkingCycle(delay: FiniteDuration, msg: Any = GoOn): Unit =
     context.system.scheduler.scheduleOnce(delay){ this.self ! msg }
-  }
 
-  def LifecyclePreStart() { }
-  def LifecyclePostStop() { }
+  def lifecyclePreStart(): Unit = { }
+  def lifecyclePostStop(): Unit = { }
 }
 
 /**
@@ -50,18 +49,17 @@ trait PeriodicBehavior extends LifecycleBehavior { thisVery: Actor =>
   val initialDelay: Option[FiniteDuration] = None
   var workInterval: FiniteDuration
 
-  def HandleLifecycle() = {
-    ScheduleNextWorkingCycle(workInterval)
+  def handleLifecycle(): Unit =
+    scheduleNextWorkingCycle(workInterval)
+
+  def scheduleNextWorkingCycle(): Unit =
+    scheduleNextWorkingCycle(workInterval, GoOn)
+
+  override def lifecyclePreStart(): Unit = {
+    super.lifecyclePreStart()
+    periodicBehaviorPreStart()
   }
 
-  def ScheduleNextWorkingCycle(): Unit = {
-    ScheduleNextWorkingCycle(workInterval, GoOn)
-  }
-
-  override def LifecyclePreStart(): Unit = {
-    super.LifecyclePreStart()
-    PeriodicBehaviorPreStart()
-  }
-
-  def PeriodicBehaviorPreStart() = initialDelay.foreach(ScheduleNextWorkingCycle(_))
+  def periodicBehaviorPreStart(): Unit =
+    initialDelay.foreach(scheduleNextWorkingCycle(_))
 }
