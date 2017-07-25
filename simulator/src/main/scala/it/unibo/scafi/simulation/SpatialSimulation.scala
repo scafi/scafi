@@ -121,7 +121,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
                  lsnsMap: MMap[LSNS,MMap[ID,Any]] = MMap(),
                  nsnsMap: MMap[NSNS,MMap[ID,MMap[ID,Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
-      val positions = SpaceHelper.GridLocations(GridSettings(n,m,stepx,stepy,eps), seeds.configSeed)
+      val positions = SpaceHelper.gridLocations(GridSettings(n,m,stepx,stepy,eps), seeds.configSeed)
       val ids = for(i <- 1 to n*m) yield i
       var lsnsById = Map[ID, Map[LSNS,Any]]()
       var nsnsById = Map[ID, Map[NSNS,Any]]()
@@ -144,7 +144,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
                        nbrMap: MMap[ID, Set[ID]] = MMap(),
                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                        nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
-      val positions = SpaceHelper.RandomLocations(SimpleRandomSettings(), idArray.length)
+      val positions = SpaceHelper.randomLocations(SimpleRandomSettings(), idArray.length)
 
       var lsnsById = Map[ID, Map[LSNS,Any]]()
       var nsnsById = Map[ID, Map[NSNS,Any]]()

@@ -1,11 +1,28 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.space
 
-import scala.language.higherKinds // Removes warnings associated to use of higher kinds
+import scala.language.higherKinds
 
 import it.unibo.utils.BiMap
 
 /**
- * @author Roberto Casadei
  * Component which represents a spatial abstraction
  */
 
@@ -32,8 +49,8 @@ trait SpatialAbstraction {
   }
 
   trait MutableSpace[E] extends Space[E] {
-    def add(e: E, p: P)
-    def remove(e: E)
+    def add(e: E, p: P): Unit
+    def remove(e: E): Unit
     def setLocation(e: E, p: P)
   }
 }
@@ -113,13 +130,13 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
 
   implicit val positionOrdering: Ordering[P] = new Ordering[P] {
     override def compare(a: P, b: P): Int = {
-      if (a.z > b.z) 1
-      else if (a.z < b.z) -1
-      else if (a.y > b.y) 1
-      else if (a.y < b.y) -1
-      else if (a.x > b.x) 1
-      else if (a.x < b.x) -1
-      else 0
+      if (a.z > b.z){ +1 }
+      else if (a.z < b.z){ -1 }
+      else if (a.y > b.y){ +1 }
+      else if (a.y < b.y){ -1 }
+      else if (a.x > b.x){ +1 }
+      else if (a.x < b.x){ -1 }
+      else { 0 }
     }
   }
 
@@ -134,8 +151,8 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     def add(e: E, p: P): Unit = elemPositions += (e -> p)
     def getLocation(e: E): P = elemPositions(e)
     def getAll(): Iterable[E] = elemPositions.keys
-    def remove(e: E) = elemPositions -= e
-    def setLocation(e: E, p: P) = add(e, p)
+    def remove(e: E): Unit = elemPositions -= e
+    def setLocation(e: E, p: P): Unit = add(e, p)
 
     override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)
     override def getNeighborsWithDistance(e: E): Iterable[(E, Double)] = {

@@ -20,8 +20,7 @@ trait BasicAbstractSimulationIncarnation
 
 object BasicSimulationIncarnation
   extends BasicAbstractSimulationIncarnation
-    with StandardLibrary
-    with BasicPrograms {
+    with StandardLibrary {
 
   import Builtins.Bounded
   override implicit val idBounded: Bounded[ID] = Builtins.Bounded.of_i

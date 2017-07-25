@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.core
 
 /**
- * @author Mirko Viroli
- * @author Roberto Casadei
- *
  * This trait defines a component that extends Semantics.
  * It defines an implementation of Context and Export (and Path),
  * with associated factories.
@@ -38,22 +53,22 @@ trait Engine extends Semantics {
 
     override def isRoot: Boolean = path.isEmpty
 
-    override def toString(): String = "P:/"+path.reverse.mkString("/")
+    override def toString(): String = "P:/" + path.reverse.mkString("/")
 
     def matches(p: Path): Boolean = this == p
 
-    def canEqual(other: Any) = {
+    def canEqual(other: Any): Boolean = {
       other.isInstanceOf[Engine.this.PathImpl]
     }
 
-    override def equals(other: Any) = {
+    override def equals(other: Any): Boolean = {
       other match {
         case that: Engine.this.PathImpl => that.canEqual(PathImpl.this) && path == that.path
         case _ => false
       }
     }
 
-    override def hashCode() = path.hashCode
+    override def hashCode(): Int = path.hashCode
   }
 
   abstract class BaseContextImpl(val selfId: ID,
@@ -62,7 +77,7 @@ trait Engine extends Semantics {
 
     private var exportsMap : Map[ID,EXPORT] = _exports.toMap
 
-    def updateExport(id: ID, export:EXPORT) = exportsMap += id -> export
+    def updateExport(id: ID, export:EXPORT): Unit = exportsMap += id -> export
 
     override def exports(): Iterable[(ID, EXPORT)] = exportsMap
 
@@ -78,7 +93,7 @@ trait Engine extends Semantics {
       val nbrSensor: GMap[NSNS,GMap[ID,Any]])
     extends BaseContextImpl(selfId, exports) { self: CONTEXT =>
 
-    override def toString() = "C[I:"+selfId+",E:"+exports+",S1:"+localSensor+",S2:"+nbrSensor+"]"
+    override def toString(): String = s"C[\n\tI:$selfId,\n\tE:$exports,\n\tS1:$localSensor,\n\tS2:$nbrSensor\n]"
 
     override def sense[T](lsns: LSNS): Option[T] = localSensor.get(lsns).map(_.asInstanceOf[T])
 

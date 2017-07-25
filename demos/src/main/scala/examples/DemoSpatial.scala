@@ -31,7 +31,7 @@ object DemoSpatialLauncher extends App {
 
   val (ncols,nrows) = (3,3)
   val (stepx,stepy) = (1,1)
-  val positions = SpaceHelper.GridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
+  val positions = SpaceHelper.gridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
   val ids = for(i <- 1 to ncols*nrows) yield i
   val devsToPos = ids.zip(positions).toMap
   val net = new SpaceAwareSimulator(

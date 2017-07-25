@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.incarnations
 
 import it.unibo.scafi.core.{Core, Engine, RichLanguage}
@@ -6,12 +24,6 @@ import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
 
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Random
-
-/**
- * @author Roberto Casadei
- *
- */
 
 trait Incarnation extends Core
   with Engine
@@ -29,7 +41,7 @@ trait Incarnation extends Core
   trait AggregateProgram extends AggregateInterpreter
 
   class BasicAggregateInterpreter extends AggregateInterpreter {
-    override def main() = ???
+    override def main(): MainResult = ???
   }
 
   trait StandardSensors {
@@ -91,7 +103,7 @@ trait Incarnation extends Core
   class ScafiDSL extends Constructs with Builtins {
     var engine: ExecutionTemplate = _
 
-    def Program[T](et: Option[ExecutionTemplate] = None)(expr: =>T): CONTEXT=>EXPORT = {
+    def program[T](et: Option[ExecutionTemplate] = None)(expr: =>T): CONTEXT=>EXPORT = {
       engine = et.getOrElse(new ExecutionTemplate {
         override def main() = expr
         override type MainResult = T
