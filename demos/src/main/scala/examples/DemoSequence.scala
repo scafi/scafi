@@ -1,10 +1,28 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package examples
 
 /**
- * @author Mirko Viroli
  * This program is used to launch simulations on a grid-like network.
  */
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import lib.MyLib
 
@@ -118,13 +136,7 @@ object DemoSequence extends AggregateProgram with MyLib {
 
 object DemoSequenceLauncher extends App {
 
-  val net = simulatorFactory.gridLike(
-    n = 6,
-    m = 4,
-    stepx = 1,
-    stepy = 1,
-    eps = 0.0,
-    rng = 1.1)
+  val net = simulatorFactory.gridLike(GridSettings(6, 4, stepx = 1, stepy = 1), rng = 1.1)
 
   // For channel:
   /*
@@ -136,7 +148,6 @@ object DemoSequenceLauncher extends App {
     eps = 1.0,
     rng = 1.5)
   */
-
 
   net.addSensor(name = "sensor", value = 0)
   net.chgSensorValue(name = "sensor", ids = Set(1), value = 1)

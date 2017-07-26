@@ -1,19 +1,36 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.simulation
 
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.platform.SimulationPlatform
 
 import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Random
 
 /**
- * @author Mirko Viroli
- * @author Roberto Casadei
  *
  *         This trait defines a component that extends a Platform and
  *         requires to be "attached" to an Engine.
@@ -26,7 +43,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
   override type NETWORK = Network with SimulatorOps
 
-  def simulatorFactory = new BasicSimulatorFactory
+  def simulatorFactory: SimulatorFactory = new BasicSimulatorFactory
 
   trait SimulatorOps {
     self: Network =>
@@ -63,28 +80,11 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                        nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK
 
-    def gridLike(n: Int,
-                 m: Int,
-                 stepx: Double = 1,
-                 stepy: Double = 1,
-                 eps: Double = 0.0,
+    def gridLike(gsettings: GridSettings,
                  rng: Double,
                  lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                  nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK
-
-    /*
-    def random(n: Int,
-               fromx: Double = 0,
-               tox: Double = 100,
-               fromy: Double = 0,
-               toy: Double = 100,
-               eps: Double = 0.0,
-               rng: Double = 1,
-               seed: Long = 0,
-               lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-               nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK
-               */
   }
 
   class BasicSimulatorFactory extends SimulatorFactory {
@@ -96,44 +96,41 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                         lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                         nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
                         ): NETWORK =
-      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.DefaultRepr, SIM_SEED, RANDOM_SENSOR_SEED)
+      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.defaultRepr, SIM_SEED, RANDOM_SENSOR_SEED)
 
-    def gridLike(n: Int,
-                 m: Int,
-                 stepx: Double,
-                 stepy: Double,
-                 eps: Double,
+    def gridLike(gsettings: GridSettings,
                  rng: Double,
                  lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                  nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
+      val GridSettings(rows, cols, stepx, stepy, tolerance, offsx, offsy) = gsettings
       val configRandom = new Random(seeds.configSeed)
 
-      def rnd(): Double = configRandom.nextDouble() * 2 * eps - eps
+      def rnd(): Double = configRandom.nextDouble() * 2 * tolerance - tolerance
 
       def dist(a: (Double, Double), b: (Double, Double)): Double =
         Math.sqrt((a._1 - b._1) * (a._1 - b._1) + (a._2 - b._2) * (a._2 - b._2))
 
       import Array._
-      val grid = ofDim[(Double, Double)](n, m)
-      for (i <- 0 until n;
-           j <- 0 until m) {
-        grid(i)(j) = (i.toDouble * stepx + rnd(), j.toDouble * stepy + rnd())
+      val grid = ofDim[(Double, Double)](rows, cols)
+      for (i <- 0 until rows;
+           j <- 0 until cols) {
+        grid(i)(j) = (offsx + i.toDouble * stepx + rnd(), offsy + j.toDouble * stepy + rnd())
       }
-      val idArray = MArray() ++= (0 until n * m) map lId.fromNum
+      val idArray = MArray() ++= (0 until rows * cols) map lId.fromNum
 
       val nbrMap = MMap() ++= idArray.map(lId.toNum(_)).map { i =>
         (lId.fromNum(i), idArray.filter { j =>
-          dist(grid(i % n)(i / n), grid(lId.toNum(j) % n)(lId.toNum(j) / n)) < rng && j != lId.fromNum(i)
+          dist(grid(i % rows)(i / rows), grid(lId.toNum(j) % rows)(lId.toNum(j) / rows)) < rng && j != lId.fromNum(i)
         }.toSet)
       }
-      def nbsExportsInGridFor(i: ID) = MMap[ID, Any](nbrMap(i).+(i).toList.map(
-        j => (j -> dist(grid(lId.toNum(i).toInt % n)(lId.toNum(i) / n), grid(lId.toNum(j) % n)(lId.toNum(j) / n)))
+      def nbsExportsInGridFor(i: ID) = MMap[ID, Any]((nbrMap(i) + i).toList.map(
+        j => (j -> dist(grid(lId.toNum(i).toInt % rows)(lId.toNum(i) / rows), grid(lId.toNum(j) % rows)(lId.toNum(j) / rows)))
       ): _*)
       nsnsMap += (NBR_RANGE_NAME -> MMap(idArray.toList.map(i => i -> nbsExportsInGridFor(i)): _*))
 
       new NetworkSimulator(
-        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.GridRepr(n),
+        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.gridRepr(rows),
         seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
@@ -165,16 +162,16 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
   object NetworkSimulator extends Serializable {
     implicit class Optionable[T](obj: T) {
-      def some[U] = Option[U](obj.asInstanceOf[U])
+      def some[U]: Option[U] = Option[U](obj.asInstanceOf[U])
     }
 
-    def DefaultRepr(net: NetworkSimulator): String = {
+    def defaultRepr(net: NetworkSimulator): String = {
       net.idArray.map {
         i => net.export(i).map { e => e.root().toString }.getOrElse("_")
       }.mkString("", "\t", "")
     }
 
-    def GridRepr(numCols: Int)(net: NetworkSimulator): String = {
+    def gridRepr(numCols: Int)(net: NetworkSimulator): String = {
       net.idArray.map {
         i => net.export(i).map { e => e.root().toString }.getOrElse("_")
       }.zipWithIndex
@@ -187,7 +184,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                          val nbrMap: MMap[ID, Set[ID]] = MMap(),
                          val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                          val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
-                         val toStr: NetworkSimulator => String = NetworkSimulator.DefaultRepr,
+                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
                          val simulationSeed: Long,
                          val randomSensorSeed: Long
                          ) extends Network with SimulatorOps {
@@ -237,7 +234,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     class SimulatorContextImpl(id: ID)
       extends ContextImpl(
         selfId = id,
-        exports = eMap.filter(kv => (neighbourhood(id)+id).contains(kv._1)),
+        exports = eMap.filter(kv => (neighbourhood(id) + id).contains(kv._1)),
         localSensor = IMap(),
         nbrSensor = IMap()){
 
