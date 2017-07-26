@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package examples
 
 import it.unibo.scafi.config.GridSettings
@@ -31,7 +49,7 @@ object DemoSpatialLauncher extends App {
 
   val (ncols,nrows) = (3,3)
   val (stepx,stepy) = (1,1)
-  val positions = SpaceHelper.GridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
+  val positions = SpaceHelper.gridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
   val ids = for(i <- 1 to ncols*nrows) yield i
   val devsToPos = ids.zip(positions).toMap
   val net = new SpaceAwareSimulator(
@@ -39,7 +57,9 @@ object DemoSpatialLauncher extends App {
     devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
       lsns => if (lsns == "sensor" && d == 3) 1 else 0,
       nsns => nbr => null)
-      }
+      },
+    simulationSeed = System.currentTimeMillis(),
+    randomSensorSeed = System.currentTimeMillis()
     )
 
   var v = java.lang.System.currentTimeMillis()

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.distrib.actor.p2p
 
 import akka.actor.{Actor, Props}
@@ -5,18 +23,13 @@ import akka.actor.{Actor, Props}
 import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 
-/**
- * @author Roberto Casadei
- *
- */
-
 trait PlatformDevices { self: Platform.Subcomponent =>
 
   /**
    * Neighbourhood management for devices in a P2P platform.
    */
   trait P2pNbrManagementBehavior extends BaseNbrManagementBehavior { selfActor: Actor =>
-    def NeighbourhoodManagementBehavior: Receive = {
+    def neighbourhoodManagementBehavior: Receive = {
       case info @ NbrInfo(idn,_,_,_) => mergeNeighborInfo(idn,info)
       case MsgDeviceLocation(idn, ref) => mergeNeighborInfo(idn,NbrInfo(idn,None,Some(ref),None))
       case MsgExport(from, export) => {
@@ -27,7 +40,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     }
 
     override def inputManagementBehavior: Receive =
-      super.inputManagementBehavior.orElse(NeighbourhoodManagementBehavior)
+      super.inputManagementBehavior.orElse(neighbourhoodManagementBehavior)
   }
 
   /**
@@ -42,7 +55,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     with MissingCodeManagementBehavior
     with P2pNbrManagementBehavior {
 
-    def PropagateExportToNeighbors(export: EXPORT) = {
+    def propagateExportToNeighbors(export: EXPORT): Unit = {
       import context.dispatcher
 
       val NBR_LOOKUP_TIMEOUT = 2.seconds
@@ -71,7 +84,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   object DeviceActor extends Serializable {
     def props(selfId: ID,
               program: Option[ExecutionTemplate],
-              execStrategy: ExecScope) =
+              execStrategy: ExecScope): Props =
       Props(classOf[DeviceActor], self, selfId, program, execStrategy)
   }
 }

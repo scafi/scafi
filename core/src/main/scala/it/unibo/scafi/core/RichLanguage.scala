@@ -1,14 +1,28 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.core
 
 /**
- * @author Mirko Viroli
- * @author Roberto Casadei
- *
  * This trait defines a component that extends LanguageStructure and requires to be "attached" to Core
  * It defines a trait with additional language mechanisms, in the form of certain builtins, and Ordering implicits
  *
  */
-
 trait RichLanguage extends Language { self: Core =>
 
   trait Builtins { this: Constructs =>
@@ -69,7 +83,7 @@ trait RichLanguage extends Language { self: Core =>
         def compare(a: String, b: String): Int = if (a > b) 1 else if (b < a) -1 else 0
       }
 
-      @transient implicit def of_ft[T : Bounded]: Bounded[()=>T] =
+      @transient implicit def funcBounded[T : Bounded]: Bounded[()=>T] =
         new Bounded[()=>T] {
           val oft = implicitly[Bounded[T]]
           def top: ()=>T = ()=> oft.top
@@ -77,7 +91,7 @@ trait RichLanguage extends Language { self: Core =>
           def compare(a: ()=>T, b: ()=>T): Int = oft.compare(a(),b())
         }
 
-      @transient implicit def of_tpl[T1, T2](implicit of1: Bounded[T1], of2: Bounded[T2]): Bounded[(T1, T2)] =
+      @transient implicit def tupleBounded[T1, T2](implicit of1: Bounded[T1], of2: Bounded[T2]): Bounded[(T1, T2)] =
         new Bounded[(T1, T2)] {
           def top: (T1, T2) = (of1.top, of2.top)
           def bottom: (T1, T2) = (of1.bottom, of2.bottom)

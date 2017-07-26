@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.distrib
 
 import scala.language.postfixOps
@@ -7,11 +25,6 @@ import scala.concurrent.duration._
 
 import java.io.File
 import java.util.concurrent.TimeUnit
-
-/**
- * @author Roberto Casadei
- *
- */
 
 trait PlatformSettings { self: Platform.Subcomponent =>
 
@@ -182,10 +195,12 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   /**
    * Template method for extending the parser in specialized platform components.
    */
-  def extendParser(p: scopt.OptionParser[Settings]) = { }
+  def extendParser(p: scopt.OptionParser[Settings]): Unit = { }
 
-  def CmdLineParser(implicit ev: Interop[ID]) =
-    new scopt.OptionParser[Settings]("<scafi distributed system>") {
+  def cmdLineParser: scopt.OptionParser[Settings] =
+    new ScafiCmdLineParser
+
+  class ScafiCmdLineParser extends scopt.OptionParser[Settings]("<scafi distributed system>") {
       extendParser(this)
 
       opt[String]("loglevel") valueName ("<off|info|warning|debug>") action { (x, c) =>
@@ -251,7 +266,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
           val xs = subsysDesc.split(":")
           val host = xs(0)
           val port = xs(1).toInt
-          val ids = xs.drop(2).map(ev.fromString(_)).toSet
+          val ids = xs.drop(2).map(interopID.fromString(_)).toSet
 
           ss += SubsystemSettings(
             ids = ids,
@@ -279,9 +294,9 @@ trait PlatformSettings { self: Platform.Subcomponent =>
         }
 
         c.copy(deviceConfig = c.deviceConfig.copy(
-          ids = parsedIds.map(ev.fromString(_)),
+          ids = parsedIds.map(interopID.fromString(_)),
           nbs = parserNbs.map {
-            case (k, v) => ev.fromString(k) -> v.map(ev.fromString(_))
+            case (k, v) => interopID.fromString(k) -> v.map(interopID.fromString(_))
           }))
       } } text ("Neighbors")
 

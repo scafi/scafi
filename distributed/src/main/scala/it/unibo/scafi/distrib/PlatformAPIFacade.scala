@@ -1,9 +1,22 @@
-package it.unibo.scafi.distrib
-
-/**
- * @author Roberto Casadei
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
  *
- */
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
+package it.unibo.scafi.distrib
 
 trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
@@ -19,7 +32,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   trait SystemMain extends App with Serializable {
     def programBuilder: Option[ExecutionTemplate] = None
 
-    def setupSystem(settings: Settings) = {
+    def setupSystem(settings: Settings): Unit = {
       val s = refineSettings(settings)
       val pc = self.platformFactory.buildPlatformConfigurator()
       val platform = pc.setupPlatform(s.platform, s.profile)
@@ -36,26 +49,26 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       }
     }
 
-    def onPlatformReady(platform: PlatformFacade) = { }
-    def onReady(app: SystemFacade) = { }
-    def onDeviceStarted(dm: DeviceManager, sys: SystemFacade) = { }
+    def onPlatformReady(platform: PlatformFacade): Unit = { }
+    def onReady(app: SystemFacade): Unit = { }
+    def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = { }
     def refineSettings(s: Settings): Settings = { s }
   }
 
   class CmdLineMain extends SystemMain {
-    override def main(args: Array[String]) = {
-      CmdLineParser.parse(args, Settings()) foreach (s => setupSystem(s))
+    override def main(args: Array[String]): Unit = {
+      cmdLineParser.parse(args, Settings()) foreach (s => setupSystem(s))
     }
   }
 
   class BasicMain(val settings: Settings) extends SystemMain {
-    override def main(args: Array[String]) = {
+    override def main(args: Array[String]): Unit = {
       setupSystem(settings)
     }
   }
 
   class FileMain(val configFile: String) extends SystemMain {
-    override def main(args: Array[String]) = {
+    override def main(args: Array[String]): Unit = {
       setupSystem(Settings.fromConfig(configFile))
     }
   }
@@ -70,8 +83,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
     def newDevice(id: ID,
                   program: Option[ExecutionTemplate] = None,
                   neighbors: Set[ID] = Set()): DeviceManager
-    def addNeighbor(id: ID, idn: ID)
-    def start()
+    def addNeighbor(id: ID, idn: ID): Unit
+    def start(): Unit
   }
 
   trait AbstractPlatformFacade {

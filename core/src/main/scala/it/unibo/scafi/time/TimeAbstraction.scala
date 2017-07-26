@@ -16,27 +16,12 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui
+package it.unibo.scafi.time
 
-import it.unibo.scafi.incarnations.BasicAbstractIncarnation
-import it.unibo.scafi.simulation.gui.model.{Network, Node}
+trait TimeAbstraction {
+  type Time
+}
 
-trait Simulation {
-  var network: Network
-
-  def getRunProgram: ()=>(Int,BasicAbstractIncarnation#Export)
-
-  def setRunProgram(program: Any)
-
-  def setDeltaRound(deltaRound: Double)
-
-  def getDeltaRound(): Double
-
-  def setStrategy(strategy: Any)
-
-  def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit
-
-  def getSensorValue(s: String): Option[Any]
-
-  def setPosition(n: Node)
+trait BasicTimeAbstraction extends TimeAbstraction {
+  type Time = java.time.LocalTime
 }

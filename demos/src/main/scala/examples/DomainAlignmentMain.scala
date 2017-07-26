@@ -1,14 +1,31 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package examples
 
-/**
- * @author Mirko Viroli
- * This program is used to launch simulations on a grid-like network.
- */
-
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import lib.DomainAlignmentLib
 import sims.SensorDefinitions
 
+/**
+  * This program is used to launch simulations on a grid-like network.
+  */
 object DemoAlignment extends AggregateProgram with SensorDefinitions with DomainAlignmentLib {
   def isSource = sense[Boolean]("source")
 
@@ -35,13 +52,7 @@ object DomainAlignmentMain extends App {
 //    nsnsMap = nsnsMap
 //  )
 
-  val net = simulatorFactory.gridLike(
-    n = 15,
-    m = 15,
-    stepx = 1,
-    stepy = 1,
-    eps = 0.3,
-    rng = 1.5)
+  val net = simulatorFactory.gridLike(GridSettings(15, 15, stepx = 1, stepy = 1, tolerance = 0.3), rng = 1.5)
 
   net.addSensor(name = "source", value = false)
   net.chgSensorValue(name = "source", ids = Set(3), value = true)

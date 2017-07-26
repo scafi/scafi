@@ -1,16 +1,32 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.lib
 
-/**
-  * @author Roberto Casadei
-  *
-  */
 trait Stdlib_BlockS {
   self: StandardLibrary.Subcomponent =>
+
+  // scalastyle:off method.name
 
   import Builtins._
 
   trait BlockS {
-    self: AggregateProgram with StandardSensors with BlockG =>
+    self: FieldCalculusSyntax with StandardSensors with BlockG =>
 
     def S(grain: Double, metric: => Double): Boolean =
       breakUsingUids(randomUid, grain, metric)
@@ -68,7 +84,7 @@ trait Stdlib_BlockS {
                             lead: (Double, ID),
                             uid: (Double, ID),
                             grain: Double,
-                            metric: => Double) = {
+                            metric: => Double): (Double, ID) = {
       val inf: (Double, ID) = (Double.PositiveInfinity, uid._2)
       mux(d > grain) {
         // If the current device has a distance to the current candidate leader
