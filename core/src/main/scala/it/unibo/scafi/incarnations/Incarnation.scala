@@ -32,7 +32,7 @@ trait Incarnation extends Core
   with BasicSpatialAbstraction
   with TimeAbstraction {
 
-  trait AggregateProgramSpec extends AggregateProgramSpecification with Constructs with Builtins
+  trait AggregateProgramSpec extends ProgramSchema with Constructs with Builtins
 
   trait AggregateInterpreter extends ExecutionTemplate with Constructs with Builtins with Serializable {
     type MainResult = Any
