@@ -89,7 +89,6 @@ trait Semantics extends Core with Language {
    * It implements the whole operational semantics.
    */
   trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with ProgramSchema {
-    self:Constructs =>
 
     var vm: RoundVM = _
 
@@ -177,7 +176,6 @@ trait Semantics extends Core with Language {
 
     def isolate[A](expr: => A): A
   }
-
 
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
     import RoundVMImpl.{ensure, Status, StatusImpl}

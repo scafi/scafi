@@ -26,7 +26,7 @@ trait Stdlib_BlockT {
   // scalastyle:off method.name
 
   trait BlockT {
-    self: AggregateProgram =>
+    self: FieldCalculusSyntax =>
 
     def T[V](initial: V, floor: V, decay: V => V)
             (implicit ev: Numeric[V]): V = {
