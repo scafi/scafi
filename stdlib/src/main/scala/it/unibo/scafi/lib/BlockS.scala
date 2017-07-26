@@ -26,7 +26,7 @@ trait Stdlib_BlockS {
   import Builtins._
 
   trait BlockS {
-    self: AggregateProgram with StandardSensors with BlockG =>
+    self: FieldCalculusSyntax with StandardSensors with BlockG =>
 
     def S(grain: Double, metric: => Double): Boolean =
       breakUsingUids(randomUid, grain, metric)

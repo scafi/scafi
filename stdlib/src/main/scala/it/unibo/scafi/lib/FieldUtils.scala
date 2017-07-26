@@ -22,7 +22,7 @@ trait FieldUtils {
   self: StandardLibrary.Subcomponent =>
 
   trait FieldUtils {
-    self: AggregateProgram =>
+    self: FieldCalculusSyntax =>
 
     def reifyField[T](expr: => T): Map[ID, T] = {
       foldhood[Seq[(ID, T)]](Seq[(ID, T)]())(_ ++ _) {

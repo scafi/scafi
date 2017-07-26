@@ -26,7 +26,7 @@ trait Stdlib_BlockG {
   import Builtins._
 
   trait BlockG {
-    self: AggregateProgram with StandardSensors =>
+    self: FieldCalculusSyntax with StandardSensors =>
 
     def G[V: Bounded](source: Boolean, field: V, acc: V => V, metric: => Double): V =
       rep((Double.MaxValue, field)) { case (dist, value) =>

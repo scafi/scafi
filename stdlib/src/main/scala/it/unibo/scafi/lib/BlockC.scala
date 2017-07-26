@@ -29,7 +29,7 @@ trait Stdlib_BlockC {
   implicit val idBounded: Bounded[ID]
 
   trait BlockC {
-    self: AggregateProgram with StandardSensors =>
+    self: FieldCalculusSyntax with StandardSensors =>
 
     def smaller[V: Bounded](a: V, b: V): Boolean =
       implicitly[Bounded[V]].compare(a, b) < 0

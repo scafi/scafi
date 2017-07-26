@@ -24,7 +24,7 @@ trait Stdlib_BlockT2 {
   // scalastyle:off method.name
 
   trait BlockT2 {
-    self: AggregateProgram =>
+    self: FieldCalculusSyntax =>
 
     def implicitMin[V: Numeric](a: V, b: V): V = implicitly[Numeric[V]].min(a, b)
 
