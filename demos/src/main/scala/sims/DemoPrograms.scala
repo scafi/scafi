@@ -100,6 +100,7 @@ class SparseChoice extends AggregateProgram with SensorDefinitions with BlockG w
 }
 
 class SensorNbrRange extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField("%.2f".format(nbrRange()))
 }
 
@@ -112,6 +113,7 @@ class SensorCurrPos extends AggregateProgram with StandardSensors with FieldUtil
 }
 
 class SensorNbrVector extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrVector())
 }
 
@@ -120,13 +122,26 @@ class SensorDeltaTime extends AggregateProgram with StandardSensors with FieldUt
 }
 
 class SensorNbrDelay extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrDelay().toMillis+"ms")
 }
 
 class SensorNbrLag extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = deltaTime().toMillis  + "ms -- " + mid() + " => " + reifyField(nbrLag().toMillis+"ms")
 }
 
 class SensorNbrDelayLag extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(s"${nbrDelay().toMillis}ms; ${nbrLag().toMillis}ms")
 }
+
+class CollectNbrsIncludingMyself extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = includingSelf.unionHood(nbr{mid})
+}
+
+class CollectNbrsExcludingMyself extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = excludingSelf.unionHood(nbr{mid})
+}
+
+
