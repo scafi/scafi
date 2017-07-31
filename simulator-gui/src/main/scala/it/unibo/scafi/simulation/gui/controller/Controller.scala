@@ -65,7 +65,7 @@ class Controller () {
   final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
   private var valueShowed: NodeValue = NodeValue.EXPORT
   private var controllerUtility: ControllerPrivate = null
-  private val updateFrequency = Settings.Sim_NumNodes / 4
+  private val updateFrequency = Settings.Sim_NumNodes / 4.0
   private var counter = 0
   private var observation: Any=>Boolean = (_)=>false
 
