@@ -46,13 +46,14 @@ class CExample extends AggregateProgram with SensorDefinitions with BlockC with 
 
   def p = distanceTo(sense1)
 
-  override def main() = (SettingsSpace.ToStrings.Default_Double(p), mid()+"->"+findParent(p), C[Double](p, _+_, 1, 0.0))
+  import SettingsSpace.ToStrings.Default_Double
+  override def main() = s"${Default_Double(p)}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
 }
 
 class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize[V: Bounded](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
-    C[(Double,V)]((distanceTo(sink),local), (a,b) => (a._1, acc(a._2,b._2)), (0.0,local), (0.0,Null))._2
+    C[Double, (Double,V)]((distanceTo(sink),local), (a,b) => (a._1, acc(a._2,b._2)), (0.0,local), (0.0,Null))._2
 
   implicit val ofset = new Builtins.Bounded[Set[ID]] {
     override def top: Set[ID] = Set()
