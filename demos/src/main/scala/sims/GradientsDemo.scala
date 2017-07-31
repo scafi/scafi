@@ -18,18 +18,45 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins, ID, BoundedTypeClasses}
+import java.time.{LocalDateTime, ZoneOffset}
+import java.time.temporal.ChronoUnit
+
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
+  {AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, ID, TimeUtils, GenericUtils}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.CrfGradient" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.CheckSpeed" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.2 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
   launch()
+}
+
+class CheckSpeed extends AggregateProgram with Gradients with BlockG with SensorDefinitions with GenericUtils {
+  implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
+    override def default: LocalDateTime = LocalDateTime.now()
+  }
+
+  override def main(): Any =  {
+    val communicationRadius = 0.2 * 100
+    val frequency = 1000000
+
+    val meanTimeToReach = meanCounter(
+      ChronoUnit.MILLIS.between(unboundedG(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
+      frequency).toLong
+    val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange())
+    val speed = distance / meanTimeToReach
+    val expectedSpeed = communicationRadius / meanCounter(deltaTime().toMillis, frequency)
+    f"${meanTimeToReach}ms; ${distance}%.1f; $speed%.3f; $expectedSpeed%.3f"
+  }
+}
+
+class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
+  override def main() = gradientSVD(sense1)
 }
 
 class FlexGradient extends AggregateProgram with Gradients with SensorDefinitions {
@@ -37,7 +64,7 @@ class FlexGradient extends AggregateProgram with Gradients with SensorDefinition
 }
 
 class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = crf(sense1)
+  override def main() = mid() + " => " + crf(sense1)
 }
 
 class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
@@ -52,7 +79,13 @@ class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with
   override def main() = classicWithUnboundedG(sense1)
 }
 
-trait Gradients extends BlockG { self: AggregateProgram with SensorDefinitions =>
+trait Gradients extends BlockG
+  with FieldUtils
+  with TimeUtils { self: AggregateProgram with SensorDefinitions =>
+
+  /*###########################
+  ############ CRF ############
+  #############################*/
 
   def crf(source: Boolean, raisingSpeed: Double = 2): Double = rep((Double.PositiveInfinity, 0.0)){ case (g, speed) =>
     mux(source){ (0.0, 0.0) }{
@@ -61,8 +94,12 @@ trait Gradients extends BlockG { self: AggregateProgram with SensorDefinitions =
 
       val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
         val (nbrg, d) = (nbr{g}, nbrRange)
-        mux(nbrg + d + speed * (nbrLag() + deltaTime()) < g){ List(Constraint(nbr{mid()}, nbrg, d)) }{ List() }
+        //println(s"$mid  ==>  $nbrg + $d + $speed * ( $nbrLag + $deltaTime ) = " +
+        //  s"${nbrg + d + speed * (nbrLag() + deltaTime())} < $g ==> ${nbrg + d + speed * (nbrLag() + deltaTime()) < g}")
+        mux(nbrg + d + speed * (nbrLag()) < g){ List(Constraint(nbr{mid()}, nbrg, d)) }{ List() }
       }
+
+      //println(s"$mid => ${constraints.map(_.nbr)}")
 
       if(constraints.isEmpty){
         (g + raisingSpeed * deltaTime(), raisingSpeed)
@@ -71,6 +108,10 @@ trait Gradients extends BlockG { self: AggregateProgram with SensorDefinitions =
       }
     }
   }._1
+
+  /*############################
+  ############ FLEX ############
+  ##############################*/
 
   /**
     * Idea: a device should change its estimate only for significant errors.
@@ -113,6 +154,10 @@ trait Gradients extends BlockG { self: AggregateProgram with SensorDefinitions =
       }
     }
 
+  /*#################################
+    ############ CLASSIC ############
+    #################################*/
+
   def classic(source: Boolean): Double = rep(Double.PositiveInfinity){ distance =>
     mux(source){ 0.0 }{
       // NB: must be minHoodPlus (i.e., not the minHood which includes the device itself)
@@ -137,4 +182,77 @@ trait Gradients extends BlockG { self: AggregateProgram with SensorDefinitions =
         minHoodPlus { (nbr {dist} + metric, acc(nbr {value})) }
       }
     }._2
+
+  /*############################
+  ############ SVD ############
+  #############################*/
+
+  def gradientSVD(source: Boolean, metric: => Double = nbrRange(), lagMetric: => Double = nbrLag().toMillis): Double = {
+    val src = if(source) 0.0 else Double.PositiveInfinity
+    val loc = (src, src, mid(), false)
+    // REP tuple: (spatial distance estimate, temporal distance estimate, source ID, obsolete value detected flag)
+    rep[(Double,Double,Int,Boolean)](loc) {
+      case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
+        // (1) Let's calculate new values for spaceDistEst and sourceId
+        import BoundedTypeClasses._; import Builtins.Bounded._
+        val (newSpaceDistEst, newSourceId) = minHood {
+          mux(isObsolete && excludingSelf.anyHood { !isObsolete })
+          { // let's discard neighbours where 'obsolete' flag is true
+            // (unless 'obsolete' flag is true for all the neighbours)
+            (src, mid())
+          } {
+            // if info is not obsolete OR all nbrs have obsolete info
+            // let's use classic gradient calculation
+            (nbr{spaceDistEst} + metric, nbr{sourceId})
+          }
+        }
+        // (2) The most recent timeDistEst for the newSourceId is retrieved
+        // by minimising nbrs' values for timeDistEst + their relative time distance
+        val newTimeDistEst = minHood{
+          mux(nbr{sourceId} != newSourceId){
+            // let's discard neirhbours with a sourceId different than newSourceId
+            src
+          } {
+            nbr { timeDistEst } + lagMetric
+          }
+        }
+        // Let's compute if the newly produced info is to be considered obsolete
+        val loop = newSourceId == mid() && spaceDistEst < src
+        val newObsolete =
+          detect(currentTime().minus(newTimeDistEst.toLong, ChronoUnit.MILLIS).toInstant(ZoneOffset.UTC).toEpochMilli) || // (i) if that time when currently used info started from sourceId is too old to be reliable
+            loop || // or, (ii) if the device's value happens to be calculated from itself,
+            //// with a value smaller than one currently determined by src
+            excludingSelf.anyHood { // or, (iii) if any nbr with same sourceId and newTimeDistEst has already been claimed obsolate
+              nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
+            }
+        List[(Double,Double,Int,Boolean)](old, (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)).min
+      }
+    }._1 // Selects estimated distance
+  }
+
+  /**
+    * At the heart of SVD algorithm. This function is responsible to kick-start the reconfiguration process.
+    * @param time
+    * @return
+    */
+  def detect(time: Double): Boolean = {
+    // Let's keep track into repCount of how much time is elapsed since the first time
+    // the current information (originated from the source in time time) reached the current device
+    val repCount = rep(0.0) { old =>
+      if(Math.abs(time - delay(time)) < 0.0001) { old + deltaTime().toMillis } else { 0.0 }
+    }
+
+    repCount > rep[(Double, Double, Double)](0, 0, 0) { case (avg, sqa, bound) =>
+      // Estimate of the average peak value for repCount, obtained by exponentially filtering
+      // with a factor 0.1 the peak values of repCount
+      val newAvg = 0.9 * avg + 0.1 * delay(repCount)
+      // Estimate of the average square of repCount peak values
+      val newSqa = 0.9 * sqa + 0.1 * Math.pow(delay(repCount), 2)
+      // Standard deviation
+      val stdev = Math.sqrt(newSqa - Math.pow(avg, 2))
+      // New bound
+      val newBound = newAvg + 7*stdev
+      (newAvg, newSqa, newBound)
+    }._1
+  }
 }
