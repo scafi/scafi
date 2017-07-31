@@ -27,6 +27,8 @@ trait FieldUtils {
     trait FieldOps {
       def foldhoodTemplate[T]: T => ((T,T) => T) => ( => T ) => T
 
+      def mapNbrs[T](expr: => T): Map[ID, T] = reifyField(expr)
+
       def reifyField[T](expr: => T): Map[ID, T] = {
         foldhoodTemplate[Seq[(ID, T)]](Seq[(ID, T)]())(_ ++ _) {
           Seq(nbr { mid() } -> expr)
