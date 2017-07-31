@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait FieldUtils {
+trait StdLib_FieldUtils {
   self: StandardLibrary.Subcomponent =>
 
   trait FieldUtils {

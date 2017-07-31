@@ -18,20 +18,21 @@
 
 package it.unibo.scafi.lib
 
-import it.unibo.scafi.incarnations.Incarnation
+trait StdLib_TimeUtils {
+  self: StandardLibrary.Subcomponent =>
 
-trait StandardLibrary extends
-         Stdlib_BlockG
-    with Stdlib_BlockC
-    with Stdlib_BlockT
-    with Stdlib_BlockT2
-    with Stdlib_BlockS
-    with Stdlib_BlocksWithGC
-    with Stdlib_BuildingBlocks
-    with StdLib_FieldUtils
-    with StdLib_TimeUtils
-    with Stdlib_TypeClasses { self: Incarnation => }
+  trait TimeUtils {
+    self: FieldCalculusSyntax =>
 
-object StandardLibrary {
-  type Subcomponent = StandardLibrary with Incarnation
+    /**
+      * It is a simple building block which returns the same values
+      *  it receives in input delayed by one computation round.
+      */
+    def delay[T](value: T): T = {
+      var res = value
+      rep(value){ old => res = old; value }
+      res
+    }
+  }
+
 }
