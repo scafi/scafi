@@ -249,6 +249,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       override def sense[T](lsns: LSNS): Option[T] = lsns match {
         case LSNS_RANDOM => randomSensor.some[T]
         case LSNS_TIME => LocalDateTime.now().some[T]
+        case LSNS_TIMESTAMP => System.currentTimeMillis().some[T]
         case LSNS_DELTA_TIME => FiniteDuration(
           lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalDateTime.now())).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]

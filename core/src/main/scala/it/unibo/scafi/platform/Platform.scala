@@ -41,6 +41,7 @@ trait TimeAwarePlatform extends Platform {
 
   trait TimeAwareDevice {
     def currentTime(): Time
+    def timestamp(): Long
     //def lastExecutionTime(): Time
     def deltaTime(): FiniteDuration
 
@@ -50,6 +51,7 @@ trait TimeAwarePlatform extends Platform {
   }
 
   val LSNS_TIME: LSNS
+  val LSNS_TIMESTAMP: LSNS
   val LSNS_DELTA_TIME: LSNS
   val NBR_LAG: NSNS
   val NBR_DELAY: NSNS

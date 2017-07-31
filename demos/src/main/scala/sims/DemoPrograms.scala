@@ -111,6 +111,10 @@ class SensorCurrTime extends AggregateProgram with StandardSensors with FieldUti
   override def main() = currentTime().toString
 }
 
+class SensorTimestamp extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = timestamp() + "ms"
+}
+
 class SensorCurrPos extends AggregateProgram with StandardSensors with FieldUtils {
   override def main() = currentPosition()
 }

@@ -38,6 +38,7 @@ trait BasicAbstractIncarnation extends Incarnation {
 
   override val LSNS_POSITION: String = "position"
   override val LSNS_TIME: String = "currentTime"
+  override val LSNS_TIMESTAMP: String = "timestamp"
   override val LSNS_DELTA_TIME: String = "deltaTime"
   override val NBR_RANGE_NAME: String = "nbrRange"
   override val NBR_DELAY: String = "nbrDelay"
@@ -66,11 +67,4 @@ class AbstractTestIncarnation
   extends BasicAbstractIncarnation
     with BasicSpatialAbstraction
     with BasicTimeAbstraction {
-  override type P = Point3D
-  override val LSNS_POSITION: String = "position"
-  override val LSNS_TIME: String = "currentTime"
-  override val LSNS_DELTA_TIME: String = "deltaTime"
-  override val NBR_DELAY: String = "nbrDelay"
-  override val NBR_LAG: String = "nbrLag"
-  override val NBR_VECTOR: String = "nbrVector"
 }

@@ -95,6 +95,11 @@ trait Incarnation extends Core
     def currentTime(): Time = sense[Time](LSNS_TIME)
 
     /**
+      * @return the current time in milliseconds since epoch
+      */
+    def timestamp(): Long = sense[Long](LSNS_TIMESTAMP)
+
+    /**
       * @return the duration since the last round of execution
       */
     def deltaTime(): FiniteDuration = sense[FiniteDuration](LSNS_DELTA_TIME)
