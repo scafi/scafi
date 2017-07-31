@@ -30,6 +30,7 @@ trait StandardLibrary extends
     with Stdlib_BuildingBlocks
     with StdLib_FieldUtils
     with StdLib_TimeUtils
+    with StdLib_GenericUtils
     with Stdlib_TypeClasses { self: Incarnation => }
 
 object StandardLibrary {

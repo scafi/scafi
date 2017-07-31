@@ -18,12 +18,15 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockS, BlockT, Builtins, FieldUtils, StandardSensors}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
+  {AggregateProgram, BlockG, BlockS, BlockT, Builtins, FieldUtils, GenericUtils, StandardSensors, LSNS_RANDOM}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
 
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
+
+import scala.util.Random
 
 class Mid extends AggregateProgram {
   override def main() = mid()
@@ -142,6 +145,10 @@ class CollectNbrsIncludingMyself extends AggregateProgram with StandardSensors w
 
 class CollectNbrsExcludingMyself extends AggregateProgram with StandardSensors with FieldUtils {
   override def main() = excludingSelf.unionHood(nbr{mid})
+}
+
+class DemoMeanCounter extends AggregateProgram with StandardSensors with GenericUtils {
+  override def main() = meanCounter(if(sense[Random](LSNS_RANDOM).nextDouble() > 0.5) 1 else -1, 50000)
 }
 
 
