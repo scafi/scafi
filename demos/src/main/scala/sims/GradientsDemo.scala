@@ -56,7 +56,7 @@ trait Gradients extends BlockG { self: AggregateProgram with SensorDefinitions =
 
   def crf(source: Boolean, raisingSpeed: Double = 2): Double = rep((Double.PositiveInfinity, 0.0)){ case (g, speed) =>
     mux(source){ (0.0, 0.0) }{
-      implicit def durationToDouble(fd: FiniteDuration): Double = fd.toSeconds
+      implicit def durationToDouble(fd: FiniteDuration): Double = fd.toMillis.toDouble / 1000.0
       case class Constraint(nbr: ID, gradient: Double, nbrDistance: Double)
 
       val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
