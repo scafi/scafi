@@ -98,6 +98,23 @@ trait RichLanguage extends Language { self: Core =>
           def compare(a: (T1, T2), b: (T1, T2)): Int =
             if (of1.compare(a._1, b._1) == 0) of2.compare(a._2, b._2) else of1.compare(a._1, b._1)
         }
+
+      @transient implicit def tupleOnFirstBounded[T1, T2](implicit of1: Bounded[T1], of2: Defaultable[T2]): Bounded[(T1, T2)] =
+        new Bounded[(T1, T2)] {
+          def top: (T1, T2) = (of1.top, of2.default)
+          def bottom: (T1, T2) = (of1.bottom, of2.default)
+          def compare(a: (T1, T2), b: (T1, T2)): Int = of1.compare(a._1, b._1)
+        }
+    }
+
+    trait Defaultable[T] {
+      def default: T
+    }
+
+    object Defaultable {
+      def apply[T](defaultVal: T): Defaultable[T] = new Defaultable[T] {
+        def default: T = defaultVal
+      }
     }
 
   }
