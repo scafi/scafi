@@ -35,7 +35,11 @@ trait FieldUtils {
         }.toMap
       }
 
-      def unionHood[T](expr: => T): Set[T] = foldhoodTemplate[Set[T]](Set())(_.union(_))(Set(expr))
+      def unionHood[T](expr: => T): Set[T] =
+        foldhoodTemplate[Set[T]](Set())(_.union(_))(Set(expr))
+
+      def anyHood(expr: => Boolean): Boolean =
+        foldhoodTemplate[Boolean](false)(_||_)(expr)
     }
 
     object includingSelf extends FieldOps {
