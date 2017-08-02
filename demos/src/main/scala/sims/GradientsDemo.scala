@@ -243,6 +243,7 @@ trait Gradients extends BlockG
             (nbr{spaceDistEst} + metric, nbr{sourceId})
           }
         }
+
         // (2) The most recent timeDistEst for the newSourceId is retrieved
         // by minimising nbrs' values for timeDistEst + their relative time distance
         val newTimeDistEst = minHood{
@@ -253,16 +254,18 @@ trait Gradients extends BlockG
             nbr { timeDistEst } + lagMetric
           }
         }
+
         // Let's compute if the newly produced info is to be considered obsolete
         val loop = newSourceId == mid() && spaceDistEst < src
         val newObsolete =
-          detect(currentTime().minus(newTimeDistEst.toLong, ChronoUnit.MILLIS).toInstant(ZoneOffset.UTC).toEpochMilli) || // (i) if that time when currently used info started from sourceId is too old to be reliable
+          detect(timestamp() - newTimeDistEst) || // (i) if that time when currently used info started from sourceId is too old to be reliable
             loop || // or, (ii) if the device's value happens to be calculated from itself,
             //// with a value smaller than one currently determined by src
             excludingSelf.anyHood { // or, (iii) if any nbr with same sourceId and newTimeDistEst has already been claimed obsolate
               nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
             }
-        List[(Double,Double,Int,Boolean)](old, (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)).min
+
+        List[(Double,Double,Int,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
       }
     }._1 // Selects estimated distance
   }
