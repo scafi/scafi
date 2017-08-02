@@ -18,18 +18,17 @@
 
 package sims
 
-import java.time.{LocalDateTime, ZoneOffset}
-import java.time.temporal.ChronoUnit
-
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
-  {AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, ID, TimeUtils, GenericUtils}
+  {AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
+import java.time.{LocalDateTime, ZoneOffset}
+import java.time.temporal.ChronoUnit
 import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.CheckSpeed" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.BISGradient" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.2 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
@@ -50,9 +49,15 @@ class CheckSpeed extends AggregateProgram with Gradients with BlockG with Sensor
       frequency).toLong
     val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange())
     val speed = distance / meanTimeToReach
-    val expectedSpeed = communicationRadius / meanCounter(deltaTime().toMillis, frequency)
+    val meanFireInterval = meanCounter(deltaTime().toMillis, frequency)
+    val expectedSpeed = communicationRadius / meanFireInterval
+    //val estSinglePathSpeed = communicationRadius / (3 * meanFireInterval)
     f"${meanTimeToReach}ms; ${distance}%.1f; $speed%.3f; $expectedSpeed%.3f"
   }
+}
+
+class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
+  override def main() = gradientBIS(sense1)
 }
 
 class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
@@ -79,9 +84,17 @@ class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with
   override def main() = classicWithUnboundedG(sense1)
 }
 
+object DoubleUtils {
+  case class Precision(p:Double)
+  implicit class DoubleWithAlmostEquals(val d:Double) extends AnyVal {
+    def ~=(d2:Double)(implicit p:Precision) = (d - d2).abs < p.p
+  }
+}
+
 trait Gradients extends BlockG
   with FieldUtils
-  with TimeUtils { self: AggregateProgram with SensorDefinitions =>
+  with TimeUtils
+  with GenericUtils { self: AggregateProgram with SensorDefinitions =>
 
   /*###########################
   ############ CRF ############
@@ -155,6 +168,30 @@ trait Gradients extends BlockG
     }
 
   /*#################################
+  ############ UTILITIES ############
+  #################################*/
+
+  def timeLastChange(expr: => Double): FiniteDuration = {
+    import scala.concurrent.duration.DurationLong
+
+    (-rep(timestamp(), expr){ case (tLastChange, lastVal) =>
+      val newValue = expr
+      import DoubleUtils._; implicit val prec = Precision(0.001)
+      (if(newValue ~= lastVal) tLastChange else timestamp(), newValue)
+    }._1 + timestamp()).millis
+  }
+
+  def damping(oldVal: Double, newVal: Double, delta: Double, factor: Double): Double = {
+    if (oldVal > factor * newVal || newVal > factor * oldVal) {
+      newVal
+    } else {
+      val sign = if(oldVal < newVal) 0.5 else -0.5
+      val diff = Math.abs(newVal - oldVal)
+      if(diff > delta) newVal - delta*sign else oldVal
+    }
+  }
+
+  /*#################################
     ############ CLASSIC ############
     #################################*/
 
@@ -196,7 +233,7 @@ trait Gradients extends BlockG
         // (1) Let's calculate new values for spaceDistEst and sourceId
         import BoundedTypeClasses._; import Builtins.Bounded._
         val (newSpaceDistEst, newSourceId) = minHood {
-          mux(isObsolete && excludingSelf.anyHood { !isObsolete })
+          mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
           { // let's discard neighbours where 'obsolete' flag is true
             // (unless 'obsolete' flag is true for all the neighbours)
             (src, mid())
@@ -253,6 +290,25 @@ trait Gradients extends BlockG
       // New bound
       val newBound = newAvg + 7*stdev
       (newAvg, newSqa, newBound)
+    }._1
+  }
+
+  /*############################
+  ############ BIS ############
+  #############################*/
+
+  def gradientBIS(source: Boolean): Double = {
+    val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
+    val speed = 1.0 / avgFireInterval
+    val commRadius = 0.2
+
+    rep((Double.PositiveInfinity, Double.PositiveInfinity)){ case (spatialDist: Double, tempDist: Double)  =>
+      mux(source){ (0.0, 0.0) }{
+        minHoodPlus {
+          val newEstimate = Math.max(nbr{spatialDist} + nbrRange(), speed * nbr{tempDist} - commRadius)
+          (newEstimate, nbr{tempDist} + nbrLag.toMillis/1000.0)
+        }
+      }
     }._1
   }
 }
