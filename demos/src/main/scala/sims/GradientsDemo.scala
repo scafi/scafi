@@ -28,9 +28,9 @@ import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.BISGradient" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.SVDGradient" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.2 // neighbourhood radius
+  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
   launch()
 }
@@ -225,8 +225,8 @@ trait Gradients extends BlockG
   #############################*/
 
   def gradientSVD(source: Boolean, metric: => Double = nbrRange(), lagMetric: => Double = nbrLag().toMillis): Double = {
-    val src = if(source) 0.0 else Double.PositiveInfinity
-    val loc = (src, src, mid(), false)
+    val defaultDist = if(source) 0.0 else Double.PositiveInfinity
+    val loc = (defaultDist, defaultDist, mid(), false)
     // REP tuple: (spatial distance estimate, temporal distance estimate, source ID, obsolete value detected flag)
     rep[(Double,Double,Int,Boolean)](loc) {
       case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
@@ -236,7 +236,7 @@ trait Gradients extends BlockG
           mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
           { // let's discard neighbours where 'obsolete' flag is true
             // (unless 'obsolete' flag is true for all the neighbours)
-            (src, mid())
+            (defaultDist, mid())
           } {
             // if info is not obsolete OR all nbrs have obsolete info
             // let's use classic gradient calculation
@@ -246,22 +246,24 @@ trait Gradients extends BlockG
 
         // (2) The most recent timeDistEst for the newSourceId is retrieved
         // by minimising nbrs' values for timeDistEst + their relative time distance
+        // (we only consider neighbours that have same value for 'sourceId')
         val newTimeDistEst = minHood{
           mux(nbr{sourceId} != newSourceId){
-            // let's discard neirhbours with a sourceId different than newSourceId
-            src
+            // let's discard neighbours with a sourceId different than newSourceId
+            defaultDist
           } {
             nbr { timeDistEst } + lagMetric
           }
         }
 
-        // Let's compute if the newly produced info is to be considered obsolete
-        val loop = newSourceId == mid() && spaceDistEst < src
+        // (3) Let's compute if the newly produced info is to be considered obsolete
+        val loop = newSourceId == mid() && newSpaceDistEst < defaultDist
         val newObsolete =
-          detect(timestamp() - newTimeDistEst) || // (i) if that time when currently used info started from sourceId is too old to be reliable
+          detect(timestamp() - newTimeDistEst) || // (i) if the time when currently used info started
+                                                  //     from sourceId is too old to be reliable
             loop || // or, (ii) if the device's value happens to be calculated from itself,
-            //// with a value smaller than one currently determined by src
-            excludingSelf.anyHood { // or, (iii) if any nbr with same sourceId and newTimeDistEst has already been claimed obsolate
+            excludingSelf.anyHood { // or, (iii) if any (not temporally farther) nbr with same sourceId  than
+                                    //           the device's one has already been claimed obsolete
               nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
             }
 
@@ -277,23 +279,25 @@ trait Gradients extends BlockG
     */
   def detect(time: Double): Boolean = {
     // Let's keep track into repCount of how much time is elapsed since the first time
-    // the current information (originated from the source in time time) reached the current device
+    // the current info (originated from the source in time 'time') reached the current device
     val repCount = rep(0.0) { old =>
       if(Math.abs(time - delay(time)) < 0.0001) { old + deltaTime().toMillis } else { 0.0 }
     }
 
-    repCount > rep[(Double, Double, Double)](0, 0, 0) { case (avg, sqa, bound) =>
+    val obsolete = repCount > rep[(Double, Double, Double)](2, 8, 16) { case (avg, sqa, bound) =>
       // Estimate of the average peak value for repCount, obtained by exponentially filtering
       // with a factor 0.1 the peak values of repCount
       val newAvg = 0.9 * avg + 0.1 * delay(repCount)
       // Estimate of the average square of repCount peak values
       val newSqa = 0.9 * sqa + 0.1 * Math.pow(delay(repCount), 2)
       // Standard deviation
-      val stdev = Math.sqrt(newSqa - Math.pow(avg, 2))
+      val stdev = Math.sqrt(newSqa - Math.pow(newAvg, 2))
       // New bound
       val newBound = newAvg + 7*stdev
       (newAvg, newSqa, newBound)
-    }._1
+    }._3
+
+    obsolete
   }
 
   /*############################
