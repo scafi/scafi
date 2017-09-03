@@ -100,19 +100,15 @@ trait Gradients extends BlockG
   ############ CRF ############
   #############################*/
 
-  def crf(source: Boolean, raisingSpeed: Double = 2): Double = rep((Double.PositiveInfinity, 0.0)){ case (g, speed) =>
+  def crf(source: Boolean, raisingSpeed: Double = 5): Double = rep((Double.PositiveInfinity, 0.0)){ case (g, speed) =>
     mux(source){ (0.0, 0.0) }{
       implicit def durationToDouble(fd: FiniteDuration): Double = fd.toMillis.toDouble / 1000.0
       case class Constraint(nbr: ID, gradient: Double, nbrDistance: Double)
 
       val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
         val (nbrg, d) = (nbr{g}, nbrRange)
-        //println(s"$mid  ==>  $nbrg + $d + $speed * ( $nbrLag + $deltaTime ) = " +
-        //  s"${nbrg + d + speed * (nbrLag() + deltaTime())} < $g ==> ${nbrg + d + speed * (nbrLag() + deltaTime()) < g}")
-        mux(nbrg + d + speed * (nbrLag()) < g){ List(Constraint(nbr{mid()}, nbrg, d)) }{ List() }
+        mux(nbrg + d + speed * (nbrLag()) <= g){ List(Constraint(nbr{mid()}, nbrg, d)) }{ List() }
       }
-
-      //println(s"$mid => ${constraints.map(_.nbr)}")
 
       if(constraints.isEmpty){
         (g + raisingSpeed * deltaTime(), raisingSpeed)
