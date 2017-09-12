@@ -33,6 +33,12 @@ trait RichLanguage extends Language { self: Core =>
 
     def mux[A](cond: Boolean)(th: A)(el: A): A = if (cond) th else el
 
+    def minHoodLoc[A](default: A)(expr: => A)(implicit poglb: PartialOrderingWithGLB[A]): A =
+      foldhood[A](default)((x, y) => if(poglb.equiv(x, y)) poglb.gle(x,y) else if(poglb.lt(x,y)) x else y){expr}
+
+    def minHoodPlusLoc[A](default: A)(expr: => A)(implicit poglb: PartialOrderingWithGLB[A]): A =
+      foldhoodPlus[A](default)((x, y) => if(poglb.equiv(x, y)) poglb.gle(x,y) else if(poglb.lt(x,y)) x else y){expr}
+
     def minHood[A](expr: => A)(implicit of: Bounded[A]): A = foldhood[A](of.top)((x, y) => of.min(x, y)){expr}
     def maxHood[A](expr: => A)(implicit of: Bounded[A]): A = foldhood[A](of.bottom)((x, y) => of.max(x, y)){expr}
 
@@ -104,6 +110,26 @@ trait RichLanguage extends Language { self: Core =>
           def top: (T1, T2) = (of1.top, of2.default)
           def bottom: (T1, T2) = (of1.bottom, of2.default)
           def compare(a: (T1, T2), b: (T1, T2)): Int = of1.compare(a._1, b._1)
+        }
+    }
+
+    trait PartialOrderingWithGLB[T] extends PartialOrdering[T] {
+      def gle(x: T, y: T): T
+    }
+
+    object PartialOrderingWithGLB {
+      val pogldouble: PartialOrderingWithGLB[Double] =
+        new PartialOrderingWithGLB[Double] {
+          override def gle(x: Double, y: Double): Double = Math.min(x,y)
+          override def tryCompare(x: Double, y: Double): Option[Int] = None
+          override def lteq(x: Double, y: Double): Boolean = x <= y
+        }
+
+      implicit def poglbTuple[T1, T2](implicit p1: PartialOrderingWithGLB[T1], p2: PartialOrderingWithGLB[T2]): PartialOrderingWithGLB[(T1, T2)] =
+        new PartialOrderingWithGLB[(T1, T2)] {
+          override def gle(x: (T1, T2), y: (T1, T2)): (T1, T2) = (p1.gle(x._1,y._1), p2.gle(x._2,y._2))
+          override def tryCompare(x: (T1, T2), y: (T1, T2)): Option[Int] = None
+          override def lteq(x: (T1, T2), y: (T1, T2)): Boolean = p1.lteq(x._1,y._1) && p2.lteq(x._2,y._2)
         }
     }
 

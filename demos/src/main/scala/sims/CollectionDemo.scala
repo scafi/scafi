@@ -24,7 +24,7 @@ import it.unibo.scafi.simulation.gui.{Launcher, Settings, SettingsSpace}
 
 object CollectionDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.Collection" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.CollectionIds" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
@@ -36,7 +36,7 @@ class Collection extends AggregateProgram with SensorDefinitions with BlockC wit
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
-  override def main() = summarize(sense1, _+_, if (sense2) 1.0 else 0.0, 0.0)
+  override def main() = summarize(sense1, _ + _, if (sense2) 1.0 else 0.0, 0.0)
 }
 
 class CExample extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
@@ -52,8 +52,11 @@ class CExample extends AggregateProgram with SensorDefinitions with BlockC with 
 
 class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
 
-  def summarize[V: Bounded](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
-    C[Double, (Double,V)]((distanceTo(sink),local), (a,b) => (a._1, acc(a._2,b._2)), (0.0,local), (0.0,Null))._2
+  def summarize[V](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
+    C[Double, V](distanceTo3(sink), acc, local, Null)
+
+  import PartialOrderingWithGLB.pogldouble
+  def distanceTo3(src: Boolean) = G3[Double](src, 0.0, _ + nbrRange, nbrRange)(pogldouble)
 
   implicit val ofset = new Builtins.Bounded[Set[ID]] {
     override def top: Set[ID] = Set()

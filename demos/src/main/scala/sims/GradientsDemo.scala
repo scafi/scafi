@@ -18,21 +18,29 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
-  {AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
+
+import sims.DoubleUtils.Precision
+
 import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.SVDGradient" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.ShortestPathProgram" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 100 // number of nodes
+  Settings.Sim_NumNodes = 40 // number of nodes
   launch()
+}
+
+class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
+  def main = {
+    val g = classic(sense1)
+    ShortestPath(sense2, g)
+  }
 }
 
 class CheckSpeed extends AggregateProgram with Gradients with BlockG with SensorDefinitions with GenericUtils {
@@ -45,7 +53,7 @@ class CheckSpeed extends AggregateProgram with Gradients with BlockG with Sensor
     val frequency = 1000000
 
     val meanTimeToReach = meanCounter(
-      ChronoUnit.MILLIS.between(unboundedG(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
+      ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
       frequency).toLong
     val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange())
     val speed = distance / meanTimeToReach
@@ -54,6 +62,10 @@ class CheckSpeed extends AggregateProgram with Gradients with BlockG with Sensor
     //val estSinglePathSpeed = communicationRadius / (3 * meanFireInterval)
     f"${meanTimeToReach}ms; ${distance}%.1f; $speed%.3f; $expectedSpeed%.3f"
   }
+}
+
+class GradientComparison extends AggregateProgram with Gradients with SensorDefinitions {
+  override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
 
 class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
@@ -69,7 +81,7 @@ class FlexGradient extends AggregateProgram with Gradients with SensorDefinition
 }
 
 class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = mid() + " => " + crf(sense1)
+  override def main() = crf(sense1)
 }
 
 class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
@@ -80,8 +92,19 @@ class ClassicGradientWithG extends AggregateProgram with Gradients with SensorDe
   override def main() = classicWithG(sense1)
 }
 
+class ClassicGradientWithGv2 extends AggregateProgram with Gradients with SensorDefinitions {
+  override def main() = classicWithGv2(sense1)
+}
+
 class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithUnboundedG(sense1)
+}
+
+class DistanceBetween extends AggregateProgram with SensorDefinitions with BlockG {
+  def isSource: Boolean = sense1
+  def isTarget: Boolean = sense2
+
+  override def main(): Any = distanceBetween(isSource, isTarget)
 }
 
 object DoubleUtils {
@@ -95,6 +118,17 @@ trait Gradients extends BlockG
   with FieldUtils
   with TimeUtils
   with GenericUtils { self: AggregateProgram with SensorDefinitions =>
+
+  def ShortestPath(source: Boolean, gradient: Double): Boolean =
+    rep(false)(
+      path => mux(source){
+        true
+      } {
+        foldhood(false)(_||_){
+          nbr(path) & (gradient == nbr(minHood(nbr(gradient))))
+        }
+      }
+    )
 
   /*###########################
   ############ CRF ############
@@ -199,14 +233,20 @@ trait Gradients extends BlockG
     }
   }
 
-  def classicWithG(source: Boolean): Double = G(source, 0.0, (_:Double) + nbrRange, nbrRange)
+  def classicWithG(source: Boolean): Double = G(source, if(source) 0.0 else Double.PositiveInfinity, (_:Double) + nbrRange, nbrRange)
 
-  def classicWithUnboundedG(source: Boolean): Double = {
+  def classicWithGv2(source: Boolean): Double = {
     implicit val defValue = Builtins.Defaultable.apply(Double.PositiveInfinity)
-    unboundedG(source, 0.0, (_:Double) + nbrRange, nbrRange)
+    G_v2(source, 0.0, (_:Double) + nbrRange, nbrRange)
   }
 
-  def unboundedG[V : Builtins.Defaultable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+  def classicWithUnboundedG(source: Boolean): Double =
+    unboundedG3[Double](source, if(source) 0.0 else Double.PositiveInfinity, (_:Double) + nbrRange, nbrRange)
+
+  def classicWithUnboundedG2(source: Boolean): Double =
+    unboundedG[Double](source, if(source) 0.0 else Double.PositiveInfinity, (_:Double) + nbrRange, nbrRange, Math.min(_:Double, _:Double))
+
+  def G_v2[V : Builtins.Defaultable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
     rep((Double.MaxValue, field)) { case (dist, value) =>
       mux(source) {
         (0.0, field)
@@ -215,6 +255,77 @@ trait Gradients extends BlockG
         minHoodPlus { (nbr {dist} + metric, acc(nbr {value})) }
       }
     }._2
+
+  def unboundedG[V](source: Boolean, field: V, acc: V=>V, metric: => Double)
+                   (implicit idOrd: Ordering[ID]): V = {
+    rep(Double.PositiveInfinity, field) { case (dist, value) =>
+      mux(source) {
+        (0.0, field)
+      } {
+        val res = foldhoodPlus((Double.PositiveInfinity, field, mid)) { case (d1 @ (g1: Double, v1: V, id1: ID), d2 @ (g2: Double, v2: V, id2: ID)) =>
+          import DoubleUtils.DoubleWithAlmostEquals
+          implicit val prec = Precision(0.00001)
+          if(g1 ~= g2){
+            if(idOrd.lteq(id1, id2)) d1 else d2
+          }
+          else if (g1 < g2){ d1 }
+          else { d2 }
+        } { (nbr{ dist } + metric, acc(nbr{ value }), nbr{ mid }) }
+        (res._1, res._2)
+      }
+    }._2
+  }
+
+  def unboundedG2[V](source: Boolean, field: V, acc: V=>V, metric: => Double)
+                    (implicit idOrd: Ordering[ID]): V = {
+    rep(Double.PositiveInfinity, field) { case (dist, value) =>
+      mux(source) {
+        (0.0, field)
+      } {
+        val res = foldhoodPlus((Double.PositiveInfinity, mid, field)) { case (d1 @ (g1: Double, id1: ID, v1: V), d2 @ (g2: Double, id2: ID, v2: V)) =>
+          import scala.math.Ordered.orderingToOrdered
+          if((g1,id1) <= (g2,id2)) d1 else d2
+        } { (nbr{ dist } + metric, nbr{ mid }, acc(nbr{ value })) }
+        (res._1, res._3)
+      }
+    }._2
+  }
+
+  def minHoodPLoc[A](default: A)(expr: => A)(implicit poglb: Ordering[A]): A = {
+    import scala.math.Ordered.orderingToOrdered
+    foldhoodPlus[A](default)((x, y) => if(x <= y) x else y){expr}
+  }
+
+  implicit def tupleOrd[A:Ordering, B:Ordering, C]: Ordering[(A,B,C)] = new Ordering[(A,B,C)] {
+    import scala.math.Ordered.orderingToOrdered
+    override def compare(x: (A, B, C), y: (A, B, C)): Int = (x._1,x._2).compareTo((y._1,y._2))
+  }
+
+  def unboundedG3[V](source: Boolean, field: V, acc: V=>V, metric: => Double)
+                    (implicit idOrd: Ordering[ID]): V = {
+    rep(Double.PositiveInfinity, mid, field) { case (dist, _, value) =>
+      mux(source) {
+        (0.0, mid, field)
+      } {
+        minHoodPLoc((Double.PositiveInfinity, mid, field)){ (nbr{ dist } + metric, nbr{ mid }, acc(nbr{ value })) }
+      }
+    }._3
+  }
+
+  def unboundedG[V](source: Boolean, field: V, acc: V=>V, metric: => Double, aggr: (V,V) => V): V = {
+    rep(Double.PositiveInfinity, field) { case (dist, value) =>
+      mux(source) {
+        (0.0, field)
+      } {
+        foldhoodPlus((Double.PositiveInfinity, field)) { case (data1 @ (d1: Double, v1: V), data2 @ (d2: Double, v2: V)) =>
+          import DoubleUtils.DoubleWithAlmostEquals
+          implicit val prec = Precision(0.00001)
+          if(d1 ~= d2) ((d1+d2)/2, aggr(v1, v2))
+          else if (d1 < d2) data1 else data2
+        } { (nbr {dist} + metric, acc(nbr {value})) }
+      }
+    }._2
+  }
 
   /*############################
   ############ SVD ############
