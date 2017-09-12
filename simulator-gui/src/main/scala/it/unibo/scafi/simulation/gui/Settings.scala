@@ -35,7 +35,9 @@ object Settings {
   var Sim_NumNodes = 100
   var ShowConfigPanel = true
 
-  var RandomSeed = System.nanoTime()
+  var SimulationSeed = System.nanoTime()
+  var RandomSensorSeed = System.nanoTime()
+  var ConfigurationSeed = System.nanoTime()
   var Grid_HiVar_Eps = 0.16
   var Grid_MedVar_Eps = 0.09
   var Grid_LoVar_Eps = 0.02

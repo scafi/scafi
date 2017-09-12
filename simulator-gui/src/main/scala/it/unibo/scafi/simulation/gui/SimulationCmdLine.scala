@@ -58,10 +58,20 @@ object SimulationCmdLine extends scopt.OptionParser[Settings.type]("<scafi graph
     s
   } text(s"Sensors to be appended to default ones: '${Sim_Sensors.replace('\n',';')}'")
 
-  opt[Long]('R',"random-seed").action { (v, s) =>
-    s.RandomSeed = v
+  opt[Long]("configuration-seed").action { (v, s) =>
+    s.ConfigurationSeed = v
     s
-  } text(s"Random seed. Defaults to System.nanoTime().")
+  } text(s"Configuration seed. Defaults to System.nanoTime().")
+
+  opt[Long]("simulation-seed").action { (v, s) =>
+    s.SimulationSeed = v
+    s
+  } text(s"Simulation seed. Defaults to System.nanoTime().")
+
+  opt[Long]("random-sensor-seed").action { (v, s) =>
+    s.RandomSensorSeed = v
+    s
+  } text(s"Random sensor seed. Defaults to System.nanoTime().")
 
   help("help") text ("prints this usage text")
 }

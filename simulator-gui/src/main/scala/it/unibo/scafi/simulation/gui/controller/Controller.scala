@@ -145,6 +145,9 @@ class Controller () {
       case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
+    val configurationSeed = Settings.ConfigurationSeed
+    val simulationSeed = Settings.SimulationSeed
+    val randomSensorSeed = Settings.RandomSensorSeed
 
     val sensorVals: Map[String,Any] = Utils.parseSensors(sensorValues)
     sensorVals.foreach(kv => SensorEnum.sensors += new Sensor(kv._1, kv._2))
@@ -160,10 +163,10 @@ class Controller () {
         case Grid_HighVar => Settings.Grid_HiVar_Eps
       }
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
-      positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety))
+      positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety), configurationSeed)
     }
     else {
-      positions = SpaceHelper.randomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes)
+      positions = SpaceHelper.randomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes, configurationSeed)
     }
 
     var i: Int = 0

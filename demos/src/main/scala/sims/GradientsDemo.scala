@@ -33,6 +33,7 @@ object GradientsDemo extends Launcher {
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 40 // number of nodes
+  Settings.ConfigurationSeed = 0
   launch()
 }
 
