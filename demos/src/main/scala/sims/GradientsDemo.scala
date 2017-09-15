@@ -18,23 +18,68 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils, StandardSensors}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 
+import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
 import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.ShortestPathProgram" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.GradientWithObstacle" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 40 // number of nodes
   Settings.ConfigurationSeed = 0
   launch()
+}
+
+class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
+  def main = g2(sense1, sense2)
+
+  def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
+    () => aggregate { Double.PositiveInfinity }
+  }{
+    () => aggregate { classic(isSrc) }
+  }()
+
+  def g2(isSrc: Boolean, isObstacle: Boolean): Double = branch(isObstacle){
+    Double.PositiveInfinity
+  }{
+    classic(isSrc)
+  }
+}
+
+class SteeringProgram extends AggregateProgram with SensorDefinitions {
+  def main = steering(sense1)
+
+  def steering(source: Boolean): Point3D = {
+    val g = classic(source)
+    val p = currentPosition()
+    val q = minHoodPLoc((g, mid, p))(nbr{ (g, mid, p) })._3
+    Point3D(q.x - p.x, q.y - p.y, q.z - p.z)
+  }
+
+  def classic(source: Boolean): Double = rep(Double.PositiveInfinity){ distance =>
+    mux(source){ 0.0 }{
+      minHoodPlus(nbr{distance} + nbrRange)
+    }
+  }
+
+  def minHoodPLoc[A](default: A)(expr: => A)(implicit poglb: Ordering[A]): A = {
+    import scala.math.Ordered.orderingToOrdered
+    val ordering = implicitly[Ordering[A]]
+    foldhoodPlus[A](default)((x, y) => if(x <= y) x else y){expr}
+  }
+
+  implicit def tupleOrd[A:Ordering, B:Ordering, C]: Ordering[(A,B,C)] = new Ordering[(A,B,C)] {
+    import scala.math.Ordered.orderingToOrdered
+    override def compare(x: (A, B, C), y: (A, B, C)): Int = (x._1,x._2).compareTo((y._1,y._2))
+  }
 }
 
 class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
@@ -85,6 +130,10 @@ class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions
   override def main() = crf(sense1)
 }
 
+class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
+  override def main() = gradient(sense1)
+}
+
 class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classic(sense1)
 }
@@ -118,7 +167,8 @@ object DoubleUtils {
 trait Gradients extends BlockG
   with FieldUtils
   with TimeUtils
-  with GenericUtils { self: AggregateProgram with SensorDefinitions =>
+  with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
+
 
   def ShortestPath(source: Boolean, gradient: Double): Boolean =
     rep(false)(
@@ -294,6 +344,7 @@ trait Gradients extends BlockG
 
   def minHoodPLoc[A](default: A)(expr: => A)(implicit poglb: Ordering[A]): A = {
     import scala.math.Ordered.orderingToOrdered
+    val ordering = implicitly[Ordering[A]]
     foldhoodPlus[A](default)((x, y) => if(x <= y) x else y){expr}
   }
 
@@ -327,6 +378,15 @@ trait Gradients extends BlockG
       }
     }._2
   }
+
+  def gradient(source: Boolean): Double =
+    rep(Double.PositiveInfinity){ distance =>
+      mux(source) {
+        0.0
+      }{
+        foldhoodPlus(Double.PositiveInfinity)(Math.min(_,_)){ nbr{distance} + nbrRange }
+      }
+    }
 
   /*############################
   ############ SVD ############
