@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.simulation
 
-import java.time.LocalTime
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
@@ -191,7 +191,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     self: NETWORK =>
 
     protected val eMap: MMap[ID, EXPORT] = MMap()
-    protected var lastRound: Map[ID,LocalTime] = Map()
+    protected var lastRound: Map[ID,LocalDateTime] = Map()
 
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
@@ -248,23 +248,24 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
       override def sense[T](lsns: LSNS): Option[T] = lsns match {
         case LSNS_RANDOM => randomSensor.some[T]
-        case LSNS_TIME => LocalTime.now().some[T]
+        case LSNS_TIME => LocalDateTime.now().some[T]
+        case LSNS_TIMESTAMP => System.currentTimeMillis().some[T]
         case LSNS_DELTA_TIME => FiniteDuration(
-          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalTime.now())).getOrElse(0L),
+          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalDateTime.now())).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]
         case _ => localSensorRetrieve(lsns, id)
       }
 
       override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
         case NBR_LAG => lastRound.get(nbr).map(nbrLast =>
-          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, LocalTime.now()), TimeUnit.NANOSECONDS)
+          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, LocalDateTime.now()), TimeUnit.NANOSECONDS)
         ).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case NBR_DELAY => lastRound.get(nbr).map(nbrLast =>
           FiniteDuration(
             ChronoUnit.NANOS.between(
               nbrLast.plusNanos(
-                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalTime.now())).getOrElse(0L)),
-              LocalTime.now()),
+                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalDateTime.now())).getOrElse(0L)),
+              LocalDateTime.now()),
           TimeUnit.NANOSECONDS
         )).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case _ => nbrSensorRetrieve(nsns, id, nbr)
@@ -276,7 +277,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     def exec(node: EXECUTION, exp: => Any, id: ID): Unit = {
       val c = context(id)
       eMap += (id -> node.round(c, exp))
-      lastRound += id -> LocalTime.now()
+      lastRound += id -> LocalDateTime.now()
     }
 
     /**
@@ -301,7 +302,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val idToRun = idArray(simulationRandom.nextInt(idArray.size))
       val c = context(idToRun)
       val (_,exp) = idToRun -> ap(c)
-      lastRound += idToRun -> LocalTime.now()
+      lastRound += idToRun -> LocalDateTime.now()
       eMap += idToRun -> exp
       idToRun -> exp
     }

@@ -48,7 +48,7 @@ trait Stdlib_BlockC {
       }
     }
 
-    def C[V: Bounded](potential: V, acc: (V, V) => V, local: V, Null: V): V = {
+    def C[P: Bounded, V](potential: P, acc: (V, V) => V, local: V, Null: V): V = {
       rep(local) { v =>
         acc(local, foldhood(Null)(acc) {
           mux(nbr(findParent(potential)) == mid()) {

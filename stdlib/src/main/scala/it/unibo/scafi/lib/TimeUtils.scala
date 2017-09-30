@@ -16,12 +16,23 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.time
+package it.unibo.scafi.lib
 
-trait TimeAbstraction {
-  type Time
-}
+trait StdLib_TimeUtils {
+  self: StandardLibrary.Subcomponent =>
 
-trait BasicTimeAbstraction extends TimeAbstraction {
-  type Time = java.time.LocalDateTime
+  trait TimeUtils {
+    self: FieldCalculusSyntax =>
+
+    /**
+      * It is a simple building block which returns the same values
+      *  it receives in input delayed by one computation round.
+      */
+    def delay[T](value: T): T = {
+      var res = value
+      rep(value){ old => res = old; value }
+      res
+    }
+  }
+
 }

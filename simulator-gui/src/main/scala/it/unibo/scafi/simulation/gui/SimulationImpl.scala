@@ -24,7 +24,8 @@ import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, Network, Node,
 import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation._
 
-class SimulationImpl() extends Simulation {
+class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
+                     val simulationSeed: Long = System.nanoTime()) extends Simulation {
   //private Thread runProgram;  //should implements runnable
   private var net: SpaceAwareSimulator = null
   var network: Network = null
@@ -48,8 +49,8 @@ class SimulationImpl() extends Simulation {
           lsns => if (lsns == "sensor" && d == 3) 1 else 0,
           nsns => nbr => null)
         },
-      simulationSeed = System.currentTimeMillis(),
-      randomSensorSeed = System.currentTimeMillis()
+      simulationSeed = simulationSeed,
+      randomSensorSeed = configurationSeed
     )
 
     SensorEnum.sensors.foreach(se => {

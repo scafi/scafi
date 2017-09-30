@@ -34,12 +34,20 @@ trait Stdlib_BlockG {
           (0.0, field)
         } {
           minHoodPlus {
-            (nbr {
-              dist
-            } + metric, acc(nbr {
-              value
-            }))
+            (nbr { dist } + metric, acc(nbr { value }))
           }
+        }
+      }._2
+
+    def G3[V: PartialOrderingWithGLB](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+      rep((Double.MaxValue, field)) { case (dist, value) =>
+        mux(source) {
+          (0.0, field)
+        } {
+          import PartialOrderingWithGLB._
+          minHoodPlusLoc[(Double,V)]((Double.PositiveInfinity, field)) {
+            (nbr { dist } + metric, acc(nbr { value }))
+          } (poglbTuple(pogldouble, implicitly[PartialOrderingWithGLB[V]]))
         }
       }._2
 

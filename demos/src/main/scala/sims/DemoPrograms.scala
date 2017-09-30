@@ -18,12 +18,15 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockS, BlockT, Builtins, FieldUtils, StandardSensors}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
+  {AggregateProgram, BlockG, BlockS, BlockT, Builtins, FieldUtils, GenericUtils, StandardSensors, LSNS_RANDOM}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
 
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
+
+import scala.util.Random
 
 class Mid extends AggregateProgram {
   override def main() = mid()
@@ -100,6 +103,7 @@ class SparseChoice extends AggregateProgram with SensorDefinitions with BlockG w
 }
 
 class SensorNbrRange extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField("%.2f".format(nbrRange()))
 }
 
@@ -107,11 +111,16 @@ class SensorCurrTime extends AggregateProgram with StandardSensors with FieldUti
   override def main() = currentTime().toString
 }
 
+class SensorTimestamp extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = timestamp() + "ms"
+}
+
 class SensorCurrPos extends AggregateProgram with StandardSensors with FieldUtils {
   override def main() = currentPosition()
 }
 
 class SensorNbrVector extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrVector())
 }
 
@@ -120,13 +129,30 @@ class SensorDeltaTime extends AggregateProgram with StandardSensors with FieldUt
 }
 
 class SensorNbrDelay extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrDelay().toMillis+"ms")
 }
 
 class SensorNbrLag extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = deltaTime().toMillis  + "ms -- " + mid() + " => " + reifyField(nbrLag().toMillis+"ms")
 }
 
 class SensorNbrDelayLag extends AggregateProgram with StandardSensors with FieldUtils {
+  import excludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(s"${nbrDelay().toMillis}ms; ${nbrLag().toMillis}ms")
 }
+
+class CollectNbrsIncludingMyself extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = includingSelf.unionHood(nbr{mid})
+}
+
+class CollectNbrsExcludingMyself extends AggregateProgram with StandardSensors with FieldUtils {
+  override def main() = excludingSelf.unionHood(nbr{mid})
+}
+
+class DemoMeanCounter extends AggregateProgram with StandardSensors with GenericUtils {
+  override def main() = meanCounter(if(sense[Random](LSNS_RANDOM).nextDouble() > 0.5) 1 else -1, 50000)
+}
+
+

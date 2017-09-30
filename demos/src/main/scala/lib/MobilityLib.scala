@@ -57,8 +57,8 @@ class MobilityLib extends BuildingBlocks { self: AggregateProgram with SensorDef
   }
 
   def forte15logic() = lowPass(alpha = 0.5,
-    value = C[Double](potential = distanceTo(snsInjectionPoint),
-      acc = _+_, local = snsPatron, Null = 0.0))
+    value = C[Double, Double](potential = distanceTo(snsInjectionPoint),
+      acc = _ + _, local = snsPatron, Null = 0.0))
 
   def forte15example() = {
     virtualMachine()

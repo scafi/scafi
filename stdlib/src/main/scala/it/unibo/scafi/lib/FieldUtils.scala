@@ -18,16 +18,36 @@
 
 package it.unibo.scafi.lib
 
-trait FieldUtils {
+trait StdLib_FieldUtils {
   self: StandardLibrary.Subcomponent =>
 
   trait FieldUtils {
     self: FieldCalculusSyntax =>
 
-    def reifyField[T](expr: => T): Map[ID, T] = {
-      foldhood[Seq[(ID, T)]](Seq[(ID, T)]())(_ ++ _) {
-        Seq(nbr{mid()} -> expr)
-      }.toMap
+    trait FieldOps {
+      def foldhoodTemplate[T]: T => ((T,T) => T) => ( => T ) => T
+
+      def mapNbrs[T](expr: => T): Map[ID, T] = reifyField(expr)
+
+      def reifyField[T](expr: => T): Map[ID, T] = {
+        foldhoodTemplate[Seq[(ID, T)]](Seq[(ID, T)]())(_ ++ _) {
+          Seq(nbr { mid() } -> expr)
+        }.toMap
+      }
+
+      def unionHood[T](expr: => T): Set[T] =
+        foldhoodTemplate[Set[T]](Set())(_.union(_))(Set(expr))
+
+      def anyHood(expr: => Boolean): Boolean =
+        foldhoodTemplate[Boolean](false)(_||_)(expr)
+    }
+
+    object includingSelf extends FieldOps {
+      override def foldhoodTemplate[T]: (T) => ((T, T) => T) => ( => T ) => T = foldhood[T](_)
+    }
+
+    object excludingSelf extends FieldOps {
+      override def foldhoodTemplate[T]: (T) => ((T, T) => T) => ( => T ) => T = foldhoodPlus[T](_)
     }
   }
 
