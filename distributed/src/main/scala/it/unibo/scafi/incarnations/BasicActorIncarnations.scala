@@ -18,11 +18,10 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
 import it.unibo.scafi.distrib.actor.p2p.{Platform => P2pActorPlatform}
-import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform}
-import it.unibo.scafi.distrib.actor.server.{SpatialPlatform => SpatialServerBasedActorPlatform}
-import it.unibo.scafi.space.{Point2D, BasicSpatialAbstraction}
+import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform, SpatialPlatform => SpatialServerBasedActorPlatform}
+import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
+import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 
 trait BasicAbstractActorIncarnation
   extends BasicAbstractDistributedIncarnation

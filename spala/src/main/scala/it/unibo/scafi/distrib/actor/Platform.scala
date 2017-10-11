@@ -21,7 +21,6 @@ package it.unibo.scafi.distrib.actor
 import it.unibo.scafi.distrib.{Platform => DistributedPlatform}
 
 import akka.actor._
-import it.unibo.scafi.platform.Platform.PlatformDependency
 
 trait Platform extends DistributedPlatform
   with PlatformMessages
@@ -31,8 +30,6 @@ trait Platform extends DistributedPlatform
   with PlatformSensors
   with PlatformAPIFacade
   with PlatformCodeMobilitySupport {
-  thisVery: PlatformDependency =>
-
   /**
    * This structure packages together info about a neighbor.
    */
@@ -49,5 +46,5 @@ trait Platform extends DistributedPlatform
 }
 
 object Platform {
-  type Subcomponent = Platform with PlatformDependency
+  type Subcomponent = Platform
 }

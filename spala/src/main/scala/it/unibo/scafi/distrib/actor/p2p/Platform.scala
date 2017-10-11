@@ -33,7 +33,7 @@ import scala.concurrent.duration.DurationInt
 
 trait Platform extends BasePlatform
   with PlatformAPIFacade
-  with PlatformDevices { thisVery: PlatformDependency =>
+  with PlatformDevices {
 
   class SettingsFactoryP2P extends SettingsFactory{
     override def defaultProfileSettings(): ProfileSettings = P2PActorSystemSettings()
@@ -64,5 +64,5 @@ trait Platform extends BasePlatform
 }
 
 object Platform {
-  type Subcomponent = Platform with PlatformDependency
+  type Subcomponent = Platform
 }

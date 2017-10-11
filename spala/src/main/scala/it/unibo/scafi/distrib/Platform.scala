@@ -18,7 +18,35 @@
 
 package it.unibo.scafi.distrib
 
-import it.unibo.scafi.platform.{Platform => BasePlatform}
+trait BasePlatform {
+  type ID <: Id
+  type LSNS
+  type NSNS
+  type CONTEXT <: Context
+  type EXPORT <: Export
+  type FACTORY <: Factory
+  type PROGRAM <: ExecutionTemplate
+
+  trait Id {
+    def toLong: Long
+  }
+
+  trait Context {
+
+  }
+
+  trait Export {
+
+  }
+
+  trait Factory {
+
+  }
+
+  trait ExecutionTemplate {
+
+  }
+}
 
 /**
  * This component defines a distributed platform and in particular:
@@ -30,9 +58,8 @@ import it.unibo.scafi.platform.{Platform => BasePlatform}
 
 trait Platform extends BasePlatform
   with PlatformAPIFacade
-  with PlatformSettings { self: BasePlatform.PlatformDependency =>
-}
+  with PlatformSettings
 
 object Platform {
-  type Subcomponent = Platform with BasePlatform.PlatformDependency
+  type Subcomponent = Platform
 }

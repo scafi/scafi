@@ -19,7 +19,6 @@
 package it.unibo.scafi.distrib.actor.server
 
 import it.unibo.scafi.distrib.actor.{Platform => BasePlatform}
-import it.unibo.scafi.platform.Platform.PlatformDependency
 
 /**
  * Specializes an [[it.unibo.scafi.distrib.actor.Platform]] into a "centralized platform" where
@@ -31,7 +30,7 @@ import it.unibo.scafi.platform.Platform.PlatformDependency
 trait Platform extends BasePlatform
   with PlatformAPIFacade
   with PlatformServer
-  with PlatformDevices { self: PlatformDependency =>
+  with PlatformDevices {
 
   class SettingsFactoryServer extends SettingsFactory {
     override def defaultProfileSettings(): ProfileSettings = ServerBasedActorSystemSettings()
@@ -78,5 +77,5 @@ trait Platform extends BasePlatform
 }
 
 object Platform {
-  type Subcomponent = Platform with PlatformDependency
+  type Subcomponent = Platform
 }
