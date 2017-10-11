@@ -20,11 +20,6 @@ package it.unibo.utils
 
 import scala.collection.mutable.{ Map => MMap }
 
-/**
- * @author Roberto Casadei
- *
- */
-
 class BiMap[X,Y](m: Map[X,Y]) {
   private val map = MMap(m.toSeq :_ *)
   private val rmap = map.map(_.swap)

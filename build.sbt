@@ -79,7 +79,13 @@ lazy val scafi = project.in(file(".")).
     packagedArtifacts in file(".") := Map.empty
   )
 
+lazy val commons = project.
+  settings(commonSettings: _*).
+  settings(sharedPublishSettings: _*).
+  settings(name := "commons")
+
 lazy val core = project.
+  dependsOn(commons).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
@@ -116,6 +122,7 @@ lazy val `simulator-gui` = project.
   )
 
 lazy val spala = project.
+  dependsOn(commons).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
