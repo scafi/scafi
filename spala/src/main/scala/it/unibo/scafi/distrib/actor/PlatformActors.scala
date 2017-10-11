@@ -68,7 +68,7 @@ trait PlatformActors { self: Platform.Subcomponent =>
     private def deviceActors: Iterable[ActorRef] =
       context.children.filter(_.path.name.startsWith(DEV_NAME_PREFIX))
 
-    private def deviceNameFromId(id: ID): String = DEV_NAME_PREFIX + id
+    private def deviceNameFromId(id: UID): String = DEV_NAME_PREFIX + id
   }
   object AggregateApplicationActor extends Serializable {
     def props(as: AggregateApplicationSettings): Props =

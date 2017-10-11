@@ -18,7 +18,6 @@
 
 package it.unibo.scafi.distrib.actor
 
-import akka.actor.Actor.Receive
 import it.unibo.scafi.distrib.actor.patterns.{ObservableActorBehavior, BasicActorBehavior, PeriodicBehavior, LifecycleBehavior}
 
 import akka.actor.{ActorRef, Cancellable, Actor}
@@ -100,8 +99,8 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait SensingBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
 
-    val sensorValues = MMap[LSNS, Any]()
-    val nbrSensorValues = MMap[NSNS, MMap[ID, Any]]()
+    val sensorValues = MMap[LSensorName, Any]()
+    val nbrSensorValues = MMap[NSensorName, MMap[UID, Any]]()
 
     // REACTIVE BEHAVIOR
 
@@ -115,11 +114,11 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // BEHAVIOR METHODS
 
-    def setLocalSensorValue(name: LSNS, value: Any): Unit = {
+    def setLocalSensorValue(name: LSensorName, value: Any): Unit = {
       sensorValues += name -> value
     }
 
-    def setNbrSensorValue(name: NSNS, map: Map[ID,Any]): Unit =
+    def setNbrSensorValue(name: NSensorName, map: Map[UID,Any]): Unit =
       nbrSensorValues(name) = MMap(map.toSeq:_*)
   }
 
@@ -129,7 +128,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait SensorManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
 
-    val localSensors = MMap[LSNS, ()=>Any]()
+    val localSensors = MMap[LSensorName, ()=>Any]()
 
     // REACTIVE BEHAVIOR
 
@@ -143,7 +142,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // BEHAVIOR METHODS
 
-    def setLocalSensor(name: LSNS, provider: ()=>Any): Unit =
+    def setLocalSensor(name: LSensorName, provider: ()=>Any): Unit =
       localSensors += (name -> provider)
   }
 
@@ -153,7 +152,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait ActuatorManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
 
-    val actuators = MMap[LSNS, (Any)=>Unit]()
+    val actuators = MMap[LSensorName, (Any)=>Unit]()
 
     // REACTIVE BEHAVIOR
 
@@ -166,7 +165,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // BEHAVIOR METHODS
 
-    def setActuator(name: LSNS, consumer: (Any)=>Unit): Unit =
+    def setActuator(name: LSensorName, consumer: (Any)=>Unit): Unit =
       actuators += name -> consumer
 
     def executeActuators(value: Any): Unit =
@@ -178,10 +177,10 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    */
   trait BaseNbrManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
-    var nbrs = Map[ID,NbrInfo]()
+    var nbrs = Map[UID,NbrInfo]()
 
     // BEHAVIOR METHODS
-    def mergeNeighborInfo(idn: ID, info: NbrInfo): Unit = {
+    def mergeNeighborInfo(idn: UID, info: NbrInfo): Unit = {
       var toAdd = this.nbrs.get(idn)
         .orElse(Some(NbrInfo(idn,None,None,None))).get
       // No let's merge, by assuming that 'info' has is more up-to-date
@@ -191,7 +190,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       this.nbrs += idn -> toAdd
     }
 
-    def updateNeighborhood(neighbors: Set[ID], clear: Boolean = false): Unit = {
+    def updateNeighborhood(neighbors: Set[UID], clear: Boolean = false): Unit = {
       logger.debug(s"\nAdding neighbors $neighbors and clear=$clear")
 
       if(clear) this.nbrs = Map()
@@ -201,7 +200,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       })
     }
 
-    def updateNeighborsState(exps: Map[ID,Option[EXPORT]], clear: Boolean = false): Unit = {
+    def updateNeighborsState(exps: Map[UID,Option[ComputationExport]], clear: Boolean = false): Unit = {
       logger.debug(s"\nAdding neighbors' exports $exps and clear=$clear")
 
       if(clear) this.nbrs = Map()
@@ -213,7 +212,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       }
     }
 
-    def removeNeighbor(idn: ID): Unit = {
+    def removeNeighbor(idn: UID): Unit = {
       logger.debug(s"\nRemoving neighbor $idn")
       nbrs -= idn
     }
@@ -223,7 +222,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    * Base trait for all device actors.
    */
   trait BaseDeviceActor extends Actor {
-    val selfId: ID
+    val selfId: UID
   }
 
   /**
@@ -239,13 +238,13 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // ABSTRACT MEMBERS
 
-    def propagateExportToNeighbors(export: EXPORT)
-    var aggregateExecutor: Option[ExecutionTemplate]
+    def propagateExportToNeighbors(export: ComputationExport)
+    var aggregateExecutor: Option[ProgramContract]
 
     // CONCRETE FIELDS
 
     var rounds = 0
-    var lastExport: Option[EXPORT] = None
+    var lastExport: Option[ComputationExport] = None
 
     // ACTOR LIFECYCLE
 
@@ -282,11 +281,11 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       // Query local sensor to update sensor values
       updateSensorValues()
 
-      val context = new ContextImpl(
+      val context = dataFactory.context(
         selfId,
         nbrExports,
-        sensorValues,
-        nbrSensorValues)
+        sensorValues.toMap,
+        nbrSensorValues.mapValues(_.toMap).toMap)
       val export = compute(context)
       this.lastExport = Some(export)
 
@@ -297,7 +296,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       executeActuators(export.root())
     }
 
-    def compute(ctx: CONTEXT): EXPORT = {
+    def compute(ctx: ComputationContext): ComputationExport = {
       val exp = aggregateExecutor.get.round(ctx)
       exp
     }
@@ -363,22 +362,22 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       ref ! MsgNeighborhood(selfId, this.nbrs.keySet)
     }
 
-    override def setLocalSensorValue(name: LSNS, value: Any): Unit = {
+    override def setLocalSensorValue(name: LSensorName, value: Any): Unit = {
       super.setLocalSensorValue(name, value)
       notifyObservers(MsgLocalSensorValue(name, value))
     }
 
-    override def updateNeighborhood(neighbors: Set[ID], clear: Boolean = false): Unit = {
+    override def updateNeighborhood(neighbors: Set[UID], clear: Boolean = false): Unit = {
       super.updateNeighborhood(neighbors, clear)
       notifyObservers(MsgNeighborhood(selfId, this.nbrs.keySet))
     }
 
-    override def removeNeighbor(idn: ID): Unit = {
+    override def removeNeighbor(idn: UID): Unit = {
       super.removeNeighbor(idn)
       notifyObservers(MsgNeighborhood(selfId, this.nbrs.keySet))
     }
 
-    override def updateNeighborsState(nexps: Map[ID,Option[EXPORT]], clear: Boolean = false): Unit = {
+    override def updateNeighborsState(nexps: Map[UID,Option[ComputationExport]], clear: Boolean = false): Unit = {
       super.updateNeighborsState(nexps, clear)
 
       // Trailing .map(identity) is needed because mapValues() results in a non-serializable object

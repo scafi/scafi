@@ -22,8 +22,8 @@ import it.unibo.scafi.distrib.actor.patterns.PeriodicObservableInputProviderActo
 
 trait PlatformSensors { self: Platform.Subcomponent =>
 
-  abstract class PeriodicObservableSensorActor[T](name: LSNS) extends
-  PeriodicObservableInputProviderActor[LSNS,T](name) {
+  abstract class PeriodicObservableSensorActor[T](name: LSensorName) extends
+  PeriodicObservableInputProviderActor[LSensorName,T](name) {
     override def currentStateMessage: Any = {
       new MsgLocalSensorValue(name,value.get)
     }

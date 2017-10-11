@@ -56,11 +56,11 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
      */
     val deviceGui: Boolean
     def deviceGuiProps(dev: ActorRef): Props
-    def deviceProps(id: ID, program: Option[ExecutionTemplate]): Props
+    def deviceProps(id: UID, program: Option[ProgramContract]): Props
 
-    var devices: Map[ID, DeviceManager] = Map()
+    var devices: Map[UID, DeviceManager] = Map()
 
-    override def newDevice(id: ID, program: Option[ExecutionTemplate] = None, nbs: Set[ID] = Set()): DeviceManager = {
+    override def newDevice(id: UID, program: Option[ProgramContract] = None, nbs: Set[UID] = Set()): DeviceManager = {
       import akka.pattern._
       import scala.concurrent.ExecutionContext.Implicits.global
       implicit val to: akka.util.Timeout = 10.seconds
@@ -94,7 +94,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
    * @param actorRef The device's actor reference
    * @param appRef The actor reference for this very aggregate application
    */
-  class BasicDeviceManager(val selfId: ID,
+  class BasicDeviceManager(val selfId: UID,
                            val actorRef: ActorRef,
                            val appRef: ActorRef) extends AbstractDeviceManager
     with Serializable {
@@ -105,15 +105,15 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
     def start: Unit = actorRef ! GoOn
 
-    override def addSensorValue[T](name: LSNS, value: T): Unit = {
+    override def addSensorValue[T](name: LSensorName, value: T): Unit = {
       actorRef ! MsgLocalSensorValue(name, value)
     }
 
-    override def addSensor[T](name: LSNS, provider: () => T): Unit = {
+    override def addSensor[T](name: LSensorName, provider: () => T): Unit = {
       actorRef ! MsgAddSensor(name, provider)
     }
 
-    override def addActuator(name: LSNS, consumer: Any => Unit): Unit = {
+    override def addActuator(name: LSensorName, consumer: Any => Unit): Unit = {
       actorRef ! MsgAddActuator(name, consumer)
     }
 

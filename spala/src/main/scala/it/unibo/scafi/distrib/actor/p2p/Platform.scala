@@ -19,7 +19,6 @@
 package it.unibo.scafi.distrib.actor.p2p
 
 import it.unibo.scafi.distrib.actor.{Platform => BasePlatform}
-import it.unibo.scafi.platform.Platform.PlatformDependency
 import scala.concurrent.duration.DurationInt
 
 /**

@@ -48,14 +48,14 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    *  peer-to-peer manner.
    * In particular, it needs to propagate each computed state to its neighbors.
    */
-  class DeviceActor(override val selfId: ID,
-                    override var aggregateExecutor: Option[ExecutionTemplate],
+  class DeviceActor(override val selfId: UID,
+                    override var aggregateExecutor: Option[ProgramContract],
                     override var execScope: ExecScope)
     extends DynamicComputationDeviceActor
     with MissingCodeManagementBehavior
     with P2pNbrManagementBehavior {
 
-    def propagateExportToNeighbors(export: EXPORT): Unit = {
+    def propagateExportToNeighbors(export: ComputationExport): Unit = {
       import context.dispatcher
 
       val NBR_LOOKUP_TIMEOUT = 2.seconds
@@ -82,8 +82,8 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   }
 
   object DeviceActor extends Serializable {
-    def props(selfId: ID,
-              program: Option[ExecutionTemplate],
+    def props(selfId: UID,
+              program: Option[ProgramContract],
               execStrategy: ExecScope): Props =
       Props(classOf[DeviceActor], self, selfId, program, execStrategy)
   }

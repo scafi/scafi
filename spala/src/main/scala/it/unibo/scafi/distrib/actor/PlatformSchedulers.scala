@@ -35,8 +35,8 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
    *  ({{recipientForExecution: ID=>ActorRef}}) and sends to it a schedule tick ([[GoOn]] msg).
    */
   trait GenericScheduler { self: Actor =>
-    var nextToRun: () => Option[ID]
-    def recipientForExecution(id: ID): ActorRef
+    var nextToRun: () => Option[UID]
+    def recipientForExecution(id: UID): ActorRef
     def onDone() {}
 
     val logger = akka.event.Logging(context.system, this)
@@ -73,15 +73,15 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
                             override val initialDelay: Option[FiniteDuration],
                             override var workInterval: FiniteDuration) extends
   Actor with GenericScheduler with PeriodicBehavior {
-    var ids = Vector[ID]()
-    var map = MMap[ID,ActorRef]()
+    var ids = Vector[UID]()
+    var map = MMap[UID,ActorRef]()
     var kNext = 0
 
-    override def recipientForExecution(id: ID): ActorRef = map(id)
+    override def recipientForExecution(id: UID): ActorRef = map(id)
 
     logger.info("\nAUTONOMOUS SCHEDULER with strategy " + strategy)
 
-    override var nextToRun: () => Option[ID] = strategy match {
+    override var nextToRun: () => Option[UID] = strategy match {
       case RandomExecStrategy(seed) => {
         val random = new Random(seed)
         () => if(ids.isEmpty) None else Some(ids(random.nextInt(ids.size)))

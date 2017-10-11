@@ -45,8 +45,8 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    *   - The state of the device itself ({{PropagateExportToNeighbors}})
    *     is sent to the server {{server}}
    */
-  class DeviceActor(override val selfId: ID,
-                    override var aggregateExecutor: Option[ExecutionTemplate],
+  class DeviceActor(override val selfId: UID,
+                    override var aggregateExecutor: Option[ProgramContract],
                     override var execScope: ExecScope,
                     val server: ActorRef)
     extends DynamicComputationDeviceActor
@@ -76,23 +76,23 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       sensorValues.foreach(sns => notifySensorValueToServer(sns._1, sns._2))
     }
 
-    override def setLocalSensorValue(name: LSNS, value: Any): Unit = {
+    override def setLocalSensorValue(name: LSensorName, value: Any): Unit = {
       super.setLocalSensorValue(name, value)
       notifySensorValueToServer(name, value)
     }
 
-    def notifySensorValueToServer(name: LSNS, value: Any): Unit = {
+    def notifySensorValueToServer(name: LSensorName, value: Any): Unit = {
       server ! MsgSensorValue(selfId, name, value)
       logger.debug(s"\nSENSOR ${name} => ${value}")
     }
 
-    override def propagateExportToNeighbors(export: EXPORT): Unit =
+    override def propagateExportToNeighbors(export: ComputationExport): Unit =
       server ! MsgExport(selfId, export)
   }
 
   object DeviceActor extends Serializable {
-    def props(selfId: ID,
-              program: Option[ExecutionTemplate],
+    def props(selfId: UID,
+              program: Option[ProgramContract],
               execStrategy: ExecScope,
               serverActor: ActorRef) =
       Props(classOf[DeviceActor], self, selfId, program, execStrategy, serverActor)

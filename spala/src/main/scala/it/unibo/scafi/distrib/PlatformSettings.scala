@@ -19,12 +19,13 @@
 package it.unibo.scafi.distrib
 
 import scala.language.postfixOps
+import com.typesafe.config.{Config, ConfigFactory, ConfigObject}
 
-import com.typesafe.config.{ConfigObject, ConfigFactory, Config}
 import scala.concurrent.duration._
-
 import java.io.File
 import java.util.concurrent.TimeUnit
+
+import it.unibo.utils.Interop
 
 trait PlatformSettings { self: Platform.Subcomponent =>
 
@@ -46,9 +47,9 @@ trait PlatformSettings { self: Platform.Subcomponent =>
                       start: Boolean = true)
 
   case class AggregateApplicationSettings(name: String = "untitled",
-                                          program: () => Option[ExecutionTemplate] = () => None)
-  case class DeviceConfigurationSettings(ids: Set[ID] = Set(),
-                                         nbs: Map[ID,Set[ID]] = Map())
+                                          program: () => Option[ProgramContract] = () => None)
+  case class DeviceConfigurationSettings(ids: Set[UID] = Set(),
+                                         nbs: Map[UID,Set[UID]] = Map())
   case class DeploymentSettings(host: String = "127.0.0.1",
                                 port: Int = 9000)
   case class PlatformSettings(subsystemDeployment: DeploymentSettings = DeploymentSettings(),
@@ -56,7 +57,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
                               loglevel: String = LogLevels.Debug,
                               codeMobilitySupport: Boolean = true)
   case class SubsystemSettings(subsystemDeployment: DeploymentSettings = DeploymentSettings(),
-                               ids: Set[ID] = Set())
+                               ids: Set[UID] = Set())
   case class EmptyProfileSettings() extends ConfigurableSettings[EmptyProfileSettings] {
     override def fromConfig(c: Config): EmptyProfileSettings = EmptyProfileSettings()
   }
@@ -70,7 +71,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   sealed trait ExecStrategy
   sealed trait AsyncExecStrategy extends ExecStrategy
   case class RandomExecStrategy(seed: Int) extends AsyncExecStrategy
-  case class OrderedExecStrategy(nextToRun: ()=>Option[ID]) extends AsyncExecStrategy
+  case class OrderedExecStrategy(nextToRun: ()=>Option[UID]) extends AsyncExecStrategy
   case object RoundRobinStrategy extends AsyncExecStrategy
 
   sealed trait DeviceExecStrategy
@@ -118,7 +119,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
       var aas = base.copy(name = c.getString("name"))
       programClass.foreach { programClassName =>
         val klass = Class.forName(programClassName)
-        aas = base.copy(program = () => Some(klass.newInstance().asInstanceOf[ExecutionTemplate]))
+        aas = base.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramContract]))
       }
       aas
     }
@@ -160,7 +161,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   }
   object SubsystemSettings {
     def fromConfig(c: Config, base: SubsystemSettings = SubsystemSettings())
-                  (implicit ev: Interop[ID]): SubsystemSettings = {
+                  (implicit ev: Interop[UID]): SubsystemSettings = {
       val deploy = c.getObject("deployment").toConfig
       val ids = if(c.hasPath("ids")) c.getStringList("ids").toSet else Set()
 
@@ -173,7 +174,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   }
   object DeviceConfigurationSettings {
     def fromConfig(c: Config, base: DeviceConfigurationSettings = DeviceConfigurationSettings())
-                  (implicit ev: Interop[ID]): DeviceConfigurationSettings = {
+                  (implicit ev: Interop[UID]): DeviceConfigurationSettings = {
       val ids = if(c.hasPath("ids")) c.getStringList("ids").toSet else Set()
       val idsWithNbs = if(c.hasPath("nbrs")) c.getObject("nbrs").keys else Set[String]()
 
@@ -212,7 +213,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
 
       opt[String]("program") valueName ("<FULLY QUALIFIED CLASS NAME>") action { (x, c) =>
         val klass = Class.forName(x)
-        c.copy(aggregate = c.aggregate.copy(program = () => Some(klass.newInstance().asInstanceOf[ExecutionTemplate])))
+        c.copy(aggregate = c.aggregate.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramContract])))
       } text ("Aggregate program")
 
       opt[String]('h', "host") valueName ("<HOST>") action { (x, c) =>
@@ -266,7 +267,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
           val xs = subsysDesc.split(":")
           val host = xs(0)
           val port = xs(1).toInt
-          val ids = xs.drop(2).map(interopID.fromString(_)).toSet
+          val ids = xs.drop(2).map(interopUID.fromString(_)).toSet
 
           ss += SubsystemSettings(
             ids = ids,
@@ -294,9 +295,9 @@ trait PlatformSettings { self: Platform.Subcomponent =>
         }
 
         c.copy(deviceConfig = c.deviceConfig.copy(
-          ids = parsedIds.map(interopID.fromString(_)),
+          ids = parsedIds.map(interopUID.fromString(_)),
           nbs = parserNbs.map {
-            case (k, v) => interopID.fromString(k) -> v.map(interopID.fromString(_))
+            case (k, v) => interopUID.fromString(k) -> v.map(interopUID.fromString(_))
           }))
       } } text ("Neighbors")
 

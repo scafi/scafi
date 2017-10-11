@@ -20,8 +20,7 @@ package it.unibo.scafi.distrib.actor.server
 
 import akka.actor.{ActorRef, Props}
 import it.unibo.scafi.distrib.actor.server.{Platform => BasePlatform}
-import it.unibo.scafi.platform.Platform.PlatformDependency
-import it.unibo.scafi.space.{MetricSpatialAbstraction, SpatialAbstraction}
+import it.unibo.scafi.space.MetricSpatialAbstraction
 
 /**
  * Specializes an [[it.unibo.scafi.distrib.actor.Platform]] into a "centralized platform" where
@@ -31,11 +30,11 @@ import it.unibo.scafi.space.{MetricSpatialAbstraction, SpatialAbstraction}
  */
 
 trait SpatialPlatform extends BasePlatform {
-  thisVery: PlatformDependency with MetricSpatialAbstraction =>
+  thisVery: MetricSpatialAbstraction =>
 
-  val LocationSensorName: LSNS
+  val LocationSensorName: LSensorName
 
-  case class MsgWithPosition(id: ID, pos: P)
+  case class MsgWithPosition(id: UID, pos: P)
 
   class SettingsFactorySpatial extends SettingsFactoryServer {
     override def defaultProfileSettings(): ProfileSettings =
@@ -44,16 +43,16 @@ trait SpatialPlatform extends BasePlatform {
 
   @transient override val settingsFactory = new SettingsFactorySpatial
 
-  class SpatialServerActor(val space: MutableMetricSpace[ID],
+  class SpatialServerActor(val space: MutableMetricSpace[UID],
                            val scheduler: Option[ActorRef])
     extends AbstractServerActor
     with ObservableServerActor {
 
-    override def neighborhood(id: ID): Set[ID] = {
+    override def neighborhood(id: UID): Set[UID] = {
       if(space.contains(id)) space.getNeighbors(id).toSet else Set()
     }
 
-    override def setSensorValue(id: ID, name: LSNS, value: Any): Unit = {
+    override def setSensorValue(id: UID, name: LSensorName, value: Any): Unit = {
       super.setSensorValue(id, name, value)
       if(name == LocationSensorName) {
         space.setLocation(id, value.asInstanceOf[P])

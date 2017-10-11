@@ -18,33 +18,44 @@
 
 package it.unibo.scafi.distrib
 
+import it.unibo.utils.{Interop, Linearizable}
+
 trait BasePlatform {
-  type ID <: Id
-  type LSNS
-  type NSNS
-  type CONTEXT <: Context
-  type EXPORT <: Export
-  type FACTORY <: Factory
-  type PROGRAM <: ExecutionTemplate
+  type UID
+  type LSensorName
+  type NSensorName
+  type ComputationContext <: ComputationContextContract
+  type ComputationExport <: ComputationExportContract
+  type DataFactory <: DataFactoryContract
+  type Program <: ProgramContract
 
-  trait Id {
-    def toLong: Long
+  implicit val dataFactory: DataFactory
+
+  implicit val linearUID: Linearizable[UID]
+  implicit val interopUID: Interop[UID]
+
+  trait ComputationContextContract {
+    /*
+    def id: UID
+    def export(nbr: UID): ComputationExport
+    def localSense(name: LSensorName): Any
+    def aggregateSense(name: NSensorName)(nbr: UID): Any
+    */
   }
 
-  trait Context {
-
+  trait ComputationExportContract {
+    def root[T](): T
   }
 
-  trait Export {
-
+  trait DataFactoryContract {
+    def context(id: UID,
+                exports: Map[UID,ComputationExport],
+                lsns: Map[LSensorName,Any],
+                nsns: Map[NSensorName,Map[UID,Any]]): ComputationContext
   }
 
-  trait Factory {
-
-  }
-
-  trait ExecutionTemplate {
-
+  trait ProgramContract {
+    def round(ctx: ComputationContext): ComputationExport
   }
 }
 

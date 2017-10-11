@@ -30,7 +30,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
   type ProfileSettings = P2PActorSystemSettings
   case class P2PActorSystemSettings(deviceGui: Boolean = false,
-                                    devActorProps: ID => Option[Props] = _ => None,
+                                    devActorProps: UID => Option[Props] = _ => None,
                                     devGuiActorProps: ActorRef => Option[Props] = _ => None,
                                     tmGuiActorProps: ActorRef => Option[Props] = _ => None)
     extends ConfigurableSettings[P2PActorSystemSettings] {
@@ -57,7 +57,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
     override def deviceGuiProps(dev: ActorRef): Props = profSettings.devGuiActorProps(dev).get
 
-    override def deviceProps(id: ID, program: Option[ExecutionTemplate]): Props =
+    override def deviceProps(id: UID, program: Option[ProgramContract]): Props =
       DeviceActor.props(id, program, execScope)
 
     override def start(): Unit = {
@@ -69,7 +69,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       }
     }
 
-    override def addNeighbor(id: ID, idn: ID): Unit = {
+    override def addNeighbor(id: UID, idn: UID): Unit = {
       // NOTE: In the decentralized case, if we have no information,
       //  then this operation is local to the subsystem
       otherSubsystems.find(_.ids.contains(idn)) match {

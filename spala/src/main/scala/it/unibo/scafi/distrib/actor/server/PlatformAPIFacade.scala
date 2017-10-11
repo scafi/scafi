@@ -38,7 +38,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                                             startServer: Boolean = false,
                                             deviceGui: Boolean = false,
                                             serverGui: Boolean = false,
-                                            devActorProps: ID => Option[Props] = _ => None,
+                                            devActorProps: UID => Option[Props] = _ => None,
                                             serverActorProps: Option[ActorRef]=>Props = ServerActor.props(_),
                                             devGuiActorProps: ActorRef => Option[Props] = _ => None,
                                             serverGuiActorProps: ActorRef => Option[Props] = _ => None)
@@ -117,11 +117,11 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
     override def deviceGuiProps(dev: ActorRef): Props = profSettings.devGuiActorProps(dev).get
 
-    override def deviceProps(id: ID, program: Option[ExecutionTemplate]): Props = {
+    override def deviceProps(id: UID, program: Option[ProgramContract]): Props = {
       DeviceActor.props(id, program, execScope, server)
     }
 
-    override def addNeighbor(id: ID, idn: ID): Unit = {
+    override def addNeighbor(id: UID, idn: UID): Unit = {
       server ! MsgNeighbor(id, idn)
     }
 

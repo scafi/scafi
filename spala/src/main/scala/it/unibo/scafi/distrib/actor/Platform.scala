@@ -33,8 +33,8 @@ trait Platform extends DistributedPlatform
   /**
    * This structure packages together info about a neighbor.
    */
-  case class NbrInfo(nid: ID,
-                     export: Option[EXPORT] = None,
+  case class NbrInfo(nid: UID,
+                     export: Option[ComputationExport] = None,
                      mailbox: Option[ActorRef] = None,
                      path: Option[String] = None){
     override def hashCode: Int = nid.hashCode

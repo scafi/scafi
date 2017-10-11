@@ -83,7 +83,7 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
    */
   trait UpdateableAggregateComputationBehavior
     extends BasicActorBehavior with MissingCodeManagementBehavior { sself: Actor =>
-    def setProgram(et: ExecutionTemplate): Unit
+    def setProgram(et: ProgramContract): Unit
 
     override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse {
       // Program management
@@ -112,7 +112,7 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
     import context.dispatcher
     implicit val timeout: Timeout = 2.seconds
 
-    def shipProgram(program: ExecutionTemplate,
+    def shipProgram(program: ProgramContract,
                     dependencies: Set[Class[_]] = Set(),
                     recipients: Set[ActorRef]): Unit = {
       // Load the code associated to the program and its dependencies

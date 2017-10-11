@@ -30,7 +30,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   type DeviceManager <: AbstractDeviceManager
 
   trait SystemMain extends App with Serializable {
-    def programBuilder: Option[ExecutionTemplate] = None
+    def programBuilder: Option[ProgramContract] = None
 
     def setupSystem(settings: Settings): Unit = {
       val s = refineSettings(settings)
@@ -74,16 +74,16 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   }
 
   trait AbstractDeviceManager {
-    def addSensorValue[T](name: LSNS, value: T): Unit
-    def addSensor[T](name: LSNS, provider: ()=>T): Unit
-    def addActuator(name: LSNS, consumer: Any=>Unit): Unit
+    def addSensorValue[T](name: LSensorName, value: T): Unit
+    def addSensor[T](name: LSensorName, provider: ()=>T): Unit
+    def addActuator(name: LSensorName, consumer: Any=>Unit): Unit
   }
 
   trait AbstractSystemFacade {
-    def newDevice(id: ID,
-                  program: Option[ExecutionTemplate] = None,
-                  neighbors: Set[ID] = Set()): DeviceManager
-    def addNeighbor(id: ID, idn: ID): Unit
+    def newDevice(id: UID,
+                  program: Option[ProgramContract] = None,
+                  neighbors: Set[UID] = Set()): DeviceManager
+    def addNeighbor(id: UID, idn: UID): Unit
     def start(): Unit
   }
 
@@ -108,7 +108,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       aggregateApp
     }
 
-    def deviceSetup(s: Settings, devId: ID): (PlatformFacade, SystemFacade, DeviceManager) = {
+    def deviceSetup(s: Settings, devId: UID): (PlatformFacade, SystemFacade, DeviceManager) = {
       val platform = setupPlatform(s.platform, s.profile)
       val aggregateApp = platform.newAggregateApplication(s.aggregate, s.profile, s.execution.scope)
 

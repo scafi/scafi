@@ -39,31 +39,31 @@ trait PlatformServer { self: Platform.Subcomponent =>
     // ABSTRACT MEMBERS
 
     val scheduler: Option[ActorRef]
-    def neighborhood(id: ID): Set[ID]
+    def neighborhood(id: UID): Set[UID]
 
     // CONCRETE MEMBERS
 
-    val map = MMap[ID,ActorRef]()
-    val exports = MMap[ID,EXPORT]()
-    val snsValues = MMap[ID,Map[LSNS,Any]]()
+    val map = MMap[UID,ActorRef]()
+    val exports = MMap[UID,ComputationExport]()
+    val snsValues = MMap[UID,Map[LSensorName,Any]]()
 
     def start(): Unit = scheduler.foreach(_ ! GoOn)
 
-    def lookupActor(id: ID): Option[ActorRef] = map.get(id)
+    def lookupActor(id: UID): Option[ActorRef] = map.get(id)
 
-    def exportsFor(id: ID): Map[ID, Option[EXPORT]] =
+    def exportsFor(id: UID): Map[UID, Option[ComputationExport]] =
       neighborhood(id).map(nbr => nbr -> exports.get(nbr)).toMap
 
-    def addExports(exps: Map[ID, EXPORT]): Unit = {
+    def addExports(exps: Map[UID, ComputationExport]): Unit = {
       exports ++= exps
     }
 
-    def registerDevice(devId: ID, ref: ActorRef): Unit = {
+    def registerDevice(devId: UID, ref: ActorRef): Unit = {
       map += (devId -> sender)
       scheduler.foreach(_ ! MsgWithDevices(Map(devId -> sender)))
     }
 
-    def setSensorValue(id: ID, name: LSNS, value: Any): Unit = {
+    def setSensorValue(id: UID, name: LSensorName, value: Any): Unit = {
       //logger.debug(s"\n${id}'s update for ${name} (=$value)")
       snsValues += (id -> (snsValues.getOrElse(id,Map()) + (name -> value)))
     }
@@ -116,17 +116,17 @@ trait PlatformServer { self: Platform.Subcomponent =>
     override def receive: Receive = super.receive
       .orElse(observersManagementBehavior)
 
-    override def registerDevice(id: ID, ref: ActorRef): Unit = {
+    override def registerDevice(id: UID, ref: ActorRef): Unit = {
       super.registerDevice(id, ref)
       notifyObservers(DevInfo(id, ref))
     }
 
-    override def addExports(exps: Map[ID, EXPORT]): Unit = {
+    override def addExports(exps: Map[UID, ComputationExport]): Unit = {
       super.addExports(exps)
       notifyObservers(MsgExports(exps))
     }
 
-    override def setSensorValue(id: ID, name: LSNS, value: Any): Unit = {
+    override def setSensorValue(id: UID, name: LSensorName, value: Any): Unit = {
       super.setSensorValue(id, name, value)
       notifyObservers(MsgSensorValue(id, name, value))
     }
@@ -137,9 +137,9 @@ trait PlatformServer { self: Platform.Subcomponent =>
     with ObservableServerActor
     with MissingCodeManagementBehavior {
 
-    val neighborhoods = MMap[ID,Set[ID]]()
+    val neighborhoods = MMap[UID,Set[UID]]()
 
-    def neighborhood(id: ID): Set[ID] = neighborhoods.getOrElse(id, Set())
+    def neighborhood(id: UID): Set[UID] = neighborhoods.getOrElse(id, Set())
 
     override def inputManagementBehavior: Receive = super.inputManagementBehavior orElse {
       case MsgNeighbor(id, idn) => {
@@ -150,7 +150,7 @@ trait PlatformServer { self: Platform.Subcomponent =>
       }
     }
 
-    def addNbrsTo(id: ID, nbrs: Set[ID]): Unit = {
+    def addNbrsTo(id: UID, nbrs: Set[UID]): Unit = {
       neighborhoods += id -> (neighborhood(id) ++ nbrs)
       notifyObservers(MsgNeighborhood(id,nbrs))
     }

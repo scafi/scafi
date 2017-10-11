@@ -22,4 +22,5 @@ import it.unibo.scafi.distrib.Platform
 
 trait BasicAbstractDistributedIncarnation extends
   BasicAbstractIncarnation with Platform {
+
 }
