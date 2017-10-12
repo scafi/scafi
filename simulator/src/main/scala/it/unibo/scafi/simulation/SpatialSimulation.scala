@@ -53,6 +53,9 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       space.asInstanceOf[MutableSpace[ID]].setLocation(id,newPos)
     }
 
+    def getAllNeighbours(): Map[ID, Iterable[ID]] =
+      ids.iterator.map(id => id -> space.getNeighbors(id)).toMap
+
     override def addSensor[A](name: LSNS, value: A): Unit = {
       sensors += name -> value
       chgSensorValue(name, devs.keySet, value)

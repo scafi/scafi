@@ -53,6 +53,8 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
       randomSensorSeed = configurationSeed
     )
 
+    //network.setNeighbours(net.getAllNeighbours)
+
     SensorEnum.sensors.foreach(se => {
       // TODO: println(se);
       net.addSensor(se.name, se.value) }
@@ -93,5 +95,6 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   override def setPosition(n: Node): Unit = {
     net.setPosition(n.id, new Point2D(n.position.x, n.position.y))
+    network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
 }
