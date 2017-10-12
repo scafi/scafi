@@ -18,9 +18,9 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockF, BlockG, BlockT2}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockT2}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import lib.Movement2DSupport
+import lib.{FlockingLib, Movement2DSupport}
 
 /**
   * @author Andrea De Castri, Cristian Paolucci, Davide Foschi
@@ -42,7 +42,7 @@ object SupplyRescue extends Launcher {
   launch()
 }
 
-class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with BlockF with Movement2DSupport with BlockG with BlockT2 {
+class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG with BlockT2 {
 
   /**
     * Sense1 - Supply
