@@ -18,8 +18,9 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockF, BlockG, BlockM}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockF, BlockG}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import lib.Movement2DSupport
 
 /**
   * @author Andrea De Castri, Cristian Paolucci, Davide Foschi
@@ -41,7 +42,7 @@ object BlobDroneSystemExploration extends Launcher {
   launch()
 }
 
-class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinitions with BlockF with BlockM with BlockG {
+class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinitions with BlockF with Movement2DSupport with BlockG {
 
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0
