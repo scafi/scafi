@@ -19,6 +19,7 @@
 package it.unibo.scafi.lib
 
 import it.unibo.scafi.incarnations.Incarnation
+import it.unibo.scafi.movement.Stdlib_BlockM
 
 trait StandardLibrary extends
          Stdlib_BlockG
@@ -28,6 +29,8 @@ trait StandardLibrary extends
     with Stdlib_BlockS
     with Stdlib_BlocksWithGC
     with Stdlib_BuildingBlocks
+    with Stdlib_BlockM
+    with Stdlib_BlockF
     with StdLib_FieldUtils
     with StdLib_TimeUtils
     with StdLib_GenericUtils
