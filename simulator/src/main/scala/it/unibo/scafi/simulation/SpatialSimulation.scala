@@ -65,12 +65,6 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       })
     }
 
-    /*
-    override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = {
-      ids.foreach { id => lsnsMap += name -> (lsnsMap.getOrElse(name,MMap()) + (id -> value)) }
-    }
-     */
-
     class SpatialSimulatorContextImpl(id: ID) extends SimulatorContextImpl(id){
 
       import NetworkSimulator.Optionable
@@ -123,10 +117,10 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
 
   override def simulatorFactory: SimulatorFactory = new BasicSimulatorFactory {
     override def gridLike(gsettings: GridSettings,
-                 rng: Double,
-                 lsnsMap: MMap[LSNS,MMap[ID,Any]] = MMap(),
-                 nsnsMap: MMap[NSNS,MMap[ID,MMap[ID,Any]]] = MMap(),
-                 seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
+                          rng: Double,
+                          lsnsMap: MMap[LSNS,MMap[ID,Any]] = MMap(),
+                          nsnsMap: MMap[NSNS,MMap[ID,MMap[ID,Any]]] = MMap(),
+                          seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
       val positions = SpaceHelper.gridLocations(gsettings, seeds.configSeed)
       val ids = for(i <- 1 to gsettings.nrows * gsettings.ncols) yield i
       var lsnsById = Map[ID, Map[LSNS,Any]]()
@@ -147,9 +141,9 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
 
     // TODO: basicSimulator shouldn't use randomness!!! fix it!!!
     override def basicSimulator(idArray: MArray[ID] = MArray(),
-                       nbrMap: MMap[ID, Set[ID]] = MMap(),
-                       lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                       nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
+                                nbrMap: MMap[ID, Set[ID]] = MMap(),
+                                lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
+                                nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
       val positions = SpaceHelper.randomLocations(SimpleRandomSettings(), idArray.length)
 
       var lsnsById = Map[ID, Map[LSNS,Any]]()

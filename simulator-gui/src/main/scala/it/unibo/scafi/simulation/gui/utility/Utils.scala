@@ -20,12 +20,11 @@ package it.unibo.scafi.simulation.gui.utility
 
 import javax.swing._
 import java.awt._
-import java.awt.geom.Point2D
 import java.awt.image.BufferedImage
 import java.io.File
 import java.net.URL
 import java.nio.file.Paths
-
+import it.unibo.scafi.space.Point2D
 /**
   * This class handles the images update, the component dimension and the component position.
   */
@@ -212,22 +211,24 @@ object Utils {
   /**
     *
     * @param position
-    * @return calcola la posizione del GuiNode
+    * @return position of GuiNode
     */
   def calculatedGuiNodePosition(position: Point2D): Point = {
     // position.x : 1 = res.x : frame.getWidth();
     val res: Point = new Point
-    res.x = (position.getX * (frameDimension.getWidth - getSizeGuiNode.getWidth)).toInt // Placing at the center of the frame
-    res.y = (position.getY * (frameDimension.getHeight - getSizeGuiNode.getHeight)).toInt
+    res.x = (position.x * (frameDimension.getWidth - getSizeGuiNode.getWidth)).toInt // Placing at the center of the frame
+    res.y = (position.y * (frameDimension.getHeight - getSizeGuiNode.getHeight)).toInt
     return res
   }
 
   /**
     *
     * @param position
-    * @return calcola la posizione del nodo del model
+    * @return position of model point
     */
   def calculatedNodePosition(position: Point): Point2D = {
-    return new Point2D.Double(position.getX / (getFrameDimension.getWidth - getSizeGuiNode.getWidth), position.getY / (getFrameDimension.getHeight - getSizeGuiNode.getHeight))
+    new Point2D(
+      position.getX / (getFrameDimension.getWidth - getSizeGuiNode.getWidth),
+      position.getY / (getFrameDimension.getHeight - getSizeGuiNode.getHeight))
   }
 }

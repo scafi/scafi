@@ -28,13 +28,13 @@ import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.model.implementation._
 import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
-import it.unibo.scafi.space.Point2D
-import it.unibo.scafi.space.SpaceHelper
-
+import it.unibo.scafi.space.{Point2D, SpaceHelper}
 import scala.collection.immutable.List
 import javax.swing.SwingUtilities
 
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
+
+import scala.util.Try
 
 object Controller {
   private var SINGLETON: Controller = null
@@ -164,20 +164,20 @@ class Controller () {
       }
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
       positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety), configurationSeed)
-    }
-    else {
+    } else {
       positions = SpaceHelper.randomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes, configurationSeed)
     }
 
     var i: Int = 0
     positions.foreach(p =>  {
-      val node: Node = new NodeImpl(i, new java.awt.geom.Point2D.Double(p.x, p.y))
+      val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
       guiNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
       i = i + 1
     })
+
     val simulation: Simulation = new SimulationImpl
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
@@ -276,8 +276,8 @@ class Controller () {
       v.toString
   }
 
-  def formatPosition(pos: java.awt.geom.Point2D): String = {
-    f"(${pos.getX}%5.2g ; ${pos.getY}%5.2g)"
+  def formatPosition(pos: Point2D): String = {
+    f"(${pos.x}%5.2g ; ${pos.y}%5.2g)"
   }
 
   def formatPosition(pos: java.awt.Point): String = {

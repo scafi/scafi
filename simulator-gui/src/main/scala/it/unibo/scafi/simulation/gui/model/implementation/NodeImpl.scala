@@ -18,9 +18,9 @@
 
 package it.unibo.scafi.simulation.gui.model.implementation
 
-import java.awt.geom.Point2D
 
 import it.unibo.scafi.simulation.gui.model.{Action, Node, Sensor}
+import it.unibo.scafi.space.Point2D
 
 import scala.util.Random
 
@@ -38,7 +38,7 @@ class NodeImpl(val id: Int, var position: Point2D) extends Node {
   )
 
   def this(id: Int) {
-    this(id, new Point2D.Double(new Random().nextDouble, new Random().nextDouble))
+    this(id, new Point2D(new Random().nextDouble, new Random().nextDouble))
   }
 
   def addNeighbour(neighbour: Node): Boolean = {
