@@ -50,6 +50,7 @@ object Settings {
   var Color_device1 = java.awt.Color.red
   var Color_device2 = java.awt.Color.green
   var Color_device3 = java.awt.Color.blue
+  var Color_device4 = java.awt.Color.CYAN
   var Color_link = new Color(240,240,240)
   var Color_actuator = java.awt.Color.yellow
   val Color_observation = new Color(200,0,0)

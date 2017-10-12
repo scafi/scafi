@@ -33,7 +33,8 @@ class NodeImpl(val id: Int, var position: Point2D) extends Node {
     SensorEnum.OBSTACLE -> false,
     SensorEnum.SENS1 -> false,
     SensorEnum.SENS2 -> false,
-    SensorEnum.SENS3 -> false
+    SensorEnum.SENS3 -> false,
+    SensorEnum.SENS4 -> false
   )
 
   def this(id: Int) {

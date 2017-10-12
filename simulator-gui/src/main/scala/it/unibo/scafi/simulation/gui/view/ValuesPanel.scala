@@ -55,7 +55,8 @@ class ValuesPanel private[view]() extends JPanel {
       //controller.getSensorValueForNode(SensorEnum.SENS3.name, n).map(_==true).getOrElse(false) // too expensive
       var color = if (n.getSensorValue(SensorEnum.SENS1.name)==true) Settings.Color_device1 else
                   if (n.getSensorValue(SensorEnum.SENS2.name)==true) Settings.Color_device2 else
-                  if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else Settings.Color_device
+                  if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else
+                  if (n.getSensorValue(SensorEnum.SENS4.name)==true) Settings.Color_device4 else Settings.Color_device
 
       if(controller.getObservation()(n.export)) color = Settings.Color_observation
 
