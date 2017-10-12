@@ -34,7 +34,10 @@ object Settings {
   var Sim_DeltaRound = 0
   var Sim_NumNodes = 100
   var ShowConfigPanel = true
-
+  var Sim_DrawConnections = true
+  var Sim_realTimeMovementUpdate = true
+  var Sim_Draw_Sensor_Radius = false
+  var Sim_Sensor_Radius = 0.03
   var SimulationSeed = System.nanoTime()
   var RandomSensorSeed = System.nanoTime()
   var ConfigurationSeed = System.nanoTime()
@@ -53,9 +56,11 @@ object Settings {
   var Color_device4 = java.awt.Color.CYAN
   var Color_link = new Color(240,240,240)
   var Color_actuator = java.awt.Color.yellow
+  var Color_movement = java.awt.Color.red
   val Color_observation = new Color(200,0,0)
 
   var Led_Activator: Any=>Boolean = (_)=>false
-  var To_String: Any=>String = null
+  var Movement_Activator: Any=>(Double, Double) = (_)=>(0.0, 0.0)
+  var To_String: Any=>String = (_) => ("")
 
 }

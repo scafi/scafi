@@ -259,6 +259,14 @@ class Controller () {
       controllerUtility.calculatedInfo(guiNode.getInfoPanel)
   }
 
+  def moveNode(node: Node, guiNode: GuiNode) {
+    if(Settings.Sim_realTimeMovementUpdate) controllerUtility.revalidateSimulationPanel()
+    simManager.simulation.setPosition(node)
+
+    if (guiNode.getInfoPanel != null)
+      controllerUtility.calculatedInfo(guiNode.getInfoPanel)
+  }
+
   def setShowValue(kind: NodeValue) {
     this.valueShowed = kind
   }
@@ -286,13 +294,30 @@ class Controller () {
 
   def updateNodeValue(nodeId: Int): Unit = {
     val (node, guiNode) = this.nodes(nodeId)
-    valueShowed match {
-      case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
-      case NodeValue.EXPORT => guiNode.setValueToShow(formatExport(node.export))
-      case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position))
-      case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position)))
-      case NodeValue.SENSOR(name) => guiNode.setValueToShow(node.getSensorValue(name).toString)
-      case _ => guiNode.setValueToShow("")
+
+    // TODO: refactoring with a more effective actuation model (e.g., similar to the sensing model)
+    var vec: (Double, Double) = Try(Settings.Movement_Activator(node.export).asInstanceOf[(Double, Double)]) getOrElse(0.0, 0.0)
+    if(vec._1 != 0.0 || vec._2 != 0.0) {
+      val point = node.position
+      var newX: Double = point.x + vec._1
+      var newY: Double = point.y + vec._2
+
+      val newP = Utils.calculatedGuiNodePosition(new Point2D(newX, newY))
+      guiNode.setLocation(newP.x, newP.y)
+      node.position = new Point2D(newX, newY)
+      moveNode(node, guiNode)
+    }
+
+    var outputString: String = Try(Settings.To_String(node.export).asInstanceOf[String]) getOrElse(null)
+    if(outputString != null && !outputString.equals("")) {
+      valueShowed match {
+        case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
+        case NodeValue.EXPORT => guiNode.setValueToShow(formatExport(node.export))
+        case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position))
+        case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position)))
+        case NodeValue.SENSOR(name) => guiNode.setValueToShow(node.getSensorValue(name).toString)
+        case _ => guiNode.setValueToShow("")
+      }
     }
     counter = counter + 1
     if (counter % updateFrequency == 0) {
