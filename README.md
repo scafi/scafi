@@ -12,9 +12,7 @@ Steps
 * Add the dependency to scafi in your project (e.g., via sbt)
 
 
-```
-#!scala
-
+```scala
 val scafi_core  = "it.unibo.apice.scafiteam" %% "scafi-core"  % "0.2.0"
 val scafi_simulator  = "it.unibo.apice.scafiteam" %% "scafi-simulator"  % "0.2.0"
 val scafi_simulator_gui  = "it.unibo.apice.scafiteam" %% "scafi-simulator-gui"  % "0.2.0"
@@ -26,8 +24,7 @@ libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 * Use the API (e.g., to set up a simple simulation)
 
 
-```
-#!scala
+```scala
 package experiments
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
@@ -72,5 +69,5 @@ object SimulationRunner extends Launcher {
 
 ### Contacts ###
 
-* roby.casadei@unibo.it
-* mirko.viroli@unibo.it
+* roby [dot] casadei [at] unibo [dot] it
+* mirko [dot] viroli [at] unibo [dot] it
