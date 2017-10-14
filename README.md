@@ -1,9 +1,16 @@
 # scafi (**sca**la **fi**elds) #
 
-
-### Introduction ###
-
 **scafi** is an Scala-based aggregate-programming framework which implements the Field Calculus semantics and provides an API for simulation and execution of aggregate programming applications
+
+## Status Badges
+
+#### Stable branch
+[![Build Status](https://travis-ci.org/scafi/scafi.svg?branch=master)](https://travis-ci.org/scafi/scafi)
+
+#### Development branch
+[![Build Status](https://travis-ci.org/scafi/scafi.svg?branch=develop)](https://travis-ci.org/scafi/scafi)
+
+## Notes for developers
 
 ### Usage ###
 
@@ -62,12 +69,16 @@ object SimulationRunner extends Launcher {
 * a basic graphical simulator has been added as a separate module `simulator-gui`
 * cross compilation for Scala 2.11 and 2.12
 
-### References ###
+## References ##
 
 * Towards Aggregate Programming in Scala. Roberto Casadei and Mirko Viroli. In First Workshop on Programming Models and Languages for Distributed Computing (PMLDC), 2016.
 * Aggregate Programming for the Internet of Things. Jacob Beal, Danilo Pianini, and Mirko Viroli. IEEE Computer, 2015
 
-### Contacts ###
+## Contacts ##
 
 * roby [dot] casadei [at] unibo [dot] it
 * mirko [dot] viroli [at] unibo [dot] it
+
+## License ##
+
+scafi is Open Source and available under the Apache 2 License.
