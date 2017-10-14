@@ -7,12 +7,16 @@ and provides a platform and API for simulating and executing Aggregate Computing
 
 Please refer to [the scafi main website](https://scafi.github.io/) for further information.
 
-## Status Badges
+## Overview
+
+### Status Badges
 
 #### Stable branch
+
 [![Build Status](https://travis-ci.org/scafi/scafi.svg?branch=master)](https://travis-ci.org/scafi/scafi)
 
 #### Development branch
+
 [![Build Status](https://travis-ci.org/scafi/scafi.svg?branch=develop)](https://travis-ci.org/scafi/scafi)
 
 ## Notes for developers
@@ -76,7 +80,8 @@ object SimulationRunner extends Launcher {
 
 ## References ##
 
-* Towards Aggregate Programming in Scala. Roberto Casadei and Mirko Viroli. In First Workshop on Programming Models and Languages for Distributed Computing (PMLDC), 2016.
+* Towards Aggregate Programming in Scala. Roberto Casadei and Mirko Viroli. 
+  In First Workshop on Programming Models and Languages for Distributed Computing (PMLDC), 2016.
 * Aggregate Programming for the Internet of Things. Jacob Beal, Danilo Pianini, and Mirko Viroli. IEEE Computer, 2015
 
 ## Contacts ##
