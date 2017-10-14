@@ -1,6 +1,11 @@
 # scafi (**sca**la **fi**elds) #
 
-**scafi** is an Scala-based aggregate-programming framework which implements the Field Calculus semantics and provides an API for simulation and execution of aggregate programming applications
+**scafi** is a Scala-based library and framework for Aggregate Programming. 
+It implements a variant of the Higher-Order Field Calculus (HOFC) operational semantics,
+ which is made available as a usable domain-specific language (DSL),
+and provides a platform and API for simulating and executing Aggregate Computing systems and applications.
+
+Please refer to [the scafi main website](https://scafi.github.io/) for further information.
 
 ## Status Badges
 
