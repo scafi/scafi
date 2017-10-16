@@ -30,9 +30,9 @@ import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
   * This is the general frame that contains all panel
   */
 class SimulatorUI() extends JFrame("SCAFI Simulator") {
-  private[gui] var center: SimulationPanel = new SimulationPanel //JDesktopPane per visualizzare le simulazioni
-  final private val menuBarNorth: JMenuBar = new MenuBarNorth //barra del menù in alto
-  private var oldDim: Dimension = null //utilizzato per la riposizione dei nodi quando il frame viene rimpicciolito
+  private[gui] var center: SimulationPanel = new SimulationPanel
+  final private val menuBarNorth: JMenuBar = new MenuBarNorth
+  private var oldDim: Dimension = null
 
   setSize(Utils.getFrameDimension)
   oldDim = Utils.getFrameDimension
@@ -51,6 +51,9 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
   amap.put(SensorEnum.SENS2.name, createSensorAction[Boolean](SensorEnum.SENS2.name, default = false, map = !_))
   imap.put(KeyStroke.getKeyStroke('3'), SensorEnum.SENS3.name)
   amap.put(SensorEnum.SENS3.name, createSensorAction[Boolean](SensorEnum.SENS3.name, default = false, map = !_))
+  imap.put(KeyStroke.getKeyStroke('4'), SensorEnum.SENS4.name)
+  amap.put(SensorEnum.SENS4.name, createSensorAction[Boolean](SensorEnum.SENS4.name, default = false, map = !_))
+
   imap.put(KeyStroke.getKeyStroke("DOWN"), "Quicker")
   imap.put(KeyStroke.getKeyStroke("UP"), "Slower")
   amap.put("Quicker", createAction((e: ActionEvent)=>{
@@ -81,7 +84,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
       super.componentResized(e)
       Utils.setDimensionFrame(getSize)
       for (i <- center.getAllFrames) {
-        i.setSize(Utils.getSizeGuiNode) //ridimensionamento
+        i.setSize(Utils.getSizeGuiNode)
         i.setLocation((i.getLocation().getX * getWidth / oldDim.getWidth().round).toInt,
           (i.getLocation().getY * getHeight / oldDim.getHeight.round).toInt)
       }

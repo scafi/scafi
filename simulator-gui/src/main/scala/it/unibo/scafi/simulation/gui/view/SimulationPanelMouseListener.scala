@@ -50,7 +50,7 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
     if (!flag) {
       // Let's deselect all the nodes
       controller.getNodes.foreach(_._2.setSelected(false))
-      captureRect.setBounds(0, 0, 0, 0) //= new Rectangle(); // Let's create a new selection area
+      captureRect.setBounds(0, 0, 0, 0) // Let's create a new selection area
       panel.maybeShowPopup(e) // Let's hide the menu
       panel.repaint()
     }
@@ -85,18 +85,18 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
       // Dragging to expand the area to be selected
       val end: Point = me.getPoint
       if (end.x < start.x && end.y < start.y) {
-        captureRect.setRect(end.x, end.y, start.x - end.x, start.y - end.y) // = new Rectangle(end, new Dimension(start.x - end.x, start.y - end.y));
+        captureRect.setRect(end.x, end.y, start.x - end.x, start.y - end.y)
       }
       else if (end.getX > start.getX && end.getY < start.getY) {
         val start1: Point = new Point(start.x, end.y)
-        captureRect.setRect(start1.x, start1.y, end.x - start.x, start.y - end.y) //= new Rectangle(start1, new Dimension(end.x - start.x, start.y - end.y));
+        captureRect.setRect(start1.x, start1.y, end.x - start.x, start.y - end.y)
       }
       else if (end.x > start.x && end.y > start.y) {
-        captureRect.setRect(start.x, start.y, end.x - start.x, end.y - start.y) // = new Rectangle(start, new Dimension(end.x - start.x, end.y - start.y));
+        captureRect.setRect(start.x, start.y, end.x - start.x, end.y - start.y)
       }
       else if (end.getX < start.getX && end.getY > start.getY) {
         val start1: Point = new Point(end.x, start.y)
-        captureRect.setRect(start1.x, start1.y, start.x - end.x, end.y - start.y) // = new Rectangle(start1, new Dimension(start.x - end.x, end.y - start.y));
+        captureRect.setRect(start1.x, start1.y, start.x - end.x, end.y - start.y)
       }
       panel.setRectSelection(captureRect)
       panel.repaint()

@@ -18,14 +18,13 @@
 
 package it.unibo.scafi.simulation.gui.model.implementation
 
-import it.unibo.scafi.simulation.gui.Settings
-import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, NbrPolicy, Network, Node}
+import it.unibo.scafi.simulation.gui.model.{NbrPolicy, Network, Node}
 
-class NetworkImpl(val nodes: Map[Int,Node], var neighbourhoodPolicy: NbrPolicy) extends Network {
-  calculateNeighbours
+class NetworkImpl(var nodes: Map[Int,Node], var neighbourhoodPolicy: NbrPolicy) extends Network {
+  var neighbours = Map[Node, Set[Node]]()
 
   def neighbourhood: Map[Node, Set[Node]] = {
-    return calculateNeighbours
+    neighbours
   }
 
   def observableValue: Set[String] = {
@@ -36,27 +35,37 @@ class NetworkImpl(val nodes: Map[Int,Node], var neighbourhoodPolicy: NbrPolicy) 
       "None")
   }
 
-  private def calculateNeighbours: Map[Node, Set[Node]] = {
-    var neighbours = Set[Node]()
-    var res = Map[Node, Set[Node]]()
+  def setNodeNeighbours(id: Int, nbrs: Iterable[Int]): Unit ={
+    var currentNode = nodes(id)
+    var nbrsSet = nbrs.iterator.map(nodes(_)).toSet
 
-    var nbrRadius: Double = neighbourhoodPolicy match {
-      case EuclideanDistanceNbr(radius) => radius
-      case _ => Settings.Sim_NbrRadius
-    }
+    currentNode.removeAllNeghbours()
+    currentNode.addAllNeighbours(nbrsSet)
 
-    for (n <- nodes.values) {
-      neighbours = Set()
-      n.removeAllNeghbours
-      for (n1 <- nodes.values) {
-        val distance: Double = Math.hypot(n.position.getX - n1.position.getX, n.position.getY - n1.position.getY)
-        if (distance <= nbrRadius) {
-          neighbours += n1
+    neighbours += (currentNode -> nbrsSet)
+
+    neighbours.keys.foreach(node => {
+      var neighbourNbrs = neighbours(node)
+      if(nbrsSet.contains(node)){
+        if(!neighbourNbrs.contains(currentNode)){
+          neighbours += node -> (neighbourNbrs + currentNode)
+        }
+      } else {
+        if(neighbourNbrs.contains(currentNode)){
+          neighbours += node -> (neighbourNbrs - currentNode)
         }
       }
-      n.addAllNeighbours(neighbours)
-      res += n -> neighbours
+    })
+  }
+
+  def setNeighbours(nbrMap: Map[Int, Iterable[Int]]): Unit  = {
+    var newNeighbours = nbrMap.map {
+      case (id: Int, nbrs: Iterable[Int]) => nodes(id) -> nbrs.iterator.map(nodes(_)).toSet
     }
-    return res
+    nodes.values.foreach(node => {
+      node.removeAllNeghbours()
+      node.addAllNeighbours(newNeighbours(node))
+    })
+    this.neighbours = newNeighbours
   }
 }

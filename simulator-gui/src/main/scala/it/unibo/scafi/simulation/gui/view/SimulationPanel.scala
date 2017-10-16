@@ -28,19 +28,19 @@ import java.awt.event.MouseEvent
   * This is the most important panel in which the simulation will be executed.
   */
 class SimulationPanel() extends JDesktopPane {
-  final private val neighborsPanel: NeighborsPanel = new NeighborsPanel //pannello visualizzazione vicini
-  final private val valuesPanel: ValuesPanel = new ValuesPanel //pannello visualizzazione valori
+  final private val neighborsPanel: NeighborsPanel = new NeighborsPanel
+  final private val valuesPanel: ValuesPanel = new ValuesPanel
   private var bkgImage: Image = null
-  final private val captureRect: Rectangle = new Rectangle //rettangolo di selezione
-  final private val popup: MyPopupMenu = new MyPopupMenu //menu tasto destro
+  final private val captureRect: Rectangle = new Rectangle
+  final private val popup: MyPopupMenu = new MyPopupMenu
 
-  this.setBackground(Settings.Color_background) //azzurro
+  this.setBackground(Settings.Color_background)
   setBorder(new LineBorder(Color.black))
   this.add(valuesPanel, 1)
   this.add(neighborsPanel, 2)
   val motion: SimulationPanelMouseListener = new SimulationPanelMouseListener(this)
-  this.addMouseListener(motion) //gestisco quando appare il pannello delle opzioni
-  this.addMouseMotionListener(motion) //creo e gestisco l'era di selezione
+  this.addMouseListener(motion)
+  this.addMouseMotionListener(motion)
 
   override def paintComponent(g: Graphics) {
     if (bkgImage != null) {

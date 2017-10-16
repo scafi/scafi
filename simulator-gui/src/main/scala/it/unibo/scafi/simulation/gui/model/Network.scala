@@ -23,6 +23,10 @@ trait Network {
 
   def neighbourhood: Map[Node, Set[Node]]
 
+  def setNodeNeighbours(id: Int, newNeighbours: Iterable[Int])
+
+  def setNeighbours(value: Map[Int, Iterable[Int]]): Unit
+
   def neighbourhoodPolicy: NbrPolicy
 
   def observableValue: Set[String]
