@@ -119,8 +119,8 @@ class ControllerPrivate (val gui: SimulatorUI) {
     controller.nodes.values.foreach(kv => {
       val (n, g) = kv
       if (n.id == infoPanel.getId) {
-        infoPanel.addInfo("position", "x: " + f"${n.position.getX() * 100}%.02f" // * MyDimension.getFrameDimension().getWidth() se volessi vedere le posizioni int dei frame
-          + " \t y: " + f"${n.position.getY() * 100}%.02f")
+        infoPanel.addInfo("position", "x: " + f"${n.position.x * 100}%.02f" // * MyDimension.getFrameDimension().getWidth() se volessi vedere le posizioni int dei frame
+          + " \t y: " + f"${n.position.y * 100}%.02f")
         infoPanel.addInfo("Export: ", n.export.toString())
         n.sensors.foreach { case (s, v) => infoPanel.addInfo(s.name, s.value.toString()) }
         controller.simManager.simulation.network.neighbourhood // Recalculate the nbrs

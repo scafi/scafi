@@ -35,6 +35,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
   final private var button: JButton = null
   final private var valueString: String = null
   private var infoPanel: NodeInfoPanel = null
+  var point: Point = null
 
   this.valueShow = new JLabel("")
   this.valueShow.setBackground(null)
@@ -107,8 +108,12 @@ class GuiNode(val node: Node) extends JInternalFrame {
     }
   }
 
+  override def getLocation(): Point =
+    return this.point
+
   override def setLocation(x: Int, y: Int) {
-    super.setLocation(x, y)
+    // super.setLocation(x, y)
+    point = new Point(x, y)
     if (this.infoPanel != null) {
       infoPanel.setLocation(x + getWidth, y)
     }
@@ -116,7 +121,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
 
   @throws[PropertyVetoException]
   override def setSelected(selected: Boolean) {
-    //non faccio la super perchè se no non riesco a selezionarne più di uno
+    // don't call super, otherwise I wouldn't be able to select more than one item
     if (selected) {
       //this.button.setIcon(Utils.getSelectedIcon(button.getIcon))
       this.valueShow.setForeground(Color.lightGray)
@@ -128,36 +133,31 @@ class GuiNode(val node: Node) extends JInternalFrame {
     isSelected = selected
   }
 
-  def setValueToShow(text: String) {
+  def setValueToShow(text: String): Unit = {
     this.valueString = text
     this.valueShow.setText("<html>" + text.replaceAll("\n", "<br>"))
   }
 
-  def getValueToShow(): String = this.valueString
+  def getValueToShow(): String =
+    this.valueString
 
-  def setLabelFont(font: Font) {
+  def setLabelFont(font: Font): Unit =
     this.valueShow.setFont(font)
-  }
 
-  def setLabelColor(color: Color) {
+  def setLabelColor(color: Color): Unit =
     this.valueShow.setForeground(color)
-  }
 
-  def setInfoPanel(p: NodeInfoPanel) {
+  def setInfoPanel(p: NodeInfoPanel): Unit =
     this.infoPanel = p
-  }
 
-  def setImageButton(res: String) {
-    val dividendo: Int = if (getWidth < getHeight) getWidth
-    else getHeight
+  def setImageButton(res: String): Unit = {
+    //val dividendo: Int = if (getWidth < getHeight) getWidth else getHeight
     //button.setIcon(Utils.getScaledImage(res, dividendo / 2, dividendo / 2))
   }
 
-  def showInfo(show: Boolean) {
+  def showInfo(show: Boolean): Unit =
     infoPanel.setVisible(show)
-  }
 
-  def getInfoPanel: NodeInfoPanel = {
-    return this.infoPanel
-  }
+  def getInfoPanel: NodeInfoPanel =
+    this.infoPanel
 }

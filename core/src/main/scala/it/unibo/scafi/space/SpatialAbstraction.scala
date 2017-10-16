@@ -19,12 +19,12 @@
 package it.unibo.scafi.space
 
 import scala.language.higherKinds
-
 import it.unibo.utils.BiMap
 
+
 /**
- * Component which represents a spatial abstraction
- */
+  * Component which represents a spatial abstraction
+  */
 
 trait SpatialAbstraction {
   type P // Type for "position"

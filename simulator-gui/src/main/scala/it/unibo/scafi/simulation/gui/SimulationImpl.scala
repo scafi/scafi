@@ -39,7 +39,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   def setRunProgram(program: Any): Unit = {
 
-    val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D (n.position.getX, n.position.getY)) // Map id->position
+    val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D(n.position.x, n.position.y)) // Map id->position
     net = new SpaceAwareSimulator(
       space = new Basic3DSpace(devsToPos,
         proximityThreshold = this.network.neighbourhoodPolicy match {
@@ -52,6 +52,8 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
       simulationSeed = simulationSeed,
       randomSensorSeed = configurationSeed
     )
+
+    //network.setNeighbours(net.getAllNeighbours)
 
     SensorEnum.sensors.foreach(se => {
       // TODO: println(se);
@@ -67,7 +69,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
     this.controller.simManager.setPauseFire(deltaRound)
   }
 
-  def getDeltaRound() = this.deltaRound
+  def getDeltaRound(): Double = this.deltaRound
 
   def setStrategy(strategy: Any) {
     this.strategy = strategy
@@ -82,16 +84,17 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
     if(nodes.size==0 && !controller.selectionAttempted) {
       net.addSensor(sensor, value)
       sensors += sensor -> value
-    }
-    else
+    } else {
       net.chgSensorValue(sensor, idSet, value)
+    }
   }
 
   def getSensorValue(sensorName: String): Option[Any] = {
     net.getSensor(sensorName)
   }
 
-  override def setPosition(n: Node): Unit ={
-    net.setPosition(n.id, new Point2D(n.position.getX, n.position.getY))
+  override def setPosition(n: Node): Unit = {
+    net.setPosition(n.id, new Point2D(n.position.x, n.position.y))
+    network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
 }

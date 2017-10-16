@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.simulation.gui.model
 
-import java.awt.geom.Point2D
+import it.unibo.scafi.space.Point2D
 
 trait Node {
   def id: Int
