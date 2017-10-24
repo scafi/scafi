@@ -27,8 +27,6 @@ object TimerDemo extends Launcher {
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
-  //Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
-  //Settings.To_String = (b: Any) => ""
   launch()
 }
 

@@ -308,7 +308,7 @@ class Controller () {
       moveNode(node, guiNode)
     }
 
-    var outputString: String = Try(Settings.To_String(node.export).asInstanceOf[String]) getOrElse(null)
+    var outputString: String = Try(Settings.To_String(node.export)).getOrElse(null)
     if(outputString != null && !outputString.equals("")) {
       valueShowed match {
         case NodeValue.ID => guiNode.setValueToShow(node.id.toString)

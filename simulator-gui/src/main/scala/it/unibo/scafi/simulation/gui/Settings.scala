@@ -61,6 +61,6 @@ object Settings {
 
   var Led_Activator: Any=>Boolean = (_)=>false
   var Movement_Activator: Any=>(Double, Double) = (_)=>(0.0, 0.0)
-  var To_String: Any=>String = (_) => ("")
+  var To_String: Any=>String = x => x.toString
 
 }
