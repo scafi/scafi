@@ -49,7 +49,7 @@ class GuiNodeListeners private[view](val node: GuiNode) extends MouseAdapter {
     super.mouseDragged(e)
     if (!e.isMetaDown) {
       val pos: Point = node.getLocation
-      node.setLocation(pos.x + e.getX - p.x, pos.y + e.getY - p.y)
+      node.setNodeLocation(pos.x + e.getX - p.x, pos.y + e.getY - p.y)
       if (node.getInfoPanel != null) {
         repositionsInfoPanel()
       }
