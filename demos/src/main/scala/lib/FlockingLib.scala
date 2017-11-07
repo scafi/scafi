@@ -25,7 +25,7 @@ import scala.util.Random
 
 trait FlockingLib extends FieldUtils with StandardSensors {
   self: AggregateProgram =>
-  import excludingSelf._
+  import includingSelf._
 
   lazy val r: Random = sense[Random](LSNS_RANDOM)
   val SCALE = 1000
