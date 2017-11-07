@@ -71,7 +71,7 @@ class Main7 extends DISIDemoAggregateProgram {
 }
 
 class Main8 extends DISIDemoAggregateProgram {
-  override def main() = minHoodPlus(10*nbrRange)
+  override def main() = minHoodPlus(nbrRange)
 }
 
 class Main9 extends DISIDemoAggregateProgram {
