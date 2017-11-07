@@ -22,10 +22,6 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram,
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
-/**
-  * @author Andrea De Castri, Cristian Paolucci, Davide Foschi
-  *
-  */
 object SupplyRescue extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.SupplyRescueDemo" // starting class, via Reflection
@@ -42,14 +38,15 @@ object SupplyRescue extends Launcher {
   launch()
 }
 
+/**
+  * Scenario: military mission where drones have to retrieve supplies/provisions
+  *   parachuted in the region.
+  *    - Sense1 - Nodes that deliver supplies
+  *    - Sense2 - Obstacle
+  *    - Sense3 - Nodes that retrieve supplies and bring them to the base
+  *    - Sense4 - Base
+  */
 class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG with BlockT2 {
-
-  /**
-    * Sense1 - Supply
-    * Sense2 - Obstacle
-    * Sense3 - Coordinator
-    * Sense4 - Base
-    */
 
   override def main():(Double, Double) = rep({
     (0.0, 0.0)

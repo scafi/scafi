@@ -22,10 +22,6 @@ import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockT2}
 import lib.{FlockingLib, Movement2DSupport}
 
-/**
-  * Created by Andrea on 11/09/2017.
-  */
-
 object DroneRescue extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.DroneRescueDemo" // starting class, via Reflection
@@ -40,6 +36,16 @@ object DroneRescue extends Launcher {
   launch()
 }
 
+/**
+  * Scenario: search of survivors after natural disasters.
+  * When a drone finds a survivor, it stays at that point for some time,
+  *  then leaves there a medical kit and goes back to the base to restock.
+  * All the nodes know the position of the base of operations (which is fixed)
+  *  and so are able to go back to the base without depending on other nodes.
+  *   - Sense1: drones looking for survivors
+  *   - Sense2: survivors
+  *   - Sense3: obstacles
+  */
 class DroneRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG with BlockT2 {
 
   private val attractionForce: Double = 2.0

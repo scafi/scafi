@@ -31,6 +31,11 @@ object TargetCounting extends Launcher {
   launch()
 }
 
+/**
+  * (Incomplete) Draft of target counting as per paper
+  *  'Self-stabilising target counting in wireless sensor networks using Euler integration'
+  *  http://ieeexplore.ieee.org/abstract/document/8064025/
+  */
 class TargetCountingProgram extends AggregateProgram with SensorDefinitions
   with FieldUtils with BlockG with BlockS with BlockC with BlocksWithGC {
 
