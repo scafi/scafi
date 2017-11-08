@@ -231,10 +231,15 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     override def clearExports(): Unit = eMap.clear()
 
+    private def getExports(id: ID): Iterable[(ID,EXPORT)] = {
+       val nhood = neighbourhood(id) + id
+       eMap.filter(kv => nhood.contains(kv._1))
+    }
+
     class SimulatorContextImpl(id: ID)
       extends ContextImpl(
         selfId = id,
-        exports = eMap.filter(kv => (neighbourhood(id) + id).contains(kv._1)),
+        exports = getExports(id),
         localSensor = IMap(),
         nbrSensor = IMap()){
 

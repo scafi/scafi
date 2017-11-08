@@ -111,7 +111,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
   override def getLocation(): Point =
     return this.point
 
-  override def setLocation(x: Int, y: Int) {
+  def setNodeLocation(x: Int, y: Int) {
     // super.setLocation(x, y)
     point = new Point(x, y)
     if (this.infoPanel != null) {

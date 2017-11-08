@@ -172,7 +172,8 @@ class Controller () {
     positions.foreach(p =>  {
       val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
-      guiNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
+      val pt = Utils.calculatedGuiNodePosition(node.position)
+      guiNode.setNodeLocation(pt.x, pt.y)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
       i = i + 1
@@ -303,7 +304,7 @@ class Controller () {
       var newY: Double = point.y + vec._2
 
       val newP = Utils.calculatedGuiNodePosition(new Point2D(newX, newY))
-      guiNode.setLocation(newP.x, newP.y)
+      guiNode.setNodeLocation(newP.x, newP.y)
       node.position = new Point2D(newX, newY)
       moveNode(node, guiNode)
     }
@@ -367,7 +368,7 @@ class Controller () {
       val (n,g) = kv
       if (g.isSelected()) {
         val pos = g.getLocation()
-        g.setLocation(pos.x + p.x, pos.y + p.y)
+        g.setNodeLocation(pos.x + p.x, pos.y + p.y)
         moveNode(g, g.getLocation())
       }
     })
