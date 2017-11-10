@@ -50,6 +50,7 @@ trait Semantics extends Core with Language {
   sealed case class Rep[A](index: Int) extends Slot
   sealed case class FunCall[A](index: Int, funId: Any) extends Slot
   sealed case class FoldHood[A](index: Int) extends Slot
+  sealed case class Scope[K](key: K) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
@@ -136,6 +137,11 @@ trait Semantics extends Core with Language {
     override def aggregate[T](f: => T): T =
       vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(true) {
         f
+      }
+
+    override def align[K,V](key: K)(proc: K => V): V =
+      vm.nest[V](Scope[K](key))(true){
+        proc(key)
       }
 
     def sense[A](name: LSNS): A = vm.localSense(name)

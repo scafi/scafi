@@ -36,7 +36,10 @@ trait StdLib_FieldUtils {
       }
 
       def unionHood[T](expr: => T): Set[T] =
-        foldhoodTemplate[Set[T]](Set())(_.union(_))(Set(expr))
+        unionHoodSet(Set(expr))
+
+      def unionHoodSet[T](expr: => Iterable[T]): Set[T] =
+        foldhoodTemplate[Set[T]](Set())(_.union(_))(expr.toSet)
 
       def anyHood(expr: => Boolean): Boolean =
         foldhoodTemplate[Boolean](false)(_||_)(expr)
