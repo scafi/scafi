@@ -61,6 +61,12 @@ class Controller () {
     this.observation = obs
   }
 
+  def updateNodePosition(): Unit = {
+    this.nodes.foreach(x =>{
+      val (node,gNode) = x._2
+      gNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
+    })
+  }
   def setObservation(obs: String): Unit = {
     val split = obs.trim.split(" ", 2)
     val (operatorStr, valueStr) = (split(0), split(1))

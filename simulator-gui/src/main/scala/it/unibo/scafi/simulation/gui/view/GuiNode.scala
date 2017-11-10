@@ -96,6 +96,8 @@ class GuiNode(val node: Node) extends JInternalFrame {
     if (this.infoPanel != null) {
       infoPanel.setLocation(x + getWidth, y)
     }
+    this->invalidate()
+    this->repaint()
   }
 
   @throws[PropertyVetoException]
