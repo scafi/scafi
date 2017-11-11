@@ -65,6 +65,7 @@ class Controller () {
     this.nodes.foreach(x =>{
       val (node,gNode) = x._2
       gNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
+      gNode.setSize(Utils.getSizeGuiNode)
     })
   }
   def setObservation(obs: String): Unit = {
@@ -164,11 +165,12 @@ class Controller () {
     positions.foreach(p =>  {
       val node: Node = new NodeImpl(i, new java.awt.geom.Point2D.Double(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
-      guiNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
       i = i + 1
     })
+    //after creater of node, set the right position
+    this.updateNodePosition()
     val simulation: Simulation = new SimulationImpl
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
