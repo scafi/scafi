@@ -73,6 +73,13 @@ class Controller () {
     this.observation = obs
   }
 
+  def updateNodePosition(): Unit = {
+    this.nodes.foreach(x =>{
+      val (node,gNode) = x._2
+      gNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
+      gNode.setSize(Utils.getSizeGuiNode)
+    })
+  }
   def setObservation(obs: String): Unit = {
     val split = obs.trim.split(" ", 2)
     val (operatorStr, valueStr) = (split(0), split(1))
@@ -172,13 +179,12 @@ class Controller () {
     positions.foreach(p =>  {
       val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
-      val pt = Utils.calculatedGuiNodePosition(node.position)
-      guiNode.setNodeLocation(pt.x, pt.y)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
       i = i + 1
     })
-
+    //after creater of node, set the right position
+    this.updateNodePosition()
     val simulation: Simulation = new SimulationImpl
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
