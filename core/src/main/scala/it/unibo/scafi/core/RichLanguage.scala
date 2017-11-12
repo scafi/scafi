@@ -1,14 +1,28 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.core
 
 /**
- * @author Mirko Viroli
- * @author Roberto Casadei
- *
  * This trait defines a component that extends LanguageStructure and requires to be "attached" to Core
  * It defines a trait with additional language mechanisms, in the form of certain builtins, and Ordering implicits
  *
  */
-
 trait RichLanguage extends Language { self: Core =>
 
   trait Builtins { this: Constructs =>
@@ -18,6 +32,12 @@ trait RichLanguage extends Language { self: Core =>
       mux(cond)(() => aggregate{ th })(() => aggregate{ el })()
 
     def mux[A](cond: Boolean)(th: A)(el: A): A = if (cond) th else el
+
+    def minHoodLoc[A](default: A)(expr: => A)(implicit poglb: PartialOrderingWithGLB[A]): A =
+      foldhood[A](default)((x, y) => if(poglb.equiv(x, y)) poglb.gle(x,y) else if(poglb.lt(x,y)) x else y){expr}
+
+    def minHoodPlusLoc[A](default: A)(expr: => A)(implicit poglb: PartialOrderingWithGLB[A]): A =
+      foldhoodPlus[A](default)((x, y) => if(poglb.equiv(x, y)) poglb.gle(x,y) else if(poglb.lt(x,y)) x else y){expr}
 
     def minHood[A](expr: => A)(implicit of: Bounded[A]): A = foldhood[A](of.top)((x, y) => of.min(x, y)){expr}
     def maxHood[A](expr: => A)(implicit of: Bounded[A]): A = foldhood[A](of.bottom)((x, y) => of.max(x, y)){expr}
@@ -69,7 +89,7 @@ trait RichLanguage extends Language { self: Core =>
         def compare(a: String, b: String): Int = if (a > b) 1 else if (b < a) -1 else 0
       }
 
-      @transient implicit def of_ft[T : Bounded]: Bounded[()=>T] =
+      @transient implicit def funcBounded[T : Bounded]: Bounded[()=>T] =
         new Bounded[()=>T] {
           val oft = implicitly[Bounded[T]]
           def top: ()=>T = ()=> oft.top
@@ -77,13 +97,50 @@ trait RichLanguage extends Language { self: Core =>
           def compare(a: ()=>T, b: ()=>T): Int = oft.compare(a(),b())
         }
 
-      @transient implicit def of_tpl[T1, T2](implicit of1: Bounded[T1], of2: Bounded[T2]): Bounded[(T1, T2)] =
+      @transient implicit def tupleBounded[T1, T2](implicit of1: Bounded[T1], of2: Bounded[T2]): Bounded[(T1, T2)] =
         new Bounded[(T1, T2)] {
           def top: (T1, T2) = (of1.top, of2.top)
           def bottom: (T1, T2) = (of1.bottom, of2.bottom)
           def compare(a: (T1, T2), b: (T1, T2)): Int =
             if (of1.compare(a._1, b._1) == 0) of2.compare(a._2, b._2) else of1.compare(a._1, b._1)
         }
+
+      @transient implicit def tupleOnFirstBounded[T1, T2](implicit of1: Bounded[T1], of2: Defaultable[T2]): Bounded[(T1, T2)] =
+        new Bounded[(T1, T2)] {
+          def top: (T1, T2) = (of1.top, of2.default)
+          def bottom: (T1, T2) = (of1.bottom, of2.default)
+          def compare(a: (T1, T2), b: (T1, T2)): Int = of1.compare(a._1, b._1)
+        }
+    }
+
+    trait PartialOrderingWithGLB[T] extends PartialOrdering[T] {
+      def gle(x: T, y: T): T
+    }
+
+    object PartialOrderingWithGLB {
+      val pogldouble: PartialOrderingWithGLB[Double] =
+        new PartialOrderingWithGLB[Double] {
+          override def gle(x: Double, y: Double): Double = Math.min(x,y)
+          override def tryCompare(x: Double, y: Double): Option[Int] = None
+          override def lteq(x: Double, y: Double): Boolean = x <= y
+        }
+
+      implicit def poglbTuple[T1, T2](implicit p1: PartialOrderingWithGLB[T1], p2: PartialOrderingWithGLB[T2]): PartialOrderingWithGLB[(T1, T2)] =
+        new PartialOrderingWithGLB[(T1, T2)] {
+          override def gle(x: (T1, T2), y: (T1, T2)): (T1, T2) = (p1.gle(x._1,y._1), p2.gle(x._2,y._2))
+          override def tryCompare(x: (T1, T2), y: (T1, T2)): Option[Int] = None
+          override def lteq(x: (T1, T2), y: (T1, T2)): Boolean = p1.lteq(x._1,y._1) && p2.lteq(x._2,y._2)
+        }
+    }
+
+    trait Defaultable[T] {
+      def default: T
+    }
+
+    object Defaultable {
+      def apply[T](defaultVal: T): Defaultable[T] = new Defaultable[T] {
+        def default: T = defaultVal
+      }
     }
 
   }

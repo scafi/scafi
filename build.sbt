@@ -14,6 +14,7 @@ val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
 val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
+val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
 
 lazy val sharedPublishSettings = Seq(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
@@ -86,11 +87,22 @@ lazy val core = project.
     libraryDependencies += scalatest
   )
 
-lazy val simulator = project.
+lazy val stdlib = project.
   dependsOn(core).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
+    name := "scafi-lib",
+    version := "0.1.0",
+    libraryDependencies ++= Seq(scalatest, shapeless)
+  )
+
+lazy val simulator = project.
+  dependsOn(core, stdlib).
+  settings(commonSettings: _*).
+  settings(sharedPublishSettings: _*).
+  settings(
+    version := "0.1.0",
     name := "scafi-simulator"
   )
 
@@ -125,7 +137,7 @@ lazy val tests = project.
 
 // 'demos' project definition
 lazy val demos = project.
-  dependsOn(core, distributed, simulator, `simulator-gui`).
+  dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(
     name := "scafi-demos",

@@ -1,13 +1,30 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.space
 
-import scala.language.higherKinds // Removes warnings associated to use of higher kinds
-
+import scala.language.higherKinds
 import it.unibo.utils.BiMap
 
+
 /**
- * @author Roberto Casadei
- * Component which represents a spatial abstraction
- */
+  * Component which represents a spatial abstraction
+  */
 
 trait SpatialAbstraction {
   type P // Type for "position"
@@ -32,9 +49,9 @@ trait SpatialAbstraction {
   }
 
   trait MutableSpace[E] extends Space[E] {
-    def add(e: E, p: P)
-    def remove(e: E)
-    def setLocation(e: E, p: P)
+    def add(e: E, p: P): Unit
+    def remove(e: E): Unit
+    def setLocation(e: E, p: P): Unit
   }
 }
 
@@ -113,13 +130,13 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
 
   implicit val positionOrdering: Ordering[P] = new Ordering[P] {
     override def compare(a: P, b: P): Int = {
-      if (a.z > b.z) 1
-      else if (a.z < b.z) -1
-      else if (a.y > b.y) 1
-      else if (a.y < b.y) -1
-      else if (a.x > b.x) 1
-      else if (a.x < b.x) -1
-      else 0
+      if (a.z > b.z){ +1 }
+      else if (a.z < b.z){ -1 }
+      else if (a.y > b.y){ +1 }
+      else if (a.y < b.y){ -1 }
+      else if (a.x > b.x){ +1 }
+      else if (a.x < b.x){ -1 }
+      else { 0 }
     }
   }
 
@@ -131,19 +148,47 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     extends MutableMetricSpace[E]
     with EuclideanStrategy
     with Serializable {
+
+    var neighbourhoodMap: Map[E, Set[(E,D)]] = initNeighbours()
+
+    def initNeighbours(): Map[E, Set[(E,D)]] = {
+      var result = Map[E, Set[(E,D)]]()
+      elemPositions.foreach(elem => { result += (elem._1 -> this.calculateNeighbours(elem._1).toSet) })
+      result
+    }
+
+    def setLocation(e: E, p: P): Unit = {
+      add(e, p)
+      var newNeighbours: Set[(E,D)] = this.calculateNeighbours(e).toSet
+      var oldNeighbours: Set[(E,D)] = neighbourhoodMap(e)
+      if(oldNeighbours != newNeighbours){
+        var noMoreNeighbours: Set[(E,D)] = oldNeighbours.filter(el => !newNeighbours.exists(newNbr => newNbr._1==el._1))
+        var brandNewNeighbours: Set[(E,D)] = newNeighbours.filter(el => !oldNeighbours.exists(old => old._1==el))
+        for (elem <- noMoreNeighbours) {
+          neighbourhoodMap += (elem._1 -> this.calculateNeighbours(elem._1).toSet)
+        }
+        for (elem <- brandNewNeighbours) {
+          neighbourhoodMap += (elem._1 -> this.calculateNeighbours(elem._1).toSet)
+        }
+        neighbourhoodMap += (e -> newNeighbours)
+      }
+    }
+
+    private def calculateNeighbours(e: E): Iterable[(E,D)] = {
+      val p1 = getLocation(e)
+      getAll()
+        .filter(nbr => nbr != e && neighbouring(p1,getLocation(nbr)))
+       .map(e2 => (e2, getDistance(getLocation(e), getLocation(e2))))
+    }
+
+
     def add(e: E, p: P): Unit = elemPositions += (e -> p)
     def getLocation(e: E): P = elemPositions(e)
     def getAll(): Iterable[E] = elemPositions.keys
-    def remove(e: E) = elemPositions -= e
-    def setLocation(e: E, p: P) = add(e, p)
+    def remove(e: E): Unit = elemPositions -= e
 
     override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)
-    override def getNeighborsWithDistance(e: E): Iterable[(E, Double)] = {
-      val p1 = getLocation(e)
-      getAll().
-        map(e2 => (e2, getDistance(getLocation(e), getLocation(e2))))
-        .filter(tp => tp._1 != e && neighbouring(p1,getLocation(tp._1)))
-    }
+    override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = neighbourhoodMap(e)
 
     override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
 

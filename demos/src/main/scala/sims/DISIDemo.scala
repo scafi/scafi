@@ -1,6 +1,24 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ AggregateProgram, Builtins }
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object DISIDemo extends Launcher {
@@ -53,7 +71,7 @@ class Main7 extends DISIDemoAggregateProgram {
 }
 
 class Main8 extends DISIDemoAggregateProgram {
-  override def main() = minHoodPlus(10*nbrRange)
+  override def main() = minHoodPlus(nbrRange)
 }
 
 class Main9 extends DISIDemoAggregateProgram {
@@ -69,6 +87,8 @@ class Main11 extends DISIDemoAggregateProgram {
 }
 
 class Main12 extends DISIDemoAggregateProgram {
+  import Builtins.Bounded.of_i
+
   override def main() = maxHoodPlus(boolToInt(nbr{sense1}))
 }
 
@@ -77,6 +97,8 @@ class Main13 extends DISIDemoAggregateProgram {
 }
 
 class Main14 extends DISIDemoAggregateProgram {
+  import Builtins.Bounded.of_i
+
   override def main() = rep(0){ x => boolToInt(sense1) max maxHoodPlus( nbr{x}) }
 }
 

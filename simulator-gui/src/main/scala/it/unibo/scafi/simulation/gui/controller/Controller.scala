@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.simulation.gui.controller
 
 import java.awt.{Image, Point, Rectangle}
@@ -10,20 +28,14 @@ import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.model.implementation._
 import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
-import it.unibo.scafi.space.Point2D
-import it.unibo.scafi.space.SpaceHelper
-
+import it.unibo.scafi.space.{Point2D, SpaceHelper}
 import scala.collection.immutable.List
 import javax.swing.SwingUtilities
 
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
 
+import scala.util.Try
 
-
-/**
-  * Created by Varini on 14/11/16.
-  * Converted/refactored to Scala by Casadei on 3/02/17
-  */
 object Controller {
   private var SINGLETON: Controller = null
   private val gui = new SimulatorUI
@@ -53,7 +65,7 @@ class Controller () {
   final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
   private var valueShowed: NodeValue = NodeValue.EXPORT
   private var controllerUtility: ControllerPrivate = null
-  private val updateFrequency = Settings.Sim_NumNodes / 4
+  private val updateFrequency = Settings.Sim_NumNodes / 4.0
   private var counter = 0
   private var observation: Any=>Boolean = (_)=>false
 
@@ -140,6 +152,9 @@ class Controller () {
       case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
+    val configurationSeed = Settings.ConfigurationSeed
+    val simulationSeed = Settings.SimulationSeed
+    val randomSensorSeed = Settings.RandomSensorSeed
 
     val sensorVals: Map[String,Any] = Utils.parseSensors(sensorValues)
     sensorVals.foreach(kv => SensorEnum.sensors += new Sensor(kv._1, kv._2))
@@ -155,15 +170,14 @@ class Controller () {
         case Grid_HighVar => Settings.Grid_HiVar_Eps
       }
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
-      positions = SpaceHelper.GridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety))
-    }
-    else {
-      positions = SpaceHelper.RandomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes)
+      positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety), configurationSeed)
+    } else {
+      positions = SpaceHelper.randomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes, configurationSeed)
     }
 
     var i: Int = 0
     positions.foreach(p =>  {
-      val node: Node = new NodeImpl(i, new java.awt.geom.Point2D.Double(p.x, p.y))
+      val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
@@ -252,6 +266,14 @@ class Controller () {
       controllerUtility.calculatedInfo(guiNode.getInfoPanel)
   }
 
+  def moveNode(node: Node, guiNode: GuiNode) {
+    if(Settings.Sim_realTimeMovementUpdate) controllerUtility.revalidateSimulationPanel()
+    simManager.simulation.setPosition(node)
+
+    if (guiNode.getInfoPanel != null)
+      controllerUtility.calculatedInfo(guiNode.getInfoPanel)
+  }
+
   def setShowValue(kind: NodeValue) {
     this.valueShowed = kind
   }
@@ -269,8 +291,8 @@ class Controller () {
       v.toString
   }
 
-  def formatPosition(pos: java.awt.geom.Point2D): String = {
-    f"(${pos.getX}%5.2g ; ${pos.getY}%5.2g)"
+  def formatPosition(pos: Point2D): String = {
+    f"(${pos.x}%5.2g ; ${pos.y}%5.2g)"
   }
 
   def formatPosition(pos: java.awt.Point): String = {
@@ -279,13 +301,30 @@ class Controller () {
 
   def updateNodeValue(nodeId: Int): Unit = {
     val (node, guiNode) = this.nodes(nodeId)
-    valueShowed match {
-      case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
-      case NodeValue.EXPORT => guiNode.setValueToShow(formatExport(node.export))
-      case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position))
-      case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position)))
-      case NodeValue.SENSOR(name) => guiNode.setValueToShow(node.getSensorValue(name).toString)
-      case _ => guiNode.setValueToShow("")
+
+    // TODO: refactoring with a more effective actuation model (e.g., similar to the sensing model)
+    var vec: (Double, Double) = Try(Settings.Movement_Activator(node.export).asInstanceOf[(Double, Double)]) getOrElse(0.0, 0.0)
+    if(vec._1 != 0.0 || vec._2 != 0.0) {
+      val point = node.position
+      var newX: Double = point.x + vec._1
+      var newY: Double = point.y + vec._2
+
+      val newP = Utils.calculatedGuiNodePosition(new Point2D(newX, newY))
+      guiNode.setNodeLocation(newP.x, newP.y)
+      node.position = new Point2D(newX, newY)
+      moveNode(node, guiNode)
+    }
+
+    var outputString: String = Try(Settings.To_String(node.export)).getOrElse(null)
+    if(outputString != null && !outputString.equals("")) {
+      valueShowed match {
+        case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
+        case NodeValue.EXPORT => guiNode.setValueToShow(formatExport(node.export))
+        case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position))
+        case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position)))
+        case NodeValue.SENSOR(name) => guiNode.setValueToShow(node.getSensorValue(name).toString)
+        case _ => guiNode.setValueToShow("")
+      }
     }
     counter = counter + 1
     if (counter % updateFrequency == 0) {
@@ -335,7 +374,7 @@ class Controller () {
       val (n,g) = kv
       if (g.isSelected()) {
         val pos = g.getLocation()
-        g.setLocation(pos.x + p.x, pos.y + p.y)
+        g.setNodeLocation(pos.x + p.x, pos.y + p.y)
         moveNode(g, g.getLocation())
       }
     })
