@@ -73,7 +73,7 @@ class Controller () {
     this.observation = obs
   }
 
-  def updateNode() = {
+  def updateNodePositions() = {
     this.nodes.foreach(x => {
       val (node,guiNode) = x._2
       val dim = Utils.getSizeGuiNode()
@@ -82,6 +82,7 @@ class Controller () {
       guiNode.setSize(dim)
     })
   }
+
   def setObservation(obs: String): Unit = {
     val split = obs.trim.split(" ", 2)
     val (operatorStr, valueStr) = (split(0), split(1))
