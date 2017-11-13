@@ -15,7 +15,12 @@ val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
 val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
+val scafi_core  = "it.unibo.apice.scafiteam" %% "scafi-core"  % "0.2.0"
+val scafi_simulator  = "it.unibo.apice.scafiteam" %% "scafi-simulator"  % "0.2.0"
+val scafi_simulator_gui  = "it.unibo.apice.scafiteam" %% "scafi-simulator-gui"  % "0.2.0"
+val scafi_platform = "it.unibo.apice.scafiteam" %% "scafi-distributed"  % "0.2.0"
 
+libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 lazy val sharedPublishSettings = Seq(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
