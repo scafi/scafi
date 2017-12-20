@@ -21,9 +21,18 @@ trait Network {
   def nodes(): Set[Node]
 
   /**
+    * return a node with a specified ID
+    * @param id of the node
+    * @return the node
+    */
+  def node(id: Node#ID): Node
+  /**
     * generic topology of the network
     * **/
   trait Topology
 }
 
+/**
+  * A random topology
+  */
 class RandomTopology extends Network#Topology

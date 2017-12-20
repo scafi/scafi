@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.core
 
+import it.unibo.scafi.simulation.gui.model.space.Dimension
+
 /**
   * define a generic shape
   */
@@ -7,7 +9,7 @@ trait Shape {
   /**
     * the type of dimension
     */
-  type DIMENSION;
+  type DIMENSION <: Dimension
 
   /**
     *
@@ -15,10 +17,5 @@ trait Shape {
     */
   def dimension : DIMENSION
 
-  /**
-    *
-    * @return the scale of the shape
-    */
-  def scale : Int
 }
 
