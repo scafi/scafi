@@ -3,8 +3,12 @@ package it.unibo.scafi.simulation.gui.model.space
 /**
   * root trait of all type of position
   */
-sealed trait Position {}
-
+sealed trait Position {
+  object ZERO extends Position3D(0,0,0)
+}
+object Position {
+  object ZERO extends Position3D(0,0,0);
+}
 /**
   * describe a 3D position
   * @param x coordinate
@@ -35,7 +39,7 @@ object Position3D {
 
     def unapply(p: Position3D): Option[(Double, Double, Double)] = Some(p.x,p.y,p.y)
 
-    implicit def toPosition2D(p: Position3D) { Position2D(p.x,p.y)}
+    implicit def toPosition2D(p: Position3D) : Position2D = new Position2D(p.x,p.y)
 }
 
 /**
