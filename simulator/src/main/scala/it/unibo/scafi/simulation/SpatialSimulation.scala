@@ -48,9 +48,9 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     override val ids: Set[ID] = devs.keySet
     override def neighbourhood(id: ID): Set[ID] = space.getNeighbors(id).toSet
 
-    def setPosition(id: ID, newPos: P)(implicit ev: space.type <:< MutableSpace[ID]): Unit = {
+    def setPosition(id: ID, newPos: P): Unit = {
       devs(id).pos = newPos
-      space.asInstanceOf[MutableSpace[ID]].setLocation(id,newPos)
+      space.setLocation(id,newPos)
     }
 
     def getAllNeighbours(): Map[ID, Iterable[ID]] =

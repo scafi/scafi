@@ -18,7 +18,6 @@
 
 package sims
 
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
 trait SensorDefinitions extends StandardSensors { self: AggregateProgram =>

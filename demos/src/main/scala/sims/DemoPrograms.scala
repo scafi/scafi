@@ -20,7 +20,6 @@ package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
   {AggregateProgram, BlockG, BlockS, BlockT, Builtins, FieldUtils, GenericUtils, StandardSensors, LSNS_RANDOM}
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
 
 import scala.concurrent.duration.Duration
