@@ -44,13 +44,10 @@ trait Sensor extends Device {
   */
 trait Actuator extends Device {
   type ACTION <: ActuatorAction
-  //TODO aggiungere un'astrazione di tempo??
-  type TIME
-
   /**
     * execute an action
     */
-  def exec(dt : TIME)
+  def exec() : Boolean
 
 
   trait ActuatorAction

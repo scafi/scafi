@@ -3,8 +3,7 @@ package it.unibo.scafi.simulation.gui.model.core
 import it.unibo.scafi.simulation.gui.model.space.Position
 
 /**
-  * root trait of all nodes
-  * all node has an ID
+  * Node describe an object in a world
   */
 trait Node {
   /**
@@ -12,38 +11,45 @@ trait Node {
     */
   type ID;
   /**
+    * a generic position of the node
+    */
+  type P <: Position
+  /**
+    * a shape that describe the node
+    */
+  type SHAPE <: Shape
+  /**
+    * the devices associated to the node
+    */
+  type DEVICE <: Device
+  /**
     * the id associated with this node
     */
-  val id : ID;
-}
-/**
-  * a node with position in a space that could be change
-  */
-trait TransformNode extends Node {
-  type P <: Position
+  val id : ID
 
+  /**
+    * @return
+    *   the current position
+    */
   def position : P
 
-}
+  /**
+    *
+    * @return
+    *   the shape of the node
+    */
+  def shape : SHAPE
 
-/**
-  * a node with a some graphics component
-  */
-trait GraphicsNode  extends TransformNode {
-  type SHAPE <: Shape
-
-  val shape : Shape
-}
-
-/**
-  * a node that aggregate some devices
-  */
-trait AggregateNode extends Node {
-  type DEVICE <: Device
-
+  /**
+    * @return
+    *   all devices attach on this node
+    */
   def devices: Set[DEVICE]
 
-  def getDevice(name : DEVICE#NAME) : DEVICE
+  /**
+    *
+    * @param name of device
+    * @return a device if it is attach on the node
+    */
+  def getDevice(name : DEVICE#NAME) : Option[DEVICE]
 }
-
-
