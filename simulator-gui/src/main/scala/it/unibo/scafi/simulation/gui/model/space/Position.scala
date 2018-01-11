@@ -3,9 +3,7 @@ package it.unibo.scafi.simulation.gui.model.space
 /**
   * root trait of all type of position
   */
-sealed trait Position {
-  object ZERO extends Position3D(0,0,0)
-}
+sealed trait Position
 object Position {
   object ZERO extends Position3D(0,0,0);
 }

@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.core
 
+import it.unibo.scafi.simulation.gui.model.space.Position
+
 /**
   * describe a place where an immutable set of node are located
   */
@@ -8,6 +10,7 @@ trait World {
     * the type of node in this world
     */
   type NODE <: Node
+
   /**
     * the type of boundary of the world
     */
@@ -17,14 +20,13 @@ trait World {
     */
   type M <: Metric
   /**
-    * a generic boundary
+    * The metric of this world
     */
-  trait Boundary
-
+  val metric : Metric
   /**
-    * a generic metric
-     */
-  trait Metric
+    * A boundary of the world (a world can has no boundary)
+    */
+  val bounday : Option[Boundary]
   /**
     * get all nodes on this world
     */
@@ -35,7 +37,18 @@ trait World {
     * @param id
     *   the id of the node
     * @return
-    *   the node
+    *   the node if it is in the world
     */
-  def apply(id : NODE#ID) : NODE
+  def apply(id : NODE#ID) : Option[NODE]
+}
+
+/**
+  * a generic boundary
+  */
+trait Boundary
+/**
+  * a generic metric
+  */
+trait Metric {
+  def positionAllowed(p : Position) : Boolean
 }

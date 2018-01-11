@@ -22,13 +22,19 @@ trait Source {
     * a way to add observer
     * look attach
     */
-  final def <-- (observer : O): Boolean = attach(observer)
+  final def <-- (observer : O): Source = {
+    attach(observer)
+    return this
+  }
 
   /**
     * a way to remove observer
     * look detach
     */
-  final def <--! (observer : O): Boolean = detach(observer)
+  final def <--! (observer : O): Source =  {
+    detach(observer)
+    return this
+  }
 
   /**
     * add an observer to the source

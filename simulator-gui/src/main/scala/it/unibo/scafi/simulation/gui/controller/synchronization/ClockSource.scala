@@ -1,7 +1,5 @@
 package it.unibo.scafi.simulation.gui.controller.synchronization
-
-import scala.collection.concurrent.TrieMap
-
+/*
 trait ClockSource {
   /**the priority associated to a priority*/
   sealed trait Priority
@@ -40,4 +38,4 @@ trait ClockObserver {
   def tick()
 }
 
-
+*/

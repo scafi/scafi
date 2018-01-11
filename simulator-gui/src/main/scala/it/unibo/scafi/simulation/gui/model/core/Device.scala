@@ -27,30 +27,3 @@ trait Device {
     */
   def disable
 }
-
-/**
-  * a sensor device
-  */
-trait Sensor extends Device {
-  type VALUE <: SensorValue
-
-  def value : VALUE
-
-  trait SensorValue
-}
-
-/**
-  * an actuator device
-  */
-trait Actuator extends Device {
-  type ACTION <: ActuatorAction
-  /**
-    * execute an action
-    */
-  def exec() : Boolean
-
-
-  trait ActuatorAction
-}
-
-

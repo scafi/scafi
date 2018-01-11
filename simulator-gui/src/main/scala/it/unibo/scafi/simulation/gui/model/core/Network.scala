@@ -5,17 +5,21 @@ package it.unibo.scafi.simulation.gui.model.core
   */
 trait Network {
   self : World =>
+  type T <: Topology
+
+  def topology : T
   /**
     * the neighbours of a node
     * @param n the node
     * @return a set of neighbours
     */
   def neighbours(n: Node): Set[Node]
-
-  trait Topology
 }
 
 /**
   * A random topology
   */
-class RandomTopology extends Network#Topology
+
+trait Topology {
+
+}
