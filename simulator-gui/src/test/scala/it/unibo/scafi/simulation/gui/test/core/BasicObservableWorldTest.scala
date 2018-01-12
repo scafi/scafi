@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.core
 
+import it.unibo.scafi.simulation.gui.model.common.network.ObservableNetwork
+import it.unibo.scafi.simulation.gui.model.common.network.TopologyDefinition.RandomTopology
 import it.unibo.scafi.simulation.gui.model.space.Position
 import it.unibo.scafi.simulation.gui.test.help.{BasicTestableDevice, BasicTestableNode, BasicTestableObservableWorld, BasicTestableObserverWorld}
 import org.scalatest.{FunSpec, Matchers}
@@ -67,5 +69,12 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   checkThat("i can't add a set of node twice") {
     assert(!(world ++ Set(simpleNode,lastNode)))
   }
+  val network : ObservableNetwork = new BasicTestableObservableWorld with ObservableNetwork {
+    override type T = RandomTopology.type
+    override val topology: T = RandomTopology
+  }
 
+  checkThat("the network is empty") {
+    assert((network neighbours) isEmpty)
+  }
 }

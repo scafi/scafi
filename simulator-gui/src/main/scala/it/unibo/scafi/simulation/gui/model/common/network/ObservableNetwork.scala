@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.Event
   * a network mutable. produce event when the network change
   */
 trait ObservableNetwork extends Network with ObservableWorld {
-  protected val emptyNeighbours : Map[NODE,Set[NODE]] = nodes.map(x => x -> Set[NODE]()).asInstanceOf[Map[NODE,Set[NODE]]]
+  protected val emptyNeighbours : Map[NODE,Set[NODE]] = nodes.map(x => x -> Set[NODE]()) toMap
 
   private var _neighbours : Map[NODE,Set[NODE]] = emptyNeighbours
   /**
@@ -37,7 +37,7 @@ trait ObservableNetwork extends Network with ObservableWorld {
     * @param n the node
     */
   def clearNeighbours(n : NODE) : Unit = {
-    _neighbours += n -> Map[NODE,Set[NODE]]()
+    _neighbours += n -> Set[NODE]()
     this !!! ObservableNetwork.nodeNeighboursCleared(n)
 
   }
