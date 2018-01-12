@@ -36,9 +36,9 @@ trait Node {
   /**
     *
     * @return
-    *   the shape of the node
+    *   the shape of the node if the node has a shape, none otherwise
     */
-  def shape : SHAPE
+  def shape : Option[SHAPE]
 
   /**
     * @return

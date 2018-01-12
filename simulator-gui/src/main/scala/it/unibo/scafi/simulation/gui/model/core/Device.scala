@@ -4,6 +4,7 @@ package it.unibo.scafi.simulation.gui.model.core
   * a generic device that could be attached to a node
   */
 trait Device {
+
   /**
     * the name of device
     */
@@ -13,7 +14,7 @@ trait Device {
     */
   type NODE <: Node
 
-  val node : NODE
+  def node : Option[NODE]
 
   val name : NAME
 
@@ -26,4 +27,10 @@ trait Device {
     * disable the device
     */
   def disable
+
+  /**
+    * tell if the device is enable or disable
+    * @return true if it is enable false otherwise
+    */
+  def state : Boolean
 }

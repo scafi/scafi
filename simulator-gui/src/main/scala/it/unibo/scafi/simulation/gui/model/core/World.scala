@@ -26,7 +26,7 @@ trait World {
   /**
     * A boundary of the world (a world can has no boundary)
     */
-  val bounday : Option[Boundary]
+  val boundary : Option[Boundary]
   /**
     * get all nodes on this world
     */
@@ -41,11 +41,14 @@ trait World {
     */
   def apply(id : NODE#ID) : Option[NODE]
 }
-
+//STRATEGY
 /**
   * a generic boundary
   */
-trait Boundary
+trait Boundary {
+  def nodeAllowed(n : Node) : Boolean
+}
+//STRATEGY
 /**
   * a generic metric
   */

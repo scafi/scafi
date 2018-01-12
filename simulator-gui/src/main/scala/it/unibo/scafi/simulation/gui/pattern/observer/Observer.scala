@@ -8,21 +8,14 @@ trait Source {
     * the type of observer
     */
   type O <: Observer
-  trait Observer {
-    /**
-      * reaction on event
-      * @param event
-      *   the event produced by source
-      */
-    def !! (event: Event)
-  }
+
   private var observers: Set[O] = Set[O]()
 
   /**
     * a way to add observer
     * look attach
     */
-  final def <-- (observer : O): Source = {
+  final def <-- (observer : O): this.type = {
     attach(observer)
     return this
   }
@@ -31,7 +24,7 @@ trait Source {
     * a way to remove observer
     * look detach
     */
-  final def <--! (observer : O): Source =  {
+  final def <--! (observer : O): this.type =  {
     detach(observer)
     return this
   }
@@ -42,20 +35,18 @@ trait Source {
     * @return false if the observer currently observe the source true otherwise
     */
   def attach(observer : O): Boolean = {
-    if (!(observers contains observer)) return false
-    observers -= observer
-    val e = new Event {}
+    if (observers contains observer) return false
+    observers += observer
     return true
   }
-
   /**
     * remove an observer to the source
     * @param observer want to stop observer this source
     * @return false if the observer currently doesn't observer the source true otherwise
     */
   def detach(observer: O) : Boolean = {
-    if (observers contains observer) return false
-    observers += observer
+    if (!(observers contains observer)) return false
+    observers -= observer
     return true
   }
 
@@ -63,10 +54,19 @@ trait Source {
     * notify all the observer
     * @param e the event generate
     */
-  def !!!(e :Event) =  observers foreach (_ !! e)
+  def !!! (e :Event) =  observers foreach (_ !! e)
 }
 
 /**
   * the root interface of all event
   */
 trait Event {}
+
+trait Observer {
+  /**
+    * reaction on event
+    * @param event
+    *   the event produced by source
+    */
+  def !! (event: Event)
+}
