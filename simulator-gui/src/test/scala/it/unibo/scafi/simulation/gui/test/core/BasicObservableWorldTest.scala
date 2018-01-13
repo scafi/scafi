@@ -50,7 +50,7 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   }
 
   checkThat("i can add a generic node") {
-    assert(world + simpleNode)
+    assert(world insertNode simpleNode)
     assert(!((world nodes) isEmpty))
     assert((world(simpleId)) isDefined)
   }
@@ -59,15 +59,15 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
     assert(anotherWorldObserver.eventCount() == 0)
   }
   checkThat("i can add a set of node") {
-    assert(world ++ Set(middleNode,lastNode))
+    assert(world insertNodes Set(middleNode,lastNode))
   }
 
   checkThat("i can't add a node twice") {
-    assert(!(world + simpleNode))
+    assert(!(world insertNode simpleNode))
   }
 
   checkThat("i can't add a set of node twice") {
-    assert(!(world ++ Set(simpleNode,lastNode)))
+    assert(!(world insertNodes Set(simpleNode,lastNode)))
   }
   val network : ObservableNetwork = new BasicTestableObservableWorld with ObservableNetwork {
     override type T = RandomTopology.type

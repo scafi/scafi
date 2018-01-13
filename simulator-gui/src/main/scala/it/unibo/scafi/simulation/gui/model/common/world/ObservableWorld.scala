@@ -17,7 +17,14 @@ trait ObservableWorld extends World with Source {
 
   override def apply(node : NODE#ID) = _nodes.get(node)
 
-  //TODO -> provocare un eccezione?
+  final def + (n : NODE): this.type = {
+    insertNode(n)
+    this
+  }
+  final def ++ (n : Set[NODE]) : this.type = {
+    insertNodes(n)
+    this
+  }
   /**
     * add a node in the world
     * @param n the node want to add
@@ -25,7 +32,7 @@ trait ObservableWorld extends World with Source {
     *         false if : the node are already in the world
     *                    the position is not allowed
     */
-  def + (n : NODE): Boolean = {
+  def insertNode (n:NODE) : Boolean = {
     if(_nodes contains n.id.asInstanceOf[NODE#ID]) return false
     if(!this.metric.positionAllowed(n.position)) return false
     if(this.boundary.isDefined && !(boundary.get.nodeAllowed(n))) return false
@@ -41,7 +48,7 @@ trait ObservableWorld extends World with Source {
     *         false if: almost one node are already in the world
     *                   almost one position is not allowed
     */
-  def ++ (n : Set[NODE]) : Boolean = {
+  def insertNodes (n : Set[NODE]): Boolean = {
     if(! (n forall(y => ! _nodes.contains(y.id.asInstanceOf[NODE#ID])))) return false
     if(!(n forall (y => this.metric.positionAllowed(y.position))))  return false
     if(this.boundary.isDefined) {
@@ -52,7 +59,6 @@ trait ObservableWorld extends World with Source {
     this !!! ObservableWorld.NodesAdded(n.asInstanceOf[Set[Node]])
     true
   }
-
   /**
     * change the position of node in the world
     * @param node that what to change the position
