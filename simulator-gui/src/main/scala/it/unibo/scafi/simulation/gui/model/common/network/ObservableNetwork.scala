@@ -1,13 +1,14 @@
 package it.unibo.scafi.simulation.gui.model.common.network
 
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
-import it.unibo.scafi.simulation.gui.model.core.Network
+import it.unibo.scafi.simulation.gui.model.core.{Network, Node}
 import it.unibo.scafi.simulation.gui.pattern.observer.Event
 
 /**
   * a network mutable. produce event when the network change
   */
-trait ObservableNetwork extends Network with ObservableWorld {
+trait ObservableNetwork extends Network {
+  this : ObservableWorld =>
   protected val emptyNeighbours : Map[NODE,Set[NODE]] = nodes.map(x => x -> Set[NODE]()) toMap
 
   private var _neighbours : Map[NODE,Set[NODE]] = emptyNeighbours
@@ -23,7 +24,6 @@ trait ObservableNetwork extends Network with ObservableWorld {
   }
 
   override def neighbours(): Map[NODE, Set[NODE]] = _neighbours
-
   /**
     * remove all neighbours in the network
     */
@@ -31,7 +31,6 @@ trait ObservableNetwork extends Network with ObservableWorld {
     _neighbours = emptyNeighbours
     this !!! ObservableNetwork.networkNeighboursCleared()
   }
-
   /**
     * remove neighbour of one node in the network
     * @param n the node
@@ -41,7 +40,6 @@ trait ObservableNetwork extends Network with ObservableWorld {
     this !!! ObservableNetwork.nodeNeighboursCleared(n)
 
   }
-
   /**
     * remove a set of neighbour of a node
     * @param n the node
@@ -51,17 +49,17 @@ trait ObservableNetwork extends Network with ObservableWorld {
   def removeNeighbours(n : NODE, neighbour : Set[NODE]) : Boolean = {
     if(!((_neighbours get n) isDefined)) return false
     val currentNeighbour = _neighbours(n)
+
     val newNeighbour = currentNeighbour -- neighbour
     _neighbours += n -> newNeighbour
-    this !!! ObservableNetwork.nodeNeighboursRemoved(n,neighbour.asInstanceOf[Set[ObservableNetwork#NODE]])
+    this !!! ObservableNetwork.nodeNeighboursRemoved(n,neighbour.asInstanceOf[Set[Node]])
     true
-  }
-}
+  }}
 
 object ObservableNetwork {
   case class networkNeighboursCleared() extends Event
 
-  case class nodeNeighboursCleared(n : ObservableNetwork#NODE) extends Event
+  case class nodeNeighboursCleared(n : Node) extends Event
 
-  case class nodeNeighboursRemoved(n : ObservableNetwork#NODE, neighbours : Set[ObservableNetwork#NODE]) extends Event
+  case class nodeNeighboursRemoved(n : Node, neighbours : Set[Node]) extends Event
 }

@@ -4,7 +4,7 @@ package it.unibo.scafi.simulation.gui.model.core
   * an interface of an immutable network of nodes connected
   */
 trait Network {
-  self : World =>
+  this : World =>
   type T <: Topology
 
   val topology : T

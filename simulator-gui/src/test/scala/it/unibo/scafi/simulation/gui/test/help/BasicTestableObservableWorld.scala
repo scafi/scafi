@@ -59,7 +59,9 @@ class BasicTestableDevice(override val name : String) extends Device {
 class BasicTestableObserverWorld extends ObservableWorld.ObserverWorld {
   private var events = Set[Event]()
 
-  override def !!(event: Event): Unit = events += event
+  override def !!(event: Event): Unit = {
+    events += event
+  }
 
   def eventCount() = events.size
 

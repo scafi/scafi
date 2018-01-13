@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.common.world
 
-import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.model.core.{Node, World}
+import it.unibo.scafi.simulation.gui.model.space.Position
 import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
 
 /**
@@ -48,7 +49,7 @@ trait ObservableWorld extends World with Source {
       if(!(n forall (bound.nodeAllowed(_))))  return false
     }
     _nodes = _nodes ++ n.map(x => x.id.asInstanceOf[NODE#ID] -> x)
-    this !!! ObservableWorld.NodesAdded(n.asInstanceOf[Set[ObservableWorld#NODE]])
+    this !!! ObservableWorld.NodesAdded(n.asInstanceOf[Set[Node]])
     true
   }
 
@@ -79,23 +80,23 @@ object ObservableWorld {
     * @param p
     * @param n
     */
-  case class PositionChanged(p: ObservableWorld#NODE#P,n : ObservableWorld#NODE) extends Event
+  case class PositionChanged(p: Position,n : Node) extends Event
 
   /**
     *
     * @param nodes
     */
-  case class PositionsChanged(nodes: Map[ObservableWorld#NODE,ObservableWorld#NODE#P]) extends Event
+  case class PositionsChanged(nodes: Map[Node,Position]) extends Event
 
   /**
     *
     * @param node
     */
-  case class NodeAdded(node: ObservableWorld#NODE) extends Event
+  case class NodeAdded(node: Node) extends Event
 
   /**
     *
     * @param nodes
     */
-  case class NodesAdded(nodes : Set[ObservableWorld#NODE]) extends Event
+  case class NodesAdded(nodes : Set[Node]) extends Event
 }
