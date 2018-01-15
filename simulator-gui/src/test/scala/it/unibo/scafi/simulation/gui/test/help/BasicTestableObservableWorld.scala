@@ -8,10 +8,6 @@ import it.unibo.scafi.simulation.gui.pattern.observer.Event
 
 class BasicTestableObservableWorld extends ObservableWorld{
 
-  override def changePosition(node: NODE ,position: Point2D): Boolean = ???
-
-  override def changePosition(nodes: Map[NODE, Point2D]): Set[NODE] = ???
-
   override type NODE = BasicTestableNode
 
   override type B = Boundary

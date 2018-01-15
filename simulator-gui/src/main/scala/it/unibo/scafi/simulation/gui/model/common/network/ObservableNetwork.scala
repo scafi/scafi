@@ -54,12 +54,39 @@ trait ObservableNetwork extends Network {
     _neighbours += n -> newNeighbour
     this !!! ObservableNetwork.nodeNeighboursRemoved(n,neighbour.asInstanceOf[Set[Node]])
     true
-  }}
+  }
+  /**
+  //TODO
+  /**
+    * add a neighbour to the current node
+    * @param node the node
+    * @param neighbour the new neighbour
+    */
+  def addNeighbour(node: NODE, neighbour: NODE) = {
+
+  }
+
+  def addNeighbours(node : NODE, neighbour: NODE)
+  **/
+}
 
 object ObservableNetwork {
+
+  /**
+    * an event used to tell that the network is cleared
+    */
   case class networkNeighboursCleared() extends Event
 
+  /**
+    * an event used to tell that the neighbours of some node are cleared
+    * @param n the node
+    */
   case class nodeNeighboursCleared(n : Node) extends Event
 
+  /**
+    * an event used to tell that a subset of neighbours of some node is removed
+    * @param n the node
+    * @param neighbours the old neighbours removed
+    */
   case class nodeNeighboursRemoved(n : Node, neighbours : Set[Node]) extends Event
 }
