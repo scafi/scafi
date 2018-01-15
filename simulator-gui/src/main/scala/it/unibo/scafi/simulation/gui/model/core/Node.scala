@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.model.core
 
-import it.unibo.scafi.simulation.gui.model.space.Position
+import it.unibo.scafi.simulation.gui.model.space.Point
 
 /**
   * Node describe an object in a world
@@ -13,7 +13,7 @@ trait Node {
   /**
     * a generic position of the node
     */
-  type P <: Position
+  type P <: Point
   /**
     * a shape that describe the node
     */

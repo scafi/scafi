@@ -3,14 +3,14 @@ package it.unibo.scafi.simulation.gui.test.help
 import it.unibo.scafi.simulation.gui.model.common.world.MetricDefinition.CartesianMetric
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.core._
-import it.unibo.scafi.simulation.gui.model.space.Position2D
+import it.unibo.scafi.simulation.gui.model.space.{Point2D}
 import it.unibo.scafi.simulation.gui.pattern.observer.Event
 
 class BasicTestableObservableWorld extends ObservableWorld{
 
-  override def changePosition(node: NODE ,position: Position2D): Boolean = ???
+  override def changePosition(node: NODE ,position: Point2D): Boolean = ???
 
-  override def changePosition(nodes: Map[NODE, Position2D]): Set[NODE] = ???
+  override def changePosition(nodes: Map[NODE, Point2D]): Set[NODE] = ???
 
   override type NODE = BasicTestableNode
 
@@ -24,12 +24,12 @@ class BasicTestableObservableWorld extends ObservableWorld{
 }
 //NB! test are concetered on the word! there aren't checks on device!
 class BasicTestableNode(override val id:Int,
-                        override val position: Position2D,
+                        override val position: Point2D,
                         private var device : Map[String,BasicTestableDevice]
                        ) extends Node{
   override type ID = Int
 
-  override type P = Position2D
+  override type P = Point2D
 
   override type SHAPE = Shape
 
@@ -48,11 +48,6 @@ class BasicTestableDevice(override val name : String) extends Device {
 
   override type NODE = BasicTestableNode
   override def node = None
-
-  override def enable: Unit = _enable = true
-
-  override def disable: Unit = _enable = false
-
   override def state: Boolean = _enable
 }
 

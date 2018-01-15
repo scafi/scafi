@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.test.core
 
 import it.unibo.scafi.simulation.gui.model.common.network.ObservableNetwork
 import it.unibo.scafi.simulation.gui.model.common.network.TopologyDefinition.RandomTopology
-import it.unibo.scafi.simulation.gui.model.space.Position
+import it.unibo.scafi.simulation.gui.model.space.{Point}
 import it.unibo.scafi.simulation.gui.test.help.{BasicTestableDevice, BasicTestableNode, BasicTestableObservableWorld, BasicTestableObserverWorld}
 import org.scalatest.{FunSpec, Matchers}
 /*test the basic structure of observable world and observer pattern */
@@ -18,13 +18,13 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   //DEFINITION OF SOME NODE
   //FIRST(WITHOUT DEVICE)
   val simpleId = 1
-  val simpleNode = new BasicTestableNode(simpleId,Position.ZERO,Map())
+  val simpleNode = new BasicTestableNode(simpleId,Point.ZERO,Map())
   //SECOND(WITH ONE DEVICE)
   val middleId = 2
-  val middleNode = new BasicTestableNode(middleId,Position.ZERO,Map(deviceName -> simpleDevice))
+  val middleNode = new BasicTestableNode(middleId,Point.ZERO,Map(deviceName -> simpleDevice))
   //THIRD(WITH ONE ADVANCE DEVICE)
   val lastId = 3
-  val lastNode = new BasicTestableNode(lastId,Position.ZERO,Map(advanceName -> advanceDevice))
+  val lastNode = new BasicTestableNode(lastId,Point.ZERO,Map(advanceName -> advanceDevice))
 
   checkThat("simple node hasn't device") {
     assert(simpleNode.getDevice(deviceName) isEmpty)

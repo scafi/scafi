@@ -3,9 +3,9 @@ package it.unibo.scafi.simulation.gui.model.space
 /**
   * root trait of all type of position
   */
-sealed trait Position
-object Position {
-  object ZERO extends Position3D(0,0,0);
+sealed trait Point
+object Point {
+  object ZERO extends Point3D(0,0,0);
 }
 /**
   * describe a 3D position
@@ -13,12 +13,12 @@ object Position {
   * @param y coordinate
   * @param z coordinate
   */
-class Position3D(val x : Double,val y : Double,val z : Double) extends Position {
+class Point3D(val x : Double,val y : Double,val z : Double) extends Point {
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[Position3D]
+  def canEqual(other: Any): Boolean = other.isInstanceOf[Point3D]
 
   override def equals(other: Any): Boolean = other match {
-    case that: Position3D =>
+    case that: Point3D =>
       (that canEqual this) &&
         x == that.x &&
         y == that.y &&
@@ -32,12 +32,12 @@ class Position3D(val x : Double,val y : Double,val z : Double) extends Position 
   }
 }
 
-object Position3D {
-    def apply(x: Double, y: Double, z: Double): Position3D = new Position3D(x,y,z)
+object Point3D {
+    def apply(x: Double, y: Double, z: Double): Point3D = new Point3D(x,y,z)
 
-    def unapply(p: Position3D): Option[(Double, Double, Double)] = Some(p.x,p.y,p.y)
+    def unapply(p: Point3D): Option[(Double, Double, Double)] = Some(p.x,p.y,p.y)
 
-    implicit def toPosition2D(p: Position3D) : Position2D = new Position2D(p.x,p.y)
+    implicit def toPosition2D(p: Point3D) : Point2D = new Point2D(p.x,p.y)
 }
 
 /**
@@ -45,12 +45,12 @@ object Position3D {
   * @param x coordinate
   * @param y coordinate
   */
-class Position2D(val x : Double, val y : Double) extends Position {
+class Point2D(val x : Double, val y : Double) extends Point {
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[Position2D]
+  def canEqual(other: Any): Boolean = other.isInstanceOf[Point2D]
 
   override def equals(other: Any): Boolean = other match {
-    case that: Position2D =>
+    case that: Point2D =>
       (that canEqual this) &&
         x == that.x &&
         y == that.y
@@ -63,9 +63,9 @@ class Position2D(val x : Double, val y : Double) extends Position {
   }
 }
 
-object Position2D {
-  def apply(x: Double, y: Double): Position2D = new Position2D(x,y)
+object Point2D {
+  def apply(x: Double, y: Double): Point2D = new Point2D(x,y)
 
-  def unapply(p: Position2D): Option[(Double, Double)] = Some(p.x,p.y)
+  def unapply(p: Point2D): Option[(Double, Double)] = Some(p.x,p.y)
 }
 

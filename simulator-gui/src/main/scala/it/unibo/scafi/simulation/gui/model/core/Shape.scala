@@ -1,21 +1,14 @@
 package it.unibo.scafi.simulation.gui.model.core
 
-import it.unibo.scafi.simulation.gui.model.space.Dimension
-
 /**
   * define a generic shape
   */
 trait Shape {
+  type O
   /**
-    * the type of dimension
-    */
-  type DIMENSION <: Dimension
-
-  /**
+    * @return the orientation of the shape
     *
-    * @return the dimension of the shape
     */
-  def dimension : DIMENSION
-
+  def orientation : O
 }
 

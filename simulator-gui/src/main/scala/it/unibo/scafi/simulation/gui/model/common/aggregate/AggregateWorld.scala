@@ -5,6 +5,4 @@ import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 
 trait AggregateWorld extends ObservableWorld {
   type FACTORY <: NodeFactory[NODE]
-
-
 }

@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.model.core
 
-import it.unibo.scafi.simulation.gui.model.space.Position
+import it.unibo.scafi.simulation.gui.model.space.{Point}
 
 /**
   * describe a place where an immutable set of node are located
@@ -53,5 +53,5 @@ trait Boundary {
   * a generic metric
   */
 trait Metric {
-  def positionAllowed(p : Position) : Boolean
+  def positionAllowed(p : Point) : Boolean
 }

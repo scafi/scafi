@@ -16,17 +16,10 @@ trait Device {
 
   def node : Option[NODE]
 
+  /**
+    * the name of the device, it must immutable
+    */
   val name : NAME
-
-  /**
-    * enable the device
-    */
-  def enable
-
-  /**
-    * disable the device
-    */
-  def disable
 
   /**
     * tell if the device is enable or disable
