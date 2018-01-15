@@ -67,7 +67,7 @@ trait ObservableWorld extends World with Source {
     * @return true if the node is removed false otherwise
     */
   def removeNode(n:NODE) : Boolean = {
-    if(_nodes contains n.id.asInstanceOf[NODE#ID]) return false
+    if(!(_nodes contains n.id.asInstanceOf[NODE#ID])) return false
     _nodes -= n.id.asInstanceOf[NODE#ID]
     this !!! ObservableWorld.NodeChange(n)
     true

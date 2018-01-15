@@ -30,6 +30,8 @@ class Point3D(val x : Double,val y : Double,val z : Double) extends Point {
     val state = Seq(x, y, z)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def toString = s"Point3D($x, $y, $z)"
 }
 
 object Point3D {
@@ -61,6 +63,8 @@ class Point2D(val x : Double, val y : Double) extends Point {
     val state = Seq(x, y)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def toString = s"Point2D($x, $y)"
 }
 
 object Point2D {

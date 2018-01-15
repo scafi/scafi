@@ -2,8 +2,8 @@ package it.unibo.scafi.simulation.gui.test.core
 
 import it.unibo.scafi.simulation.gui.model.common.network.ObservableNetwork
 import it.unibo.scafi.simulation.gui.model.common.network.TopologyDefinition.RandomTopology
-import it.unibo.scafi.simulation.gui.model.space.{Point}
-import it.unibo.scafi.simulation.gui.test.help.{BasicTestableDevice, BasicTestableNode, BasicTestableObservableWorld, BasicTestableObserverWorld}
+import it.unibo.scafi.simulation.gui.model.space.Point
+import it.unibo.scafi.simulation.gui.test.help._
 import org.scalatest.{FunSpec, Matchers}
 /*test the basic structure of observable world and observer pattern */
 class BasicObservableWorldTest extends FunSpec with Matchers{
@@ -36,7 +36,9 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
     assert(!((lastNode devices) isEmpty))
   }
 
-  val world = new BasicTestableObservableWorld
+  val world = new BasicTestableObservableWorld {
+    override type NODE = BasicTestableNode
+  }
   val worldObserver = new BasicTestableObserverWorld
   val anotherWorldObserver = new BasicTestableObserverWorld
   world <-- worldObserver <-- anotherWorldObserver
@@ -77,4 +79,5 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   checkThat("the network is empty") {
     assert((network neighbours) isEmpty)
   }
+
 }

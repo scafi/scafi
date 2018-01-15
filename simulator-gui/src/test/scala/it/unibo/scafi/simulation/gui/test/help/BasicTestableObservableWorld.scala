@@ -8,8 +8,6 @@ import it.unibo.scafi.simulation.gui.pattern.observer.Event
 
 class BasicTestableObservableWorld extends ObservableWorld{
 
-  override type NODE = BasicTestableNode
-
   override type B = Boundary
 
   override type M = CartesianMetric.type

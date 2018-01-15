@@ -5,8 +5,7 @@ import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 /**
   * aggregate world define another concept
   */
-trait AggregateWorld {
-  self : ObservableWorld =>
+trait AggregateWorld extends ObservableWorld {
   override type NODE <: AggregateNode
 
   /**
@@ -16,12 +15,13 @@ trait AggregateWorld {
     * @return true if the movement is allowed false otherwise
     */
   //TODO THINK HOW TO MANAGE POSITION NOT ALOWED
-  def moveNode(n : NODE, p : NODE#P) : Boolean = {
+  def moveNode(n : NODE, p : NODE#P)(implicit ev : NODE#P =:= n.P) : Boolean = {
     if(!this.nodes.contains(n)) return false
     val movedNode = n.movedTo(p).asInstanceOf[NODE]
     if(!this.nodeAllowed(movedNode))  return false
     this.removeNode(n)
-    this.insertNode(n)
+    this.insertNode(movedNode)
+    true
   }
 
   /**
@@ -29,23 +29,27 @@ trait AggregateWorld {
     * @param nodes the map of node and new position
     * @return the node that is moved
     */
-  def moveNodes(nodes : Map[NODE,NODE#P]) : Set[NODE] = {
+  def moveNodes(nodes : Map[NODE,NODE#P]): Set[NODE] = {
+
     val movedNodes = nodes.filter(y => this.nodes.contains(y._1))
-         .map(y => y._1.movedTo(y._2))
+         .map(y => {
+           implicitly[NODE#P =:= y._1.P].
+           y._1.movedTo(y._2)
+         } )
          .filter(y => !this.nodeAllowed(y.asInstanceOf[NODE]))
          .map(_.asInstanceOf[NODE])
          .toSet
     this.removeNodes(movedNodes)
     return movedNodes -- nodes.keys
   }
-
+  /**
   /**
     * switch on a device
     * @param n the node
     * @param name the name of device
     * @return true if the node is in the wolrd false otherwise
     */
-  def switchOnDevice(n : NODE, name : NODE#DEVICE#NAME): Boolean = {
+  def switchOnDevice(n : NODE, name : NODE#DEVICE#NAME)(implicit ev : NODE#DEVICE#NAME =:= n.DEVICE#NAME): Boolean = {
     if(!this.switching(n.turnOnDevice(name).asInstanceOf[NODE])) return false
     true
   }
@@ -120,5 +124,5 @@ trait AggregateWorld {
     if(!switcheds.forall(y => this.nodes.contains(y)))  return false
     this.removeNodes(switcheds)
     this.insertNodes(switcheds)
-  }
+  }*/
 }
