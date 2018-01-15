@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.core.{Node, World}
-import it.unibo.scafi.simulation.gui.model.space.Position
+import it.unibo.scafi.simulation.gui.model.space.{Point}
 import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
 
 /**
@@ -86,13 +86,13 @@ object ObservableWorld {
     * @param p
     * @param n
     */
-  case class PositionChanged(p: Position,n : Node) extends Event
+  case class PositionChanged(p: Point,n : Node) extends Event
 
   /**
     *
     * @param nodes
     */
-  case class PositionsChanged(nodes: Map[Node,Position]) extends Event
+  case class PositionsChanged(nodes: Map[Node,Point]) extends Event
 
   /**
     *

@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.graphics2D
 
+import it.unibo.scafi.simulation.gui.model.space.Point2D
+
 /**
   * define some basic shape
   */
@@ -29,5 +31,5 @@ object BasicShape2D {
     * @param orientation the orientation of the polygon
     * @param points the point in the space (in order) of the polygon
     */
-  case class Polygon(orientation: Float, points: (Float,Float) *) extends Shape2D
+  case class Polygon(orientation: Float, points: Point2D *) extends Shape2D
 }
