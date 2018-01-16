@@ -2,14 +2,14 @@ package it.unibo.scafi.simulation.gui.model.common.network
 
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.core.{Network, Node}
-import it.unibo.scafi.simulation.gui.pattern.observer.Event
+import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Source}
 
 /**
   * a network mutable. produce event when the network change
   */
 //TODO PENSA BENE COME EVITARE SITUAZIONI CRITICHE DOVUTE ALLA CANCELLAZIONE DEI NODI
 trait ObservableNetwork extends Network {
-  this : ObservableWorld =>
+  this : ObservableWorld with Source =>
   protected def emptyNeighbours : Map[NODE,Set[NODE]] = nodes.map(x => x -> Set[NODE]()) toMap
 
   private var _neighbours : Map[NODE,Set[NODE]] = emptyNeighbours

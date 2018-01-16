@@ -4,9 +4,9 @@ import it.unibo.scafi.simulation.gui.model.common.world.MetricDefinition.Cartesi
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.core._
 import it.unibo.scafi.simulation.gui.model.space.Point2D
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer}
+import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, SimpleSource}
 
-class BasicTestableObservableWorld extends ObservableWorld{
+class BasicTestableObservableWorld extends ObservableWorld with SimpleSource {
   override type O = BasicTestableObserverWorld with ObservableWorld.ObserverWorld
   override type B = Boundary[NODE]
 

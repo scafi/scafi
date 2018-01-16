@@ -1,10 +1,12 @@
 package it.unibo.scafi.simulation.gui.model.aggregate
 
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+import it.unibo.scafi.simulation.gui.pattern.observer.Source
 /**
   * aggregate world define a mutable world with mutable node and device
   */
 trait AggregateWorld extends ObservableWorld {
+  this : Source =>
   override type NODE <: AggregateNode
 
   /**

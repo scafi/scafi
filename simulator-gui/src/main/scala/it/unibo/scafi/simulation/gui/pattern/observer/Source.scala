@@ -2,14 +2,16 @@ package it.unibo.scafi.simulation.gui.pattern.observer
 //OBSERVER PATTERN
 /**
   * define a generic source that could be observe
+  * the order of observer are preserved:
+  * the first that is attach is the first that is notify
   */
 trait Source {
   /**
     * the type of observer
     */
   type O <: Observer
-
-  private var observers: Set[O] = Set[O]()
+  //TEMPLATE METHOD
+  protected def observers: Iterable[O]
 
   /**
     * a way to add observer
@@ -34,21 +36,13 @@ trait Source {
     * @param observer want observe this source
     * @return false if the observer currently observe the source true otherwise
     */
-  def attach(observer : O): Boolean = {
-    if (observers contains observer) return false
-    observers += observer
-    return true
-  }
+  def attach(observer : O): Boolean
   /**
     * remove an observer to the source
     * @param observer want to stop observer this source
     * @return false if the observer currently doesn't observer the source true otherwise
     */
-  def detach(observer: O) : Boolean = {
-    if (!(observers contains observer)) return false
-    observers -= observer
-    return true
-  }
+  def detach(observer: O) : Boolean
 
   /**
     * notify all the observer

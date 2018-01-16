@@ -1,13 +1,13 @@
 package it.unibo.scafi.simulation.gui.controller.logger
 
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
+import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, SimpleSource}
 
 /**
   * a manager of logger observer, each message is send to all
   * log observer, each one(looking the priority) decide to log or
   * not the message
   */
-object LogManager extends Source {
+object LogManager extends SimpleSource {
 
   override type O = LogObserver
 

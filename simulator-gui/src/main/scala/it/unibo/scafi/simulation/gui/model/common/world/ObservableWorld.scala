@@ -7,7 +7,8 @@ import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
   * a world mutable, the observer want to see the changes in the world
   */
 //TODO pensa se effettuare una suddivisione degli eventi più fine o meno
-trait ObservableWorld extends World with Source {
+trait ObservableWorld extends World{
+  this : Source =>
   override type O <: ObservableWorld.ObserverWorld
 
   private var _nodes : Map[NODE#ID,NODE] = Map[NODE#ID,NODE]()
@@ -68,7 +69,7 @@ trait ObservableWorld extends World with Source {
     */
   def removeNode(n:NODE#ID) : Boolean = {
     if(!(_nodes contains n)) return false
-    val node = this(n)
+    val node = this.apply(n)
     _nodes -= n
     this !!! NodeRemoved(node.get)
     true
