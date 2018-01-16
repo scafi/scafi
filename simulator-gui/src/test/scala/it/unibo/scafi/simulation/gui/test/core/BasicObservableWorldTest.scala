@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.gui.test.core
 
 import it.unibo.scafi.simulation.gui.model.common.network.ObservableNetwork
 import it.unibo.scafi.simulation.gui.model.common.network.TopologyDefinition.RandomTopology
+import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.test.help._
 import org.scalatest.{FunSpec, Matchers}
@@ -39,8 +40,8 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   val world = new BasicTestableObservableWorld {
     override type NODE = BasicTestableNode
   }
-  val worldObserver = new BasicTestableObserverWorld
-  val anotherWorldObserver = new BasicTestableObserverWorld
+  val worldObserver = new BasicTestableObserverWorld with ObservableWorld.ObserverWorld
+  val anotherWorldObserver = new BasicTestableObserverWorld with ObservableWorld.ObserverWorld
   world <-- worldObserver <-- anotherWorldObserver
   //test detach
   world <--! anotherWorldObserver

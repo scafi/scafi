@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.core
 
 import it.unibo.scafi.simulation.gui.model.common.sensor.Sensor
+import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D}
 import it.unibo.scafi.simulation.gui.test.help.{BasicTestableAggregateDevice, BasicTestableAggregateNode, BasicTestableAggregateWorld, BasicTestableObserverWorld}
 import org.scalatest.{FunSpec, Matchers}
@@ -30,7 +31,7 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
     val sameDev = node.getDevice(dev.name)
     assert(simpleDev.get.state == sameDev.get.state)
   }
-  val observer = new BasicTestableObserverWorld
+  val observer = new BasicTestableObserverWorld with ObservableWorld.ObserverWorld
   checkThat("clear queue of event") {
     observer.clearChange
     assert(observer.nodeChanged.isEmpty)

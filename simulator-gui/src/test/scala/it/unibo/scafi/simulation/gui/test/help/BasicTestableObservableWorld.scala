@@ -3,18 +3,18 @@ package it.unibo.scafi.simulation.gui.test.help
 import it.unibo.scafi.simulation.gui.model.common.world.MetricDefinition.CartesianMetric
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.core._
-import it.unibo.scafi.simulation.gui.model.space.{Point2D}
-import it.unibo.scafi.simulation.gui.pattern.observer.Event
+import it.unibo.scafi.simulation.gui.model.space.Point2D
+import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer}
 
 class BasicTestableObservableWorld extends ObservableWorld{
+  override type O = BasicTestableObserverWorld with ObservableWorld.ObserverWorld
+  override type B = Boundary[NODE]
 
-  override type B = Boundary
+  override type M = CartesianMetric[NODE#P]
 
-  override type M = CartesianMetric.type
+  override val metric: M = new CartesianMetric[NODE#P]
 
-  override val metric: Metric = CartesianMetric
-
-  override val boundary: Option[Boundary] = None
+  override val boundary: Option[B] = None
 }
 //NB! test are concetered on the word! there aren't checks on device!
 class BasicTestableNode(override val id:Int,
@@ -45,12 +45,10 @@ class BasicTestableDevice(override val name : String) extends Device {
   override def state: Boolean = _enable
 }
 
-class BasicTestableObserverWorld extends ObservableWorld.ObserverWorld {
+class BasicTestableObserverWorld extends Observer {
   private var events = Set[Event]()
 
   override def !!(event: Event): Unit = {
-    println(event)
-    super.!!(event)
     events += event
   }
 

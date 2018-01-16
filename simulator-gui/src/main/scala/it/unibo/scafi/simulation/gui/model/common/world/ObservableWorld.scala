@@ -7,7 +7,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
   * a world mutable, the observer want to see the changes in the world
   */
 trait ObservableWorld extends World with Source {
-  override type O = ObservableWorld.ObserverWorld
+  override type O <: ObservableWorld.ObserverWorld
 
   protected var _nodes : Map[NODE#ID,NODE] = Map[NODE#ID,NODE]()
 
@@ -90,15 +90,17 @@ trait ObservableWorld extends World with Source {
     * @return true if the node is allowed false otherwise
     */
   final protected def nodeAllowed(n:NODE) : Boolean = {
-    if(!this.metric.positionAllowed(n.position) || this.boundary.isDefined && !boundary.get.nodeAllowed(n)) return false
+    if(!this.metric.positionAllowed(n.position.asInstanceOf[NODE#P]) || this.boundary.isDefined && !boundary.get.nodeAllowed(n)) return false
     true
   }
 }
 object ObservableWorld {
+  //NB! Want to use a decoration approach like in observer pattern
   trait ObserverWorld extends Observer {
     private var nodesChanged : Set[Node] = Set[Node]()
 
-    override def !!(event: Event): Unit = {
+    abstract override def !!(event: Event): Unit = {
+      super.!!(event)
       event match {
         case NodeChange(n) => nodesChanged += n
         case NodesChange(n) => nodesChanged = nodesChanged ++ n
@@ -108,7 +110,7 @@ object ObservableWorld {
 
     def nodeChanged : Set[Node] = this.nodesChanged
 
-    def clearChange = this.nodesChanged = this.nodesChanged.empty
+    def clearChange : Unit = this.nodesChanged = this.nodesChanged.empty
   }
 
   case class NodeChange(n : Node) extends Event

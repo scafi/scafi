@@ -14,19 +14,19 @@ trait World {
   /**
     * the type of boundary of the world
     */
-  type B <: Boundary
+  type B <: Boundary[NODE]
   /**
     * the type of metric in this world
     */
-  type M <: Metric
+  type M <: Metric[NODE#P]
   /**
     * The metric of this world
     */
-  val metric : Metric
+  val metric : M
   /**
-    * A boundary of the world (a world can has no boundary)
+    * A boundary of the world (a world may has no boundary)
     */
-  val boundary : Option[Boundary]
+  val boundary : Option[B]
   /**
     * get all nodes on this world
     */
@@ -45,13 +45,13 @@ trait World {
 /**
   * a generic boundary
   */
-trait Boundary {
-  def nodeAllowed(n : Node) : Boolean
+trait Boundary[N <: Node] {
+  def nodeAllowed(n : N) : Boolean
 }
 //STRATEGY
 /**
   * a generic metric
   */
-trait Metric {
-  def positionAllowed(p : Point) : Boolean
+trait Metric[P <: Point] {
+  def positionAllowed(p : P) : Boolean
 }

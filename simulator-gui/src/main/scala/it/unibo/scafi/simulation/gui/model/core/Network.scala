@@ -5,7 +5,7 @@ package it.unibo.scafi.simulation.gui.model.core
   */
 trait Network {
   this : World =>
-  type T <: Topology
+  type T <: Topology[NODE]
 
   val topology : T
   /**
@@ -25,12 +25,12 @@ trait Network {
 /**
   * define a topology of the network
   */
-trait Topology {
+trait Topology[N] {
   /**
     * declare if this node could be accept in the network or not
     * @param node the node
     * @param neighbour the neighbour
     * @return true if the neighbour is added to the node false otherwise
     */
-  def acceptNeighbour(node : Node, neighbour : Node) : Boolean
+  def acceptNeighbour(node : N, neighbour : N) : Boolean
 }

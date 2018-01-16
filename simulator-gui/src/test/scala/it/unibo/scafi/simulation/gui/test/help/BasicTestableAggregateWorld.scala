@@ -2,21 +2,23 @@ package it.unibo.scafi.simulation.gui.test.help
 
 import it.unibo.scafi.simulation.gui.model.aggregate.{AggregateDevice, AggregateNode, AggregateWorld}
 import it.unibo.scafi.simulation.gui.model.common.world.MetricDefinition.CartesianMetric
-import it.unibo.scafi.simulation.gui.model.core.{Boundary, Metric}
+import it.unibo.scafi.simulation.gui.model.core.Boundary
 import it.unibo.scafi.simulation.gui.model.graphics2D.Shape2D
 import it.unibo.scafi.simulation.gui.model.space.Point2D
 class BasicTestableAggregateWorld extends AggregateWorld {
-  override  type NODE = BasicTestableAggregateNode
+  override type NODE = BasicTestableAggregateNode
+
+  override type O = BasicTestableObserverWorld
   /**
     * the type of boundary of the world
     */
-  override type B = Boundary
+  override type B = Boundary[NODE]
 
-  override type M = CartesianMetric.type
+  override type M = CartesianMetric[NODE#P]
 
-  override val metric: Metric = CartesianMetric
+  override val metric: M = new CartesianMetric[NODE#P]
 
-  override val boundary: Option[Boundary] = None
+  override val boundary: Option[B] = None
 }
 class BasicTestableAggregateNode(override val id : Int,
                                  override val shape : Option[Shape2D] = None,
