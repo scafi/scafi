@@ -50,7 +50,7 @@ trait ObservableNetwork extends Network {
   def removeNeighbours(n : NODE, neighbour : Set[NODE]) : Boolean = {
     if(!this.nodes.contains(n)) return false
     if(!((_neighbours get n) isDefined)) {
-      this._neighbours += n -> Set()[NODE]
+      this._neighbours += n -> Set[NODE]()
     }
     val currentNeighbour = _neighbours(n)
 
@@ -69,7 +69,7 @@ trait ObservableNetwork extends Network {
     */
   def addNeighbours(node : NODE, neighbours: Set[NODE]) : Set[NODE] = {
     checkNodeInTheWorkd(node,neighbours)
-    if((!((_neighbours get node)).isDefined)) _neighbours += node -> Set()[NODE]
+    if((!((_neighbours get node)).isDefined)) _neighbours += node -> Set[NODE]()
     val currentNeighbour = _neighbours(node)
     val filterNodes = this.neighboursAllowed(node,neighbours)
     val newNeighbour = currentNeighbour ++ filterNodes

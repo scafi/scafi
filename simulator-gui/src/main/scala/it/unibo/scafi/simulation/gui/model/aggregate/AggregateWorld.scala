@@ -12,11 +12,12 @@ trait AggregateWorld extends ObservableWorld {
     * move a node in other position
     * @param n the node
     * @param p the new position
+    * @throws IllegalArgumentException if the node isn't in the world
     * @return true if the movement is allowed false otherwise
     */
   //TODO THINK HOW TO MANAGE POSITION NOT ALOWED
   def moveNode(n : NODE, p : NODE#P)(implicit ev : NODE#P =:= n.P) : Boolean = {
-    if(!this.nodes.contains(n)) return false
+    require(this.nodes.contains(n))
     val movedNode = n.movedTo(p).asInstanceOf[NODE]
     if(!this.nodeAllowed(movedNode))  return false
     this.removeNode(n)
@@ -27,18 +28,19 @@ trait AggregateWorld extends ObservableWorld {
   /**
     * move a set of node in a new position
     * @param nodes the map of node and new position
-    * @return the node that is moved
+    * @throws IllegalArgumentException if some node aren't in the world
+    * @return the node that can't be mode
     */
   def moveNodes(nodes : Map[NODE,NODE#P]): Set[NODE] = {
+    require(nodes.forall(x => this.nodes.contains(x._1)))
     val movedNodes = nodes.filter(y => this.nodes.contains(y._1))
-         .map(y => {
-           y._1.movedTo(y._2.asInstanceOf[y._1.P])
-         } )
+         .map(y => y._1.movedTo(y._2.asInstanceOf[y._1.P]))
          .filter(y => !this.nodeAllowed(y.asInstanceOf[NODE]))
          .map(_.asInstanceOf[NODE])
          .toSet
     this.removeNodes(movedNodes)
-    return movedNodes -- nodes.keys
+    this.insertNodes(movedNodes)
+    return nodes.keySet -- movedNodes
   }
   /**
     * switch on a device

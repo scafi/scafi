@@ -73,8 +73,8 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
     assert(!(world insertNodes Set(simpleNode,lastNode)))
   }
   val network : ObservableNetwork = new BasicTestableObservableWorld with ObservableNetwork {
-    override type T = RandomTopology.type
-    override val topology: T = RandomTopology
+    override type T = RandomTopology[NODE]
+    override val topology: T = new RandomTopology[NODE]
   }
 
   checkThat("the network is empty") {

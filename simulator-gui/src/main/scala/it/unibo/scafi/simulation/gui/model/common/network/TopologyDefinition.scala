@@ -6,10 +6,10 @@ import it.unibo.scafi.simulation.gui.model.core.{Node, Topology}
   * basic topology definition
   */
 object TopologyDefinition {
-  object RandomTopology extends Topology {
+  class RandomTopology[N <: Node] extends Topology[N] {
     /**
       * accept all neighbour
       */
-    override def acceptNeighbour(node: Node, neighbour: Node): Boolean = true
+    override def acceptNeighbour(node: N, neighbour: N): Boolean = true
   }
 }
