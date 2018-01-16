@@ -79,7 +79,7 @@ trait ObservableWorld extends World with Source {
     * @return true if all node are removed false otherwise
     */
   def removeNodes(n:Set[NODE]) : Boolean = {
-    if(! (n forall(y => ! _nodes.contains(y.id.asInstanceOf[NODE#ID])))) return false
+    if(! (n forall(y =>  _nodes.contains(y.id.asInstanceOf[NODE#ID])))) return false
     _nodes = _nodes -- n.map(x => x.id.asInstanceOf[NODE#ID])
     this !!! ObservableWorld.NodesChange(n.asInstanceOf[Set[Node]])
     true
@@ -107,6 +107,8 @@ object ObservableWorld {
     }
 
     def nodeChanged : Set[Node] = this.nodesChanged
+
+    def clearChange = this.nodesChanged = this.nodesChanged.empty
   }
 
   case class NodeChange(n : Node) extends Event

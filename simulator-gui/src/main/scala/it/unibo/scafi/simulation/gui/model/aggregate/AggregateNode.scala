@@ -3,6 +3,7 @@ package it.unibo.scafi.simulation.gui.model.aggregate
 import it.unibo.scafi.simulation.gui.model.core.Node
 
 /***
+  * NB! two node are equals if the id are the same
   * a description of aggregate node.
   * it is immutable.
   * there are some method used to

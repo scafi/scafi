@@ -3,7 +3,7 @@ package it.unibo.scafi.simulation.gui.model.aggregate
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 //TODO FIST VERSION! REMEMBER TO REFACTOR! AGGREGATE WORLD IS KEY CONCEPT
 /**
-  * aggregate world define another concept
+  * aggregate world define a mutable world with mutable node and device
   */
 trait AggregateWorld extends ObservableWorld {
   override type NODE <: AggregateNode
@@ -30,11 +30,9 @@ trait AggregateWorld extends ObservableWorld {
     * @return the node that is moved
     */
   def moveNodes(nodes : Map[NODE,NODE#P]): Set[NODE] = {
-
     val movedNodes = nodes.filter(y => this.nodes.contains(y._1))
          .map(y => {
-           implicitly[NODE#P =:= y._1.P].
-           y._1.movedTo(y._2)
+           y._1.movedTo(y._2.asInstanceOf[y._1.P])
          } )
          .filter(y => !this.nodeAllowed(y.asInstanceOf[NODE]))
          .map(_.asInstanceOf[NODE])
@@ -43,11 +41,10 @@ trait AggregateWorld extends ObservableWorld {
     return movedNodes -- nodes.keys
   }
   /**
-  /**
     * switch on a device
     * @param n the node
     * @param name the name of device
-    * @return true if the node is in the wolrd false otherwise
+    * @return true if the node is in the world false otherwise
     */
   def switchOnDevice(n : NODE, name : NODE#DEVICE#NAME)(implicit ev : NODE#DEVICE#NAME =:= n.DEVICE#NAME): Boolean = {
     if(!this.switching(n.turnOnDevice(name).asInstanceOf[NODE])) return false
@@ -60,7 +57,7 @@ trait AggregateWorld extends ObservableWorld {
     * @return true if all device are switch on false otherwise
     */
   def switchOnDevices(nodes : Map[NODE,NODE#DEVICE#NAME]) : Boolean = {
-    val switched = nodes.map(x => x._1.turnOnDevice(x._2))
+    val switched = nodes.map(x => x._1.turnOnDevice(x._2.asInstanceOf[x._1.DEVICE#NAME]))
                         .map(x => x.asInstanceOf[NODE])
                         .toSet
     if(!this.switchingAll(switched)) return false
@@ -72,7 +69,7 @@ trait AggregateWorld extends ObservableWorld {
     * @param name the name of device
     * @return true if the node is in the world false otherwise
     */
-  def switchOffDevice(n : NODE, name : NODE#DEVICE#NAME) : Boolean = {
+  def switchOffDevice(n : NODE, name : NODE#DEVICE#NAME)(implicit ev : NODE#DEVICE#NAME =:= n.DEVICE#NAME) : Boolean = {
     if(!this.switching(n.turnOffDevice(name).asInstanceOf[NODE])) return false
     true
   }
@@ -82,7 +79,7 @@ trait AggregateWorld extends ObservableWorld {
     * @return true if all device are switch on false otherwise
     */
   def switchOffDevices(nodes : Map[NODE,NODE#DEVICE#NAME]) : Boolean = {
-    val switched = nodes.map(x => x._1.turnOnDevice(x._2))
+    val switched = nodes.map(x => x._1.turnOnDevice(x._2.asInstanceOf[x._1.DEVICE#NAME]))
       .map(x => x.asInstanceOf[NODE])
       .toSet
     if(!this.switchingAll(switched)) return false
@@ -95,7 +92,7 @@ trait AggregateWorld extends ObservableWorld {
     * @param d the device name
     * @return true if the node is in the world false otherwise
     */
-  def addDevice(n: NODE,d : NODE#DEVICE) : Boolean = {
+  def addDevice(n: NODE,d : NODE#DEVICE)(implicit ev : NODE#DEVICE =:= n.DEVICE) : Boolean = {
     if(!this.switching(n.addDevice(d).asInstanceOf[NODE])) return false
     true
   }
@@ -103,10 +100,33 @@ trait AggregateWorld extends ObservableWorld {
   /**
     * insert device in a set of node
     * @param nodes the nodes and the device to add
-    * @return true if all the devices is added false otherwise
+    * @return true if all the devices are added false otherwise
     */
   def addDevices(nodes : Map[NODE,NODE#DEVICE]) : Boolean = {
-    val switched =  nodes.map(x => x._1.addDevice(x._2))
+    val switched =  nodes.map(x => x._1.addDevice(x._2.asInstanceOf[x._1.DEVICE]))
+      .map(x => x.asInstanceOf[NODE])
+      .toSet
+    if(!this.switchingAll(switched)) return false
+    true
+  }
+  /**
+    * remove a device in a node in the world
+    * @param n the node
+    * @param d the device name
+    * @return true if the node is in the world false otherwise
+    */
+  def removeDevice(n: NODE,d : NODE#DEVICE)(implicit ev : NODE#DEVICE =:= n.DEVICE) : Boolean = {
+    if(!this.switching(n.removeDevice(d).asInstanceOf[NODE])) return false
+    true
+  }
+
+  /**
+    * remove a device in a set of node
+    * @param nodes the nodes with the device associated
+    * @return true if all the devices are removed false otherwise
+    */
+  def removeDevices(nodes : Map[NODE,NODE#DEVICE]) : Boolean = {
+    val switched =  nodes.map(x => x._1.addDevice(x._2.asInstanceOf[x._1.DEVICE]))
       .map(x => x.asInstanceOf[NODE])
       .toSet
     if(!this.switchingAll(switched)) return false
@@ -117,12 +137,11 @@ trait AggregateWorld extends ObservableWorld {
     if(!this.nodes.contains(switched)) return false
     this.removeNode(switched)
     this.insertNode(switched)
-    true
   }
 
-  private def switchingAll(switcheds : Set[NODE]) : Boolean = {
-    if(!switcheds.forall(y => this.nodes.contains(y)))  return false
-    this.removeNodes(switcheds)
-    this.insertNodes(switcheds)
-  }*/
+  private def switchingAll(switched : Set[NODE]) : Boolean = {
+    if(!switched.forall(y => this.nodes.contains(y)))  return false
+    this.removeNodes(switched)
+    this.insertNodes(switched)
+  }
 }

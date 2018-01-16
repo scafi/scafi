@@ -28,40 +28,39 @@ class BasicTestableAggregateNode(override val id : Int,
                                   shape: Option[SHAPE],
                                   devices: Set[DEVICE]): this.type = new BasicTestableAggregateNode(id,shape,devices,position).asInstanceOf[this.type]
 
-  /**
-    * the type of id
-    */
   override type ID = Int
-  /**
-    * a generic position of the node
-    */
+
   override type P = Point2D
-  /**
-    * a shape that describe the node
-    */
+
   override type SHAPE = Shape2D
-  /**
-    * the id associated with this node
-    */
-  /**
-    *
-    * @param name of device
-    * @return a device if it is attach on the node
-    */
+
   override def getDevice(name: DEVICE#NAME): Option[DEVICE] = this.devices.find(_.name == name)
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[BasicTestableAggregateNode]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: BasicTestableAggregateNode =>
+      (that canEqual this) &&
+        id == that.id
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(id)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+
+  override def toString = s"BasicTestableAggregateNode($id, $shape, $devices, $position)"
 }
 
 class BasicTestableAggregateDevice(val name : String, val state: Boolean) extends AggregateDevice {
-  override protected def createDevice(state: Boolean): BasicTestableAggregateDevice.this.type = ???
+  override protected def createDevice(state: Boolean): this.type = new BasicTestableAggregateDevice(name,state).asInstanceOf[this.type]
 
-  /**
-    * the name of device
-    */
   override type NAME = String
-  /**
-    * the node where the device is attached
-    */
+
   override type NODE = AggregateNode
 
   override def node: Option[NODE] = None
+
+  override def toString = s"BasicTestableAggregateDevice($name, $state)"
 }

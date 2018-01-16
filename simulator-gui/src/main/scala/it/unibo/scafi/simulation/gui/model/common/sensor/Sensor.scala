@@ -16,5 +16,5 @@ trait Sensor {
     * get the current value of the device
     * @return the value
     */
-  def getValue : VALUE
+  def value : VALUE
 }

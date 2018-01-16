@@ -49,6 +49,8 @@ class BasicTestableObserverWorld extends ObservableWorld.ObserverWorld {
   private var events = Set[Event]()
 
   override def !!(event: Event): Unit = {
+    println(event)
+    super.!!(event)
     events += event
   }
 
