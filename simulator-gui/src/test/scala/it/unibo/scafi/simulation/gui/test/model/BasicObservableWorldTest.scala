@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.test.core
+package it.unibo.scafi.simulation.gui.test.model
 
 import it.unibo.scafi.simulation.gui.model.common.network.ObservableNetwork
 import it.unibo.scafi.simulation.gui.model.common.network.TopologyDefinition.RandomTopology
@@ -45,6 +45,7 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   world <-- worldObserver <-- anotherWorldObserver
   //test detach
   world <--! anotherWorldObserver
+
   checkThat("world doesn't has node at begging") {
     assert((world nodes) isEmpty)
     assert((world(simpleId) isEmpty))
@@ -62,7 +63,7 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
     assert(anotherWorldObserver.eventCount() == 0)
   }
   checkThat("i can add a set of node") {
-    assert(world insertNodes Set(middleNode,lastNode))
+    assert((world insertNodes Set(middleNode,lastNode)).isEmpty)
   }
 
   checkThat("i can't add a node twice") {
@@ -70,8 +71,9 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   }
 
   checkThat("i can't add a set of node twice") {
-    assert(!(world insertNodes Set(simpleNode,lastNode)))
+    assert(!(world insertNodes Set(simpleNode,lastNode)).isEmpty)
   }
+
   val network : ObservableNetwork = new BasicTestableObservableWorld with ObservableNetwork {
     override type T = RandomTopology[NODE]
     override val topology: T = new RandomTopology[NODE]

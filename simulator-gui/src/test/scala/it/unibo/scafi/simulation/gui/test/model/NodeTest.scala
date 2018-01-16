@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.test.core
+package it.unibo.scafi.simulation.gui.test.model
 
 import it.unibo.scafi.simulation.gui.model.common.sensor.Sensor
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld

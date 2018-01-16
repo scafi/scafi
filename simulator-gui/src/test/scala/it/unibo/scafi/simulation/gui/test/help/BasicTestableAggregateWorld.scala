@@ -2,13 +2,14 @@ package it.unibo.scafi.simulation.gui.test.help
 
 import it.unibo.scafi.simulation.gui.model.aggregate.{AggregateDevice, AggregateNode, AggregateWorld}
 import it.unibo.scafi.simulation.gui.model.common.world.MetricDefinition.CartesianMetric
+import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.core.Boundary
 import it.unibo.scafi.simulation.gui.model.graphics2D.Shape2D
 import it.unibo.scafi.simulation.gui.model.space.Point2D
 class BasicTestableAggregateWorld extends AggregateWorld {
   override type NODE = BasicTestableAggregateNode
 
-  override type O = BasicTestableObserverWorld
+  override type O = BasicTestableObserverWorld with ObservableWorld.ObserverWorld
   /**
     * the type of boundary of the world
     */

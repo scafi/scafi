@@ -2,18 +2,21 @@ package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.core.{Node, World}
 import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
-
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
 /**
   * a world mutable, the observer want to see the changes in the world
   */
+//TODO pensa se effettuare una suddivisione degli eventi più fine o meno
 trait ObservableWorld extends World with Source {
   override type O <: ObservableWorld.ObserverWorld
 
-  protected var _nodes : Map[NODE#ID,NODE] = Map[NODE#ID,NODE]()
+  private var _nodes : Map[NODE#ID,NODE] = Map[NODE#ID,NODE]()
 
   override def nodes = _nodes.values.toSet
 
-  override def apply(node : NODE#ID) = _nodes.get(node)
+  override def apply(node : NODE#ID) : Option[NODE] = _nodes.get(node)
+
+  override def apply(node : Set[NODE#ID]) : Set[NODE] = _nodes.filter(y => node.contains(y._1)).values.toSet
 
   final def + (n : NODE): this.type = {
     insertNode(n)
@@ -23,11 +26,11 @@ trait ObservableWorld extends World with Source {
     insertNodes(n)
     this
   }
-  final def - (n : NODE): this.type = {
+  final def - (n : NODE#ID): this.type = {
     removeNode(n)
     this
   }
-  final def -- (n : Set[NODE]): this.type = {
+  final def -- (n : Set[NODE#ID]): this.type = {
     removeNodes(n)
     this
   }
@@ -42,23 +45,20 @@ trait ObservableWorld extends World with Source {
     if(_nodes contains n.id.asInstanceOf[NODE#ID]) return false
     if(!nodeAllowed(n)) return false
     _nodes += n.id.asInstanceOf[NODE#ID] -> n
-    this !!! ObservableWorld.NodeChange(n)
+    this !!! NodeAdded(n)
     true
   }
   //TODO Aggiungere quelli possibili o se non aggiungerne nessuno?
   /**
     * add a set of node in the world
     * @param n the nodes want to add
-    * @return true if there aren't no problem in addition
-    *         false if: almost one node are already in the world
-    *                   almost one position is not allowed
+    * @return the set of node that can't be added
     */
-  def insertNodes (n : Set[NODE]): Boolean = {
-    if(! (n forall(y => ! _nodes.contains(y.id.asInstanceOf[NODE#ID])))) return false
-    if(!(n forall (y => this.nodeAllowed(y))))  return false
-    _nodes = _nodes ++ n.map(x => x.id.asInstanceOf[NODE#ID] -> x)
-    this !!! ObservableWorld.NodesChange(n.asInstanceOf[Set[Node]])
-    true
+  def insertNodes (n : Set[NODE]): Set[NODE] = {
+    val nodeToAdd = n.filter(x => !nodes.contains(x) && nodeAllowed(x))
+    _nodes = _nodes ++ nodeToAdd.map(x => x.id.asInstanceOf[NODE#ID] -> x)
+    this !!! NodesAdded(nodeToAdd)
+    return n -- nodeToAdd
   }
 
   /**
@@ -66,23 +66,25 @@ trait ObservableWorld extends World with Source {
     * @param n the node to remove
     * @return true if the node is removed false otherwise
     */
-  def removeNode(n:NODE) : Boolean = {
-    if(!(_nodes contains n.id.asInstanceOf[NODE#ID])) return false
-    _nodes -= n.id.asInstanceOf[NODE#ID]
-    this !!! ObservableWorld.NodeChange(n)
+  def removeNode(n:NODE#ID) : Boolean = {
+    if(!(_nodes contains n)) return false
+    val node = this(n)
+    _nodes -= n
+    this !!! NodeRemoved(node.get)
     true
   }
 
   /**
     * remove a set of node in the world
     * @param n the nodes
-    * @return true if all node are removed false otherwise
+    * @return the set of node that aren't in the wolrd
     */
-  def removeNodes(n:Set[NODE]) : Boolean = {
-    if(! (n forall(y =>  _nodes.contains(y.id.asInstanceOf[NODE#ID])))) return false
-    _nodes = _nodes -- n.map(x => x.id.asInstanceOf[NODE#ID])
-    this !!! ObservableWorld.NodesChange(n.asInstanceOf[Set[Node]])
-    true
+  def removeNodes(n:Set[NODE#ID]) : Set[NODE] = {
+    val nodeToRemove = n.filter(x => _nodes.keySet.contains(x))
+    val nodeNotify = this.apply(nodeToRemove)
+    _nodes = _nodes -- nodeToRemove
+    this !!! NodesAdded(nodeNotify)
+    return this.apply(n -- nodeToRemove)
   }
   /**
     * use strategy val to verify if the node is allowed in the world or not
@@ -102,18 +104,13 @@ object ObservableWorld {
     abstract override def !!(event: Event): Unit = {
       super.!!(event)
       event match {
-        case NodeChange(n) => nodesChanged += n
-        case NodesChange(n) => nodesChanged = nodesChanged ++ n
+        case SingleNodeChange(n) => nodesChanged += n
+        case MultipleNodeChange(n) => nodesChanged = nodesChanged ++ n
         case _ =>
       }
     }
-
     def nodeChanged : Set[Node] = this.nodesChanged
 
     def clearChange : Unit = this.nodesChanged = this.nodesChanged.empty
   }
-
-  case class NodeChange(n : Node) extends Event
-
-  case class NodesChange(n : Set[Node]) extends Event
 }

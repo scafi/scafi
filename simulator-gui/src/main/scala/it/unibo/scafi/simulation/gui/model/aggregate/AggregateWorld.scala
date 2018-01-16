@@ -1,7 +1,6 @@
 package it.unibo.scafi.simulation.gui.model.aggregate
 
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
-//TODO FIST VERSION! REMEMBER TO REFACTOR! AGGREGATE WORLD IS KEY CONCEPT
 /**
   * aggregate world define a mutable world with mutable node and device
   */
@@ -15,14 +14,9 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if the node isn't in the world
     * @return true if the movement is allowed false otherwise
     */
-  //TODO THINK HOW TO MANAGE POSITION NOT ALOWED
-  def moveNode(n : NODE, p : NODE#P)(implicit ev : NODE#P =:= n.P) : Boolean = {
-    require(this.nodes.contains(n))
-    val movedNode = n.movedTo(p).asInstanceOf[NODE]
-    if(!this.nodeAllowed(movedNode))  return false
-    this.removeNode(n)
-    this.insertNode(movedNode)
-    true
+  def moveNode(n : NODE#ID, p : NODE#P) : Boolean = {
+    val node = this.getNodeOrThrows(n)
+    produceResult(node,p ,filterPosition(node,p))
   }
 
   /**
@@ -31,119 +25,124 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if some node aren't in the world
     * @return the node that can't be mode
     */
-  def moveNodes(nodes : Map[NODE,NODE#P]): Set[NODE] = {
-    require(nodes.forall(x => this.nodes.contains(x._1)))
-    val movedNodes = nodes.filter(y => this.nodes.contains(y._1))
-         .map(y => y._1.movedTo(y._2.asInstanceOf[y._1.P]))
-         .filter(y => !this.nodeAllowed(y.asInstanceOf[NODE]))
-         .map(_.asInstanceOf[NODE])
-         .toSet
-    this.removeNodes(movedNodes)
-    this.insertNodes(movedNodes)
-    return nodes.keySet -- movedNodes
+  def moveNodes(nodes : Map[NODE#ID,NODE#P]): Set[NODE] = {
+    produceResult(nodes,filterPosition)
+  }
+  private val filterPosition : (NODE,NODE#P) => Option[NODE] = (a,b) => {
+    val moved = a.movedTo(b.asInstanceOf[a.P]).asInstanceOf[NODE]
+    val res = if(!this.nodeAllowed(moved)) None else Some(moved)
+    res.asInstanceOf[Option[NODE]]
   }
   /**
     * switch on a device
     * @param n the node
     * @param name the name of device
-    * @return true if the node is in the world false otherwise
+    * @throws IllegalArgumentException if the node isn't in world
+    * @return true if the device turn on false otherwise
     */
-  def switchOnDevice(n : NODE, name : NODE#DEVICE#NAME)(implicit ev : NODE#DEVICE#NAME =:= n.DEVICE#NAME): Boolean = {
-    if(!this.switching(n.turnOnDevice(name).asInstanceOf[NODE])) return false
-    true
+  def switchOnDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
+    val node = getNodeOrThrows(n)
+    produceResult(node,name ,node.turnOnDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]])
   }
 
   /**
     * switch on a set of device
     * @param nodes the node and the the device wants to switch on
+    * @throws IllegalArgumentException if the some node aren't in world
     * @return true if all device are switch on false otherwise
     */
-  def switchOnDevices(nodes : Map[NODE,NODE#DEVICE#NAME]) : Boolean = {
-    val switched = nodes.map(x => x._1.turnOnDevice(x._2.asInstanceOf[x._1.DEVICE#NAME]))
-                        .map(x => x.asInstanceOf[NODE])
-                        .toSet
-    if(!this.switchingAll(switched)) return false
-    true
+  def switchOnDevices(nodes : Map[NODE#ID,NODE#DEVICE#NAME]) : Set[NODE] = {
+    produceResult(nodes,(a,b : NODE#DEVICE#NAME) => a.turnOnDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]])
   }
   /**
     * switch of a device
     * @param n the node
     * @param name the name of device
-    * @return true if the node is in the world false otherwise
+    * @throws IllegalArgumentException if the node isn't in world
+    * @return true if the device is switched off false otherwise
     */
-  def switchOffDevice(n : NODE, name : NODE#DEVICE#NAME)(implicit ev : NODE#DEVICE#NAME =:= n.DEVICE#NAME) : Boolean = {
-    if(!this.switching(n.turnOffDevice(name).asInstanceOf[NODE])) return false
-    true
+  def switchOffDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
+    val node = getNodeOrThrows(n)
+    produceResult(node,name,node.turnOffDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]])
   }
   /**
     * switch off a set of device
     * @param nodes the node and the the device wants to switch off
-    * @return true if all device are switch on false otherwise
+    * @throws IllegalArgumentException if some node aren't in the world
+    * @return the set of node that can't turn on a device
     */
-  def switchOffDevices(nodes : Map[NODE,NODE#DEVICE#NAME]) : Boolean = {
-    val switched = nodes.map(x => x._1.turnOnDevice(x._2.asInstanceOf[x._1.DEVICE#NAME]))
-      .map(x => x.asInstanceOf[NODE])
-      .toSet
-    if(!this.switchingAll(switched)) return false
-    true
+  def switchOffDevices(nodes : Map[NODE#ID,NODE#DEVICE#NAME]) : Set[NODE] = {
+    produceResult(nodes,(a,b: NODE#DEVICE#NAME) => a.turnOffDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]])
   }
 
   /**
     * add a device to a node in the world
     * @param n the node
     * @param d the device name
+    * @throws IllegalArgumentException if the node isn't in world
     * @return true if the node is in the world false otherwise
     */
-  def addDevice(n: NODE,d : NODE#DEVICE)(implicit ev : NODE#DEVICE =:= n.DEVICE) : Boolean = {
-    if(!this.switching(n.addDevice(d).asInstanceOf[NODE])) return false
-    true
+  def addDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
+    val node = getNodeOrThrows(n)
+    produceResult(node,d,node.addDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]])
   }
 
   /**
     * insert device in a set of node
     * @param nodes the nodes and the device to add
-    * @return true if all the devices are added false otherwise
+    * @throws IllegalArgumentException if some node aren't in the world
+    * @return the set of node that can't add a device
     */
-  def addDevices(nodes : Map[NODE,NODE#DEVICE]) : Boolean = {
-    val switched =  nodes.map(x => x._1.addDevice(x._2.asInstanceOf[x._1.DEVICE]))
-      .map(x => x.asInstanceOf[NODE])
-      .toSet
-    if(!this.switchingAll(switched)) return false
-    true
+  def addDevices(nodes : Map[NODE#ID,NODE#DEVICE]) : Set[NODE] = {
+    produceResult(nodes,(a,b : NODE#DEVICE) => a.addDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]])
   }
   /**
     * remove a device in a node in the world
     * @param n the node
     * @param d the device name
+    * @throws IllegalArgumentException if the node isn't in world
     * @return true if the node is in the world false otherwise
     */
-  def removeDevice(n: NODE,d : NODE#DEVICE)(implicit ev : NODE#DEVICE =:= n.DEVICE) : Boolean = {
-    if(!this.switching(n.removeDevice(d).asInstanceOf[NODE])) return false
-    true
+  def removeDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
+    val node = getNodeOrThrows(n)
+    produceResult(node,d, node.removeDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]])
   }
 
   /**
     * remove a device in a set of node
     * @param nodes the nodes with the device associated
-    * @return true if all the devices are removed false otherwise
+    * @throws IllegalArgumentException if some node aren't in the world
+    * @return the set of node that can't remove the device
     */
-  def removeDevices(nodes : Map[NODE,NODE#DEVICE]) : Boolean = {
-    val switched =  nodes.map(x => x._1.addDevice(x._2.asInstanceOf[x._1.DEVICE]))
-      .map(x => x.asInstanceOf[NODE])
+  def removeDevices(nodes : Map[NODE#ID,NODE#DEVICE]) : Set[NODE] = {
+    produceResult(nodes,(a,b : NODE#DEVICE) => a.removeDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]])
+  }
+
+  private def switching(switched : NODE) : Unit = {
+    this.removeNode(switched.id.asInstanceOf[NODE#ID])
+    this.insertNode(switched)
+  }
+  private def produceResult[A](map : Map[NODE#ID,A], filter :(NODE,A) => Option[NODE]): Set[NODE] = {
+    require(map.keySet.forall(this(_).isDefined))
+    val switched = map.map(x => this(x._1).get.asInstanceOf[NODE] -> x._2)
+      .map(x => filter(x._1,x._2))
+      .filter(_.isDefined)
+      .map(_.get)
       .toSet
-    if(!this.switchingAll(switched)) return false
+    this.removeNodes(switched.map(_.id.asInstanceOf[NODE#ID]))
+    this.insertNodes(switched)
+    this.apply(map.keySet) -- switched
+  }
+
+  private def produceResult[A](n : NODE, v : A, filter : => Option[NODE]): Boolean = {
+    val node = filter
+    if(node.isEmpty) return false
+    switching(node.get)
     true
   }
 
-  private def switching(switched : NODE) : Boolean = {
-    if(!this.nodes.contains(switched)) return false
-    this.removeNode(switched)
-    this.insertNode(switched)
-  }
-
-  private def switchingAll(switched : Set[NODE]) : Boolean = {
-    if(!switched.forall(y => this.nodes.contains(y)))  return false
-    this.removeNodes(switched)
-    this.insertNodes(switched)
+  private def getNodeOrThrows(id : NODE#ID) : NODE = {
+    require(this(id).isDefined)
+    return this(id).get
   }
 }

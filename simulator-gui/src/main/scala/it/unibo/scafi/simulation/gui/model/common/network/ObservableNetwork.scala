@@ -7,6 +7,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.Event
 /**
   * a network mutable. produce event when the network change
   */
+//TODO PENSA BENE COME EVITARE SITUAZIONI CRITICHE DOVUTE ALLA CANCELLAZIONE DEI NODI
 trait ObservableNetwork extends Network {
   this : ObservableWorld =>
   protected def emptyNeighbours : Map[NODE,Set[NODE]] = nodes.map(x => x -> Set[NODE]()) toMap
@@ -98,7 +99,6 @@ trait ObservableNetwork extends Network {
 }
 
 object ObservableNetwork {
-
   /**
     * an event used to tell that the network is cleared
     */

@@ -40,6 +40,13 @@ trait World {
     *   the node if it is in the world
     */
   def apply(id : NODE#ID) : Option[NODE]
+
+  /**
+    * return a set of node in the world
+    * @param nodes the ids of the node
+    * @return the set of the node
+    */
+  def apply(nodes : Set[NODE#ID]) : Set[NODE]
 }
 //STRATEGY
 /**
