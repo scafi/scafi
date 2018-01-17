@@ -1,9 +1,8 @@
 package it.unibo.scafi.simulation.gui.test.model
 
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.space.Point
-import it.unibo.scafi.simulation.gui.test.help._
 import it.unibo.scafi.simulation.gui.test.help.Utils._
+import it.unibo.scafi.simulation.gui.test.help._
 import org.scalatest.{FunSpec, Matchers}
 /*test the basic structure of observable world and observer pattern */
 class BasicObservableWorldTest extends FunSpec with Matchers{
@@ -39,8 +38,8 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   val world = new BasicTestableObservableWorld {
     override type NODE = BasicTestableNode
   }
-  val worldObserver = new BasicTestableObserverWorld with ObservableWorld.ObserverWorld
-  val anotherWorldObserver = new BasicTestableObserverWorld with ObservableWorld.ObserverWorld
+  val worldObserver = new BasicTestableWorldObserver[BasicTestableNode]
+  val anotherWorldObserver = new BasicTestableWorldObserver[BasicTestableNode]
   world <-- worldObserver <-- anotherWorldObserver
   //test detach
   world <--! anotherWorldObserver
@@ -84,7 +83,7 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
 
   checkThat("adding a big number of observer doesn't take a lot of time") {
     timeTest(maxSec){
-      for (elem <- (0 to bigNumber).map(x => new BasicTestableObserverWorld with ObservableWorld.ObserverWorld)) {
+      for (elem <- (0 to bigNumber).map(x => new BasicTestableWorldObserver[BasicTestableNode])) {
         world <-- elem
       }
     }

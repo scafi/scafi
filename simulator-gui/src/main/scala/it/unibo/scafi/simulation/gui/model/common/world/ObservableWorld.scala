@@ -1,15 +1,15 @@
 package it.unibo.scafi.simulation.gui.model.common.world
 
-import it.unibo.scafi.simulation.gui.model.core.{Node, World}
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
+import it.unibo.scafi.simulation.gui.model.core.{Node, World}
+import it.unibo.scafi.simulation.gui.pattern.observer.{Observer, Source}
 /**
   * a world mutable, the observer want to see the changes in the world
   */
 //TODO pensa se effettuare una suddivisione degli eventi più fine o meno
 trait ObservableWorld extends World{
   this : ObservableWorld.Dependency =>
-  override type O <: ObservableWorld.ObserverWorld
+  override type O <: ObservableWorld.WorldObserver[NODE]
 
   private var _nodes : Map[NODE#ID,NODE] = Map[NODE#ID,NODE]()
 
@@ -17,7 +17,7 @@ trait ObservableWorld extends World{
 
   override def apply(node : NODE#ID) : Option[NODE] = _nodes.get(node)
 
-  override def apply(node : Set[NODE#ID]) : Set[NODE] = _nodes.filter(y => node.contains(y._1)).values.toSet
+  override def apply(node : Set[NODE#ID]) : Set[NODE] = _nodes.filter {y => node.contains(y._1)}.values.toSet
 
   final def + (n : NODE): this.type = {
     insertNode(n)
@@ -56,8 +56,8 @@ trait ObservableWorld extends World{
     * @return the set of node that can't be added
     */
   def insertNodes (n : Set[NODE]): Set[NODE] = {
-    val nodeToAdd = n.filter(x => !nodes.contains(x) && nodeAllowed(x))
-    _nodes = _nodes ++ nodeToAdd.map(x => x.id.asInstanceOf[NODE#ID] -> x)
+    val nodeToAdd = n filter {x => !nodes.contains(x) && nodeAllowed(x)}
+    _nodes = _nodes ++ nodeToAdd.map {x => x.id.asInstanceOf[NODE#ID] -> x}
     this !!! NodesAdded(nodeToAdd)
     return n -- nodeToAdd
   }
@@ -81,7 +81,7 @@ trait ObservableWorld extends World{
     * @return the set of node that aren't in the wolrd
     */
   def removeNodes(n:Set[NODE#ID]) : Set[NODE] = {
-    val nodeToRemove = n.filter(x => _nodes.keySet.contains(x))
+    val nodeToRemove = n filter{x => _nodes.keySet.contains(x)}
     val nodeNotify = this.apply(nodeToRemove)
     _nodes = _nodes -- nodeToRemove
     this !!! NodesAdded(nodeNotify)
@@ -103,7 +103,7 @@ trait ObservableWorld extends World{
     * @param n the nodes to add
     */
   protected def addBeforeEvent(n : Set[NODE]) = {
-    _nodes = _nodes ++ n.map(x => x.id.asInstanceOf[NODE#ID] -> x)
+    _nodes = _nodes ++ n.map {x => x.id.asInstanceOf[NODE#ID] -> x}
   }
 
   /**
@@ -117,19 +117,27 @@ trait ObservableWorld extends World{
 }
 object ObservableWorld {
   type Dependency = Source
-  //NB! Want to use a decoration approach like in observer pattern
-  trait ObserverWorld extends Observer {
-    private var nodesChanged : Set[Node] = Set[Node]()
 
-    abstract override def !!(event: Event): Unit = {
-      super.!!(event)
-      event match {
-        case NodesChangeEvent(n) => nodesChanged = nodesChanged ++ n
-        case _ =>
-      }
-    }
-    def nodeChanged : Set[Node] = this.nodesChanged
+  /**
+    * the root class of all world observer
+    */
+  trait WorldObserver[N <: Node] extends Observer {
+    def nodeChanged(): Set[N]
+  }
 
-    def clearChange : Unit = this.nodesChanged = this.nodesChanged.empty
+  /**
+    * observer all world change and store the node modified
+    */
+  trait AllChangesObserver[N <: Node] extends WorldObserver[N] {
+     override def nodeChanged() : Set[N] = {
+       var res = Set[N]()
+       for(event <- events) {
+         val x = event match {
+           case NodesChangeEvent(n) => res = res ++ n.asInstanceOf[Set[N]]
+           case _ =>
+         }
+       }
+       res
+     }
   }
 }

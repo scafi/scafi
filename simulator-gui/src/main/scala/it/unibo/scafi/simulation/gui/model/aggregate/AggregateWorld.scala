@@ -131,7 +131,7 @@ trait AggregateWorld extends ObservableWorld {
                                producer : (Set[NODE]) => AggregateEvent[NODE]): Set[NODE] = {
     require(map.keySet.forall(this.apply(_).isDefined))
     val switched = map.map(x => this.apply(x._1).get -> x._2)
-      .map(x => filter(x._1,x._2))
+      .map {x => filter(x._1,x._2)}
       .filter(_.isDefined)
       .map(_.get)
       .toSet

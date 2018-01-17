@@ -1,9 +1,8 @@
 package it.unibo.scafi.simulation.gui.test.model
 
 import it.unibo.scafi.simulation.gui.model.common.sensor.Sensor
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D}
-import it.unibo.scafi.simulation.gui.test.help.{BasicTestableAggregateDevice, BasicTestableAggregateNode, BasicTestableAggregateWorld, BasicTestableObserverWorld}
+import it.unibo.scafi.simulation.gui.test.help.{BasicTestableAggregateDevice, BasicTestableAggregateNode, BasicTestableAggregateWorld, BasicTestableWorldObserver}
 import org.scalatest.{FunSpec, Matchers}
 
 class BasicAggregateWorldTest extends FunSpec with Matchers{
@@ -31,13 +30,12 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
     val sameDev = node.getDevice(dev.name)
     assert(simpleDev.get.state == sameDev.get.state)
   }
-  val observer = new BasicTestableObserverWorld with ObservableWorld.ObserverWorld
   checkThat("clear queue of event") {
-    observer.clearChange
-    assert(observer.nodeChanged.isEmpty)
+    val anObserver = new BasicTestableWorldObserver[BasicTestableAggregateNode]
+    aggregateWorld <-- anObserver
+    assert(anObserver.nodeChanged.isEmpty)
   }
 
-  aggregateWorld <-- observer
   checkThat("i can add a node in the world") {
     assert(aggregateWorld.insertNode(node))
   }
@@ -83,13 +81,15 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
   }
 
   checkThat("multiple event store only the node changed") {
-    observer.clearChange
-    assert(observer.nodeChanged.isEmpty)
+    val anObserver = new BasicTestableWorldObserver[BasicTestableAggregateNode]
+    aggregateWorld <-- anObserver
+    assert(anObserver.nodeChanged.isEmpty)
     aggregateWorld.switchOnDevice(node.id,dev.name)
-    assert(observer.nodeChanged.size == 1)
+    assert(anObserver.nodeChanged.size == 1)
+    assert(anObserver.nodeChanged.isEmpty)
     aggregateWorld.switchOffDevice(node.id,dev.name)
     aggregateWorld.addDevice(node.id,superDevice)
     aggregateWorld.removeDevice(node.id,superDevice)
-    assert(observer.eventCount() > 1)
+    assert(anObserver.eventCount() > 1)
   }
 }

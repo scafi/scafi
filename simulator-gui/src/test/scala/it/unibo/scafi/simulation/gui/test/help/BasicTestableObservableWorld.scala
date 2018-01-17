@@ -2,12 +2,13 @@ package it.unibo.scafi.simulation.gui.test.help
 
 import it.unibo.scafi.simulation.gui.model.common.world.MetricDefinition.CartesianMetric
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld.AllChangesObserver
 import it.unibo.scafi.simulation.gui.model.core._
 import it.unibo.scafi.simulation.gui.model.space.Point2D
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, SimpleSource}
+import it.unibo.scafi.simulation.gui.pattern.observer.{Event, SimpleSource}
 
 class BasicTestableObservableWorld extends ObservableWorld with SimpleSource {
-  override type O = BasicTestableObserverWorld with ObservableWorld.ObserverWorld
+  override type O = BasicTestableWorldObserver[NODE]
   override type B = Boundary[NODE]
 
   override type M = CartesianMetric[NODE#P]
@@ -45,15 +46,16 @@ class BasicTestableDevice(override val name : String) extends Device {
   override def state: Boolean = _enable
 }
 
-class BasicTestableObserverWorld extends Observer {
-  private var events = Set[Event]()
+class BasicTestableWorldObserver[N <: Node] extends AllChangesObserver[N] {
+  private var _events = List[Event]()
 
   override def !!(event: Event): Unit = {
-    events += event
+    super.!!(event)
+    _events = event :: _events
   }
 
-  def eventCount() = events.size
+  def eventCount() = _events.size
 
-  def clearQueue() = events = Set()
+  def clearQueue() = _events = List[Event]()
 
 }

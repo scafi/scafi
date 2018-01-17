@@ -23,6 +23,7 @@ class TestLogManager extends FunSpec with Matchers{
   }
 
 }
+
 class TestableLogObserver[U <: LogManager.Priority] (priority : Set[U]) extends LogManager.LogObserver {
   private var loggingCount = 0
   def getLoggingCount = loggingCount
