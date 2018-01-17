@@ -25,7 +25,7 @@ trait ObservableNetwork extends Network {
     * remove all neighbours in the network
     */
   def clearNeighbours() : Unit = {
-    this.neighbours().foreach(y => remove(y._1))
+    this.neighbours().foreach(y => removeStrategy(y._1))
     this !!! networkNeighboursCleared()
   }
   /**
@@ -34,7 +34,7 @@ trait ObservableNetwork extends Network {
     */
   def clearNeighbours(n : NODE) : Boolean = {
     if(!this.nodes.contains(n)) return false
-    remove(n)
+    removeStrategy(n)
     this !!! nodeNeighboursCleared(n)
     true
   }
@@ -45,14 +45,14 @@ trait ObservableNetwork extends Network {
     * @return true if the node is present in the world false otherwise
     */
   def removeNeighbours(n : NODE, neighbour : Set[NODE]) : Boolean = {
-    if(!this.nodes.contains(n)) return false
+    checkNodeInTheWorld(n,neighbour)
     if(!((this.neighbours().get(n)) isDefined)) {
-     add(n,Set[NODE]())
+     addStrategy(n,Set[NODE]())
     }
     val currentNeighbour = neighbours(n)
 
     val newNeighbour = currentNeighbour -- neighbour
-    add(n,newNeighbour)
+    addStrategy(n,newNeighbour)
     this !!! nodeNeighboursRemoved(n,neighbour)
     true
   }
@@ -65,12 +65,12 @@ trait ObservableNetwork extends Network {
     * @return a set on node that could't be neighbour of the node
     */
   def addNeighbours(node : NODE, neighbours: Set[NODE]) : Set[NODE] = {
-    checkNodeInTheWorkd(node,neighbours)
-    if((!((this.neighbours().get(node))).isDefined)) add(node,Set[NODE]())
+    checkNodeInTheWorld(node,neighbours)
+    if((!((this.neighbours().get(node))).isDefined)) addStrategy(node,Set[NODE]())
     val currentNeighbour = this.neighbours(node)
-    val filterNodes = this.neighboursAllowed(node,neighbours)
-    val newNeighbour = currentNeighbour ++ filterNodes
-    add(node,newNeighbour)
+    val filterNodes = neighbours
+    val newNeighbour = neighbours
+    addStrategy(node,newNeighbour)
     return neighbours -- filterNodes
   }
 
@@ -81,22 +81,31 @@ trait ObservableNetwork extends Network {
     * @return a set on node that could't be neighbour of the node passed
     */
   def replaceNeighbours(node : NODE, neighbour: Set[NODE]) : Set[NODE] = {
-    checkNodeInTheWorkd(node,neighbour)
+    checkNodeInTheWorld(node,neighbour)
     this.clearNeighbours(node)
     return this.addNeighbours(node,neighbour)
   }
-  private def checkNodeInTheWorkd(node : NODE, neighbour: Set[NODE]): Unit = {
-    require(this.nodes.contains(node))
-    require(neighbour.forall(this.nodes.contains(_)))
+  private def checkNodeInTheWorld(node : NODE, neighbour: Set[NODE]): Unit = {
+    require(this.nodes.contains(node),"node isn't in the network")
+    require(neighbour.subsetOf(this.nodes.asInstanceOf[Set[NODE]]),"illegal neighbour")
   }
   protected def neighboursAllowed(node : NODE, nodes : Set[NODE]) : Set[NODE] = {
     nodes.filter(this.topology.acceptNeighbour(node,_))
   }
 
   //TEMPLATE METHOD
-  protected def add(node : NODE, nodes : Set[NODE])
+  /**
+    * define how to insert a set on node in the neighbour
+    * @param node the node
+    * @param nodes the neighbours
+    */
+  protected def addStrategy(node : NODE, nodes : Set[NODE])
   //TEMPLATE METHOD
-  protected def remove(node : NODE)
+  /**
+    * define how to remove a node in the neighbours
+    * @param node the node
+    */
+  protected def removeStrategy(node : NODE)
 }
 object ObservableNetwork {
   type Dependency = ObservableWorld with Source

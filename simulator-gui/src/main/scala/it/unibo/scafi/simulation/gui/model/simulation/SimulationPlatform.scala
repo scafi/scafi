@@ -10,9 +10,9 @@ trait SimulationPlatform extends AggregateWorld with ObservableNetwork {
 
   override def neighbours(): Map[NODE, Set[NODE]] = _neighbours
 
-  override protected def add(node: NODE, nodes: Set[NODE]): Unit = this._neighbours += node -> nodes
+  override protected def addStrategy(node: NODE, nodes: Set[NODE]): Unit = this._neighbours += node -> nodes
 
-  override protected def remove(node: NODE): Unit = this._neighbours -= node
+  override protected def removeStrategy(node: NODE): Unit = this._neighbours -= node
 
 }
 
