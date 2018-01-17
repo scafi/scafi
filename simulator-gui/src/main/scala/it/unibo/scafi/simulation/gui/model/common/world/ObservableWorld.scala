@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
   */
 //TODO pensa se effettuare una suddivisione degli eventi più fine o meno
 trait ObservableWorld extends World{
-  this : Source =>
+  this : ObservableWorld.Dependency =>
   override type O <: ObservableWorld.ObserverWorld
 
   private var _nodes : Map[NODE#ID,NODE] = Map[NODE#ID,NODE]()
@@ -46,7 +46,7 @@ trait ObservableWorld extends World{
     if(_nodes contains n.id.asInstanceOf[NODE#ID]) return false
     if(!nodeAllowed(n)) return false
     _nodes += n.id.asInstanceOf[NODE#ID] -> n
-    this !!! NodeAdded(n)
+    this !!! NodesAdded(Set(n))
     true
   }
   //TODO Aggiungere quelli possibili o se non aggiungerne nessuno?
@@ -71,7 +71,7 @@ trait ObservableWorld extends World{
     if(!(_nodes contains n)) return false
     val node = this.apply(n)
     _nodes -= n
-    this !!! NodeRemoved(node.get)
+    this !!! NodesRemoved(Set(node.get))
     true
   }
 
@@ -96,8 +96,27 @@ trait ObservableWorld extends World{
     if(!this.metric.positionAllowed(n.position.asInstanceOf[NODE#P]) || this.boundary.isDefined && !boundary.get.nodeAllowed(n)) return false
     true
   }
+
+  /**
+    * method call to add nodes in the world, this
+    * method don't produce event like insert node
+    * @param n the nodes to add
+    */
+  protected def addBeforeEvent(n : Set[NODE]) = {
+    _nodes = _nodes ++ n.map(x => x.id.asInstanceOf[NODE#ID] -> x)
+  }
+
+  /**
+    * method call to remove nodes in te world
+    * this method don't produce event like remove node
+    * @param n the nodes to remove
+    */
+  protected def removeBeforeEvent(n : Set[NODE#ID]) = {
+    _nodes = _nodes -- n
+  }
 }
 object ObservableWorld {
+  type Dependency = Source
   //NB! Want to use a decoration approach like in observer pattern
   trait ObserverWorld extends Observer {
     private var nodesChanged : Set[Node] = Set[Node]()
@@ -105,8 +124,7 @@ object ObservableWorld {
     abstract override def !!(event: Event): Unit = {
       super.!!(event)
       event match {
-        case SingleNodeChange(n) => nodesChanged += n
-        case MultipleNodeChange(n) => nodesChanged = nodesChanged ++ n
+        case NodesChangeEvent(n) => nodesChanged = nodesChanged ++ n
         case _ =>
       }
     }

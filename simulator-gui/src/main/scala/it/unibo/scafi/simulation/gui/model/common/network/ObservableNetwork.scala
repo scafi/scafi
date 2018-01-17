@@ -1,45 +1,41 @@
 package it.unibo.scafi.simulation.gui.model.common.network
 
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
-import it.unibo.scafi.simulation.gui.model.core.{Network, Node}
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Source}
+import it.unibo.scafi.simulation.gui.model.core.Network
+import it.unibo.scafi.simulation.gui.pattern.observer.Source
 
 /**
   * a network mutable. produce event when the network change
   */
-//TODO PENSA BENE COME EVITARE SITUAZIONI CRITICHE DOVUTE ALLA CANCELLAZIONE DEI NODI
 trait ObservableNetwork extends Network {
-  this : ObservableWorld with Source =>
-  protected def emptyNeighbours : Map[NODE,Set[NODE]] = nodes.map(x => x -> Set[NODE]()) toMap
-
-  private var _neighbours : Map[NODE,Set[NODE]] = emptyNeighbours
+  this : ObservableNetwork.Dependency =>
+  override type NODE <: ObservableNetwork.Dependency#NODE
+  import CommonNetworkEvent._
   /**
-    * the neighbour in the world
-    * @return
+    * the neighbours of a node
+    * @param n the node
+    * @return a set of neighbours
     */
-
   override def neighbours(n: NODE): Set[NODE] = {
-    val res = _neighbours get n
+    val res = this.neighbours().get(n)
     if(res isEmpty) return Set()
     return res get
   }
-
-  override def neighbours(): Map[NODE, Set[NODE]] = _neighbours
   /**
     * remove all neighbours in the network
     */
   def clearNeighbours() : Unit = {
-    _neighbours = emptyNeighbours
-    this !!! ObservableNetwork.networkNeighboursCleared()
+    this.neighbours().foreach(y => remove(y._1))
+    this !!! networkNeighboursCleared()
   }
   /**
     * remove neighbour of one node in the network
     * @param n the node
     */
   def clearNeighbours(n : NODE) : Boolean = {
-    if(!nodes.contains(n)) return false
-    _neighbours += n -> Set[NODE]()
-    this !!! ObservableNetwork.nodeNeighboursCleared(n)
+    if(!this.nodes.contains(n)) return false
+    remove(n)
+    this !!! nodeNeighboursCleared(n)
     true
   }
   /**
@@ -50,14 +46,14 @@ trait ObservableNetwork extends Network {
     */
   def removeNeighbours(n : NODE, neighbour : Set[NODE]) : Boolean = {
     if(!this.nodes.contains(n)) return false
-    if(!((_neighbours get n) isDefined)) {
-      this._neighbours += n -> Set[NODE]()
+    if(!((this.neighbours().get(n)) isDefined)) {
+     add(n,Set[NODE]())
     }
-    val currentNeighbour = _neighbours(n)
+    val currentNeighbour = neighbours(n)
 
     val newNeighbour = currentNeighbour -- neighbour
-    _neighbours += n -> newNeighbour
-    this !!! ObservableNetwork.nodeNeighboursRemoved(n,neighbour.asInstanceOf[Set[Node]])
+    add(n,newNeighbour)
+    this !!! nodeNeighboursRemoved(n,neighbour)
     true
   }
 
@@ -70,11 +66,11 @@ trait ObservableNetwork extends Network {
     */
   def addNeighbours(node : NODE, neighbours: Set[NODE]) : Set[NODE] = {
     checkNodeInTheWorkd(node,neighbours)
-    if((!((_neighbours get node)).isDefined)) _neighbours += node -> Set[NODE]()
-    val currentNeighbour = _neighbours(node)
+    if((!((this.neighbours().get(node))).isDefined)) add(node,Set[NODE]())
+    val currentNeighbour = this.neighbours(node)
     val filterNodes = this.neighboursAllowed(node,neighbours)
     val newNeighbour = currentNeighbour ++ filterNodes
-    _neighbours += node -> newNeighbour
+    add(node,newNeighbour)
     return neighbours -- filterNodes
   }
 
@@ -96,24 +92,12 @@ trait ObservableNetwork extends Network {
   protected def neighboursAllowed(node : NODE, nodes : Set[NODE]) : Set[NODE] = {
     nodes.filter(this.topology.acceptNeighbour(node,_))
   }
+
+  //TEMPLATE METHOD
+  protected def add(node : NODE, nodes : Set[NODE])
+  //TEMPLATE METHOD
+  protected def remove(node : NODE)
 }
-
 object ObservableNetwork {
-  /**
-    * an event used to tell that the network is cleared
-    */
-  case class networkNeighboursCleared() extends Event
-
-  /**
-    * an event used to tell that the neighbours of some node are cleared
-    * @param n the node
-    */
-  case class nodeNeighboursCleared(n : Node) extends Event
-
-  /**
-    * an event used to tell that a subset of neighbours of some node is removed
-    * @param n the node
-    * @param neighbours the old neighbours removed
-    */
-  case class nodeNeighboursRemoved(n : Node, neighbours : Set[Node]) extends Event
+  type Dependency = ObservableWorld with Source
 }

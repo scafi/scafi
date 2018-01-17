@@ -1,12 +1,14 @@
 package it.unibo.scafi.simulation.gui.model.aggregate
 
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{AggregateEvent, NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
-import it.unibo.scafi.simulation.gui.pattern.observer.Source
 /**
   * aggregate world define a mutable world with mutable node and device
   */
+//TODO think for the fail strategy(remove the node or associated to a node a value?
 trait AggregateWorld extends ObservableWorld {
-  this : Source =>
+  this : AggregateWorld.Dependency =>
+
   override type NODE <: AggregateNode
 
   /**
@@ -18,7 +20,7 @@ trait AggregateWorld extends ObservableWorld {
     */
   def moveNode(n : NODE#ID, p : NODE#P) : Boolean = {
     val node = this.getNodeOrThrows(n)
-    produceResult(node,p ,filterPosition(node,p))
+    produceResult(node,p ,filterPosition(node,p),a => NodesMoved(Set(a)))
   }
 
   /**
@@ -28,7 +30,7 @@ trait AggregateWorld extends ObservableWorld {
     * @return the node that can't be mode
     */
   def moveNodes(nodes : Map[NODE#ID,NODE#P]): Set[NODE] = {
-    produceResult(nodes,filterPosition)
+    produceResult(nodes,filterPosition,a => NodesMoved(a))
   }
   private val filterPosition : (NODE,NODE#P) => Option[NODE] = (a,b) => {
     val moved = a.movedTo(b.asInstanceOf[a.P]).asInstanceOf[NODE]
@@ -44,7 +46,7 @@ trait AggregateWorld extends ObservableWorld {
     */
   def switchOnDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,name ,node.turnOnDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]])
+    produceResult(node,name ,node.turnOnDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(Set(a)))
   }
 
   /**
@@ -54,7 +56,7 @@ trait AggregateWorld extends ObservableWorld {
     * @return true if all device are switch on false otherwise
     */
   def switchOnDevices(nodes : Map[NODE#ID,NODE#DEVICE#NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b : NODE#DEVICE#NAME) => a.turnOnDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]])
+    produceResult(nodes,(a,b : NODE#DEVICE#NAME) => a.turnOnDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
   }
   /**
     * switch of a device
@@ -65,7 +67,7 @@ trait AggregateWorld extends ObservableWorld {
     */
   def switchOffDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,name,node.turnOffDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]])
+    produceResult(node,name,node.turnOffDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(Set(a)))
   }
   /**
     * switch off a set of device
@@ -74,7 +76,7 @@ trait AggregateWorld extends ObservableWorld {
     * @return the set of node that can't turn on a device
     */
   def switchOffDevices(nodes : Map[NODE#ID,NODE#DEVICE#NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b: NODE#DEVICE#NAME) => a.turnOffDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]])
+    produceResult(nodes,(a,b: NODE#DEVICE#NAME) => a.turnOffDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
   }
 
   /**
@@ -86,7 +88,7 @@ trait AggregateWorld extends ObservableWorld {
     */
   def addDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,d,node.addDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]])
+    produceResult(node,d,node.addDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(Set(a)))
   }
 
   /**
@@ -96,7 +98,7 @@ trait AggregateWorld extends ObservableWorld {
     * @return the set of node that can't add a device
     */
   def addDevices(nodes : Map[NODE#ID,NODE#DEVICE]) : Set[NODE] = {
-    produceResult(nodes,(a,b : NODE#DEVICE) => a.addDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]])
+    produceResult(nodes,(a,b : NODE#DEVICE) => a.addDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
   }
   /**
     * remove a device in a node in the world
@@ -107,7 +109,7 @@ trait AggregateWorld extends ObservableWorld {
     */
   def removeDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,d, node.removeDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]])
+    produceResult(node,d, node.removeDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]], a => NodesDeviceChanged(Set(a)))
   }
 
   /**
@@ -117,34 +119,42 @@ trait AggregateWorld extends ObservableWorld {
     * @return the set of node that can't remove the device
     */
   def removeDevices(nodes : Map[NODE#ID,NODE#DEVICE]) : Set[NODE] = {
-    produceResult(nodes,(a,b : NODE#DEVICE) => a.removeDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]])
+    produceResult(nodes,(a,b : NODE#DEVICE) => a.removeDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
   }
 
-  private def switching(switched : NODE) : Unit = {
-    this.removeNode(switched.id.asInstanceOf[NODE#ID])
-    this.insertNode(switched)
+  private def switching(switched : Set[NODE]) : Unit = {
+    this.removeBeforeEvent(switched.map(_.id.asInstanceOf[NODE#ID]))
+    this.addBeforeEvent(switched)
   }
-  private def produceResult[A](map : Map[NODE#ID,A], filter :(NODE,A) => Option[NODE]): Set[NODE] = {
-    require(map.keySet.forall(this(_).isDefined))
-    val switched = map.map(x => this(x._1).get.asInstanceOf[NODE] -> x._2)
+  private def produceResult[A](map : Map[NODE#ID,A],
+                               filter :(NODE,A) => Option[NODE],
+                               producer : (Set[NODE]) => AggregateEvent[NODE]): Set[NODE] = {
+    require(map.keySet.forall(this.apply(_).isDefined))
+    val switched = map.map(x => this.apply(x._1).get -> x._2)
       .map(x => filter(x._1,x._2))
       .filter(_.isDefined)
       .map(_.get)
       .toSet
-    this.removeNodes(switched.map(_.id.asInstanceOf[NODE#ID]))
-    this.insertNodes(switched)
+    switching(switched)
+    this.!!!(producer(switched))
     this.apply(map.keySet) -- switched
   }
 
-  private def produceResult[A](n : NODE, v : A, filter : => Option[NODE]): Boolean = {
+  private def produceResult[A](n : NODE, v : A,
+                               filter : => Option[NODE],
+                               producer : NODE => AggregateEvent[NODE]): Boolean = {
     val node = filter
     if(node.isEmpty) return false
-    switching(node.get)
+    switching(Set(node.get))
+    this.!!!(producer(node.get))
     true
   }
 
   private def getNodeOrThrows(id : NODE#ID) : NODE = {
-    require(this(id).isDefined)
-    return this(id).get
+    require(this.apply(id).isDefined)
+    return this.apply(id).get
   }
+}
+object AggregateWorld {
+  type Dependency = ObservableWorld.Dependency
 }
