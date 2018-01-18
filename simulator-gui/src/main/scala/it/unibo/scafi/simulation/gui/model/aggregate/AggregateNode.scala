@@ -54,12 +54,13 @@ trait AggregateNode extends Node {
   /**
     * add a device in a new node
     * @param d the device
+    * @throws IllegalArgumentException if the device has already a parent
     * @return the new device created
     */
   def addDevice(d : DEVICE) : Option[this.type]= {
     if(this.getDevice(d.name.asInstanceOf[DEVICE#NAME]).isDefined) None
+    d.node = this.asInstanceOf[d.NODE]
     Some(copyNode(devices = this.devices + d))
-
   }
 
   /**

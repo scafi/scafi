@@ -41,7 +41,7 @@ class BasicTestableDevice(override val name : String) extends Device {
   private var _enable = false
   override type NAME = String
 
-  override type NODE = BasicTestableNode
+  override type NODE <: Node
   override def node = None
   override def state: Boolean = _enable
 }

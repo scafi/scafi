@@ -67,7 +67,7 @@ object Scheduler {
     def delta = d
 
   }
-  //factory method (singleton like)
+  //factory (singleton like)
   def apply: Scheduler = internal
   /**
     * the scheduler event

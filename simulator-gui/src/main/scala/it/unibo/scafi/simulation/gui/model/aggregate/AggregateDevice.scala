@@ -8,8 +8,8 @@ import it.unibo.scafi.simulation.gui.model.core.Device
   * alter the state(activation of device)
   */
 trait AggregateDevice extends Device {
-  //FACTORY METHOD
-  protected def createDevice(state: Boolean) : this.type
+  private var parent : Option[NODE] = None
+  protected def createDevice(state: Boolean,parent : Option[NODE] = this.node) : this.type
 
   /**
     * create a new on device
@@ -22,5 +22,16 @@ trait AggregateDevice extends Device {
     * @return the new device
     */
   def switchOff : this.type = createDevice(false)
+
+  /**
+    * create a device with a node attached
+    * @param n
+    */
+  def node_=(n : NODE) : this.type = {
+    require(parent.isEmpty)
+    createDevice(this.state,Some(n))
+  }
+
+  override def node: Option[NODE] = this.parent
 }
 

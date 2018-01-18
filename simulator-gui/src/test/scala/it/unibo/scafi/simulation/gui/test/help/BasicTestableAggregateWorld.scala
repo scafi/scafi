@@ -57,7 +57,7 @@ class BasicTestableAggregateNode(override val id : Int,
 }
 
 class BasicTestableAggregateDevice(val name : String, val state: Boolean) extends AggregateDevice {
-  override protected def createDevice(state: Boolean): this.type = new BasicTestableAggregateDevice(name,state).asInstanceOf[this.type]
+  override protected def createDevice(state: Boolean,parent : Option[NODE] = this.node): this.type = new BasicTestableAggregateDevice(name,state).asInstanceOf[this.type]
 
   override type NAME = String
 
