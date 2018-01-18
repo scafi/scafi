@@ -28,22 +28,21 @@ trait Scheduler extends Source {
 }
 
 object Scheduler {
-  object internal extends Scheduler with PrioritySource {
+  object scheduler extends Scheduler with PrioritySource {
     private[this] var d : Int = _
     private[this] var on = false
     private[this] var end = true
     private[this] val mainThread = new Runnable {
       private[this] var elapsed = delta
       override def run(): Unit = {
-        elapsed = delta
         while(on) {
           val t0 = System.currentTimeMillis()
-          internal.!!!(Tick(elapsed))
+          scheduler.!!!(Tick(delta))
           val t1 = System.currentTimeMillis()
           val wait = if (t1 - t0 > delta) {
             0
           } else {
-            t1 - t0
+            delta - (t1 - t0)
           }
           Thread.sleep(wait)
         }
@@ -68,7 +67,7 @@ object Scheduler {
 
   }
   //factory (singleton like)
-  def apply: Scheduler = internal
+  def apply: Scheduler = scheduler
   /**
     * the scheduler event
     * @param timeElapsed the time elapsed since the last call

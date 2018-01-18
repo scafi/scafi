@@ -84,7 +84,7 @@ trait ObservableWorld extends World{
     val nodeToRemove = n filter{x => _nodes.keySet.contains(x)}
     val nodeNotify = this.apply(nodeToRemove)
     _nodes = _nodes -- nodeToRemove
-    this !!! NodesAdded(nodeNotify)
+    this !!! NodesRemoved(nodeNotify)
     return this.apply(n -- nodeToRemove)
   }
   /**

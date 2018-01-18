@@ -24,9 +24,9 @@ object LogManager extends SimpleSource {
     * define the priority of the message
     */
   sealed trait Priority
-  object High extends Priority
-  object Middle extends Priority
-  object Low extends Priority
+  object High extends Priority {override def toString: String = "HIGH"}
+  object Middle extends Priority {override def toString: String = "MIDDLE"}
+  object Low extends Priority {override def toString: String = "LOW"}
 
   private case class LogEvent(message:String, priority: Priority) extends Event
 
