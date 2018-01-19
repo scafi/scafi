@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.launcher.console
 
-import it.unibo.scafi.simulation.gui.controller.SimulationController
+import it.unibo.scafi.simulation.gui.controller.LogicController
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler
 import it.unibo.scafi.simulation.gui.incarnation.console.{ConsoleOutput, ConsoleWorld, RootNode}
@@ -28,13 +28,13 @@ object Main extends App {
   LogManager <-- (new ConsoleLogger)
 }
 
-class FailureController(out : ConsoleOutput, world : ConsoleWorld) extends SimulationController[RootNode] with AllChangesObserver[RootNode]{
+class FailureController(out : ConsoleOutput, world : ConsoleWorld) extends LogicController[ConsoleWorld] with AllChangesObserver[RootNode]{
   world <-- this
-  override type O = ConsoleOutput
+  override type OUTPUT = ConsoleOutput
   private val r = new Random()
   private val MAX = 10
-  private val delta = 1000
-  @volatile private var nodeDelete : Set[RootNode] = Set[RootNode]()
+  private val delta = 100
+  private var nodeDelete : Set[RootNode] = Set[RootNode]()
   private[this] val thread = new Thread(){
     override def run(): Unit = {
       while(true) {
@@ -59,9 +59,9 @@ class FailureController(out : ConsoleOutput, world : ConsoleWorld) extends Simul
   }
 }
 
-class RandomMovementController(out : ConsoleOutput, world : ConsoleWorld) extends SimulationController[RootNode] with AllChangesObserver[RootNode]{
+class RandomMovementController(out : ConsoleOutput, world : ConsoleWorld) extends LogicController[ConsoleWorld] with AllChangesObserver[RootNode]{
   world <-- this
-  override type O = ConsoleOutput
+  override type OUTPUT = ConsoleOutput
   private val r = new Random()
   private val MAX = 100
   private val delta = 10

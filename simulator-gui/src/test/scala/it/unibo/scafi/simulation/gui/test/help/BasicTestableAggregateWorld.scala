@@ -13,7 +13,7 @@ class BasicTestableAggregateWorld extends AggregateWorld with SimpleSource{
   /**
     * the type of boundary of the world
     */
-  override type B = Boundary[NODE]
+  override type B = Boundary[NODE#P,NODE#SHAPE]
 
   override type M = CartesianMetric[NODE#P]
 

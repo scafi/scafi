@@ -14,7 +14,7 @@ trait World {
   /**
     * the type of boundary of the world
     */
-  type B <: Boundary[NODE]
+  type B <: Boundary[NODE#P,NODE#SHAPE]
   /**
     * the type of metric in this world
     */
@@ -52,8 +52,8 @@ trait World {
 /**
   * a generic boundary
   */
-trait Boundary[N <: Node] {
-  def nodeAllowed(n : N) : Boolean
+trait Boundary[P <: Point,S <: Shape] {
+  def nodeAllowed(p : P, s : Option[S]) : Boolean
 }
 //STRATEGY
 /**

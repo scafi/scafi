@@ -8,6 +8,5 @@ import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
   * @param world to controls
   * @tparam W the type of the world
   */
-class InputController[W <: AggregateWorld](world : W) {
-}
+abstract class InputController[W <: AggregateWorld](world : W)
 

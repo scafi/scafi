@@ -9,7 +9,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.{Event, SimpleSource}
 
 class BasicTestableObservableWorld extends ObservableWorld with SimpleSource {
   override type O = BasicTestableWorldObserver[NODE]
-  override type B = Boundary[NODE]
+  override type B = Boundary[NODE#P,NODE#SHAPE]
 
   override type M = CartesianMetric[NODE#P]
 

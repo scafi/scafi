@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
 import it.unibo.scafi.simulation.gui.model.core.{Node, World}
+import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.pattern.observer.{Observer, Source}
 /**
   * a world mutable, the observer want to see the changes in the world
@@ -43,9 +44,9 @@ trait ObservableWorld extends World{
     *                    the position is not allowed
     */
   def insertNode (n:NODE) : Boolean = {
-    if(_nodes contains n.id.asInstanceOf[NODE#ID]) return false
+    if(_nodes contains worldId(n)) return false
     if(!nodeAllowed(n)) return false
-    _nodes += n.id.asInstanceOf[NODE#ID] -> n
+    _nodes += worldId(n) -> n
     this !!! NodesAdded(Set(n))
     true
   }
@@ -57,7 +58,7 @@ trait ObservableWorld extends World{
     */
   def insertNodes (n : Set[NODE]): Set[NODE] = {
     val nodeToAdd = n filter {x => !nodes.contains(x) && nodeAllowed(x)}
-    _nodes = _nodes ++ nodeToAdd.map {x => x.id.asInstanceOf[NODE#ID] -> x}
+    _nodes = _nodes ++ nodeToAdd.map {x => worldId(x) -> x}
     this !!! NodesAdded(nodeToAdd)
     return n -- nodeToAdd
   }
@@ -93,7 +94,9 @@ trait ObservableWorld extends World{
     * @return true if the node is allowed false otherwise
     */
   final protected def nodeAllowed(n:NODE) : Boolean = {
-    if(!this.metric.positionAllowed(n.position.asInstanceOf[NODE#P]) || this.boundary.isDefined && !boundary.get.nodeAllowed(n)) return false
+    if(!this.metric.positionAllowed(n.position) ||
+        this.boundary.isDefined &&
+        !boundary.get.nodeAllowed(n.position,n.shape.asInstanceOf[Option[NODE#SHAPE]])) return false
     true
   }
 
@@ -103,7 +106,7 @@ trait ObservableWorld extends World{
     * @param n the nodes to add
     */
   protected def addBeforeEvent(n : Set[NODE]) = {
-    _nodes = _nodes ++ n.map {x => x.id.asInstanceOf[NODE#ID] -> x}
+    _nodes = _nodes ++ n.map {x => worldId(x) -> x}
   }
 
   /**
@@ -114,14 +117,20 @@ trait ObservableWorld extends World{
   protected def removeBeforeEvent(n : Set[NODE#ID]) = {
     _nodes = _nodes -- n
   }
+
+  implicit def positionToWorldPosition(p : Point) : NODE#P = p.asInstanceOf[NODE#P]
+
+  implicit def worldId(node : NODE) : NODE#ID = node.id.asInstanceOf[NODE#ID]
 }
 object ObservableWorld {
+
   type Dependency = Source
 
   /**
     * the root class of all world observer
     */
   trait WorldObserver[N <: Node] extends Observer {
+
     def nodeChanged(): Set[N]
   }
 

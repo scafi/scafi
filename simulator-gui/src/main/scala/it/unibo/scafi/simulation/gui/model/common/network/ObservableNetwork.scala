@@ -33,7 +33,7 @@ trait ObservableNetwork extends Network {
     * @param n the node
     */
   def clearNeighbours(n : NODE) : Boolean = {
-    if(this.apply(n.id.asInstanceOf[NODE#ID]).isEmpty) return false
+    if(this.apply(worldId(n)).isEmpty) return false
     removeStrategy(n)
     this !!! nodeNeighboursCleared(n)
     true
@@ -67,10 +67,8 @@ trait ObservableNetwork extends Network {
   def addNeighbours(node : NODE, neighbours: Set[NODE]) : Set[NODE] = {
     checkNodeInTheWorld(node,neighbours)
     if((!((this.neighbours().get(node))).isDefined)) addStrategy(node,Set[NODE]())
-    val currentNeighbour = this.neighbours(node)
     val filterNodes = neighboursAllowed(node,neighbours)
-    val newNeighbour = neighbours
-    addStrategy(node,newNeighbour)
+    addStrategy(node,filterNodes)
     return neighbours -- filterNodes
   }
 
@@ -86,8 +84,8 @@ trait ObservableNetwork extends Network {
     return this.addNeighbours(node,neighbour)
   }
   private def checkNodeInTheWorld(node : NODE, neighbour: Set[NODE]): Unit = {
-    require(this.apply(node.id.asInstanceOf[NODE#ID]).isDefined,"node isn't in the network")
-    require(neighbour.forall(x => this.apply(x.id.asInstanceOf[NODE#ID]).isDefined),"illegal neighbour")
+    require(this.apply(worldId(node)).isDefined,"node isn't in the network")
+    require(neighbour.forall(x => this.apply(worldId(node)).isDefined),"illegal neighbour")
   }
   protected def neighboursAllowed(node : NODE, nodes : Set[NODE]) : Set[NODE] = {
     nodes.filter(this.topology.acceptNeighbour(node,_))

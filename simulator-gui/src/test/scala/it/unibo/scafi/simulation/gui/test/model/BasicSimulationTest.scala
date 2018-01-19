@@ -20,7 +20,7 @@ class BasicSimulationTest extends FunSpec with Matchers{
   val anotherNode = new BasicTestableAggregateNode(id = 2, devices = Set(dev), position = point)
   val lastNode = new BasicTestableAggregateNode(id = 3, devices = Set(dev), position = point)
   val lastId = 3
-  val network = new TestSimulationPlatform
+  val network = new TestSimulationPlatform(100,100)
 
   network + node + anotherNode
 
@@ -73,5 +73,13 @@ class BasicSimulationTest extends FunSpec with Matchers{
       network - node.id
       assert(network.neighbours(node).isEmpty)
     }
+  }
+
+  checkThat("a node out of boundary can't be added in the world") {
+    val bigId = 1231231
+    network + new BasicTestableAggregateNode(id = bigId,devices = Set(),position = Point2D(1000,1000))
+    assert(network(bigId).isEmpty)
+    network + new BasicTestableAggregateNode(id = bigId,devices = Set(),position = Point2D(48,41))
+    assert(network(bigId).isDefined)
   }
 }

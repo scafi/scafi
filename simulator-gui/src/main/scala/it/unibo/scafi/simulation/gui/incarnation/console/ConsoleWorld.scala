@@ -12,7 +12,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 class ConsoleWorld extends SimulationPlatform with SimpleSource {
   override type NODE = RootNode
   override type O = ObservableWorld.WorldObserver[NODE]
-  override type B = Boundary[NODE]
+  override type B = Boundary[NODE#P,NODE#SHAPE]
   override type M = CartesianMetric[NODE#P]
   override val metric: M = new CartesianMetric[NODE#P]
   override val boundary: Option[B] = None

@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.gui.model.aggregate
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{AggregateEvent, NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+import it.unibo.scafi.simulation.gui.model.core.Node
 /**
   * aggregate world define a mutable world with mutable node and device
   */
@@ -33,9 +34,9 @@ trait AggregateWorld extends ObservableWorld {
     produceResult(nodes,filterPosition,a => NodesMoved(a))
   }
   private val filterPosition : (NODE,NODE#P) => Option[NODE] = (a,b) => {
-    val moved = a.movedTo(b.asInstanceOf[a.P]).asInstanceOf[NODE]
-    val res = if(!this.nodeAllowed(moved)) None else Some(moved)
-    res.asInstanceOf[Option[NODE]]
+    val moved = a.movedTo(b.asInstanceOf[a.P])
+    val res : Option[NODE] = if(!this.nodeAllowed(moved)) None else Some(moved)
+    res
   }
   /**
     * switch on a device
@@ -46,7 +47,8 @@ trait AggregateWorld extends ObservableWorld {
     */
   def switchOnDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,name ,node.turnOnDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(Set(a)))
+    val nodeChanged = node.turnOnDevice(name.asInstanceOf[node.DEVICE#NAME])
+    produceResult(node,name ,nodeChanged,a => NodesDeviceChanged(Set(a)))
   }
 
   /**
@@ -67,7 +69,8 @@ trait AggregateWorld extends ObservableWorld {
     */
   def switchOffDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,name,node.turnOffDevice(name.asInstanceOf[node.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(Set(a)))
+    val nodeChanged = node.turnOffDevice(name.asInstanceOf[node.DEVICE#NAME])
+    produceResult(node,name,nodeChanged,a => NodesDeviceChanged(Set(a)))
   }
   /**
     * switch off a set of device
@@ -88,7 +91,8 @@ trait AggregateWorld extends ObservableWorld {
     */
   def addDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,d,node.addDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(Set(a)))
+    val nodeChanged  = node.addDevice(d.asInstanceOf[node.DEVICE])
+    produceResult(node,d,nodeChanged,a => NodesDeviceChanged(Set(a)))
   }
 
   /**
@@ -109,7 +113,8 @@ trait AggregateWorld extends ObservableWorld {
     */
   def removeDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
-    produceResult(node,d, node.removeDevice(d.asInstanceOf[node.DEVICE]).asInstanceOf[Option[NODE]], a => NodesDeviceChanged(Set(a)))
+    val nodeChanged = node.removeDevice(d.asInstanceOf[node.DEVICE])
+    produceResult(node,d, nodeChanged , a => NodesDeviceChanged(Set(a)))
   }
 
   /**
@@ -154,6 +159,11 @@ trait AggregateWorld extends ObservableWorld {
     require(this.apply(id).isDefined)
     return this.apply(id).get
   }
+
+  implicit def nodeToWorldNode(n : Node) : NODE = n.asInstanceOf[NODE]
+
+  implicit def optionNodeToOptionWorldNode(n : Option[Node]) : Option[NODE] = if(n.isEmpty) None else n.asInstanceOf[Option[NODE]]
+
 }
 object AggregateWorld {
   type Dependency = ObservableWorld.Dependency
