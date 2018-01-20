@@ -1,7 +1,6 @@
 package it.unibo.scafi.simulation.gui.model.common.network
-
-import it.unibo.scafi.simulation.gui.model.core.{Node, Topology}
-
+//TO REMOVE
+/*
 /**
   * basic topology definition
   */
@@ -13,3 +12,4 @@ object TopologyDefinition {
     override def acceptNeighbour(node: N, neighbour: N): Boolean = true
   }
 }
+*/

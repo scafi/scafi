@@ -1,5 +1,5 @@
 package it.unibo.scafi.simulation.gui.test.help
-
+/* TO DELETE
 import it.unibo.scafi.simulation.gui.model.common.network.ObservableNetwork
 import it.unibo.scafi.simulation.gui.model.common.network.TopologyDefinition.RandomTopology
 
@@ -19,3 +19,4 @@ class BasicTestableObservableNetwork extends BasicTestableObservableWorld with O
     */
   override def neighbours(): Map[NODE, Set[NODE]] = this._neighbours
 }
+*/

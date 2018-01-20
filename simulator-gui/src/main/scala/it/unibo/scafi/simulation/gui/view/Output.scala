@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.model.core.Node
+import it.unibo.scafi.simulation.gui.model.core.World
 
 trait Output
 
@@ -11,9 +11,9 @@ trait Container {
 }
 
 trait SimulationOutput extends Output{
-  def out(node : Set[Node])
+  def out[N<: World#Node] (node : Set[N])
 
-  def remove(node : Set[Node])
+  def remove[N <: World#Node](node : Set[N])
 
-  def outNeighbour(node : Node, neighbour : Set[Node])
+  def outNeighbour[N <: World#Node] (node : N, neighbour : Set[N])
 }

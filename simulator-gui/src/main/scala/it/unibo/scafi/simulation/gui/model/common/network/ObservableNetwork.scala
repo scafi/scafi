@@ -1,12 +1,9 @@
 package it.unibo.scafi.simulation.gui.model.common.network
-
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
-import it.unibo.scafi.simulation.gui.model.core.Network
-import it.unibo.scafi.simulation.gui.pattern.observer.Source
-
+//TO REMOVE
 /**
   * a network mutable. produce event when the network change
   */
+/*
 trait ObservableNetwork extends Network {
   this : ObservableNetwork.Dependency =>
   override type NODE <: ObservableNetwork.Dependency#NODE
@@ -108,3 +105,4 @@ trait ObservableNetwork extends Network {
 object ObservableNetwork {
   type Dependency = ObservableWorld with Source
 }
+*/

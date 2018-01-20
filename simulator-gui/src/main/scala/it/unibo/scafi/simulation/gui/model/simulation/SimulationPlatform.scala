@@ -1,11 +1,9 @@
 package it.unibo.scafi.simulation.gui.model.simulation
 
-import it.unibo.scafi.simulation.gui.model.aggregate.{AggregateNode, AggregateWorld}
-import it.unibo.scafi.simulation.gui.model.common.network.ObservableNetwork
-
 /**
   * a trait used to describe a world with a network
   */
+/*
 //TODO PENSA AD UNA STRUTTURA DATI MIGLIORE PER GESTIRE LA RETE
 trait SimulationPlatform extends AggregateWorld with ObservableNetwork {
   self : SimulationPlatform.Dependency =>
@@ -54,3 +52,4 @@ trait SimulationPlatform extends AggregateWorld with ObservableNetwork {
 object SimulationPlatform {
   type Dependency = AggregateWorld.Dependency with ObservableNetwork.Dependency
 }
+*/

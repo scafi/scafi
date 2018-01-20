@@ -1,5 +1,5 @@
 package it.unibo.scafi.simulation.gui.test.model
-
+/* TO DELETE
 import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.test.help.{BasicTestableDevice, BasicTestableNode, BasicTestableObservableNetwork, Utils}
 import org.scalatest.{FunSpec, Matchers}
@@ -71,3 +71,4 @@ class BasicObservableNetworkTest extends FunSpec with Matchers{
     }
   }
 }
+*/

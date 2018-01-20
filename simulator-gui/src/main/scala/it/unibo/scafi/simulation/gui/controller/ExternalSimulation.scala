@@ -1,14 +1,13 @@
 package it.unibo.scafi.simulation.gui.controller
 
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld.WorldObserver
-import it.unibo.scafi.simulation.gui.model.simulation.SimulationPlatform
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 
-trait ExternalSimulation[P <: SimulationPlatform] extends LogicController[P]{
-  self : WorldObserver[P#NODE] =>
+trait ExternalSimulation[W <: AggregateWorld] extends LogicController[W]{
 
   type SEED
-  type ACTION = (P#NODE#ID) => Unit
+  type ACTION = (W#ID) => Unit
   protected var actionToDo : List[ACTION] = List[ACTION]()
+
   /**
     * start the simulation with a seed
     */

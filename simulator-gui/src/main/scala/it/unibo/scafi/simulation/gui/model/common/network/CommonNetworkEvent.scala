@@ -1,8 +1,5 @@
 package it.unibo.scafi.simulation.gui.model.common.network
-
-import it.unibo.scafi.simulation.gui.model.core.Node
-import it.unibo.scafi.simulation.gui.pattern.observer.Event
-
+/* TO REMOVE
 object CommonNetworkEvent {
   /**
     * an event used to tell that the network is cleared
@@ -31,4 +28,4 @@ object CommonNetworkEvent {
     * @tparam N the type of node
     */
   case class nodeNeighboursAdded[N <: Node](n : N, neighbours : Set[N]) extends Event
-}
+}*/

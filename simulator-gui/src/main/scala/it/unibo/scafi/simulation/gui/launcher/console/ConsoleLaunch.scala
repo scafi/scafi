@@ -3,12 +3,9 @@ package it.unibo.scafi.simulation.gui.launcher.console
 import it.unibo.scafi.simulation.gui.controller.LogicController
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler
-import it.unibo.scafi.simulation.gui.incarnation.console.{ConsoleOutput, ConsoleWorld, RootNode}
+import it.unibo.scafi.simulation.gui.incarnation.console.{ConsoleOutput, ConsoleWorld}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld.AllChangesObserver
-import it.unibo.scafi.simulation.gui.model.core.Node
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D}
-import it.unibo.scafi.simulation.gui.pattern.observer.Event
 
 import scala.util.Random
 
@@ -17,7 +14,7 @@ object Main extends App {
   val world = new ConsoleWorld
   val name = "simple"
   val bigNumber = 10
-  (0 to bigNumber) foreach {x => {world + new RootNode(id = x, position = Point.ZERO)}}
+  (0 to bigNumber) foreach {x => {world + new world.RootNode(id = x, position = Point.ZERO)}}
   val output = new ConsoleOutput
   val controller = new FailureController(output,world)
   val movingController = new RandomMovementController(output,world)
@@ -28,13 +25,14 @@ object Main extends App {
   LogManager <-- (new ConsoleLogger)
 }
 
-class FailureController(out : ConsoleOutput, world : ConsoleWorld) extends LogicController[ConsoleWorld] with AllChangesObserver[RootNode]{
-  world <-- this
+class FailureController(out : ConsoleOutput, world : ConsoleWorld) extends LogicController[ConsoleWorld]  {
+  private val observer = world.createObserver(Set())
+  world <-- observer
   override type OUTPUT = ConsoleOutput
   private val r = new Random()
   private val MAX = 10
   private val delta = 100
-  private var nodeDelete : Set[RootNode] = Set[RootNode]()
+  private var nodeDelete : Set[ConsoleWorld#RootNode] = Set[ConsoleWorld#RootNode]()
   private[this] val thread = new Thread(){
     override def run(): Unit = {
       while(true) {
@@ -48,7 +46,7 @@ class FailureController(out : ConsoleOutput, world : ConsoleWorld) extends Logic
 
   override def onTick(float: Float): Unit = {
     if(!nodeDelete.isEmpty) {
-      val toOut : Set[Node] = nodeDelete map {x => x.asInstanceOf[Node]}
+      val toOut : Set[ConsoleWorld#RootNode] = nodeDelete
       world -- (nodeDelete map {_.id})
       out.out(toOut)
 
@@ -57,38 +55,34 @@ class FailureController(out : ConsoleOutput, world : ConsoleWorld) extends Logic
       this.nodeDelete = this.nodeDelete.empty
     }
   }
+
 }
 
-class RandomMovementController(out : ConsoleOutput, world : ConsoleWorld) extends LogicController[ConsoleWorld] with AllChangesObserver[RootNode]{
-  world <-- this
+class RandomMovementController(out: ConsoleOutput, world: ConsoleWorld) extends LogicController[ConsoleWorld] {
+  private val observer = world.createObserver(Set(NodesRemoved))
+  world <-- observer
   override type OUTPUT = ConsoleOutput
   private val r = new Random()
   private val MAX = 100
   private val delta = 10
-  private var moving : Map[Int,Point2D] = Map[Int,Point2D]()
-  private[this] val thread = new Thread(){
+  private var moving: Map[Int, Point2D] = Map[Int, Point2D]()
+  private[this] val thread = new Thread() {
     override def run(): Unit = {
-      while(true) {
+      while (true) {
         val node = world.apply(r.nextInt(MAX))
-        if(node isDefined) moving += node.get.id -> Point2D(r.nextInt(MAX),r.nextInt(MAX))
+        if (node isDefined) moving += node.get.id -> Point2D(r.nextInt(MAX), r.nextInt(MAX))
         Thread.sleep(delta)
       }
     }
   }.start()
 
-  override def !!(e : Event): Unit = {
-    println(e)
-    e match {
-      case NodesRemoved(n) =>{
-        n foreach {moving -= _.id.asInstanceOf[Int]
-      }}
-      case _ => super.!!(e)
-    }
-  }
   override def onTick(float: Float): Unit = {
-    if(!moving.isEmpty) {
+    if (!moving.isEmpty) {
+
+      val nodeRemoved = this.observer.nodeChanged() map { _.id}
+      moving = moving filter {x => !nodeRemoved.contains(x._1)}
       val count = moving.size
-      LogManager.log(s"moving.. count = $count",LogManager.Middle)
+      LogManager.log(s"moving.. count = $count", LogManager.Middle)
       world.moveNodes(moving)
       moving = moving.empty
     }

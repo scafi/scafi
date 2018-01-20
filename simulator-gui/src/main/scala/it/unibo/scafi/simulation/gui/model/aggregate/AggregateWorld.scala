@@ -1,17 +1,12 @@
 package it.unibo.scafi.simulation.gui.model.aggregate
 
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{AggregateEvent, NodesDeviceChanged, NodesMoved}
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
-import it.unibo.scafi.simulation.gui.model.core.Node
 /**
   * aggregate world define a mutable world with mutable node and device
   */
-//TODO think for the fail strategy(remove the node or associated to a node a value?
-trait AggregateWorld extends ObservableWorld {
+trait AggregateWorld extends ObservableWorld with AggregateConcept{
   this : AggregateWorld.Dependency =>
-
-  override type NODE <: AggregateNode
-
   /**
     * move a node in other position
     * @param n the node
@@ -19,9 +14,9 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if the node isn't in the world
     * @return true if the movement is allowed false otherwise
     */
-  def moveNode(n : NODE#ID, p : NODE#P) : Boolean = {
+  def moveNode(n : ID, p : P) : Boolean = {
     val node = this.getNodeOrThrows(n)
-    produceResult(node,p ,filterPosition(node,p),a => NodesMoved(Set(a)))
+    produceResult(node,p ,filterPosition(node,p),a => WorldEvent(Set(a),NodesMoved))
   }
 
   /**
@@ -30,13 +25,8 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if some node aren't in the world
     * @return the node that can't be mode
     */
-  def moveNodes(nodes : Map[NODE#ID,NODE#P]): Set[NODE] = {
-    produceResult(nodes,filterPosition,a => NodesMoved(a))
-  }
-  private val filterPosition : (NODE,NODE#P) => Option[NODE] = (a,b) => {
-    val moved = a.movedTo(b.asInstanceOf[a.P])
-    val res : Option[NODE] = if(!this.nodeAllowed(moved)) None else Some(moved)
-    res
+  def moveNodes(nodes : Map[ID,P]): Set[NODE] = {
+    produceResult(nodes,filterPosition,a => WorldEvent(a,NodesMoved))
   }
   /**
     * switch on a device
@@ -45,10 +35,10 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if the node isn't in world
     * @return true if the device turn on false otherwise
     */
-  def switchOnDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
+  def switchOnDevice(n : ID, name : NAME): Boolean = {
     val node = getNodeOrThrows(n)
-    val nodeChanged = node.turnOnDevice(name.asInstanceOf[node.DEVICE#NAME])
-    produceResult(node,name ,nodeChanged,a => NodesDeviceChanged(Set(a)))
+    val nodeChanged = switchDevice(node,name,true)
+    produceResult(node,name ,nodeChanged,a => WorldEvent(Set(a),NodesDeviceChanged))
   }
 
   /**
@@ -57,8 +47,8 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if the some node aren't in world
     * @return true if all device are switch on false otherwise
     */
-  def switchOnDevices(nodes : Map[NODE#ID,NODE#DEVICE#NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b : NODE#DEVICE#NAME) => a.turnOnDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
+  def switchOnDevices(nodes : Map[ID,NAME]) : Set[NODE] = {
+    produceResult(nodes,(a,b:NAME) => switchDevice(a,b,true),a => WorldEvent(a,NodesDeviceChanged))
   }
   /**
     * switch of a device
@@ -67,10 +57,10 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if the node isn't in world
     * @return true if the device is switched off false otherwise
     */
-  def switchOffDevice(n : NODE#ID, name : NODE#DEVICE#NAME): Boolean = {
+  def switchOffDevice(n : ID, name : NAME): Boolean = {
     val node = getNodeOrThrows(n)
-    val nodeChanged = node.turnOffDevice(name.asInstanceOf[node.DEVICE#NAME])
-    produceResult(node,name,nodeChanged,a => NodesDeviceChanged(Set(a)))
+    val nodeChanged = switchDevice(node,name,false)
+    produceResult(node,name,nodeChanged,a => WorldEvent(Set(a),NodesDeviceChanged))
   }
   /**
     * switch off a set of device
@@ -78,10 +68,9 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if some node aren't in the world
     * @return the set of node that can't turn on a device
     */
-  def switchOffDevices(nodes : Map[NODE#ID,NODE#DEVICE#NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b: NODE#DEVICE#NAME) => a.turnOffDevice(b.asInstanceOf[a.DEVICE#NAME]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
+  def switchOffDevices(nodes : Map[ID,NAME]) : Set[NODE] = {
+    produceResult(nodes,(a,b: NAME) => switchDevice(a,b,false),a => WorldEvent(a,NodesDeviceChanged))
   }
-
   /**
     * add a device to a node in the world
     * @param n the node
@@ -89,10 +78,10 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if the node isn't in world
     * @return true if the node is in the world false otherwise
     */
-  def addDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
+  def addDevice(n: ID,d : DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
-    val nodeChanged  = node.addDevice(d.asInstanceOf[node.DEVICE])
-    produceResult(node,d,nodeChanged,a => NodesDeviceChanged(Set(a)))
+    val nodeChanged  = toggleDevice(node,d,true)
+    produceResult(node,d,nodeChanged,a => WorldEvent(Set(a),NodesDeviceChanged))
   }
 
   /**
@@ -101,8 +90,8 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if some node aren't in the world
     * @return the set of node that can't add a device
     */
-  def addDevices(nodes : Map[NODE#ID,NODE#DEVICE]) : Set[NODE] = {
-    produceResult(nodes,(a,b : NODE#DEVICE) => a.addDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
+  def addDevices(nodes : Map[ID,DEVICE]) : Set[NODE] = {
+    produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,true),a => WorldEvent(a,NodesDeviceChanged))
   }
   /**
     * remove a device in a node in the world
@@ -111,10 +100,10 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if the node isn't in world
     * @return true if the node is in the world false otherwise
     */
-  def removeDevice(n: NODE#ID,d : NODE#DEVICE): Boolean = {
+  def removeDevice(n: ID,d : DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
-    val nodeChanged = node.removeDevice(d.asInstanceOf[node.DEVICE])
-    produceResult(node,d, nodeChanged , a => NodesDeviceChanged(Set(a)))
+    val nodeChanged = toggleDevice(node,d,false)
+    produceResult(node,d, nodeChanged , a => WorldEvent(Set(a),NodesDeviceChanged))
   }
 
   /**
@@ -123,17 +112,18 @@ trait AggregateWorld extends ObservableWorld {
     * @throws IllegalArgumentException if some node aren't in the world
     * @return the set of node that can't remove the device
     */
-  def removeDevices(nodes : Map[NODE#ID,NODE#DEVICE]) : Set[NODE] = {
-    produceResult(nodes,(a,b : NODE#DEVICE) => a.removeDevice(b.asInstanceOf[a.DEVICE]).asInstanceOf[Option[NODE]],a => NodesDeviceChanged(a))
+  def removeDevices(nodes : Map[ID,DEVICE]) : Set[NODE] = {
+    produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,false),a => WorldEvent(a,NodesDeviceChanged))
   }
 
+  // Some utility method
   private def switching(switched : Set[NODE]) : Unit = {
-    this.removeBeforeEvent(switched.map(_.id.asInstanceOf[NODE#ID]))
+    this.removeBeforeEvent(switched.map(_.id))
     this.addBeforeEvent(switched)
   }
-  private def produceResult[A](map : Map[NODE#ID,A],
+  private def produceResult[A](map : Map[ID,A],
                                filter :(NODE,A) => Option[NODE],
-                               producer : (Set[NODE]) => AggregateEvent[NODE]): Set[NODE] = {
+                               producer : (Set[NODE]) => WorldEvent): Set[NODE] = {
     require(map.keySet.forall(this.apply(_).isDefined))
     val switched = map.map(x => this.apply(x._1).get -> x._2)
       .map {x => filter(x._1,x._2)}
@@ -147,7 +137,7 @@ trait AggregateWorld extends ObservableWorld {
 
   private def produceResult[A](n : NODE, v : A,
                                filter : => Option[NODE],
-                               producer : NODE => AggregateEvent[NODE]): Boolean = {
+                               producer : NODE => WorldEvent): Boolean = {
     val node = filter
     if(node.isEmpty) return false
     switching(Set(node.get))
@@ -155,15 +145,37 @@ trait AggregateWorld extends ObservableWorld {
     true
   }
 
-  private def getNodeOrThrows(id : NODE#ID) : NODE = {
+  private def getNodeOrThrows(id : ID) : NODE = {
     require(this.apply(id).isDefined)
     return this.apply(id).get
   }
+  private val filterPosition : (NODE,P) => Option[NODE] = (a,b) => {
+    val moved = nodeFactory.copy(a)(position = b)
+    val res : Option[NODE] = if(!this.nodeAllowed(moved)) None else Some(moved)
+    res
+  }
 
-  implicit def nodeToWorldNode(n : Node) : NODE = n.asInstanceOf[NODE]
+  private val switchDevice: (NODE,NAME,Boolean) => Option[NODE] = (node,name,state) => {
+    val selected = node.getDevice(name)
+    var res : Option[NODE] = None
+    if(selected.isDefined && selected.get.state != state) {
+      val newDevices = node.devices - selected.get
+      val onSelected = deviceFactory.copy(selected.get)(state)
+      res = Some((nodeFactory.copy(node)(devices = newDevices + onSelected)))
+    }
+    res
+  }
 
-  implicit def optionNodeToOptionWorldNode(n : Option[Node]) : Option[NODE] = if(n.isEmpty) None else n.asInstanceOf[Option[NODE]]
-
+  private val toggleDevice: (NODE,DEVICE,Boolean) => Option[NODE] = (node,dev,toAdd) => {
+    if(node.getDevice(dev.name).isDefined == toAdd) None
+    var res : NODE = node
+    if(toAdd) {
+      res = nodeFactory.copy(node)(devices = node.devices + dev)
+    } else {
+      res = nodeFactory.copy(node)(devices = node.devices - dev)
+    }
+    Some(res)
+  }
 }
 object AggregateWorld {
   type Dependency = ObservableWorld.Dependency

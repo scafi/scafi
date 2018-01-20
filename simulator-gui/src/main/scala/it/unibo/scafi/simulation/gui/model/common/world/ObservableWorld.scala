@@ -1,24 +1,22 @@
 package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
-import it.unibo.scafi.simulation.gui.model.core.{Node, World}
-import it.unibo.scafi.simulation.gui.model.space.Point
-import it.unibo.scafi.simulation.gui.pattern.observer.{Observer, Source}
+import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
 /**
   * a world mutable, the observer want to see the changes in the world
   */
-//TODO pensa se effettuare una suddivisione degli eventi più fine o meno
-trait ObservableWorld extends World{
-  this : ObservableWorld.Dependency =>
-  override type O <: ObservableWorld.WorldObserver[NODE]
+trait ObservableWorld extends World {
+  self : ObservableWorld.Dependency =>
+  override type O = WorldObserver
 
-  private var _nodes : Map[NODE#ID,NODE] = Map[NODE#ID,NODE]()
+  private var _nodes : Map[ID,NODE] = Map[ID,NODE]()
 
   override def nodes = _nodes.values.toSet
 
-  override def apply(node : NODE#ID) : Option[NODE] = _nodes.get(node)
+  override def apply(node : ID) : Option[NODE] = _nodes.get(node)
 
-  override def apply(node : Set[NODE#ID]) : Set[NODE] = _nodes.filter {y => node.contains(y._1)}.values.toSet
+  override def apply(node : Set[ID]) : Set[NODE] = _nodes.filter {y => node.contains(y._1)}.values.toSet
 
   final def + (n : NODE): this.type = {
     insertNode(n)
@@ -28,11 +26,11 @@ trait ObservableWorld extends World{
     insertNodes(n)
     this
   }
-  final def - (n : NODE#ID): this.type = {
+  final def - (n : ID): this.type = {
     removeNode(n)
     this
   }
-  final def -- (n : Set[NODE#ID]): this.type = {
+  final def -- (n : Set[ID]): this.type = {
     removeNodes(n)
     this
   }
@@ -44,10 +42,10 @@ trait ObservableWorld extends World{
     *                    the position is not allowed
     */
   def insertNode (n:NODE) : Boolean = {
-    if(_nodes contains worldId(n)) return false
+    if(_nodes contains n.id) return false
     if(!nodeAllowed(n)) return false
-    _nodes += worldId(n) -> n
-    this !!! NodesAdded(Set(n))
+    _nodes += n.id -> n
+    this !!! WorldEvent(Set(n),NodesAdded)
     true
   }
   //TODO Aggiungere quelli possibili o se non aggiungerne nessuno?
@@ -58,8 +56,8 @@ trait ObservableWorld extends World{
     */
   def insertNodes (n : Set[NODE]): Set[NODE] = {
     val nodeToAdd = n filter {x => !nodes.contains(x) && nodeAllowed(x)}
-    _nodes = _nodes ++ nodeToAdd.map {x => worldId(x) -> x}
-    this !!! NodesAdded(nodeToAdd)
+    _nodes = _nodes ++ nodeToAdd.map {x => x.id -> x}
+    this !!! WorldEvent(nodeToAdd,NodesAdded)
     return n -- nodeToAdd
   }
 
@@ -68,11 +66,11 @@ trait ObservableWorld extends World{
     * @param n the node to remove
     * @return true if the node is removed false otherwise
     */
-  def removeNode(n:NODE#ID) : Boolean = {
+  def removeNode(n: ID) : Boolean = {
     if(!(_nodes contains n)) return false
     val node = this.apply(n)
     _nodes -= n
-    this !!! NodesRemoved(Set(node.get))
+    this !!! WorldEvent(Set(node.get),NodesRemoved)
     true
   }
 
@@ -81,11 +79,11 @@ trait ObservableWorld extends World{
     * @param n the nodes
     * @return the set of node that aren't in the wolrd
     */
-  def removeNodes(n:Set[NODE#ID]) : Set[NODE] = {
+  def removeNodes(n:Set[ID]) : Set[NODE] = {
     val nodeToRemove = n filter{x => _nodes.keySet.contains(x)}
     val nodeNotify = this.apply(nodeToRemove)
     _nodes = _nodes -- nodeToRemove
-    this !!! NodesRemoved(nodeNotify)
+    this !!! WorldEvent(nodeNotify,NodesRemoved)
     return this.apply(n -- nodeToRemove)
   }
   /**
@@ -96,7 +94,7 @@ trait ObservableWorld extends World{
   final protected def nodeAllowed(n:NODE) : Boolean = {
     if(!this.metric.positionAllowed(n.position) ||
         this.boundary.isDefined &&
-        !boundary.get.nodeAllowed(n.position,n.shape.asInstanceOf[Option[NODE#SHAPE]])) return false
+        !boundary.get.nodeAllowed(n.position,n.shape)) return false
     true
   }
 
@@ -106,7 +104,7 @@ trait ObservableWorld extends World{
     * @param n the nodes to add
     */
   protected def addBeforeEvent(n : Set[NODE]) = {
-    _nodes = _nodes ++ n.map {x => worldId(x) -> x}
+    _nodes = _nodes ++ n.map {x => x.id -> x}
   }
 
   /**
@@ -114,39 +112,32 @@ trait ObservableWorld extends World{
     * this method don't produce event like remove node
     * @param n the nodes to remove
     */
-  protected def removeBeforeEvent(n : Set[NODE#ID]) = {
+  protected def removeBeforeEvent(n : Set[ID]) = {
     _nodes = _nodes -- n
   }
+  /**
+    * define an observer for a world
+    */
+  class WorldObserver private[ObservableWorld](listenEvent : Set[EventType]) extends Observer {
+    override def !!(event: Event): Unit = {
+      event match {
+        case WorldEvent(n,e) => if(listenEvent contains e) super.!!(event)
+        case _ =>
+      }
+    }
+    def nodeChanged(): Set[NODE] = events map {_.asInstanceOf[WorldEvent]} flatMap {_.nodes} toSet
+  }
 
-  implicit def positionToWorldPosition(p : Point) : NODE#P = p.asInstanceOf[NODE#P]
-
-  implicit def worldId(node : NODE) : NODE#ID = node.id.asInstanceOf[NODE#ID]
+  /**
+    * the event produced by world
+    * @param nodes the node changed
+    * @param eventType the type of event produced
+    */
+  case class WorldEvent(nodes: Set[NODE],eventType: EventType) extends Event
+  //simple factory
+  def createObserver(listenEvent : Set[EventType]) : O = new WorldObserver(listenEvent)
 }
 object ObservableWorld {
 
   type Dependency = Source
-
-  /**
-    * the root class of all world observer
-    */
-  trait WorldObserver[N <: Node] extends Observer {
-
-    def nodeChanged(): Set[N]
-  }
-
-  /**
-    * observer all world change and store the node modified
-    */
-  trait AllChangesObserver[N <: Node] extends WorldObserver[N] {
-     override def nodeChanged() : Set[N] = {
-       var res = Set[N]()
-       for(event <- events) {
-         val x = event match {
-           case NodesChangeEvent(n) => res = res ++ n.asInstanceOf[Set[N]]
-           case _ =>
-         }
-       }
-       res
-     }
-  }
 }

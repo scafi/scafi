@@ -1,37 +1,28 @@
 package it.unibo.scafi.simulation.gui.test.model
 
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.sensor.Sensor
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D}
-import it.unibo.scafi.simulation.gui.test.help.{BasicTestableAggregateDevice, BasicTestableAggregateNode, BasicTestableAggregateWorld, BasicTestableWorldObserver}
+import it.unibo.scafi.simulation.gui.test.help.{BasicTestableAggregateWorld}
 import org.scalatest.{FunSpec, Matchers}
 
 class BasicAggregateWorldTest extends FunSpec with Matchers{
   val checkThat = new ItWord
   val point = Point2D(1,1)
   val aggregateWorld = new BasicTestableAggregateWorld
-  val dev = new BasicTestableAggregateDevice("mydevice",false)
-  val superDevice = new BasicTestableAggregateDevice("adevice",true) with Sensor {
+  val dev = new aggregateWorld.BasicTestableAggregateDevice("mydevice",false)
+  val superDevice = new aggregateWorld.BasicTestableAggregateDevice("adevice",true) with Sensor {
     override type VALUE = String
 
     override def value: VALUE = "nothing"
   }
 
-  val node = new BasicTestableAggregateNode(id = 1,devices = Set(dev),position = Point.ZERO)
-  val anotherNode = new BasicTestableAggregateNode(id = 2, devices = Set(dev), position = point)
-  checkThat("An aggregate node is immutable") {
-    val pos = node.position
-    node.movedTo(point)
-    assert(node.position == pos)
-    val currentDev = node.devices
-    node.removeDevice(dev)
-    assert(node.devices == currentDev)
-    val simpleDev = node.getDevice(dev.name)
-    node.turnOnDevice(dev.name)
-    val sameDev = node.getDevice(dev.name)
-    assert(simpleDev.get.state == sameDev.get.state)
-  }
+  val node = new aggregateWorld.BasicTestableAggregateNode(id = 1,devices = Set(dev),position = Point.ZERO)
+  val anotherNode = new aggregateWorld.BasicTestableAggregateNode(id = 2, devices = Set(dev), position = point)
+
   checkThat("clear queue of event") {
-    val anObserver = new BasicTestableWorldObserver[BasicTestableAggregateNode]
+    val anObserver = aggregateWorld.createObserver(Set(NodesAdded,NodesRemoved,NodesMoved,NodesDeviceChanged))
     aggregateWorld <-- anObserver
     assert(anObserver.nodeChanged.isEmpty)
   }
@@ -81,7 +72,7 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
   }
 
   checkThat("multiple event store only the node changed") {
-    val anObserver = new BasicTestableWorldObserver[BasicTestableAggregateNode]
+    val anObserver = aggregateWorld.createObserver(Set(NodesDeviceChanged))
     aggregateWorld <-- anObserver
     assert(anObserver.nodeChanged.isEmpty)
     aggregateWorld.switchOnDevice(node.id,dev.name)
@@ -90,6 +81,6 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
     aggregateWorld.switchOffDevice(node.id,dev.name)
     aggregateWorld.addDevice(node.id,superDevice)
     aggregateWorld.removeDevice(node.id,superDevice)
-    assert(anObserver.eventCount() > 1)
+    assert(anObserver.nodeChanged().size == 1)
   }
 }

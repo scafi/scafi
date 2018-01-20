@@ -7,18 +7,39 @@ import it.unibo.scafi.simulation.gui.model.space.{Point}
   */
 trait World {
   /**
+    * define the type of node id
+    */
+  type ID
+  /**
+    * define the type of name of device
+    */
+  type NAME
+  /**
+    * define the type of device in this world
+     */
+  type DEVICE <: Device
+  /**
+    * define the type of position in this world
+     */
+  type P <: Point
+  /**
+    * define the type of shape in this world
+     */
+  type S <: Shape
+
+  /**
     * the type of node in this world
     */
   type NODE <: Node
-
   /**
     * the type of boundary of the world
     */
-  type B <: Boundary[NODE#P,NODE#SHAPE]
+  type B <: Boundary
   /**
     * the type of metric in this world
     */
-  type M <: Metric[NODE#P]
+  type M <: Metric
+
   /**
     * The metric of this world
     */
@@ -39,26 +60,76 @@ trait World {
     * @return
     *   the node if it is in the world
     */
-  def apply(id : NODE#ID) : Option[NODE]
+  def apply(id : ID) : Option[NODE]
 
   /**
     * return a set of node in the world
     * @param nodes the ids of the node
     * @return the set of the node
     */
-  def apply(nodes : Set[NODE#ID]) : Set[NODE]
-}
-//STRATEGY
-/**
-  * a generic boundary
-  */
-trait Boundary[P <: Point,S <: Shape] {
-  def nodeAllowed(p : P, s : Option[S]) : Boolean
-}
-//STRATEGY
-/**
-  * a generic metric
-  */
-trait Metric[P <: Point] {
-  def positionAllowed(p : P) : Boolean
+  def apply(nodes : Set[ID]) : Set[NODE]
+  //STRATEGY
+  /**
+    * a generic boundary
+    */
+  trait Boundary {
+    def nodeAllowed(p : P, s : Option[S]) : Boolean
+  }
+  //STRATEGY
+  /**
+    * a generic metric
+    */
+  trait Metric {
+    def positionAllowed(p : P) : Boolean
+  }
+  /**
+    * Node describe an object in a world
+    */
+  trait Node {
+
+    /**
+      * the id associated with this node
+      */
+    val id : ID
+
+    /**
+      * @return
+      *   the current position
+      */
+    def position : P
+    /**
+      *
+      * @return
+      *   the shape of the node if the node has a shape, none otherwise
+      */
+    def shape : Option[S]
+    /**
+      * @return
+      *   all devices attach on this node
+      */
+    def devices: Set[DEVICE]
+    /**
+      *
+      * @param name of device
+      * @return a device if it is attach on the node
+      */
+    def getDevice(name : NAME) : Option[DEVICE]
+  }
+  /**
+    * a generic device that could be attached to a node
+    */
+  trait Device {
+    def node : Option[NODE]
+
+    /**
+      * the name of the device, it must immutable
+      */
+    val name : NAME
+
+    /**
+      * tell if the device is enable or disable
+      * @return true if it is enable false otherwise
+      */
+    def state : Boolean
+  }
 }

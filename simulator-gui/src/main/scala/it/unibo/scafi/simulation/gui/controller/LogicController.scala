@@ -1,10 +1,14 @@
 package it.unibo.scafi.simulation.gui.controller
 
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld.WorldObserver
-import it.unibo.scafi.simulation.gui.model.simulation.SimulationPlatform
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.view.SimulationOutput
 
-trait LogicController[W <: SimulationPlatform] extends WorldController[W] {
-  self : WorldObserver[W#NODE] =>
+/**
+  * a controller that has a defined logic to change
+  * the world
+ *
+  * @tparam W the world observed
+  */
+trait LogicController[W <: AggregateWorld] extends WorldController[W] {
   type OUTPUT <: SimulationOutput
 }
