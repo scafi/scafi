@@ -1,9 +1,11 @@
 package it.unibo.scafi.simulation.gui.controller
 
+import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+
 /**
   * define a generic controller that controls input by a generic view
   */
-trait InputLikeController extends Controller{
+trait InputLikeController[W <: ObservableWorld] extends Controller[W]{
   /**
     * has a list of command reiceved
     * @return

@@ -13,6 +13,11 @@ trait AggregateConcept  {
   type NODE_FACTORY <: NodeFactory
 
   /**
+    * the type of factory to create device
+    */
+  type DEVICE_FACTORY<: DeviceFactory
+
+  /**
     * root trait of node factory
     */
   trait NodeFactory {
@@ -22,11 +27,6 @@ trait AggregateConcept  {
       create(node.id,position,shape,devices)
     }
   }
-
-  /**
-    * the type of factory to create device
-    */
-  type DEVICE_FACTORY<: DeviceFactory
 
   /**
     * the root concept of device factory
