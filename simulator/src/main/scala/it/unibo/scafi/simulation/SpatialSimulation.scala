@@ -166,17 +166,3 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     }
   }
 }
-
-object x {
-  new SpatialSimulation {
-    override val LSNS_RANDOM: this.LSNS = _
-    override val LSNS_POSITION: this.LSNS = _
-    override val NBR_VECTOR: this.NSNS = _
-    override val NBR_RANGE_NAME: this.NSNS = _
-    override val LSNS_TIME: this.LSNS = _
-    override val LSNS_TIMESTAMP: this.LSNS = _
-    override val LSNS_DELTA_TIME: this.LSNS = _
-    override val NBR_LAG: this.NSNS = _
-    override val NBR_DELAY: this.NSNS = _
-  }
-}

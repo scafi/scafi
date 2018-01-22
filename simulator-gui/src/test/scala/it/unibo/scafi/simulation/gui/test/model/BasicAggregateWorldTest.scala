@@ -3,13 +3,13 @@ package it.unibo.scafi.simulation.gui.test.model
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.sensor.Sensor
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
-import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D}
-import it.unibo.scafi.simulation.gui.test.help.{BasicTestableAggregateWorld}
+import it.unibo.scafi.simulation.gui.model.space.{Point, Point3D}
+import it.unibo.scafi.simulation.gui.test.help.BasicTestableAggregateWorld
 import org.scalatest.{FunSpec, Matchers}
 
 class BasicAggregateWorldTest extends FunSpec with Matchers{
   val checkThat = new ItWord
-  val point = Point2D(1,1)
+  val point = Point3D(1,1,2)
   val aggregateWorld = new BasicTestableAggregateWorld
   val dev = new aggregateWorld.BasicTestableAggregateDevice("mydevice",false)
   val superDevice = new aggregateWorld.BasicTestableAggregateDevice("adevice",true) with Sensor {
