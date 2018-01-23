@@ -11,39 +11,79 @@ trait AggregateConcept  {
     * the type of factory to create a node
     */
   type NODE_FACTORY <: NodeFactory
-
   /**
     * the type of factory to create device
     */
   type DEVICE_FACTORY<: DeviceFactory
 
+  type NODE_PROTOTYPE <: NodePrototype
+
+  type DEVICE_PROTOTYPE <: DevicePrototype
+
+  type DEVICE <: AggregateDevice
+
+  type NODE <: AggregateNode
+
   /**
     * root trait of node factory
     */
   trait NodeFactory {
-    def create(id : self.ID,position : self.P, shape : Option[self.S],devices : Set[self.DEVICE]) : self.NODE
+    def create(id : self.ID,position : self.P,devices : Set[self.DEVICE], proto : NODE_PROTOTYPE) : self.NODE
     //FACTORY METHOD
-    def copy(node : self.NODE)(position : P = node.position, shape : Option[S] = node.shape, devices : Set[self.DEVICE]= node.devices) : self.NODE = {
-      create(node.id,position,shape,devices)
+    def copy[N <: AggregateNode](node : N)(position : P = node.position,
+                               shape : Option[S] = node.shape,
+                               devices : Set[self.DEVICE]= node.devices,
+                               proto : NODE_PROTOTYPE = node.prototype) : self.NODE = {
+      create(node.id,position,devices,proto)
     }
   }
-
+  /**
+    * define a skeleton of a node
+    */
+  trait NodePrototype {
+    /**
+      * @return a shape of a generic node
+      */
+    def shape : Option[self.S]
+  }
   /**
     * the root concept of device factory
     */
   trait DeviceFactory {
-    def create(n : self.NAME, s : Boolean, node : Option[self.NODE]) : self.DEVICE
+    def create(n : self.NAME, s : Boolean,proto : DEVICE_PROTOTYPE) : self.DEVICE
 
-    def copy(device : self.DEVICE)(s : Boolean = device.state) : self.DEVICE = create(device.name,s,device.node)
+    def copy[D <: AggregateDevice](device : D)(s : Boolean = device.state, proto : DEVICE_PROTOTYPE = device.prototype) : self.DEVICE = create(device.name,s,proto)
+  }
+  /**
+    * define a skeleton of a device
+    */
+
+  trait DevicePrototype
+
+  /**
+    * a node in an aggregate world
+    */
+  trait AggregateNode extends Node {
+    /**
+      * @return the internal representation of node
+      */
+    def prototype : NODE_PROTOTYPE
+  }
+
+  trait AggregateDevice extends Device {
+    /**
+      * @return the internal representation of node
+      */
+    def prototype : DEVICE_PROTOTYPE
   }
 
   /**
-    * @return the node factory used to create nodes
+    * the node factory of a nod
     */
-  def nodeFactory : NODE_FACTORY
+  implicit val nodeFactory : NODE_FACTORY
 
   /**
-    * @return the device factory used to create devices
+    * the device factory
     */
-  def deviceFactory : DEVICE_FACTORY
+  implicit val deviceFactory : DEVICE_FACTORY
 }

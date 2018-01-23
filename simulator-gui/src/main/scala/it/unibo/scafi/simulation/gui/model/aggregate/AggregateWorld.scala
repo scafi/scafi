@@ -16,7 +16,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     */
   def moveNode(n : ID, p : P) : Boolean = {
     val node = this.getNodeOrThrows(n)
-    produceResult(node,p ,filterPosition(node,p),a => WorldEvent(Set(a),NodesMoved))
+    produceResult(node,p ,filterPosition(node,p),a => WorldEvent(Set(a.id),NodesMoved))
   }
 
   /**
@@ -26,7 +26,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     * @return the node that can't be mode
     */
   def moveNodes(nodes : Map[ID,P]): Set[NODE] = {
-    produceResult(nodes,filterPosition,a => WorldEvent(a,NodesMoved))
+    produceResult(nodes,filterPosition,a => WorldEvent(a map {_.id},NodesMoved))
   }
   /**
     * switch on a device
@@ -38,7 +38,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
   def switchOnDevice(n : ID, name : NAME): Boolean = {
     val node = getNodeOrThrows(n)
     val nodeChanged = switchDevice(node,name,true)
-    produceResult(node,name ,nodeChanged,a => WorldEvent(Set(a),NodesDeviceChanged))
+    produceResult(node,name ,nodeChanged,a => WorldEvent(Set(a.id),NodesDeviceChanged))
   }
 
   /**
@@ -48,7 +48,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     * @return true if all device are switch on false otherwise
     */
   def switchOnDevices(nodes : Map[ID,NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b:NAME) => switchDevice(a,b,true),a => WorldEvent(a,NodesDeviceChanged))
+    produceResult(nodes,(a,b:NAME) => switchDevice(a,b,true),a => WorldEvent(a map {_.id},NodesDeviceChanged))
   }
   /**
     * switch of a device
@@ -60,7 +60,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
   def switchOffDevice(n : ID, name : NAME): Boolean = {
     val node = getNodeOrThrows(n)
     val nodeChanged = switchDevice(node,name,false)
-    produceResult(node,name,nodeChanged,a => WorldEvent(Set(a),NodesDeviceChanged))
+    produceResult(node,name,nodeChanged,a => WorldEvent(Set(a.id),NodesDeviceChanged))
   }
   /**
     * switch off a set of device
@@ -69,7 +69,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     * @return the set of node that can't turn on a device
     */
   def switchOffDevices(nodes : Map[ID,NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b: NAME) => switchDevice(a,b,false),a => WorldEvent(a,NodesDeviceChanged))
+    produceResult(nodes,(a,b: NAME) => switchDevice(a,b,false),a => WorldEvent(a map {_.id},NodesDeviceChanged))
   }
   /**
     * add a device to a node in the world
@@ -81,7 +81,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
   def addDevice(n: ID,d : DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
     val nodeChanged  = toggleDevice(node,d,true)
-    produceResult(node,d,nodeChanged,a => WorldEvent(Set(a),NodesDeviceChanged))
+    produceResult(node,d,nodeChanged,a => WorldEvent(Set(a.id),NodesDeviceChanged))
   }
 
   /**
@@ -91,7 +91,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     * @return the set of node that can't add a device
     */
   def addDevices(nodes : Map[ID,DEVICE]) : Set[NODE] = {
-    produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,true),a => WorldEvent(a,NodesDeviceChanged))
+    produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,true),a => WorldEvent(a map {_.id},NodesDeviceChanged))
   }
   /**
     * remove a device in a node in the world
@@ -103,7 +103,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
   def removeDevice(n: ID,d : DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
     val nodeChanged = toggleDevice(node,d,false)
-    produceResult(node,d, nodeChanged , a => WorldEvent(Set(a),NodesDeviceChanged))
+    produceResult(node,d, nodeChanged , a => WorldEvent(Set(a.id),NodesDeviceChanged))
   }
 
   /**
@@ -113,7 +113,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     * @return the set of node that can't remove the device
     */
   def removeDevices(nodes : Map[ID,DEVICE]) : Set[NODE] = {
-    produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,false),a => WorldEvent(a,NodesDeviceChanged))
+    produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,false),a => WorldEvent(a map {_.id},NodesDeviceChanged))
   }
 
   // Some utility method

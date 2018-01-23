@@ -1,9 +1,9 @@
 package it.unibo.scafi.simulation.gui.incarnation.console
-import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.model.space.Point2D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 
-class ConsoleWorld extends BasicPlatform with SimpleSource {
+class ConsoleWorld extends AggregateWorld with SimpleSource {
   override type NODE = RootNode
   override type DEVICE = RootDevice
   override type NAME = String
@@ -11,22 +11,33 @@ class ConsoleWorld extends BasicPlatform with SimpleSource {
   override type ID = Int
   override type NODE_FACTORY = RootNodeFactory
   override type DEVICE_FACTORY = RootDeviceFactory
+  override type DEVICE_PROTOTYPE = FakeDevicePrototype
+  override type NODE_PROTOTYPE = FakeNodePrototype
+  override type M = CartesianMetric.type
 
+  override val metric = CartesianMetric
+
+  override val boundary = None
+  object CartesianMetric extends Metric {
+    override def positionAllowed(p: P): Boolean = true
+  }
   class RootDeviceFactory extends DeviceFactory{
-    override def create(n: String, s: Boolean,node: Option[NODE]): RootDevice = new RootDevice(n,s,node)
+    override def create(n: String, s: Boolean,proto : DEVICE_PROTOTYPE): RootDevice = new RootDevice(n,s)
   }
   class RootNodeFactory extends NodeFactory {
-    override def create(id: Int, position: Point2D, shape: Option[S], devices: Set[RootDevice]): RootNode = new RootNode(id,position,devices)
+    override def create(id: Int, position: Point2D, devices: Set[RootDevice], proto: FakeNodePrototype): RootNode = new RootNode(id,position,devices)
   }
 
-  class RootDevice(override val name : String, override val state : Boolean = false, override val node : Option[NODE] = None) extends Device {
+  class RootDevice(override val name : String, override val state : Boolean = false) extends AggregateDevice {
     override def toString = s"RootDevice($name, $state)"
+
+    /**
+      * @return the internal representation of node
+      */
+    override def prototype: FakeDevicePrototype = new FakeDevicePrototype
   }
 
-  class RootNode(override val id : ID, override val position : Point2D, override val devices : Set[DEVICE] = Set[DEVICE]()) extends Node {
-    require(devices forall {_.node.isEmpty})
-    override def getDevice(name: NAME): Option[DEVICE] = this.devices.find(_.name == name)
-
+  class RootNode(override val id : ID, override val position : Point2D, override val devices : Set[DEVICE] = Set[DEVICE]()) extends AggregateNode {
     override def toString = s"RootNode($id, $position, $devices)"
 
     def canEqual(other: Any): Boolean = other.isInstanceOf[RootNode]
@@ -44,8 +55,23 @@ class ConsoleWorld extends BasicPlatform with SimpleSource {
     }
 
     override def shape: Option[S] = None
+
+    /**
+      * @return the internal representation of node
+      */
+    /**
+      * @return the internal representation of node
+      */
+    override def prototype: FakeNodePrototype = new FakeNodePrototype
+  }
+  class FakeNodePrototype extends NodePrototype {
+    /**
+      * @return a shape of a generic node
+      */
+    override def shape: Option[S] = None
   }
 
+  class FakeDevicePrototype extends DevicePrototype
   override val nodeFactory: NODE_FACTORY = new NODE_FACTORY
 
   override val deviceFactory: DEVICE_FACTORY = new DEVICE_FACTORY

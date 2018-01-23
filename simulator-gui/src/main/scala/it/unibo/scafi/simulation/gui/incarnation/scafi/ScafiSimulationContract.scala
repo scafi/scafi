@@ -27,7 +27,6 @@ class ScafiSimulationContract[W <: ScafiLikeWorld, PROTO <: ScafiPrototype]
     val abstraction = new ExternSimulation {
       override type P = ExternalPoint
     }
-    //TODO ADD DEVS
     val nodes: Map[abstraction.ID, abstraction.P] = w.nodes map {n => n.id -> new abstraction.P(n.position.x,n.position.y,n.position.z)} toMap
     val res : ExternSimulation#SpaceAwareSimulator = new abstraction.SpaceAwareSimulator(simulationSeed = p.randomSeed,randomSensorSeed = p.randomDeviceSeed,
       space = new abstraction.Basic3DSpace(nodes,

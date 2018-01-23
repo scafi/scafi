@@ -45,7 +45,7 @@ trait ObservableWorld extends World {
     if(_nodes contains n.id) return false
     if(!nodeAllowed(n)) return false
     _nodes += n.id -> n
-    this !!! WorldEvent(Set(n),NodesAdded)
+    this !!! WorldEvent(Set(n.id),NodesAdded)
     true
   }
   //TODO Aggiungere quelli possibili o se non aggiungerne nessuno?
@@ -57,7 +57,7 @@ trait ObservableWorld extends World {
   def insertNodes (n : Set[NODE]): Set[NODE] = {
     val nodeToAdd = n filter {x => !nodes.contains(x) && nodeAllowed(x)}
     _nodes = _nodes ++ nodeToAdd.map {x => x.id -> x}
-    this !!! WorldEvent(nodeToAdd,NodesAdded)
+    this !!! WorldEvent(nodeToAdd map {_.id},NodesAdded)
     return n -- nodeToAdd
   }
 
@@ -70,7 +70,7 @@ trait ObservableWorld extends World {
     if(!(_nodes contains n)) return false
     val node = this.apply(n)
     _nodes -= n
-    this !!! WorldEvent(Set(node.get),NodesRemoved)
+    this !!! WorldEvent(Set(node.get.id),NodesRemoved)
     true
   }
 
@@ -83,7 +83,7 @@ trait ObservableWorld extends World {
     val nodeToRemove = n filter{x => _nodes.keySet.contains(x)}
     val nodeNotify = this.apply(nodeToRemove)
     _nodes = _nodes -- nodeToRemove
-    this !!! WorldEvent(nodeNotify,NodesRemoved)
+    this !!! WorldEvent(nodeNotify map {_.id},NodesRemoved)
     return this.apply(n -- nodeToRemove)
   }
   /**
@@ -125,7 +125,7 @@ trait ObservableWorld extends World {
         case _ =>
       }
     }
-    def nodeChanged(): Set[NODE] = events map {_.asInstanceOf[WorldEvent]} flatMap {_.nodes} toSet
+    def nodeChanged(): Set[ID] = events map {_.asInstanceOf[WorldEvent]} flatMap {_.nodes} toSet
   }
 
   /**
@@ -133,7 +133,7 @@ trait ObservableWorld extends World {
     * @param nodes the node changed
     * @param eventType the type of event produced
     */
-  case class WorldEvent(nodes: Set[NODE],eventType: EventType) extends Event
+  case class WorldEvent(nodes: Set[ID],eventType: EventType) extends Event
   //simple factory
   def createObserver(listenEvent : Set[EventType]) : O = new WorldObserver(listenEvent)
 }

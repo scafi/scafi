@@ -83,7 +83,7 @@ trait World {
     def positionAllowed(p : P) : Boolean
   }
   /**
-    * Node describe an object in a world
+    * Node describe an immutable object in a world
     */
   trait Node {
 
@@ -107,20 +107,19 @@ trait World {
       * @return
       *   all devices attach on this node
       */
+    //TEMPLATE METHOD
     def devices: Set[DEVICE]
     /**
       *
       * @param name of device
       * @return a device if it is attach on the node
       */
-    def getDevice(name : NAME) : Option[DEVICE]
+    final def getDevice(name : NAME) : Option[DEVICE] = devices find {_.name == name}
   }
   /**
-    * a generic device that could be attached to a node
+    * a generic immutable device that could be attached to a node
     */
   trait Device {
-    def node : Option[NODE]
-
     /**
       * the name of the device, it must immutable
       */

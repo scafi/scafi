@@ -1,9 +1,8 @@
 package it.unibo.scafi.simulation.gui.test.help
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
-import it.unibo.scafi.simulation.gui.model.common.device.GraphicsDevice
 import it.unibo.scafi.simulation.gui.model.graphics2D.Shape2D
-import it.unibo.scafi.simulation.gui.model.space.{Point2D, Point3D}
+import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 class BasicTestableAggregateWorld extends AggregateWorld with SimpleSource{
 
@@ -17,29 +16,32 @@ class BasicTestableAggregateWorld extends AggregateWorld with SimpleSource{
     override def positionAllowed(p: Point3D): Boolean = true
   }
   override val metric: M = new SimpleMetric
+  override type NODE_PROTOTYPE = BasicNodePrototype
+  override type DEVICE_PROTOTYPE = BasicDevicePrototype
   override type NODE = BasicTestableAggregateNode
-  override type DEVICE = BasicTestableAggregateDevice with GraphicsDevice
+  override type DEVICE = BasicTestableAggregateDevice
 
   override type NODE_FACTORY = BasicNodeFactory
   override type DEVICE_FACTORY = BasicDeviceFactory
+
   class BasicNodeFactory extends NodeFactory {
     override def create(id: Int,
                         position: Point3D,
-                        shape: Option[Shape2D],
-                        devices: Set[DEVICE]): BasicTestableAggregateNode = new BasicTestableAggregateNode(id,shape,devices,position)
+                        devices: Set[BasicTestableAggregateDevice],
+                        proto: NODE_PROTOTYPE): BasicTestableAggregateNode = new BasicTestableAggregateNode(id,devices,position,proto)
   }
   class BasicDeviceFactory extends DeviceFactory {
-    override def create(n: String, s: Boolean, node: Option[BasicTestableAggregateNode]): BasicTestableAggregateDevice = new BasicTestableAggregateDevice(n,s)
+    override def create(n: String, s: Boolean, proto: BasicDevicePrototype): BasicTestableAggregateDevice = new BasicTestableAggregateDevice(n,s)
   }
   override val boundary: Option[B] = None
   class BasicTestableAggregateNode(override val id : Int,
-                                   override val shape : Option[Shape2D] = None,
                                    override val devices : Set[BasicTestableAggregateDevice],
-                                   override val position : Point3D) extends Node {
-
-    override def getDevice(name: NAME): Option[DEVICE] = this.devices.find(_.name == name)
+                                   override val position : Point3D,
+                                   override val prototype: BasicNodePrototype = new BasicNodePrototype(None)) extends AggregateNode {
 
     def canEqual(other: Any): Boolean = other.isInstanceOf[BasicTestableAggregateNode]
+
+    override def shape: Option[Shape2D] = prototype.shape
 
     override def equals(other: Any): Boolean = other match {
       case that: BasicTestableAggregateNode =>
@@ -54,16 +56,24 @@ class BasicTestableAggregateWorld extends AggregateWorld with SimpleSource{
     }
 
     override def toString = s"BasicTestableAggregateNode($id, $shape, $devices, $position)"
+
   }
 
-  class BasicTestableAggregateDevice(val name : String, val state: Boolean) extends Device with GraphicsDevice {
-    override def node: Option[NODE] = None
+  class BasicNodePrototype(val shape: Option[Shape2D]) extends NodePrototype
 
+  class BasicTestableAggregateDevice(val name : String, val state: Boolean) extends AggregateDevice {
     override def toString = s"BasicTestableAggregateDevice($name, $state)"
+
+    /**
+      * @return the internal representation of node
+      */
+    override val prototype: DEVICE_PROTOTYPE = new BasicDevicePrototype
   }
 
-  override def nodeFactory: NODE_FACTORY = new BasicNodeFactory
+  class BasicDevicePrototype extends DevicePrototype
 
-  override def deviceFactory: DEVICE_FACTORY = new BasicDeviceFactory
+  val nodeFactory: NODE_FACTORY = new BasicNodeFactory
+
+  val deviceFactory: DEVICE_FACTORY = new BasicDeviceFactory
 
 }

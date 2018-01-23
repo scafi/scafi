@@ -7,7 +7,7 @@ import org.scalatest.{FunSpec, Matchers}
 
 class BasicTestIncarnation extends FunSpec with Matchers{
   val checkThat = new ItWord
-  val world : ScafiLikeWorld= new SimpleScafiLikeWorld
+  val world  = new SimpleScafiLikeWorld
   val fakeRandomNumber = 10
   val fakeRadius = 10
   val prototype = new ScafiPrototype {
@@ -20,8 +20,8 @@ class BasicTestIncarnation extends FunSpec with Matchers{
 
   val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]()
   val bigNumber = 1000
-
-  (0 to 1000) foreach {world + world.nodeFactory.create(_,Point3D(math.random,math.random,math.random),None,Set())}
+  val proto = new world.BasicNodePrototype(None)
+  (0 to 1000) foreach {world + world.nodeFactory.create(_,Point3D(math.random,math.random,math.random),Set(),proto)}
   contract.initialize(world,prototype)
   val x = 1
   checkThat("an external simulation created:") {

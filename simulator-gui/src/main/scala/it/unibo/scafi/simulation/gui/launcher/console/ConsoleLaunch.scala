@@ -80,7 +80,7 @@ class RandomMovementController(out: SimulationOutput, world: ConsoleWorld) exten
   override def onTick(float: Float): Unit = {
 
     if (!moving.isEmpty) {
-      val nodeRemoved = this.observer.nodeChanged() map { _.id}
+      val nodeRemoved = this.observer.nodeChanged()
       moving = moving filter {x => !nodeRemoved.contains(x._1)}
       val count = moving.size
       LogManager.log(s"moving.. count = $count", LogManager.Middle)

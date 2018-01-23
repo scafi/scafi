@@ -27,14 +27,10 @@ class BasicTestableObservableWorld extends ObservableWorld with SimpleSource {
     override def shape: Option[S] = None
 
     override def devices: Set[DEVICE] = device.values.toSet
-
-    override def getDevice(name: String): Option[BasicTestableDevice] = device get name
   }
 
   class BasicTestableDevice(override val name : String) extends Device {
     private var _enable = false
-
-    override def node = None
     override def state: Boolean = _enable
   }
 }
