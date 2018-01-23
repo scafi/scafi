@@ -2,9 +2,10 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi
 
 import it.unibo.scafi.incarnations.{BasicAbstractSpatialSimulationIncarnation => ExternSimulation}
 import it.unibo.scafi.simulation.gui.controller.SimulationContract
-
 class ScafiSimulationContract[W <: ScafiLikeWorld, PROTO <: ScafiPrototype]
+
   extends SimulationContract[ExternSimulation#SpaceAwareSimulator,W,PROTO] {
+
   private var currentSimulation : Option[ExternSimulation#SpaceAwareSimulator] = None
   override def getSimulation: Option[ExternSimulation#SpaceAwareSimulator] = this.currentSimulation
 

@@ -31,14 +31,42 @@ class BasicTestablePlatform extends BasicPlatform with SimpleSource{
                                                     val position : P,
                                                     val devices : Set[DEVICE]) extends AggregateNode {
     override val prototype: NODE_PROTOTYPE = new ExternalNodePrototype(shape)
+
+    def canEqual(other: Any): Boolean = other.isInstanceOf[InternalNode]
+
+    override def equals(other: Any): Boolean = other match {
+      case that: InternalNode =>
+        (that canEqual this) &&
+          id == that.id
+      case _ => false
+    }
+
+    override def hashCode(): Int = {
+      val state = Seq(id)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    }
   }
-  class ExternalDevicePrototype[E](val value : E) extends SensorPrototype[E] {
+  class ExternalDevicePrototype[Any](val value : Any) extends SensorPrototype[Any] {
     override def copy[V](value: V): DEVICE_PROTOTYPE = new ExternalDevicePrototype(value)
   }
   class InternalSensor[E] private[BasicTestablePlatform](val name: String,
                            val state: Boolean,
                            val value : E)extends Sensor[E] {
     override val prototype: DEVICE_PROTOTYPE = new ExternalDevicePrototype(value)
+
+    def canEqual(other: Any): Boolean = other.isInstanceOf[InternalSensor[Any]]
+
+    override def equals(other: Any): Boolean = other match {
+      case that: InternalSensor[Any] =>
+        (that canEqual this) &&
+          name == that.name
+      case _ => false
+    }
+
+    override def hashCode(): Int = {
+      val state = Seq(name)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    }
   }
 
   class ExternalNodeFactory private[BasicTestablePlatform]() extends NodeFactory {

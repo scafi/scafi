@@ -63,7 +63,7 @@ trait BasicPlatform extends AggregateWorld {
 
   private def changeNode[V](n : NODE, d : DEVICE, v : V) = {
     val newDev = this.deviceFactory.copy(d)(proto = d.prototype.copy(v))
-    val newNode = this.nodeFactory.copy(n)(devices = n.devices + newDev)
+    val newNode = this.nodeFactory.copy(n)(devices = (n.devices - newDev) + newDev)
     this.removeBeforeEvent(Set(newNode.id))
     this.addBeforeEvent(Set(newNode))
   }
@@ -77,5 +77,10 @@ trait BasicPlatform extends AggregateWorld {
 
 object BasicPlatform {
   type Dependency = AggregateWorld.Dependency
-
+  object OnOffSensor {
+    def unapply[E](arg: BasicPlatform#Sensor[E]): Option[Boolean] = if (arg.value.isInstanceOf[Boolean]) return Some(arg.value.asInstanceOf[Boolean]) else None
+  }
+  object TextSensor {
+    def unapply[E](arg: BasicPlatform#Sensor[E]): Option[String] = if(arg.value.isInstanceOf[String]) return Some(arg.value.asInstanceOf[String]) else None
+  }
 }

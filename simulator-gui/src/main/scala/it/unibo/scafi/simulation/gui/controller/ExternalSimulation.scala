@@ -9,28 +9,30 @@ import it.unibo.scafi.simulation.gui.model.core.World
   */
 trait ExternalSimulation[W <: AggregateWorld] extends AsyncLogicController[W]{
   //BRIDGE
-  type SIMULATION[S,P] <: SimulationContract[S,W,P]
+  type EXTERNAL_SIMULATION
+  type SIMULATION_PROTOTYPE
+  type SIMULATION_CONTRACT <: SimulationContract[EXTERNAL_SIMULATION,W,SIMULATION_PROTOTYPE]
   protected val world : W
   //factory method
 
   /**
     * start the external simulation with the default seed
     */
-  def getContract[S,P]  : SIMULATION[S,P]
+  def contract  : SIMULATION_CONTRACT
 
-  def simulationPrototype[P] : P
+  def simulationPrototype : SIMULATION_PROTOTYPE
   override def start(): Unit = {
     require(isStopped)
-    getContract.initialize(world,simulationPrototype)
+    contract.initialize(world,simulationPrototype)
     super.start()
   }
   /**
     * restart the simulation with another seed
     */
   def restart() = {
-    require(getContract.getSimulation.isDefined)
+    require(contract.getSimulation.isDefined)
     super.stop()
-    getContract.restart(world,simulationPrototype)
+    contract.restart(world,simulationPrototype)
     super.start()
   }
 
@@ -39,7 +41,7 @@ trait ExternalSimulation[W <: AggregateWorld] extends AsyncLogicController[W]{
     * @throws IllegalArgumentException if there isn't simulation stopped
     */
   def continue() = {
-    require(isStopped && getContract.getSimulation.isDefined)
+    require(isStopped && contract.getSimulation.isDefined)
     super.start()
   }
 }

@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.{ScafiLikeWorld, ScafiPrototype, ScafiSimulationContract}
+import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform.{OnOffSensor, TextSensor}
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.test.help.SimpleScafiLikeWorld
 import org.scalatest.{FunSpec, Matchers}
@@ -18,10 +19,46 @@ class BasicTestIncarnation extends FunSpec with Matchers{
     override def radius: Double = fakeRadius
   }
 
-  val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]()
   val bigNumber = 1000
-  val proto = new world.BasicNodePrototype(None)
+  val proto = new world.ExternalNodePrototype(None)
   (0 to 1000) foreach {world + world.nodeFactory.create(_,Point3D(math.random,math.random,math.random),Set(),proto)}
+
+  val aNode = 1
+  val devName = "text"
+  val devValue = "Hello"
+  val anotherValue = "Bye"
+  //TODO PRODUCE MORE TEST ON SENSOR
+  val devProto = new world.ExternalDevicePrototype[Any](devValue)
+  val dev = world.deviceFactory.create(devName,true,devProto)
+  world.addDevices(world.nodes.map {x => x.id -> dev} toMap)
+  checkThat("I can add device in a world") {
+    val nodeDevice = world(aNode).get.getDevice(devName)
+    assert(nodeDevice.isDefined)
+    nodeDevice.get match {
+      case OnOffSensor(_) => fail()
+      case TextSensor(t) => assert(t == devValue)
+      case _ => fail()
+    }
+  }
+
+  checkThat("I can change a value in a device") {
+    assert(world.changeSensorValue(aNode,devName,anotherValue))
+    val nodeDevice = world(aNode).get.getDevice(devName)
+    assert(nodeDevice.isDefined)
+    nodeDevice.get match {
+      case OnOffSensor(_) => fail()
+      case TextSensor(t) => assert(t == anotherValue)
+      case _ => fail()
+    }
+  }
+  checkThat("I can switch off a sensor") {
+    assert(world.switchOffDevice(aNode,devName))
+    assert(!(world(aNode).get.getDevice(devName).get.state))
+    assert(world.switchOnDevice(aNode,devName))
+    assert(world(aNode).get.getDevice(devName).get.state)
+  }
+  //CHECKS ON CONTRACT
+  val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]()
   contract.initialize(world,prototype)
   val x = 1
   checkThat("an external simulation created:") {
@@ -45,8 +82,8 @@ class BasicTestIncarnation extends FunSpec with Matchers{
     }
     assert(contract.getSimulation.get.space.elemPositions forall { x => worldIds.contains(x._1) })
   }
-  val aNode = 1
   checkThat("a nodes has a set of neighbours") {
     assert(contract.getSimulation.get.neighbourhood(aNode).size > 0)
   }
+
 }
