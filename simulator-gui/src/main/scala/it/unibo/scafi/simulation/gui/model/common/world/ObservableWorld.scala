@@ -86,6 +86,15 @@ trait ObservableWorld extends World {
     this !!! WorldEvent(nodeNotify map {_.id},NodesRemoved)
     return this.apply(n -- nodeToRemove)
   }
+
+  /**
+    * remove all node in the world
+    */
+  def clear() = {
+    val ids = this._nodes.keySet
+    this._nodes = Map.empty
+    this !!! WorldEvent(ids,NodesRemoved)
+  }
   /**
     * use strategy val to verify if the node is allowed in the world or not
     * @param n the node tested

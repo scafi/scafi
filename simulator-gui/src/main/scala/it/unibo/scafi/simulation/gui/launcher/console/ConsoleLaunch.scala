@@ -1,10 +1,11 @@
 package it.unibo.scafi.simulation.gui.launcher.console
 
-import it.unibo.scafi.simulation.gui.controller.LogicController
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
+import it.unibo.scafi.simulation.gui.controller.logical.LogicController
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler
 import it.unibo.scafi.simulation.gui.incarnation.console.{ConsoleOutput, ConsoleWorld}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
+import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D}
 import it.unibo.scafi.simulation.gui.view.SimulationOutput
 
@@ -47,9 +48,9 @@ class FailureController(out : SimulationOutput, world : ConsoleWorld) extends Lo
   override def onTick(float: Float): Unit = {
 
     if(!nodeDelete.isEmpty) {
-      val toOut : Set[ConsoleWorld#RootNode] = nodeDelete
+      val toOut : Set[Int] = nodeDelete map {_.id}
       world -- (nodeDelete map {_.id})
-      out.remove(toOut)
+      out.remove(toOut.asInstanceOf[Set[World#ID]])
 
       LogManager.log("erasing..",LogManager.High)
       this.nodeDelete = this.nodeDelete.empty

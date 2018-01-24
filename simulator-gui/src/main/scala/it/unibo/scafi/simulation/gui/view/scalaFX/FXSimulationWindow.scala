@@ -5,10 +5,11 @@ import it.unibo.scafi.simulation.gui.view.{GraphicsOutput, Window}
 
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.layout.{BorderPane, VBox}
+import scalafx.scene.control.ScrollPane
+import scalafx.scene.layout.{BorderPane, HBox}
 import scalafx.stage.Stage
 //TODO
-class SimulationWindow(infoPane : VBox,
+class SimulationWindow(infoPane : HBox,
                        simulationPane : FXSimulationPane) extends Stage with Window {
   private val PADDING = 20
   this.title = name
@@ -16,12 +17,16 @@ class SimulationWindow(infoPane : VBox,
     padding = Insets(PADDING)
   }
   infoPane.padding = Insets(PADDING)
-  infoPane.setFillWidth(true)
-  pane.setCenter(simulationPane)
+  pane.setTop(infoPane)
+  val scrollPane = new ScrollPane{
+    content = simulationPane
+    this.prefHeight = 800
+    this.prefWidth = 1500
+  }
+  pane.setCenter(scrollPane)
   scene = new Scene {
     content = pane
   }
-
   override type OUTPUT = GraphicsOutput
 
   override def name: String = "Simulation pane"

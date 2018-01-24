@@ -12,13 +12,12 @@ object BasicShape2D {
     * @param w the width of the rectangle
     * @param orientation the orientation of the rectangle
     */
-  case class Rectangle(h : Float, w : Float, orientation : Float) extends Shape2D
+  case class Rectangle(h : Float, w : Float, orientation : Float = 0) extends Shape2D
 
   /**
     * @param r the radius of the circle
-    * @param orientation the orientation of the shape
     */
-  case class Circle(r : Float, orientation : Float) extends Shape2D
+  case class Circle(r : Float, override val orientation : Float = 0) extends Shape2D
 
   /**
     * describe a generic Polygon

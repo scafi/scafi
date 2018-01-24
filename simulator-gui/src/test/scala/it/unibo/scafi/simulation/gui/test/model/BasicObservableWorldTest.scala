@@ -5,27 +5,28 @@ import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.test.help.Utils._
 import it.unibo.scafi.simulation.gui.test.help._
 import org.scalatest.{FunSpec, Matchers}
+import it.unibo.scafi.simulation.gui.test.help.BasicTestableObservableWorld._
 /*test the basic structure of observable world and observer pattern */
 class BasicObservableWorldTest extends FunSpec with Matchers{
+  val world = BasicTestableObservableWorld
   val checkThat = new ItWord
-  val world = new BasicTestableObservableWorld
   //DEFINITION OF SOME DEVICE
   //FIRST
   val deviceName = "simple"
-  val simpleDevice = new world.BasicTestableDevice(deviceName)
+  val simpleDevice = new BasicTestableDevice(deviceName)
   //SECOND
   val advanceName = "advance"
-  val advanceDevice = new world.BasicTestableDevice(advanceName)
+  val advanceDevice = new BasicTestableDevice(advanceName)
   //DEFINITION OF SOME NODE
   //FIRST(WITHOUT DEVICE)
   val simpleId = 1
-  val simpleNode = new world.BasicTestableNode(simpleId,Point.ZERO,Map())
+  val simpleNode = new BasicTestableNode(simpleId,Point.ZERO,Map())
   //SECOND(WITH ONE DEVICE)
   val middleId = 2
-  val middleNode = new world.BasicTestableNode(middleId,Point.ZERO,Map(deviceName -> simpleDevice))
+  val middleNode = new BasicTestableNode(middleId,Point.ZERO,Map(deviceName -> simpleDevice))
   //THIRD(WITH ONE ADVANCE DEVICE)
   val lastId = 3
-  val lastNode = new world.BasicTestableNode(lastId,Point.ZERO,Map(advanceName -> advanceDevice))
+  val lastNode = new BasicTestableNode(lastId,Point.ZERO,Map(advanceName -> advanceDevice))
 
   checkThat("simple node hasn't device") {
     assert(simpleNode.getDevice(deviceName) isEmpty)
@@ -38,8 +39,8 @@ class BasicObservableWorldTest extends FunSpec with Matchers{
   }
 
 
-  private val worldObserver = world.createObserver(Set(NodesRemoved,NodesAdded))
-  private val anotherWorldObserver = world.createObserver(Set(NodesRemoved,NodesAdded))
+  private val worldObserver = createObserver(Set(NodesRemoved,NodesAdded))
+  private val anotherWorldObserver = createObserver(Set(NodesRemoved,NodesAdded))
   world <-- worldObserver <-- anotherWorldObserver
   //test detach
   world <--! anotherWorldObserver

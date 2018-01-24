@@ -13,7 +13,7 @@ trait Container {
 trait SimulationOutput extends Output{
   def out[N<: World#Node] (node : Set[N])
 
-  def remove[N <: World#Node](node : Set[N])
+  def remove[ID <: World#ID](node : Set[ID])
 
   def outNeighbour[N <: World#Node] (node : N, neighbour : Set[N])
 }

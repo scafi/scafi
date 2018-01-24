@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.gui.model.core._
 import it.unibo.scafi.simulation.gui.model.space.Point2D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 
-class BasicTestableObservableWorld extends ObservableWorld with SimpleSource {
+object BasicTestableObservableWorld extends ObservableWorld with SimpleSource {
   override type ID = Int
   override type NAME = String
   override type NODE = BasicTestableNode

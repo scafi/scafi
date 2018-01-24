@@ -1,5 +1,6 @@
-package it.unibo.scafi.simulation.gui.controller
+package it.unibo.scafi.simulation.gui.controller.logical
 
+import it.unibo.scafi.simulation.gui.controller.Controller
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 
 /**
