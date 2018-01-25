@@ -57,4 +57,11 @@ package object scalaFX {
       case p : Point2D => new FXPoint(p.x,p.y)
     }
   }
+
+  def nodeToAbsolutePosition(n : Node) : FXPoint = {
+    val bounds = n.boundsInLocal.value
+    val middleWidth = bounds.getWidth / 2
+    val middleHeight = bounds.getHeight / 2
+    new FXPoint(bounds.getMinX + middleWidth, bounds.getMinY + middleHeight)
+  }
 }

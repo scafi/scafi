@@ -7,13 +7,15 @@ import it.unibo.scafi.simulation.gui.view.SimulationOutput
   * simple console out, print node changed
   */
 class ConsoleOutput extends SimulationOutput{
-  override def out[N <: World#Node](node: Set[N]): Unit = node foreach {println _}
+  override def outNode[N <: World#Node](node: Set[N]): Unit = node foreach {println _}
 
-  override def remove[N <: World#ID](node: Set[N]): Unit = node foreach{ x=>println(s"remove: $x")}
+  override def removeNode[N <: World#ID](node: Set[N]): Unit = node foreach{ x=>println(s"remove: $x")}
 
   override def outNeighbour[N <: World#Node](node: N, neighbour: Set[N]): Unit = {
     print(s"$node -> ")
     neighbour map {_.id} foreach {print _}
     println
   }
+
+  override def removeNeighbour[ID <: World#ID](node: ID, neighbour: Set[ID]): Unit = {}
 }

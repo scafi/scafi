@@ -43,11 +43,11 @@ trait World {
   /**
     * The metric of this world
     */
-  val metric : M
+  def metric : M
   /**
     * A boundary of the world (a world may has no boundary)
     */
-  val boundary : Option[B]
+  def boundary : Option[B]
   /**
     * get all nodes on this world
     */

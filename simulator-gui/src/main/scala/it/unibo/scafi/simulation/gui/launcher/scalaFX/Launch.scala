@@ -11,8 +11,8 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.{FXSimulationPane, SimulationW
 
 import scala.util.Random
 import scalafx.application.Platform
-import scalafx.scene.control.Button
 import scalafx.scene.layout.HBox
+//TODO SIMPLE EXAMPLE , REMBEMER TO CREATE A LAUNCHER USED TO LAUNCH EXTERNAL SIMULATION
 object Launch extends App {
   val r = new Random()
   new JFXPanel()
@@ -20,12 +20,13 @@ object Launch extends App {
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   val shape = Circle(3f)
-  val ticked = 16
+  val ticked = 500
   val littleRadius = 200
-  val bigN = 200
-  val maxPoint = 1000
+  val bigN = 1000
+  val maxPoint = 2000
   val minDelta = 1
   val maxDelta = 10
+  val neighbourRender = true
   devs = Set(
     dev(source,false),
     dev(destination,false),
@@ -42,23 +43,24 @@ object Launch extends App {
 
     override def radius: Double = littleRadius
   })
-  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(10))
+  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(500))
   val pane = new FXSimulationPane()
   Platform.runLater {
-    pane.out(world.nodes)
+    pane.outNode(world.nodes)
     val dialogStage = new SimulationWindow(new HBox(){
-      children = Seq(new Button("PROVA"), new Button("ANCORA"))
     }, pane)
     dialogStage.show
     dialogStage.onCloseRequest = new EventHandler[WindowEvent] {
       override def handle(event: WindowEvent): Unit = System.exit(1)
     }
-    contract.getSimulation.get.getAllNeighbours().foreach { x =>
-      pane.outNeighbour(world(x._1).get,world.apply(x._2.toSet))
+    if(neighbourRender) {
+      contract.getSimulation.get.getAllNeighbours().foreach { x =>
+        pane.outNeighbour(world(x._1).get,world.apply(x._2.toSet))
+      }
     }
     simpleLogic.start()
   }
-  val render = new ScafiFXRender(world,pane,contract)
+  val render = new ScafiFXRender(world,pane,contract,neighbourRender)
   Scheduler.scheduler <-- simpleLogic <-- render
   Scheduler.scheduler.delta_=(ticked)
   Scheduler.scheduler.start()

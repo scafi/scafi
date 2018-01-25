@@ -50,7 +50,7 @@ class FailureController(out : SimulationOutput, world : ConsoleWorld) extends Lo
     if(!nodeDelete.isEmpty) {
       val toOut : Set[Int] = nodeDelete map {_.id}
       world -- (nodeDelete map {_.id})
-      out.remove(toOut.asInstanceOf[Set[World#ID]])
+      out.removeNode(toOut.asInstanceOf[Set[World#ID]])
 
       LogManager.log("erasing..",LogManager.High)
       this.nodeDelete = this.nodeDelete.empty
@@ -87,7 +87,7 @@ class RandomMovementController(out: SimulationOutput, world: ConsoleWorld) exten
       LogManager.log(s"moving.. count = $count", LogManager.Middle)
       world.moveNodes(moving)
       val toOut = world.apply(moving.keySet)
-      out.out(toOut)
+      out.outNode(toOut)
       moving = moving.empty
     }
   }

@@ -13,29 +13,43 @@ import scalafx.application.Platform
 //TODO VERY SIMPLE VERSION
 class ScafiFXRender(val world : ScafiLikeWorld,
                     val out : FXSimulationPane,
-                    val contract : ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]) extends Presenter[BasicPlatform with Source]{
+                    val contract : ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype],
+                    val neighbourRender : Boolean) extends Presenter[BasicPlatform with Source]{
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
   world <-- removed <-- moved
   override type OUTPUT = FXSimulationPane
-
+  //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
     val nodesRemoved = removed.nodeChanged()
     if(!nodesRemoved.isEmpty) {
       LogManager.log("view erasing..",LogManager.Middle)
       Platform.runLater{
-        out.remove(nodesRemoved)
+        out.removeNode(nodesRemoved)
       }
     }
+    //MOVING
     val nodesMoved = moved.nodeChanged()
     if(!nodesMoved.isEmpty) {
       LogManager.log("view moving..",LogManager.Middle)
-      world(nodesMoved) foreach {x => contract.getSimulation.get.setPosition(x.id,Point3D(x.position.x,x.position.y,x.position.z))}
       Platform.runLater{
-        out.out(world(nodesMoved))
+        out.outNode(world(nodesMoved))
         nodesMoved foreach { x =>
-          val ids = contract.getSimulation.get.neighbourhood(x)
-          out.outNeighbour(world(x).get,world.apply(ids))
+          val oldIds = contract.getSimulation.get.neighbourhood(x)
+          val node = world(x).get
+          contract.getSimulation.get.setPosition((x),Point3D(node.position.x,node.position.y,node.position.z))
+          if(this.neighbourRender) {
+            val newIds = contract.getSimulation.get.neighbourhood(x)
+            val id : world.ID = world(x).get.id
+            val ids : Set[world.ID] = oldIds -- newIds
+            if(!ids.isEmpty) {
+              out.removeNeighbour(id,ids)
+            }
+            if(!(newIds -- oldIds).isEmpty) {
+              out.outNeighbour(world(x).get,world.apply(newIds -- oldIds))
+            }
+          }
+
         }
       }
     }
