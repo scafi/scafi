@@ -43,6 +43,11 @@ trait StdLib_FieldUtils {
 
       def anyHood(expr: => Boolean): Boolean =
         foldhoodTemplate[Boolean](false)(_||_)(expr)
+
+      def minHoodSelector[T: Builtins.Bounded, V](toMinimize: => T)(data: => V): Option[V] = {
+        val ord = implicitly[Builtins.Bounded[T]]
+        foldhoodTemplate[(T,Option[V])]((ord.top, None))( (x,y) => if(ord.compare(x._1,y._1) <= 0) x else y )((toMinimize, Some(data)))._2
+      }
     }
 
     object includingSelf extends FieldOps {

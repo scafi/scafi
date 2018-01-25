@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.space.{BasicSpatialAbstraction, Point3D}
+import it.unibo.scafi.space.{BasicSpatialAbstraction}
 import it.unibo.scafi.time.BasicTimeAbstraction
 
 /**
