@@ -6,6 +6,7 @@ import it.unibo.scafi.simulation.gui.view.SimulationOutput
 /**
   * simple console out, print node changed
   */
+//TODO CREATE A BETTER EXAMPLE
 class ConsoleOutput extends SimulationOutput{
   override def outNode[N <: World#Node](node: Set[N]): Unit = node foreach {println _}
 
@@ -18,4 +19,20 @@ class ConsoleOutput extends SimulationOutput{
   }
 
   override def removeNeighbour[ID <: World#ID](node: ID, neighbour: Set[ID]): Unit = {}
+
+  /**
+    * output the device associated to the node
+    *
+    * @param node the node
+    * @tparam N the type of node
+    */
+  override def outDevice[N <: World#Node](node: N): Unit = {}
+
+  /**
+    * remove all devices associated to a node
+    *
+    * @param node the node
+    * @tparam N the type of node
+    */
+  override def clearDevice[N <: World#ID](node: N): Unit = {}
 }

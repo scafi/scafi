@@ -1,15 +1,22 @@
 package it.unibo.scafi.simulation.gui.view
 
+
+import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig
 import it.unibo.scafi.simulation.gui.model.core.{World, Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Rectangle => InternalRectangle}
+import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform.{OnOffSensor, TextSensor}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
+import scalafx.scene.control.Label
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Circle, Rectangle}
-
+import scalafx.scene.shape.{Circle, Ellipse, Rectangle}
+//TODO THINK WHERE ADD COLOR (SIMPLE TEST)
 package object scalaFX {
+  val colors : Map[String,Color] = Map(WorldConfig.source.name -> Color.Red,
+                                        WorldConfig.destination.name -> Color.Yellow,
+                                        WorldConfig.obstacle.name -> Color.Blue)
   /**
     * create a fx node by a Node
     * @param node the node of the world
@@ -66,5 +73,46 @@ package object scalaFX {
   }
   def bindNodes(source : Node, observer : Node) = {
 
+  }
+  //TODO THINK TO A BETTER SOLUTION
+  def deviceToNode[D <: World#Device](d : Set[D], n : Node) : Set[Node] = {
+    //the offset to the label of the y coordinate
+    val yoffset = 10
+    val label = new Label
+    val nodeWidth = n.boundsInLocal.value.getWidth
+    val increaseRadius = 2
+    val lineWidth = 2
+    var currentR = nodeWidth
+    //TODO REMBER TO ADD COLOR IN MODEL
+    val onColor = Color.Red
+    val offColor = Color.Black
+    val point = nodeToAbsolutePosition(n)
+    label.layoutX.bind(n.translateX +point.x)
+    label.layoutY.bind(n.translateY + point.y + yoffset)
+    var res : Set[Node] = Set(label)
+    d foreach  { x =>
+      x match {
+        case TextSensor(value) => {
+          label.text = label.text.value + "" + x.name.toString + " = " + value
+        }
+        case OnOffSensor(value) => {
+          val ellipse = new Ellipse{
+            this.centerX.bind(n.translateX + point.x)
+            this.centerY.bind(n.translateY + point.y)
+            this.radiusX = currentR
+            this.radiusY = currentR
+            this.strokeWidth = lineWidth
+            if(value) this.stroke = colors(x.name.toString) else this.stroke = offColor
+            this.fill = Color.Transparent
+          }
+          currentR += increaseRadius
+          res += ellipse
+        }
+        case _ => {
+          None
+        }
+      }
+    }
+    res
   }
 }

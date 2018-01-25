@@ -49,9 +49,11 @@ object WorldConfig {
   val source : Name = new Name{val name = "source"}
   val destination : Name = new Name{val name = "destination"}
   val obstacle : Name = new Name{val name = "obstacle"}
+  val id : Name = new Name {val name = "id"}
   val gsensor : Name = new Name{val name = "generic"}
   val gsensor1 : Name = new Name{val name = "generic1"}
   val gsesonr2 : Name = new Name{val name = "generic2"}
+
 
   /**
     * initialize a world in a randomize way

@@ -5,6 +5,7 @@ import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 /**
   * aggregate world define a mutable world with mutable node and device
   */
+//TODO THINK IF IS A GOOD IDEA TO CHECK CREATE EVENT ASSOCIATED TO A DEVICE
 trait AggregateWorld extends ObservableWorld with AggregateConcept{
   this : AggregateWorld.Dependency =>
   /**
@@ -121,6 +122,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     this.removeBeforeEvent(switched.map(_.id))
     this.addBeforeEvent(switched)
   }
+  //take a map of id and value, using filter change the vlaue
   private def produceResult[A](map : Map[ID,A],
                                filter :(NODE,A) => Option[NODE],
                                producer : (Set[NODE]) => WorldEvent): Set[NODE] = {

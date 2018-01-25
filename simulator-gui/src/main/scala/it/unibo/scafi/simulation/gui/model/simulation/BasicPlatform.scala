@@ -78,9 +78,23 @@ trait BasicPlatform extends AggregateWorld {
 object BasicPlatform {
   type Dependency = AggregateWorld.Dependency
   object OnOffSensor {
-    def unapply[E](arg: BasicPlatform#Sensor[E]): Option[Boolean] = if (arg.value.isInstanceOf[Boolean]) return Some(arg.value.asInstanceOf[Boolean]) else None
+    def unapply[E](arg: Any): Option[Boolean] = {
+      if(arg.isInstanceOf[BasicPlatform#Sensor[E]]) {
+        val s = arg.asInstanceOf[BasicPlatform#Sensor[E]]
+        if(s.value.isInstanceOf[Boolean]) return Some(s.value.asInstanceOf[Boolean])
+      }
+      None
+    }
   }
   object TextSensor {
-    def unapply[E](arg: BasicPlatform#Sensor[E]): Option[String] = if(arg.value.isInstanceOf[String]) return Some(arg.value.asInstanceOf[String]) else None
+    def unapply[E](arg: Any): Option[String] = {
+      if(arg.isInstanceOf[BasicPlatform#Sensor[E]]) {
+        val s = arg.asInstanceOf[BasicPlatform#Sensor[E]]
+        if(s.value.isInstanceOf[String]) {
+          return Some(s.value.asInstanceOf[String])
+        }
+      }
+      None
+    }
   }
 }

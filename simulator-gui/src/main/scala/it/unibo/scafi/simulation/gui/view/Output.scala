@@ -44,4 +44,17 @@ trait SimulationOutput extends Output{
     */
   def removeNeighbour[ID <: World#ID](node : ID, neighbour : Set[ID])
 
+  /**
+    * output the device associated to the node
+    * @param node the node
+    * @tparam N the type of node
+    */
+  def outDevice[N <: World#Node](node : N)
+
+  /**
+    * remove all devices associated to a node
+    * @param node the node
+    * @tparam N the type of node
+    */
+  def clearDevice[N <: World#ID](node : N)
 }

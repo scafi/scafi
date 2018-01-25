@@ -14,6 +14,7 @@ import scalafx.scene.paint.Color
 class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
   private val nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
   private val neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
+  private val devices : mutable.Map[World#ID,Set[Node]] = mutable.Map()
   private val SCALE_DELTA = 1.1;
   // SCROLLING TO REMOVE HERE
   import scalafx.Includes._
@@ -55,7 +56,6 @@ class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
       }
       val s : mutable.Map[World#ID,Node] = this.neighbours(node.id)
       s += (x.id -> link)
-
     }}
   }
 
@@ -74,6 +74,25 @@ class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
       if (checkPresence(x,node)) {
         erase(x,node)
       }
+    }
+  }
+
+  override def outDevice[N <: World#Node](node: N): Unit = {
+    val devs = deviceToNode(node.devices,nodes(node.id)._1)
+    devs.foreach(this.children.add(_))
+    this.devices += node.id -> devs
+  }
+
+  /**
+    * remove all devices associated to a node
+    *
+    * @param node the node
+    * @tparam N the type of node
+    */
+  override def clearDevice[N <: World#ID](node: N): Unit = {
+    if(this.devices.get(node).isDefined) {
+      this.devices(node) foreach {this.children.remove(_)}
+      this.devices -= node
     }
   }
 }

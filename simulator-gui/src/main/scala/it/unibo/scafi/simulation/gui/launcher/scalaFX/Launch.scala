@@ -19,23 +19,22 @@ object Launch extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig._
   //WORLD DEFINITION
   val world = SimpleScafiWorld
-  val shape = Circle(5f)
-  val ticked = 200
-  val littleRadius = 200
-  val bigN = 1000
+  val shape = Circle(1f)
+  val ticked = 16
+  val littleRadius = 500
+  val bigN = 200
   val maxPoint = 2000
   val minDelta = 1
   val maxDelta = 10
   val neighbourRender = true
   devs = Set(
-    dev(source,false),
-    dev(destination,false),
-    dev(obstacle,false),
+    dev(source,true),
+    dev(destination,true),
+    dev(obstacle,true),
     dev(gsensor,false)
   )
   nodeProto = NodePrototype(shape)
   randomize(bigN,maxPoint)
-
   val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]
   contract.initialize(world,new ScafiPrototype {override def randomSeed: Long = r.nextLong()
 
@@ -43,10 +42,11 @@ object Launch extends App {
 
     override def radius: Double = littleRadius
   })
-  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(500))
+  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(50))
   val pane = new FXSimulationPane()
   Platform.runLater {
     pane.outNode(world.nodes)
+    world.nodes foreach {pane.outDevice(_)}
     val dialogStage = new SimulationWindow(new HBox(){
     }, pane)
     dialogStage.show
