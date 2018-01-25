@@ -6,7 +6,7 @@ import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
-//TODO RIGUARDARE COMPLETAMENTE
+//TODO RIGUARDARE COMPLETAMENTE q
 class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world : W,
                                                    val contract : ScafiSimulationContract[W,ScafiPrototype],
                                                    override protected val minDelta : Int,

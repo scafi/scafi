@@ -10,11 +10,20 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.FXSimulationPane
 import it.unibo.scafi.space.Point3D
 
 import scalafx.application.Platform
+
+/**
+  * the render of output to a graphics view (scalafx library)
+  * @param world to show
+  * @param out where render show thing
+  * @param contract the scafi simulation
+  * @param neighbourRender a boolean value to define if show the neighbours or not
+  */
 //TODO VERY SIMPLE VERSION
 class ScafiFXRender(val world : ScafiLikeWorld,
                     val out : FXSimulationPane,
                     val contract : ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype],
                     val neighbourRender : Boolean) extends Presenter[BasicPlatform with Source]{
+
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
   world <-- removed <-- moved
@@ -49,7 +58,6 @@ class ScafiFXRender(val world : ScafiLikeWorld,
               out.outNeighbour(world(x).get,world.apply(newIds -- oldIds))
             }
           }
-
         }
       }
     }

@@ -64,4 +64,7 @@ package object scalaFX {
     val middleHeight = bounds.getHeight / 2
     new FXPoint(bounds.getMinX + middleWidth, bounds.getMinY + middleHeight)
   }
+  def bindNodes(source : Node, observer : Node) = {
+
+  }
 }

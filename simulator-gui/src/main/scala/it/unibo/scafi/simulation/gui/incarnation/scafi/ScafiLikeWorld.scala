@@ -6,6 +6,9 @@ import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 
+/**
+  * a world describe a plaftform like scafi
+  */
 trait ScafiLikeWorld extends BasicPlatform with SimpleSource{
   self : ScafiLikeWorld.Dependency =>
   override type ID = Int
@@ -17,6 +20,9 @@ object ScafiLikeWorld {
   type Dependency = AggregateWorld.Dependency
 }
 
+/**
+  * an incarnation to a scafi like world
+  */
 object SimpleScafiWorld extends ScafiLikeWorld  {
   override type ID = Int
   override type NODE = InternalNode

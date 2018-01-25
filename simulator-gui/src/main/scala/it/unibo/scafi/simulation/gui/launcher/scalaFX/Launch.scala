@@ -19,8 +19,8 @@ object Launch extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig._
   //WORLD DEFINITION
   val world = SimpleScafiWorld
-  val shape = Circle(3f)
-  val ticked = 500
+  val shape = Circle(5f)
+  val ticked = 200
   val littleRadius = 200
   val bigN = 1000
   val maxPoint = 2000

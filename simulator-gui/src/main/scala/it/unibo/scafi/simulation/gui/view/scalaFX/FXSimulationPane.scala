@@ -10,7 +10,6 @@ import scalafx.scene.Node
 import scalafx.scene.input.ScrollEvent
 import scalafx.scene.layout.Pane
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Line
 
 class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
   private val nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
@@ -24,7 +23,6 @@ class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
     this.setScaleX(this.getScaleX() * scaleFactor);
     this.setScaleY(this.getScaleY() * scaleFactor);
   }
-
   override def outNode[N <: World#Node](node: Set[N]): Unit = {
     node foreach  { x => {
         val p : Point2D = x.position
@@ -40,7 +38,6 @@ class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
       }
     }
   }
-
   //TODO
   override def removeNode[ID <: World#ID](node: Set[ID]): Unit = {
     node foreach  {x => {this.children.remove(nodes(x)._1 )}}
@@ -49,24 +46,15 @@ class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
 
   override def outNeighbour[N <: World#Node](node: N, neighbour: Set[N]): Unit = {
     val gnode = this.nodes(node.id)._1
-    val pStart = nodeToAbsolutePosition(gnode)
     neighbour foreach {x => {
       val endGnode = this.nodes(x.id)._1
-      val pEnd = nodeToAbsolutePosition(endGnode)
-      val l = new Line {
-        startX.bind(gnode.translateX + pStart.x)
-        startY.bind(gnode.translateY + pStart.y)
-        endX.bind(endGnode.translateX + pEnd.x)
-        endY.bind(endGnode.translateY + pEnd.y)
-        stroke = Color.Gray //TODO COLOR MUTABLE
-      }
-      //TODO THINK IF USING ONLY CENTER
-      this.children.add(l)
+      val link = new NodeLine(gnode,endGnode,Color.Gray)
+      this.children.add(link)
       if(!this.neighbours.get(node.id).isDefined) {
         this.neighbours += node.id -> mutable.Map()
       }
       val s : mutable.Map[World#ID,Node] = this.neighbours(node.id)
-      s += (x.id -> l)
+      s += (x.id -> link)
 
     }}
   }

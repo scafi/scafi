@@ -43,4 +43,5 @@ trait SimulationOutput extends Output{
     * @tparam ID the id of node
     */
   def removeNeighbour[ID <: World#ID](node : ID, neighbour : Set[ID])
+
 }
