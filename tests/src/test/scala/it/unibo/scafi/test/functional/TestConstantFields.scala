@@ -41,14 +41,14 @@ class TestConstantFields extends FlatSpec with Matchers {
     // ACT
     implicit val endNet = runProgram { minHood{1} } (net)
     // ASSERT
-    assertForAllNodes[Int](_==1, okWhenNotComputed = true)
+    assertForAllNodes[Int]((_,value) => value==1, okWhenNotComputed = true)
   }
 
   it should "evaluate a string constant field" in new SimulationContextFixture {
     // ACT
     implicit val endNet = runProgram { "XXX" } (net)
     // ASSERT
-    assertForAllNodes[String](_=="XXX", okWhenNotComputed = true)
+    assertForAllNodes[String]((_,value) => value=="XXX", okWhenNotComputed = true)
   }
 
 }

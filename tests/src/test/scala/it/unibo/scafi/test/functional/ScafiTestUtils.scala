@@ -40,6 +40,11 @@ object ScafiTestUtils {
     endNet
   }
 
+  def exec(ap: AggregateProgram, ntimes: Int = 500)
+          (net: Network with SimulatorOps): Network = {
+    runProgram(ap.main(), ntimes)(net)(ap)
+  }
+
   def runProgramInOrder(firingSeq: Seq[ID])
                        (exp: => Any)
                        (net: Network with SimulatorOps)
