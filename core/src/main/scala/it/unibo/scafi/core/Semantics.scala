@@ -140,7 +140,7 @@ trait Semantics extends Core with Language {
       }
 
     override def align[K,V](key: K)(proc: K => V): V =
-      vm.nest[V](Scope[K](key))(true){
+      vm.nest[V](Scope[K](key))(true, inc = false){
         proc(key)
       }
 
@@ -172,7 +172,7 @@ trait Semantics extends Core with Language {
 
     def neighbourSense[A](name: NSNS): A
 
-    def nest[A](slot: Slot)(write: Boolean)(expr: => A): A
+    def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A
 
     def locally[A](a: => A): A
 
@@ -224,12 +224,12 @@ trait Semantics extends Core with Language {
       context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
     }
 
-    override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
+    override def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A = {
       try {
         status = status.push().nest(slot)  // prepare nested call
         if (write) export.get(status.path).getOrElse(export.put(status.path, expr)) else expr  // function return value is result of expr
       } finally {
-        status = status.pop().incIndex();  // do not forget to restore the status
+        status = if(inc) status.pop().incIndex() else status.pop() // do not forget to restore the status
       }
     }
 
