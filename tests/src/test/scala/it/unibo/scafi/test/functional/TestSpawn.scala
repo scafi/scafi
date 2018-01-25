@@ -140,7 +140,7 @@ class TestSpawn extends FlatSpec with Matchers {
     net.chgSensorValue("gen2", Set(6), true)
 
     // ACT
-    exec(program, ntimes = 100)(net)
+    exec(program, ntimes = 500)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
