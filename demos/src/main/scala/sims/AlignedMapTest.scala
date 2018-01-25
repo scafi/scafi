@@ -30,7 +30,9 @@ object AlignedMapRunner extends Launcher {
 }
 
 class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldUtils with BlockG {
-  override def main() = {
+  override def main() = test1
+
+  def test1 = {
     var procs = Map(
       1 -> (()=>f"${distanceTo(sense1)}%.1f"),
       2 -> (()=>f"${distanceTo(sense2)}%.1f"),
@@ -46,8 +48,46 @@ class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldU
     var allKeys = rep(keyGen){ myKeys =>
       includingSelf.unionHoodSet(nbr { myKeys ++ keyGen })
     }
+    // PROBLEM: how to deal with the removal of processes?
 
     for(k <- allKeys)
       yield (k -> align(k) { key => procs(key)() })
   }
+
+  def test2 = {
+    // Proc descriptor
+    case class Proc[T](generator: () => Boolean, comp: (Boolean) => T)
+
+    // Define processes
+    val p1 = Proc(() => sense1, (gen) => f"${distanceTo(gen)}%.1f")
+    val p2 = Proc(() => sense2, (gen) => f"${-distanceTo(gen)}%.1f")
+    val p3 = Proc(() => sense3, (gen) => f"${distanceToWord(gen)}")
+    val p4 = Proc(() => sense4, (gen) => f"${distanceTo(gen)}%.1f")
+
+    // Give PIDs to processes
+    val procs = Map(1 -> p1, 2 -> p2, 3 -> p3, 4 -> p4)
+
+    alignedMap(procs.keys, (x: Int) => x, (id: Int) => procs(id).comp(procs(id).generator()))
+  }
+
+  /**
+    * @param t a collection
+    * @param f a function mapping t's values to keys
+    * @param g a function computing over t's values
+    * @return a collection mapping t's values with g by maintaining alignment over the keys
+    */
+  def alignedMap[A,K,O](t: Traversable[A], f: A => K, g: A => O): Traversable[O] = {
+    t.map(a => {
+      val k = f(a)
+      align(k){ _ => g(a) }
+    })
+  }
+
+  def distanceToWord(src: Boolean) = {
+    val dist = distanceTo(src)
+    if(dist < 2) "low"
+    else if(dist < 10) "med"
+    else "hi"
+  }
+
 }
