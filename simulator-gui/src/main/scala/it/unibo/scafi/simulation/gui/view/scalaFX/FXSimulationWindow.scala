@@ -15,18 +15,23 @@ class SimulationWindow(infoPane : HBox,
   this.title = name
   val pane = new BorderPane {
     padding = Insets(PADDING)
+    this.minWidth = 800
+    this.minHeight = 600
   }
   infoPane.padding = Insets(PADDING)
   pane.setTop(infoPane)
   val scrollPane = new ScrollPane{
     content = simulationPane
-    this.prefHeight = 800
-    this.prefWidth = 1500
+    this.prefHeight.bind(pane.prefHeightProperty())
+    this.prefWidth.bind(pane.prefWidthProperty())
   }
+  scrollPane.pannable = false
   pane.setCenter(scrollPane)
-  scene = new Scene {
+  scene  = new Scene {
     content = pane
   }
+  pane.prefWidthProperty().bind(this.getScene().widthProperty())
+  pane.prefHeightProperty().bind(this.getScene().heightProperty())
   override type OUTPUT = GraphicsOutput
 
   override def name: String = "Simulation pane"

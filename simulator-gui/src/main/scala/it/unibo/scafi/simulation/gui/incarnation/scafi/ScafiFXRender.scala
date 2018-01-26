@@ -26,40 +26,42 @@ class ScafiFXRender(val world : ScafiLikeWorld,
 
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
+  private var prevNeighbour = contract.getSimulation.get.getAllNeighbours()
   world <-- removed <-- moved
   override type OUTPUT = FXSimulationPane
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
     val nodesRemoved = removed.nodeChanged()
-    if(!nodesRemoved.isEmpty) {
-      LogManager.log("view erasing..",LogManager.Middle)
-      Platform.runLater{
+    if (!nodesRemoved.isEmpty) {
+      LogManager.log("view erasing..", LogManager.Middle)
+      Platform.runLater {
         out.removeNode(nodesRemoved)
       }
     }
     //MOVING
     val nodesMoved = moved.nodeChanged()
-    if(!nodesMoved.isEmpty) {
-      LogManager.log("view moving..",LogManager.Middle)
-      Platform.runLater{
-        out.outNode(world(nodesMoved))
-        nodesMoved foreach { x =>
-          val oldIds = contract.getSimulation.get.neighbourhood(x)
-          val node = world(x).get
-          contract.getSimulation.get.setPosition((x),Point3D(node.position.x,node.position.y,node.position.z))
-          if(this.neighbourRender) {
-            val newIds = contract.getSimulation.get.neighbourhood(x)
-            val id : world.ID = world(x).get.id
-            val ids : Set[world.ID] = oldIds -- newIds
-            if(!ids.isEmpty) {
-              out.removeNeighbour(id,ids)
+    if (!nodesMoved.isEmpty) {
+      LogManager.log("view moving..", LogManager.Middle)
+      Platform.runLater{out.outNode(world(nodesMoved))}
+      nodesMoved foreach { x =>
+        val node = world(x).get
+        contract.getSimulation.get.setPosition((x), Point3D(node.position.x, node.position.y, node.position.z))
+        if (this.neighbourRender) {
+          val oldIds = this.prevNeighbour(x).toSet
+          val newIds = contract.getSimulation.get.neighbourhood(x)
+          val id: world.ID = world(x).get.id
+          val ids: Set[world.ID] = oldIds -- newIds
+          Platform.runLater{
+            if (!ids.isEmpty) {
+              out.removeNeighbour(id, ids)
             }
-            if(!(newIds -- oldIds).isEmpty) {
-              out.outNeighbour(world(x).get,world.apply(newIds -- oldIds))
+            if (!(newIds -- oldIds).isEmpty) {
+              out.outNeighbour(world(x).get, world.apply(newIds -- oldIds))
             }
           }
         }
       }
+      this.prevNeighbour = this.contract.getSimulation.get.getAllNeighbours()
     }
   }
 }

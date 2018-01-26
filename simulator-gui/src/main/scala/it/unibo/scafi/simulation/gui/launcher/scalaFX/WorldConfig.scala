@@ -56,13 +56,15 @@ object WorldConfig {
 
 
   /**
-    * initialize a world in a randomize way
+    * initialize a world 2D in a randomize way
     * @param number the number of element
     */
-  def randomize(number : Int,maxPoint : Int): Unit = {
+  def randomize2D(number : Int,maxPoint : Int): Unit = {
     val r = new Random()
+    //all nodes on the same 2d planes
+    val z = 0
     val node : Set[NODE] = ((0 to number) map {
-      nodeFactory.create(_,Point3D(r.nextInt(maxPoint),r.nextInt(maxPoint),r.nextInt(maxPoint)),devs,nodeProto)
+      nodeFactory.create(_,Point3D(r.nextInt(maxPoint),r.nextInt(maxPoint),z),devs,nodeProto)
     } toSet)
     world clear()
     world ++ node

@@ -50,12 +50,15 @@ class FXSimulationPane extends Pane with SimulationOutput with GraphicsOutput {
     neighbour foreach {x => {
       val endGnode = this.nodes(x.id)._1
       val link = new NodeLine(gnode,endGnode,Color.Gray)
-      this.children.add(link)
       if(!this.neighbours.get(node.id).isDefined) {
         this.neighbours += node.id -> mutable.Map()
       }
       val s : mutable.Map[World#ID,Node] = this.neighbours(node.id)
-      s += (x.id -> link)
+      //CHECK IF THE LINK IS ALREADY SHOW
+      if(!s.contains(x.id)) {
+        this.children.add(link)
+        s += (x.id -> link)
+      }
     }}
   }
 

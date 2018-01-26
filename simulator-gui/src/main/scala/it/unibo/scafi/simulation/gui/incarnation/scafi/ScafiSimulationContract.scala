@@ -36,6 +36,9 @@ class ScafiSimulationContract[W <: ScafiLikeWorld, PROTO <: ScafiPrototype]
         nsns => nbr => null)
       })
     nodes map {x => w(x._1).get} foreach {x => x.devices.foreach(y => res.chgSensorValue(y.name,Set(x.id),y.value))}
+    w.nodes  foreach { x =>
+      x.devices foreach {y => res.chgSensorValue(y.name,Set(x.id),y.value)}
+    }
     res
   }
 }
