@@ -28,9 +28,20 @@ class TestSpawn extends FlatSpec with Matchers {
 
   private val SpawnConstruct, Processes, ManyProcesses = new ItWord
 
-  val P1 = 1 // Identifier for process 1
-  val P2 = 2 // Identifier for process 2
+  // Process identifiers
+  val P1 = 1
+  val P2 = 2
+  // Sensor names for de/activating processes, and for gradient sources
+  val Gen1 = "gen1"
+  val Gen2 = "gen2"
+  val SRC  = "src"
+  // Network constants
   val (stepx, stepy) = (1.0, 1.0)
+  // Simulation constants
+  val FewRounds      = 100
+  val SomeRounds     = 500
+  val ManyRounds     = 1000
+  val ManyManyRounds = 2000
 
   private[this] trait SimulationContextFixture {
     val net: NetworkSimulator =
@@ -43,9 +54,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
     override type MainResult = Any
 
-    def src = sense[Boolean]("src")
-    def gen1 = sense[Boolean]("gen1")
-    def gen2 = sense[Boolean]("gen2")
+    def src = sense[Boolean](SRC)
+    def gen1 = sense[Boolean](Gen1)
+    def gen2 = sense[Boolean](Gen2)
 
     override def main(): Any = {
       var procs = Map(
@@ -61,10 +72,10 @@ class TestSpawn extends FlatSpec with Matchers {
   type ProcsMap = Map[Int,Option[String]]
 
   def SetupNetwork(n: Network with SimulatorOps) = {
-    n.addSensor("gen1", false)
-    n.addSensor("gen2", false)
-    n.addSensor("src", false)
-    n.chgSensorValue("src", Set(8), true)
+    n.addSensor(Gen1, false)
+    n.addSensor(Gen2, false)
+    n.addSensor(SRC, false)
+    n.chgSensorValue(SRC, Set(8), true)
     n
   }
 
@@ -78,12 +89,12 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes must "exist when activated" in new SimulationContextFixture {
     // ACT
-    exec(program, ntimes = 100)(net)
+    exec(program, ntimes = FewRounds)(net)
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
 
-    net.chgSensorValue("gen1", Set(8), true)
+    net.chgSensorValue(Gen1, Set(8), true)
 
-    exec(program, ntimes = 500)(net)
+    exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -95,10 +106,10 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes can "have a limited extension" in new SimulationContextFixture {
     // ARRANGE
-    net.chgSensorValue("gen2", Set(0), true)
+    net.chgSensorValue(Gen2, Set(0), true)
 
     // ACT
-    exec(program, ntimes = 500)(net)
+    exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
     assertForAllNodes[ProcsMap]{ (id, m) => m.forall(proc => proc match {
@@ -108,8 +119,8 @@ class TestSpawn extends FlatSpec with Matchers {
     })}(net)
 
     // ACT
-    net.chgSensorValue("src", Set(4), true)
-    exec(program, ntimes = 500)(net)
+    net.chgSensorValue(SRC, Set(4), true)
+    exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -121,17 +132,17 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes can "be extinguished when stopped being generated" in new SimulationContextFixture {
     // ARRANGE
-    net.chgSensorValue("gen1", Set(0), true)
+    net.chgSensorValue(Gen1, Set(0), true)
 
     // ACT (process activation)
-    exec(program, ntimes = 500)(net)
+    exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall{ case (pid,value) => if(pid==1) value.isDefined else value.isEmpty} }(net)
 
     // ACT (process deactivation and garbage collection)
-    net.chgSensorValue("gen1", Set(0), false)
-    exec(program, ntimes = 2000)(net)
+    net.chgSensorValue(Gen1, Set(0), false)
+    exec(program, ntimes = ManyManyRounds)(net)
 
     // ASSERT
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2.isEmpty) }(net)
@@ -139,11 +150,11 @@ class TestSpawn extends FlatSpec with Matchers {
 
   ManyProcesses must "coexist without interference" in new SimulationContextFixture {
     // ARRANGE
-    net.chgSensorValue("gen1", Set(0), true)
-    net.chgSensorValue("gen2", Set(6), true)
+    net.chgSensorValue(Gen1, Set(0), true)
+    net.chgSensorValue(Gen2, Set(6), true)
 
     // ACT
-    exec(program, ntimes = 500)(net)
+    exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -155,12 +166,12 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes should "not conflict when generated from different nodes" in new SimulationContextFixture {
     // BUT NOTE: sensor gen1 also represents the source for the gradient of process 1
-    // ARRANGE
-    net.chgSensorValue("gen1", Set(0), true)
-    net.chgSensorValue("gen1", Set(8), true)
+    // ARRANGE: set two generators for process 1
+    net.chgSensorValue(Gen1, Set(0), true)
+    net.chgSensorValue(Gen1, Set(8), true)
 
     // ACT
-    exec(program, ntimes = 500)(net)
+    exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -170,8 +181,8 @@ class TestSpawn extends FlatSpec with Matchers {
     )).toMap)(net)
 
     // PERTURB + ACT (AGAIN)
-    net.chgSensorValue("gen1", Set(4), true)
-    exec(program, ntimes = 500)(net)
+    net.chgSensorValue(Gen1, Set(4), true)
+    exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -183,15 +194,15 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes should "be resilient to partitions: " in new SimulationContextFixture {
     // ARRANGE: turn on generator for process 1
-    net.chgSensorValue("gen1", Set(0), true)
+    net.chgSensorValue(Gen1, Set(0), true)
 
     // ACT: run program
-    exec(program, ntimes = 100)(net)
+    exec(program, ntimes = FewRounds)(net)
 
     // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
     val toRestore = detachNode(8, net) // detach node
-    net.chgSensorValue("gen1", Set(0), false) // stop generating process 1
-    execProgramFor(program, ntimes = 500)(net)(id => id != 8) // execute except for detached device
+    net.chgSensorValue(Gen1, Set(0), false) // stop generating process 1
+    execProgramFor(program, ntimes = SomeRounds)(net)(id => id != 8) // execute except for detached device
 
     // ASSERT: process 1 has disappeared everywhere except in detached node
     assertForAllNodes[ProcsMap]{
@@ -201,7 +212,7 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ACT: reconnect node and run program globally
     connectNode(8, toRestore, net)
-    exec(program, ntimes = 1000)(net)
+    exec(program, ntimes = ManyRounds)(net)
 
     // ASSERT: eventually, the process has disappeared
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
