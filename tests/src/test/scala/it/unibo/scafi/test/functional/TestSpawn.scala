@@ -44,7 +44,7 @@ class TestSpawn extends FlatSpec with Matchers {
   val ManyManyRounds = 2000
 
   private[this] trait SimulationContextFixture {
-    val net: NetworkSimulator =
+    implicit val net: NetworkSimulator =
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
     val program = new Program
   }
@@ -77,6 +77,8 @@ class TestSpawn extends FlatSpec with Matchers {
     n
   }
 
+  import NetworkDsl._
+
   Processes must "not exist if not activated" in new SimulationContextFixture {
     // ACT: run program comprising spawns
     exec(program)(net)
@@ -91,7 +93,7 @@ class TestSpawn extends FlatSpec with Matchers {
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
 
     // ACT: activate process 1 from node 8, run program
-    net.chgSensorValue(Gen1, Set(8), true)
+    setSensor(Gen1, true).inDevices(8)
     exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT: process 1 has been executed in the network; a correct gradient has stabilised
@@ -118,7 +120,7 @@ class TestSpawn extends FlatSpec with Matchers {
     })}(net)
 
     // ACT: set new source; continue program execution
-    net.chgSensorValue(SRC, Set(4), true)
+    setSensor(SRC, true).inDevices(4)
     exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT: check gradient stabilises in the covered area
@@ -131,7 +133,7 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes can "be extinguished when stopped being generated" in new SimulationContextFixture {
     // ARRANGE: activate process 1 from node 0
-    net.chgSensorValue(Gen1, Set(0), true)
+    setSensor(Gen1, true).inDevices(0)
 
     // ACT (process activation)
     exec(program, ntimes = SomeRounds)(net)
@@ -140,7 +142,7 @@ class TestSpawn extends FlatSpec with Matchers {
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall{ case (pid,value) => if(pid==1) value.isDefined else value.isEmpty} }(net)
 
     // ACT (process deactivation and garbage collection)
-    net.chgSensorValue(Gen1, Set(0), false)
+    setSensor(Gen1, false).inDevices(0)
     exec(program, ntimes = ManyManyRounds)(net)
 
     // ASSERT
@@ -149,8 +151,8 @@ class TestSpawn extends FlatSpec with Matchers {
 
   ManyProcesses must "coexist without interference" in new SimulationContextFixture {
     // ARRANGE: generate process 1 from node 0 and process 2 from node 6
-    net.chgSensorValue(Gen1, Set(0), true)
-    net.chgSensorValue(Gen2, Set(6), true)
+    setSensor(Gen1, true).inDevices(0)
+    setSensor(Gen2, true).inDevices(6)
 
     // ACT: run program
     exec(program, ntimes = SomeRounds)(net)
@@ -166,8 +168,8 @@ class TestSpawn extends FlatSpec with Matchers {
   Processes should "not conflict when generated from different nodes" in new SimulationContextFixture {
     // BUT NOTE: sensor gen1 also represents the source for the gradient of process 1
     // ARRANGE: generate process 1 from both node 0 and node 8
-    net.chgSensorValue(Gen1, Set(0), true)
-    net.chgSensorValue(Gen1, Set(8), true)
+    setSensor(Gen1, true).inDevices(0)
+    setSensor(Gen1, true).inDevices(8)
 
     // ACT: run program
     exec(program, ntimes = SomeRounds)(net)
@@ -180,7 +182,7 @@ class TestSpawn extends FlatSpec with Matchers {
     )).toMap)(net)
 
     // ACT: add an additional generator, and continue program execution
-    net.chgSensorValue(Gen1, Set(4), true)
+    setSensor(Gen1, true).inDevices(4)
     exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT: check no conflict when process 1 is generated from multiple nodes possibly activated at different times
@@ -193,14 +195,14 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes should "be resilient to partitions: reconnecting node" in new SimulationContextFixture {
     // ARRANGE: generate process 1 from node 0
-    net.chgSensorValue(Gen1, Set(0), true)
+    setSensor(Gen1, true).inDevices(0)
 
     // ACT: run program
     exec(program, ntimes = FewRounds)(net)
 
     // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
     val nodeNbrhoodToRestore = detachNode(8, net) // detach node
-    net.chgSensorValue(Gen1, Set(0), false) // stop generating process 1
+    setSensor(Gen1, false).inDevices(0) // stop generating process 1
     execProgramFor(program, ntimes = SomeRounds)(net)(id => id != 8) // execute except for detached device
 
     // ASSERT: process 1 has disappeared everywhere except in detached node
