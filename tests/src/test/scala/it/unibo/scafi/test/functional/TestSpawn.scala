@@ -32,12 +32,14 @@ class TestSpawn extends FlatSpec with Matchers {
   val stepy = 1.0
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2))
-    implicit val program = new Program
+    val net: NetworkSimulator =
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
+    val program = new Program
   }
 
   private[this] class Program extends AggregateProgram with Spawn with FieldUtils with StandardSensors with BlockG {
+    override val TimeGC: Long = 20
+
     override type MainResult = Any
 
     def src = sense[Boolean]("src")
@@ -148,6 +150,60 @@ class TestSpawn extends FlatSpec with Matchers {
       Map(1 -> S("1.0"), 2 -> S("3.0")), Map(1 -> S("2.0"), 2 -> S("2.0")), Map(1 -> S("3.0"), 2 -> None),
       Map(1 -> S("2.0"), 2 -> S("2.0")), Map(1 -> S("3.0"), 2 -> S("1.0")), Map(1 -> S("4.0"), 2 -> S("0.0"))
     )).toMap)(net)
+  }
+
+  Processes should "not conflict when generated from different nodes" in new SimulationContextFixture {
+    // BUT NOTE: sensor gen1 also represents the source for the gradient of process 1
+    // ARRANGE
+    net.chgSensorValue("gen1", Set(0), true)
+    net.chgSensorValue("gen1", Set(8), true)
+
+    // ACT
+    exec(program, ntimes = 500)(net)
+
+    // ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      Map(1 -> S("0.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("2.0"), 2-> None),
+      Map(1 -> S("1.0"), 2-> None), Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None),
+      Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("0.0"), 2-> None)
+    )).toMap)(net)
+
+    // PERTURB + ACT (AGAIN)
+    net.chgSensorValue("gen1", Set(4), true)
+    exec(program, ntimes = 500)(net)
+
+    // ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      Map(1 -> S("0.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("2.0"), 2-> None),
+      Map(1 -> S("1.0"), 2-> None), Map(1 -> S("0.0"), 2-> None), Map(1 -> S("1.0"), 2-> None),
+      Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("0.0"), 2-> None)
+    )).toMap)(net)
+  }
+
+  Processes should "be resilient to partitions: " in new SimulationContextFixture {
+    // ARRANGE: turn on generator for process 1
+    net.chgSensorValue("gen1", Set(0), true)
+
+    // ACT: run program
+    exec(program, ntimes = 100)(net)
+
+    // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
+    val toRestore = detachNode(8, net) // detach node
+    net.chgSensorValue("gen1", Set(0), false) // stop generating process 1
+    execProgramFor(program, ntimes = 500)(net)(id => id != 8) // execute except for detached device
+
+    // ASSERT: process 1 has disappeared everywhere except in detached node
+    assertForAllNodes[ProcsMap]{
+      case (8,m) => m(1).isDefined && m(2).isEmpty
+      case (id,m) => m.forall(_._2.isEmpty)
+    }(net)
+
+    // ACT: reconnect node and run program globally
+    connectNode(8, toRestore, net)
+    exec(program, ntimes = 500)(net)
+
+    // ASSERT: eventually, the process has disappeared
+    assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
   }
 
   private def S[T](x: T) = Some[T](x)
