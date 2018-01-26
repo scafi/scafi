@@ -1,11 +1,11 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
 
 
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.PannablePane
 import it.unibo.scafi.simulation.gui.view.{GraphicsOutput, Window}
 
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.control.ScrollPane
 import scalafx.scene.layout.{BorderPane, HBox}
 import scalafx.stage.Stage
 //TODO
@@ -20,13 +20,8 @@ class SimulationWindow(infoPane : HBox,
   }
   infoPane.padding = Insets(PADDING)
   pane.setTop(infoPane)
-  val scrollPane = new ScrollPane{
-    content = simulationPane
-    this.prefHeight.bind(pane.prefHeightProperty())
-    this.prefWidth.bind(pane.prefWidthProperty())
-  }
-  scrollPane.pannable = false
-  pane.setCenter(scrollPane)
+  val pannablePane = new PannablePane(simulationPane,Some(pane))
+  pane.setCenter(pannablePane)
   scene  = new Scene {
     content = pane
   }

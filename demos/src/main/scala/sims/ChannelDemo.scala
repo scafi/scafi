@@ -25,8 +25,8 @@ object ChannelDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.Channel" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.1 // neighbourhood radius
-  Settings.Sim_NumNodes = 200 // number of nodes
+  Settings.Sim_NbrRadius = 0.05 // neighbourhood radius
+  Settings.Sim_NumNodes = 5000 // number of nodes
   Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
   Settings.To_String = (b: Any) => ""
   launch()

@@ -20,10 +20,10 @@ object Launch extends App {
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   val shape = Circle(1f)
-  val ticked = 200
-  val littleRadius = 70
-  val bigN = 200
-  val maxPoint = 1000
+  val ticked = 100
+  val littleRadius = 150
+  val bigN = 1000
+  val maxPoint = 2000
   val minDelta = 1
   val maxDelta = 10
   val neighbourRender = true
@@ -31,12 +31,12 @@ object Launch extends App {
     dev(source,true),
     dev(destination,true),
     dev(obstacle,true),
-    dev(gsensor,false),
-    dev(id,"")
+    dev(gsensor,false)//,
+    //dev(id,"")
   )
   nodeProto = NodePrototype(shape)
   randomize2D(bigN,maxPoint)
-  world.nodes foreach {x => world.changeSensorValue(x.id,id.name,x.id.toString)}
+  //world.nodes foreach {x => world.changeSensorValue(x.id,id.name,x.id.toString)}
   val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]
   contract.initialize(world,new ScafiPrototype {override def randomSeed: Long = r.nextLong()
 
@@ -44,7 +44,7 @@ object Launch extends App {
 
     override def radius: Double = littleRadius
   })
-  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(10))
+  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(100))
   val pane = new FXSimulationPane()
   Platform.runLater {
     pane.outNode(world.nodes)
