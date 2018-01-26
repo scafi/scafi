@@ -28,8 +28,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
   private val SpawnConstruct, Processes, ManyProcesses = new ItWord
 
-  val stepx = 1.0
-  val stepy = 1.0
+  val P1 = 1 // Identifier for process 1
+  val P2 = 2 // Identifier for process 2
+  val (stepx, stepy) = (1.0, 1.0)
 
   private[this] trait SimulationContextFixture {
     val net: NetworkSimulator =
@@ -48,8 +49,8 @@ class TestSpawn extends FlatSpec with Matchers {
 
     override def main(): Any = {
       var procs = Map(
-        1 -> SpawnDef(1, ()=>f"${distanceTo(gen1)}%.1f", genCondition = () => gen1),
-        2 -> SpawnDef(2, ()=>f"${distanceTo(src)}%.1f", genCondition = () => gen2, limit = 2.5))
+        P1 -> SpawnDef(P1, ()=>f"${distanceTo(gen1)}%.1f", genCondition = () => gen1),
+        P2 -> SpawnDef(P2, ()=>f"${distanceTo(src)}%.1f", genCondition = () => gen2, limit = 2.5))
 
       var keyGen = procs.values.filter(_.genCondition()).map(_.pid)
 
@@ -86,9 +87,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
-      Map(1 -> S("4.0"), 2-> None), Map(1 -> S("3.0"), 2-> None), Map(1 -> S("2.0"), 2-> None),
-      Map(1 -> S("3.0"), 2-> None), Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None),
-      Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("0.0"), 2-> None)
+      Map(P1 -> S("4.0"), P2 -> None), Map(P1 -> S("3.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None),
+      Map(P1 -> S("3.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None),
+      Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("0.0"), P2 -> None)
     )).toMap)(net)
   }
 
@@ -112,9 +113,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
-      Map(1 -> None, 2 -> S("2.0")), Map(1 -> None, 2 -> S("1.0")), Map(1 -> None, 2 -> S("2.0")),
-      Map(1 -> None, 2 -> S("1.0")), Map(1 -> None, 2 -> S("0.0")), Map(1 -> None, 2-> None),
-      Map(1 -> None, 2 -> S("2.0")), Map(1 -> None, 2->      None), Map(1 -> None, 2-> None)
+      Map(P1 -> None, P2 -> S("2.0")), Map(P1 -> None, P2 -> S("1.0")), Map(P1 -> None, P2 -> S("2.0")),
+      Map(P1 -> None, P2 -> S("1.0")), Map(P1 -> None, P2 -> S("0.0")), Map(P1 -> None, P2 ->     None),
+      Map(P1 -> None, P2 -> S("2.0")), Map(P1 -> None, P2 ->     None), Map(P1 -> None, P2 ->     None)
     )).toMap)(net)
   }
 
@@ -146,9 +147,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
-      Map(1 -> S("0.0"), 2 -> S("4.0")), Map(1 -> S("1.0"), 2 ->     None), Map(1 -> S("2.0"), 2 -> None),
-      Map(1 -> S("1.0"), 2 -> S("3.0")), Map(1 -> S("2.0"), 2 -> S("2.0")), Map(1 -> S("3.0"), 2 -> None),
-      Map(1 -> S("2.0"), 2 -> S("2.0")), Map(1 -> S("3.0"), 2 -> S("1.0")), Map(1 -> S("4.0"), 2 -> S("0.0"))
+      Map(P1 -> S("0.0"), P2 -> S("4.0")), Map(P1 -> S("1.0"), P2 ->     None), Map(P1 -> S("2.0"), P2 ->     None),
+      Map(P1 -> S("1.0"), P2 -> S("3.0")), Map(P1 -> S("2.0"), P2 -> S("2.0")), Map(P1 -> S("3.0"), P2 ->     None),
+      Map(P1 -> S("2.0"), P2 -> S("2.0")), Map(P1 -> S("3.0"), P2 -> S("1.0")), Map(P1 -> S("4.0"), P2 -> S("0.0"))
     )).toMap)(net)
   }
 
@@ -163,9 +164,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
-      Map(1 -> S("0.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("2.0"), 2-> None),
-      Map(1 -> S("1.0"), 2-> None), Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None),
-      Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("0.0"), 2-> None)
+      Map(P1 -> S("0.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None),
+      Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None),
+      Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("0.0"), P2 -> None)
     )).toMap)(net)
 
     // PERTURB + ACT (AGAIN)
@@ -174,9 +175,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
-      Map(1 -> S("0.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("2.0"), 2-> None),
-      Map(1 -> S("1.0"), 2-> None), Map(1 -> S("0.0"), 2-> None), Map(1 -> S("1.0"), 2-> None),
-      Map(1 -> S("2.0"), 2-> None), Map(1 -> S("1.0"), 2-> None), Map(1 -> S("0.0"), 2-> None)
+      Map(P1 -> S("0.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None),
+      Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("0.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None),
+      Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("0.0"), P2 -> None)
     )).toMap)(net)
   }
 
@@ -200,7 +201,7 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ACT: reconnect node and run program globally
     connectNode(8, toRestore, net)
-    exec(program, ntimes = 500)(net)
+    exec(program, ntimes = 1000)(net)
 
     // ASSERT: eventually, the process has disappeared
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
