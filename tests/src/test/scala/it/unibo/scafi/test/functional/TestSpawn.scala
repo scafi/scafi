@@ -63,8 +63,6 @@ class TestSpawn extends FlatSpec with Matchers {
         P1 -> SpawnDef(P1, ()=>f"${distanceTo(gen1)}%.1f", genCondition = () => gen1),
         P2 -> SpawnDef(P2, ()=>f"${distanceTo(src)}%.1f", genCondition = () => gen2, limit = 2.5))
 
-      var keyGen = procs.values.filter(_.genCondition()).map(_.pid)
-
       procs.map { case (pid,proc) => pid -> spawn(proc).value }
     }
   }
