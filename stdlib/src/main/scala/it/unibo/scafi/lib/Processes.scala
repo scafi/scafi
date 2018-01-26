@@ -39,7 +39,7 @@ trait Stdlib_Processes {
                             distance: Double = Double.PositiveInfinity,
                             staleValue: Long = 0)
 
-    def spawn[T](p: SpawnDef[T]): Option[T] = {
+    def spawn[T](p: SpawnDef[T]): SpawnData[T] = {
       val isGen = p.genCondition()
       def processComputation: Option[T] = align("process_computation"){ _ => Some(p.comp()) }
       align(p.pid){ _ =>  // enters the eval context for process of given pid
@@ -64,7 +64,7 @@ trait Stdlib_Processes {
               case (newDist, _) => SpawnData[T](distance = newDist) // Keep distance but resets other fields
             }.getOrElse { SpawnData[T]() }
           }
-        }.value
+        }
       }
     }
   }

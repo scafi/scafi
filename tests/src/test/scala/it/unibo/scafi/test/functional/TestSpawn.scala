@@ -65,7 +65,7 @@ class TestSpawn extends FlatSpec with Matchers {
 
       var keyGen = procs.values.filter(_.genCondition()).map(_.pid)
 
-      procs.map { case (pid,proc) => pid -> spawn(proc) }
+      procs.map { case (pid,proc) => pid -> spawn(proc).value }
     }
   }
 
@@ -201,7 +201,7 @@ class TestSpawn extends FlatSpec with Matchers {
     exec(program, ntimes = FewRounds)(net)
 
     // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
-    val toRestore = detachNode(8, net) // detach node
+    val nodeNbrhoodToRestore = detachNode(8, net) // detach node
     net.chgSensorValue(Gen1, Set(0), false) // stop generating process 1
     execProgramFor(program, ntimes = SomeRounds)(net)(id => id != 8) // execute except for detached device
 
@@ -212,7 +212,7 @@ class TestSpawn extends FlatSpec with Matchers {
     }(net)
 
     // ACT: reconnect node and run program globally
-    connectNode(8, toRestore, net)
+    connectNode(8, nodeNbrhoodToRestore, net)
     exec(program, ntimes = ManyRounds)(net)
 
     // ASSERT: eventually, the process has disappeared
