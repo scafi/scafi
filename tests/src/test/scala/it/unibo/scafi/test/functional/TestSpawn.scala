@@ -80,23 +80,23 @@ class TestSpawn extends FlatSpec with Matchers {
   }
 
   Processes must "not exist if not activated" in new SimulationContextFixture {
-    // ACT
+    // ACT: run program comprising spawns
     exec(program)(net)
 
-    // ASSERT
+    // ASSERT: nobody computed a value for any process, i.e., nobody executed any process
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
   }
 
   Processes must "exist when activated" in new SimulationContextFixture {
-    // ACT
+    // ACT: run program, checking nobody run any process
     exec(program, ntimes = FewRounds)(net)
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
 
+    // ACT: activate process 1 from node 8, run program
     net.chgSensorValue(Gen1, Set(8), true)
-
     exec(program, ntimes = SomeRounds)(net)
 
-    // ASSERT
+    // ASSERT: process 1 has been executed in the network; a correct gradient has stabilised
     assertNetworkValues((0 to 8).zip(List(
       Map(P1 -> S("4.0"), P2 -> None), Map(P1 -> S("3.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None),
       Map(P1 -> S("3.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None),
@@ -105,24 +105,25 @@ class TestSpawn extends FlatSpec with Matchers {
   }
 
   Processes can "have a limited extension" in new SimulationContextFixture {
-    // ARRANGE
+    // ARRANGE: activate process 2 from node 0, which is configured to have a limited extension
     net.chgSensorValue(Gen2, Set(0), true)
 
-    // ACT
+    // ACT: run program
     exec(program, ntimes = SomeRounds)(net)
 
-    // ASSERT
+    // ASSERT: check the limited extension of the process, which doesn't reach to gradient source;
+    //         check nodes not covered; the other nodes compute a rising gradient (without source)
     assertForAllNodes[ProcsMap]{ (id, m) => m.forall(proc => proc match {
       case (1, value) => value == None
       case (2, None) => Set(5,7,8).contains(id)
       case (2, Some(value)) => value.toDouble > 10
     })}(net)
 
-    // ACT
+    // ACT: set new source; continue program execution
     net.chgSensorValue(SRC, Set(4), true)
     exec(program, ntimes = SomeRounds)(net)
 
-    // ASSERT
+    // ASSERT: check gradient stabilises in the covered area
     assertNetworkValues((0 to 8).zip(List(
       Map(P1 -> None, P2 -> S("2.0")), Map(P1 -> None, P2 -> S("1.0")), Map(P1 -> None, P2 -> S("2.0")),
       Map(P1 -> None, P2 -> S("1.0")), Map(P1 -> None, P2 -> S("0.0")), Map(P1 -> None, P2 ->     None),
@@ -131,7 +132,7 @@ class TestSpawn extends FlatSpec with Matchers {
   }
 
   Processes can "be extinguished when stopped being generated" in new SimulationContextFixture {
-    // ARRANGE
+    // ARRANGE: activate process 1 from node 0
     net.chgSensorValue(Gen1, Set(0), true)
 
     // ACT (process activation)
@@ -149,14 +150,14 @@ class TestSpawn extends FlatSpec with Matchers {
   }
 
   ManyProcesses must "coexist without interference" in new SimulationContextFixture {
-    // ARRANGE
+    // ARRANGE: generate process 1 from node 0 and process 2 from node 6
     net.chgSensorValue(Gen1, Set(0), true)
     net.chgSensorValue(Gen2, Set(6), true)
 
-    // ACT
+    // ACT: run program
     exec(program, ntimes = SomeRounds)(net)
 
-    // ASSERT
+    // ASSERT: check both processes running gradients get globally evaluated without interference
     assertNetworkValues((0 to 8).zip(List(
       Map(P1 -> S("0.0"), P2 -> S("4.0")), Map(P1 -> S("1.0"), P2 ->     None), Map(P1 -> S("2.0"), P2 ->     None),
       Map(P1 -> S("1.0"), P2 -> S("3.0")), Map(P1 -> S("2.0"), P2 -> S("2.0")), Map(P1 -> S("3.0"), P2 ->     None),
@@ -166,25 +167,25 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes should "not conflict when generated from different nodes" in new SimulationContextFixture {
     // BUT NOTE: sensor gen1 also represents the source for the gradient of process 1
-    // ARRANGE: set two generators for process 1
+    // ARRANGE: generate process 1 from both node 0 and node 8
     net.chgSensorValue(Gen1, Set(0), true)
     net.chgSensorValue(Gen1, Set(8), true)
 
-    // ACT
+    // ACT: run program
     exec(program, ntimes = SomeRounds)(net)
 
-    // ASSERT
+    // ASSERT: result from running process 1
     assertNetworkValues((0 to 8).zip(List(
       Map(P1 -> S("0.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None),
       Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None),
       Map(P1 -> S("2.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("0.0"), P2 -> None)
     )).toMap)(net)
 
-    // PERTURB + ACT (AGAIN)
+    // ACT: add an additional generator, and continue program execution
     net.chgSensorValue(Gen1, Set(4), true)
     exec(program, ntimes = SomeRounds)(net)
 
-    // ASSERT
+    // ASSERT: check no conflict when process 1 is generated from multiple nodes possibly activated at different times
     assertNetworkValues((0 to 8).zip(List(
       Map(P1 -> S("0.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("2.0"), P2 -> None),
       Map(P1 -> S("1.0"), P2 -> None), Map(P1 -> S("0.0"), P2 -> None), Map(P1 -> S("1.0"), P2 -> None),
@@ -192,8 +193,8 @@ class TestSpawn extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-  Processes should "be resilient to partitions: " in new SimulationContextFixture {
-    // ARRANGE: turn on generator for process 1
+  Processes should "be resilient to partitions: reconnecting node" in new SimulationContextFixture {
+    // ARRANGE: generate process 1 from node 0
     net.chgSensorValue(Gen1, Set(0), true)
 
     // ACT: run program
