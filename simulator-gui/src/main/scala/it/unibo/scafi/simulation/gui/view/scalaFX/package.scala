@@ -70,6 +70,11 @@ package object scalaFX {
     val middleHeight = bounds.getHeight / 2
     new FXPoint(bounds.getMinX + middleWidth, bounds.getMinY + middleHeight)
   }
+  def nodeToWorldPosition(n: Node, start : FXPoint) : Point3D = {
+    //TODO THINK WHAT TO DO HERE
+    val defaultZ = 0
+    Point3D(start.x + n.translateX.value, start.y + n.translateY.value, defaultZ)
+  }
   //TODO THINK TO A BETTER SOLUTION
   def deviceToNode[D <: World#Device](d : Set[D], n : Node) : Set[Node] = {
     //the offset to the label of the y coordinate

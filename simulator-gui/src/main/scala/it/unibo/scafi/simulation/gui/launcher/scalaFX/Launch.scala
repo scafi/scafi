@@ -45,7 +45,8 @@ object Launch extends App {
     override def radius: Double = littleRadius
   })
   val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(100))
-  val pane = new FXSimulationPane()
+  val inputLogic = new ScafiInputController(world)
+  val pane = new FXSimulationPane(inputLogic)
   Platform.runLater {
     pane.outNode(world.nodes)
     world.nodes foreach {pane.outDevice(_)}
@@ -63,7 +64,7 @@ object Launch extends App {
     simpleLogic.start()
   }
   val render = new ScafiFXRender(world,pane,contract,neighbourRender)
-  Scheduler.scheduler <-- simpleLogic <-- render
+  Scheduler.scheduler <-- inputLogic <-- simpleLogic <-- render
   Scheduler.scheduler.delta_=(ticked)
   Scheduler.scheduler.start()
 }

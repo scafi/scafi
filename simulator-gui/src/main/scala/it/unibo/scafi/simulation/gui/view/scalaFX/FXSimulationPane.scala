@@ -1,93 +1,21 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
 //TODO TRY TO CONVERT LIST[NODE] TO LIST[JAVAFX.NODE}
-import it.unibo.scafi.simulation.gui.model.core
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiInputController
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.SelectionArea
 
 import scala.collection.mutable
-import scalafx.beans.property.DoubleProperty
 import scalafx.geometry.Point2D
 import scalafx.scene.Node
-import scalafx.scene.input.{MouseButton, MouseEvent}
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Circle
 import scalafx.Includes._
-class FXSimulationPane extends AbstractFXSimulationPane with SelectionArea {
+//TODO PROBLEMS WITH NEIGHBOURS, 
+class FXSimulationPane (val inputController : ScafiInputController)extends AbstractFXSimulationPane with SelectionArea {
   private val _nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
-  private val neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
+  private val  neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
   private val devices : mutable.Map[World#ID,Set[Node]] = mutable.Map()
-  /*private var moved : Map[World#ID,Node] = Map()
-  private var startPoint : Point2D = new Point2D(0,0)
-  private var r : DoubleProperty = DoubleProperty(0)
-  private var circle : Option[Circle] = None
-  private var startDragging = false*/
 
   def nodes : Map[World#ID,(Node,Point2D)] =_nodes.toMap
-  // THE LOGIC OF DRAG ELEMENT -> REMOVE HERE
-  /*
-  import scalafx.Includes._
-  this.handleEvent(MouseEvent.Any){
-    me : MouseEvent =>{
-      if(me.button == MouseButton.Primary) {
-        val pointClick = new Point2D(me.x,me.y)
-        me.eventType match  {
-          case MouseEvent.MousePressed => {
-            if(this.circle.isDefined) {
-              if(!this.circle.get.contains(pointClick)) {
-                this.children.remove(this.circle.get)
-                this.circle = None
-                startPoint = pointClick
-                startDragging = false
-                this.moved.values.foreach { x => this.children -= x}
-                this.moved = Map()
-                println("Here")
-              } else {
-                startDragging = true
-              }
-            } else {
-              startPoint = pointClick
-              startDragging = false
-            }
-          }
-          case MouseEvent.MouseDragged => {
-            if(circle.isEmpty) {
-              circle = Some(new Circle {
-                this.centerX = startPoint.x
-                this.centerY = startPoint.y
-                this.radius.bind(r)
-                this.fill = Color.Transparent
-                this.stroke = Color.Black
-              })
-              this.children.add(circle.get)
-            }
-            if(startDragging == false) {
-              r.value = startPoint.distance(pointClick)
-            } else {
-              this.circle.get.translateX = pointClick.x - startPoint.x
-              this.circle.get.translateY = pointClick.y - startPoint.y
-            }
-          }
-          case MouseEvent.MouseReleased => {
-            if(this.circle.isDefined && this.moved.isEmpty) {
-              moved = this._nodes.filter {x => this.circle.get.contains(x._2._2.x + x._2._1.translateX.value, x._2._2.y + x._2._1.translateY.value)} map {x => x._1 -> new Circle {
-                this.centerX = x._2._2.x + x._2._1.translateX.value
-                this.centerY = x._2._2.y + x._2._1.translateY.value
-                //HERE TO CHANGE
-                this.radius = 5
-                this.translateX.bind(circle.get.translateX)
-                this.translateY.bind(circle.get.translateY)
-              }} toMap
-
-              this.moved.values foreach {this.children += _}
-            }
-          }
-
-          case _ => {}
-        }
-        me.consume()
-      }
-    }
-  }*/
   override def outNode[N <: World#Node](node: Set[N]): Unit = {
     node foreach  { x => {
         val p : Point2D = x.position
