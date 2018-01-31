@@ -20,7 +20,7 @@ object Launch extends App {
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   val shape = Circle(1f)
-  val ticked = 100
+  val ticked = 200
   val littleRadius = 150
   val bigN = 1000
   val maxPoint = 2000
@@ -31,12 +31,12 @@ object Launch extends App {
     dev(source,true),
     dev(destination,true),
     dev(obstacle,true),
-    dev(gsensor,false)//,
-    //dev(id,"")
+    dev(gsensor,false),
+    dev(id,"")
   )
   nodeProto = NodePrototype(shape)
   randomize2D(bigN,maxPoint)
-  //world.nodes foreach {x => world.changeSensorValue(x.id,id.name,x.id.toString)}
+  world.nodes foreach {x => world.changeSensorValue(x.id,id.name,x.id.toString)}
   val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]
   contract.initialize(world,new ScafiPrototype {override def randomSeed: Long = r.nextLong()
 
@@ -44,7 +44,7 @@ object Launch extends App {
 
     override def radius: Double = littleRadius
   })
-  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(100))
+  val simpleLogic = new MovementSyncController(0.02f,world)(world.nodes.take(0))
   val inputLogic = new ScafiInputController(world)
   val pane = new FXSimulationPane(inputLogic)
   Platform.runLater {
@@ -57,9 +57,7 @@ object Launch extends App {
       override def handle(event: WindowEvent): Unit = System.exit(1)
     }
     if(neighbourRender) {
-      contract.getSimulation.get.getAllNeighbours().foreach { x =>
-        pane.outNeighbour(world(x._1).get,world.apply(x._2.toSet))
-      }
+      contract.getSimulation.get.ids foreach {x => pane.outNeighbour(world(x).get, world.apply(contract.getSimulation.get.neighbourhood(x)))}
     }
     simpleLogic.start()
   }

@@ -1,12 +1,15 @@
 package it.unibo.scafi.simulation.gui.view
 
 
+import java.util.concurrent.{CompletableFuture, CountDownLatch}
+
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig
 import it.unibo.scafi.simulation.gui.model.core.{World, Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform.{OnOffSensor, TextSensor}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
+import scalafx.application.Platform
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.control.Label
@@ -14,6 +17,18 @@ import scalafx.scene.paint.Color
 import scalafx.scene.shape.{Circle, Ellipse, Rectangle}
 //TODO THINK WHERE ADD COLOR (SIMPLE TEST)
 package object scalaFX {
+  object SyncPlatform {
+    val maxWait = 10
+    val tick = 1
+    def runAndWait(e: => Unit) = {
+      val sync : CountDownLatch = new CountDownLatch(tick)
+      Platform.runLater {
+        e
+        sync.countDown()
+      }
+      sync.await()
+    }
+  }
   val colors : Map[String,Color] = Map(WorldConfig.source.name -> Color.Red,
                                         WorldConfig.destination.name -> Color.Yellow,
                                         WorldConfig.obstacle.name -> Color.Blue)
@@ -76,7 +91,7 @@ package object scalaFX {
     Point3D(start.x + n.translateX.value, start.y + n.translateY.value, defaultZ)
   }
   //TODO THINK TO A BETTER SOLUTION
-  def deviceToNode[D <: World#Device](d : Set[D], n : Node) : Set[Node] = {
+  def deviceToNode[D <: World#Device](d : Set[D], n : Node) : Set[javafx.scene.Node] = {
     //the offset to the label of the y coordinate
     val yoffset = 10
     val label = new Label
@@ -90,7 +105,7 @@ package object scalaFX {
     val point = nodeToAbsolutePosition(n)
     label.layoutX.bind(n.translateX +point.x)
     label.layoutY.bind(n.translateY + point.y + yoffset)
-    var res : Set[Node] = Set(label)
+    var res : Set[javafx.scene.Node] = Set(label)
     d foreach  { x =>
       x match {
         case TextSensor(value) => {

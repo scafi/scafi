@@ -34,7 +34,7 @@ trait SimulationOutput extends Output{
     * @param neighbour his neighbours
     * @tparam N the type of node
     */
-  def outNeighbour[N <: World#Node] (node : N, neighbour : Set[N])
+  def outNeighbour[N <: World#Node] (node: N, neighbour : Set[N])
 
   /**
     * remove a set of neighbour of a node
