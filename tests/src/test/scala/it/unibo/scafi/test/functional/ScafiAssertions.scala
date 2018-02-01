@@ -25,7 +25,7 @@ object ScafiAssertions extends Matchers {
 
   def assertForAllNodes[T](f: (ID,T) => Boolean, okWhenNotComputed: Boolean = false)
                           (implicit net: Network): Unit ={
-    withClue("Actual network: " + net) {
+    withClue("Actual network:\n" + net + "\n\n Sample exports:\n" + net.export(0) + "\n" + net.export(1)) {
       net.exports.forall {
         case (id, Some(e)) => f(id, e.root[T]())
         case (id, None) => okWhenNotComputed

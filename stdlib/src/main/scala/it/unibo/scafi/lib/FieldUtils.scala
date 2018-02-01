@@ -41,6 +41,14 @@ trait StdLib_FieldUtils {
       def unionHoodSet[T](expr: => Iterable[T]): Set[T] =
         foldhoodTemplate[Set[T]](Set())(_.union(_))(expr.toSet)
 
+      def mergeHood[K,V](expr: => Map[K,V])(choose: (V,V) => V): Map[K,V] = {
+        foldhoodTemplate[Map[K,V]](Map()) { case (m1, m2) =>
+          var newMap = m1
+          m2.keys.foreach(k => newMap += k -> m1.get(k).map(v => choose(v, m2(k))).getOrElse(m2(k)))
+          newMap
+        }(expr)
+      }
+
       def anyHood(expr: => Boolean): Boolean =
         foldhoodTemplate[Boolean](false)(_||_)(expr)
 
