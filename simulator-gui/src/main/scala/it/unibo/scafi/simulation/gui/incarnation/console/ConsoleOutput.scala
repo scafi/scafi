@@ -12,14 +12,6 @@ class ConsoleOutput extends SimulationOutput{
 
   override def removeNode[N <: World#ID](node: Set[N]): Unit = node foreach{ x=>println(s"remove: $x")}
 
-  override def outNeighbour[N <: World#Node](node: N, neighbour: Set[N]): Unit = {
-    print(s"$node -> ")
-    neighbour map {_.id} foreach {print _}
-    println
-  }
-
-  override def removeNeighbour[ID <: World#ID](node: ID, neighbour: Set[ID]): Unit = {}
-
   /**
     * output the device associated to the node
     *
@@ -35,4 +27,18 @@ class ConsoleOutput extends SimulationOutput{
     * @tparam N the type of node
     */
   override def clearDevice[N <: World#ID](node: N): Unit = {}
+
+  /**
+    * out a neighbour of a node
+    *
+    * @tparam N the type of node
+    */
+  override def outNeighbour[N <: World#Node](nodes: Map[N, Set[N]]): Unit = {}
+
+  /**
+    * remove a set of neighbour of a node
+    *
+    * @tparam ID the id of node
+    */
+  override def removeNeighbour[ID <: World#ID](nodes: Map[ID, Set[ID]]): Unit = {}
 }

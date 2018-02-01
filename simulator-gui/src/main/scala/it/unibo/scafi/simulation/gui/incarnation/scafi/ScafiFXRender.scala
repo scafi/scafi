@@ -49,6 +49,8 @@ class ScafiFXRender(val world : ScafiLikeWorld,
         val node = world(x).get
         contract.getSimulation.get.setPosition((x), Point3D(node.position.x, node.position.y, node.position.z))
       }
+      var toAdd : Map[world.NODE,Set[world.NODE]] = Map()
+      var toRemove : Map[world.ID,Set[world.ID]] = Map()
       nodesMoved foreach { x =>
         val node = world(x).get
         if (this.neighbourRender) {
@@ -56,20 +58,20 @@ class ScafiFXRender(val world : ScafiLikeWorld,
           val newIds = contract.getSimulation.get.neighbourhood(x)
           val id: world.ID = world(x).get.id
           val ids: Set[world.ID] = oldIds -- newIds
-          val toAdd = newIds -- oldIds
-          toAdd foreach {x => {this.prevNeighbour += x -> contract.getSimulation.get.neighbourhood(x)}}
+          val add = newIds -- oldIds
+          add foreach {x => {this.prevNeighbour += x -> contract.getSimulation.get.neighbourhood(x)}}
           this.prevNeighbour += node.id -> newIds
           if (!ids.isEmpty) {
-            Platform.runLater {
-              out.removeNeighbour(id, ids)
-            }
+            toRemove += id -> ids
           }
-          if (!(newIds -- oldIds).isEmpty) {
-            Platform.runLater{
-              out.outNeighbour(world(x).get, world.apply(toAdd))
-            }
+          if (!add.isEmpty) {
+            toAdd += node -> world(add)
           }
         }
+      }
+      Platform.runLater{
+        out.outNeighbour(toAdd)
+        out.removeNeighbour(toRemove)
       }
     }
   }

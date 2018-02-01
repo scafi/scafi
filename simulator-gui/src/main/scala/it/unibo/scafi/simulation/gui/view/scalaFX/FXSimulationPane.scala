@@ -1,5 +1,4 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
-//TODO TRY TO CONVERT LIST[NODE] TO LIST[JAVAFX.NODE}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiInputController
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.SelectionArea
@@ -9,7 +8,6 @@ import scalafx.geometry.Point2D
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.Includes._
-//TODO PROBLEMS WITH NEIGHBOURS, 
 class FXSimulationPane (val inputController : ScafiInputController)extends AbstractFXSimulationPane with SelectionArea {
   private val _nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
   private val  neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
@@ -40,31 +38,36 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
     node foreach {this._nodes -= _}
   }
 
-  override def outNeighbour[N <: World#Node](node: N, neighbour: Set[N]): Unit = {
-    val gnode = this._nodes(node.id)._1
-    val linkAdding : mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
-    neighbour foreach {x => {
-      val endGnode = this._nodes(x.id)._1
-      val link = new NodeLine(gnode,endGnode,Color.web("rgba(125,125,125,0.1)"))
-      if(!this.neighbours.get(node.id).isDefined) {
-        this.neighbours += node.id -> mutable.Map()
-      }
+  override def outNeighbour[N <: World#Node](nodes : Map[N,Set[N]]): Unit = {
 
-      val ntox : mutable.Map[World#ID,Node] = this.neighbours(node.id)
-      //CHECK IF THE LINK IS ALREADY SHOW
-      if(!ntox.contains(x.id)) {
-        linkAdding += link
-        ntox += (x.id -> link)
+    val linkAdding : mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
+    nodes foreach { node => {
+      val gnode = this._nodes(node._1.id)._1
+      node._2 foreach { x => {
+        val endGnode = this._nodes(x.id)._1
+        val link = new NodeLine(gnode,endGnode,Color.web("rgba(125,125,125,0.1)"))
+        if(!this.neighbours.get(node._1.id).isDefined) {
+          this.neighbours += node._1.id -> mutable.Map()
+        }
+
+        val ntox : mutable.Map[World#ID,Node] = this.neighbours(node._1.id)
+        //CHECK IF THE LINK IS ALREADY SHOW
+        if(!ntox.contains(x.id)) {
+          linkAdding += link
+          ntox += (x.id -> link)
+        }
+      }}
       }
-    }}
+    }
+
     this.children.addAll(linkAdding.toSeq:_*)
   }
 
-  override def removeNeighbour[ID <: World#ID](node: ID, neighbour: Set[ID]): Unit = {
+  override def removeNeighbour[ID <: World#ID](nodes : Map[ID,Set[ID]]): Unit = {
 
-    val linkRemove : mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
+    val linkRemove: mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
 
-    def erase(start : ID, end : ID): Unit = {
+    def erase(start: ID, end: ID): Unit = {
       val map = this.neighbours(start)
       val toRemove = map(end)
       linkRemove += toRemove
@@ -72,16 +75,20 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
       map -= end
     }
 
-    def checkPresence(start :ID, end : ID) = this.neighbours.get(start).isDefined && this.neighbours(start).contains(end)
-    neighbour foreach { x =>
-      if(checkPresence(node,x)) {
-        erase(node,x)
-      }
-      if (checkPresence(x,node)) {
-        erase(x,node)
-      }
-    }
-    val removing : TraversableOnce[javafx.scene.Node] = linkRemove.toSeq
+    def checkPresence(start: ID, end: ID) = this.neighbours.get(start).isDefined && this.neighbours(start).contains(end)
+
+    nodes foreach { node => {
+      node._2.foreach { x => {
+        if (checkPresence(node._1, x)) {
+          erase(node._1, x)
+        }
+        if (checkPresence(x, node._1)) {
+          erase(x, node._1)
+        }
+      }}
+    }}
+
+    val removing: TraversableOnce[javafx.scene.Node] = linkRemove.toSeq
     this.children --= removing
   }
 
@@ -90,15 +97,6 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
     this.children.addAll(devs.toSeq:_*)
   }
 
-  def test(node :Node *) {
-
-  }
-  /**
-    * remove all devices associated to a node
-    *
-    * @param node the node
-    * @tparam N the type of node
-    */
   override def clearDevice[N <: World#ID](node: N): Unit = {
     if(this.devices.get(node).isDefined) {
       this.devices(node) foreach {this.children -= _ }

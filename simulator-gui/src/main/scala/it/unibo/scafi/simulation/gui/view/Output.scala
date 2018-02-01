@@ -10,6 +10,7 @@ trait Container {
   def output : Set[OUTPUT]
 }
 
+//TODO REMEMBER TO CHANGE THE SIGNATURE OF METHOD
 /**
   * describe a generic output of a simulation
   */
@@ -30,19 +31,15 @@ trait SimulationOutput extends Output{
 
   /**
     * out a neighbour of a node
-    * @param node the node
-    * @param neighbour his neighbours
     * @tparam N the type of node
     */
-  def outNeighbour[N <: World#Node] (node: N, neighbour : Set[N])
+  def outNeighbour[N <: World#Node] (nodes : Map[N,Set[N]])
 
   /**
     * remove a set of neighbour of a node
-    * @param node the node
-    * @param neighbour his neighbour
     * @tparam ID the id of node
     */
-  def removeNeighbour[ID <: World#ID](node : ID, neighbour : Set[ID])
+  def removeNeighbour[ID <: World#ID](nodes : Map[ID,Set[ID]])
 
   /**
     * output the device associated to the node

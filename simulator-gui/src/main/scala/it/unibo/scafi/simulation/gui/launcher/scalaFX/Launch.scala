@@ -20,8 +20,8 @@ object Launch extends App {
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   val shape = Circle(1f)
-  val ticked = 200
-  val littleRadius = 150
+  val ticked = 33
+  val littleRadius = 100
   val bigN = 1000
   val maxPoint = 2000
   val minDelta = 1
@@ -57,7 +57,8 @@ object Launch extends App {
       override def handle(event: WindowEvent): Unit = System.exit(1)
     }
     if(neighbourRender) {
-      contract.getSimulation.get.ids foreach {x => pane.outNeighbour(world(x).get, world.apply(contract.getSimulation.get.neighbourhood(x)))}
+      val toAdd = contract.getSimulation.get.getAllNeighbours() map {x => (world(x._1).get -> world.apply(x._2 toSet))}
+      pane.outNeighbour(toAdd)
     }
     simpleLogic.start()
   }
