@@ -82,36 +82,39 @@ trait Stdlib_Processes {
       */
     case class ProcessInstance[T](pid: PUID,
                                   process: ProcessDef[T],
-                                  data: ProcessData[T] = ProcessData[T]())
+                                  data: ProcessData[T] = ProcessData[T]()){
+      def passToNeighbour = updateData(this.data.copy(gen = false))
+      def updateData(pdata: ProcessData[T]) = this.copy(data = pdata)
+    }
 
     def nextGeneratedProcessNum: Long = align("round_counting"){ _ => rep(0L)(_ + 1) }
-    def generatePUID(pid: PID): PUID = PUID(s"pid_${mid}_${pid.pid}_${nextGeneratedProcessNum}")
+    def generatePUID(p: ProcessDef[_]): PUID = PUID(s"pid_${mid}_${p.pid.pid}_${nextGeneratedProcessNum}")
     def processConditionScope(pid: PID): String = s"pcond_${pid}"
     def processInstanceScope(pid: PUID): String = s"pexec_${pid}"
     val processComputationScope = "process_computation"
+    def toBeGenerated(p: ProcessDef[_]): Boolean =
+      align(processConditionScope(p.pid)){ _ => p.genCondition() }
+
+    def chooseByMin[T,V:Ordering](projection: T => V): (T,T) => T =
+      (t1,t2) => if(implicitly[Ordering[V]].lt(projection(t1), projection(t2))) t1 else t2
+
+    def nbrProcessWithinLimits(p: ProcessInstance[_]): Boolean =
+      p.data.distance + p.process.metric() <= p.process.limit
 
     def processManagement[T](processDefs: Set[ProcessDef[T]]): Map[PUID,ProcessInstance[T]] = {
       rep(Map[PUID,ProcessInstance[T]]())(currProcs => {
-        // 1. Select process instances extended up to me from neighbours at minimum distance from process source
+        // 1. Select process instances extended up to me from neighbours;
+        //    when more neighbours run the same process, priority is given to the one closer to the process source
         val nbrProcs = excludingSelf.mergeHood {
-          nbr(currProcs)
-            .filter{ case (_,p) => p.data.distance + p.process.metric() <= p.process.limit }
-        }( choose = (p1,p2) => if(p1.data.distance < p2.data.distance) p1 else p2 )
-          .mapValues(p => p.copy(data = p.data.copy(gen = false)))
+          nbr(currProcs).filter{ case (_,p) => nbrProcessWithinLimits(p) }
+        }(overwritePolicy = chooseByMin(_.data.distance)).mapValues(_.passToNeighbour)
 
         // 2. New processes to be spawn, based on a generation condition
-        val newProcs =
-          processDefs
-          .filter(p => align(processConditionScope(p.pid)){ _ => p.genCondition() })
-          .map(pdef => generatePUID(pdef.pid) -> ProcessInstance(generatePUID(pdef.pid), pdef, ProcessData(gen = true))).toMap
+        val newProcs = processDefs.iterator.filter(toBeGenerated(_))
+          .map(pd => ProcessInstance(generatePUID(pd), pd, ProcessData(gen = true))).map(pi => pi.pid -> pi).toMap
 
-        // 3. Collect all process instances to be executed
-        // 4. Update state for all process instances
-        // Notice: appending currProcs after nbrProcs overwrites entries with existing local data
-        (nbrProcs ++ currProcs ++ newProcs)
-          .map { case (pid: PUID, p: ProcessInstance[T]) => {
-            pid -> p.copy(data = runProcessInstance(p).data)
-          }}
+        // 3. Collect all process instances to be executed, execute them and update their state
+        (nbrProcs ++ currProcs ++ newProcs).mapValues(p => p.updateData(runProcessInstance(p).data))
       })
     }
 
