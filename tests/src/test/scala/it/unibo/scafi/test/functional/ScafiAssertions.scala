@@ -54,7 +54,7 @@ object ScafiAssertions extends Matchers {
   def assertNetworkValues[T](vals: Map[ID, T],
                              customEq:Option[(T,T)=>Boolean] = None)
                             (implicit net: Network): Unit ={
-    withClue("Actual network: " + net + "\nExpected values:"+vals) {
+    withClue("Actual network: " + net + "\n\n Sample exports:\n" + net.export(0) + "\n" + net.export(1) + "\n\nExpected values:"+vals) {
       net.ids.forall(id => {
         val actualExport = net.export(id)
         var expected = vals.get(id)
