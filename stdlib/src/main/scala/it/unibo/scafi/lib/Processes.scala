@@ -29,6 +29,7 @@ trait Stdlib_Processes {
 
   trait Spawn {
     self: FieldCalculusSyntax with StandardSensors with FieldUtils =>
+    import excludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
 
     val TimeGC: Long = 20
 
@@ -84,9 +85,12 @@ trait Stdlib_Processes {
     case class ProcessInstance[T](pid: PUID,
                                   process: ProcessDef[T],
                                   data: ProcessData[T] = ProcessData[T]()){
-      def passToNeighbour = updateData(this.data.copy(gen = false))
+      def forNonGenerator = updateData(this.data.copy(gen = false))
       def forGenerator = updateData(this.data.copy(gen = true))
       def updateData(pdata: ProcessData[T]) = this.copy(data = pdata)
+
+      def compute: Option[T] = align(s"pcomp"){ _ => Some(process.comp()) }
+      def evaluateStopCondition: Boolean = align(s"pstopeval_${pid.puid}"){ _ => process.stopCondition() }
     }
 
     def nextGeneratedProcessNum: Long = align("round_counting"){ _ => rep(0L)(_ + 1) }
@@ -95,19 +99,19 @@ trait Stdlib_Processes {
     def chooseByMin[T,V:Ordering](projection: T => V): (T,T) => T =
       (t1,t2) => if(implicitly[Ordering[V]].lt(projection(t1), projection(t2))) t1 else t2
 
-    def nbrProcessWithinLimits(p: ProcessInstance[_]): Boolean =
+    def processWithinLimits(p: ProcessInstance[_]): Boolean =
       p.data.distance + p.process.metric() <= p.process.limit
 
     def processManagement[T](generators: Set[ProcessGenerator[T]]): Map[PUID,ProcessInstance[T]] = {
       rep(Map[PUID,ProcessInstance[T]]())(currProcs => {
         // 1. Select process instances extended up to me from neighbours;
         //    when more neighbours run the same process, priority is given to the one closer to the process source
-        val nbrProcs = excludingSelf.mergeHood {
-          nbr(currProcs).filter{ case (_,p) => nbrProcessWithinLimits(p) }
-        }(overwritePolicy = chooseByMin(_.data.distance)).mapValues(_.passToNeighbour)
+        val nbrProcs = mergeHoodFirst {
+          nbr(currProcs).filterValues(processWithinLimits(_))
+        }.mapValues(_.forNonGenerator)
 
         // 2. New processes to be spawn, based on a generation condition
-        val newProcs = generators.filter(_.checkTrigger).map(_.generate).map(pi => pi.pid -> pi.forGenerator)
+        val newProcs = generators.view.filter(_.checkTrigger).map(_.generate).map(pi => pi.pid -> pi.forGenerator)
 
         // 3. Collect all process instances to be executed, execute them and update their state
         (nbrProcs ++ currProcs ++ newProcs).map{ case (pid,p) => pid -> p.updateData(runProcessInstance(p).data) }
@@ -119,24 +123,22 @@ trait Stdlib_Processes {
         .collect { case (pid, ProcessInstance(_,_,ProcessData(Some(v),_,_,_,_,_))) => pid -> v }
 
     def runProcessInstance[T](p: ProcessInstance[T]): ProcessInstance[T] = {
-      def processComputation: Option[T] = align(s"pcomp"){ _ => Some(p.process.comp()) }
-      val stop = align(s"pstopeval_${p.pid.puid}"){ _ => p.process.stopCondition() }
       ProcessInstance(p.pid, p.process, align(s"pexec_${p.pid.puid}"){ _ =>  // enters the eval context for process of given pid
         rep(p.data){ data =>
           mux(data.gen){ // Generator node up to previous round
             ProcessData(
-              value = if(data.gen && !data.stop){ processComputation } else { None },
+              value = if(data.gen && !data.stop){ p.compute } else { None },
               gen = data.gen,
-              stop = data.stop || stop,
+              stop = data.stop || p.evaluateStopCondition,
               counter = if(data.gen && !data.stop) Some(data.counter.map(_ + 1).getOrElse(0)) else None,
               distance = 0.0)
           }{ // Non-generator node
-            excludingSelf.minHoodSelector[Double,(Double,Option[Long])]{ nbr(data.distance) }{
+            minHoodSelector[Double,(Double,Option[Long])]{ nbr(data.distance) }{
               (nbr(data.distance) + nbrRange, nbr(data.counter))
             }.map {
               case (newDist, newCount) if newCount.isDefined && newDist <= p.process.limit && data.staleValue < p.process.timeGC =>
                 data.copy(
-                  value = processComputation,
+                  value = p.compute,
                   gen = false,
                   counter = newCount,
                   distance = newDist,
@@ -146,6 +148,11 @@ trait Stdlib_Processes {
           }
         }
       })
+    }
+
+    private implicit class RichMap[K,V](val m: Map[K,V]){
+      def filterValues(pred: V => Boolean): Map[K,V] =
+        m.filter{ case (k:K,v:V) => pred(v) }
     }
   }
 }

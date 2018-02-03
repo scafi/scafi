@@ -44,6 +44,9 @@ trait StdLib_FieldUtils {
       def unionHoodSet[T](expr: => Iterable[T]): Set[T] =
         foldhoodTemplate[Set[T]](Set())(_.union(_))(expr.toSet)
 
+      def mergeHoodFirst[K,V](expr: => Map[K,V]): Map[K,V] =
+        mergeHood(expr)((x,y) => x)
+
       def mergeHood[K,V](expr: => Map[K,V])(overwritePolicy: (V,V) => V): Map[K,V] = {
         foldhoodTemplate[Map[K,V]](Map()) { case (m1, m2) =>
           var newMap = m1
