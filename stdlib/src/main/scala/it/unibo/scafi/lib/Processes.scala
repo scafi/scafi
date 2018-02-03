@@ -45,11 +45,11 @@ trait Stdlib_Processes {
 
     case class ProcessGenerator[T](id: PID,
                                    trigger: () => Boolean,
-                                   generator: (PUID) => ProcessInstance[T]){
+                                   generator: () => ProcessDef[T]){
       def checkTrigger: Boolean = align("check_trigger_" + id){ _ => trigger() }
       def generate: ProcessInstance[T] = {
         val puid = generatePUID(id)
-        align("generator_" + id){ _ => generator(puid) }
+        align("generator_" + id){ _ => ProcessInstance[T](puid, generator()) }
       }
     }
 

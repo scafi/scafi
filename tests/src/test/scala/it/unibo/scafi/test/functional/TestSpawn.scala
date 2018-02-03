@@ -59,10 +59,10 @@ class TestSpawn extends FlatSpec with Matchers {
 
     override def main(): Any = {
       val generators = Set(
-        ProcessGenerator(PID("1"), trigger = () => goesUp(gen1), generator = ProcessInstance[String](_,
-            ProcessDef(()=>f"${distanceTo(gen1)}%.1f", stopCondition = () => goesDown(gen1)))),
-        ProcessGenerator(PID("2"), trigger = () => goesUp(gen2), generator = ProcessInstance[String](_,
-            ProcessDef(()=>f"${distanceTo(src)}%.1f", limit = 2.5))))
+        ProcessGenerator(PID("1"), trigger = () => goesUp(gen1),
+          generator = () => ProcessDef[String](()=>f"${distanceTo(gen1)}%.1f", stopCondition = () => goesDown(gen1))),
+        ProcessGenerator(PID("2"), trigger = () => goesUp(gen2),
+          generator = () => ProcessDef[String](()=>f"${distanceTo(src)}%.1f", limit = 2.5)))
 
       processExecution[String](generators)
     }
