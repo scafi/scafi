@@ -95,12 +95,38 @@ trait Stdlib_Processes {
     case class ProcessInstance[T](puid: PUID,
                                   process: ProcessDef[T],
                                   data: ProcessData[T] = ProcessData[T]()){
-      def forNonGenerator = updateData(this.data.copy(gen = false))
-      def forGenerator = updateData(this.data.copy(gen = true))
-      def updateData(pdata: ProcessData[T]) = this.copy(data = pdata)
+      def forNonGenerator: ProcessInstance[T] = updateData(this.data.copy(gen = false))
+      def forGenerator: ProcessInstance[T] = updateData(this.data.copy(gen = true))
+      def updateData(pdata: ProcessData[T]): ProcessInstance[T] = this.copy(data = pdata)
 
       def compute: Option[T] = align(s"pcomp"){ _ => Some(process.comp()) }
       def evaluateStopCondition: Boolean = align(s"pstopeval_${puid}"){ _ => process.stopCondition() }
+
+      def run: ProcessInstance[T] = updateData(align(s"pexec_${puid}"){ _ =>  // enters the eval context for process of given pid
+        rep(data){ data =>
+          mux(data.gen){ // Generator node up to previous round
+            ProcessData(
+              value = if(data.gen && !data.stop){ compute } else { None },
+              gen = data.gen,
+              stop = data.stop || evaluateStopCondition,
+              counter = if(data.gen && !data.stop) Some(data.counter.map(_ + 1).getOrElse(0)) else None,
+              distance = 0.0)
+          }{ // Non-generator node
+            minHoodSelector[Double,(Double,Option[Long])]{ nbr(data.distance) }{
+              (nbr(data.distance) + nbrRange, nbr(data.counter))
+            }.map {
+              case (newDist, newCount) if newCount.isDefined && newDist <= process.limit && data.staleValue < process.timeGC =>
+                data.copy(
+                  value = compute,
+                  gen = false,
+                  counter = newCount,
+                  distance = newDist,
+                  staleValue = if(newCount == data.counter) data.staleValue + 1 else 0)
+              case (newDist, _) => ProcessData[T](distance = newDist) // Keep distance but resets other fields
+            }.getOrElse { ProcessData[T]() }
+          }
+        }
+      })
     }
 
     def processExecution[T](generators: Set[ProcessGenerator[T]]): Map[PUID,T] =
@@ -117,35 +143,7 @@ trait Stdlib_Processes {
         val newProcs = generators.view.filter(_.checkTrigger).map(_.generate).map(pi => pi.puid -> pi.forGenerator)
 
         // 3. Collect all process instances to be executed, execute them and update their state
-        (nbrProcs ++ currProcs ++ newProcs).mapValuesStrict(runProcessInstance(_))
-      })
-    }
-
-    def runProcessInstance[T](p: ProcessInstance[T]): ProcessInstance[T] = {
-      ProcessInstance(p.puid, p.process, align(s"pexec_${p.puid}"){ _ =>  // enters the eval context for process of given pid
-        rep(p.data){ data =>
-          mux(data.gen){ // Generator node up to previous round
-            ProcessData(
-              value = if(data.gen && !data.stop){ p.compute } else { None },
-              gen = data.gen,
-              stop = data.stop || p.evaluateStopCondition,
-              counter = if(data.gen && !data.stop) Some(data.counter.map(_ + 1).getOrElse(0)) else None,
-              distance = 0.0)
-          }{ // Non-generator node
-            minHoodSelector[Double,(Double,Option[Long])]{ nbr(data.distance) }{
-              (nbr(data.distance) + nbrRange, nbr(data.counter))
-            }.map {
-              case (newDist, newCount) if newCount.isDefined && newDist <= p.process.limit && data.staleValue < p.process.timeGC =>
-                data.copy(
-                  value = p.compute,
-                  gen = false,
-                  counter = newCount,
-                  distance = newDist,
-                  staleValue = if(newCount == data.counter) data.staleValue + 1 else 0)
-              case (newDist, _) => ProcessData[T](distance = newDist) // Keep distance but resets other fields
-            }.getOrElse { ProcessData[T]() }
-          }
-        }
+        (nbrProcs ++ currProcs ++ newProcs).mapValuesStrict(_.run)
       })
     }
 
