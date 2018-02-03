@@ -24,14 +24,6 @@ trait StdLib_GenericUtils {
   trait GenericUtils {
     self: FieldCalculusSyntax with StandardSensors =>
 
-    def goesUp(value: Boolean) = rep((false, false)){ case (old, trigger) =>
-      (value, value && value!=old)
-    }._2
-
-    def goesDown(value: Boolean) = rep((false, false)){ case (old, trigger) =>
-      (value, !value && value!=old)
-    }._2
-
     def meanCounter(value: Double, frequency: Long): Double = {
       val time = timestamp()
       val dt = deltaTime().toMillis

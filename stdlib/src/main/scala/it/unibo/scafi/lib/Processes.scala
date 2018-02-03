@@ -43,13 +43,13 @@ trait Stdlib_Processes {
 
     val TimeGC: Long = 20
 
-    case class ProcessGenerator[T](id: PID,
-                                   trigger: () => Boolean,
+    case class ProcessGenerator[T](trigger: () => Boolean,
                                    generator: () => ProcessDef[T]){
-      def checkTrigger: Boolean = align("check_trigger_" + id){ _ => trigger() }
+      def checkTrigger: Boolean = align("check_trigger_" + hashCode()){ _ => trigger() }
       def generate: ProcessInstance[T] = {
-        val puid = generatePUID(id)
-        align("generator_" + id){ _ => ProcessInstance[T](puid, generator()) }
+        val pdef = generator()
+        val puid = generatePUID(pdef.pid)
+        align("generator_" + hashCode()){ _ => ProcessInstance[T](puid, pdef) }
       }
     }
 
@@ -62,7 +62,8 @@ trait Stdlib_Processes {
       * @param timeGC a time value for garbage-collection
       * @tparam T the type of the output of the process computation
       */
-    case class ProcessDef[+T](comp: () => T,
+    case class ProcessDef[+T](pid: PID,
+                              comp: () => T,
                               stopCondition: () => Boolean = () => false,
                               limit: Double = Double.PositiveInfinity,
                               metric: () => Double = nbrRange,

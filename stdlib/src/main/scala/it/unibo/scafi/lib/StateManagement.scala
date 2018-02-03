@@ -18,23 +18,26 @@
 
 package it.unibo.scafi.lib
 
-import it.unibo.scafi.incarnations.Incarnation
+trait StdLib_StateManagement{
+  self: StandardLibrary.Subcomponent =>
 
-trait StandardLibrary extends
-         Stdlib_BlockG
-    with Stdlib_BlockC
-    with Stdlib_BlockT
-    with Stdlib_BlockT2
-    with Stdlib_BlockS
-    with Stdlib_BlocksWithGC
-    with Stdlib_BuildingBlocks
-    with StdLib_FieldUtils
-    with StdLib_TimeUtils
-    with StdLib_StateManagement
-    with StdLib_GenericUtils
-    with Stdlib_TypeClasses
-    with Stdlib_Processes { self: Incarnation => }
+  trait StateManagement {
+    self: FieldCalculusSyntax with StandardSensors =>
 
-object StandardLibrary {
-  type Subcomponent = StandardLibrary with Incarnation
+    def remember[T](value: T): T = rep(value)(identity)
+
+    /**
+      * @return true when the given parameter goes from false to true (starting from false); false otherwise
+      */
+    def goesUp(value: Boolean): Boolean = rep((false, false)) { case (old, trigger) =>
+      (value, value && value != old)
+    }._2
+
+    /**
+      * @return true when the given parameter goes from true to false (starting from false); false otherwise
+      */
+    def goesDown(value: Boolean): Boolean = rep((false, false)) { case (old, trigger) =>
+      (value, !value && value != old)
+    }._2
+  }
 }

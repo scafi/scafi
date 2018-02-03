@@ -47,7 +47,7 @@ class TestSpawn extends FlatSpec with Matchers {
   }
 
   private[this] class Program extends AggregateProgram
-    with Spawn with FieldUtils with StandardSensors with BlockG with GenericUtils {
+    with Spawn with FieldUtils with StandardSensors with BlockG with StateManagement {
 
     override val TimeGC: Long = 20
 
@@ -58,11 +58,13 @@ class TestSpawn extends FlatSpec with Matchers {
     def gen2 = sense[Boolean](Gen2)
 
     override def main(): Any = {
-      val generators = Set(
-        ProcessGenerator(PID("1"), trigger = () => goesUp(gen1),
-          generator = () => ProcessDef[String](()=>f"${distanceTo(gen1)}%.1f", stopCondition = () => goesDown(gen1))),
-        ProcessGenerator(PID("2"), trigger = () => goesUp(gen2),
-          generator = () => ProcessDef[String](()=>f"${distanceTo(src)}%.1f", limit = 2.5)))
+      val generators = remember {
+        Set(
+          ProcessGenerator(trigger = () => goesUp(gen1),
+            generator = () => ProcessDef[String](PID("1"), () => f"${distanceTo(gen1)}%.1f", stopCondition = () => goesDown(gen1))),
+          ProcessGenerator(trigger = () => goesUp(gen2),
+            generator = () => ProcessDef[String](PID("2"), () => f"${distanceTo(src)}%.1f", limit = 2.5)))
+      }
 
       processExecution[String](generators)
     }
