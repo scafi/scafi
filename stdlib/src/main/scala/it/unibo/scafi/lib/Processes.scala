@@ -22,10 +22,20 @@ trait Stdlib_Processes {
   self: StandardLibrary.Subcomponent =>
 
   /**
+    * Process (kind) identifier
+    * @param pid
+    */
+  case class PID(pid: String){
+    override def toString: String = s"pid$pid"
+  }
+
+  /**
     * Process instance identifier
     * @param puid
     */
-  case class PUID(puid: String)
+  case class PUID(puid: String){
+    override def toString: String = s"puid$puid"
+  }
 
   trait Spawn {
     self: FieldCalculusSyntax with StandardSensors with FieldUtils =>
@@ -33,7 +43,7 @@ trait Stdlib_Processes {
 
     val TimeGC: Long = 20
 
-    case class ProcessGenerator[T](id: Int,
+    case class ProcessGenerator[T](id: PID,
                                    trigger: () => Boolean,
                                    generator: (PUID) => ProcessInstance[T]){
       def checkTrigger: Boolean = align("check_trigger_" + id){ _ => trigger() }
@@ -77,12 +87,12 @@ trait Stdlib_Processes {
 
     /**
       * Process instance
-      * @param pid UID for the process instance
+      * @param puid UID for the process instance
       * @param process The process from which this instance comes from
       * @param data Data associated with this process instance
       * @tparam T the type of the output of the process computation
       */
-    case class ProcessInstance[T](pid: PUID,
+    case class ProcessInstance[T](puid: PUID,
                                   process: ProcessDef[T],
                                   data: ProcessData[T] = ProcessData[T]()){
       def forNonGenerator = updateData(this.data.copy(gen = false))
@@ -90,40 +100,29 @@ trait Stdlib_Processes {
       def updateData(pdata: ProcessData[T]) = this.copy(data = pdata)
 
       def compute: Option[T] = align(s"pcomp"){ _ => Some(process.comp()) }
-      def evaluateStopCondition: Boolean = align(s"pstopeval_${pid.puid}"){ _ => process.stopCondition() }
-    }
-
-    def nextGeneratedProcessNum: Long = align("round_counting"){ _ => rep(0L)(_ + 1) }
-    def generatePUID(pid: Int): PUID = PUID(s"pid_${mid}_${pid}_${nextGeneratedProcessNum}")
-
-    def chooseByMin[T,V:Ordering](projection: T => V): (T,T) => T =
-      (t1,t2) => if(implicitly[Ordering[V]].lt(projection(t1), projection(t2))) t1 else t2
-
-    def processWithinLimits(p: ProcessInstance[_]): Boolean =
-      p.data.distance + p.process.metric() <= p.process.limit
-
-    def processManagement[T](generators: Set[ProcessGenerator[T]]): Map[PUID,ProcessInstance[T]] = {
-      rep(Map[PUID,ProcessInstance[T]]())(currProcs => {
-        // 1. Select process instances extended up to me from neighbours;
-        //    when more neighbours run the same process, priority is given to the one closer to the process source
-        val nbrProcs = mergeHoodFirst {
-          nbr(currProcs).filterValues(processWithinLimits(_))
-        }.mapValues(_.forNonGenerator)
-
-        // 2. New processes to be spawn, based on a generation condition
-        val newProcs = generators.view.filter(_.checkTrigger).map(_.generate).map(pi => pi.pid -> pi.forGenerator)
-
-        // 3. Collect all process instances to be executed, execute them and update their state
-        (nbrProcs ++ currProcs ++ newProcs).map{ case (pid,p) => pid -> p.updateData(runProcessInstance(p).data) }
-      })
+      def evaluateStopCondition: Boolean = align(s"pstopeval_${puid}"){ _ => process.stopCondition() }
     }
 
     def processExecution[T](generators: Set[ProcessGenerator[T]]): Map[PUID,T] =
       processManagement(generators)
         .collect { case (pid, ProcessInstance(_,_,ProcessData(Some(v),_,_,_,_,_))) => pid -> v }
 
+    def processManagement[T](generators: Set[ProcessGenerator[T]]): Map[PUID,ProcessInstance[T]] = {
+      rep(Map[PUID,ProcessInstance[T]]())(currProcs => {
+        // 1. Select process instances extended up to me from neighbours;
+        //    when more neighbours run the same process, priority is given to the one closer to the process source
+        val nbrProcs = mergeHoodFirst { nbr(currProcs).filterValues(processWithinLimits(_)) }.mapValues(_.forNonGenerator)
+
+        // 2. New processes to be spawn, based on a generation condition
+        val newProcs = generators.view.filter(_.checkTrigger).map(_.generate).map(pi => pi.puid -> pi.forGenerator)
+
+        // 3. Collect all process instances to be executed, execute them and update their state
+        (nbrProcs ++ currProcs ++ newProcs).mapValuesStrict(runProcessInstance(_))
+      })
+    }
+
     def runProcessInstance[T](p: ProcessInstance[T]): ProcessInstance[T] = {
-      ProcessInstance(p.pid, p.process, align(s"pexec_${p.pid.puid}"){ _ =>  // enters the eval context for process of given pid
+      ProcessInstance(p.puid, p.process, align(s"pexec_${p.puid}"){ _ =>  // enters the eval context for process of given pid
         rep(p.data){ data =>
           mux(data.gen){ // Generator node up to previous round
             ProcessData(
@@ -150,9 +149,20 @@ trait Stdlib_Processes {
       })
     }
 
+    def nextGeneratedProcessNum: Long = align("round_counting"){ _ => rep(0L)(_ + 1) }
+    def generatePUID(pid: PID): PUID = PUID(s"${mid}_${pid.pid}_${nextGeneratedProcessNum}")
+
+    private def chooseByMin[T,V:Ordering](projection: T => V): (T,T) => T =
+      (t1,t2) => if(implicitly[Ordering[V]].lt(projection(t1), projection(t2))) t1 else t2
+
+    private def processWithinLimits(p: ProcessInstance[_]): Boolean =
+      p.data.distance + p.process.metric() <= p.process.limit
+
     private implicit class RichMap[K,V](val m: Map[K,V]){
       def filterValues(pred: V => Boolean): Map[K,V] =
-        m.filter{ case (k:K,v:V) => pred(v) }
+        m.filter { case (k,v) => pred(v) }
+      def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
+        m.map { case (k,v) => k -> mapLogic(v) }
     }
   }
 }

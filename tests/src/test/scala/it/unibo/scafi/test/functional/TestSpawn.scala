@@ -59,9 +59,9 @@ class TestSpawn extends FlatSpec with Matchers {
 
     override def main(): Any = {
       val generators = Set(
-        ProcessGenerator(1, trigger = () => goesUp(gen1), generator = ProcessInstance[String](_,
+        ProcessGenerator(PID("1"), trigger = () => goesUp(gen1), generator = ProcessInstance[String](_,
             ProcessDef(()=>f"${distanceTo(gen1)}%.1f", stopCondition = () => goesDown(gen1)))),
-        ProcessGenerator(2, trigger = () => goesUp(gen2), generator = ProcessInstance[String](_,
+        ProcessGenerator(PID("2"), trigger = () => goesUp(gen2), generator = ProcessInstance[String](_,
             ProcessDef(()=>f"${distanceTo(src)}%.1f", limit = 2.5))))
 
       processExecution[String](generators)
@@ -82,7 +82,7 @@ class TestSpawn extends FlatSpec with Matchers {
 
   Processes must "not exist if not activated" in new SimulationContextFixture {
     // ACT: run program comprising spawns
-    exec(program)(net)
+    exec(program, ntimes = FewRounds)(net)
 
     // ASSERT: nobody computed a value for any process, i.e., nobody executed any process
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
@@ -97,7 +97,7 @@ class TestSpawn extends FlatSpec with Matchers {
     setSensor(Gen1, true).inDevices(8)
     exec(program, ntimes = SomeRounds)(net)
 
-    val p1 = PUID("pid_8_1_1")
+    val p1 = PUID("8_1_1")
     // ASSERT: process 1 has been executed in the network; a correct gradient has stabilised
     assertNetworkValues((0 to 8).zip(List(
       Map(p1 -> "4.0"), Map(p1 -> "3.0"), Map(p1 -> "2.0"),
@@ -115,7 +115,7 @@ class TestSpawn extends FlatSpec with Matchers {
 
     // ASSERT: check the limited extension of the process, which doesn't reach to gradient source;
     //         check nodes not covered; the other nodes compute a rising gradient (without source)
-    val p021 = PUID("pid_0_2_1")
+    val p021 = PUID("0_2_1")
     assertForAllNodes[ProcsMap]{ (id, m) => m.forall(proc => proc match {
       case (p021, value) => Set(0,1,2,3,4,6).contains(id) && value.toDouble > 10
       case _ => Set(5,7,8).contains(id)
@@ -141,7 +141,7 @@ class TestSpawn extends FlatSpec with Matchers {
     exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT
-    val p011 = PUID("pid_0_1_1")
+    val p011 = PUID("0_1_1")
     assertForAllNodes[ProcsMap]{ (_,m) => m.contains(p011) && m.size==1}(net)
 
     // ACT (process deactivation and garbage collection)
@@ -161,8 +161,8 @@ class TestSpawn extends FlatSpec with Matchers {
     exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT: check both processes running gradients get globally evaluated without interference
-    val p1 = PUID("pid_0_1_1")
-    val p2 = PUID("pid_6_2_1")
+    val p1 = PUID("0_1_1")
+    val p2 = PUID("6_2_1")
     assertNetworkValues((0 to 8).zip(List(
       Map(p1 -> "0.0", p2 -> "4.0"), Map(p1 -> "1.0"             ), Map(p1 -> "2.0"             ),
       Map(p1 -> "1.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "3.0"             ),
@@ -180,8 +180,8 @@ class TestSpawn extends FlatSpec with Matchers {
     exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT: result from running process 1
-    val p1 = PUID("pid_0_1_1")
-    val p2 = PUID("pid_8_1_1")
+    val p1 = PUID("0_1_1")
+    val p2 = PUID("8_1_1")
     assertNetworkValues((0 to 8).zip(List(
       Map(p1 -> "0.0", p2 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"),
       Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
@@ -193,7 +193,7 @@ class TestSpawn extends FlatSpec with Matchers {
     exec(program, ntimes = SomeRounds)(net)
 
     // ASSERT: check no conflict when process 1 is generated from multiple nodes possibly activated at different times
-    val p3 = PUID("pid_4_1_1")
+    val p3 = PUID("4_1_1")
     assertNetworkValues((0 to 8).zip(List(
       Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0", p3 -> "2.0"),
       Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"),
@@ -214,7 +214,7 @@ class TestSpawn extends FlatSpec with Matchers {
     execProgramFor(program, ntimes = ManyRounds)(net)(id => id != 8) // execute except for detached device
 
     // ASSERT: process 1 has disappeared everywhere except in detached node
-    val p1 = PUID("pid_0_1_1")
+    val p1 = PUID("0_1_1")
     assertForAllNodes[ProcsMap]{
       case (8,m) => m.contains(p1) && m.size==1
       case (_,m) => m.isEmpty
