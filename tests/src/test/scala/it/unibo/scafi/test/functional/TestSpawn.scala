@@ -28,9 +28,6 @@ class TestSpawn extends FlatSpec with Matchers {
 
   private val SpawnConstruct, Processes, ManyProcesses = new ItWord
 
-  // Process identifiers
-  val p1 = PID("1")
-  val p2 = PID("2")
   // Sensor names for de/activating processes, and for gradient sources
   val Gen1 = "gen1"
   val Gen2 = "gen2"
@@ -61,11 +58,13 @@ class TestSpawn extends FlatSpec with Matchers {
     def gen2 = sense[Boolean](Gen2)
 
     override def main(): Any = {
-      var procs = Set(
-        ProcessDef(p1, ()=>f"${distanceTo(gen1)}%.1f", genCondition = () => goesUp(gen1), stopCondition = () => goesDown(gen1)),
-        ProcessDef(p2, ()=>f"${distanceTo(src)}%.1f", genCondition = () => goesUp(gen2), limit = 2.5))
+      val generators = Set(
+        ProcessGenerator(1, trigger = () => goesUp(gen1), generator = ProcessInstance[String](_,
+            ProcessDef(()=>f"${distanceTo(gen1)}%.1f", stopCondition = () => goesDown(gen1)))),
+        ProcessGenerator(2, trigger = () => goesUp(gen2), generator = ProcessInstance[String](_,
+            ProcessDef(()=>f"${distanceTo(src)}%.1f", limit = 2.5))))
 
-      processExecution[String](procs)
+      processExecution[String](generators)
     }
   }
 

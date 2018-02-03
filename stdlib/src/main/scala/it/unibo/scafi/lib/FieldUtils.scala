@@ -35,6 +35,9 @@ trait StdLib_FieldUtils {
         }.toMap
       }
 
+      def sumHood[T](expr: => T)(implicit numEv: Numeric[T]) =
+        foldhoodTemplate[T](numEv.zero)(numEv.plus(_,_))(nbr(expr))
+
       def unionHood[T](expr: => T): Set[T] =
         unionHoodSet(Set(expr))
 
