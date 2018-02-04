@@ -36,16 +36,18 @@ object ReplicatedGossipDemo extends Launcher {
 class ReplicatedGossip extends AggregateProgram with StateManagement with SensorDefinitions with Gradients with Spawn with BlockT {
   def main: String = {
     val g = classic(sense1)
-    val grepl = replicatedGossip(sense1, numActiveProcs = 5, startEvery = 2, considerAfter = 3)
-    f"$g%5.1f; ${grepl.getOrElse(Double.NegativeInfinity)}%5.1f"
+    val grepl = replicatedGossip(sense1, numActiveProcs = 5, startEvery = 20, considerAfter = 20)
+    f"$g%5.1f; " + (if(grepl.isDefined) f"${grepl.get}%5.1f" else "X")
   }
 
   def replicatedGossip(src: => Boolean, numActiveProcs: Int, startEvery: Int, considerAfter: Int): Option[Double] = {
     val generators = remember{Set(
-      ProcessGenerator[Double](trigger = () => sense2 && impulsesEvery(startEvery.second),
-        generator = () => ProcessDef[Double](PID("1"), comp = () => mux(timer(considerAfter.seconds)==0){ classic(src) }{ 0 }, stopCondition = () => timer((startEvery*numActiveProcs).seconds)==0))
+      ProcessGenerator(
+        trigger = () => sense2 && impulsesEvery(startEvery),
+        generator = () => ProcessDef(PID("1"), comp = () => mux[Option[Double]](timer(considerAfter)==0){ Some(classic(src)) }{ None },
+        stopCondition = () => timer(startEvery*numActiveProcs+startEvery/2)==0))
     )}
-    val replicated = processExecution(generators).values
+    val replicated = processExecution(generators).values.collect{ case Some(x) => x }
     if(replicated.isEmpty) None else Some(replicated.max)
   }
 }

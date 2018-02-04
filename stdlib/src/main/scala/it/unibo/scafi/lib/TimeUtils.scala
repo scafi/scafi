@@ -26,7 +26,7 @@ trait StdLib_TimeUtils {
   trait TimeUtils extends BlockT {
     self: FieldCalculusSyntax =>
 
-    def impulsesEvery(d: Duration): Boolean = {
+    def impulsesEvery(d: Int): Boolean = {
       rep(false){ impulse =>
         branch(impulse) { false } { timer(d)==0 }
       }
