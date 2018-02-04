@@ -22,7 +22,7 @@ import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
-class TestSpawn extends FlatSpec with Matchers {
+class TestProcesses extends FlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 
@@ -47,7 +47,7 @@ class TestSpawn extends FlatSpec with Matchers {
   }
 
   private[this] class Program extends AggregateProgram
-    with Spawn with FieldUtils with StandardSensors with BlockG with StateManagement {
+    with Processes with FieldUtils with StandardSensors with BlockG with StateManagement {
 
     override val TimeGC: Long = 20
 

@@ -37,7 +37,7 @@ trait Stdlib_Processes {
     override def toString: String = s"puid$puid"
   }
 
-  trait Spawn {
+  trait Processes {
     self: FieldCalculusSyntax with StandardSensors with FieldUtils =>
     import excludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
 
