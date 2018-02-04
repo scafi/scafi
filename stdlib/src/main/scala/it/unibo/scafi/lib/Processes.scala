@@ -45,10 +45,14 @@ trait Stdlib_Processes {
 
     case class ProcessGenerator[T](trigger: () => Boolean,
                                    generator: () => ProcessDef[T]){
+
+      private var k = 0
+      def nextGeneratedProcessNum: Int = { k += 1; k }
+
       def checkTrigger: Boolean = align("check_trigger_" + hashCode()){ _ => trigger() }
       def generate: ProcessInstance[T] = {
         val pdef = generator()
-        val puid = generatePUID(pdef.pid)
+        val puid = PUID(s"${mid}_${pdef.pid.pid}_${nextGeneratedProcessNum}")
         align("generator_" + hashCode()){ _ => ProcessInstance[T](puid, pdef) }
       }
     }
@@ -147,9 +151,6 @@ trait Stdlib_Processes {
         (nbrProcs ++ currProcs ++ newProcs).mapValuesStrict(_.run)
       })
     }
-
-    def nextGeneratedProcessNum: Long = align("round_counting"){ _ => rep(0L)(_ + 1) }
-    def generatePUID(pid: PID): PUID = PUID(s"${mid}_${pid.pid}_${nextGeneratedProcessNum}")
 
     private def chooseByMin[T,V:Ordering](projection: T => V): (T,T) => T =
       (t1,t2) => if(implicitly[Ordering[V]].lt(projection(t1), projection(t2))) t1 else t2

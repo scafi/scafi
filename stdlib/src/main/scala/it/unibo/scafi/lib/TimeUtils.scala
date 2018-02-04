@@ -18,11 +18,19 @@
 
 package it.unibo.scafi.lib
 
+import scala.concurrent.duration.Duration
+
 trait StdLib_TimeUtils {
   self: StandardLibrary.Subcomponent =>
 
-  trait TimeUtils {
+  trait TimeUtils extends BlockT {
     self: FieldCalculusSyntax =>
+
+    def impulsesEvery(d: Duration): Boolean = {
+      rep(false){ impulse =>
+        branch(impulse) { false } { timer(d)==0 }
+      }
+    }
 
     /**
       * It is a simple building block which returns the same values

@@ -203,6 +203,26 @@ class TestSpawn extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
+  Processes should "not conflict when generated from the same node" in new SimulationContextFixture {
+    // ARRANGE+ACT: generate process 1 twice from node 0
+    setSensor(Gen2, true).inDevices(7)
+    exec(program, ntimes = FewRounds)(net)
+    setSensor(Gen2, false).inDevices(7)
+    exec(program, ntimes = FewRounds)(net)
+    setSensor(Gen2, true).inDevices(7)
+    exec(program, ntimes = SomeRounds)(net)
+
+    // ASSERT: result from running process 1
+    val p1 = PUID("7_2_1")
+    val p2 = PUID("7_2_2")
+    assertNetworkValues((0 to 8).zip(List(
+      Map(                        ), Map(p1 -> "3.0", p2 -> "3.0"), Map(                        ),
+      Map(p1 -> "3.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
+      Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0")
+    )).toMap)(net)
+  }
+
+
   Processes should "be resilient to partitions: reconnecting node" in new SimulationContextFixture {
     // ARRANGE: generate process 1 from node 0
     setSensor(Gen1, true).inDevices(0)
