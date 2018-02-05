@@ -35,10 +35,7 @@ class TestProcesses extends FlatSpec with Matchers {
   // Network constants
   val (stepx, stepy) = (1.0, 1.0)
   // Simulation constants
-  val FewRounds      = 100
-  val SomeRounds     = 500
-  val ManyRounds     = 1000
-  val ManyManyRounds = 2000
+  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
   private[this] trait SimulationContextFixture {
     implicit val net: NetworkSimulator =
@@ -84,7 +81,7 @@ class TestProcesses extends FlatSpec with Matchers {
 
   Processes must "not exist if not activated" in new SimulationContextFixture {
     // ACT: run program comprising spawns
-    exec(program, ntimes = FewRounds)(net)
+    exec(program, ntimes = fewRounds)(net)
 
     // ASSERT: nobody computed a value for any process, i.e., nobody executed any process
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
@@ -92,12 +89,12 @@ class TestProcesses extends FlatSpec with Matchers {
 
   Processes must "exist when activated" in new SimulationContextFixture {
     // ACT: run program, checking nobody run any process
-    exec(program, ntimes = FewRounds)(net)
+    exec(program, ntimes = fewRounds)(net)
     assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
 
     // ACT: activate process 1 from node 8, run program
     setSensor(Gen1, true).inDevices(8)
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     val p1 = PUID("8_1_1")
     // ASSERT: process 1 has been executed in the network; a correct gradient has stabilised
@@ -113,7 +110,7 @@ class TestProcesses extends FlatSpec with Matchers {
     net.chgSensorValue(Gen2, Set(0), true)
 
     // ACT: run program
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT: check the limited extension of the process, which doesn't reach to gradient source;
     //         check nodes not covered; the other nodes compute a rising gradient (without source)
@@ -125,7 +122,7 @@ class TestProcesses extends FlatSpec with Matchers {
 
     // ACT: set new source; continue program execution
     setSensor(SRC, true).inDevices(4)
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT: check gradient stabilises in the covered area
     assertNetworkValues((0 to 8).zip(List(
@@ -140,7 +137,7 @@ class TestProcesses extends FlatSpec with Matchers {
     setSensor(Gen1, true).inDevices(0)
 
     // ACT (process activation)
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT
     val p011 = PUID("0_1_1")
@@ -148,7 +145,7 @@ class TestProcesses extends FlatSpec with Matchers {
 
     // ACT (process deactivation and garbage collection)
     setSensor(Gen1, false).inDevices(0)
-    exec(program, ntimes = ManyManyRounds)(net)
+    exec(program, ntimes = manyManyRounds)(net)
 
     // ASSERT
     assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
@@ -160,7 +157,7 @@ class TestProcesses extends FlatSpec with Matchers {
     setSensor(Gen2, true).inDevices(6)
 
     // ACT: run program
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT: check both processes running gradients get globally evaluated without interference
     val p1 = PUID("0_1_1")
@@ -179,7 +176,7 @@ class TestProcesses extends FlatSpec with Matchers {
     setSensor(Gen1, true).inDevices(8)
 
     // ACT: run program
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT: result from running process 1
     val p1 = PUID("0_1_1")
@@ -192,7 +189,7 @@ class TestProcesses extends FlatSpec with Matchers {
 
     // ACT: add an additional generator, and continue program execution
     setSensor(Gen1, true).inDevices(4)
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT: check no conflict when process 1 is generated from multiple nodes possibly activated at different times
     val p3 = PUID("4_1_1")
@@ -206,11 +203,11 @@ class TestProcesses extends FlatSpec with Matchers {
   Processes should "not conflict when generated from the same node" in new SimulationContextFixture {
     // ARRANGE+ACT: generate process 1 twice from node 0
     setSensor(Gen2, true).inDevices(7)
-    exec(program, ntimes = FewRounds)(net)
+    exec(program, ntimes = fewRounds)(net)
     setSensor(Gen2, false).inDevices(7)
-    exec(program, ntimes = FewRounds)(net)
+    exec(program, ntimes = fewRounds)(net)
     setSensor(Gen2, true).inDevices(7)
-    exec(program, ntimes = SomeRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT: result from running process 1
     val p1 = PUID("7_2_1")
@@ -228,12 +225,12 @@ class TestProcesses extends FlatSpec with Matchers {
     setSensor(Gen1, true).inDevices(0)
 
     // ACT: run program
-    exec(program, ntimes = FewRounds)(net)
+    exec(program, ntimes = fewRounds)(net)
 
     // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
     val nodeNbrhoodToRestore = detachNode(8, net) // detach node
     setSensor(Gen1, false).inDevices(0) // stop generating process 1
-    execProgramFor(program, ntimes = ManyRounds)(net)(id => id != 8) // execute except for detached device
+    execProgramFor(program, ntimes = manyRounds)(net)(id => id != 8) // execute except for detached device
 
     // ASSERT: process 1 has disappeared everywhere except in detached node
     val p1 = PUID("0_1_1")
@@ -244,7 +241,7 @@ class TestProcesses extends FlatSpec with Matchers {
 
     // ACT: reconnect node and run program globally
     connectNode(8, nodeNbrhoodToRestore, net)
-    exec(program, ntimes = ManyRounds)(net)
+    exec(program, ntimes = manyRounds)(net)
 
     // ASSERT: eventually, the process has disappeared
     assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
