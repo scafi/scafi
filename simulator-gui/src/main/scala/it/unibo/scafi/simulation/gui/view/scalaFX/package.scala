@@ -11,27 +11,19 @@ import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
 import scalafx.application.Platform
 import scalafx.geometry.{Point2D => FXPoint}
-import scalafx.scene.Node
+import scalafx.scene.{CacheHint, Node}
 import scalafx.scene.control.Label
+import scalafx.scene.image.Image
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.{Circle, Ellipse, Rectangle}
 //TODO THINK WHERE ADD COLOR (SIMPLE TEST)
+//TODO FOR PERFORMANCE USE IMAGE INSTEAD OF SHAPE -> TO DRAW IMAGE JAVAFX DON'T USE CPU , ONLY GPU
 package object scalaFX {
-  object SyncPlatform {
-    val maxWait = 10
-    val tick = 1
-    def runAndWait(e: => Unit) = {
-      val sync : CountDownLatch = new CountDownLatch(tick)
-      Platform.runLater {
-        e
-        sync.countDown()
-      }
-      sync.await()
-    }
-  }
+  //TODO CHANGE METHOD TO DRAW SENSOR
   val colors : Map[String,Color] = Map(WorldConfig.source.name -> Color.Red,
                                         WorldConfig.destination.name -> Color.Yellow,
-                                        WorldConfig.obstacle.name -> Color.Blue)
+                                        WorldConfig.obstacle.name -> Color.Blue,
+                                        WorldConfig.gsensor.name -> Color.Pink)
   /**
     * create a fx node by a Node
     * @param node the node of the world
@@ -55,12 +47,12 @@ package object scalaFX {
           this.y = p.y
           this.width = r.w
           this.height = r.h
-          this.fill = Color.Red
         }
         case c : InternalCircle => shape = new Circle {
           this.centerX = p.x
           this.centerY = p.y
           this.radius = c.r
+          this.smooth = false
         }
         case _ =>
       }
@@ -112,23 +104,27 @@ package object scalaFX {
           label.text = label.text.value + "" + x.name.toString + " = " + value
         }
         case OnOffSensor(value) => {
-          val ellipse = new Ellipse{
-            this.centerX.bind(n.translateX + point.x)
-            this.centerY.bind(n.translateY + point.y)
-            this.radiusX = currentR
-            this.radiusY = currentR
-            this.strokeWidth = lineWidth
-            if(value) this.stroke = colors(x.name.toString) else this.stroke = offColor
-            this.fill = Color.Transparent
+          if(value) {
+            val ellipse = new Ellipse{
+              this.centerX.bind(n.translateX + point.x)
+              this.centerY.bind(n.translateY + point.y)
+              this.radiusX = currentR
+              this.radiusY = currentR
+              this.strokeWidth = lineWidth
+              this.stroke = colors(x.name.toString)
+              this.fill = Color.Transparent
+              this.smooth = false
+            }
+            res += ellipse
           }
           currentR += increaseRadius
-          res += ellipse
         }
         case _ => {
           None
         }
       }
     }
+
     res
   }
 }

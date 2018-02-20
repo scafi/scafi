@@ -21,9 +21,14 @@ trait ExternalSimulation[W <: AggregateWorld] extends AsyncLogicController[W]{
   def contract  : SIMULATION_CONTRACT
 
   def simulationPrototype : SIMULATION_PROTOTYPE
+
+  /**
+    * initialize the external simulation, this operation must be before all thing
+    */
+  def init() = contract.initialize(world,simulationPrototype)
+
   override def start(): Unit = {
-    require(isStopped)
-    contract.initialize(world,simulationPrototype)
+    require(contract.getSimulation.isDefined)
     super.start()
   }
   /**

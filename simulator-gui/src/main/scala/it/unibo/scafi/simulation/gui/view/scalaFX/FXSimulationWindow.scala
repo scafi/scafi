@@ -1,37 +1,86 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
 
+import javafx.event.EventHandler
+import javafx.stage.WindowEvent
 
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.PannablePane
-import it.unibo.scafi.simulation.gui.view.{GraphicsOutput, Window}
+import com.sun.javafx.perf.PerformanceTracker
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{LoadingLogo, PannablePane}
+import it.unibo.scafi.simulation.gui.view.{GraphicsView, Window}
 
-import scalafx.geometry.Insets
+import scalafx.Includes._
+import scalafx.animation.FadeTransition
+import scalafx.application.Platform
+import scalafx.event.ActionEvent
+import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
-import scalafx.scene.layout.{BorderPane, HBox}
+import scalafx.scene.control.Label
+import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.layout.{AnchorPane, BorderPane, HBox, StackPane}
 import scalafx.stage.Stage
-//TODO
-class SimulationWindow(infoPane : HBox,
-                       simulationPane : FXSimulationPane) extends Stage with Window {
-  private val PADDING = 20
-  this.title = name
-  val pane = new BorderPane {
-    padding = Insets(PADDING)
+import scalafx.util.Duration
+
+class SimulationWindow(private val infoPane : HBox,
+                       private val simulationPane : FXSimulationPane,
+                       private val debug: Boolean = false) extends Stage with Window {
+  private val Padding = 20
+  private val exitValue = 1
+  private val logoPanel = new LoadingLogo
+  private val mainPane = new StackPane{
     this.minWidth = 800
     this.minHeight = 600
   }
-  infoPane.padding = Insets(PADDING)
-  pane.setTop(infoPane)
-  val pannablePane = new PannablePane(simulationPane,Some(pane))
-  pane.setCenter(pannablePane)
-  scene  = new Scene {
-    content = pane
+  this.onCloseRequest = new EventHandler[WindowEvent] {
+    override def handle(event: WindowEvent): Unit = System.exit(exitValue)
   }
-  pane.prefWidthProperty().bind(this.getScene().widthProperty())
-  pane.prefHeightProperty().bind(this.getScene().heightProperty())
-  override type OUTPUT = GraphicsOutput
+  scene  = new Scene {
+    content = mainPane
+  }
+  mainPane.setAlignment(Pos.Center)
+  mainPane.children = logoPanel
+  this.title = name
+
+  override type OUTPUT = GraphicsView
 
   override def name: String = "Simulation pane"
 
   override def close: Unit = this.close()
 
+  def renderSimulation(): Unit = {
+    val timeToWait = 1000
+    val pane = new BorderPane {
+      padding = Insets(Padding)
+    }
+    infoPane.padding = Insets(Padding)
+    pane.setTop(infoPane)
+    val debugInfo = new Label()
+    infoPane.children.addAll(debugInfo)
+    val pannablePane = new PannablePane(simulationPane,Some(pane))
+    pane.setCenter(pannablePane)
+    //TODO BETTER
+    val tracker = PerformanceTracker.getSceneTracker(scene.value)
+    val t = new Thread(new Runnable {
+      override def run(): Unit = {
+        while(true) {
+          Platform.runLater{
+            debugInfo.setText("FPS : "+tracker.getInstantFPS + " PULSE: " + tracker.getInstantPulses)
+          }
+          Thread.sleep(1000)
+        }
+      }
+    })
+    if(debug) {
+      t.start()
+    }
+    pane.prefWidthProperty().bind(this.getScene().widthProperty())
+    pane.prefHeightProperty().bind(this.getScene().heightProperty())
+    val fade = new FadeTransition(Duration.apply(timeToWait),logoPanel)
+    fade.toValue = 0
+    fade.fromValue = 1
+    fade.onFinished = (e:ActionEvent) => {
+      this.mainPane.children = pane
+
+    }
+    fade.playFromStart()
+  }
   override def output: Set[OUTPUT] = ???
 }

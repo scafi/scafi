@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi
 
 import it.unibo.scafi.simulation.gui.controller.Presenter
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesMoved
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
 import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
 import it.unibo.scafi.simulation.gui.pattern.observer.Source
@@ -19,7 +19,6 @@ import scalafx.application.Platform
   * @param contract the scafi simulation
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */
-//TODO PROBLEM WITH NEIGHBOURS, SOLVE
 class ScafiFXRender(val world : ScafiLikeWorld,
                     val out : FXSimulationPane,
                     val contract : ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype],
@@ -27,9 +26,10 @@ class ScafiFXRender(val world : ScafiLikeWorld,
 
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
+  val devChanged = world.createObserver(Set(NodesDeviceChanged))
   private var prevNeighbour : mutable.Map[ScafiWorldIncarnation.ID,Iterable[ScafiWorldIncarnation.ID]] = mutable.Map()
   contract.getSimulation.get.ids.foreach {x => prevNeighbour += x -> contract.getSimulation.get.neighbourhood(x)}
-  world <-- removed <-- moved
+  world <-- removed <-- moved <-- devChanged
   override type OUTPUT = FXSimulationPane
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
@@ -43,8 +43,6 @@ class ScafiFXRender(val world : ScafiLikeWorld,
     //MOVING
     val nodesMoved = moved.nodeChanged()
     if (!nodesMoved.isEmpty) {
-      LogManager.log("view moving..", LogManager.Middle)
-      Platform.runLater{out.outNode(world(nodesMoved))}
       nodesMoved foreach { x =>
         val node = world(x).get
         contract.getSimulation.get.setPosition((x), Point3D(node.position.x, node.position.y, node.position.z))
@@ -70,8 +68,15 @@ class ScafiFXRender(val world : ScafiLikeWorld,
         }
       }
       Platform.runLater{
+        out.outNode(world(nodesMoved))
         out.outNeighbour(toAdd)
         out.removeNeighbour(toRemove)
+      }
+    }
+    val deviceToOut = devChanged.nodeChanged()
+    if(!deviceToOut.isEmpty) {
+      Platform.runLater{
+        out.outDevice(world.apply(deviceToOut))
       }
     }
   }

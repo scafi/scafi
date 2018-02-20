@@ -10,7 +10,7 @@ import scalafx.scene.layout.Pane
   * @param pane the pane want to pan
   * @param attachOn if pane is attach on another pane
   */
-class PannablePane(pane : Node, attachOn : Option[Pane] = None) extends ScrollPane{
+class PannablePane(pane : Node, attachOn : Option[Pane] = None) extends ScrollPane {
   this.content = pane
   this.pannable = true
   this.hbarPolicy = ScrollPane.ScrollBarPolicy.Never;
@@ -19,4 +19,5 @@ class PannablePane(pane : Node, attachOn : Option[Pane] = None) extends ScrollPa
     this.prefHeight.bind(attachOn.get.prefHeightProperty())
     this.prefWidth.bind(attachOn.get.prefWidthProperty())
   }
+
 }

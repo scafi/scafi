@@ -1,6 +1,5 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
-import it.unibo.scafi.incarnations.{BasicAbstractSpatialSimulationIncarnation => ExternSimulation}
 import it.unibo.scafi.simulation.gui.controller.logical.SimulationContract
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
 //SCAFI CONTRACT DON'T SUPPORT REMOVING
@@ -24,9 +23,6 @@ class ScafiSimulationContract[W <: ScafiLikeWorld, PROTO <: ScafiPrototype]
   }
 
   private def createSimulation(w : W, p : PROTO) : SpaceAwareSimulator = {
-
-    import it.unibo.scafi.space.{Point3D => ExternalPoint}
-
     val nodes: Map[ID, P] = w.nodes map {n => n.id -> new P(n.position.x,n.position.y,n.position.z)} toMap
     val res : SpaceAwareSimulator = new SpaceAwareSimulator(simulationSeed = p.randomSeed,randomSensorSeed = p.randomDeviceSeed,
       space = new Basic3DSpace(nodes,

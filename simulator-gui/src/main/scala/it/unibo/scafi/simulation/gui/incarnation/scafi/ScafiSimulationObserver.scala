@@ -4,6 +4,7 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi
 import it.unibo.scafi.incarnations.{BasicAbstractSpatialSimulationIncarnation => ExternSimulation}
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.gui.launcher.scalaFX.Simple
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
 //TODO RIGUARDARE COMPLETAMENTE q
@@ -15,7 +16,7 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
                                                    val program : Any) extends ExternalSimulation[W]{
 
   //TODO BRIDGE
-  //val ap = (new Simple).asInstanceOf[CONTEXT=>EXPORT]
+  val ap = (new Simple).asInstanceOf[CONTEXT=>EXPORT]
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkRemoved = world.createObserver(Set(NodesRemoved))
   private val checkChanged = world.createObserver(Set(NodesDeviceChanged))
@@ -32,17 +33,14 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
   override protected var currentExecutor: ActorExecutor = _
 
   override protected def AsyncLogicExecution(): Unit = {
-
-    println(contract.getSimulation.isDefined)
     if(contract.getSimulation.isDefined) {
       val net = contract.getSimulation.get
-      /*val result = net.exec(ap)
-      exportProduced += result._1 -> result._2*/
+      val result = net.exec(ap)
+      exportProduced += result._1 -> result._2
     }
   }
-
+  //TODO AGGIUNGI CLEAR IN OBSERVER WORLD
   override def onTick(float: Float): Unit = {
-    import it.unibo.scafi.space.{Point3D => ExternalPoint}
     val removed = checkRemoved.nodeChanged()
     val moved = filterRemoved(removed,checkMoved.nodeChanged())
     val devs = filterRemoved(removed,checkChanged.nodeChanged())
@@ -52,8 +50,15 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
       //TODO AGGIUNGI ANCHE IL COMPORTAMENTO DEL MOVIMENTO, PENSA SE USARE UNA STRATEGY ESTERNA
       devs map {world(_).get} foreach {x => x.devices.foreach(y => extern.chgSensorValue(y.name,Set(x.id),y.value))}
     }
-    /*println(exportProduced)
-    exportProduced = Set.empty*/
+    //TODO REMEMBER TO CREATE SOMETHING DIFFERENT! ONLY TEST NOW!
+    exportProduced foreach { x => {
+      val devs = world(x._1).get.devices
+      val dev = devs.find {y => y.name == "generic"}.get
+      if(dev.value != x._2.root()) {
+        world.changeSensorValue(x._1,"generic",x._2.root())
+      }
+    }}
+    exportProduced = Set.empty
   }
 
   private def filterRemoved(removed : Set[world.ID], another : Set[world.ID]) : Set[world.ID] = another filter { removed.contains(_)}

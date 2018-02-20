@@ -1,4 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
+import javafx.scene.shape.Rectangle
+
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiInputController
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.SelectionArea
@@ -11,8 +13,9 @@ import scalafx.Includes._
 class FXSimulationPane (val inputController : ScafiInputController)extends AbstractFXSimulationPane with SelectionArea {
   private val _nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
   private val  neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
-  private val devices : mutable.Map[World#ID,Set[Node]] = mutable.Map()
-
+  private val devices : mutable.Map[World#ID,Set[javafx.scene.Node]] = mutable.Map()
+  //TODO REMBER TO REMOVE
+  private val color = Color.rgb(225,225,225)
   def nodes : Map[World#ID,(Node,Point2D)] =_nodes.toMap
   override def outNode[N <: World#Node](node: Set[N]): Unit = {
     val nodeAdding : mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
@@ -39,27 +42,24 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
   }
 
   override def outNeighbour[N <: World#Node](nodes : Map[N,Set[N]]): Unit = {
-
     val linkAdding : mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
     nodes foreach { node => {
       val gnode = this._nodes(node._1.id)._1
       node._2 foreach { x => {
         val endGnode = this._nodes(x.id)._1
-        val link = new NodeLine(gnode,endGnode,Color.web("rgba(125,125,125,0.1)"))
+        //TODO REMEMBER TO REMOVE THIS MAGIC NUMBER
+        val link = new NodeLine(gnode,endGnode,color)
         if(!this.neighbours.get(node._1.id).isDefined) {
           this.neighbours += node._1.id -> mutable.Map()
         }
 
         val ntox : mutable.Map[World#ID,Node] = this.neighbours(node._1.id)
         //CHECK IF THE LINK IS ALREADY SHOW
-        if(!ntox.contains(x.id)) {
           linkAdding += link
           ntox += (x.id -> link)
-        }
       }}
       }
     }
-
     this.children.addAll(linkAdding.toSeq:_*)
   }
 
@@ -92,15 +92,28 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
     this.children --= removing
   }
 
-  override def outDevice[N <: World#Node](node: N): Unit = {
-    val devs : Set[javafx.scene.Node] = deviceToNode(node.devices,_nodes(node.id)._1)
-    this.children.addAll(devs.toSeq:_*)
+  override def outDevice[N <: World#Node](nodes: Set[N]): Unit = {
+    var toRemove : List[javafx.scene.Node] = List()
+    var toAdd : List[javafx.scene.Node] = List()
+    nodes foreach { node => {
+      if(this.devices.get(node.id).isEmpty) {
+        this.devices += node.id -> Set()
+      }
+      toRemove ++= (this.devices(node.id))
+      val devs : Set[javafx.scene.Node] = deviceToNode(node.devices,_nodes(node.id)._1)
+      toAdd ++= devs
+      this.devices += node.id -> devs
+    }}
+    this.children.removeAll(toRemove:_*)
+    this.children.addAll(toAdd:_*)
   }
 
-  override def clearDevice[N <: World#ID](node: N): Unit = {
-    if(this.devices.get(node).isDefined) {
-      this.devices(node) foreach {this.children -= _ }
-      this.devices -= node
+  override def clearDevice[ID <: World#ID](nodes: Set[ID]): Unit = {
+    nodes foreach { node =>
+      if(this.devices.get(node).isDefined) {
+        this.devices(node) foreach {this.children -= _ }
+        this.devices -= node
+      }
     }
   }
 }

@@ -3,11 +3,11 @@ package it.unibo.scafi.simulation.gui.launcher.console
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.logical.LogicController
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler
-import it.unibo.scafi.simulation.gui.incarnation.console.{ConsoleOutput, ConsoleWorld}
+import it.unibo.scafi.simulation.gui.incarnation.console.{ConsoleView, ConsoleWorld}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D}
-import it.unibo.scafi.simulation.gui.view.SimulationOutput
+import it.unibo.scafi.simulation.gui.view.SimulationView
 
 import scala.util.Random
 
@@ -17,7 +17,7 @@ object Main extends App {
   val name = "simple"
   val bigNumber = 1000
   (0 to bigNumber) foreach {x => {world + new world.RootNode(id = x, position = Point.ZERO)}}
-  val output = new ConsoleOutput
+  val output = new ConsoleView
   val controller = new FailureController(output,world)
   val movingController = new RandomMovementController(output,world)
   scheduler <-- controller
@@ -27,7 +27,7 @@ object Main extends App {
   LogManager <-- (new ConsoleLogger)
 }
 
-class FailureController(out : SimulationOutput, world : ConsoleWorld) extends LogicController[ConsoleWorld]  {
+class FailureController(out : SimulationView, world : ConsoleWorld) extends LogicController[ConsoleWorld]  {
   private val observer = world.createObserver(Set())
   world <-- observer
   private val r = new Random()
@@ -61,7 +61,7 @@ class FailureController(out : SimulationOutput, world : ConsoleWorld) extends Lo
   override def stop: Unit = {}
 }
 
-class RandomMovementController(out: SimulationOutput, world: ConsoleWorld) extends LogicController[ConsoleWorld] {
+class RandomMovementController(out: SimulationView, world: ConsoleWorld) extends LogicController[ConsoleWorld] {
   private val observer = world.createObserver(Set(NodesRemoved))
   world <-- observer
   private val r = new Random()

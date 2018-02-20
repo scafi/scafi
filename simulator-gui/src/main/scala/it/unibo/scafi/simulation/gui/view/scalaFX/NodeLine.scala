@@ -1,8 +1,9 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
 
-import scalafx.scene.Node
+import scalafx.scene.effect.BlendMode
+import scalafx.scene.{CacheHint, Node}
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Line
+import scalafx.scene.shape.{Line, StrokeType}
 
 /**
   *
@@ -16,5 +17,6 @@ class NodeLine(start : Node, end : Node, c : Color) extends Line{
   startY.bind(start.translateY + ps.y)
   endX.bind(end.translateX + pend.x)
   endY.bind(end.translateY + pend.y)
+  this.smooth = false
   stroke = c //TODO COLOR MUTABLE
 }
