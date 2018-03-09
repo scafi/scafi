@@ -29,7 +29,7 @@ object WorldConfig {
     * @tparam V the type of value
     * @return the devices created
     */
-  def dev[V](n : Name, value : V = true) : DEVICE = deviceFactory.create(n.name,true,new ExternalDevicePrototype(value))
+  def dev[V](n : Name, value : V = true) : DEVICE = deviceFactory.create(n.name,new ExternalDevicePrototype(value))
   private val deviceProto : DevicePrototype = new ExternalDevicePrototype(true)
 
   /**

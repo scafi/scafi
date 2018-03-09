@@ -29,7 +29,7 @@ class BasicTestIncarnation extends FunSpec with Matchers{
   val anotherValue = "Bye"
   //TODO PRODUCE MORE TEST ON SENSOR
   val devProto = new world.ExternalDevicePrototype[Any](devValue)
-  val dev = world.deviceFactory.create(devName,true,devProto)
+  val dev = world.deviceFactory.create(devName,devProto)
   world.addDevices(world.nodes.map {x => x.id -> dev} toMap)
   checkThat("I can add device in a world") {
     val nodeDevice = world(aNode).get.getDevice(devName)
@@ -50,12 +50,6 @@ class BasicTestIncarnation extends FunSpec with Matchers{
       case TextSensor(t) => assert(t == anotherValue)
       case _ => fail()
     }
-  }
-  checkThat("I can switch off a sensor") {
-    assert(world.switchOffDevice(aNode,devName))
-    assert(!(world(aNode).get.getDevice(devName).get.state))
-    assert(world.switchOnDevice(aNode,devName))
-    assert(world(aNode).get.getDevice(devName).get.state)
   }
   //CHECKS ON CONTRACT
   val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]()

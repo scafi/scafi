@@ -10,8 +10,8 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
   val checkThat = new ItWord
   val point = Point3D(1,1,2)
   val aggregateWorld = new BasicTestableAggregateWorld
-  val dev = new aggregateWorld.BasicTestableAggregateDevice("mydevice",false)
-  val superDevice = new aggregateWorld.BasicTestableAggregateDevice("adevice",true)
+  val dev = new aggregateWorld.BasicTestableAggregateDevice("mydevice")
+  val superDevice = new aggregateWorld.BasicTestableAggregateDevice("adevice")
   val node = new aggregateWorld.BasicTestableAggregateNode(id = 1,devices = Set(dev),position = Point.ZERO)
   val anotherNode = new aggregateWorld.BasicTestableAggregateNode(id = 2, devices = Set(dev), position = point)
 
@@ -31,21 +31,13 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
     assert(changeNode.get.position == point)
   }
   checkThat("i can change the state of device in a node in the aggregateWorld") {
-    assert(aggregateWorld.switchOnDevice(node.id,dev.name))
     val changedNode = aggregateWorld(node.id)
     assert(changedNode.isDefined)
     val changedDev = changedNode.get.getDevice(dev.name)
     assert(changedDev.isDefined)
-    assert(changedDev.get.state)
-    assert(aggregateWorld.switchOffDevice(node.id,dev.name))
   }
   aggregateWorld + anotherNode
-  checkThat("i can switch on a set of device") {
-    assert(aggregateWorld.switchOnDevices( Map(node.id -> dev.name, anotherNode.id -> dev.name)).isEmpty)
-  }
-  checkThat("i can switch off a set of device") {
-    assert(aggregateWorld.switchOffDevices( Map(node.id -> dev.name, anotherNode.id -> dev.name)).isEmpty)
-  }
+
   checkThat("i can add a device") {
     assert(aggregateWorld.addDevice(node.id,superDevice))
     val changedNode = aggregateWorld(node.id)
@@ -69,10 +61,10 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
     val anObserver = aggregateWorld.createObserver(Set(NodesDeviceChanged))
     aggregateWorld <-- anObserver
     assert(anObserver.nodeChanged.isEmpty)
-    aggregateWorld.switchOnDevice(node.id,dev.name)
+    aggregateWorld.moveNode(node.id,Point.ZERO)
     assert(anObserver.nodeChanged.size == 1)
     assert(anObserver.nodeChanged.isEmpty)
-    aggregateWorld.switchOffDevice(node.id,dev.name)
+    aggregateWorld.moveNode(node.id,Point.ZERO)
     aggregateWorld.addDevice(node.id,superDevice)
     aggregateWorld.removeDevice(node.id,superDevice)
     assert(anObserver.nodeChanged().size == 1)

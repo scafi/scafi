@@ -124,11 +124,5 @@ trait World {
       * the name of the device, it must immutable
       */
     val name : NAME
-
-    /**
-      * tell if the device is enable or disable
-      * @return true if it is enable false otherwise
-      */
-    def state : Boolean
   }
 }

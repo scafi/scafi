@@ -91,9 +91,6 @@ package object scalaFX {
     val increaseRadius = 2
     val lineWidth = 2
     var currentR = nodeWidth
-    //TODO REMBER TO ADD COLOR IN MODEL
-    val onColor = Color.Red
-    val offColor = Color.Black
     val point = nodeToAbsolutePosition(n)
     label.layoutX.bind(n.translateX +point.x)
     label.layoutY.bind(n.translateY + point.y + yoffset)

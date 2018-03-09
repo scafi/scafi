@@ -50,7 +50,6 @@ class BasicTestablePlatform extends BasicPlatform with SimpleSource{
     override def copy[V](value: V): DEVICE_PROTOTYPE = new ExternalDevicePrototype(value)
   }
   class InternalSensor[E] private[BasicTestablePlatform](val name: String,
-                           val state: Boolean,
                            val value : E)extends Sensor[E] {
     override val prototype: DEVICE_PROTOTYPE = new ExternalDevicePrototype(value)
 
@@ -76,7 +75,7 @@ class BasicTestablePlatform extends BasicPlatform with SimpleSource{
                         proto: ExternalNodePrototype): InternalNode = new InternalNode(id,proto.shape,position,devices)
   }
   class ExternalDeviceFactory private[BasicTestablePlatform]() extends DeviceFactory {
-    override def create(n: String, s: Boolean, proto: ExternalDevicePrototype[Any]): InternalSensor[Any] = new InternalSensor(n,s,proto.value)
+    override def create(n: String, proto: ExternalDevicePrototype[Any]): InternalSensor[Any] = new InternalSensor(n,proto.value)
   }
   val nodeFactory: NODE_FACTORY = new ExternalNodeFactory
   val deviceFactory: DEVICE_FACTORY= new ExternalDeviceFactory

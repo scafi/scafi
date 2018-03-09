@@ -17,13 +17,13 @@ object Launch extends App {
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   val shape = Circle(1)
-  val ticked = 33
-  val littleRadius = 50
-  val bigN = 200
-  val maxPoint = 500
+  val ticked = 500
+  val littleRadius = 20
+  val bigN = 5000
+  val maxPoint = 1000
   val minDelta = 1
   val maxDelta = 10
-  val neighbourRender = true
+  val neighbourRender = false
   devs = Set(
     dev(source,false),
     dev(destination,false),

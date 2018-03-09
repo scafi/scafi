@@ -31,7 +31,7 @@ class BasicTestableAggregateWorld extends AggregateWorld with SimpleSource{
                         proto: NODE_PROTOTYPE): BasicTestableAggregateNode = new BasicTestableAggregateNode(id,devices,position,proto)
   }
   class BasicDeviceFactory extends DeviceFactory {
-    override def create(n: String, s: Boolean, proto: BasicDevicePrototype): BasicTestableAggregateDevice = new BasicTestableAggregateDevice(n,s)
+    override def create(n: String, proto: BasicDevicePrototype): BasicTestableAggregateDevice = new BasicTestableAggregateDevice(n)
   }
   override val boundary: Option[B] = None
   class BasicTestableAggregateNode(override val id : Int,
@@ -61,8 +61,8 @@ class BasicTestableAggregateWorld extends AggregateWorld with SimpleSource{
 
   class BasicNodePrototype(val shape: Option[Shape2D]) extends NodePrototype
 
-  class BasicTestableAggregateDevice(val name : String, val state: Boolean) extends AggregateDevice {
-    override def toString = s"BasicTestableAggregateDevice($name, $state)"
+  class BasicTestableAggregateDevice(val name : String) extends AggregateDevice {
+    override def toString = s"BasicTestableAggregateDevice($name)"
 
     /**
       * @return the internal representation of node

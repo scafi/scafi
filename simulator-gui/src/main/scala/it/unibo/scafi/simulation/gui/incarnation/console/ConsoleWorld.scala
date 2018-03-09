@@ -22,14 +22,14 @@ class ConsoleWorld extends AggregateWorld with SimpleSource {
     override def positionAllowed(p: P): Boolean = true
   }
   class RootDeviceFactory extends DeviceFactory{
-    override def create(n: String, s: Boolean,proto : DEVICE_PROTOTYPE): RootDevice = new RootDevice(n,s)
+    override def create(n: String,proto : DEVICE_PROTOTYPE): RootDevice = new RootDevice(n)
   }
   class RootNodeFactory extends NodeFactory {
     override def create(id: Int, position: Point2D, devices: Set[RootDevice], proto: FakeNodePrototype): RootNode = new RootNode(id,position,devices)
   }
 
-  class RootDevice(override val name : String, override val state : Boolean = false) extends AggregateDevice {
-    override def toString = s"RootDevice($name, $state)"
+  class RootDevice(override val name : String) extends AggregateDevice {
+    override def toString = s"RootDevice($name)"
 
     /**
       * @return the internal representation of node

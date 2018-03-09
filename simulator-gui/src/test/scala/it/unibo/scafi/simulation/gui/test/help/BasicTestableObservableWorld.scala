@@ -29,9 +29,6 @@ object BasicTestableObservableWorld extends ObservableWorld with SimpleSource {
     override def devices: Set[DEVICE] = device.values.toSet
   }
 
-  class BasicTestableDevice(override val name : String) extends Device {
-    private var _enable = false
-    override def state: Boolean = _enable
-  }
+  class BasicTestableDevice(override val name : String) extends Device {}
 }
 

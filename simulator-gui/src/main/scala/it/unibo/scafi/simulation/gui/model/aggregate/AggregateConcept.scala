@@ -50,9 +50,9 @@ trait AggregateConcept  {
     * the root concept of device factory
     */
   trait DeviceFactory {
-    def create(n : self.NAME, s : Boolean,proto : DEVICE_PROTOTYPE) : self.DEVICE
+    def create(n : self.NAME ,proto : DEVICE_PROTOTYPE) : self.DEVICE
 
-    def copy[D <: AggregateDevice](device : D)(s : Boolean = device.state, proto : DEVICE_PROTOTYPE = device.prototype) : self.DEVICE = create(device.name,s,proto)
+    def copy[D <: AggregateDevice](device : D)(proto : DEVICE_PROTOTYPE = device.prototype) : self.DEVICE = create(device.name,proto)
   }
   /**
     * define a skeleton of a device

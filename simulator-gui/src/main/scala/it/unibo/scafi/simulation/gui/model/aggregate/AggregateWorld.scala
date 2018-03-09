@@ -30,49 +30,6 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     produceResult(nodes,filterPosition,a => WorldEvent(a map {_.id},NodesMoved))
   }
   /**
-    * switch on a device
-    * @param n the node
-    * @param name the name of device
-    * @throws IllegalArgumentException if the node isn't in world
-    * @return true if the device turn on false otherwise
-    */
-  def switchOnDevice(n : ID, name : NAME): Boolean = {
-    val node = getNodeOrThrows(n)
-    val nodeChanged = switchDevice(node,name,true)
-    produceResult(node,name ,nodeChanged,a => WorldEvent(Set(a.id),NodesDeviceChanged))
-  }
-
-  /**
-    * switch on a set of device
-    * @param nodes the node and the the device wants to switch on
-    * @throws IllegalArgumentException if the some node aren't in world
-    * @return true if all device are switch on false otherwise
-    */
-  def switchOnDevices(nodes : Map[ID,NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b:NAME) => switchDevice(a,b,true),a => WorldEvent(a map {_.id},NodesDeviceChanged))
-  }
-  /**
-    * switch of a device
-    * @param n the node
-    * @param name the name of device
-    * @throws IllegalArgumentException if the node isn't in world
-    * @return true if the device is switched off false otherwise
-    */
-  def switchOffDevice(n : ID, name : NAME): Boolean = {
-    val node = getNodeOrThrows(n)
-    val nodeChanged = switchDevice(node,name,false)
-    produceResult(node,name,nodeChanged,a => WorldEvent(Set(a.id),NodesDeviceChanged))
-  }
-  /**
-    * switch off a set of device
-    * @param nodes the node and the the device wants to switch off
-    * @throws IllegalArgumentException if some node aren't in the world
-    * @return the set of node that can't turn on a device
-    */
-  def switchOffDevices(nodes : Map[ID,NAME]) : Set[NODE] = {
-    produceResult(nodes,(a,b: NAME) => switchDevice(a,b,false),a => WorldEvent(a map {_.id},NodesDeviceChanged))
-  }
-  /**
     * add a device to a node in the world
     * @param n the node
     * @param d the device name
@@ -154,17 +111,6 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
   private val filterPosition : (NODE,P) => Option[NODE] = (a,b) => {
     val moved = nodeFactory.copy(a)(position = b)
     val res : Option[NODE] = if(!this.nodeAllowed(moved)) None else Some(moved)
-    res
-  }
-
-  private val switchDevice: (NODE,NAME,Boolean) => Option[NODE] = (node,name,state) => {
-    val selected = node.getDevice(name)
-    var res : Option[NODE] = None
-    if(selected.isDefined && selected.get.state != state) {
-      val newDevices = node.devices - selected.get
-      val onSelected = deviceFactory.copy(selected.get)(state)
-      res = Some((nodeFactory.copy(node)(devices = newDevices + onSelected)))
-    }
     res
   }
 
