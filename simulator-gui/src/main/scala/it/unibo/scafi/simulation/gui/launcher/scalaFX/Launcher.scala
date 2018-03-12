@@ -10,20 +10,20 @@ import scala.util.Random
 import scalafx.application.Platform
 import scalafx.scene.layout.HBox
 //TODO SIMPLE EXAMPLE , REMBEMER TO CREATE A LAUNCHER USED TO LAUNCH EXTERNAL SIMULATION
-object Launch extends App {
+object Launcher extends App {
   val r = new Random()
   new JFXPanel()
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig._
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   val shape = Circle(1)
-  val ticked = 500
-  val littleRadius = 20
-  val bigN = 5000
+  val ticked = 33
+  val littleRadius = 50
+  val bigN = 1000
   val maxPoint = 1000
   val minDelta = 1
   val maxDelta = 10
-  val neighbourRender = false
+  val neighbourRender = true
   devs = Set(
     dev(source,false),
     dev(destination,false),
@@ -55,8 +55,8 @@ object Launch extends App {
   }
   val scafi = new ScafiSimulationObserver(world,contract,0,0,scafiPrototype,"program")
   scafi.init()
-  val render = new ScafiFXRender(world,pane,contract,neighbourRender)
-
+  contract.getSimulation.get.getAllNeighbours() foreach {x => {world.network.setNeighbours(x._1,x._2.toSet)}}
+  val render = new FXRender(world,pane,neighbourRender)
   Platform.runLater{
     pane.outNode(world.nodes)
     if(neighbourRender) {

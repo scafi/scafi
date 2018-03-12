@@ -37,7 +37,7 @@ object Scheduler {
       override def run(): Unit = {
         while(on) {
           val t0 = System.currentTimeMillis()
-          scheduler.!!!(Tick(delta))
+          scheduler !!!(Tick(delta))
           val t1 = System.currentTimeMillis()
           val wait = if (t1 - t0 > delta) {
             0

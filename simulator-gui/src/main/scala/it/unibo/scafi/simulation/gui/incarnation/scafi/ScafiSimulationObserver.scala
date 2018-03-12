@@ -7,6 +7,7 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.Simple
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
+import it.unibo.scafi.space.Point3D
 //TODO RIGUARDARE COMPLETAMENTE q
 class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world : W,
                                                    val contract : ScafiSimulationContract[W,ScafiPrototype],
@@ -18,11 +19,10 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
   //TODO BRIDGE
   val ap = (new Simple).asInstanceOf[CONTEXT=>EXPORT]
   private val checkMoved = world.createObserver(Set(NodesMoved))
-  private val checkRemoved = world.createObserver(Set(NodesRemoved))
   private val checkChanged = world.createObserver(Set(NodesDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
   private var exportProduced : Set[(world.ID,EXPORT)] = Set()
-  world <-- checkAdded <-- checkRemoved <-- checkChanged <-- checkAdded
+  world <-- checkAdded <-- checkChanged <-- checkAdded <-- checkMoved
 
 
   override type EXTERNAL_SIMULATION = SpaceAwareSimulator
@@ -41,14 +41,20 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
   }
   //TODO AGGIUNGI CLEAR IN OBSERVER WORLD
   override def onTick(float: Float): Unit = {
-    val removed = checkRemoved.nodeChanged()
-    val moved = filterRemoved(removed,checkMoved.nodeChanged())
-    val devs = filterRemoved(removed,checkChanged.nodeChanged())
-    val added = filterRemoved(removed,checkAdded.nodeChanged())
+    val moved = checkMoved.nodeChanged()
+    val devs = checkChanged.nodeChanged()
+    val added = checkAdded.nodeChanged()
     if(contract.getSimulation.isDefined) {
       val extern = contract.getSimulation.get
       //TODO AGGIUNGI ANCHE IL COMPORTAMENTO DEL MOVIMENTO, PENSA SE USARE UNA STRATEGY ESTERNA
       devs map {world(_).get} foreach {x => x.devices.foreach(y => extern.chgSensorValue(y.name,Set(x.id),y.value))}
+      moved foreach { x =>
+        val node = world(x).get
+        contract.getSimulation.get.setPosition((x), Point3D(node.position.x, node.position.y, node.position.z))
+        val neigh = contract.getSimulation.get.neighbourhood(x)
+        world.network.setNeighbours(x,neigh)
+        neigh foreach {x => {world.network.setNeighbours(x,contract.getSimulation.get.neighbourhood(x))}}
+      }
     }
     //TODO REMEMBER TO CREATE SOMETHING DIFFERENT! ONLY TEST NOW!
     exportProduced foreach { x => {
@@ -60,8 +66,6 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
     }}
     exportProduced = Set.empty
   }
-
-  private def filterRemoved(removed : Set[world.ID], another : Set[world.ID]) : Set[world.ID] = another filter { removed.contains(_)}
 }
 
 

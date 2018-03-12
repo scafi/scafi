@@ -2,11 +2,12 @@ package it.unibo.scafi.simulation.gui.view
 
 
 import java.util.concurrent.{CompletableFuture, CountDownLatch}
+import javafx.collections.ObservableList
 
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig
 import it.unibo.scafi.simulation.gui.model.core.{World, Shape => InternalShape}
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform.{OnOffSensor, TextSensor}
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
+import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors._
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
 import scalafx.application.Platform
@@ -15,7 +16,7 @@ import scalafx.scene.{CacheHint, Node}
 import scalafx.scene.control.Label
 import scalafx.scene.image.Image
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Circle, Ellipse, Rectangle}
+import scalafx.scene.shape.{Circle, Ellipse, Polygon, Rectangle}
 //TODO THINK WHERE ADD COLOR (SIMPLE TEST)
 //TODO FOR PERFORMANCE USE IMAGE INSTEAD OF SHAPE -> TO DRAW IMAGE JAVAFX DON'T USE CPU , ONLY GPU
 package object scalaFX {

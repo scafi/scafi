@@ -134,6 +134,11 @@ trait ObservableWorld extends World {
         case _ =>
       }
     }
+
+    /**
+      * tells the set of nodes changed
+      * @return
+      */
     def nodeChanged(): Set[ID] = events map {_.asInstanceOf[WorldEvent]} flatMap {_.nodes} toSet
   }
 

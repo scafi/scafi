@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.{ScafiLikeWorld, ScafiPrototype, ScafiSimulationContract}
-import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform.{OnOffSensor, TextSensor}
+import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors._
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.test.help.SimpleScafiLikeWorld
 import org.scalatest.{FunSpec, Matchers}

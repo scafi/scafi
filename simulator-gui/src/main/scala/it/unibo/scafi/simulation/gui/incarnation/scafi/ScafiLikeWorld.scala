@@ -23,15 +23,12 @@ object ScafiLikeWorld {
 /**
   * an incarnation to a scafi like world
   */
-object SimpleScafiWorld extends ScafiLikeWorld  {
-  override type ID = Int
+object SimpleScafiWorld extends ScafiLikeWorld   {
   override type NODE = InternalNode
-  override type P = Point3D
   override type S = Shape2D
   override type NODE_PROTOTYPE = ExternalNodePrototype
   override type NODE_FACTORY = NodeFactory
 
-  override type NAME = String
   override type DEVICE = InternalSensor[Any]
   override type DEVICE_PROTOTYPE = ExternalDevicePrototype[Any]
   override type DEVICE_FACTORY = DeviceFactory

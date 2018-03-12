@@ -49,6 +49,33 @@ trait ExternalSimulation[W <: AggregateWorld] extends AsyncLogicController[W]{
     require(isStopped && contract.getSimulation.isDefined)
     super.start()
   }
+
+  /** TODO REPLACE WITH THIS
+  trait ExternalSimulationContract[EXTERNAL] {
+    /**
+    * get the current external simulation
+    *
+    * @return None if the simulation isn't initialize, Some otherwhise
+    */
+    def getSimulation: Option[EXTERNAL]
+
+    /**
+    * initialize the external simulation
+    *
+    * @throws IllegalStateException if the simulation is already initialized
+    * @param world the internal representation of the world
+    */
+    def initialize(world: W, prototype: SIMULATION_PROTOTYPE)
+
+    /**
+    * restart the external simulation
+    *
+    * @throws IllegalStateException if the simulation is never initialized
+    * @param world the internal representation of the world
+    */
+    def restart(world: W, prototype: SIMULATION_PROTOTYPE)
+  }
+    */
 }
 
 /**

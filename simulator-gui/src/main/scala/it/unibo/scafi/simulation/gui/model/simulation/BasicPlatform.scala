@@ -2,15 +2,19 @@ package it.unibo.scafi.simulation.gui.model.simulation
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesDeviceChanged
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld
 /**
   * define a platform for simple simulation
   */
-trait BasicPlatform extends AggregateWorld {
+trait BasicPlatform extends AggregateWorld with ConnectedWorld{
   self : BasicPlatform.Dependency =>
   override type DEVICE <: Sensor[Any]
-
   override type DEVICE_PROTOTYPE <: SensorPrototype[Any]
+  override type NET = Network
 
+  private val net : NET = new NetworkImpl
+
+  override def network: NET = net
   /**
     * the interface of a sensor
     * @tparam E the value of sensor
@@ -73,28 +77,36 @@ trait BasicPlatform extends AggregateWorld {
     require(node.getDevice(d).isDefined)
     (node,node.getDevice(d).get)
   }
+
+  private class NetworkImpl extends Network {
+    private var neigh : Map[ID,Set[ID]] = Map.empty
+    /**
+      * the neighbours of a node
+      *
+      * @param n the node
+      * @return a set of neighbours
+      */
+    override def neighbours(n: ID): Set[ID] = neigh.getOrElse(n,Set())
+
+    /**
+      * the neighbour in the world
+      *
+      * @return the network
+      */
+  override def neighbours(): Map[ID, Set[ID]] = neigh
+
+    /**
+      * set a neighbours of a node
+      *
+      * @param node      the node in thw world
+      * @param neighbour the neighbour
+      */
+    override def setNeighbours(node: ID, neighbour: Set[ID]): Unit = neigh += node -> neighbour
+  }
 }
 
 object BasicPlatform {
   type Dependency = AggregateWorld.Dependency
-  object OnOffSensor {
-    def unapply[E](arg: Any): Option[Boolean] = {
-      if(arg.isInstanceOf[BasicPlatform#Sensor[E]]) {
-        val s = arg.asInstanceOf[BasicPlatform#Sensor[E]]
-        if(s.value.isInstanceOf[Boolean]) return Some(s.value.asInstanceOf[Boolean])
-      }
-      None
-    }
-  }
-  object TextSensor {
-    def unapply[E](arg: Any): Option[String] = {
-      if(arg.isInstanceOf[BasicPlatform#Sensor[E]]) {
-        val s = arg.asInstanceOf[BasicPlatform#Sensor[E]]
-        if(s.value.isInstanceOf[String]) {
-          return Some(s.value.asInstanceOf[String])
-        }
-      }
-      None
-    }
-  }
 }
+
+

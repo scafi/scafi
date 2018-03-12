@@ -73,4 +73,8 @@ trait Observer {
     this._events = List[Event]()
     res
   }
+  /**
+    * clear the queue of events
+    */
+  def clear() : Unit = events
 }
