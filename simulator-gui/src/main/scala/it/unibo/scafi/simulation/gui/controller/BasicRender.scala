@@ -1,14 +1,11 @@
-package it.unibo.scafi.simulation.gui.launcher.scalaFX
+package it.unibo.scafi.simulation.gui.controller
 
-import it.unibo.scafi.simulation.gui.controller.Presenter
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
 import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
 import it.unibo.scafi.simulation.gui.pattern.observer.Source
-import it.unibo.scafi.simulation.gui.view.scalaFX.FXSimulationPane
-
-import scalafx.application.Platform
+import it.unibo.scafi.simulation.gui.view.SimulationView
 
 /**
   * the render of output to a graphics view (scalafx library)
@@ -16,28 +13,27 @@ import scalafx.application.Platform
   * @param out where render show thing
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */
-class FXRender(val world : BasicPlatform with Source,
-               val out : FXSimulationPane,
-               val neighbourRender : Boolean) extends Presenter[BasicPlatform with Source]{
+class BasicRender(val world : BasicPlatform with Source,
+                  val out : SimulationView,
+                  val neighbourRender : Boolean) extends Presenter[BasicPlatform with Source]{
 
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
   val devChanged = world.createObserver(Set(NodesDeviceChanged))
   private var prevNeighbour : Map[world.ID,Set[world.ID]] = world.network.neighbours()
   world <-- removed <-- moved <-- devChanged
-  override type OUTPUT = FXSimulationPane
+  override type OUTPUT = SimulationView
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
     val nodesRemoved = removed.nodeChanged()
     if (!nodesRemoved.isEmpty) {
       LogManager.log("view erasing..", LogManager.Middle)
-      Platform.runLater{
-        out.removeNode(nodesRemoved)
-      }
+      out.removeNode(nodesRemoved)
     }
     //MOVING
     val nodesMoved = moved.nodeChanged()
     if (!nodesMoved.isEmpty) {
+      LogManager.log("NODE MOVED : " + nodesMoved, LogManager.Low)
       var toAdd : Map[world.NODE,Set[world.NODE]] = Map()
       var toRemove : Map[world.ID,Set[world.ID]] = Map()
       nodesMoved foreach { x =>
@@ -58,17 +54,13 @@ class FXRender(val world : BasicPlatform with Source,
         }
       }
       this.prevNeighbour = world.network.neighbours()
-      Platform.runLater{
-        out.outNode(world.apply(nodesMoved))
-        out.outNeighbour(toAdd)
-        out.removeNeighbour(toRemove)
-      }
+      out.outNode(world.apply(nodesMoved))
+      out.outNeighbour(toAdd)
+      out.removeNeighbour(toRemove)
     }
     val deviceToOut = devChanged.nodeChanged()
     if(!deviceToOut.isEmpty) {
-      Platform.runLater{
-        out.outDevice(world.apply(deviceToOut))
-      }
+      out.outDevice(world.apply(deviceToOut))
     }
   }
 }

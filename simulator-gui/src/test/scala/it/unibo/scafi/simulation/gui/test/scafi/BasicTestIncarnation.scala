@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.{ScafiLikeWorld, ScafiPrototype, ScafiSimulationContract}
+import it.unibo.scafi.simulation.gui.incarnation.scafi._
 import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors._
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.test.help.SimpleScafiLikeWorld
@@ -11,6 +11,7 @@ class BasicTestIncarnation extends FunSpec with Matchers{
   val world  = new SimpleScafiLikeWorld
   val fakeRandomNumber = 10
   val fakeRadius = 10
+  /*
   val prototype = new ScafiPrototype {
     override def randomSeed: Long = fakeRandomNumber
 
@@ -18,7 +19,7 @@ class BasicTestIncarnation extends FunSpec with Matchers{
 
     override def radius: Double = fakeRadius
   }
-
+  */
   val bigNumber = 1000
   val proto = new world.ExternalNodePrototype(None)
   (0 to 1000) foreach {world + world.nodeFactory.create(_,Point3D(math.random,math.random,math.random),Set(),proto)}
@@ -51,8 +52,7 @@ class BasicTestIncarnation extends FunSpec with Matchers{
       case _ => fail()
     }
   }
-  //CHECKS ON CONTRACT
-  val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]()
+  /*
   contract.initialize(world,prototype)
   val x = 1
   checkThat("an external simulation created:") {
@@ -79,5 +79,5 @@ class BasicTestIncarnation extends FunSpec with Matchers{
   checkThat("a nodes has a set of neighbours") {
     assert(contract.getSimulation.get.neighbourhood(aNode).size > 0)
   }
-
+  */
 }

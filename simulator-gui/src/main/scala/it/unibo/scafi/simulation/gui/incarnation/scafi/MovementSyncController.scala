@@ -12,7 +12,7 @@ class MovementSyncController[N <: ScafiLikeWorld#NODE] (velocity : Float, world 
   }
   override protected var delta: Int = 100
   override protected val minDelta: Int = 100
-  override protected val maxDelta: Int = 100
+  override protected val maxDelta = Some(1000)
   override protected var currentExecutor: ActorExecutor = _
 
   override protected def AsyncLogicExecution(): Unit = { }

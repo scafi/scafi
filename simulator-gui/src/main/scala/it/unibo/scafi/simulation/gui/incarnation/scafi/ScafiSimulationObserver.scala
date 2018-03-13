@@ -1,41 +1,23 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
-
-import it.unibo.scafi.incarnations.{BasicAbstractSpatialSimulationIncarnation => ExternSimulation}
-import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.gui.launcher.scalaFX.Simple
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
-import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAdded
 import it.unibo.scafi.space.Point3D
-//TODO RIGUARDARE COMPLETAMENTE q
-class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world : W,
-                                                   val contract : ScafiSimulationContract[W,ScafiPrototype],
-                                                   override protected val minDelta : Int,
-                                                   override protected val maxDelta : Int,
-                                                   override val simulationPrototype : ScafiPrototype,
-                                                   val program : Any) extends ExternalSimulation[W]{
+//TODO RIGUARDARE COMPLETAMENTE
+class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world : W) extends ScafiBridge[W](world){
 
   //TODO BRIDGE
-  val ap = (new Simple).asInstanceOf[CONTEXT=>EXPORT]
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkChanged = world.createObserver(Set(NodesDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
   private var exportProduced : Set[(world.ID,EXPORT)] = Set()
   world <-- checkAdded <-- checkChanged <-- checkAdded <-- checkMoved
 
-
-  override type EXTERNAL_SIMULATION = SpaceAwareSimulator
-  override type SIMULATION_PROTOTYPE = ScafiPrototype
-  override type SIMULATION_CONTRACT = ScafiSimulationContract[W,SIMULATION_PROTOTYPE]
-
-  override protected var delta: Int = (minDelta + maxDelta) / 2
-  override protected var currentExecutor: ActorExecutor = _
-
   override protected def AsyncLogicExecution(): Unit = {
     if(contract.getSimulation.isDefined) {
       val net = contract.getSimulation.get
-      val result = net.exec(ap)
+      val result = net.exec(runningContext)
       exportProduced += result._1 -> result._2
     }
   }
@@ -66,6 +48,12 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
     }}
     exportProduced = Set.empty
   }
+  override def init() = {
+    super.init()
+    contract.getSimulation.get.getAllNeighbours().foreach {x => world.network.setNeighbours(x._1,x._2.toSet)}
+  }
+
+  var simulationPrototype: Option[SIMULATION_PROTOTYPE] = None
 }
 
 

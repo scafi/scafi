@@ -1,10 +1,13 @@
 package it.unibo.scafi.simulation.gui.launcher.scalaFX
 
 import javafx.embed.swing.JFXPanel
-import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler
+
+import it.unibo.scafi.simulation.gui.controller.BasicRender
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager
+import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.scheduler
 import it.unibo.scafi.simulation.gui.incarnation.scafi._
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle, Rectangle}
-import it.unibo.scafi.simulation.gui.view.scalaFX.{FXSimulationPane, SimulationWindow}
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Circle
+import it.unibo.scafi.simulation.gui.view.scalaFX.{FXLogger, FXSimulationPane, SimulationWindow}
 
 import scala.util.Random
 import scalafx.application.Platform
@@ -17,12 +20,10 @@ object Launcher extends App {
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   val shape = Circle(1)
-  val ticked = 33
+  val ticked = 100
   val littleRadius = 50
   val bigN = 1000
   val maxPoint = 1000
-  val minDelta = 1
-  val maxDelta = 10
   val neighbourRender = true
   devs = Set(
     dev(source,false),
@@ -38,7 +39,6 @@ object Launcher extends App {
   world.changeSensorValue(sourceTest, source.name , true)
   world.changeSensorValue(destinationTest, destination.name,true)
   //world.nodes foreach {x => world.changeSensorValue(x.id,id.name,x.id.toString)}
-  val contract = new ScafiSimulationContract[ScafiLikeWorld,ScafiPrototype]
   //SHOW THE WINDOW IMMEDIATLY
   val inputLogic = new ScafiInputController(world)
   val pane = new FXSimulationPane(inputLogic)
@@ -47,27 +47,25 @@ object Launcher extends App {
     window = Some(new SimulationWindow(new HBox{}, pane, true))
     window.get.show
   }
-  val scafiPrototype = new ScafiPrototype {override def randomSeed: Long = r.nextLong()
-
-    override def randomDeviceSeed: Long = r.nextLong()
-
-    override def radius: Double = littleRadius
-  }
-  val scafi = new ScafiSimulationObserver(world,contract,0,0,scafiPrototype,"program")
+  implicit val scafi = new ScafiSimulationObserver(world)
+  scafi.setProgramm(classOf[Simple])
+  scafi.simulationPrototype = Some(ScafiBridge.createRadiusPrototype(littleRadius))
   scafi.init()
-  contract.getSimulation.get.getAllNeighbours() foreach {x => {world.network.setNeighbours(x._1,x._2.toSet)}}
-  val render = new FXRender(world,pane,neighbourRender)
+  val render = new BasicRender(world,pane,neighbourRender)
   Platform.runLater{
     pane.outNode(world.nodes)
     if(neighbourRender) {
-      pane.outNeighbour(contract.getSimulation.get.getAllNeighbours() map {x => world(x._1).get -> world.apply(x._2.toSet)})
+      pane.outNeighbour(world.network.neighbours() map{x => world(x._1).get -> world(x._2)})
     }
     pane.outDevice(world.nodes)
     window.get.renderSimulation()
     scafi.start()
-    import Scheduler._
     scheduler <-- inputLogic <-- scafi <-- render
     scheduler.delta_=(ticked)
     scheduler.start()
+
+    val logger : FXLogger = new FXLogger
+    LogManager <-- logger
+    logger.show()
   }
 }

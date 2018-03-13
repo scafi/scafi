@@ -10,6 +10,7 @@ import scalafx.geometry.Point2D
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.Includes._
+import scalafx.application.Platform
 class FXSimulationPane (val inputController : ScafiInputController)extends AbstractFXSimulationPane with SelectionArea {
   private val _nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
   private val  neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
@@ -32,7 +33,9 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
         }
       }
     }
-    this.children.addAll(nodeAdding.toSeq:_*)
+    Platform.runLater{
+      this.children.addAll(nodeAdding.toSeq:_*)
+    }
   }
   //TODO
   override def removeNode[ID <: World#ID](node: Set[ID]): Unit = {
@@ -60,7 +63,9 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
       }}
       }
     }
-    this.children.addAll(linkAdding.toSeq:_*)
+    Platform.runLater{
+      this.children.addAll(linkAdding.toSeq:_*)
+    }
   }
 
   override def removeNeighbour[ID <: World#ID](nodes : Map[ID,Set[ID]]): Unit = {
@@ -71,7 +76,6 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
       val map = this.neighbours(start)
       val toRemove = map(end)
       linkRemove += toRemove
-      this.children -= toRemove
       map -= end
     }
 
@@ -89,13 +93,15 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
     }}
 
     val removing: TraversableOnce[javafx.scene.Node] = linkRemove.toSeq
-    this.children --= removing
+    Platform.runLater{
+      this.children --= removing
+    }
   }
 
   override def outDevice[N <: World#Node](nodes: Set[N]): Unit = {
     var toRemove : List[javafx.scene.Node] = List()
     var toAdd : List[javafx.scene.Node] = List()
-    nodes foreach { node => {
+    nodes.foreach{ node => {
       if(this.devices.get(node.id).isEmpty) {
         this.devices += node.id -> Set()
       }
@@ -104,12 +110,14 @@ class FXSimulationPane (val inputController : ScafiInputController)extends Abstr
       toAdd ++= devs
       this.devices += node.id -> devs
     }}
-    this.children.removeAll(toRemove:_*)
-    this.children.addAll(toAdd:_*)
+    Platform.runLater{
+      this.children.removeAll(toRemove:_*)
+      this.children.addAll(toAdd:_*)
+    }
   }
 
   override def clearDevice[ID <: World#ID](nodes: Set[ID]): Unit = {
-    nodes foreach { node =>
+    nodes foreach{ node =>
       if(this.devices.get(node).isDefined) {
         this.devices(node) foreach {this.children -= _ }
         this.devices -= node

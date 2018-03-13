@@ -7,6 +7,9 @@ import it.unibo.scafi.simulation.gui.model.core.World
   */
 trait ConnectedWorld {
   this : World =>
+  /**
+    * the type of network
+    */
   type NET <: Network
   trait Network {
     /**

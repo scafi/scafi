@@ -3,6 +3,8 @@ package it.unibo.scafi.simulation.gui.model.simulation
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesDeviceChanged
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld
+
+import scala.collection.mutable
 /**
   * define a platform for simple simulation
   */
@@ -79,7 +81,7 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
   }
 
   private class NetworkImpl extends Network {
-    private var neigh : Map[ID,Set[ID]] = Map.empty
+    private var neigh : mutable.Map[ID,Set[ID]] = mutable.Map.empty
     /**
       * the neighbours of a node
       *
@@ -93,7 +95,7 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
       *
       * @return the network
       */
-  override def neighbours(): Map[ID, Set[ID]] = neigh
+  override def neighbours(): Map[ID, Set[ID]] = neigh toMap
 
     /**
       * set a neighbours of a node
