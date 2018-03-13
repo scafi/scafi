@@ -2,7 +2,9 @@ package it.unibo.scafi.simulation.gui.launcher.scalaFX
 
 import javafx.embed.swing.JFXPanel
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.SimpleScafiWorld
+import it.unibo.scafi.simulation.gui.controller.SimpleInputController
+import it.unibo.scafi.simulation.gui.incarnation.scafi.{ScafiLikeWorld, SimpleScafiWorld}
+import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher.world
 import it.unibo.scafi.simulation.gui.model.core.World
 
 object LancherFX {
@@ -13,7 +15,7 @@ object LancherFX {
   /**
     * the world use to show thing
     */
-  var world : World = SimpleScafiWorld
+  var world : ScafiLikeWorld = SimpleScafiWorld
   /**
     * nodes show in the display
     */
@@ -30,4 +32,10 @@ object LancherFX {
     * render of not the neighbours
     */
   var neighboursRender = false
+  /**
+    * the input controller used to controls input
+    */
+  var inputController = new SimpleInputController[ScafiLikeWorld](world)
+
+
 }

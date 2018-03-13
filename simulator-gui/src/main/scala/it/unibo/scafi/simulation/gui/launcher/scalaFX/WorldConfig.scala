@@ -50,7 +50,7 @@ object WorldConfig {
   val destination : Name = new Name{val name = "destination"}
   val obstacle : Name = new Name{val name = "obstacle"}
   val id : Name = new Name {val name = "id"}
-  val gsensor : Name = new Name{val name = "generic"}
+  val gsensor : Name = new Name{val name = "value"}
   val gsensor1 : Name = new Name{val name = "generic1"}
   val gsesonr2 : Name = new Name{val name = "generic2"}
 

@@ -1,6 +1,8 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.{ScafiInputController, ScafiLikeWorld}
+import it.unibo.scafi.simulation.gui.controller.SimpleInputController
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.view.scalaFX
@@ -18,7 +20,7 @@ import scalafx.scene.shape.Circle
   */
 trait SelectionArea extends AbstractSelectionArea{
   self : AbstractFXSimulationPane =>
-  implicit val inputController : ScafiInputController
+  implicit val inputController : SimpleInputController[ScafiLikeWorld]
   private var moved : Map[World#ID,(Node,Point2D)] = Map.empty
   private var _selected : Set[World#ID] = Set.empty
   private var startPoint : Point2D = new Point2D(0,0)
@@ -82,9 +84,9 @@ trait SelectionArea extends AbstractSelectionArea{
               this.moved.values foreach {x => this.children += x._1}
               this._selected = this.moved.keySet
             } else if(!this.moved.isEmpty) {
-
+              //TODO REMEMBER TO CORRECT HERE!
               val toMove = moved.map {x =>x._1.asInstanceOf[Int] -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2)}
-              inputController.moveNodes(toMove)
+              inputController.exec(inputController.MoveCommand(toMove))
               clearSelected()
               //TODO CREATE A BETTER SOLUTION
             }

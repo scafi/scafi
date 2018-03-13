@@ -18,7 +18,7 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
     if(contract.getSimulation.isDefined) {
       val net = contract.getSimulation.get
       val result = net.exec(runningContext)
-      exportProduced :::= (actions.filter{x => x(result._2).isDefined} map {x => result._1 -> x(result._2).get}).toList
+      exportProduced = exportProduced ::: (actions.filter{x => x(result._2).isDefined} map {x => result._1 -> x(result._2).get}).toList
     }
   }
   //TODO AGGIUNGI CLEAR IN OBSERVER WORLD
@@ -48,7 +48,6 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
     contract.getSimulation.get.getAllNeighbours().foreach {x => world.network.setNeighbours(x._1,x._2.toSet)}
   }
 
-  var simulationPrototype: Option[SIMULATION_PROTOTYPE] = None
 }
 
 

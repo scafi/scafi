@@ -16,7 +16,7 @@ abstract class ScafiBridge [W <: ScafiLikeWorld](protected val world : W) extend
   /**
     * define the execution context
     */
-
+  var simulationPrototype: Option[SIMULATION_PROTOTYPE] = None
   override protected val threadName: String = "scafi-bridge"
   protected var actions : Set[EXPORT => Option[(W, world.ID) => Unit]] = Set()
   private var context : Option[CONTEXT=>EXPORT] = None
@@ -79,5 +79,5 @@ object ScafiBridge {
       res
     }
   }
-
+  def apply(w : ScafiLikeWorld) : ScafiBridge[ScafiLikeWorld] = new ScafiSimulationObserver(w)
 }

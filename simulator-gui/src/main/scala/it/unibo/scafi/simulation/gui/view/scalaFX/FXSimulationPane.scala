@@ -1,17 +1,18 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
-import javafx.scene.shape.Rectangle
-
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiInputController
+import it.unibo.scafi.simulation.gui.controller.SimpleInputController
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.SelectionArea
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{KeyboardManager, SelectionArea}
 
 import scala.collection.mutable
-import scalafx.geometry.Point2D
-import scalafx.scene.Node
-import scalafx.scene.paint.Color
 import scalafx.Includes._
 import scalafx.application.Platform
-class FXSimulationPane (val inputController : ScafiInputController)extends AbstractFXSimulationPane with SelectionArea {
+import scalafx.geometry.Point2D
+import scalafx.scene.Node
+import scalafx.scene.input.KeyEvent
+import scalafx.scene.paint.Color
+//TODO MAKE INPUT CONTROLLER GENERIC IN WORLD
+class FXSimulationPane (val inputController : SimpleInputController[ScafiLikeWorld]) extends AbstractFXSimulationPane with SelectionArea with KeyboardManager{
   private val _nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
   private val  neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
   private val devices : mutable.Map[World#ID,Set[javafx.scene.Node]] = mutable.Map()

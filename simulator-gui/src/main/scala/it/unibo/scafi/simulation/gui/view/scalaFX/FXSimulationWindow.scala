@@ -15,6 +15,7 @@ import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.Label
 import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.input.KeyEvent
 import scalafx.scene.layout.{AnchorPane, BorderPane, HBox, StackPane}
 import scalafx.stage.Stage
 import scalafx.util.Duration
@@ -35,6 +36,10 @@ class SimulationWindow(private val infoPane : HBox,
   scene  = new Scene {
     content = mainPane
   }
+  import scalafx.Includes._
+  scene.value.setOnKeyPressed((e : KeyEvent) => {
+    simulationPane.fireEvent(e)
+  })
   mainPane.setAlignment(Pos.Center)
   mainPane.children = logoPanel
   this.title = name

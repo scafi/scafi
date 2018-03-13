@@ -123,7 +123,6 @@ package object scalaFX {
         }
       }
     }
-
     res
   }
 }

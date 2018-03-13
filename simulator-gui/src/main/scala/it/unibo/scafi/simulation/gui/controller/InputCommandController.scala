@@ -12,7 +12,7 @@ trait InputCommandController[W <: AggregateWorld] extends InputController[W]{
     * put the command in the queue list
     * @param c
     */
-  def exec(c : Command) = commands = c :: commands
+  final def exec(c : Command) = commands = c :: commands
 
   override def onTick(float: Float): Unit = {
     commands foreach {_ make()}
