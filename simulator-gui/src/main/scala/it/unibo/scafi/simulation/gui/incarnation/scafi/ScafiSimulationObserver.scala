@@ -11,14 +11,14 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkChanged = world.createObserver(Set(NodesDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
-  private var exportProduced : Set[(world.ID,EXPORT)] = Set()
+  private var exportProduced : List[(ID,(W,world.ID) => Unit)] = List()
   world <-- checkAdded <-- checkChanged <-- checkAdded <-- checkMoved
 
   override protected def AsyncLogicExecution(): Unit = {
     if(contract.getSimulation.isDefined) {
       val net = contract.getSimulation.get
       val result = net.exec(runningContext)
-      exportProduced += result._1 -> result._2
+      exportProduced :::= (actions.filter{x => x(result._2).isDefined} map {x => result._1 -> x(result._2).get}).toList
     }
   }
   //TODO AGGIUNGI CLEAR IN OBSERVER WORLD
@@ -32,21 +32,16 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
       devs map {world(_).get} foreach {x => x.devices.foreach(y => extern.chgSensorValue(y.name,Set(x.id),y.value))}
       moved foreach { x =>
         val node = world(x).get
+        val oldNeigh = contract.getSimulation.get.neighbourhood(x)
         contract.getSimulation.get.setPosition((x), Point3D(node.position.x, node.position.y, node.position.z))
         val neigh = contract.getSimulation.get.neighbourhood(x)
         world.network.setNeighbours(x,neigh)
-        neigh foreach {x => {world.network.setNeighbours(x,contract.getSimulation.get.neighbourhood(x))}}
+        (oldNeigh ++ neigh) foreach {x => {world.network.setNeighbours(x,contract.getSimulation.get.neighbourhood(x))}}
       }
     }
     //TODO REMEMBER TO CREATE SOMETHING DIFFERENT! ONLY TEST NOW!
-    exportProduced foreach { x => {
-      val devs = world(x._1).get.devices
-      val dev = devs.find {y => y.name == "generic"}.get
-      if(dev.value != x._2.root()) {
-        world.changeSensorValue(x._1,"generic",x._2.root())
-      }
-    }}
-    exportProduced = Set.empty
+    exportProduced foreach { x => x._2(world,x._1)}
+    exportProduced = List.empty
   }
   override def init() = {
     super.init()

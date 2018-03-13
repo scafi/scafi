@@ -7,6 +7,8 @@ import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
 import it.unibo.scafi.simulation.gui.pattern.observer.Source
 import it.unibo.scafi.simulation.gui.view.SimulationView
 
+import scala.collection.mutable
+
 /**
   * the render of output to a graphics view (scalafx library)
   * @param world to show
@@ -44,7 +46,6 @@ class BasicRender(val world : BasicPlatform with Source,
           val id: world.ID = world(x).get.id
           val ids: Set[world.ID] = oldIds -- newIds
           val add = newIds -- oldIds
-          this.prevNeighbour += node.id -> newIds
           if (!ids.isEmpty) {
             toRemove += id -> ids
           }

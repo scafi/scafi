@@ -6,7 +6,7 @@ import it.unibo.scafi.simulation.gui.controller.BasicRender
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.scheduler
 import it.unibo.scafi.simulation.gui.incarnation.scafi._
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Circle
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle, Rectangle}
 import it.unibo.scafi.simulation.gui.view.scalaFX.{FXLogger, FXSimulationPane, SimulationWindow}
 
 import scala.util.Random
@@ -19,12 +19,12 @@ object Launcher extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig._
   //WORLD DEFINITION
   val world = SimpleScafiWorld
-  val shape = Circle(1)
+  val shape = Rectangle(1,1)
   val ticked = 100
-  val littleRadius = 50
-  val bigN = 1000
+  val littleRadius = 20
+  val bigN = 10000
   val maxPoint = 1000
-  val neighbourRender = true
+  val neighbourRender = false
   devs = Set(
     dev(source,false),
     dev(destination,false),
@@ -48,6 +48,22 @@ object Launcher extends App {
     window.get.show
   }
   implicit val scafi = new ScafiSimulationObserver(world)
+
+  import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
+  val action : EXPORT => Option[(ScafiLikeWorld, world.ID) => Unit] =  (e : EXPORT) => {
+    if(!e.root().isInstanceOf[Boolean]) {
+      None
+    } else {
+      Some((w : ScafiLikeWorld, id : Int) => {
+        val devs = w(id).get.devices
+        val dev = devs.find {y => y.name == gsensor.name}.get
+        if(dev.value != e.root()) {
+          world.changeSensorValue(id,gsensor.name,e.root)
+        }
+      })
+    }
+  }
+  scafi.addAction(action)
   scafi.setProgramm(classOf[Simple])
   scafi.simulationPrototype = Some(ScafiBridge.createRadiusPrototype(littleRadius))
   scafi.init()

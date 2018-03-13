@@ -25,6 +25,7 @@ trait LogicController[W <: AggregateWorld] extends Controller[W] {
 
 trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W]{
   protected var delta : Int
+  protected val threadName : String
   protected val minDelta : Int = 0
   protected val maxDelta : Option[Int]
   private var stopped = true
@@ -33,6 +34,7 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W]{
   protected def AsyncLogicExecution() : Unit
 
   protected class ActorExecutor extends Thread {
+    this.setName(threadName)
     override def run(): Unit = {
       while(!stopped) {
         AsyncLogicExecution()

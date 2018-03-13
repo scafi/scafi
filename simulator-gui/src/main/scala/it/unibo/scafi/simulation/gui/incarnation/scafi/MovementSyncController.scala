@@ -4,6 +4,7 @@ import it.unibo.scafi.simulation.gui.controller.logical.AsyncLogicController
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 
 class MovementSyncController[N <: ScafiLikeWorld#NODE] (velocity : Float, world : ScafiLikeWorld)(nodes : Set[N]) extends AsyncLogicController[ScafiLikeWorld]{
+
   override def onTick(float: Float): Unit = {
     nodes foreach {x => {
       val nodeToMove = world(x.id).get
@@ -16,4 +17,6 @@ class MovementSyncController[N <: ScafiLikeWorld#NODE] (velocity : Float, world 
   override protected var currentExecutor: ActorExecutor = _
 
   override protected def AsyncLogicExecution(): Unit = { }
+
+  override protected val threadName: String = "movement-logic"
 }

@@ -52,7 +52,9 @@ object Scheduler {
     override def start(): Unit = {
       require(delta > 0 && end)
       on = true
-      new Thread(mainThread).start()
+      val thread : Thread = new Thread(mainThread)
+      thread.setName("scafi-gui-scheduler")
+      thread.start()
     }
 
     override def stop(): Unit = {

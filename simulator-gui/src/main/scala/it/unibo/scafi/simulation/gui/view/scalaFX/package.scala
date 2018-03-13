@@ -84,33 +84,34 @@ package object scalaFX {
     Point3D(start.x + n.translateX.value, start.y + n.translateY.value, defaultZ)
   }
   //TODO THINK TO A BETTER SOLUTION
-  def deviceToNode[D <: World#Device](d : Set[D], n : Node) : Set[javafx.scene.Node] = {
+  def deviceToNode[D <: World#Device](devices : Set[D], node : Node) : Set[javafx.scene.Node] = {
     //the offset to the label of the y coordinate
-    val yoffset = 10
+    val yoffset = 5
     val label = new Label
-    val nodeWidth = n.boundsInLocal.value.getWidth
+    val nodeWidth = node.boundsInLocal.value.getWidth
     val increaseRadius = 2
     val lineWidth = 2
     var currentR = nodeWidth
-    val point = nodeToAbsolutePosition(n)
-    label.layoutX.bind(n.translateX +point.x)
-    label.layoutY.bind(n.translateY + point.y + yoffset)
+    val point = nodeToAbsolutePosition(node)
+    label.layoutX.bind(node.translateX +point.x)
+    label.layoutY.bind(node.translateY + point.y + yoffset)
     var res : Set[javafx.scene.Node] = Set(label)
-    d foreach  { x =>
-      x match {
+    devices foreach  { device =>
+      device match {
         case TextSensor(value) => {
-          label.text = label.text.value + "" + x.name.toString + " = " + value
+          label.text = label.text.value + "" + device.name.toString + " = " + value
         }
         case OnOffSensor(value) => {
           if(value) {
             val ellipse = new Ellipse{
-              this.centerX.bind(n.translateX + point.x)
-              this.centerY.bind(n.translateY + point.y)
+              this.centerX.bind(node.translateX + point.x)
+              this.centerY.bind(node.translateY + point.y)
               this.radiusX = currentR
               this.radiusY = currentR
               this.strokeWidth = lineWidth
-              this.stroke = colors(x.name.toString)
-              this.fill = Color.Transparent
+              val color : Color = colors(device.name.toString)
+              this.stroke = color
+              this.fill = Color.color(color.red,color.green,color.blue,0.5)
               this.smooth = false
             }
             res += ellipse
