@@ -1,15 +1,14 @@
-package it.unibo.scafi.simulation.gui.launcher.scalaFX
+package it.unibo.scafi.simulation.gui.demos
 
-
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, _}
+import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig
 object Test extends App {
-  import Launcher._
-  Launcher.program = classOf[Simple]
-  Launcher.nodes = 1000
-  Launcher.maxPoint = 1000
-  Launcher.radius = 70
-  Launcher.launch()
+  import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher._
+  program = classOf[Simple]
+  nodes = 1000
+  maxPoint = 1000
+  radius = 70
+  launch()
 }
 class Simple extends AggregateProgram  with BlockG with StandardSensors {
   self: AggregateProgram =>

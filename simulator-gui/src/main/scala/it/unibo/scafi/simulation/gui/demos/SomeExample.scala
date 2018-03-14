@@ -1,14 +1,14 @@
-package it.unibo.scafi.simulation.gui.launcher.scalaFX
+package it.unibo.scafi.simulation.gui.demos
 
-
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ AggregateProgram, Builtins }
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
+import it.unibo.scafi.simulation.gui.launcher.scalaFX.{Launcher, WorldConfig}
 object SomeExample extends App {
-  Launcher.program = classOf[Main13]
-  Launcher.nodes = 100
-  Launcher.maxPoint = 1000
-  Launcher.radius = 200
-  Launcher.launch()
+  import Launcher._
+  program = classOf[Main4]
+  nodes = 100
+  maxPoint = 1000
+  radius = 200
+  launch()
 }
 
 abstract class DISIDemoAggregateProgram extends AggregateProgram {
@@ -17,7 +17,7 @@ abstract class DISIDemoAggregateProgram extends AggregateProgram {
   def sense2 = sense[Boolean](destination.name)
   def sense3 = sense[Boolean](obstacle.name)
   def boolToInt(b: Boolean) = mux(b){1}{0}
-  def nbrRange = nbrvar[Double]("nbrRange")*100
+  def nbrRange = nbrvar[Double]("nbrRange")
 }
 
 class Main extends DISIDemoAggregateProgram {
@@ -76,10 +76,7 @@ class Main12 extends DISIDemoAggregateProgram {
 class Main13 extends DISIDemoAggregateProgram {
   override def main() = foldhoodPlus(0)(_+_){nbr{1}}
 }
-/*
 class Main14 extends DISIDemoAggregateProgram {
-  import Builtins.Bounded.of_i
-
   override def main() = rep(0){ x => boolToInt(sense1) max maxHoodPlus( nbr{x}) }
 }
 
@@ -89,4 +86,4 @@ class Main15 extends DISIDemoAggregateProgram {
 
 class Main16 extends DISIDemoAggregateProgram {
   override def main() = rep(Double.MaxValue){ d => mux[Double](sense1){0.0}{minHoodPlus(nbr{d}+nbrRange)} }
-}*/
+}

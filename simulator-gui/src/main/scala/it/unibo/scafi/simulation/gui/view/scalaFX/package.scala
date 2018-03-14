@@ -99,7 +99,9 @@ package object scalaFX {
     devices foreach  { device =>
       device match {
         case TextSensor(value) => {
-          label.text = label.text.value + "" + device.name.toString + " = " + value
+          if(!value.isEmpty) {
+            label.text = label.text.value + "" + device.name.toString + " = " + value
+          }
         }
         case OnOffSensor(value) => {
           if(value) {

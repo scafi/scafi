@@ -1,31 +1,29 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
-import javafx.event.EventHandler
-
-import it.unibo.scafi.simulation.gui.controller.{Command, SimpleInputController}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld
+import it.unibo.scafi.simulation.gui.controller.{Command, InputCommandSingleton}
+import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager
+import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
 import it.unibo.scafi.simulation.gui.view.scalaFX.AbstractFXSimulationPane
 
-import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
-//TODO SOLVE THE PROBLE
-trait KeyboardManager {
-  self : AbstractFXSimulationPane with SelectionArea =>
+/*
+TODO CREATE A GENERIC CONCEPT
+ */
+import scalafx.scene.input.{KeyCode, KeyEvent}
+trait KeyboardManager [ID <: World#ID] extends AbstractKeyboardManager[ID]{
 
-  implicit val inputController : SimpleInputController[ScafiLikeWorld]
-  private var commands : Map[KeyCode,Set[Int] => Command] = Map.empty
-  def addCommand(code : KeyCode, command : Set[Int] => Command) = commands += code -> command
+  self : AbstractFXSimulationPane with FXSelectionArea[ID] =>
+  override type KEYCODE = KeyCode
+  implicit val inputController : InputCommandSingleton
+  abstractToReal += Code1 -> KeyCode.Digit1
+  abstractToReal += Code2 -> KeyCode.Digit2
+  abstractToReal += Code3 -> KeyCode.Digit3
+  abstractToReal += Code4 -> KeyCode.Digit4
   import scalafx.Includes._
   self.onKeyPressed = (e : KeyEvent) => {
     e.consume()
-    commands.filter{x => {x._1 == e.getCode}} foreach {x => inputController.exec(x._2(self.selected.asInstanceOf[Set[Int]]))}
-  }
-  /**
-    *
-  this.onKeyTyped = new EventHandler[KeyEvent] {
-    override def handle(event: KeyEvent): Unit = {
-      println("here")
-
+    commands.filter{x => {abstractToReal(x._1) == e.getCode}} foreach {x =>
+      inputController.instance().get.exec(x._2(self.selected))
     }
   }
-    */
 }

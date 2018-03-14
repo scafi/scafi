@@ -19,7 +19,9 @@ trait InputCommandController[W <: AggregateWorld] extends InputController[W]{
     commands = List.empty
   }
 }
-
+trait InputCommandSingleton {
+  def instance() : Option[InputCommandController[_]]
+}
 trait Command {
   def make() : Unit
 

@@ -5,10 +5,12 @@ import javafx.embed.swing.JFXPanel
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.scheduler
 import it.unibo.scafi.simulation.gui.controller.{BasicRender, SimpleInputController}
+import it.unibo.scafi.simulation.gui.demos.Simple
 import it.unibo.scafi.simulation.gui.incarnation.scafi._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.KeyboardManager
-import it.unibo.scafi.simulation.gui.view.scalaFX.{FXLogger, FXSimulationPane, SimulationWindow}
+import it.unibo.scafi.simulation.gui.view.AbstractSelectionArea
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{FXSelectionArea, KeyboardManager}
+import it.unibo.scafi.simulation.gui.view.scalaFX.{AbstractFXSimulationPane, FXLogger, FXSimulationPane, SimulationWindow}
 
 import scala.util.Random
 import scalafx.application.Platform
@@ -21,6 +23,8 @@ object Launcher {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig._
   //WORLD DEFINITION
   val world = SimpleScafiWorld
+
+  type PANE = AbstractFXSimulationPane with KeyboardManager[world.ID] with AbstractSelectionArea[world.ID,world.P]
   val shape = Rectangle(1,1)
   val ticked = 100
   var radius = 70
@@ -39,17 +43,19 @@ object Launcher {
   //world.nodes foreach {x => world.changeSensorValue(x.id,id.name,x.id.toString)}
   //SHOW THE WINDOW IMMEDIATLY
   val inputLogic = new SimpleInputController[ScafiLikeWorld](world)
-  val pane : FXSimulationPane with KeyboardManager = new FXSimulationPane(inputLogic)
-  pane.addCommand(KeyCode.Digit1, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,source.name))
-  pane.addCommand(KeyCode.Digit2, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,destination.name))
-  pane.addCommand(KeyCode.Digit3, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,obstacle.name))
+  SimpleInputController.instance = Some(inputLogic)
+  val pane : PANE = new FXSimulationPane(SimpleInputController) with KeyboardManager[world.ID] with FXSelectionArea[world.ID]
+  import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
+  pane.addCommand(Code1, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,source.name))
+  pane.addCommand(Code2, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,destination.name))
+  pane.addCommand(Code3, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,obstacle.name))
+  pane.addMovementAction((ids : Map[Int,world.P]) => inputLogic.MoveCommand(ids))
   var window : Option[SimulationWindow] = None
   Platform.runLater {
     window = Some(new SimulationWindow(new HBox{}, pane, true))
     window.get.show
   }
   implicit val scafi = ScafiBridge(world)
-
   import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
   val sensaction : EXPORT => Option[(ScafiLikeWorld, world.ID) => Unit] =  (e : EXPORT) => {
     if(!e.root().isInstanceOf[Boolean]) {
@@ -92,7 +98,6 @@ object Launcher {
       if(neighbourRender) {
         pane.outNeighbour(world.network.neighbours() map{x => world(x._1).get -> world(x._2)})
       }
-      pane.outDevice(world.nodes)
       window.get.renderSimulation()
       scafi.start()
       scheduler <-- inputLogic <-- scafi <-- render

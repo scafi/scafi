@@ -10,6 +10,7 @@ import scalafx.scene.Node
 /**
   * define a generic interface on a fx simulation pane
   */
+
 trait AbstractFXSimulationPane extends ZoomablePane with GraphicsView with SimulationView {
   def nodes : Map[World#ID,(Node,Point2D)]
 }
