@@ -31,20 +31,43 @@ trait StdLib_ExplicitFields {
     def fsns[A](e: =>A):Field[A] =
       Field[A](includingSelf.reifyField(e))
 
+    /**
+      * Basic Field type
+      * @param m map from devices to corresponding values
+      * @tparam T type of field values
+      */
     case class Field[T](m: Map[ID,T]) {
-      def map[R](o: T=>R): Field[R] = Field(for ((i,t)<-m) yield (i,o(t)))
-      def map2[R,S](o: (T,R)=>S)(f: Field[R]): Field[S] = Field(for ((i,t)<-m) yield (i,o(t,f.m(i))))
-      def fold(z:T)(o: (T,T)=>T): T = m.values.fold(z)(o)
+      def map[R](o: T=>R): Field[R] =
+        Field(m.mapValues(o))
+
+      def map2[R,S](o: (T,R)=>S)(f: Field[R]): Field[S] =
+        Field(m.map { case (i,v) => i -> o(v,f.m(i)) })
+
+      def fold[V>:T](z:V)(o: (V,V)=>V): V =
+        m.values.fold(z)(o)
+
+      def reduce[V>:T](o: (V,V)=>V): V =
+        m.values.reduce(o)
+
       def minHood(implicit ev: Ordering[T]): T =
-        m.values.reduce((ev.min(_,_)))
+        reduce((ev.min(_,_)))
+
       def minHoodPlus[V>:T](implicit ev: Bounded[V]): V =
-        withoutSelf.m.values.fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
+        withoutSelf.fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
 
       def withoutSelf = Field[T](m - mid)
     }
 
-    implicit class RichField[T:Numeric](f: Field[T]){
-      def +(f2: Field[T]): Field[T] = f.map2[T,T](implicitly[Numeric[T]].plus(_,_))(f2)
+    /**
+      * Syntactic sugar for numeric fields.
+      */
+    implicit class NumericField[T:Numeric](f: Field[T]){
+      private val ev = implicitly[Numeric[T]]
+
+      def +(f2: Field[T]): Field[T] = f.map2[T,T](ev.plus(_,_))(f2)
+      def -(f2: Field[T]): Field[T] = f.map2[T,T](ev.minus(_,_))(f2)
+      def *(f2: Field[T]): Field[T] = f.map2[T,T](ev.times(_,_))(f2)
+      def +[U](lv: U)(implicit uev: Numeric[U]): Field[Double] = f.map[Double](ev.toDouble(_) + uev.toDouble(lv))
     }
   }
 
