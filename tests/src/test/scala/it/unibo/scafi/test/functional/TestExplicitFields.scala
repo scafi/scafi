@@ -41,7 +41,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
   private[this] trait TestLib { self: AggregateProgram with ExplicitFields with StandardSensors =>
     import scala.math.Numeric._
 
-    def gradient(source: Boolean): Field[Double] =
+    def gradient(source: Boolean): Double =
       rep(Double.MaxValue){
         d => mux(source) { 0.0 } {
           (fnbr(d) + fsns(nbrRange)).minHoodPlus

@@ -28,7 +28,7 @@ trait StdLib_ExplicitFields {
     def fnbr[A](e: => A): Field[A] =
       Field[A](includingSelf.reifyField(nbr(e)))
 
-    def fsns[A](e: =>A):Field[A] =
+    def fsns[A](e: => A): Field[A] =
       Field[A](includingSelf.reifyField(e))
 
     /**
