@@ -36,7 +36,7 @@ trait StdLib_ExplicitFields {
       * @param m map from devices to corresponding values
       * @tparam T type of field values
       */
-    case class Field[T](m: Map[ID,T]) {
+    class Field[T](private[Field] val m: Map[ID,T]) {
       def map[R](o: T=>R): Field[R] =
         Field(m.mapValues(o))
 
@@ -56,6 +56,16 @@ trait StdLib_ExplicitFields {
         withoutSelf.fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
 
       def withoutSelf = Field[T](m - mid)
+    }
+
+    object Field {
+      def apply[T](m: Map[ID,T]) = new Field(m)
+
+      implicit def localToField[T](lv: T): Field[T] =
+        fnbr(mid).map(_ => lv)
+
+      implicit def fieldToLocal[T](fv: Field[T]): T =
+        fv.m(mid)
     }
 
     /**
