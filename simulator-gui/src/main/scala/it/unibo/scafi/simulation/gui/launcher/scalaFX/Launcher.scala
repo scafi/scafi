@@ -8,13 +8,11 @@ import it.unibo.scafi.simulation.gui.controller.{BasicRender, SimpleInputControl
 import it.unibo.scafi.simulation.gui.demos.Simple
 import it.unibo.scafi.simulation.gui.incarnation.scafi._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
-import it.unibo.scafi.simulation.gui.view.AbstractSelectionArea
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{FXSelectionArea, KeyboardManager}
-import it.unibo.scafi.simulation.gui.view.scalaFX.{AbstractFXSimulationPane, FXLogger, FXSimulationPane, SimulationWindow}
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{FXDrawer, FXSelectionArea, KeyboardManager}
+import it.unibo.scafi.simulation.gui.view.scalaFX.{FXLogger, FXSimulationPane, SimulationWindow}
 
 import scala.util.Random
 import scalafx.application.Platform
-import scalafx.scene.input.KeyCode
 import scalafx.scene.layout.HBox
 //TODO SIMPLE EXAMPLE , REMBEMER TO CREATE A LAUNCHER USED TO LAUNCH EXTERNAL SIMULATION
 object Launcher {
@@ -23,14 +21,13 @@ object Launcher {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig._
   //WORLD DEFINITION
   val world = SimpleScafiWorld
-
-  type PANE = AbstractFXSimulationPane with KeyboardManager[world.ID] with AbstractSelectionArea[world.ID,world.P]
+  var drawer = new FXDrawer
   val shape = Rectangle(1,1)
   val ticked = 100
   var radius = 70
   var nodes = 1000
   var maxPoint = 1000
-  val neighbourRender = true
+  var neighbourRender = true
   var program : Class[_] = classOf[Simple]
   devs = Set(
     dev(source,false),
@@ -40,11 +37,9 @@ object Launcher {
     dev(gsensor1,"")
   )
   nodeProto = NodePrototype(shape)
-  //world.nodes foreach {x => world.changeSensorValue(x.id,id.name,x.id.toString)}
   //SHOW THE WINDOW IMMEDIATLY
   val inputLogic = new SimpleInputController[ScafiLikeWorld](world)
-  SimpleInputController.instance = Some(inputLogic)
-  val pane : PANE = new FXSimulationPane(SimpleInputController) with KeyboardManager[world.ID] with FXSelectionArea[world.ID]
+  val pane  = new FXSimulationPane[world.type](inputLogic,drawer) with KeyboardManager[world.type] with FXSelectionArea[world.type]
   import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
   pane.addCommand(Code1, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,source.name))
   pane.addCommand(Code2, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,destination.name))
@@ -57,31 +52,31 @@ object Launcher {
   }
   implicit val scafi = ScafiBridge(world)
   import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
-  val sensaction : EXPORT => Option[(ScafiLikeWorld, world.ID) => Unit] =  (e : EXPORT) => {
-    if(!e.root().isInstanceOf[Boolean]) {
-      None
-    } else {
-      Some((w : ScafiLikeWorld, id : Int) => {
+
+  val sensaction= new PartialFunction[EXPORT,(ScafiLikeWorld,Int)=>Unit] {
+    override def isDefinedAt(x: EXPORT): Boolean = x.root.isInstanceOf[Boolean]
+    override def apply(export : EXPORT) : (ScafiLikeWorld, Int) => Unit = {
+      (w : ScafiLikeWorld, id : Int) => {
         val devs = w(id).get.devices
         val dev = devs.find {y => y.name == gsensor.name}.get
-        if(dev.value != e.root()) {
-          world.changeSensorValue(id,gsensor.name,e.root)
+        if(dev.value != export.root()) {
+          world.changeSensorValue(id,gsensor.name,export.root)
         }
-      })
+        ()
+      }
     }
   }
+  val textaction :  PartialFunction[EXPORT,(ScafiLikeWorld,Int)=>Unit] = new PartialFunction[EXPORT,(ScafiLikeWorld,Int) => Unit] {
+    override def isDefinedAt(x: EXPORT): Boolean = !x.root.isInstanceOf[Boolean]
 
-  val textaction :  EXPORT => Option[(ScafiLikeWorld, world.ID) => Unit] =  (e : EXPORT) => {
-    if(e.root().isInstanceOf[Boolean]) {
-      None
-    } else {
-      Some((w : ScafiLikeWorld, id : Int) => {
+    override def apply(e: EXPORT): (ScafiLikeWorld, Int) => Unit = {
+      (w : ScafiLikeWorld, id : Int) => {
         val devs = w(id).get.devices
         val dev = devs.find {y => y.name == gsensor1.name}.get
         if(dev.value != e.root()) {
           world.changeSensorValue(id,gsensor1.name,e.root.toString())
         }
-      })
+      }
     }
   }
 
@@ -92,7 +87,8 @@ object Launcher {
     scafi.setProgramm(program)
     scafi.simulationPrototype = Some(ScafiBridge.createRadiusPrototype(radius))
     scafi.init()
-    val render = new BasicRender(world,pane,neighbourRender)
+    val render = new BasicRender(world,neighbourRender)
+    render.out = Some(pane)
     Platform.runLater{
       pane.outNode(world.nodes)
       if(neighbourRender) {

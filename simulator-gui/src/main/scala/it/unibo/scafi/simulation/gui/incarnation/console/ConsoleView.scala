@@ -7,6 +7,7 @@ import it.unibo.scafi.simulation.gui.view.SimulationView
   * simple console out, print node changed
   */
 //TODO CREATE A BETTER EXAMPLE
+/*
 class ConsoleView extends SimulationView{
   override def outNode[N <: World#Node](node: Set[N]): Unit = node foreach {println _}
 
@@ -35,4 +36,4 @@ class ConsoleView extends SimulationView{
     * @tparam ID the type of ID
     */
   override def clearDevice[ID <: World#ID](node: Set[ID]): Unit = ???
-}
+}*/

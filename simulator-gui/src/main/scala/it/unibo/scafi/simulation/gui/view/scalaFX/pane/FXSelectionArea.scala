@@ -1,8 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
-import it.unibo.scafi.simulation.gui.controller.InputCommandSingleton
+import it.unibo.scafi.simulation.gui.controller.InputCommandController
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.view.AbstractSelectionArea
 import it.unibo.scafi.simulation.gui.view.scalaFX.AbstractFXSimulationPane
@@ -17,11 +16,11 @@ import scalafx.scene.shape.Circle
 /**
   * the logic of selection a set of node
   */
-trait FXSelectionArea[ID <: World#ID] extends AbstractSelectionArea[ID,Point3D]{
-  self : AbstractFXSimulationPane =>
-  implicit val inputController : InputCommandSingleton
-  private var moved : Map[ID,(Node,Point2D)] = Map.empty
-  private var _selected : Set[ID] = Set.empty
+trait FXSelectionArea[W <: World] extends AbstractSelectionArea[W]{
+  self : AbstractFXSimulationPane[W] =>
+  implicit val inputController : InputCommandController[_]
+  private var moved : Map[W#ID,(Node,Point2D)] = Map.empty
+  private var _selected : Set[W#ID] = Set.empty
   private var startPoint : Point2D = new Point2D(0,0)
   private var r : DoubleProperty = DoubleProperty(0)
   private var circle : Option[Circle] = None
@@ -73,7 +72,7 @@ trait FXSelectionArea[ID <: World#ID] extends AbstractSelectionArea[ID,Point3D]{
             //TODO REMEMBER TO FIND ANOTHER SOLUTION
             if(this.circle.isDefined && this.moved.isEmpty) {
               this.moved = this.nodes.map {x => x -> new Point2D(x._2._2.x + x._2._1.translateX.value,x._2._2.y + x._2._1.translateY.value)}.
-                filter {x => this.circle.get.contains(x._2)} map {x => x._1._1.asInstanceOf[ID] -> (new Circle {
+                filter {x => this.circle.get.contains(x._2)} map {x => x._1._1 -> (new Circle {
                 this.centerX = x._2.x
                 this.centerY = x._2.y
                 //HERE TO CHANGE -> the same shape of node
@@ -85,8 +84,8 @@ trait FXSelectionArea[ID <: World#ID] extends AbstractSelectionArea[ID,Point3D]{
               //TODO PROBLEM HERE
               this._selected = this.moved.keySet
             } else if(!this.moved.isEmpty) {
-              val toMove = moved.map {x =>x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2)}
-              this.command.foreach(x => inputController.instance().get.exec(x(toMove)))
+              val toMove = moved.map {x =>x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2).asInstanceOf[W#P]}
+              this.command.foreach(x => inputController.exec(x(toMove)))
               clearSelected()
             }
           }
@@ -102,5 +101,5 @@ trait FXSelectionArea[ID <: World#ID] extends AbstractSelectionArea[ID,Point3D]{
     this.moved.values.foreach { x => this.children -= x._1}
     this.moved = Map.empty
   }
-  override def selected : Set[ID] = this._selected
+  override def selected : Set[W#ID] = this._selected
 }

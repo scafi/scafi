@@ -1,25 +1,24 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
-import it.unibo.scafi.simulation.gui.controller.{InputCommandSingleton, SimpleInputController}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld
+import it.unibo.scafi.simulation.gui.controller.InputCommandController
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{KeyboardManager, FXSelectionArea}
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.FXDrawer
 
 import scala.collection.mutable
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Point2D
 import scalafx.scene.Node
-import scalafx.scene.input.KeyEvent
 import scalafx.scene.paint.Color
 //TODO MAKE INPUT CONTROLLER GENERIC IN WORLD
-class FXSimulationPane (val inputController : InputCommandSingleton) extends AbstractFXSimulationPane {
-  private val _nodes : mutable.Map[World#ID,(Node,Point2D)] = mutable.Map()
-  private val  neighbours : mutable.Map[World#ID,mutable.Map[World#ID,Node]] = mutable.Map()
-  private val devices : mutable.Map[World#ID,Set[javafx.scene.Node]] = mutable.Map()
+class FXSimulationPane[W <: World] (val inputController : InputCommandController[_],
+                                    override val drawer : FXDrawer) extends AbstractFXSimulationPane[W] {
+  private val _nodes : mutable.Map[W#ID,(Node,Point2D)] = mutable.Map()
+  private val  neighbours : mutable.Map[W#ID,mutable.Map[W#ID,Node]] = mutable.Map()
+  private val devices : mutable.Map[W#ID,Set[javafx.scene.Node]] = mutable.Map()
   //TODO REMBER TO REMOVE
   private val color = Color.rgb(225,225,225)
-  def nodes : Map[World#ID,(Node,Point2D)] =_nodes.toMap
-  override def outNode[N <: World#Node](node: Set[N]): Unit = {
+  def nodes : Map[W#ID,(Node,Point2D)] =_nodes.toMap
+  override def outNode(node: Set[W#NODE]): Unit = {
     val nodeAdding : mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
     node foreach  { x => {
         val p : Point2D = x.position
@@ -28,7 +27,7 @@ class FXSimulationPane (val inputController : InputCommandSingleton) extends Abs
           node.translateX = p.x - oldP.x
           node.translateY = p.y - oldP.y
         } else {
-          val shape : Node = nodeToScalaFXNode(x)
+          val shape : Node = drawer.nodeGraphicsNode(x)
           this._nodes += x.id -> (shape,p)
           nodeAdding += shape
         }
@@ -39,13 +38,13 @@ class FXSimulationPane (val inputController : InputCommandSingleton) extends Abs
     }
   }
   //TODO
-  override def removeNode[ID <: World#ID](node: Set[ID]): Unit = {
+  override def removeNode(node: Set[W#ID]): Unit = {
     val toRemove : TraversableOnce[javafx.scene.Node] = node filter {_nodes.get(_).isDefined} map {x => Node.sfxNode2jfx(_nodes(x)._1)}  //EXPLICIT CONVERSION
     this.children --= toRemove
     node foreach {this._nodes -= _}
   }
 
-  override def outNeighbour[N <: World#Node](nodes : Map[N,Set[N]]): Unit = {
+  override def outNeighbour(nodes : Map[W#NODE,Set[W#NODE]]): Unit = {
     val linkAdding : mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
     nodes foreach { node => {
       val gnode = this._nodes(node._1.id)._1
@@ -57,7 +56,7 @@ class FXSimulationPane (val inputController : InputCommandSingleton) extends Abs
           this.neighbours += node._1.id -> mutable.Map()
         }
 
-        val ntox : mutable.Map[World#ID,Node] = this.neighbours(node._1.id)
+        val ntox : mutable.Map[W#ID,Node] = this.neighbours(node._1.id)
         //CHECK IF THE LINK IS ALREADY SHOW
           linkAdding += link
           ntox += (x.id -> link)
@@ -69,18 +68,18 @@ class FXSimulationPane (val inputController : InputCommandSingleton) extends Abs
     }
   }
 
-  override def removeNeighbour[ID <: World#ID](nodes : Map[ID,Set[ID]]): Unit = {
+  override def removeNeighbour(nodes : Map[W#ID,Set[W#ID]]): Unit = {
 
     val linkRemove: mutable.Set[javafx.scene.Node] = mutable.Set[javafx.scene.Node]()
 
-    def erase(start: ID, end: ID): Unit = {
+    def erase(start: W#ID, end: W#ID): Unit = {
       val map = this.neighbours(start)
       val toRemove = map(end)
       linkRemove += toRemove
       map -= end
     }
 
-    def checkPresence(start: ID, end: ID) = this.neighbours.get(start).isDefined && this.neighbours(start).contains(end)
+    def checkPresence(start: W#ID, end: W#ID) = this.neighbours.get(start).isDefined && this.neighbours(start).contains(end)
 
     nodes foreach { node => {
       node._2.foreach { x => {
@@ -99,7 +98,7 @@ class FXSimulationPane (val inputController : InputCommandSingleton) extends Abs
     }
   }
 
-  override def outDevice[N <: World#Node](nodes: Set[N]): Unit = {
+  override def outDevice(nodes: Set[W#NODE]): Unit = {
     var toRemove : List[javafx.scene.Node] = List()
     var toAdd : List[javafx.scene.Node] = List()
     nodes.foreach{ node => {
@@ -107,7 +106,7 @@ class FXSimulationPane (val inputController : InputCommandSingleton) extends Abs
         this.devices += node.id -> Set()
       }
       toRemove ++= (this.devices(node.id))
-      val devs : Set[javafx.scene.Node] = deviceToNode(node.devices,_nodes(node.id)._1)
+      val devs : Set[javafx.scene.Node] = drawer.deviceToGraphicsNode(node.devices,_nodes(node.id)._1)
       toAdd ++= devs
       this.devices += node.id -> devs
     }}
@@ -117,7 +116,7 @@ class FXSimulationPane (val inputController : InputCommandSingleton) extends Abs
     }
   }
 
-  override def clearDevice[ID <: World#ID](nodes: Set[ID]): Unit = {
+  override def clearDevice(nodes: Set[W#ID]): Unit = {
     nodes foreach{ node =>
       if(this.devices.get(node).isDefined) {
         this.devices(node) foreach {this.children -= _ }

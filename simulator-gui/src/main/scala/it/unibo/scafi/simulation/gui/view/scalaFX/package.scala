@@ -1,22 +1,15 @@
 package it.unibo.scafi.simulation.gui.view
 
 
-import java.util.concurrent.{CompletableFuture, CountDownLatch}
-import javafx.collections.ObservableList
 
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig
-import it.unibo.scafi.simulation.gui.model.core.{World, Shape => InternalShape}
+import it.unibo.scafi.simulation.gui.model.core.{Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors._
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
-import scalafx.application.Platform
 import scalafx.geometry.{Point2D => FXPoint}
-import scalafx.scene.{CacheHint, Node}
-import scalafx.scene.control.Label
-import scalafx.scene.image.Image
+import scalafx.scene.Node
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Circle, Ellipse, Polygon, Rectangle}
 //TODO THINK WHERE ADD COLOR (SIMPLE TEST)
 //TODO FOR PERFORMANCE USE IMAGE INSTEAD OF SHAPE -> TO DRAW IMAGE JAVAFX DON'T USE CPU , ONLY GPU
 package object scalaFX {
@@ -25,41 +18,6 @@ package object scalaFX {
                                         WorldConfig.destination.name -> Color.Yellow,
                                         WorldConfig.obstacle.name -> Color.Blue,
                                         WorldConfig.gsensor.name -> Color.Pink)
-  /**
-    * create a fx node by a Node
-    * @param node the node of the world
-    * @tparam N the type of node
-    * @return the node created
-    */
-  def nodeToScalaFXNode[N <: World#Node](node: N) : Node = {
-    val p: FXPoint = node.position
-    val defaultShape = new Rectangle {
-      this.x = p.x
-      this.y = p.y
-      this.width = 10
-      this.height = 10
-      this.fill = Color.Red
-    }
-    var shape : Node = defaultShape
-    if(node.shape.isDefined) {
-      node.shape.get match {
-        case r : InternalRectangle => shape = new Rectangle {
-          this.x = p.x
-          this.y = p.y
-          this.width = r.w
-          this.height = r.h
-        }
-        case c : InternalCircle => shape = new Circle {
-          this.centerX = p.x
-          this.centerY = p.y
-          this.radius = c.r
-          this.smooth = false
-        }
-        case _ =>
-      }
-    }
-    shape
-  }
 
   /**
     * convert a point in a point2D in javafx
@@ -83,48 +41,5 @@ package object scalaFX {
     val defaultZ = 0
     Point3D(start.x + n.translateX.value, start.y + n.translateY.value, defaultZ)
   }
-  //TODO THINK TO A BETTER SOLUTION
-  def deviceToNode[D <: World#Device](devices : Set[D], node : Node) : Set[javafx.scene.Node] = {
-    //the offset to the label of the y coordinate
-    val yoffset = 5
-    val label = new Label
-    val nodeWidth = node.boundsInLocal.value.getWidth
-    val increaseRadius = 2
-    val lineWidth = 2
-    var currentR = nodeWidth
-    val point = nodeToAbsolutePosition(node)
-    label.layoutX.bind(node.translateX +point.x)
-    label.layoutY.bind(node.translateY + point.y + yoffset)
-    var res : Set[javafx.scene.Node] = Set(label)
-    devices foreach  { device =>
-      device match {
-        case TextSensor(value) => {
-          if(!value.isEmpty) {
-            label.text = label.text.value + "" + device.name.toString + " = " + value
-          }
-        }
-        case OnOffSensor(value) => {
-          if(value) {
-            val ellipse = new Ellipse{
-              this.centerX.bind(node.translateX + point.x)
-              this.centerY.bind(node.translateY + point.y)
-              this.radiusX = currentR
-              this.radiusY = currentR
-              this.strokeWidth = lineWidth
-              val color : Color = colors(device.name.toString)
-              this.stroke = color
-              this.fill = Color.color(color.red,color.green,color.blue,0.5)
-              this.smooth = false
-            }
-            res += ellipse
-          }
-          currentR += increaseRadius
-        }
-        case _ => {
-          None
-        }
-      }
-    }
-    res
-  }
+
 }

@@ -7,21 +7,19 @@ import com.sun.javafx.perf.PerformanceTracker
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{LoadingLogo, PannablePane}
 import it.unibo.scafi.simulation.gui.view.{GraphicsView, Window}
 
-import scalafx.Includes._
 import scalafx.animation.FadeTransition
 import scalafx.application.Platform
 import scalafx.event.ActionEvent
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.Label
-import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.KeyEvent
-import scalafx.scene.layout.{AnchorPane, BorderPane, HBox, StackPane}
+import scalafx.scene.layout.{BorderPane, HBox, StackPane}
 import scalafx.stage.Stage
 import scalafx.util.Duration
 
 class SimulationWindow(private val infoPane : HBox,
-                       private val simulationPane : AbstractFXSimulationPane,
+                       private val simulationPane : AbstractFXSimulationPane[_],
                        private val debug: Boolean = false) extends Stage with Window {
   private val Padding = 20
   private val exitValue = 1

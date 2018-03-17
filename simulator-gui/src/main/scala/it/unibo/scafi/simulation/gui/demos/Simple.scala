@@ -6,8 +6,9 @@ object Test extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher._
   program = classOf[Simple]
   nodes = 1000
-  maxPoint = 1000
-  radius = 70
+  maxPoint = 500
+  radius = 30
+  neighbourRender = true
   launch()
 }
 class Simple extends AggregateProgram  with BlockG with StandardSensors {

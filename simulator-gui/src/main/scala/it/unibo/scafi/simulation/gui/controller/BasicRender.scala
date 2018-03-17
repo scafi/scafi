@@ -12,25 +12,27 @@ import scala.collection.mutable
 /**
   * the render of output to a graphics view (scalafx library)
   * @param world to show
-  * @param out where render show thing
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */
-class BasicRender(val world : BasicPlatform with Source,
-                  val out : SimulationView,
-                  val neighbourRender : Boolean) extends Presenter[BasicPlatform with Source]{
+class BasicRender[W <: BasicPlatform with Source](val world : W,
+                                                  val neighbourRender : Boolean) extends Presenter[W]{
 
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
   val devChanged = world.createObserver(Set(NodesDeviceChanged))
+  var out : Option[SimulationView[world.type]] = None
   private var prevNeighbour : Map[world.ID,Set[world.ID]] = world.network.neighbours()
   world <-- removed <-- moved <-- devChanged
-  override type OUTPUT = SimulationView
+  override type OUTPUT = SimulationView[world.type]
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
+    if(out.isEmpty) {
+      return;
+    }
     val nodesRemoved = removed.nodeChanged()
     if (!nodesRemoved.isEmpty) {
       LogManager.log("view erasing..", LogManager.Middle)
-      out.removeNode(nodesRemoved)
+      out.get.removeNode(nodesRemoved)
     }
     //MOVING
     val nodesMoved = moved.nodeChanged()
@@ -55,13 +57,13 @@ class BasicRender(val world : BasicPlatform with Source,
         }
       }
       this.prevNeighbour = world.network.neighbours()
-      out.outNode(world.apply(nodesMoved))
-      out.outNeighbour(toAdd)
-      out.removeNeighbour(toRemove)
+      out.get.outNode(world.apply(nodesMoved))
+      out.get.outNeighbour(toAdd)
+      out.get.removeNeighbour(toRemove)
     }
     val deviceToOut = devChanged.nodeChanged()
     if(!deviceToOut.isEmpty) {
-      out.outDevice(world.apply(deviceToOut))
+      out.get.outDevice(world.apply(deviceToOut))
     }
   }
 }

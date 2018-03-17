@@ -23,7 +23,3 @@ class SimpleInputController[W <: AggregateWorld](val w: ScafiLikeWorld) extends 
     override def unmake(): Unit = ???
   }
 }
-
-object SimpleInputController extends InputCommandSingleton {
-  var instance: Option[InputCommandController[_]] = None
-}

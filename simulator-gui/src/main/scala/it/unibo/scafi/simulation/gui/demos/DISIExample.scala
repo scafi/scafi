@@ -2,12 +2,12 @@ package it.unibo.scafi.simulation.gui.demos
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.{Launcher, WorldConfig}
-object SomeExample extends App {
+object DISIExample extends App {
   import Launcher._
-  program = classOf[Main4]
-  nodes = 100
+  program = classOf[Main]
+  nodes = 50
   maxPoint = 1000
-  radius = 200
+  radius = 250
   launch()
 }
 

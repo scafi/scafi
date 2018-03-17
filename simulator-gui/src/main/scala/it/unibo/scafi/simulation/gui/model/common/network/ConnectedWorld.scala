@@ -32,6 +32,8 @@ trait ConnectedWorld {
       */
     def setNeighbours(node :ID,neighbour :Set[ID])
   }
-
+  /**
+    return the current representation of the network
+   */
   def network : NET
 }

@@ -12,44 +12,38 @@ trait Container {
 /**
   * describe a generic output of a simulation
   */
-trait SimulationView extends View{
+trait SimulationView[W <: World] extends View{
   /**
     * out a set of node that are added or moved
     * @param node the nodes
-    * @tparam N the type of nodes
     */
-  def outNode[N<: World#Node] (node : Set[N])
+  def outNode(node : Set[W#NODE])
 
   /**
     * remove a node into the output
     * @param node the node
-    * @tparam ID the id of node
     */
-  def removeNode[ID <: World#ID](node : Set[ID])
+  def removeNode(node : Set[W#ID])
 
   /**
     * out a neighbour of a node
-    * @tparam N the type of node
     */
-  def outNeighbour[N <: World#Node] (nodes : Map[N,Set[N]])
+  def outNeighbour(nodes : Map[W#NODE,Set[W#NODE]])
 
   /**
     * remove a set of neighbour of a node
-    * @tparam ID the id of node
     */
-  def removeNeighbour[ID <: World#ID](nodes : Map[ID,Set[ID]])
+  def removeNeighbour(nodes : Map[W#ID,Set[W#ID]])
 
   /**
     * output the device associated to the node
     * @param node the node
-    * @tparam N the type of node
     */
-  def outDevice[N <: World#Node](node : Set[N])
+  def outDevice(node : Set[W#NODE])
 
   /**
     * remove all devices associated to a node
     * @param node the node
-    * @tparam ID the type of ID
     */
-  def clearDevice[ID <: World#ID](node : Set[ID])
+  def clearDevice(node : Set[W#ID])
 }

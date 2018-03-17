@@ -1,8 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
-import scalafx.scene.{Node, input}
+import scalafx.scene.Node
 import scalafx.scene.control.ScrollPane
-import scalafx.scene.input.{MouseButton, MouseEvent}
 import scalafx.scene.layout.Pane
 
 /**

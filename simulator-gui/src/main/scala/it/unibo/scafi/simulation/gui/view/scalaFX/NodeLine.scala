@@ -1,9 +1,8 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
 
-import scalafx.scene.effect.BlendMode
-import scalafx.scene.{CacheHint, Node}
+import scalafx.scene.Node
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Line, StrokeType}
+import scalafx.scene.shape.Line
 
 /**
   *

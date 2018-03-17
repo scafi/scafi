@@ -18,7 +18,7 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
     if(contract.getSimulation.isDefined) {
       val net = contract.getSimulation.get
       val result = net.exec(runningContext)
-      exportProduced = exportProduced ::: (actions.filter{x => x(result._2).isDefined} map {x => result._1 -> x(result._2).get}).toList
+      exportProduced = exportProduced ::: (actions.filter{x => x.isDefinedAt(result._2)} map {x => result._1 -> x(result._2)}).toList
     }
   }
   //TODO AGGIUNGI CLEAR IN OBSERVER WORLD
