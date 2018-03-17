@@ -40,7 +40,7 @@ trait StdLib_ExplicitFields {
       def map[R](o: T=>R): Field[R] =
         Field(m.mapValues(o))
 
-      def map2[R,S](o: (T,R)=>S)(f: Field[R]): Field[S] =
+      def map2[R,S](f: Field[R])(o: (T,R)=>S): Field[S] =
         Field(m.map { case (i,v) => i -> o(v,f.m(i)) })
 
       def fold[V>:T](z:V)(o: (V,V)=>V): V =
@@ -74,9 +74,9 @@ trait StdLib_ExplicitFields {
     implicit class NumericField[T:Numeric](f: Field[T]){
       private val ev = implicitly[Numeric[T]]
 
-      def +(f2: Field[T]): Field[T] = f.map2[T,T](ev.plus(_,_))(f2)
-      def -(f2: Field[T]): Field[T] = f.map2[T,T](ev.minus(_,_))(f2)
-      def *(f2: Field[T]): Field[T] = f.map2[T,T](ev.times(_,_))(f2)
+      def +(f2: Field[T]): Field[T] = f.map2(f2)(ev.plus(_,_))
+      def -(f2: Field[T]): Field[T] = f.map2(f2)(ev.minus(_,_))
+      def *(f2: Field[T]): Field[T] = f.map2(f2)(ev.times(_,_))
       def +[U](lv: U)(implicit uev: Numeric[U]): Field[Double] = f.map[Double](ev.toDouble(_) + uev.toDouble(lv))
     }
   }
