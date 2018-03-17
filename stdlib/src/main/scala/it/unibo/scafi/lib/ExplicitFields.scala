@@ -57,13 +57,13 @@ trait StdLib_ExplicitFields {
       def reduce[V>:T](o: (V,V)=>V): V =
         m.values.reduce(o)
 
-      def minHood(implicit ev: Ordering[T]): T =
-        reduce((ev.min(_,_)))
+      def minHood[V>:T](implicit ev: Bounded[V]): V  =
+        fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
 
       def minHoodPlus[V>:T](implicit ev: Bounded[V]): V =
-        withoutSelf.fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
+        withoutSelf.minHood(ev)
 
-      def withoutSelf = Field[T](m - mid)
+      def withoutSelf: Field[T] = Field[T](m - mid)
 
       def toMap = m
     }
