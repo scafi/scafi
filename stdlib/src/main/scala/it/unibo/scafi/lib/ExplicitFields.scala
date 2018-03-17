@@ -43,6 +43,14 @@ trait StdLib_ExplicitFields {
       def map2[R,S](f: Field[R])(o: (T,R)=>S): Field[S] =
         Field(m.map { case (i,v) => i -> o(v,f.m(i)) })
 
+      def map2d[R,S](f: Field[R])(default: R)(o: (T,R)=>S): Field[S] =
+        Field(m.map { case (i,v) => i -> o(v,f.m.getOrElse(i,default)) })
+
+      def map2u[R,S](f: Field[R])(dl: T, dr: R)(o: (T,R)=>S): Field[S] = {
+        val allKeys = m.keys ++ f.m.keys
+        Field(allKeys.map { k => k -> o(m.getOrElse(k, dl), f.m.getOrElse(k, dr)) } toMap)
+      }
+
       def fold[V>:T](z:V)(o: (V,V)=>V): V =
         m.values.fold(z)(o)
 
@@ -56,6 +64,8 @@ trait StdLib_ExplicitFields {
         withoutSelf.fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
 
       def withoutSelf = Field[T](m - mid)
+
+      def toMap = m
     }
 
     object Field {
