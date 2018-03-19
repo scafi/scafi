@@ -19,9 +19,8 @@
 package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
-import org.scalactic.Equality
 
-import scala.collection.Map
+import scala.util.Random
 
 object ScafiTestUtils {
 
@@ -40,6 +39,24 @@ object ScafiTestUtils {
     endNet
   }
 
+  def execProgramFor(ap: AggregateProgram, ntimes: Int = 500)
+                    (net: Network with SimulatorOps)
+                    (when: ID => Boolean, devs: Vector[ID] = net.ids.toVector, rnd: Random = new Random(0)): Network = {
+    if (ntimes <= 0) net
+    else {
+      val nextToRun = until(when) {
+        devs(rnd.nextInt(devs.size))
+      }
+      net.exec(ap, ap.main, nextToRun)
+      execProgramFor(ap, ntimes - 1)(net)(when, devs, rnd)
+    }
+  }
+
+  def exec(ap: AggregateProgram, ntimes: Int = 500)
+          (net: Network with SimulatorOps): Network = {
+    runProgram(ap.main(), ntimes)(net)(ap)
+  }
+
   def runProgramInOrder(firingSeq: Seq[ID])
                        (exp: => Any)
                        (net: Network with SimulatorOps)
@@ -47,4 +64,8 @@ object ScafiTestUtils {
     net.execInOrderAndReturn(node, exp, firingSeq)
   }
 
+  def until[T](pred: T => Boolean)(expr: => T): T = {
+    val res = expr
+    if(pred(res)) res else until(pred)(expr)
+  }
 }

@@ -16,15 +16,25 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.test
+package sims
 
-import it.unibo.scafi.incarnations.AbstractTestIncarnation
-import it.unibo.scafi.lib.StandardLibrary
-import it.unibo.scafi.simulation.Simulation
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ExplicitFields, FieldUtils}
+import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
-object FunctionalTestIncarnation extends AbstractTestIncarnation with Simulation with StandardLibrary {
-  override val LSNS_RANDOM: String = "randomGenerator"
+object ExplicitFieldsRun extends Launcher {
+  Settings.Sim_ProgramClass = "sims.GradientWithExplicitFields"
+  Settings.ShowConfigPanel = false
+  Settings.Sim_NbrRadius = 0.15
+  Settings.Sim_NumNodes = 100
+  launch()
+}
 
-  import Builtins.Bounded
-  override implicit val idBounded: Bounded[ID] = Builtins.Bounded.of_i
+class GradientWithExplicitFields extends AggregateProgram with SensorDefinitions with ExplicitFields {
+  override def main() = gradient(sense1)
+
+  def gradient(src: Boolean) = rep(Double.PositiveInfinity)(d => {
+    mux(src){ 0.0 }{
+      (fnbr(d) + fsns(nbrRange)).minHoodPlus
+    }
+  })
 }
