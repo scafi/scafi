@@ -33,10 +33,11 @@ object ReplicatedGossipDemo extends Launcher {
   launch()
 }
 
-class ReplicatedGossip extends AggregateProgram with StateManagement with SensorDefinitions with Gradients with Processes with BlockT {
+class ReplicatedGossip extends AggregateProgram with StateManagement with SensorDefinitions with Gradients with Processes with BlockT
+  with Spawn {
   def main: String = {
     val g = classic(sense1)
-    val grepl = replicatedGossip(sense1, numActiveProcs = 5, startEvery = 20, considerAfter = 20)
+    val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 10, considerAfter = 20)
     f"$g%5.1f; " + (if(grepl.isDefined) f"${grepl.get}%5.1f" else "X")
   }
 
@@ -45,9 +46,23 @@ class ReplicatedGossip extends AggregateProgram with StateManagement with Sensor
       ProcessGenerator(
         trigger = () => sense2 && impulsesEvery(startEvery),
         generator = () => ProcessDef(PID("1"), comp = () => mux[Option[Double]](timer(considerAfter)==0){ Some(classic(src)) }{ None },
-        stopCondition = () => timer(startEvery*numActiveProcs+startEvery/2)==0))
+        stopCondition = () => timer(startEvery*numActiveProcs+startEvery/2+considerAfter)==0))
     )}
     val replicated = processExecution(generators).values.collect{ case Some(x) => x }
     if(replicated.isEmpty) None else Some(replicated.max)
+  }
+
+  def replicatedGossip2(src: => Boolean, numActiveProcs: Int, startEvery: Int, considerAfter: Int): Option[Double] = {
+    try {
+      val procs = spawn[Unit,Double]( (_) => {
+        val status = mux[Status](timer(startEvery*numActiveProcs+startEvery/2+considerAfter)!=0){
+          mux[Status](timer(considerAfter)!=0){ Bubble }{ Output }
+        }{ External }
+        (classic(src), status)
+      }, mux(sense2 & impulsesEvery(startEvery)){ List(()) }{ List() })
+      val max = procs.maxBy(_._1.puid)
+      //if(mid==1) println(procs.size + " " + max._1)
+      Some(max._2)
+    } catch { case _ => Some(Double.PositiveInfinity) }
   }
 }

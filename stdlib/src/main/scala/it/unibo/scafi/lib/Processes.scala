@@ -37,6 +37,42 @@ trait Stdlib_Processes {
     override def toString: String = s"puid$puid"
   }
 
+  trait Spawn {
+    self: FieldCalculusSyntax with FieldUtils =>
+
+    trait Status
+    case object External extends Status // External to the bubble
+    case object Bubble extends Status   // Within the bubble
+    case object Output extends Status   // Within the bubble and bubble output producer
+
+    type Proc[A,B] = (A) => (B,Status)
+
+    case class ProcInstance[A,B](puid: PUID)(val args: A, val proc: Proc[A,B], val value: Option[(B,Status)] = None){
+      def run = ProcInstance(puid)(args, proc, align(puid){ _ => Some(proc.apply(args)) })
+    }
+
+    def spawn[A,B](process: Proc[A,B], args: List[A]): Map[PUID,B] = {
+      val roundNum = rep(0L)(_+1)
+
+      rep(Map[PUID,ProcInstance[A,B]]())(currProcs => {
+        // 1. Take previous processes (from me and from my neighbours)
+        val nbrProcs = excludingSelf.mergeHoodFirst( nbr(currProcs) )
+
+        // 2. New processes to be spawn, based on a generation condition
+        val newProcs = args.map(arg => {
+          val id = PUID(s"${mid}_${roundNum}")
+          val newProc = ProcInstance(id)(arg, process)
+          id -> newProc
+        }).toMap
+
+        // 3. Collect all process instances to be executed, execute them and update their state
+        (currProcs ++ nbrProcs ++ newProcs)
+          .mapValuesStrict(p => p.run)
+          .filter(_._2.value.getOrElse(External)!=External)
+      }).collect { case (pid,p) if p.value.isDefined && p.value.get._2==Output => pid -> p.value.get._1 }
+    }
+  }
+
   trait Processes {
     self: FieldCalculusSyntax with StandardSensors with FieldUtils =>
     import excludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
@@ -134,6 +170,9 @@ trait Stdlib_Processes {
       })
     }
 
+    def processExecution[T](generators: ProcessGenerator[T]*): Map[PUID,T] =
+      processExecution(generators.toSet)
+
     def processExecution[T](generators: Set[ProcessGenerator[T]]): Map[PUID,T] =
       processManagement(generators)
         .collect { case (pid, ProcessInstance(_,_,ProcessData(Some(v),_,_,_,_,_))) => pid -> v }
@@ -157,12 +196,12 @@ trait Stdlib_Processes {
 
     private def processWithinLimits(p: ProcessInstance[_]): Boolean =
       p.data.distance + p.process.metric() <= p.process.limit
+  }
 
-    private implicit class RichMap[K,V](val m: Map[K,V]){
-      def filterValues(pred: V => Boolean): Map[K,V] =
-        m.filter { case (k,v) => pred(v) }
-      def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
-        m.map { case (k,v) => k -> mapLogic(v) }
-    }
+  private implicit class RichMap[K,V](val m: Map[K,V]){
+    def filterValues(pred: V => Boolean): Map[K,V] =
+      m.filter { case (k,v) => pred(v) }
+    def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
+      m.map { case (k,v) => k -> mapLogic(v) }
   }
 }
