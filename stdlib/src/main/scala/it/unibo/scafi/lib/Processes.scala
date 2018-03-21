@@ -45,21 +45,21 @@ trait Stdlib_Processes {
     case object Bubble extends Status   // Within the bubble
     case object Output extends Status   // Within the bubble and bubble output producer
 
-    type Proc[A,B] = (A) => (B,Status)
+    type Proc[A,B,C] = A => B => (C,Status)
 
-    case class ProcInstance[A,B](puid: PUID)(val args: A, val proc: Proc[A,B], val value: Option[(B,Status)] = None){
-      def run = ProcInstance(puid)(args, proc, align(puid){ _ => Some(proc.apply(args)) })
+    case class ProcInstance[A,B,C](puid: PUID)(val params: A, val proc: Proc[A,B,C], val value: Option[(C,Status)] = None){
+      def run(args: B) = ProcInstance(puid)(params, proc, align(puid){ _ => Some(proc.apply(params)(args)) })
     }
 
-    def spawn[A,B](process: Proc[A,B], args: List[A]): Map[PUID,B] = {
+    def spawn[A,B,C](process: Proc[A,B,C], params: List[A], args: B): Map[PUID,C] = {
       val roundNum = rep(0L)(_+1)
 
-      rep(Map[PUID,ProcInstance[A,B]]())(currProcs => {
+      rep(Map[PUID,ProcInstance[A,B,C]]())(currProcs => {
         // 1. Take previous processes (from me and from my neighbours)
         val nbrProcs = excludingSelf.mergeHoodFirst( nbr(currProcs) )
 
         // 2. New processes to be spawn, based on a generation condition
-        val newProcs = args.map(arg => {
+        val newProcs = params.map(arg => {
           val id = PUID(s"${mid}_${roundNum}")
           val newProc = ProcInstance(id)(arg, process)
           id -> newProc
@@ -67,7 +67,7 @@ trait Stdlib_Processes {
 
         // 3. Collect all process instances to be executed, execute them and update their state
         (currProcs ++ nbrProcs ++ newProcs)
-          .mapValuesStrict(p => p.run)
+          .mapValuesStrict(p => p.run(args))
           .filter(_._2.value.getOrElse(External)!=External)
       }).collect { case (pid,p) if p.value.isDefined && p.value.get._2==Output => pid -> p.value.get._1 }
     }

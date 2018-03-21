@@ -54,12 +54,13 @@ class ReplicatedGossip extends AggregateProgram with StateManagement with Sensor
 
   def replicatedGossip2(src: => Boolean, numActiveProcs: Int, startEvery: FiniteDuration, considerAfter: FiniteDuration): Option[Double] = {
     try {
-      val procs = spawn[Unit,Double]( (_) => {
+      val procs = spawn[Unit,Boolean,Double]( (_) => source => {
         val status = mux[Status](timer(startEvery*numActiveProcs+startEvery/2+considerAfter)!=0){
           mux[Status](timer(considerAfter)!=0){ Bubble }{ Output }
         }{ External }
-        (classic(src), status)
-      }, mux(sense2 & impulsesEvery(startEvery)){ List(()) }{ List() })
+        (classic(source), status)
+      }, mux(sense2 & impulsesEvery(startEvery)){ List(()) }{ List() },
+      src)
       val max = procs.maxBy(_._1.puid)
       //if(mid==1) println(procs.size + " " + max._1)
       Some(max._2)
