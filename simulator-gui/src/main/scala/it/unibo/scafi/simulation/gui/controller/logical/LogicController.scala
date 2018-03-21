@@ -38,7 +38,9 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W]{
     override def run(): Unit = {
       while(!stopped) {
         AsyncLogicExecution()
-        Thread.sleep(delta)
+        if(delta != 0) {
+          Thread.sleep(delta)
+        }
       }
     }
   }

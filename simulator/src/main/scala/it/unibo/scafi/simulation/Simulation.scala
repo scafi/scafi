@@ -231,10 +231,9 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     override def clearExports(): Unit = eMap.clear()
 
-    private def getExports(id: ID): Iterable[(ID,EXPORT)] = {
-       val nhood = neighbourhood(id) + id
-       eMap.filter(kv => nhood.contains(kv._1))
-    }
+    private def getExports(id: ID): Iterable[(ID,EXPORT)] =
+      (neighbourhood(id) + id).intersect(eMap.keySet).toList.map{x => { x -> eMap(x)}}
+
 
     class SimulatorContextImpl(id: ID)
       extends ContextImpl(
@@ -242,9 +241,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         exports = getExports(id),
         localSensor = IMap(),
         nbrSensor = IMap()){
-
       import NetworkSimulator.Optionable
-
       def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
         lsnsMap(lsns).get(id).map (_.asInstanceOf[T] )
 
@@ -258,7 +255,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         case LSNS_DELTA_TIME => FiniteDuration(
           lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalDateTime.now())).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]
-        case _ => localSensorRetrieve(lsns, id)
+        case _ => this.localSensorRetrieve(lsns, id)
       }
 
       override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
@@ -307,7 +304,6 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val idToRun = idArray(simulationRandom.nextInt(idArray.size))
       val c = context(idToRun)
       val (_,exp) = idToRun -> ap(c)
-      lastRound += idToRun -> LocalDateTime.now()
       eMap += idToRun -> exp
       idToRun -> exp
     }

@@ -72,8 +72,9 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
 
       import NetworkSimulator.Optionable
 
-      override def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
+      override def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] = {
         lsnsMap.get(lsns).flatMap(_.get(selfId)).orElse(devs.get(id).map(_.lsns(lsns))).map(_.asInstanceOf[T])
+      }
 
       override def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
         devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])

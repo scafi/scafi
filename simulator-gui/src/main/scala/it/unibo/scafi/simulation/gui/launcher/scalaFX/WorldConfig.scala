@@ -69,4 +69,18 @@ object WorldConfig {
     world clear()
     world ++ node
   }
+
+  def gridLike2D(row : Int, column : Int, distance : Int): Unit = {
+    var node : Set[NODE] = Set()
+    val z = 0
+    var nodes = 0;
+    for(i <- 1 until row ) {
+      for(j <- 1 until column) {
+        nodes += 1
+        node += nodeFactory.create(nodes,Point3D(i * distance ,j * distance ,z),devs,nodeProto)
+      }
+    }
+    world clear()
+    world ++ node
+  }
 }

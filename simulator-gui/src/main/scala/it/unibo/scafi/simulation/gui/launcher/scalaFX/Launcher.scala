@@ -59,14 +59,11 @@ object Launcher {
       (w : ScafiLikeWorld, id : Int) => {
         val devs = w(id).get.devices
         val dev = devs.find {y => y.name == gsensor.name}.get
-        if(dev.value != export.root()) {
-          world.changeSensorValue(id,gsensor.name,export.root)
-        }
-        ()
+        world.changeSensorValue(id,gsensor.name,export.root)
       }
     }
   }
-  val textaction :  PartialFunction[EXPORT,(ScafiLikeWorld,Int)=>Unit] = new PartialFunction[EXPORT,(ScafiLikeWorld,Int) => Unit] {
+  val textaction = new PartialFunction[EXPORT,(ScafiLikeWorld,Int) => Unit] {
     override def isDefinedAt(x: EXPORT): Boolean = !x.root.isInstanceOf[Boolean]
 
     override def apply(e: EXPORT): (ScafiLikeWorld, Int) => Unit = {

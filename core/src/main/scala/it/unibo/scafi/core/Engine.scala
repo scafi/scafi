@@ -76,7 +76,6 @@ trait Engine extends Semantics {
     extends Context with ContextOps with Serializable { self: CONTEXT =>
 
     private var exportsMap : Map[ID,EXPORT] = _exports.toMap
-
     def updateExport(id: ID, export:EXPORT): Unit = exportsMap += id -> export
 
     override def exports(): Iterable[(ID, EXPORT)] = exportsMap

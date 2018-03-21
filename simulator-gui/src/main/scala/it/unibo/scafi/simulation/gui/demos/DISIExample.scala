@@ -7,7 +7,8 @@ object DISIExample extends App {
   program = classOf[Main]
   nodes = 50
   maxPoint = 1000
-  radius = 250
+  radius = 10
+  neighbourRender = false
   launch()
 }
 

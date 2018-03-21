@@ -249,8 +249,7 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag():Any =
-      Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    override def elicitAggregateFunctionTag():Any = RoundVMImpl.tag
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated
@@ -270,6 +269,8 @@ trait Semantics extends Core with Language {
         case _     =>
       }
     }
+    //POSSO FARLO? O DEVE ESSERE RICALCOLATO OGNI VOLTA??
+    lazy val tag = Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
 
     trait Status extends Serializable {
       val path: Path
