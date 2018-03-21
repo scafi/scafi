@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 trait StdLib_TimeUtils {
   self: StandardLibrary.Subcomponent =>
@@ -26,7 +26,13 @@ trait StdLib_TimeUtils {
   trait TimeUtils extends BlockT {
     self: FieldCalculusSyntax =>
 
-    def impulsesEvery(d: Int): Boolean = {
+    def impulsesEvery[T : Numeric](d: T): Boolean = {
+      rep(false){ impulse =>
+        branch(impulse) { false } { timer(d)==0 }
+      }
+    }
+
+    def impulsesEvery(d: FiniteDuration): Boolean = {
       rep(false){ impulse =>
         branch(impulse) { false } { timer(d)==0 }
       }

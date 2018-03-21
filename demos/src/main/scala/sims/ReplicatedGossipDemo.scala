@@ -21,7 +21,7 @@ package sims
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 object ReplicatedGossipDemo extends Launcher {
   // Configuring simulation
@@ -37,7 +37,7 @@ class ReplicatedGossip extends AggregateProgram with StateManagement with Sensor
   with Spawn {
   def main: String = {
     val g = classic(sense1)
-    val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 10, considerAfter = 20)
+    val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 2 second, considerAfter = 2 second)
     f"$g%5.1f; " + (if(grepl.isDefined) f"${grepl.get}%5.1f" else "X")
   }
 
@@ -52,7 +52,7 @@ class ReplicatedGossip extends AggregateProgram with StateManagement with Sensor
     if(replicated.isEmpty) None else Some(replicated.max)
   }
 
-  def replicatedGossip2(src: => Boolean, numActiveProcs: Int, startEvery: Int, considerAfter: Int): Option[Double] = {
+  def replicatedGossip2(src: => Boolean, numActiveProcs: Int, startEvery: FiniteDuration, considerAfter: FiniteDuration): Option[Double] = {
     try {
       val procs = spawn[Unit,Double]( (_) => {
         val status = mux[Status](timer(startEvery*numActiveProcs+startEvery/2+considerAfter)!=0){
