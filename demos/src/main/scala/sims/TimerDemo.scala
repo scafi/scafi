@@ -18,7 +18,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT2}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object TimerDemo extends Launcher {
@@ -30,6 +30,6 @@ object TimerDemo extends Launcher {
   launch()
 }
 
-class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT2 {
-  override def main() = branch(sense1){linearFlow(100)}{0}
+class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT {
+  override def main() = branch(sense1){timer(100)}{0}
 }

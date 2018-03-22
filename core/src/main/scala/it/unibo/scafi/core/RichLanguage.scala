@@ -89,7 +89,7 @@ trait RichLanguage extends Language { self: Core =>
         def compare(a: String, b: String): Int = if (a > b) 1 else if (b < a) -1 else 0
       }
 
-      @transient implicit def funcBounded[T : Bounded]: Bounded[()=>T] =
+      implicit def funcBounded[T : Bounded]: Bounded[()=>T] =
         new Bounded[()=>T] {
           val oft = implicitly[Bounded[T]]
           def top: ()=>T = ()=> oft.top
@@ -97,7 +97,7 @@ trait RichLanguage extends Language { self: Core =>
           def compare(a: ()=>T, b: ()=>T): Int = oft.compare(a(),b())
         }
 
-      @transient implicit def tupleBounded[T1, T2](implicit of1: Bounded[T1], of2: Bounded[T2]): Bounded[(T1, T2)] =
+      implicit def tupleBounded[T1, T2](implicit of1: Bounded[T1], of2: Bounded[T2]): Bounded[(T1, T2)] =
         new Bounded[(T1, T2)] {
           def top: (T1, T2) = (of1.top, of2.top)
           def bottom: (T1, T2) = (of1.bottom, of2.bottom)
@@ -105,7 +105,7 @@ trait RichLanguage extends Language { self: Core =>
             if (of1.compare(a._1, b._1) == 0) of2.compare(a._2, b._2) else of1.compare(a._1, b._1)
         }
 
-      @transient implicit def tupleOnFirstBounded[T1, T2](implicit of1: Bounded[T1], of2: Defaultable[T2]): Bounded[(T1, T2)] =
+      implicit def tupleOnFirstBounded[T1, T2](implicit of1: Bounded[T1], of2: Defaultable[T2]): Bounded[(T1, T2)] =
         new Bounded[(T1, T2)] {
           def top: (T1, T2) = (of1.top, of2.default)
           def bottom: (T1, T2) = (of1.bottom, of2.default)

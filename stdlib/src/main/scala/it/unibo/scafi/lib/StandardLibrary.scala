@@ -23,8 +23,6 @@ import it.unibo.scafi.incarnations.Incarnation
 trait StandardLibrary extends
          Stdlib_BlockG
     with Stdlib_BlockC
-    with Stdlib_BlockT
-    with Stdlib_BlockT2
     with Stdlib_BlockS
     with Stdlib_BlocksWithGC
     with Stdlib_BuildingBlocks
