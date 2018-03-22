@@ -57,7 +57,7 @@ trait Stdlib_Processes {
         val nbrProcs = excludingSelf.mergeHoodFirst( nbr(currProcs) )
 
         // 2. New processes to be spawn, based on a generation condition
-        val newProcs = params.zipWithIndex.map { case (arg: A, i: Int) => {
+        val newProcs = params.zipWithIndex.map { case (arg, i) => {
           val id = PUID(s"${mid}_${k + i}")
           val newProc = ProcInstance(id)(arg, process)
           id -> newProc
@@ -66,7 +66,7 @@ trait Stdlib_Processes {
         // 3. Collect all process instances to be executed, execute them and update their state
         (k + params.length, (currProcs ++ nbrProcs ++ newProcs)
           .mapValuesStrict(p => p.run(args))
-          .filter(_._2.value.get != External))
+          .filterValues(_.value.get._2 != External))
       }}._2.collect { case (_,p) if p.value.get._2==Output => p.value.get._1 }
     }
   }
@@ -199,6 +199,7 @@ trait Stdlib_Processes {
   private implicit class RichMap[K,V](val m: Map[K,V]){
     def filterValues(pred: V => Boolean): Map[K,V] =
       m.filter { case (k,v) => pred(v) }
+
     def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
       m.map { case (k,v) => k -> mapLogic(v) }
   }
