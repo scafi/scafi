@@ -51,25 +51,23 @@ trait Stdlib_Processes {
       def run(args: B) = ProcInstance(puid)(params, proc, align(puid){ _ => Some(proc.apply(params)(args)) })
     }
 
-    def spawn[A,B,C](process: Proc[A,B,C], params: List[A], args: B): Map[PUID,C] = {
-      val roundNum = rep(0L)(_+1)
-
-      rep(Map[PUID,ProcInstance[A,B,C]]())(currProcs => {
+    def spawn[A,B,C](process: Proc[A,B,C], params: List[A], args: B): Iterable[C] = {
+      rep((0,Map[PUID,ProcInstance[A,B,C]]())){ case (k, currProcs) => {
         // 1. Take previous processes (from me and from my neighbours)
         val nbrProcs = excludingSelf.mergeHoodFirst( nbr(currProcs) )
 
         // 2. New processes to be spawn, based on a generation condition
-        val newProcs = params.map(arg => {
-          val id = PUID(s"${mid}_${roundNum}")
+        val newProcs = params.zipWithIndex.map { case (arg: A, i: Int) => {
+          val id = PUID(s"${mid}_${k + i}")
           val newProc = ProcInstance(id)(arg, process)
           id -> newProc
-        }).toMap
+        }}.toMap
 
         // 3. Collect all process instances to be executed, execute them and update their state
-        (currProcs ++ nbrProcs ++ newProcs)
+        (k + params.length, (currProcs ++ nbrProcs ++ newProcs)
           .mapValuesStrict(p => p.run(args))
-          .filter(_._2.value.getOrElse(External)!=External)
-      }).collect { case (pid,p) if p.value.isDefined && p.value.get._2==Output => pid -> p.value.get._1 }
+          .filter(_._2.value.get != External))
+      }}._2.collect { case (_,p) if p.value.get._2==Output => p.value.get._1 }
     }
   }
 

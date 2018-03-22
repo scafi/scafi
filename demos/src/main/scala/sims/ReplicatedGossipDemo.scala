@@ -38,7 +38,7 @@ class ReplicatedGossip extends AggregateProgram with StateManagement with Sensor
   def main: String = {
     val g = classic(sense1)
     val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 2 second, considerAfter = 2 second)
-    f"$g%5.1f; " + (if(grepl.isDefined) f"${grepl.get}%5.1f" else "X")
+    f"$g%5.1f; ${grepl}%5.1f"
   }
 
   def replicatedGossip(src: => Boolean, numActiveProcs: Int, startEvery: Int, considerAfter: Int): Option[Double] = {
@@ -52,18 +52,13 @@ class ReplicatedGossip extends AggregateProgram with StateManagement with Sensor
     if(replicated.isEmpty) None else Some(replicated.max)
   }
 
-  def replicatedGossip2(src: => Boolean, numActiveProcs: Int, startEvery: FiniteDuration, considerAfter: FiniteDuration): Option[Double] = {
-    try {
-      val procs = spawn[Unit,Boolean,Double]( (_) => source => {
-        val status = mux[Status](timer(startEvery*numActiveProcs+startEvery/2+considerAfter)!=0){
-          mux[Status](timer(considerAfter)!=0){ Bubble }{ Output }
-        }{ External }
-        (classic(source), status)
-      }, mux(sense2 & impulsesEvery(startEvery)){ List(()) }{ List() },
-      src)
-      val max = procs.maxBy(_._1.puid)
-      //if(mid==1) println(procs.size + " " + max._1)
-      Some(max._2)
-    } catch { case _ => Some(Double.PositiveInfinity) }
+  def replicatedGossip2(src: => Boolean, numActiveProcs: Int, startEvery: FiniteDuration, considerAfter: FiniteDuration): Double = {
+      spawn[Unit,Boolean,Double]( (_) => source => {
+          val status = mux[Status](timer(startEvery * numActiveProcs + startEvery/2 + considerAfter)!=0){
+            mux[Status](timer(considerAfter)!=0){ Bubble }{ Output }
+          }{ External }
+          (classic(source), status)
+        }, mux(sense2 & impulsesEvery(startEvery)){ List(()) }{ List() },
+      src).lastOption.getOrElse(Double.PositiveInfinity)
   }
 }
