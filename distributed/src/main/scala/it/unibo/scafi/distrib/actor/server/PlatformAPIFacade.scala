@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.distrib.actor.server
 
 import akka.actor.{ActorSystem, ActorRef, Props}
@@ -7,11 +25,6 @@ import it.unibo.scafi.distrib.actor._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
-
-/**
- * @author Roberto Casadei
- *
- */
 
 trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
@@ -46,7 +59,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   /****************************/
 
   trait ServerMain extends App with Serializable {
-    def setupServer(settings: Settings) = {
+    def setupServer(settings: Settings): Unit = {
       var s = refineSettings(settings)
       s = s.copy(profile = s.profile.copy(startServer = true))
 
@@ -60,14 +73,14 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       if(s.start) sys.start()
     }
 
-    def onPlatformReady(platform: PlatformFacade) = { }
-    def onServerReady(app: ActorRef) = { }
+    def onPlatformReady(platform: PlatformFacade): Unit = { }
+    def onServerReady(app: ActorRef): Unit = { }
     def refineSettings(s: Settings): Settings = { s }
   }
 
   class ServerCmdLineMain extends ServerMain {
-    override def main(args: Array[String]) = {
-      CmdLineParser.parse(args, Settings()) foreach (s => setupServer(s))
+    override def main(args: Array[String]): Unit = {
+      cmdLineParser.parse(args, Settings()) foreach (s => setupServer(s))
     }
   }
 
@@ -75,7 +88,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                         val aggregate: AggregateApplicationSettings,
                         val gui: Boolean = true)
     extends ServerMain {
-    override def main(args: Array[String]) = {
+    override def main(args: Array[String]): Unit = {
       var s = Settings()
       s = s.copy(profile = s.profile.copy(
         startServer = true,
@@ -108,7 +121,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       DeviceActor.props(id, program, execScope, server)
     }
 
-    override def addNeighbor(id: ID, idn: ID) = {
+    override def addNeighbor(id: ID, idn: ID): Unit = {
       server ! MsgNeighbor(id, idn)
     }
 
@@ -118,7 +131,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       case DeviceDelegated(_) => appRef ! MsgPropagate(GoOn)
     }
 
-    def startScheduling = scheduler.foreach(_ ! GoOn)
+    def startScheduling: Unit = scheduler.foreach(_ ! GoOn)
   }
 
   class PlatformFacade(val actorSys: ActorSystem)
@@ -151,9 +164,9 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
       var sa: ActorRef = null // server actor
       if(profileSettings.startServer) {
-        sa = StartServer(appRef, profileSettings.serverActorProps(schedulerOpt))
+        sa = startServer(appRef, profileSettings.serverActorProps(schedulerOpt))
       } else {
-        sa = LookupServer(appRef, profileSettings)
+        sa = lookupServer(appRef, profileSettings)
       }
 
       if(profileSettings.serverGui) {
@@ -163,7 +176,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       new BasicSystemFacade(actorSys, appRef, appSettings, profileSettings, execScope, sa, schedulerOpt)
     }
 
-    private def StartServer(appRef: ActorRef, serverProps: Props): ActorRef = {
+    private def startServer(appRef: ActorRef, serverProps: Props): ActorRef = {
       var sa: ActorRef = null
       val thisTime = System.currentTimeMillis()
       val serverCreation = (appRef ? MsgCreateActor(serverProps, Some(PlatformFacade.ServerActorName), Some(thisTime))).andThen {
@@ -177,7 +190,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       sa
     }
 
-    private def LookupServer(appRef: ActorRef, p: ProfileSettings): ActorRef = {
+    private def lookupServer(appRef: ActorRef, p: ProfileSettings): ActorRef = {
       val (serverHost,serverPort) = (p.serverHost, p.serverPort)
 
       var sa: ActorRef = null

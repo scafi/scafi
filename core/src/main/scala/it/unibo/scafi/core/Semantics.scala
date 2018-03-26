@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.core
 
 import it.unibo.scafi.PlatformDependentConstants
@@ -5,9 +23,6 @@ import it.unibo.scafi.PlatformDependentConstants
 import scala.util.control.Exception._
 
 /**
- * @author Mirko Viroli
- * @author Roberto Casadei
- *
  * This trait defines a component that extends Core and Language
  * It starts concretising the framework by implementing the key element of field-calculus semantics, namely:
  * - An export is a map from paths to values, and a value is a list of slots
@@ -35,6 +50,7 @@ trait Semantics extends Core with Language {
   sealed case class Rep[A](index: Int) extends Slot
   sealed case class FunCall[A](index: Int, funId: Any) extends Slot
   sealed case class FoldHood[A](index: Int) extends Slot
+  sealed case class Scope[K](key: K) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
@@ -42,7 +58,7 @@ trait Semantics extends Core with Language {
     def matches(path: Path): Boolean
     def isRoot: Boolean
 
-    def /(slot: Slot) = push(slot)
+    def /(slot: Slot): Path = push(slot)
   }
 
   trait ExportOps { self: EXPORT =>
@@ -61,21 +77,21 @@ trait Semantics extends Core with Language {
     def export(exps: (Path,Any)*): EXPORT
   }
 
-  trait AggregateProgramSpecification { constructs: Constructs =>
+  trait ProgramSchema {
     type MainResult
     def main(): MainResult
+  }
+
+  trait AggregateProgramSchema extends ProgramSchema {
+    self: Constructs =>
   }
 
   /**
    * It implements the whole operational semantics.
    */
-  trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with AggregateProgramSpecification {
-    self:Constructs =>
+  trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with ProgramSchema {
 
-    import ExecutionTemplate._
-
-
-    @transient var vm: RoundVM = _
+    var vm: RoundVM = _
 
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
@@ -90,7 +106,7 @@ trait Semantics extends Core with Language {
   }
 
   trait ConstructsSemantics extends Constructs {
-    self:ExecutionTemplate =>
+    def vm: RoundVM
 
     override def mid(): ID = vm.self
 
@@ -123,117 +139,141 @@ trait Semantics extends Core with Language {
         f
       }
 
+    override def align[K,V](key: K)(proc: K => V): V =
+      vm.nest[V](Scope[K](key))(true, inc = false){
+        proc(key)
+      }
+
     def sense[A](name: LSNS): A = vm.localSense(name)
 
     def nbrvar[A](name: NSNS): A = vm.neighbourSense(name)
 
   }
 
+  trait RoundVM {
 
-  private[scafi] object ExecutionTemplate extends Serializable {
+    def export: EXPORT
 
-    trait RoundVM {
+    def registerRoot(v: Any): Unit
 
-      def export: EXPORT
+    def self: ID
 
-      def registerRoot(v: Any): Unit
+    def neighbour: Option[ID]
 
-      def self: ID
+    def index: Int
 
-      def neighbour: Option[ID]
+    def previousRoundVal[A]: Option[A]
 
-      def index: Int
+    def neighbourVal[A]: A
 
-      def previousRoundVal[A]: Option[A]
+    def foldedEval[A](expr: => A)(id: ID): Option[A]
 
-      def neighbourVal[A]: A
+    def localSense[A](name: LSNS): A
 
-      def foldedEval[A](expr: => A)(id: ID): Option[A]
+    def neighbourSense[A](name: NSNS): A
 
-      def localSense[A](name: LSNS): A
+    def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A
 
-      def neighbourSense[A](name: NSNS): A
+    def locally[A](a: => A): A
 
-      def nest[A](slot: Slot)(write: Boolean)(expr: => A): A
+    def alignedNeighbours(): List[ID]
 
-      def locally[A](a: => A): A
+    def elicitAggregateFunctionTag(): Any
 
-      def alignedNeighbours(): List[ID]
+    def isolate[A](expr: => A): A
+  }
 
-      def elicitAggregateFunctionTag(): Any
+  class RoundVMImpl(val context: CONTEXT) extends RoundVM {
+    import RoundVMImpl.{ensure, Status, StatusImpl}
 
-      def isolate[A](expr: => A): A
+    var export: EXPORT = factory.emptyExport
+    var status: Status = Status()
+    var isolated = false // When true, neighbours are scoped out
+
+    override def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
+
+    override def self: ID = context.selfId
+
+    override def neighbour: Option[ID] = status.neighbour
+
+    override def index: Int = status.index
+
+    override def previousRoundVal[A]: Option[A] = context.readSlot[A](self, status.path)
+
+    override def neighbourVal[A]: A = context
+      .readSlot[A](neighbour.get, status.path)
+      .getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+
+    override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
+      handling(classOf[OutOfDomainException]) by (_ => None) apply {
+        try {
+          status = status.push()
+          status = status.foldInto(Some(id))
+          Some(expr)
+        } finally {
+          status = status.pop()
+        }
+      }
+
+    override def localSense[A](name: LSNS): A = context
+      .sense[A](name)
+      .getOrElse(throw new SensorUnknownException(self, name))
+
+    override def neighbourSense[A](name: NSNS): A = {
+      ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
+      context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
     }
 
-
-    class RoundVMImpl(val context: CONTEXT) extends RoundVM {
-
-      var export: EXPORT = factory.emptyExport
-      var status: Status = Status()
-      var isolated = false // When true, neighbours are scoped out
-
-      override def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
-      override def self: ID = context.selfId
-      override def neighbour: Option[ID] = status.neighbour
-      override def index: Int = status.index
-      override def previousRoundVal[A]: Option[A] = context.readSlot[A](self, status.path)
-      override def neighbourVal[A]: A = context.readSlot[A](neighbour.get, status.path).getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
-      override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
-        handling(classOf[OutOfDomainException]) by (_ => None) apply {
-          try {
-            status = status.push()
-            status = status.foldInto(Some(id))
-            Some(expr)
-          } finally {
-            status = status.pop()
-          }
-        }
-      override def localSense[A](name: LSNS): A = context.sense[A](name).getOrElse(throw new SensorUnknownException(self, name))
-      override def neighbourSense[A](name: NSNS): A = {
-        ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
-        context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+    override def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A = {
+      try {
+        status = status.push().nest(slot)  // prepare nested call
+        if (write) export.get(status.path).getOrElse(export.put(status.path, expr)) else expr  // function return value is result of expr
+      } finally {
+        status = if(inc) status.pop().incIndex() else status.pop() // do not forget to restore the status
       }
+    }
 
-      override def nest[A](slot: Slot)(write: Boolean)(expr: => A): A = {
-        try {
-          status = status.push().nest(slot)  // prepare nested call
-          if (write) export.get(status.path).getOrElse(export.put(status.path, expr)) else expr  // function return value is result of expr
-        } finally {
-          status = status.pop().incIndex();  // do not forget to restore the status
-        }
+    override def locally[A](a: =>A): A = {
+      val currentNeighbour = neighbour
+      try{
+        status = status.foldOut()
+        a
+      } finally {
+        status = status.foldInto(currentNeighbour)
       }
+    }
 
-      override def locally[A](a: =>A): A = {
-        val currentNeighbour = neighbour
-        try{
-          status = status.foldOut()
-          a
-        } finally {
-          status = status.foldInto(currentNeighbour)
-        }
-      }
-
-      override def alignedNeighbours(): List[ID] =
-        if(isolated)
-          List()
-        else self ::
+    override def alignedNeighbours(): List[ID] =
+      if(isolated) {
+        List()
+      } else {
+        self ::
           context.exports
-          .filter(_._1 != self)
-          .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
-          .map(_._1)
-          .toList
+            .filter(_._1 != self)
+            .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
+            .map(_._1)
+            .toList
+      }
 
-      override def elicitAggregateFunctionTag():Any =
-        Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    override def elicitAggregateFunctionTag():Any =
+      Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
 
-      override def isolate[A](expr: => A): A = {
-        val wasIsolated = this.isolated
-        try {
-          this.isolated = true
-          expr
-        } finally {
-          this.isolated = wasIsolated
-        }
+    override def isolate[A](expr: => A): A = {
+      val wasIsolated = this.isolated
+      try {
+        this.isolated = true
+        expr
+      } finally {
+        this.isolated = wasIsolated
+      }
+    }
+  }
+
+  object RoundVMImpl {
+    def ensure(b: => Boolean, s: String): Unit = {
+      b match {
+        case false => throw new Exception(s)
+        case _     =>
       }
     }
 
@@ -252,10 +292,10 @@ trait Semantics extends Core with Language {
     }
 
     private case class StatusImpl(
-        path: Path = factory.emptyPath(),
-        index: Int = 0,
-        neighbour: Option[ID] = None,
-        stack: List[(Path, Int, Option[ID])] = List()) extends Status {
+                                   path: Path = factory.emptyPath(),
+                                   index: Int = 0,
+                                   neighbour: Option[ID] = None,
+                                   stack: List[(Path, Int, Option[ID])] = List()) extends Status {
 
       def isFolding: Boolean = neighbour.isDefined
       def foldInto(id: Option[ID]): Status = StatusImpl(path, index, id, stack)
@@ -272,26 +312,18 @@ trait Semantics extends Core with Language {
     object Status {
       def apply(): Status = StatusImpl()
     }
+  }
 
-    def ensure(b: => Boolean, s: String): Unit = {
-      b match {
-        case false => throw new Exception(s)
-        case _     =>
-      }
-    }
+  case class OutOfDomainException(selfId: ID, nbr: ID, path: Path) extends Exception() {
+    override def toString: String = s"OutOfDomainException: $selfId , $nbr, $path"
+  }
 
-    case class OutOfDomainException(selfId: ID, nbr: ID, path: Path) extends Exception() {
-      override def toString: String = s"OutOfDomainException: $selfId , $nbr, $path"
-    }
+  case class SensorUnknownException(selfId: ID, name: LSNS) extends Exception() {
+    override def toString: String = s"SensorUnknownException: $selfId , $name"
+  }
 
-    case class SensorUnknownException(selfId: ID, name: LSNS) extends Exception() {
-      override def toString: String = s"SensorUnknownException: $selfId , $name"
-    }
-
-    case class NbrSensorUnknownException(selfId: ID, name: NSNS, nbr: ID) extends Exception() {
-      override def toString: String = s"NbrSensorUnknownException: $selfId , $name, $nbr"
-    }
-
+  case class NbrSensorUnknownException(selfId: ID, name: NSNS, nbr: ID) extends Exception() {
+    override def toString: String = s"NbrSensorUnknownException: $selfId , $name, $nbr"
   }
 
 }

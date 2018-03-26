@@ -1,17 +1,32 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.simulation.gui.utility
 
 import javax.swing._
 import java.awt._
-import java.awt.geom.Point2D
 import java.awt.image.BufferedImage
 import java.io.File
 import java.net.URL
 import java.nio.file.Paths
-
+import it.unibo.scafi.space.Point2D
 /**
   * This class handles the images update, the component dimension and the component position.
-  * Created by Varini on 14/11/16.
-  * Converted/refactored to Scala by Casadei on 05/02/17
   */
 object Utils {
   private var frameDimension: Dimension = Toolkit.getDefaultToolkit.getScreenSize
@@ -196,22 +211,24 @@ object Utils {
   /**
     *
     * @param position
-    * @return calcola la posizione del GuiNode
+    * @return position of GuiNode
     */
   def calculatedGuiNodePosition(position: Point2D): Point = {
     // position.x : 1 = res.x : frame.getWidth();
     val res: Point = new Point
-    res.x = (position.getX * (frameDimension.getWidth - getSizeGuiNode.getWidth)).toInt // Placing at the center of the frame
-    res.y = (position.getY * (frameDimension.getHeight - getSizeGuiNode.getHeight)).toInt
+    res.x = (position.x * (frameDimension.getWidth - getSizeGuiNode.getWidth)).toInt // Placing at the center of the frame
+    res.y = (position.y * (frameDimension.getHeight - getSizeGuiNode.getHeight)).toInt
     return res
   }
 
   /**
     *
     * @param position
-    * @return calcola la posizione del nodo del model
+    * @return position of model point
     */
   def calculatedNodePosition(position: Point): Point2D = {
-    return new Point2D.Double(position.getX / (getFrameDimension.getWidth - getSizeGuiNode.getWidth), position.getY / (getFrameDimension.getHeight - getSizeGuiNode.getHeight))
+    new Point2D(
+      position.getX / (getFrameDimension.getWidth - getSizeGuiNode.getWidth),
+      position.getY / (getFrameDimension.getHeight - getSizeGuiNode.getHeight))
   }
 }

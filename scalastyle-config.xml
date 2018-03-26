@@ -106,6 +106,8 @@
  <check level="warning" class="org.scalastyle.scalariform.MethodNamesChecker" enabled="true">
   <parameters>
    <parameter name="regex"><![CDATA[^[a-z][A-Za-z0-9]*$]]></parameter>
+   <!-- Exclude warning on method names that start with non alphanumeric chars -->
+   <parameter name="ignoreRegex"><![CDATA[^[^a-zA-Z]]]></parameter>
   </parameters>
  </check>
  <check level="warning" class="org.scalastyle.scalariform.NumberOfMethodsInTypeChecker" enabled="true">

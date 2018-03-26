@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.simulation.gui.controller
 
 import scala.language.implicitConversions
@@ -14,8 +32,6 @@ import it.unibo.scafi.simulation.gui.view.SimulatorUI
 
 /**
   * This class is a wrapper for all private Controller methods.
-  * Created by Varini on 23/11/16.
-  * Converted/refactored to Scala by Casadei on 3/02/17
   */
 class ControllerPrivate (val gui: SimulatorUI) {
   final private val controller: Controller = Controller.getInstance
@@ -103,8 +119,8 @@ class ControllerPrivate (val gui: SimulatorUI) {
     controller.nodes.values.foreach(kv => {
       val (n, g) = kv
       if (n.id == infoPanel.getId) {
-        infoPanel.addInfo("position", "x: " + f"${n.position.getX() * 100}%.02f" // * MyDimension.getFrameDimension().getWidth() se volessi vedere le posizioni int dei frame
-          + " \t y: " + f"${n.position.getY() * 100}%.02f")
+        infoPanel.addInfo("position", "x: " + f"${n.position.x * 100}%.02f" // * MyDimension.getFrameDimension().getWidth() se volessi vedere le posizioni int dei frame
+          + " \t y: " + f"${n.position.y * 100}%.02f")
         infoPanel.addInfo("Export: ", n.export.toString())
         n.sensors.foreach { case (s, v) => infoPanel.addInfo(s.name, s.value.toString()) }
         controller.simManager.simulation.network.neighbourhood // Recalculate the nbrs

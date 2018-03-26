@@ -1,18 +1,29 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.test.unit
 
-import it.unibo.scafi.incarnations.Incarnation
 import it.unibo.scafi.test.CoreTestIncarnation
 import org.scalatest.{FunSpec, Matchers}
-import it.unibo.scafi.core.Engine
 
-/**
- * Created by: Roberto Casadei
- * Created on date: 12/11/15
- */
+class TestExecutionMachinery extends FunSpec with Matchers {
 
-class TestExecutionTemplate extends FunSpec with Matchers {
-
-  describe("Execution Template") {
+  describe("Execution machinery") {
 
     def getSemantics = CoreTestIncarnation
 
@@ -24,7 +35,7 @@ class TestExecutionTemplate extends FunSpec with Matchers {
 
       it("when empty") {
         // ARRANGE
-        val status = ExecutionTemplate.Status()
+        val status = RoundVMImpl.Status()
 
         // ASSERT
         status.path shouldEqual /
@@ -34,7 +45,7 @@ class TestExecutionTemplate extends FunSpec with Matchers {
 
       it("should allow un/folding in the context of a neighbor") {
         // ARRANGE
-        val status = ExecutionTemplate.Status()
+        val status = RoundVMImpl.Status()
 
         // ASSERT
         status.neighbour shouldBe None
@@ -56,7 +67,7 @@ class TestExecutionTemplate extends FunSpec with Matchers {
 
       it("should work as a stack"){
         // ARRANGE
-        val status = ExecutionTemplate.Status()
+        val status = RoundVMImpl.Status()
 
         // ACT
         val s1 = status.push()
@@ -84,7 +95,7 @@ class TestExecutionTemplate extends FunSpec with Matchers {
 
       it("should use indexes to avoid clashes"){
         // ARRANGE
-        val status = ExecutionTemplate.Status()
+        val status = RoundVMImpl.Status()
 
         // ASSERT
         status.index shouldBe 0

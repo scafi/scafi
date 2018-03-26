@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.simulation.gui.view
 
 import it.unibo.scafi.simulation.gui.model.Node
@@ -9,8 +27,6 @@ import java.nio.file.Paths
 
 /**
   * This class represents a graphics representation of Node
-  * Created by Varini on 01/06/16.
-  * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class GuiNode(val node: Node) extends JInternalFrame {
   final private val NODE_SYMBOL_FONT: Font = new Font("Arial", Font.BOLD, 28)
@@ -19,6 +35,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
   final private var button: JButton = null
   final private var valueString: String = null
   private var infoPanel: NodeInfoPanel = null
+  var point: Point = null
 
   this.valueShow = new JLabel("")
   this.valueShow.setBackground(null)
@@ -91,8 +108,12 @@ class GuiNode(val node: Node) extends JInternalFrame {
     }
   }
 
-  override def setLocation(x: Int, y: Int) {
-    super.setLocation(x, y)
+  override def getLocation(): Point =
+    return this.point
+
+  def setNodeLocation(x: Int, y: Int) {
+    // super.setLocation(x, y)
+    point = new Point(x, y)
     if (this.infoPanel != null) {
       infoPanel.setLocation(x + getWidth, y)
     }
@@ -100,7 +121,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
 
   @throws[PropertyVetoException]
   override def setSelected(selected: Boolean) {
-    //non faccio la super perchè se no non riesco a selezionarne più di uno
+    // don't call super, otherwise I wouldn't be able to select more than one item
     if (selected) {
       //this.button.setIcon(Utils.getSelectedIcon(button.getIcon))
       this.valueShow.setForeground(Color.lightGray)
@@ -112,36 +133,31 @@ class GuiNode(val node: Node) extends JInternalFrame {
     isSelected = selected
   }
 
-  def setValueToShow(text: String) {
+  def setValueToShow(text: String): Unit = {
     this.valueString = text
     this.valueShow.setText("<html>" + text.replaceAll("\n", "<br>"))
   }
 
-  def getValueToShow(): String = this.valueString
+  def getValueToShow(): String =
+    this.valueString
 
-  def setLabelFont(font: Font) {
+  def setLabelFont(font: Font): Unit =
     this.valueShow.setFont(font)
-  }
 
-  def setLabelColor(color: Color) {
+  def setLabelColor(color: Color): Unit =
     this.valueShow.setForeground(color)
-  }
 
-  def setInfoPanel(p: NodeInfoPanel) {
+  def setInfoPanel(p: NodeInfoPanel): Unit =
     this.infoPanel = p
-  }
 
-  def setImageButton(res: String) {
-    val dividendo: Int = if (getWidth < getHeight) getWidth
-    else getHeight
+  def setImageButton(res: String): Unit = {
+    //val dividendo: Int = if (getWidth < getHeight) getWidth else getHeight
     //button.setIcon(Utils.getScaledImage(res, dividendo / 2, dividendo / 2))
   }
 
-  def showInfo(show: Boolean) {
+  def showInfo(show: Boolean): Unit =
     infoPanel.setVisible(show)
-  }
 
-  def getInfoPanel: NodeInfoPanel = {
-    return this.infoPanel
-  }
+  def getInfoPanel: NodeInfoPanel =
+    this.infoPanel
 }

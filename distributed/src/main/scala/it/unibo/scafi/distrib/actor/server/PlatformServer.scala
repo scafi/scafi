@@ -1,14 +1,27 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.distrib.actor.server
 
 import akka.actor.{Props, ActorRef, Actor}
 import it.unibo.scafi.distrib.actor.{GoOn, MsgStart}
 import it.unibo.scafi.distrib.actor.patterns.{ObservableActorBehavior, BasicActorBehavior}
 import scala.collection.mutable.{ Map => MMap }
-
-/**
- * @author Roberto Casadei
- *
- */
 
 trait PlatformServer { self: Platform.Subcomponent =>
 
@@ -57,13 +70,13 @@ trait PlatformServer { self: Platform.Subcomponent =>
 
     // REACTIVE BEHAVIOR
 
-    override def receive = super.receive
+    override def receive: Receive = super.receive
       .orElse(setupBehavior)
 
     override def queryManagementBehavior: Receive = {
       case MsgGetNeighborhood(devId) => sender ! MsgNeighborhood(devId, neighborhood(devId))
       case MsgLookup(id) => {
-        //println(s"$sender asked lookup for ID=$id")
+        //logger.debug(s"$sender asked lookup for ID=$id")
         lookupActor(id).foreach(ref => sender ! MsgDeviceLocation(id, ref))
       }
       case MsgGetNeighborhoodExports(id) => {
@@ -85,7 +98,7 @@ trait PlatformServer { self: Platform.Subcomponent =>
       }
     }
 
-    override def commandManagementBehavior = super.commandManagementBehavior.orElse {
+    override def commandManagementBehavior: Receive = super.commandManagementBehavior.orElse {
       case MsgStart => start()
     }
 
@@ -100,22 +113,22 @@ trait PlatformServer { self: Platform.Subcomponent =>
   trait ObservableServerActor extends AbstractServerActor
   with ObservableActorBehavior {
 
-    override def receive = super.receive
+    override def receive: Receive = super.receive
       .orElse(observersManagementBehavior)
 
-    override def registerDevice(id: ID, ref: ActorRef) = {
+    override def registerDevice(id: ID, ref: ActorRef): Unit = {
       super.registerDevice(id, ref)
-      NotifyObservers(DevInfo(id, ref))
+      notifyObservers(DevInfo(id, ref))
     }
 
     override def addExports(exps: Map[ID, EXPORT]): Unit = {
       super.addExports(exps)
-      NotifyObservers(MsgExports(exps))
+      notifyObservers(MsgExports(exps))
     }
 
     override def setSensorValue(id: ID, name: LSNS, value: Any): Unit = {
       super.setSensorValue(id, name, value)
-      NotifyObservers(MsgSensorValue(id, name, value))
+      notifyObservers(MsgSensorValue(id, name, value))
     }
   }
 
@@ -139,12 +152,12 @@ trait PlatformServer { self: Platform.Subcomponent =>
 
     def addNbrsTo(id: ID, nbrs: Set[ID]): Unit = {
       neighborhoods += id -> (neighborhood(id) ++ nbrs)
-      NotifyObservers(MsgNeighborhood(id,nbrs))
+      notifyObservers(MsgNeighborhood(id,nbrs))
     }
   }
 
   object ServerActor extends Serializable {
-    def props(sched: Option[ActorRef] = None) =
+    def props(sched: Option[ActorRef] = None): Props =
       Props(classOf[ServerActor], self, sched)
   }
 }

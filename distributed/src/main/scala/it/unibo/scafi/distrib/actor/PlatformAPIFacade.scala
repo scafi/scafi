@@ -1,19 +1,31 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.distrib.actor
 
 import it.unibo.scafi.distrib.CustomClassLoader
-
-import akka.actor.{Props, ActorRef, ActorSystem}
-import com.typesafe.config.ConfigFactory
+import akka.actor.{ActorRef, ActorSystem, Props}
+import com.typesafe.config.{Config, ConfigFactory}
 import it.unibo.scafi.distrib.actor.extensions.CodeMobilityExtension
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await}
+import scala.concurrent.Await
 import scala.util.Success
-
-/**
- * @author Roberto Casadei
- *
- */
 
 trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
@@ -35,6 +47,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                                            val profileSettings: ProfileSettings,
                                            val execScope: ExecScope)
     extends AbstractSystemFacade {
+    val logger = actorSys.log
+
     /* Note: a refactoring may consist in removing 'deviceGui', 'deviceGuiProps',
      *  and 'deviceProps' method and fixing ProfileSettings at this level
      *  as a case class with an additional field 'subprofile' of a type
@@ -54,7 +68,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
       val dmf = (appRef ? MsgAddDevice(id, deviceProps(id, program.orElse(appSettings.program())))).andThen {
         case Success(MsgDeviceLocation(id,devRef)) => dm = new BasicDeviceManager(id, devRef, appRef)
-        case x => println("\n\nError: "+x) // TODO: handle failure
+        case x => logger.debug("\n\nError: " + x) // TODO: handle failure
       }
       Await.ready(dmf, Duration.Inf)
 
@@ -84,11 +98,12 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                            val actorRef: ActorRef,
                            val appRef: ActorRef) extends AbstractDeviceManager
     with Serializable {
-    def addPushSensor(sensorRef: ActorRef) = {
+
+    def addPushSensor(sensorRef: ActorRef): Unit = {
       actorRef ! MsgAddPushSensor(sensorRef)
     }
 
-    def start = actorRef ! GoOn
+    def start: Unit = actorRef ! GoOn
 
     override def addSensorValue[T](name: LSNS, value: T): Unit = {
       actorRef ! MsgLocalSensorValue(name, value)
@@ -102,11 +117,11 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       actorRef ! MsgAddActuator(name, consumer)
     }
 
-    def addNeighbor(nbr: NbrInfo) = {
+    def addNeighbor(nbr: NbrInfo): Unit = {
       actorRef ! nbr
     }
 
-    def addObserver(observer: ActorRef) = {
+    def addObserver(observer: ActorRef): Unit = {
       actorRef ! MsgAddObserver(observer)
     }
   }
@@ -130,13 +145,15 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       buildPlatformFacade(actorSys, s, p)
     }
 
-    def buildNodeConfiguration(ps: PlatformSettings) = {
+    def buildNodeConfiguration(ps: PlatformSettings): Config = {
       val d = ps.subsystemDeployment
 
       val (host,port) = (d.host, d.port)
+
       var extensions = List[String]()
-      if(ps.codeMobilitySupport)
+      if(ps.codeMobilitySupport) {
         extensions ::= CodeMobilityExtension.getClass.getName
+      }
 
       ConfigFactory.parseString(
         """

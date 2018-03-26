@@ -14,6 +14,7 @@ val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
 val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
+val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
 
 lazy val sharedPublishSettings = Seq(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
@@ -21,11 +22,11 @@ lazy val sharedPublishSettings = Seq(
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
   licenses := Seq("Apache 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
-  homepage := Some(url("http://scafi.apice.unibo.it")),
+  homepage := Some(url("https://scafi.github.io/")),
   scmInfo := Some(
     ScmInfo(
-      url("https://bitbucket.org/scafiteam/scafi"),
-      "scm:git:git@bitbucket.org:scafiteam/scafi.git"
+      url("https://github.com/scafi/scafi"),
+      "scm:git:git@github.org:scafi/scafi.git"
     )
   ),
   developers := List(
@@ -62,7 +63,7 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
   scalaVersion := "2.11.8",
-  version := "0.2.0",
+  version := "0.3.0",
   compileScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
   (compile in Compile) <<= (compile in Compile) dependsOn compileScalastyle,
   // Cross-Building
@@ -70,7 +71,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val scafi = project.in(file(".")).
-  aggregate(core, distributed, simulator, `simulator-gui`).
+  aggregate(core, distributed, simulator, `simulator-gui`, `stdlib`).
   settings(commonSettings:_*).
   settings(sharedPublishSettings:_*).
   settings(
@@ -86,8 +87,17 @@ lazy val core = project.
     libraryDependencies += scalatest
   )
 
-lazy val simulator = project.
+lazy val stdlib = project.
   dependsOn(core).
+  settings(commonSettings: _*).
+  settings(sharedPublishSettings: _*).
+  settings(
+    name := "scafi-lib",
+    libraryDependencies ++= Seq(scalatest, shapeless)
+  )
+
+lazy val simulator = project.
+  dependsOn(core, stdlib).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
@@ -125,7 +135,7 @@ lazy val tests = project.
 
 // 'demos' project definition
 lazy val demos = project.
-  dependsOn(core, distributed, simulator, `simulator-gui`).
+  dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(
     name := "scafi-demos",

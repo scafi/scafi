@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package it.unibo.scafi.simulation.gui.view
 
 import it.unibo.scafi.simulation.gui.Settings
@@ -8,23 +26,21 @@ import java.awt.event.MouseEvent
 
 /**
   * This is the most important panel in which the simulation will be executed.
-  * Created by Varini on 19/10/16.
-  * Converted/refactored to Scala by Casadei on 04/02/17
   */
 class SimulationPanel() extends JDesktopPane {
-  final private val neighborsPanel: NeighborsPanel = new NeighborsPanel //pannello visualizzazione vicini
-  final private val valuesPanel: ValuesPanel = new ValuesPanel //pannello visualizzazione valori
+  final private val neighborsPanel: NeighborsPanel = new NeighborsPanel
+  final private val valuesPanel: ValuesPanel = new ValuesPanel
   private var bkgImage: Image = null
-  final private val captureRect: Rectangle = new Rectangle //rettangolo di selezione
-  final private val popup: MyPopupMenu = new MyPopupMenu //menu tasto destro
+  final private val captureRect: Rectangle = new Rectangle
+  final private val popup: MyPopupMenu = new MyPopupMenu
 
-  this.setBackground(Settings.Color_background) //azzurro
+  this.setBackground(Settings.Color_background)
   setBorder(new LineBorder(Color.black))
   this.add(valuesPanel, 1)
   this.add(neighborsPanel, 2)
   val motion: SimulationPanelMouseListener = new SimulationPanelMouseListener(this)
-  this.addMouseListener(motion) //gestisco quando appare il pannello delle opzioni
-  this.addMouseMotionListener(motion) //creo e gestisco l'era di selezione
+  this.addMouseListener(motion)
+  this.addMouseMotionListener(motion)
 
   override def paintComponent(g: Graphics) {
     if (bkgImage != null) {
