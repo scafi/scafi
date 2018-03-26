@@ -22,11 +22,11 @@ lazy val sharedPublishSettings = Seq(
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
   licenses := Seq("Apache 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
-  homepage := Some(url("http://scafi.apice.unibo.it")),
+  homepage := Some(url("https://scafi.github.io/")),
   scmInfo := Some(
     ScmInfo(
-      url("https://bitbucket.org/scafiteam/scafi"),
-      "scm:git:git@bitbucket.org:scafiteam/scafi.git"
+      url("https://github.com/scafi/scafi"),
+      "scm:git:git@github.org:scafi/scafi.git"
     )
   ),
   developers := List(
@@ -63,7 +63,7 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
   scalaVersion := "2.11.8",
-  version := "0.2.0",
+  version := "0.3.0",
   compileScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
   (compile in Compile) <<= (compile in Compile) dependsOn compileScalastyle,
   // Cross-Building
@@ -71,7 +71,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val scafi = project.in(file(".")).
-  aggregate(core, distributed, simulator, `simulator-gui`).
+  aggregate(core, distributed, simulator, `simulator-gui`, `stdlib`).
   settings(commonSettings:_*).
   settings(sharedPublishSettings:_*).
   settings(
@@ -93,7 +93,6 @@ lazy val stdlib = project.
   settings(sharedPublishSettings: _*).
   settings(
     name := "scafi-lib",
-    version := "0.1.0",
     libraryDependencies ++= Seq(scalatest, shapeless)
   )
 
@@ -102,7 +101,6 @@ lazy val simulator = project.
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
-    version := "0.1.0",
     name := "scafi-simulator"
   )
 
