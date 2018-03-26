@@ -83,11 +83,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     override def componentResized(e: ComponentEvent) {
       super.componentResized(e)
       Utils.setDimensionFrame(getSize)
-      for (i <- center.getAllFrames) {
-        i.setSize(Utils.getSizeGuiNode)
-        i.setLocation((i.getLocation().getX * getWidth / oldDim.getWidth().round).toInt,
-          (i.getLocation().getY * getHeight / oldDim.getHeight.round).toInt)
-      }
+      Controller.getInstance.updateNodePositions()
       center.getCaptureRect.setSize((center.getCaptureRect.getWidth * getWidth / oldDim.getWidth().round).toInt,
         (center.getCaptureRect.getHeight * getHeight / oldDim.getHeight.round).toInt)
       center.getCaptureRect.setLocation((center.getCaptureRect.getLocation.getX * getWidth / oldDim.getWidth().round).toInt,

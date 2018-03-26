@@ -26,6 +26,7 @@ trait StandardLibrary extends
     with Stdlib_BlockS
     with Stdlib_BlocksWithGC
     with Stdlib_BuildingBlocks
+    with StdLib_ExplicitFields
     with StdLib_FieldUtils
     with StdLib_TimeUtils
     with StdLib_StateManagement

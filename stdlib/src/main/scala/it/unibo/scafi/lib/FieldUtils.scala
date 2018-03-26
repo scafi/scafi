@@ -30,9 +30,9 @@ trait StdLib_FieldUtils {
       def mapNbrs[T](expr: => T): Map[ID, T] = reifyField(expr)
 
       def reifyField[T](expr: => T): Map[ID, T] = {
-        foldhoodTemplate[Seq[(ID, T)]](Seq[(ID, T)]())(_ ++ _) {
-          Seq(nbr { mid() } -> expr)
-        }.toMap
+        foldhoodTemplate[Map[ID,T]](Map[ID, T]())(_ ++ _) {
+          Map(nbr { mid() } -> expr)
+        }
       }
 
       def sumHood[T](expr: => T)(implicit numEv: Numeric[T]) =

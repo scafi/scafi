@@ -19,7 +19,6 @@
 package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
-import org.scalactic.Equality
 
 import scala.collection.Map
 import scala.util.Random
@@ -75,13 +74,15 @@ object ScafiTestUtils {
   }
 
   def execProgramFor(ap: AggregateProgram, ntimes: Int = 500)
-                (net: Network with SimulatorOps)
-                (when: ID => Boolean, devs: Vector[ID] = net.ids.toVector, rnd: Random = new Random(0)): Network ={
-    if(ntimes <= 0) net
-    else{
-      val nextToRun = until(when){ devs(rnd.nextInt(devs.size)) }
+                    (net: Network with SimulatorOps)
+                    (when: ID => Boolean, devs: Vector[ID] = net.ids.toVector, rnd: Random = new Random(0)): Network = {
+    if (ntimes <= 0) net
+    else {
+      val nextToRun = until(when) {
+        devs(rnd.nextInt(devs.size))
+      }
       net.exec(ap, ap.main, nextToRun)
-      execProgramFor(ap, ntimes-1)(net)(when, devs, rnd)
+      execProgramFor(ap, ntimes - 1)(net)(when, devs, rnd)
     }
   }
 
@@ -101,5 +102,4 @@ object ScafiTestUtils {
     val res = expr
     if(pred(res)) res else until(pred)(expr)
   }
-
 }
