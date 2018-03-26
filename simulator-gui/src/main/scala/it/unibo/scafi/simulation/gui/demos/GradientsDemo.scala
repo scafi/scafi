@@ -30,10 +30,10 @@ import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends App{
   import Launcher._
-  program = classOf[BasicGradient]
+  program = classOf[ClassicGradient]
   nodes = 50
   maxPoint = 1000
-  radius = 10
+  radius = 5
   neighbourRender = false
   launch()
 }

@@ -5,9 +5,9 @@ import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig
 object Test extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher._
   program = classOf[Simple]
-  nodes = 5000
+  nodes = 200
   maxPoint = 500
-  radius = 10
+  radius = 5
   neighbourRender = true
   launch()
 }

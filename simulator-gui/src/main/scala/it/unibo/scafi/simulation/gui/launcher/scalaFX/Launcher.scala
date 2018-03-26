@@ -79,6 +79,7 @@ object Launcher {
 
   def launch(): Unit = {
     randomize2D(nodes,maxPoint)
+    //gridLike2D(200,100,radius)
     scafi.addAction(sensaction)
     scafi.addAction(textaction)
     scafi.setProgramm(program)

@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
-import it.unibo.scafi.simulation.gui.controller.{InputCommandController, InputCommandSingleton}
+import it.unibo.scafi.simulation.gui.controller.{InputCommandController}
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._

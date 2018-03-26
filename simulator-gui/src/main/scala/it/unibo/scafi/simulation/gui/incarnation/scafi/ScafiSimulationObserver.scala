@@ -16,11 +16,29 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
   private val checkAdded = world.createObserver(Set(NodesAdded))
   private var exportProduced : List[(ID,(W,world.ID) => Unit)] = List()
   world <-- checkAdded <-- checkChanged <-- checkAdded <-- checkMoved
+  private var tick = 0L;
+  private var time = 0L;
+  private var printTime = 0;
+  private var values = List[Long]()
   override protected def AsyncLogicExecution(): Unit = {
     if(contract.getSimulation.isDefined) {
       val net = contract.getSimulation.get
+      val before = System.nanoTime()
       val result = net.exec(runningContext)
+      time += System.nanoTime() - before
+      tick += 1;
       exportProduced :::= (actions.filter { x => x.isDefinedAt(result._2) } map { x => result._1 -> x(result._2) }).toList
+    }
+    if(time > 1000000000L) {
+      values ::= tick
+      println("current : " + tick)
+      println("min : " + values.min)
+      println("max : " + values.max)
+      println("avg : " + values.sum / values.size)
+      println("time alapsed : " + printTime)
+      tick = 0;
+      time = 0;
+      printTime += 1
     }
   }
   //TODO AGGIUNGI CLEAR IN OBSERVER WORLD
