@@ -18,26 +18,26 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_BlockT2 {
+trait StdLib_StateManagement{
   self: StandardLibrary.Subcomponent =>
 
-  // scalastyle:off method.name
+  trait StateManagement {
+    self: FieldCalculusSyntax with StandardSensors =>
 
-  trait BlockT2 {
-    self: FieldCalculusSyntax =>
+    def remember[T](value: T): T = rep(value)(identity)
 
-    def implicitMin[V: Numeric](a: V, b: V): V = implicitly[Numeric[V]].min(a, b)
+    /**
+      * @return true when the given parameter goes from false to true (starting from false); false otherwise
+      */
+    def goesUp(value: Boolean): Boolean = rep((false, false)) { case (old, trigger) =>
+      (value, value && value != old)
+    }._2
 
-    def implicitMax[V: Numeric](a: V, b: V): V = implicitly[Numeric[V]].max(a, b)
-
-    def T[V: Numeric](initial: V)(floor: V)(decay: V => V): V = {
-      rep(initial) { v => implicitMin(initial, implicitMax(floor, decay(v))) }
-    }
-
-    def linearFlow(time: Double): Double =
-      T(time)(0.0)(v => v - 1)
-
-    def timer(time: Double): Boolean =
-      linearFlow(time) == 0.0
+    /**
+      * @return true when the given parameter goes from true to false (starting from false); false otherwise
+      */
+    def goesDown(value: Boolean): Boolean = rep((false, false)) { case (old, trigger) =>
+      (value, !value && value != old)
+    }._2
   }
 }

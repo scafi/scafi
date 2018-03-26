@@ -20,9 +20,43 @@ package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 
+import scala.collection.Map
 import scala.util.Random
 
 object ScafiTestUtils {
+
+  object NetworkDsl {
+    case class SensorActivation[T](val name: LSNS, val value: T){
+      def inDevices(devs: ID*)(implicit net: Network with SimulatorOps) = net.chgSensorValue(name, devs.toSet, value)
+    }
+    def setSensor[T](name: LSNS, value: T): SensorActivation[T] = SensorActivation(name, value)
+  }
+
+  def partNodes(nodes: Set[ID], net: NetworkSimulator): Map[ID,Set[ID]] = {
+    val prev = Map(net.nbrMap.toSeq:_*)
+    val nbrs: Map[ID,Set[ID]] = nodes.map(id => id -> detachNode(id, net)).toMap
+    nodes.foreach{ id => {
+      connectNode(id, nbrs(id).intersect(nodes), net)
+    }}
+    prev
+  }
+
+  def restoreNodes(map: Map[ID,Set[ID]], net: NetworkSimulator) = {
+    net.nbrMap.clear()
+    map.foreach(net.nbrMap += _)
+  }
+
+  def detachNode(id: ID, net: NetworkSimulator): Set[ID] = {
+    val nbrs = net.nbrMap(id)
+    net.nbrMap(id) = Set()
+    nbrs.foreach(nbrId => net.nbrMap(nbrId) -= id)
+    nbrs
+  }
+
+  def connectNode(id: ID, nbrs: Set[ID], net: NetworkSimulator) = {
+    net.nbrMap(id) = nbrs
+    nbrs.foreach(nbrId => net.nbrMap(nbrId) += id)
+  }
 
   def runProgram(exp: => Any, ntimes: Int = 500)
                 (net: Network with SimulatorOps)

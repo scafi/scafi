@@ -18,7 +18,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockT2}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
@@ -46,7 +46,7 @@ object SupplyRescue extends Launcher {
   *    - Sense3 - Nodes that retrieve supplies and bring them to the base
   *    - Sense4 - Base
   */
-class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG with BlockT2 {
+class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
 
   override def main():(Double, Double) = rep({
     (0.0, 0.0)

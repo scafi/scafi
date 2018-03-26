@@ -23,11 +23,11 @@ import org.scalatest.Matchers
 
 object ScafiAssertions extends Matchers {
 
-  def assertForAllNodes[T](f: T => Boolean, okWhenNotComputed: Boolean = false)
+  def assertForAllNodes[T](f: (ID,T) => Boolean, okWhenNotComputed: Boolean = false)
                           (implicit net: Network): Unit ={
-    withClue("Actual network: " + net) {
+    withClue("Actual network:\n" + net + "\n\n Sample exports:\n" + net.export(0) + "\n" + net.export(1)) {
       net.exports.forall {
-        case (id, Some(e)) => f(e.root[T]())
+        case (id, Some(e)) => f(id, e.root[T]())
         case (id, None) => okWhenNotComputed
       } shouldBe true
     }
@@ -54,7 +54,7 @@ object ScafiAssertions extends Matchers {
   def assertNetworkValues[T](vals: Map[ID, T],
                              customEq:Option[(T,T)=>Boolean] = None)
                             (implicit net: Network): Unit ={
-    withClue("Actual network: " + net + "\nExpected values:"+vals) {
+    withClue("Actual network: " + net + "\n\n Sample exports:\n" + net.export(0) + "\n" + net.export(1) + "\n\nExpected values:"+vals) {
       net.ids.forall(id => {
         val actualExport = net.export(id)
         var expected = vals.get(id)
