@@ -53,29 +53,6 @@ trait StdLib_TimeUtils {
       (if (ev.gt(t, ev.zero)) value else expValue, t)
     }
 
-    def timer(dur: Duration): Long = {
-      val ct = System.nanoTime()
-      // Current time
-      val et = ct + dur.toNanos // Time-to-expire (bootstrap)
-
-      rep((et, dur.toNanos)) { case (expTime, remaining) =>
-        if (remaining <= 0) (et, 0) else (expTime, expTime - ct)
-      }._2 // Selects the component expressing remaining time
-    }
-
-    def recentlyTrue(dur: Duration, cond: => Boolean): Boolean =
-      rep(false) { happened =>
-        branch(cond) {
-          true
-        } {
-          branch(!happened) {
-            false
-          } {
-            timer(dur) > 0
-          }
-        }
-      }
-
     /*
     * Returns an value representing the current clock
     */
@@ -111,26 +88,32 @@ trait StdLib_TimeUtils {
       rep(false){ impulse =>
         branch(impulse) { false } { timer(d)==0 }
       }
-
-    def impulsesEvery(d: FiniteDuration): Boolean =
-      rep(false){ impulse =>
-        branch(impulse) { false } { timer(d)==0 }
-      }
-
-    /**
-      * It is a simple building block which returns the same values
-      *  it receives in input delayed by one computation round.
-      */
-    def delay[T](value: T): T = {
-      var res = value
-      rep(value){ old => res = old; value }
-      res
-    }
   }
 
   trait TimeUtils extends BlockT { self: FieldCalculusSyntax with StandardSensors =>
     def sharedTimer(period: FiniteDuration): FiniteDuration =
       sharedTimerWithDecay(period.toMillis, deltaTime().toMillis) seconds
+
+    def timerLocalTime(dur: Duration): Long =
+      T(initial = dur.toNanos, dt = deltaTime().toNanos)
+
+    def impulsesEvery(d: FiniteDuration): Boolean =
+      rep(false){ impulse =>
+        branch(impulse) { false } { timerLocalTime(d)==0 }
+      }
+
+    def recentlyTrue(dur: Duration, cond: => Boolean): Boolean =
+      rep(false) { happened =>
+        branch(cond) {
+          true
+        } {
+          branch(!happened) {
+            false
+          } {
+            timerLocalTime(dur) > 0
+          }
+        }
+      }
   }
 
 }

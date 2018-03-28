@@ -44,5 +44,15 @@ trait StdLib_StateManagement{
     def goesDown(value: Boolean): Boolean = rep((false, false)) { case (old, trigger) =>
       (value, !value && value != old)
     }._2
+
+    /**
+      * It is a simple building block which returns the same values
+      *  it receives in input delayed by one computation round.
+      */
+    def delay[T](value: T): T = {
+      var res = value
+      rep(value){ old => res = old; value }
+      res
+    }
   }
 }
