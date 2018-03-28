@@ -82,10 +82,10 @@ trait StdLib_TimeUtils {
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
         val clockPerceived = foldhood(clock)(ev.max)(nbr(clock))
-        if (ev.compare(clockPerceived, clock) <= 0) {
+        branch (ev.compare(clockPerceived, clock) <= 0) {
           // I'm currently as fast as the fastest device in the neighborhood, so keep on counting time
           ev.plus(clock, (if(cyclicTimerWithDecay(period, dt)) { ev.one } else { ev.zero }))
-        } else {
+        } {
           // Someone else's faster, take his time, and restart counting
           clockPerceived
         }
@@ -100,9 +100,9 @@ trait StdLib_TimeUtils {
       */
     def cyclicTimerWithDecay[T](length: T, decay: T)(implicit ev: Numeric[T]): Boolean =
       rep(length){ left =>
-        if (left == ev.zero) {
+        branch (left == ev.zero) {
           length
-        } else {
+        } {
           T(length, decay)
         }
       } == length
