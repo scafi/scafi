@@ -24,7 +24,12 @@ trait StdLib_StateManagement{
   trait StateManagement {
     self: FieldCalculusSyntax with StandardSensors =>
 
-    def remember[T](value: T): T = rep(value)(identity)
+    def remember[T](value: T): T =
+      rep(value)(identity)
+
+    def captureChange[T](x: T): Boolean = rep((x,false)) { case (value, _) =>
+      (x, value != x)
+    }._2
 
     /**
       * @return true when the given parameter goes from false to true (starting from false); false otherwise
