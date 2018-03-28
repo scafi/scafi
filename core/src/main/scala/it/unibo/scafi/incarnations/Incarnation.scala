@@ -34,7 +34,13 @@ trait Incarnation extends Core
 
   trait FieldCalculusSyntax extends Constructs with Builtins
 
-  trait AggregateInterpreter extends ExecutionTemplate with FieldCalculusSyntax with Serializable
+  trait AggregateComputation[T] extends ExecutionTemplate with FieldCalculusSyntax with Serializable {
+    type MainResult = T
+  }
+
+  trait AggregateInterpreter extends ExecutionTemplate with FieldCalculusSyntax with Serializable {
+    type MainResult = Any
+  }
 
   trait AggregateProgram extends AggregateInterpreter
 
