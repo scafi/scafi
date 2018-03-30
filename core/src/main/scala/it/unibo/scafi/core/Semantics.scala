@@ -64,6 +64,7 @@ trait Semantics extends Core with Language {
   trait ExportOps { self: EXPORT =>
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
+    def getAll: Map[Path,Any]
   }
 
   trait ContextOps { self: CONTEXT =>
@@ -152,6 +153,7 @@ trait Semantics extends Core with Language {
 
   trait RoundVM {
 
+    def exportStack: List[EXPORT]
     def export: EXPORT
 
     def registerRoot(v: Any): Unit
@@ -181,12 +183,18 @@ trait Semantics extends Core with Language {
     def elicitAggregateFunctionTag(): Any
 
     def isolate[A](expr: => A): A
+
+    def newExportStack: Any
+    def discardExport: Any
+    def mergeExport: Any
   }
 
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
     import RoundVMImpl.{ensure, Status, StatusImpl}
 
-    var export: EXPORT = factory.emptyExport
+    var exportStack: List[EXPORT] = List(factory.emptyExport)
+    def export = exportStack.head
+
     var status: Status = Status()
     var isolated = false // When true, neighbours are scoped out
 
@@ -266,6 +274,14 @@ trait Semantics extends Core with Language {
       } finally {
         this.isolated = wasIsolated
       }
+    }
+
+    override def newExportStack: Any = exportStack = factory.emptyExport() :: exportStack
+    override def discardExport: Any = exportStack = exportStack.tail
+    override def mergeExport: Any = {
+      val toMerge = export
+      exportStack = exportStack.tail
+      toMerge.getAll.foreach(tp => export.put(tp._1, tp._2))
     }
   }
 

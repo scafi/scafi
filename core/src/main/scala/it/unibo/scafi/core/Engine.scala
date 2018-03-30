@@ -42,6 +42,8 @@ trait Engine extends Semantics {
     def root[A](): A = get[A](factory.emptyPath()).get
 
     override def toString: String = map.toString
+
+    override def getAll: Map[Path, Any] = map.toMap
   }
 
   class PathImpl(val path: List[Slot]) extends Path with Equals with Serializable {

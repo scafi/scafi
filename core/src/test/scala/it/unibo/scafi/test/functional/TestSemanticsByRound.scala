@@ -25,7 +25,7 @@ import it.unibo.scafi.test.CoreTestUtils._
 
 class TestSemanticsByRound extends FunSpec with Matchers {
 
-  val LocalValues, Alignment, Exports, FOLDHOOD, NBR, REP, BRANCH, SENSE, MID, NBRVAR, BUILTIN, Nesting = new ItWord
+  val LocalValues, Alignment, Exports, FOLDHOOD, NBR, REP, BRANCH, SENSE, MID, NBRVAR, BUILTIN, Nesting, DeferredExports = new ItWord
 
   implicit val node = new BasicAggregateInterpreter
   import node._
@@ -324,6 +324,32 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     assertPossibleFolds("init", List("init","7","2")){
       round(ctx1, foldhood("init")(_+_){ nbr { foldhood(0)(_+_){ 1 } } + "" } ).root[String]
     }
+  }
+
+  DeferredExports("should work in a recurrent fashion"){
+    val exp = round(ctx(0), {
+      vm.newExportStack
+      rep(0){ _ =>
+        vm.newExportStack
+        rep(0){ _ =>
+          vm.newExportStack
+          rep(0)(_+1)
+          vm.mergeExport
+          1
+        }
+        foldhood(0)(_+_)(nbr(1))
+        vm.discardExport
+        1
+      }
+      foldhood(0)(_+_)(nbr(1))
+      vm.mergeExport
+    })
+
+    exp.get(/ / Rep(0)) should be(defined)
+    exp.get(/ / FoldHood(1)) should be(defined)
+    exp.get(/ / Rep(0) / Rep(0)) should not be(defined)
+    exp.get(/ / Rep(0) / FoldHood(1)) should not be(defined)
+    exp.get(/ / Rep(0) / Rep(0) / Rep(0)) should not be(defined)
   }
 
   private def assertPossibleFolds(init: Any, a: List[Any])(expr: => Any): Unit = {
