@@ -64,7 +64,7 @@ trait Semantics extends Core with Language {
   trait ExportOps { self: EXPORT =>
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
-    def getAll: Map[Path,Any]
+    def getAll: scala.collection.Map[Path,Any]
   }
 
   trait ContextOps { self: CONTEXT =>
