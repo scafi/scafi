@@ -21,6 +21,10 @@ package it.unibo.scafi.space
 import java.io.{BufferedReader, InputStreamReader, PrintStream}
 import java.net.Socket
 
+import it.unibo.scafi.space.optimization.distances.EuclideanDistanceMetric
+import it.unibo.scafi.space.optimization.helper.{DenseMultiVector, MultiVector}
+import it.unibo.scafi.space.optimization.nn.QuadTree
+
 import scala.language.higherKinds
 import it.unibo.utils.BiMap
 
@@ -132,7 +136,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
   override type P <: Point3D
   override type D = Double
 
-  override type SPACE[E] = Basic3DSpace[E]
+  override type SPACE[E] = Space3D[E]
 
   implicit val positionOrdering: Ordering[P] = new Ordering[P] {
     override def compare(a: P, b: P): Int = {
@@ -149,11 +153,24 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
   override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] =
     new Basic3DSpace(elems.toMap)
 
-  class Basic3DSpace[E](var elemPositions: Map[E,P],
-                        override val proximityThreshold: Double = EuclideanStrategy.DefaultProximityThreshold)
-    extends MutableMetricSpace[E]
+  abstract class Space3D[E](var elemPositions: Map[E,P],
+                    override val proximityThreshold: Double) extends MutableMetricSpace[E]
     with EuclideanStrategy
     with Serializable {
+    def add(e: E, p: P): Unit = elemPositions += (e -> p)
+    def getLocation(e: E): P = elemPositions(e)
+    def getAll(): Iterable[E] = elemPositions.keys
+    def remove(e: E): Unit = elemPositions -= e
+
+    override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)
+
+    override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
+
+    override def contains(e: E): Boolean = elemPositions.contains(e)
+  }
+  class Basic3DSpace[E](pos: Map[E,P],
+                        proximityThreshold: Double = EuclideanStrategy.DefaultProximityThreshold)
+    extends Space3D[E](pos,proximityThreshold){
 
     var neighbourhoodMap: Map[E, Set[(E,D)]] = initNeighbours()
 
@@ -188,18 +205,8 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
        .map(e2 => (e2, getDistance(getLocation(e), getLocation(e2))))
     }
 
-
-    def add(e: E, p: P): Unit = elemPositions += (e -> p)
-    def getLocation(e: E): P = elemPositions(e)
-    def getAll(): Iterable[E] = elemPositions.keys
-    def remove(e: E): Unit = elemPositions -= e
-
     override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)
     override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = neighbourhoodMap(e)
-
-    override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
-
-    override def contains(e: E): Boolean = elemPositions.contains(e)
   }
 
   trait EuclideanStrategy extends DistanceStrategy
@@ -217,7 +224,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     val DefaultProximityThreshold: Double = 1
   }
 
-  class Tile38Space[E](var elemPos : Map[E,P], val radius : Double) extends Basic3DSpace[E](elemPos) {
+  class Tile38Space[E](pos : Map[E,P],radius : Double) extends Space3D[E](pos,radius) {
     val RadiusTile38 = 11133
     val realRadius = radius * RadiusTile38
     var nMap: Map[E, Set[E]] = Map.empty
@@ -228,7 +235,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     private def initTile38() = {
       val baseString = "set scafi "
       val builder = new mutable.StringBuilder()
-      elemPos.foreach { x => {
+      elemPositions.foreach { x => {
         builder.append(baseString)
         val id = x._1
         val (xc,yc,zc) = point2tuple(x._2)
@@ -295,5 +302,58 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     override def contains(e: E): Boolean = elemPositions.contains(e)
 
     def point2tuple(p: P) : (Double,Double,Double) = (p.x,p.y,p.z)
+  }
+
+  class QuadTreeSpace[E](pos : Map[E,P],radius : Double) extends Space3D[E](pos,radius) {
+    var nMap: Map[E, Set[E]] = Map.empty
+    val quadTreeIndex = new QuadTree[E](Point3D(0,0,0),Point3D(2000,2000,2000),EuclideanDistanceMetric(),200)
+    initQuadTree()
+    private def initQuadTree() = {
+      elemPositions.foreach { x =>quadTreeIndex.insert(x._2,x._1)}
+    }
+    override def setLocation(e: E, p: P): Unit = {
+      resetNeighbours(e)
+      quadTreeIndex.remove(elemPositions(e))
+      quadTreeIndex.insert(p,e)
+      elemPositions += e -> p
+      calculateNeighbours(e)
+      resetNeighbours(e)
+    }
+
+    private def resetNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap -= x }}}
+    private def calculateNeighbours(e: E): Unit = {
+      synchronized {
+        val neigh : (E,Set[E]) = e -> (quadTreeIndex.searchNeighbors(elemPositions(e),radius) map {_._2} toSet)
+        this.nMap += neigh
+      }
+    }
+
+
+    override def add(e: E, p: P): Unit = {
+      quadTreeIndex.insert(p,e)
+      super.add(e,p)
+    }
+    override def remove(e: E): Unit = {
+      quadTreeIndex.remove(elemPositions(e))
+      super.remove(e)
+    }
+    override def getNeighbors(e: E): Iterable[E] = {
+      if(nMap.get(e).isEmpty) {
+        calculateNeighbours(e)
+      }
+      nMap(e)
+    }
+    override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = List()//neighbourhoodMap(e)
+    //TODO
+    override def getAt(p: P): Option[E] = None
+
+    override def contains(e: E): Boolean = elemPositions.contains(e)
+
+    implicit def pointToVector(p : Point3D): MultiVector = DenseMultiVector(p.x,p.y,p.z)
+
+    implicit def vectorToPoint(v : MultiVector) : Point3D = {
+      require(v.size == 2)
+      Point3D(v(0),v(1),v(2))
+    }
   }
 }

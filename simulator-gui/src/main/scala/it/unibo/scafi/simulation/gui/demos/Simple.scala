@@ -5,10 +5,10 @@ import it.unibo.scafi.simulation.gui.launcher.scalaFX.WorldConfig
 object Test extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher._
   program = classOf[Simple]
-  nodes = 10000
-  maxPoint = 1000
-  radius = 50
-  neighbourRender = true
+  nodes = 1000
+  maxPoint = 500
+  radius = 3
+  neighbourRender = false
   launch()
 }
 class Simple extends AggregateProgram  with BlockG with StandardSensors {

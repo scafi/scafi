@@ -70,7 +70,7 @@ object WorldConfig {
     world ++ node
   }
 
-  def gridLike2D(row : Int, column : Int, distance : Int): Unit = {
+  def gridLike2D(row : Int, column : Int, distance : Double): Unit = {
     var node : Set[NODE] = Set()
     val z = 0
     var nodes = 0;
