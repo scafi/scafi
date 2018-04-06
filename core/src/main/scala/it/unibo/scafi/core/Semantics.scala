@@ -250,7 +250,9 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag():Any = Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    import sun.reflect.Reflection._
+    override def elicitAggregateFunctionTag():Any = getCallerClass(PlatformDependentConstants.StackTracePosition)
+
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated

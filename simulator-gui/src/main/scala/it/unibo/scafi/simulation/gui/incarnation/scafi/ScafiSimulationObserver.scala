@@ -7,7 +7,6 @@ import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAd
 import it.unibo.scafi.space.Point3D
 
 import scala.collection.mutable.ArrayBuffer
-//TODO RIGUARDARE COMPLETAMENTE
 class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world : W) extends ScafiBridge[W](world){
 
   //TODO BRIDGE

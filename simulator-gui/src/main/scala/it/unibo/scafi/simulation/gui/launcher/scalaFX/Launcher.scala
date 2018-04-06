@@ -79,7 +79,7 @@ object Launcher {
 
   def launch(): Unit = {
     randomize2D(nodes,maxPoint)
-    //gridLike2D(200,100,radius)
+    //gridLike2D(100,100,radius)
     scafi.addAction(sensaction)
     scafi.addAction(textaction)
     scafi.setProgramm(program)
@@ -92,6 +92,7 @@ object Launcher {
       if(neighbourRender) {
         pane.outNeighbour(world.network.neighbours() map{x => world(x._1).get -> world(x._2)})
       }
+      println(world.network.neighbours().foldRight(0)((x,b) => x._2.size + b) / world.nodes.size);
       window.get.renderSimulation()
       scafi.start()
       scheduler <-- inputLogic <-- scafi <-- render

@@ -66,8 +66,7 @@ object ScafiBridge {
       val w = bridged.world
       val nodes: Map[ID, P] = w.nodes map {n => n.id -> new P(n.position.x,n.position.y,n.position.z)} toMap
       val res : SpaceAwareSimulator = new SpaceAwareSimulator(simulationSeed = rand.nextInt(),randomSensorSeed = rand.nextInt(),
-        space = new Basic3DSpace(nodes,
-          proximityThreshold = radius),
+        space = /*new Tile38Space(nodes,radius)*/new Basic3DSpace(nodes, radius),
         devs = nodes.map { case (d, p) => d -> new DevInfo(d, p,
           lsns => if (lsns == "sensor") 1 else 0,
           nsns => nbr => null)

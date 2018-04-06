@@ -18,8 +18,14 @@
 
 package it.unibo.scafi.space
 
+import java.io.{BufferedReader, InputStreamReader, PrintStream}
+import java.net.Socket
+
 import scala.language.higherKinds
 import it.unibo.utils.BiMap
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 
 /**
@@ -175,6 +181,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     }
 
     private def calculateNeighbours(e: E): Iterable[(E,D)] = {
+
       val p1 = getLocation(e)
       getAll()
         .filter(nbr => nbr != e && neighbouring(p1,getLocation(nbr)))
@@ -208,5 +215,85 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
 
   object EuclideanStrategy {
     val DefaultProximityThreshold: Double = 1
+  }
+
+  class Tile38Space[E](var elemPos : Map[E,P], val radius : Double) extends Basic3DSpace[E](elemPos) {
+    val RadiusTile38 = 11133
+    val realRadius = radius * RadiusTile38
+    var nMap: Map[E, Set[E]] = Map.empty
+    val sock = new Socket("localhost",9851)
+    val out = new PrintStream(sock.getOutputStream)
+    val input = new BufferedReader(new InputStreamReader(sock.getInputStream))
+    initTile38()
+    private def initTile38() = {
+      val baseString = "set scafi "
+      val builder = new mutable.StringBuilder()
+      elemPos.foreach { x => {
+        builder.append(baseString)
+        val id = x._1
+        val (xc,yc,zc) = point2tuple(x._2)
+        builder.append(s"$id point $xc $yc $zc\n")
+      }}
+      out.println(builder.toString)
+      for(i <- 0 until elemPositions.size) {input.readLine}
+    }
+    override def setLocation(e: E, p: P): Unit = {
+      resetNeighbours(e)
+      calculateNeighbours(e)
+      nMap.get(e).last map {x => x -> ((nMap.get(x).getOrElse(Set.empty)) + e)} foreach {x => nMap += x}
+    }
+
+    private def resetNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap -= x }}}
+    private def calculateNeighbours(e: E): Unit = {
+      synchronized {
+        val (x,y,z) = point2tuple(this.elemPositions(e))
+        out.println(s"nearby scafi point $x $y $realRadius")
+        val res = input.readLine()
+        val array = new mutable.ArrayBuffer[E]()
+        if(res.charAt(0) == '*') {
+          if(res.charAt(1) == '2') {
+            val checkNumber = input.readLine()
+            val response = input.readLine().substring(1).toInt
+            0 until response foreach {x => {
+              val arraySize = input.readLine()
+              val lengthId = input.readLine()
+              val id = input.readLine.toInt
+              array += id.asInstanceOf[E]
+              val pointSize = input.readLine()
+              val point = input.readLine()
+            }
+            }
+          }
+        }
+        this.nMap += e -> array.toSet
+      }
+
+    }
+
+
+    override def add(e: E, p: P): Unit = {
+      val (x,y,z) = point2tuple(p)
+      out.println(s"set scafi $e point $x $y $z")
+      input.readLine()
+      super.add(e,p)
+    }
+    override def remove(e: E): Unit = {
+      out.println(s"del scafi $e")
+      input.readLine()
+      super.remove(e)
+    }
+    override def getNeighbors(e: E): Iterable[E] = {
+      if(nMap.get(e).isEmpty) {
+        calculateNeighbours(e)
+      }
+      nMap(e)
+    }
+    override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = List()//neighbourhoodMap(e)
+    //TODO
+    override def getAt(p: P): Option[E] = None
+
+    override def contains(e: E): Boolean = elemPositions.contains(e)
+
+    def point2tuple(p: P) : (Double,Double,Double) = (p.x,p.y,p.z)
   }
 }
