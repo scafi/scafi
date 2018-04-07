@@ -23,7 +23,7 @@ object Launcher {
   val world = SimpleScafiWorld
   var drawer = new FXDrawer
   val shape = Rectangle(1,1)
-  val ticked = 1000
+  val ticked = 100
   var radius = 70.0
   var nodes = 1000
   var maxPoint = 1000
@@ -78,8 +78,8 @@ object Launcher {
   }
 
   def launch(): Unit = {
-    //randomize2D(nodes,maxPoint)
-    gridLike2D(300,300,radius)
+    randomize2D(nodes,maxPoint)
+    //gridLike2D(300,300,radius)
     scafi.addAction(sensaction)
     scafi.addAction(textaction)
     scafi.setProgramm(program)

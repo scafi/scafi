@@ -18,43 +18,20 @@
 
 package it.unibo.scafi.space.optimization
 
+import it.unibo.scafi.space.Point3D
+
 import scala.{math => scalaMath}
 /**
  * Convenience methods to handle Flink's [[org.apache.flink.ml.math.Matrix]] and [[Vector]]
  * abstraction.
  */
 package object helper {
-  implicit class RichMatrix(matrix: Matrix) extends Iterable[(Int, Int, Double)] {
 
-    override def iterator: Iterator[(Int, Int, Double)] = {
-      new Iterator[(Int, Int, Double)] {
-        var index = 0
+  implicit def pointToVector(p : Point3D): MultiVector = DenseMultiVector(p.x,p.y,p.z)
 
-        override def hasNext: Boolean = {
-          index < matrix.numRows * matrix.numCols
-        }
-
-        override def next(): (Int, Int, Double) = {
-          val row = index % matrix.numRows
-          val column = index / matrix.numRows
-
-          index += 1
-
-          (row, column, matrix(row, column))
-        }
-      }
-    }
-
-    def valueIterator: Iterator[Double] = {
-      val it = iterator
-
-      new Iterator[Double] {
-        override def hasNext: Boolean = it.hasNext
-
-        override def next(): Double = it.next._3
-      }
-    }
-
+  implicit def vectorToPoint(v : MultiVector) : Point3D = {
+    require(v.size == 2)
+    Point3D(v(0),v(1),v(2))
   }
 
   implicit class RichVector(vector: MultiVector) extends Iterable[(Int, Double)] {

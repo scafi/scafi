@@ -49,20 +49,6 @@ trait MultiVector extends Serializable {
     */
   def copy: MultiVector
 
-  /** Returns the dot product of the recipient and the argument
-    *
-    * @param other a Vector
-    * @return a scalar double of dot product
-    */
-  def dot(other: MultiVector): Double
-
-  /** Returns the outer product of the recipient and the argument
-    *
-    * @param other a Vector
-    * @return a matrix
-    */
-  def outer(other: MultiVector): Matrix
-
   /** Magnitude of a vector
     *
     * @return The length of the vector

@@ -103,7 +103,6 @@ class QuadTree[A](
 
       distMetric match {
         case _: EuclideanDistanceMetric => math.sqrt(minDist)
-        case _: SquaredEuclideanDistanceMetric => minDist
         case _ => throw new IllegalArgumentException(s" Error: metric must be" +
           s" Euclidean or SquaredEuclidean!")
       }
@@ -165,22 +164,8 @@ class QuadTree[A](
   }
 
   val root = new Node((minVec ++ maxVec) * 0.5,
-    (minVec -- maxVec), null)
+    minVec -- maxVec, null)
 
-  /** Prints tree for testing/debugging */
-  def printTree(): Unit = {
-    def printTreeRecur(node: Node) {
-      if (node.children != null) {
-        for (c <- node.children) {
-          printTreeRecur(c)
-        }
-      } else {
-        println("printing tree: n.nodeElements " + node.nodeElements)
-      }
-    }
-
-    printTreeRecur(root)
-  }
 
   /** Recursively adds an object to the tree
     *
@@ -222,12 +207,7 @@ class QuadTree[A](
           false
         }
       } else {
-        val setFind = node.children.find(_.contains(queryPoint))
-        if(setFind.isDefined) {
-          return findAndDelete(queryPoint,setFind.get)
-        } else {
-          false
-        }
+        findAndDelete(queryPoint,node.children(node.whichChild(queryPoint)))
       }
     }
     findAndDelete(queryPoint, root)
@@ -248,26 +228,6 @@ class QuadTree[A](
     elemsRec(root)
   }
 
-  /** Goes down to minimal bounding box of queryPoint, and add elements to nodeQueue
-    *
-    * @param queryPoint point under consideration
-    * @param node       node that queryPoint lies in
-    * @param nodeQueue  [[mutable.PriorityQueue]] that stores all points in minimal bounding box
-    *                   of queryPoint
-    */
-  private def minNodes(
-                        queryPoint: MultiVector,
-                        node: Node,
-                        nodeQueue: mutable.PriorityQueue[(Double, Node)]
-  ): Unit = {
-    if (node.children == null) {
-      nodeQueue += ((-node.minDist(queryPoint), node))
-    } else {
-      for (c <- node.children) {
-        minNodes(queryPoint, c, nodeQueue)
-      }
-    }
-  }
 
   /** Finds all objects within a neighborhood of queryPoint of a specified radius
     * scope is modified from original 2D version in:
@@ -291,9 +251,7 @@ class QuadTree[A](
       if (node.children == null) {
         ret ++= node.nodeElements filter {x => {queryPoint.distance(x._1) <= radius}}
       } else {
-        for (child <- node.children; if child.isNear(queryPoint, radius)) {
-          searchRecur(queryPoint, radius, child, ret)
-        }
+        node.children filter {_.isNear(queryPoint,radius)} foreach {searchRecur(queryPoint,radius,_,ret)}
       }
     }
 

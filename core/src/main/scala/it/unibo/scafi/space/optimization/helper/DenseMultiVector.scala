@@ -85,49 +85,6 @@ case class DenseMultiVector(data: Array[Double]) extends MultiVector with Serial
     * @param other a Vector
     * @return a scalar double of dot product
     */
-  override def dot(other: MultiVector): Double = {
-    require(size == other.size, "The size of vector must be equal.")
-
-    other match {
-      case SparseMultiVector(_, otherIndices, otherData) =>
-        otherIndices.zipWithIndex.map {
-          case (idx, sparseIdx) => data(idx) * otherData(sparseIdx)
-        }.sum
-      case _ => (0 until size).map(i => data(i) * other(i)).sum
-    }
-  }
-
-  /** Returns the outer product (a.k.a. Kronecker product) of `this`
-    * with `other`. The result will given in [[org.apache.flink.ml.math.SparseMatrix]]
-    * representation if `other` is sparse and as [[org.apache.flink.ml.math.DenseMatrix]] otherwise.
-    *
-    * @param other a Vector
-    * @return the [[org.apache.flink.ml.math.Matrix]] which equals the outer product of `this`
-    *         with `other.`
-    */
-  override def outer(other: MultiVector): Matrix = {
-    val numRows = size
-    val numCols = other.size
-
-    other match {
-      case sv: SparseMultiVector =>
-        val entries = for {
-          i <- 0 until numRows
-          (j, k) <- sv.indices.zipWithIndex
-          value = this(i) * sv.data(k)
-          if value != 0
-        } yield (i, j, value)
-
-        SparseMatrix.fromCOO(numRows, numCols, entries)
-      case _ =>
-        val values = for {
-          i <- 0 until numRows
-          j <- 0 until numCols
-        } yield this(i) * other(j)
-
-        DenseMatrix(numRows, numCols, values.toArray)
-    }
-  }
 
   /** Magnitude of a vector
     *

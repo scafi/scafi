@@ -50,66 +50,6 @@ case class SparseMultiVector(size: Int, indices: Array[Int], data: Array[Double]
     new SparseMultiVector(size, indices.clone, data.clone)
   }
 
-  /** Returns the dot product of the recipient and the argument
-    *
-    * @param other a Vector
-    * @return a scalar double of dot product
-    */
-  override def dot(other: MultiVector): Double = {
-    require(size == other.size, "The size of vector must be equal.")
-    other match {
-      case DenseMultiVector(otherData) =>
-        indices.zipWithIndex.map { case (sparseIdx, idx) => data(idx) * otherData(sparseIdx) }.sum
-      case SparseMultiVector(_, otherIndices, otherData) =>
-        var left = 0
-        var right = 0
-        var result = 0.0
-
-        while (left < indices.length && right < otherIndices.length) {
-          if (indices(left) < otherIndices(right)) {
-            left += 1
-          } else if (otherIndices(right) < indices(left)) {
-            right += 1
-          } else {
-            result += data(left) * otherData(right)
-            left += 1
-            right += 1
-          }
-        }
-        result
-    }
-  }
-
-  /** Returns the outer product (a.k.a. Kronecker product) of `this` with `other`. The result is
-    * given in [[SparseMatrix]] representation.
-    *
-    * @param other a [[MultiVector]]
-    * @return the [[SparseMatrix]] which equals the outer product of `this` with `other.`
-    */
-  override def outer(other: MultiVector): SparseMatrix = {
-    val numRows = size
-    val numCols = other.size
-
-    val entries = other match {
-      case sv: SparseMultiVector =>
-       for {
-          (i, k) <- indices.zipWithIndex
-          (j, l) <- sv.indices.zipWithIndex
-          value = data(k) * sv.data(l)
-          if value != 0
-        } yield (i, j, value)
-      case _ =>
-        for {
-          (i, k) <- indices.zipWithIndex
-          j <- 0 until numCols
-          value = data(k) * other(j)
-          if value != 0
-        } yield (i, j, value)
-    }
-
-    SparseMatrix.fromCOO(numRows, numCols, entries)
-  }
-
 
   /** Magnitude of a vector
     *

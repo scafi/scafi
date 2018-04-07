@@ -7,8 +7,8 @@ object Test extends App {
   program = classOf[Simple]
   nodes = 1000
   maxPoint = 500
-  radius = 3
-  neighbourRender = false
+  radius = 30
+  neighbourRender = true
   launch()
 }
 class Simple extends AggregateProgram  with BlockG with StandardSensors {
