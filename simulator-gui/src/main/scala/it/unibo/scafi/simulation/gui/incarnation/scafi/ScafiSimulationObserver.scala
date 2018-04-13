@@ -1,12 +1,10 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld.in
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAdded
 import it.unibo.scafi.space.Point3D
-
-import scala.collection.mutable.ArrayBuffer
 class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world : W) extends ScafiBridge[W](world){
 
   //TODO BRIDGE
@@ -27,6 +25,7 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
       time += System.nanoTime() - before
       tick += 1;
       exportProduced :::= (actions.filter { x => x.isDefinedAt(result._2) } map { x => result._1 -> x(result._2) }).toList
+
     }
     if(time > 1000000000L) {
       values ::= tick
@@ -48,8 +47,7 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
     val added = checkAdded.nodeChanged()
     if(contract.getSimulation.isDefined) {
       val extern = contract.getSimulation.get
-      //TODO AGGIUNGI ANCHE IL COMPORTAMENTO DEL MOVIMENTO, PENSA SE USARE UNA STRATEGY ESTERNA
-      devs map {world(_).get} foreach {x => x.devices.foreach(y => extern.chgSensorValue(y.name,Set(x.id),y.value))}
+      devs map {world(_).get} foreach {x => x.devices.filter{y => y.sensorType == in} foreach(y => {extern.chgSensorValue(y.name,Set(x.id),y.value)})}
       moved foreach { x =>
         val node = world(x).get
         val oldNeigh = contract.getSimulation.get.neighbourhood(x)

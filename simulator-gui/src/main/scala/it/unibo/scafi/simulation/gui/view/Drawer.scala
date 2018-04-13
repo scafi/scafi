@@ -19,11 +19,5 @@ trait Drawer {
     */
   def nodeGraphicsNode[INPUTNODE <: World#NODE] (node : INPUTNODE) : OUTPUTNODE
 
-  /**
-    * take a world device and create its graphics representation
-     * @param devs a set of device
-    * @tparam INPUTDEV the type of device
-    * @return the set of node create
-    */
-  def deviceToGraphicsNode[INPUTDEV <: World#DEVICE] (devs : Set[INPUTDEV], node : OUTPUTNODE) : Set[OUTPUTNODE]
+  def deviceToGraphicsNode[INPUTDEV <: World#DEVICE](node: OUTPUTNODE,dev : INPUTDEV, lastValue : Option[OUTPUTNODE]) : Option[OUTPUTNODE]
 }

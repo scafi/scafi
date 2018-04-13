@@ -1,10 +1,9 @@
-package it.unibo.scafi.simulation.gui.view.scalaFX.pane
+package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
 import it.unibo.scafi.simulation.gui.controller.InputCommandController
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.view.AbstractSelectionArea
-import it.unibo.scafi.simulation.gui.view.scalaFX.AbstractFXSimulationPane
 
 import scalafx.beans.property.DoubleProperty
 import scalafx.geometry.Point2D
@@ -25,7 +24,6 @@ trait FXSelectionArea[W <: World] extends AbstractSelectionArea[W]{
   private var r : DoubleProperty = DoubleProperty(0)
   private var circle : Option[Circle] = None
   private var startDragging = false
-
   import scalafx.Includes._
   this.handleEvent(MouseEvent.Any){
     me : MouseEvent =>{

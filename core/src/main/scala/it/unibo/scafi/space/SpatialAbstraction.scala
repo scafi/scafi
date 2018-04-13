@@ -18,18 +18,11 @@
 
 package it.unibo.scafi.space
 
-import java.io.{BufferedReader, InputStreamReader, PrintStream}
-import java.net.Socket
-
-import it.unibo.scafi.space.optimization.distances.EuclideanDistanceMetric
-import it.unibo.scafi.space.optimization.helper.{DenseMultiVector, MultiVector}
-import it.unibo.scafi.space.optimization.nn.QuadTree
-
-import scala.language.higherKinds
+import it.unibo.scafi.space.optimization.nn.NNIndex
 import it.unibo.utils.BiMap
 
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.concurrent.TrieMap
+import scala.language.higherKinds
 
 
 /**
@@ -162,10 +155,6 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     def getAll(): Iterable[E] = elemPositions.keys
     def remove(e: E): Unit = elemPositions -= e
 
-    override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)
-
-    override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
-
     override def contains(e: E): Boolean = elemPositions.contains(e)
   }
   class Basic3DSpace[E](pos: Map[E,P],
@@ -205,6 +194,8 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
        .map(e2 => (e2, getDistance(getLocation(e), getLocation(e2))))
     }
 
+    override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
+
     override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)
     override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = neighbourhoodMap(e)
   }
@@ -225,47 +216,53 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
   }
 
   class QuadTreeSpace[E](pos : Map[E,P],radius : Double) extends Space3D[E](pos,radius) {
-    var nMap: Map[E, Set[E]] = Map.empty
-    val quadTreeIndex = new QuadTree[E](Point3D(0,0,0),Point3D(2000,2000,2000),EuclideanDistanceMetric(),200)
-    initQuadTree()
-    private def initQuadTree() = {
-      elemPositions.foreach { x =>quadTreeIndex.insert(x._2,x._1)}
-    }
+    var nMap: TrieMap[E, Set[E]] = TrieMap.empty
+    val neighbourIndex: NNIndex[E] = NNIndex(pos)
     override def setLocation(e: E, p: P): Unit = {
       resetNeighbours(e)
-      quadTreeIndex.remove(elemPositions(e))
-      quadTreeIndex.insert(p,e)
+      neighbourIndex -= (elemPositions(e))
+      neighbourIndex += (p -> e)
       elemPositions += e -> p
       calculateNeighbours(e)
-      resetNeighbours(e)
+      addNeighbours(e)
     }
 
-    private def resetNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap -= x }}}
+    private def resetNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) - e) }}}
+
+    private def addNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) + e) }}}
     private def calculateNeighbours(e: E): Unit = {
-      synchronized {
-        val neigh : (E,Set[E]) = e -> (quadTreeIndex.searchNeighbors(elemPositions(e),radius) map {_._2} toSet)
-        this.nMap += neigh
-      }
+      val neigh: (E, Set[E]) = e -> (neighbourIndex <--> (elemPositions(e), radius) map {
+        _._2
+      } toSet)
+      this.nMap += neigh
     }
 
 
     override def add(e: E, p: P): Unit = {
-      quadTreeIndex.insert(p,e)
+      neighbourIndex += (p -> e)
       super.add(e,p)
     }
     override def remove(e: E): Unit = {
-      quadTreeIndex.remove(elemPositions(e))
+      neighbourIndex -= (elemPositions(e))
       super.remove(e)
     }
+    //TODO CHECK IF TWO ELEMENTS ARE IN THE SAME POSITION
     override def getNeighbors(e: E): Iterable[E] = {
       if(nMap.get(e).isEmpty) {
         calculateNeighbours(e)
       }
-      nMap(e)
+      if(nMap.get(e).isDefined) {
+        nMap(e)
+      } else {
+        List()
+      }
     }
-    override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = List()//neighbourhoodMap(e)
-    //TODO
-    override def getAt(p: P): Option[E] = None
+    override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = {
+      val p = elemPositions(e)
+      getNeighbors(e) map {x => x -> elemPositions(x).distance(p)}
+    }
+
+    override def getAt(p: P): Option[E] = neighbourIndex.get(p)
 
     override def contains(e: E): Boolean = elemPositions.contains(e)
 

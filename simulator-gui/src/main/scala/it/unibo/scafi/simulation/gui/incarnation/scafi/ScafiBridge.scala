@@ -65,7 +65,7 @@ object ScafiBridge {
     () => {
       val w = bridged.world
       val nodes: Map[ID, P] = w.nodes map {n => n.id -> new P(n.position.x,n.position.y,n.position.z)} toMap
-      val createdSpace  = new QuadTreeSpace(nodes,radius)/* new Tile38Space(nodes,radius) new Basic3DSpace(nodes, radius)*/
+      val createdSpace  = new QuadTreeSpace(nodes,radius)
       val createdDevs =  nodes.map { case (d, p) => d -> new DevInfo(d, p,
         lsns => if (lsns == "sensor") 1 else 0,
         nsns => nbr => null)

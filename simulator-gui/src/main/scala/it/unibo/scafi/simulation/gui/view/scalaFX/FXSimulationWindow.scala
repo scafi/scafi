@@ -4,6 +4,7 @@ import javafx.event.EventHandler
 import javafx.stage.WindowEvent
 
 import com.sun.javafx.perf.PerformanceTracker
+import it.unibo.scafi.simulation.gui.view.scalaFX.common.AbstractFXSimulationPane
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{LoadingLogo, PannablePane}
 import it.unibo.scafi.simulation.gui.view.{GraphicsView, Window}
 
@@ -14,7 +15,7 @@ import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.Label
 import scalafx.scene.input.KeyEvent
-import scalafx.scene.layout.{BorderPane, HBox, StackPane}
+import scalafx.scene.layout.{AnchorPane, BorderPane, HBox, StackPane}
 import scalafx.stage.Stage
 import scalafx.util.Duration
 
@@ -53,11 +54,13 @@ class SimulationWindow(private val infoPane : HBox,
     val pane = new BorderPane {
       padding = Insets(Padding)
     }
+    import scalafx.Includes._
     infoPane.padding = Insets(Padding)
     pane.setTop(infoPane)
     val debugInfo = new Label()
     infoPane.children.addAll(debugInfo)
     val pannablePane = new PannablePane(simulationPane,Some(pane))
+
     pane.setCenter(pannablePane)
     //TODO BETTER
     val tracker = PerformanceTracker.getSceneTracker(scene.value)

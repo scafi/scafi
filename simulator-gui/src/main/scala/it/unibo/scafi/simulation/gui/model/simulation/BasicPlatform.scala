@@ -19,10 +19,16 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
   override def network: NET = net
   /**
     * the interface of a sensor
-    * @tparam E the value of sensor
+    * @tparam E the type of value
     */
   trait Sensor[E] extends AggregateDevice {
+    /**
+      * the value of server
+      * @return the value
+      */
     def value : E
+
+    override def toString: String = super.toString + "value = " + value
   }
   /**
     * the prototype of sensor
@@ -95,7 +101,7 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
       *
       * @return the network
       */
-  override def neighbours(): Map[ID, Set[ID]] = neigh toMap
+    override def neighbours(): Map[ID, Set[ID]] = neigh toMap
 
     /**
       * set a neighbours of a node
@@ -104,6 +110,10 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
       * @param neighbour the neighbour
       */
     override def setNeighbours(node: ID, neighbour: Set[ID]): Unit = neigh += node -> neighbour
+  }
+
+  class ShapeBoundary(val shape : S) extends Boundary {
+    override def nodeAllowed(p: P, s: Option[S]): Boolean = shape.contains(p)
   }
 }
 

@@ -189,19 +189,17 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                          val randomSensorSeed: Long
                          ) extends Network with SimulatorOps {
     self: NETWORK =>
-
-    protected val eMap: MMap[ID, EXPORT] = MMap()
+    protected val eMap: MMap[ID,EXPORT] = MMap()
+    protected val eArray: MArray[EXPORT] = MArray()
     protected var lastRound: Map[ID,LocalDateTime] = Map()
 
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
-
     // *****************
     // Network interface
     // *****************
 
     val ids = idArray.toSet
-
     def neighbourhood(id: ID): Set[ID] = nbrMap.getOrElse(id, Set())
 
     def localSensor[A](name: LSNS)(id: ID): A = lsnsMap(name)(id).asInstanceOf[A]
@@ -233,7 +231,6 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     private def getExports(id: ID): Iterable[(ID,EXPORT)] =
       (neighbourhood(id) + id).intersect(eMap.keySet).toList.map{x => { x -> eMap(x)}}
-
 
     class SimulatorContextImpl(id: ID)
       extends ContextImpl(

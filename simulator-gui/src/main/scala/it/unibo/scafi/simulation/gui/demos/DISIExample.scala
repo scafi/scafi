@@ -1,29 +1,35 @@
 package it.unibo.scafi.simulation.gui.demos
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
-import it.unibo.scafi.simulation.gui.launcher.scalaFX.{Launcher, WorldConfig}
+import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
+import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{GradientFXDrawer, StandardFXDrawer}
 object DISIExample extends App {
   import Launcher._
   program = classOf[Main]
-  nodes = 50
-  maxPoint = 1000
-  radius = 10
+  drawer = GradientFXDrawer
+  nodes = 100000
+  boundary = None
+  //GradientFXDrawer.maxValue = boundary.get.w.toInt
+  radius = 2
+  actions = generalaction :: actions
   neighbourRender = false
   launch()
 }
 
 abstract class DISIDemoAggregateProgram extends AggregateProgram {
-  import WorldConfig._
-  def sense1 = sense[Boolean](source.name)
-  def sense2 = sense[Boolean](destination.name)
-  def sense3 = sense[Boolean](obstacle.name)
+  import it.unibo.scafi.simulation.gui.launcher.SensorName._
+  def sense1 = sense[Boolean](sens1.name)
+  def sense2 = sense[Boolean](sens2.name)
+  def sense3 = sense[Boolean](sens3.name)
   def boolToInt(b: Boolean) = mux(b){1}{0}
   def nbrRange = nbrvar[Double]("nbrRange")
 }
 
 class Main extends DISIDemoAggregateProgram {
-  def inc(x:Int):Int = x+1
-  override def main() = rep(init = 0)(fun = inc)
+  def inc(x:Double):Double = x+10.0
+  override def main() = rep(init = 0.0)(fun = inc)
 }
 
 class Main1 extends DISIDemoAggregateProgram {

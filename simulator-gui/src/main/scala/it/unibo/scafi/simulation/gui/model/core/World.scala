@@ -124,5 +124,7 @@ trait World {
       * the name of the device, it must immutable
       */
     val name : NAME
+
+    override def toString: String = "dev : " + name
   }
 }

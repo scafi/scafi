@@ -1,6 +1,10 @@
-package it.unibo.scafi.simulation.gui.launcher.scalaFX
+package it.unibo.scafi.simulation.gui.launcher
 
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld.{SensorType, in}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.SimpleScafiWorld
+import it.unibo.scafi.simulation.gui.launcher.SensorName._
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.simulation.gui.model.graphics2D.Shape2D
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 
 import scala.util.Random
@@ -9,6 +13,10 @@ object WorldConfig {
   import it.unibo.scafi.simulation.gui.incarnation.scafi.SimpleScafiWorld._
 
   val world = SimpleScafiWorld
+
+  world.boundary = None
+
+  def putBoundary(s : world.S) { world.boundary = Some(new ShapeBoundary(s))}
   /**
     * defaul prototype
     */
@@ -26,11 +34,11 @@ object WorldConfig {
     * function used to create a device
     * @param n the name
     * @param value the value
+    * @param sensorType the type of sensor
     * @tparam V the type of value
     * @return the devices created
     */
-  def dev[V](n : Name, value : V = true) : DEVICE = deviceFactory.create(n.name,new ExternalDevicePrototype(value))
-  private val deviceProto : DevicePrototype = new ExternalDevicePrototype(true)
+  def dev[V](n : Name, value : V = true, sensorType : SensorType) : DEVICE = deviceFactory.create(n.name,new ExternalDevicePrototype(value,sensorType))
 
   /**
     * used to create a prototype
@@ -39,33 +47,29 @@ object WorldConfig {
     */
   def NodePrototype(shape : S) : NODE_PROTOTYPE = new ExternalNodePrototype(Some(shape))
 
-  trait Name {
-    val name : String
-  }
-
-  /**
-    * all sensor name accept
-    */
-  val source : Name = new Name{val name = "source"}
-  val destination : Name = new Name{val name = "destination"}
-  val obstacle : Name = new Name{val name = "obstacle"}
-  val id : Name = new Name {val name = "id"}
-  val gsensor : Name = new Name{val name = "value"}
-  val gsensor1 : Name = new Name{val name = "output"}
-  val gsesonr2 : Name = new Name{val name = "generic2"}
 
 
   /**
     * initialize a world 2D in a randomize way
     * @param number the number of element
     */
-  def randomize2D(number : Int,maxPoint : Int): Unit = {
+  def randomize2D(number : Int,boundary : Option[Shape2D]): Unit = {
     val r = new Random()
+    val maxPoint = 1000
     //all nodes on the same 2d planes
     val z = 0
-    val node : Set[NODE] = ((0 to number) map {
-      nodeFactory.create(_,Point3D(r.nextInt(maxPoint),r.nextInt(maxPoint),z),devs,nodeProto)
-    } toSet)
+    val node : Set[NODE] = boundary match {
+      case Some(Rectangle(w,h,_)) => {
+        ((0 to number) map {
+          nodeFactory.create(_,Point3D(r.nextInt(w.toInt),r.nextInt(h.toInt),z),devs,nodeProto)
+        } toSet)
+      }
+      case _ => {
+        ((0 to number) map {
+          nodeFactory.create(_,Point3D(r.nextInt(maxPoint),r.nextInt(maxPoint),z),devs,nodeProto)
+        } toSet)
+      }
+    }
     world clear()
     world ++ node
   }
@@ -80,6 +84,7 @@ object WorldConfig {
         node += nodeFactory.create(nodes,Point3D(i * distance ,j * distance ,z),devs,nodeProto)
       }
     }
+    println(node)
     world clear()
     world ++ node
   }

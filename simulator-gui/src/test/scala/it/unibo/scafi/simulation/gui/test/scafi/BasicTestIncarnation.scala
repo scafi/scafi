@@ -37,7 +37,7 @@ class BasicTestIncarnation extends FunSpec with Matchers{
     assert(nodeDevice.isDefined)
     nodeDevice.get match {
       case OnOffSensor(_) => fail()
-      case TextSensor(t) => assert(t == devValue)
+      case DisplaySensor(t) => assert(t == devValue)
       case _ => fail()
     }
   }
@@ -48,7 +48,7 @@ class BasicTestIncarnation extends FunSpec with Matchers{
     assert(nodeDevice.isDefined)
     nodeDevice.get match {
       case OnOffSensor(_) => fail()
-      case TextSensor(t) => assert(t == anotherValue)
+      case DisplaySensor(t) => assert(t == anotherValue)
       case _ => fail()
     }
   }

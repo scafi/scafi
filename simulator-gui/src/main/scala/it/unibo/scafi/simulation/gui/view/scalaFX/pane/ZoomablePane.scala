@@ -5,7 +5,7 @@ import scalafx.scene.layout.Pane
 
 /**
   * a pane that allow zoom with the whels of mouse
- m  */
+  */
 class ZoomablePane extends Pane {
   private val SCALE_DELTA = 1.1;
   // SCROLLING TO REMOVE HERE

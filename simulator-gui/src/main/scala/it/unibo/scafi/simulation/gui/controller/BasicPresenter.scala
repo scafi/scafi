@@ -14,8 +14,8 @@ import scala.collection.mutable
   * @param world to show
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */
-class BasicRender[W <: BasicPlatform with Source](val world : W,
-                                                  val neighbourRender : Boolean) extends Presenter[W]{
+class BasicPresenter[W <: BasicPlatform with Source](val world : W,
+                                                     val neighbourRender : Boolean) extends Presenter[W]{
 
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
@@ -36,6 +36,7 @@ class BasicRender[W <: BasicPlatform with Source](val world : W,
     }
     //MOVING
     val nodesMoved = moved.nodeChanged()
+    val x = System.currentTimeMillis()
     if (!nodesMoved.isEmpty) {
       LogManager.log("NODE MOVED : " + nodesMoved, LogManager.Low)
       var toAdd : Map[world.NODE,Set[world.NODE]] = Map()
@@ -57,9 +58,12 @@ class BasicRender[W <: BasicPlatform with Source](val world : W,
         }
       }
       this.prevNeighbour = world.network.neighbours()
+      val x = System.currentTimeMillis()
       out.get.outNode(world.apply(nodesMoved))
-      out.get.outNeighbour(toAdd)
-      out.get.removeNeighbour(toRemove)
+      if(neighbourRender) {
+        out.get.outNeighbour(toAdd)
+        out.get.removeNeighbour(toRemove)
+      }
     }
     val deviceToOut = devChanged.nodeChanged()
     if(!deviceToOut.isEmpty) {

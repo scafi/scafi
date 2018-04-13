@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 /**
   * aggregate world define a mutable world with mutable node and device
   */
-//TODO THINK IF IS A GOOD IDEA TO CHECK CREATE EVENT ASSOCIATED TO A DEVICE
+//TODO CREATE AN OBSERVER THAT COULD BE OBSERVER DEVICE EVENT
 trait AggregateWorld extends ObservableWorld with AggregateConcept{
   this : AggregateWorld.Dependency =>
   /**

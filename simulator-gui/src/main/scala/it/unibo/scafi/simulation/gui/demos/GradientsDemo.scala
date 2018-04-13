@@ -24,17 +24,30 @@ import java.time.temporal.ChronoUnit
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins, FieldUtils, GenericUtils, ID, StandardSensors, TimeUtils}
 import it.unibo.scafi.simulation.gui.demos.DoubleUtils.Precision
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXDrawer, GradientFXDrawer}
 import it.unibo.scafi.space.Point3D
 
 import scala.concurrent.duration.FiniteDuration
-
+import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 object GradientsDemo extends App{
   import Launcher._
+  /* FIRST SIMULATION
   program = classOf[ClassicGradient]
-  nodes = 50
-  maxPoint = 1000
-  radius = 5
+  drawer = GradientFXDrawer
+  boundary = Some(Rectangle(1000,1000))
+  GradientFXDrawer.maxValue = boundary.get.w.toInt
+  nodes = 50000
+  radius = 7*/
+
+  program = classOf[ShortestPathProgram]
+  drawer = FastFXDrawer
+  boundary = Some(Rectangle(1000,1000))
+  GradientFXDrawer.maxValue = boundary.get.w.toInt
+  nodes = 50000
+  radius = 7
   neighbourRender = false
+  actions = generalaction :: actions
   launch()
 }
 
