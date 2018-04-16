@@ -19,16 +19,15 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.{RichPlatform, SimulationWindo
 import scala.util.Random
 import scalafx.application.Platform
 import scalafx.scene.layout.HBox
-//TODO SIMPLE EXAMPLE , REMBEMER TO CREATE A LAUNCHER USED TO LAUNCH EXTERNAL SIMULATION
 object Launcher {
   val r = new Random()
   new JFXPanel()
   //WORLD DEFINITION
   val world = SimpleScafiWorld
   var drawer : FXDrawer = StandardFXDrawer
-  val shape = Rectangle(2,2)
+  val shape = Rectangle(3,3)
   var boundary : Option[Rectangle] = None
-  val ticked = 66
+  val ticked = 33
   var radius = 70.0
   var nodes = 1000
   var actions : List[ACTION] = List();
@@ -80,10 +79,10 @@ object Launcher {
       if(neighbourRender) {
         pane.outNeighbour(world.network.neighbours() map{x => world(x._1).get -> world(x._2)})
       }
-      window.get.renderSimulation()
+      //window.get.renderSimulation()
     } {
       scafi.start()
-      val movement = new MovementSyncController(0.01f,world,100)
+      val movement = new MovementSyncController(0.01f,world,500)
       movement.start()
       scheduler <-- inputLogic <-- movement <-- scafi <-- render
       scheduler.delta_=(ticked)

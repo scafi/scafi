@@ -42,10 +42,10 @@ object GradientsDemo extends App{
 
   program = classOf[ShortestPathProgram]
   drawer = FastFXDrawer
-  boundary = Some(Rectangle(1000,1000))
+  boundary = Some(Rectangle(500,500))
   GradientFXDrawer.maxValue = boundary.get.w.toInt
-  nodes = 50000
-  radius = 7
+  nodes = 20000
+  radius = 6
   neighbourRender = false
   actions = generalaction :: actions
   launch()

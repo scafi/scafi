@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
 import javafx.scene.control.Label
+import javafx.scene.shape.Shape
 
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
 import it.unibo.scafi.simulation.gui.model.core.World

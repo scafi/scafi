@@ -3,12 +3,11 @@ package it.unibo.scafi.simulation.gui.test.scafi
 import it.unibo.scafi.simulation.gui.incarnation.scafi._
 import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors._
 import it.unibo.scafi.simulation.gui.model.space.Point3D
-import it.unibo.scafi.simulation.gui.test.help.SimpleScafiLikeWorld
 import org.scalatest.{FunSpec, Matchers}
 
 class BasicTestIncarnation extends FunSpec with Matchers{
   val checkThat = new ItWord
-  val world  = new SimpleScafiLikeWorld
+  val world  = SimpleScafiWorld
   val fakeRandomNumber = 10
   val fakeRadius = 10
   /*
@@ -28,8 +27,9 @@ class BasicTestIncarnation extends FunSpec with Matchers{
   val devName = "text"
   val devValue = "Hello"
   val anotherValue = "Bye"
+  import ScafiLikeWorld._
   //TODO PRODUCE MORE TEST ON SENSOR
-  val devProto = new world.ExternalDevicePrototype[Any](devValue)
+  val devProto = new world.ExternalDevicePrototype[Any](devValue,in)
   val dev = world.deviceFactory.create(devName,devProto)
   world.addDevices(world.nodes.map {x => x.id -> dev} toMap)
   checkThat("I can add device in a world") {

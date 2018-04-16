@@ -12,7 +12,6 @@ import scalafx.application.Platform
 import scalafx.geometry.Point2D
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
-//TODO MAKE INPUT CONTROLLER GENERIC IN WORLD
 class FXSimulationPane[W <: World] (val inputController : InputCommandController[_],
                                     override val drawer : FXDrawer) extends AbstractFXSimulationPane[W] {
   private val _nodes : mutable.Map[W#ID,(drawer.OUTPUTNODE,Point2D)] = mutable.Map()
@@ -33,6 +32,7 @@ class FXSimulationPane[W <: World] (val inputController : InputCommandController
             node.translateX = p.x - oldP.x
             node.translateY = p.y - oldP.y
           }
+
         } else {
           val shape : drawer.OUTPUTNODE = drawer.nodeGraphicsNode(x)
           this._nodes += x.id -> (shape,p)
@@ -59,7 +59,6 @@ class FXSimulationPane[W <: World] (val inputController : InputCommandController
       val gnode = this._nodes(node._1.id)._1
       node._2 foreach { x => {
         val endGnode = this._nodes(x.id)._1
-        //TODO REMEMBER TO REMOVE THIS MAGIC NUMBER
         val link : NodeLine = new NodeLine(gnode,endGnode,color)
         if(!this.neighbours.get(node._1.id).isDefined) {
           this.neighbours += node._1.id -> mutable.Map()
@@ -84,6 +83,7 @@ class FXSimulationPane[W <: World] (val inputController : InputCommandController
     def erase(start: W#ID, end: W#ID): Unit = {
       val map = this.neighbours(start)
       val toRemove = map(end)
+      toRemove.unbind()
       linkRemove += toRemove
       map -= end
     }

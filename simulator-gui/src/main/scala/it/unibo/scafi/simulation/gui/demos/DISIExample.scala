@@ -4,15 +4,16 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram,
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
 import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{GradientFXDrawer, StandardFXDrawer}
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXDrawer, GradientFXDrawer, StandardFXDrawer}
 object DISIExample extends App {
   import Launcher._
-  program = classOf[Main]
-  drawer = GradientFXDrawer
-  nodes = 100000
-  boundary = None
+  program = classOf[Main4]
+  drawer = FastFXDrawer
+  nodes = 20000
+
+  boundary = Some(Rectangle(500,500))
   //GradientFXDrawer.maxValue = boundary.get.w.toInt
-  radius = 2
+  radius = 6
   actions = generalaction :: actions
   neighbourRender = false
   launch()

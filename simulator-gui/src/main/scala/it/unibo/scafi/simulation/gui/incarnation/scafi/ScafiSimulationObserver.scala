@@ -25,7 +25,6 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
       time += System.nanoTime() - before
       tick += 1;
       exportProduced :::= (actions.filter { x => x.isDefinedAt(result._2) } map { x => result._1 -> x(result._2) }).toList
-
     }
     if(time > 1000000000L) {
       values ::= tick

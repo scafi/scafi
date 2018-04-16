@@ -14,8 +14,8 @@ trait ScafiLikeWorld extends BasicPlatform with SimpleSource{
   self : ScafiLikeWorld.Dependency =>
   override type ID = Int
   override type NAME = String
-  override type DEVICE = BridgedSensor[Any]
   override type P = Point3D
+  override type DEVICE = BridgedSensor[Any]
   override type B = ShapeBoundary
 
   /**
@@ -39,6 +39,7 @@ object ScafiLikeWorld {
   * an incarnation to a scafi like world
   */
 object SimpleScafiWorld extends ScafiLikeWorld   {
+
   override type NODE = AggregateNode
   override type S = Shape2D
   override type NODE_PROTOTYPE = ExternalNodePrototype

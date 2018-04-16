@@ -14,11 +14,11 @@ class BasicTestablePlatform extends BasicPlatform with SimpleSource{
   override type NODE_FACTORY = NodeFactory
 
   override type NAME = String
-  override type DEVICE = InternalSensor[Any]
+  override type DEVICE = Sensor[Any]
   override type DEVICE_PROTOTYPE = ExternalDevicePrototype[Any]
   override type DEVICE_FACTORY = DeviceFactory
 
-  override type B = Boundary
+  override type B = ShapeBoundary
   override type M = Metric
   override val metric: Metric = new Metric {
     override def positionAllowed(p: Point3D): Boolean = true
@@ -71,7 +71,7 @@ class BasicTestablePlatform extends BasicPlatform with SimpleSource{
   class ExternalNodeFactory private[BasicTestablePlatform]() extends NodeFactory {
     override def create(id: Int,
                         position: Point3D,
-                        devices: Set[InternalSensor[Any]],
+                        devices: Set[Sensor[Any]],
                         proto: ExternalNodePrototype): InternalNode = new InternalNode(id,proto.shape,position,devices)
   }
   class ExternalDeviceFactory private[BasicTestablePlatform]() extends DeviceFactory {

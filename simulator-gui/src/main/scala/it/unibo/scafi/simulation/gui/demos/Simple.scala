@@ -11,8 +11,13 @@ object Test extends App {
   drawer = StandardFXDrawer
   nodes = 1000
   boundary = Some(Rectangle(1920,1080))
-  radius = 100
+  radius = 80
   neighbourRender = true
+  /*drawer = FastFXDrawer
+  nodes = 10000
+  boundary = Some(Rectangle(500,500))
+  radius = 8
+  neighbourRender = false*/
   actions = generalaction :: actions
   launch()
 }
