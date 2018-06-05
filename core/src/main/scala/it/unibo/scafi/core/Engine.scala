@@ -24,8 +24,10 @@ package it.unibo.scafi.core
  * with associated factories.
  */
 
-import scala.collection.{ Map => GMap }
-import scala.collection.mutable.{ Map => MMap}
+import it.unibo.utils.{Interop, Linearizable}
+
+import scala.collection.{Map => GMap}
+import scala.collection.mutable.{Map => MMap}
 
 trait Engine extends Semantics {
 
@@ -114,18 +116,6 @@ trait Engine extends Semantics {
     def context(selfId: ID, exports: Map[ID,EXPORT], lsens: Map[LSNS,Any] = Map(), nbsens: Map[NSNS,Map[ID,Any]] = Map()): CONTEXT =
       new ContextImpl(selfId, exports, lsens, nbsens)
   }
-
-  trait Interop[T] extends Serializable {
-    def toString: String
-    def fromString(s: String): T
-  }
-
-  trait LinearizableTo[T,N] extends Serializable {
-    def toNum(v: T): N
-    def fromNum(n: N): T
-  }
-
-  trait Linearizable[T] extends LinearizableTo[T,Int]
 
   implicit val linearID: Linearizable[ID]
   implicit val interopID: Interop[ID]
