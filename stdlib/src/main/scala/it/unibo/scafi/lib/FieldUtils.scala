@@ -30,16 +30,38 @@ trait StdLib_FieldUtils {
       def mapNbrs[T](expr: => T): Map[ID, T] = reifyField(expr)
 
       def reifyField[T](expr: => T): Map[ID, T] = {
-        foldhoodTemplate[Seq[(ID, T)]](Seq[(ID, T)]())(_ ++ _) {
-          Seq(nbr { mid() } -> expr)
-        }.toMap
+        foldhoodTemplate[Map[ID,T]](Map[ID, T]())(_ ++ _) {
+          Map(nbr { mid() } -> expr)
+        }
       }
 
+      def sumHood[T](expr: => T)(implicit numEv: Numeric[T]) =
+        foldhoodTemplate[T](numEv.zero)(numEv.plus(_,_))(nbr(expr))
+
       def unionHood[T](expr: => T): Set[T] =
-        foldhoodTemplate[Set[T]](Set())(_.union(_))(Set(expr))
+        unionHoodSet(Set(expr))
+
+      def unionHoodSet[T](expr: => Iterable[T]): Set[T] =
+        foldhoodTemplate[Set[T]](Set())(_.union(_))(expr.toSet)
+
+      def mergeHoodFirst[K,V](expr: => Map[K,V]): Map[K,V] =
+        mergeHood(expr)((x,y) => x)
+
+      def mergeHood[K,V](expr: => Map[K,V])(overwritePolicy: (V,V) => V): Map[K,V] = {
+        foldhoodTemplate[Map[K,V]](Map()) { case (m1, m2) =>
+          var newMap = m1
+          m2.keys.foreach(k => newMap += k -> m1.get(k).map(v => overwritePolicy(v, m2(k))).getOrElse(m2(k)))
+          newMap
+        }(expr)
+      }
 
       def anyHood(expr: => Boolean): Boolean =
         foldhoodTemplate[Boolean](false)(_||_)(expr)
+
+      def minHoodSelector[T: Builtins.Bounded, V](toMinimize: => T)(data: => V): Option[V] = {
+        val ord = implicitly[Builtins.Bounded[T]]
+        foldhoodTemplate[(T,Option[V])]((ord.top, None))( (x,y) => if(ord.compare(x._1,y._1) <= 0) x else y )((toMinimize, Some(data)))._2
+      }
     }
 
     object includingSelf extends FieldOps {

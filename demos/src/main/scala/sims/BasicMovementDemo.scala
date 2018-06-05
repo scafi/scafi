@@ -22,10 +22,6 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram,
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
-/**
-  * @author Andrea De Castri, Cristian Paolucci, Davide Foschi
-  *
-  */
 object BasicMovementDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.BasicMovement" // starting class, via Reflection

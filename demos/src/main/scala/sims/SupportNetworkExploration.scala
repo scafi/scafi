@@ -22,10 +22,6 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram,
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
-/**
-  * @author Andrea De Castri, Cristian Paolucci, Davide Foschi
-  *
-  */
 object SupportNetworkExploration extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.SupportNetworkExplorationDemo" // starting class, via Reflection
@@ -42,6 +38,16 @@ object SupportNetworkExploration extends Launcher {
   launch()
 }
 
+/**
+  * Scenario: exploration from a fixed or mobile base.
+  *  The nodes should explore the space without losing connections with the base;
+  *  when this happens, they should return to the base.
+  *  Other nodes build flocks with loose rules, sporadically interacting with the main network.
+  *   - sense1: nodes of the main network;
+  *   - sense2: obstacles.
+  *   - sense3: base of operations;
+  *   - sense4: explorer nodes, connected to the network.
+  */
 class SupportNetworkExplorationDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
 
   private val attractionForce: Double = 10.0

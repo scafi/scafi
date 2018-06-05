@@ -16,28 +16,25 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.lib
+package sims
 
-trait Stdlib_BlockT2 {
-  self: StandardLibrary.Subcomponent =>
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ExplicitFields, FieldUtils}
+import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
-  // scalastyle:off method.name
+object ExplicitFieldsRun extends Launcher {
+  Settings.Sim_ProgramClass = "sims.GradientWithExplicitFields"
+  Settings.ShowConfigPanel = false
+  Settings.Sim_NbrRadius = 0.15
+  Settings.Sim_NumNodes = 100
+  launch()
+}
 
-  trait BlockT2 {
-    self: FieldCalculusSyntax =>
+class GradientWithExplicitFields extends AggregateProgram with SensorDefinitions with ExplicitFields {
+  override def main() = gradient(sense1)
 
-    def implicitMin[V: Numeric](a: V, b: V): V = implicitly[Numeric[V]].min(a, b)
-
-    def implicitMax[V: Numeric](a: V, b: V): V = implicitly[Numeric[V]].max(a, b)
-
-    def T[V: Numeric](initial: V)(floor: V)(decay: V => V): V = {
-      rep(initial) { v => implicitMin(initial, implicitMax(floor, decay(v))) }
+  def gradient(src: Boolean) = rep(Double.PositiveInfinity)(d => {
+    mux(src){ 0.0 }{
+      (fnbr(d) + fsns(nbrRange)).minHoodPlus
     }
-
-    def linearFlow(time: Double): Double =
-      T(time)(0.0)(v => v - 1)
-
-    def timer(time: Double): Boolean =
-      linearFlow(time) == 0.0
-  }
+  })
 }

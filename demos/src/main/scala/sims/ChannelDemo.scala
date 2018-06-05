@@ -32,6 +32,12 @@ object ChannelDemo extends Launcher {
   launch()
 }
 
+/**
+  * Channel with obstacles
+  *   - Sense1: source area
+  *   - Sense2: destination area
+  *   - Sense3: obstacles
+  */
 class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
 
   def channel(source: Boolean, target: Boolean, width: Double): Boolean =

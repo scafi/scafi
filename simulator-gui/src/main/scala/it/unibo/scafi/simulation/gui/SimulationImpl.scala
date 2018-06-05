@@ -53,7 +53,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
       randomSensorSeed = configurationSeed
     )
 
-    //network.setNeighbours(net.getAllNeighbours)
+    network.setNeighbours(net.getAllNeighbours)
 
     SensorEnum.sensors.foreach(se => {
       // TODO: println(se);

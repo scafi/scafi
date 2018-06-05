@@ -18,7 +18,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils, StandardSensors}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
@@ -89,7 +89,8 @@ class ShortestPathProgram extends AggregateProgram with Gradients with SensorDef
   }
 }
 
-class CheckSpeed extends AggregateProgram with Gradients with BlockG with SensorDefinitions with GenericUtils {
+class CheckSpeed extends AggregateProgram
+    with Gradients with BlockG with SensorDefinitions with GenericUtils with StateManagement {
   implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
     override def default: LocalDateTime = LocalDateTime.now()
   }
@@ -167,6 +168,7 @@ object DoubleUtils {
 trait Gradients extends BlockG
   with FieldUtils
   with TimeUtils
+  with StateManagement
   with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
 
 

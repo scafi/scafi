@@ -73,6 +73,16 @@ class Controller () {
     this.observation = obs
   }
 
+  def updateNodePositions() = {
+    this.nodes.foreach(x => {
+      val (node,guiNode) = x._2
+      val dim = Utils.getSizeGuiNode()
+      val pos = Utils.calculatedGuiNodePosition(node.position)
+      guiNode.setNodeLocation(pos.x,pos.y)
+      guiNode.setSize(dim)
+    })
+  }
+
   def setObservation(obs: String): Unit = {
     val split = obs.trim.split(" ", 2)
     val (operatorStr, valueStr) = (split(0), split(1))
@@ -172,7 +182,8 @@ class Controller () {
     positions.foreach(p =>  {
       val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
-      guiNode.setLocation(Utils.calculatedGuiNodePosition(node.position))
+      val pt = Utils.calculatedGuiNodePosition(node.position)
+      guiNode.setNodeLocation(pt.x, pt.y)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
       i = i + 1
@@ -303,12 +314,12 @@ class Controller () {
       var newY: Double = point.y + vec._2
 
       val newP = Utils.calculatedGuiNodePosition(new Point2D(newX, newY))
-      guiNode.setLocation(newP.x, newP.y)
+      guiNode.setNodeLocation(newP.x, newP.y)
       node.position = new Point2D(newX, newY)
       moveNode(node, guiNode)
     }
 
-    var outputString: String = Try(Settings.To_String(node.export).asInstanceOf[String]) getOrElse(null)
+    var outputString: String = Try(Settings.To_String(node.export)).getOrElse(null)
     if(outputString != null && !outputString.equals("")) {
       valueShowed match {
         case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
@@ -367,7 +378,7 @@ class Controller () {
       val (n,g) = kv
       if (g.isSelected()) {
         val pos = g.getLocation()
-        g.setLocation(pos.x + p.x, pos.y + p.y)
+        g.setNodeLocation(pos.x + p.x, pos.y + p.y)
         moveNode(g, g.getLocation())
       }
     })
