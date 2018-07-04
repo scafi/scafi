@@ -24,6 +24,9 @@ trait StdLib_StateManagement{
   trait StateManagement {
     self: FieldCalculusSyntax with StandardSensors =>
 
+    def roundCounter(): Long =
+      rep(0L)(_+1)
+
     def remember[T](value: T): T =
       rep(value)(identity)
 
