@@ -13,7 +13,7 @@ object LogManager extends SimpleSource {
 
   trait LogObserver extends Observer {
 
-    override final def !!(event: Event): Unit = {
+    override final def update(event: Event): Unit = {
       event match {
         case n:LogEvent => logging(n.message,n.priority)
       }
@@ -31,7 +31,7 @@ object LogManager extends SimpleSource {
   private case class LogEvent(message:String, priority: Priority) extends Event
 
   def log(message : String, priority: Priority): Unit = {
-    this.!!!(LogEvent(message,priority))
+    this.notify(LogEvent(message,priority))
   }
 
 }

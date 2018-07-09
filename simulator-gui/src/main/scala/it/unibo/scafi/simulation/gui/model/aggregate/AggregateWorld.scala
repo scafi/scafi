@@ -90,7 +90,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
       .map(_.get)
       .toSet
     switching(switched)
-    this.!!!(producer(switched))
+    this.notify(producer(switched))
     this.apply(map.keySet) -- switched
   }
 
@@ -100,7 +100,7 @@ trait AggregateWorld extends ObservableWorld with AggregateConcept{
     val node = filter
     if(node.isEmpty) return false
     switching(Set(node.get))
-    this.!!!(producer(node.get))
+    this.notify(producer(node.get))
     true
   }
 

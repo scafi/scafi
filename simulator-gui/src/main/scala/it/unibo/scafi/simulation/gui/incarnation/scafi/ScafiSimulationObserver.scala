@@ -11,20 +11,25 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkChanged = world.createObserver(Set(NodesDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
-  private var exportProduced : List[(ID,(W,world.ID) => Unit)] = List()
+  private var exportProduced : Map[ID,(W,world.ID) => Unit] = Map()
   world <-- checkAdded <-- checkChanged <-- checkAdded <-- checkMoved
   private var tick = 0L;
   private var time = 0L;
+  private var block = false; //used to has a blocking access to list
   private var printTime = 0;
   private var values = List[Long]()
   override protected def AsyncLogicExecution(): Unit = {
+    if(block) return;
     if(contract.getSimulation.isDefined) {
       val net = contract.getSimulation.get
       val before = System.nanoTime()
       val result = net.exec(runningContext)
       time += System.nanoTime() - before
       tick += 1;
-      exportProduced :::= (actions.filter { x => x.isDefinedAt(result._2) } map { x => result._1 -> x(result._2) }).toList
+      if(action.isDefinedAt(result._2)) {
+        exportProduced += result._1 -> action(result._2)
+      }
+      // TODO CHIEDI COME GESTIRE GLI EXPORT exportProduced :::= (actions.filter { x => x.isDefinedAt(result._2) } map { x => result._1 -> x(result._2) }).toList
     }
     if(time > 1000000000L) {
       values ::= tick
@@ -38,9 +43,8 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
       printTime += 1
     }
   }
-  //TODO AGGIUNGI CLEAR IN OBSERVER WORLD
+  //TODO PERFORMANCE ISSUE! CHECK OUT!
   override def onTick(float: Float): Unit = {
-
     val moved = checkMoved.nodeChanged()
     val devs = checkChanged.nodeChanged()
     val added = checkAdded.nodeChanged()
@@ -56,10 +60,12 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
         (oldNeigh ++ neigh) foreach {x => {world.network.setNeighbours(x,contract.getSimulation.get.neighbourhood(x))}}
       }
     }
-
-    exportProduced foreach { x => x._2(world,x._1)}
-    exportProduced = List.empty
-
+    block = true;
+    val toCompute = exportProduced
+    exportProduced = Map.empty
+    block = false;
+    val toComputeMap = toCompute
+    toComputeMap foreach { x => x._2(world,x._1)}
   }
   override def init() = {
     super.init()

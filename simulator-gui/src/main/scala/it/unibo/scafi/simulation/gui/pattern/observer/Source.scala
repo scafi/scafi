@@ -1,31 +1,30 @@
 package it.unibo.scafi.simulation.gui.pattern.observer
 //OBSERVER PATTERN
 /**
-  * define a generic source that could be observe
-  * the order of observer are preserved:
-  * the first that is attach is the first that is notify
+  * define a generic event source
   */
 trait Source {
   /**
-    * the type of observer
+    * observer type, a source can notify a observer class
     */
   type O <: Observer
   //TEMPLATE METHOD
+  /**
+    * @return the observers attached to current source
+    */
   protected def observers: Iterable[O]
 
   /**
-    * a way to add observer
-    * look attach
+    * fast way to add an observer
+    * @param observer want to observe current source
+    * @return the source
     */
   final def <-- (observer : O): this.type = {
     attach(observer)
     return this
   }
 
-  /**
-    * a way to remove observer
-    * look detach
-    */
+
   final def <--! (observer : O): this.type =  {
     detach(observer)
     return this
@@ -48,22 +47,21 @@ trait Source {
     * notify all the observer
     * @param e the event generate
     */
-  def !!! (e :Event) =  observers foreach (_ !! e)
+  def notify(e :Event) =  observers foreach (_ update e)
 }
 
 /**
   * the root interface of all event
   */
-trait Event {}
+trait Event
 
 trait Observer {
   private var _events : List[Event] = List[Event]()
   /**
     * store the event received
-    * @param event
-    *   the event produced by source
+    * @param event the event produced
     */
-  def !! (event: Event) : Unit = _events = event :: _events
+  def update(event: Event) : Unit = _events = event :: _events
 
   /**
     * @return the sequence of event listened and clear the current queue of event

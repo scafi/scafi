@@ -9,24 +9,23 @@ class MovementSyncController[N <: ScafiLikeWorld#NODE] (velocity : Float, world 
   var started= false
   val rand = new Random()
   val offsetValue = 1/2.0
+  val size = world.nodes.size
   private var idVelocity = world.nodes map {x => x.id -> (math.random * offsetValue - (offsetValue/2), math.random * offsetValue - (offsetValue/2))} toMap
   override def onTick(float: Float): Unit = {
+
     if(started) {
       val vel = rand.nextFloat()
-      val nodesToUpdate = (0 until nodes) map { x => rand.nextInt(world.nodes.size) }
-      nodesToUpdate foreach {
-        x => {
-          val optionNode = world(x)
-          if(optionNode.isDefined) {
-            val Point3D(x,y,z) = optionNode.get.position
-            val id = optionNode.get.id
-            if(!world.moveNode(id, Point3D(x + idVelocity(id)._1 * float , y + idVelocity(id)._2 * float, z))) {
-              val lastVelocity = idVelocity(id)
-              idVelocity += id -> (-lastVelocity._1, -lastVelocity._2)
-            }
+      val nodesToUpdate = (0 until nodes) map { x => rand.nextInt(size) } toSet
+
+      world.apply(nodesToUpdate) foreach {
+        node => {
+          val Point3D(x, y, z) = node.position
+          val id = node.id
+          if (!world.moveNode(id, Point3D(x + idVelocity(id)._1 * float, y + idVelocity(id)._2 * float, z))) {
+            val lastVelocity = idVelocity(id)
+            idVelocity += id -> (-lastVelocity._1, -lastVelocity._2)
           }
         }
-
       }
     }
   }
@@ -35,18 +34,18 @@ class MovementSyncController[N <: ScafiLikeWorld#NODE] (velocity : Float, world 
     * start the internal logic
     * @throws IllegalStateException if the simulation is started
     */
-  def start() = {
+  def start : Unit = {
     require(!started)
     started = true
-  };
+  }
 
   /**
     * stop the internal logic
     * @throws IllegalStateException if the simulation is stopped
     */
-  def stop() = {
+  def stop : Unit = {
     require(started)
-    started = false;
+    started = false
   }
 
 }

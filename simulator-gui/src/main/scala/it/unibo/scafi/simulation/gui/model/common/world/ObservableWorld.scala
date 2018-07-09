@@ -45,7 +45,7 @@ trait ObservableWorld extends World {
     if(_nodes contains n.id) return false
     if(!nodeAllowed(n)) return false
     _nodes += n.id -> n
-    this !!! WorldEvent(Set(n.id),NodesAdded)
+    this notify WorldEvent(Set(n.id),NodesAdded)
     true
   }
   //TODO Aggiungere quelli possibili o se non aggiungerne nessuno?
@@ -57,7 +57,7 @@ trait ObservableWorld extends World {
   def insertNodes (n : Set[NODE]): Set[NODE] = {
     val nodeToAdd = n filter {x => !nodes.contains(x) && nodeAllowed(x)}
     _nodes = _nodes ++ nodeToAdd.map {x => x.id -> x}
-    this !!! WorldEvent(nodeToAdd map {_.id},NodesAdded)
+    this notify WorldEvent(nodeToAdd map {_.id},NodesAdded)
     return n -- nodeToAdd
   }
 
@@ -70,7 +70,7 @@ trait ObservableWorld extends World {
     if(!(_nodes contains n)) return false
     val node = this.apply(n)
     _nodes -= n
-    this !!! WorldEvent(Set(node.get.id),NodesRemoved)
+    this notify WorldEvent(Set(node.get.id),NodesRemoved)
     true
   }
 
@@ -83,7 +83,7 @@ trait ObservableWorld extends World {
     val nodeToRemove = n filter{x => _nodes.keySet.contains(x)}
     val nodeNotify = this.apply(nodeToRemove)
     _nodes = _nodes -- nodeToRemove
-    this !!! WorldEvent(nodeNotify map {_.id},NodesRemoved)
+    this notify WorldEvent(nodeNotify map {_.id},NodesRemoved)
     return this.apply(n -- nodeToRemove)
   }
 
@@ -93,7 +93,7 @@ trait ObservableWorld extends World {
   def clear() = {
     val ids = this._nodes.keySet
     this._nodes = Map.empty
-    this !!! WorldEvent(ids,NodesRemoved)
+    this notify WorldEvent(ids,NodesRemoved)
   }
   /**
     * use strategy val to verify if the node is allowed in the world or not
@@ -128,9 +128,9 @@ trait ObservableWorld extends World {
     * define an observer for a world
     */
   class WorldObserver private[ObservableWorld](listenEvent : Set[EventType]) extends Observer {
-    override def !!(event: Event): Unit = {
+    override def update(event: Event): Unit = {
       event match {
-        case WorldEvent(n,e) => if(listenEvent contains e) super.!!(event)
+        case WorldEvent(n,e) => if(listenEvent contains e) super.update(event)
         case _ =>
       }
     }

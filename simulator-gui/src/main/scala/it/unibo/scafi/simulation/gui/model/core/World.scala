@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.model.core
 
-import it.unibo.scafi.simulation.gui.model.space.{Point}
+import it.unibo.scafi.simulation.gui.model.space.Point
 
 /**
   * describe a place where an immutable set of node are located
@@ -16,15 +16,15 @@ trait World {
   type NAME
   /**
     * define the type of device in this world
-     */
+    */
   type DEVICE <: Device
   /**
     * define the type of position in this world
-     */
+    */
   type P <: Point
   /**
     * define the type of shape in this world
-     */
+    */
   type S <: Shape
 
   /**

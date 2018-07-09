@@ -37,7 +37,7 @@ object Scheduler {
       override def run(): Unit = {
         while(on) {
           val t0 = System.currentTimeMillis()
-          scheduler !!!(Tick(delta))
+          scheduler notify(Tick(delta))
           val t1 = System.currentTimeMillis()
           val wait = if (t1 - t0 > delta) {
             0
@@ -77,10 +77,10 @@ object Scheduler {
   case class Tick(timeElapsed : Float) extends Event
 
   trait SchedulerObserver extends Observer{
-    override def !!(event: Event): Unit = {
+    override def update(event: Event): Unit = {
       event match {
         case Tick(t) => this.onTick(t)
-        case _ => super.!!(event)
+        case _ => super.update(event)
       }
     }
     //TEMPLATE METHOD

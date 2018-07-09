@@ -18,7 +18,8 @@ abstract class ScafiBridge [W <: ScafiLikeWorld](protected val world : W) extend
     */
   var simulationPrototype: Option[SIMULATION_PROTOTYPE] = None
   override protected val threadName: String = "scafi-bridge"
-  protected var actions : Set[PartialFunction[EXPORT,(W,ID)=>Unit]] = Set()
+  //TODO remember to add a defualt operation
+  protected var action : PartialFunction[EXPORT,(W,ID)=>Unit] = _
   private var context : Option[CONTEXT=>EXPORT] = None
   protected def runningContext : CONTEXT=>EXPORT = {
     require(context.isDefined)
@@ -36,7 +37,7 @@ abstract class ScafiBridge [W <: ScafiLikeWorld](protected val world : W) extend
     }
   }
 
-  def addAction(operation : PartialFunction[EXPORT,(W,ID)=>Unit]): Unit = actions += operation
+  def setAction(operation : PartialFunction[EXPORT,(W,ID)=>Unit]): Unit = action = operation
   class ScafiSimulationContract extends ExternalSimulationContract{
 
     private var currentSimulation : Option[EXTERNAL_SIMULATION] = None

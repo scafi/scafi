@@ -1,5 +1,5 @@
 package it.unibo.scafi.simulation.gui.model.simulation
-
+//TODO ADJUST PERFOMANCE!
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesDeviceChanged
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld
@@ -50,7 +50,7 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
     val (node,device) = this.getNodeAndDeviceOrThrows(n,d)
     if(device.value == value) return false
     changeNode(node,device,value)
-    this.!!!(WorldEvent(Set(n),NodesDeviceChanged))
+    this.notify(WorldEvent(Set(n),NodesDeviceChanged))
     true
   }
 
@@ -69,7 +69,7 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
     require(nodes forall {_.getDevice(d).isDefined})
     val toChange = nodes filter {_.getDevice(d).get != value}
     toChange foreach (x => changeNode(x,x.getDevice(d).get,value))
-    this.!!!(WorldEvent(toChange map {_.id}, NodesDeviceChanged))
+    this.notify(WorldEvent(toChange map {_.id}, NodesDeviceChanged))
     n -- (toChange map {_.id})
   }
 

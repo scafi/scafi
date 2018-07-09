@@ -6,6 +6,9 @@ import it.unibo.scafi.simulation.gui.model.space.Point
   * define a generic shape
   */
 trait Shape {
+  /**
+    * the orientation type
+    */
   type O
   /**
     * @return the orientation of the shape

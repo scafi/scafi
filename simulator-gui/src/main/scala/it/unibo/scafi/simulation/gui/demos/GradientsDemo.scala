@@ -32,22 +32,22 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 object GradientsDemo extends App{
   import Launcher._
-  /* FIRST SIMULATION
+  /* FIRST SIMULATION */
   program = classOf[ClassicGradient]
   drawer = GradientFXDrawer
-  boundary = Some(Rectangle(1000,1000))
+  boundary = Some(Rectangle(500,500))
   GradientFXDrawer.maxValue = boundary.get.w.toInt
-  nodes = 50000
-  radius = 7*/
+  nodes = 10000
+  radius = 7
 
-  program = classOf[ShortestPathProgram]
+  /*program = classOf[ShortestPathProgram]
   drawer = FastFXDrawer
   boundary = Some(Rectangle(500,500))
   GradientFXDrawer.maxValue = boundary.get.w.toInt
   nodes = 20000
   radius = 6
-  neighbourRender = false
-  actions = generalaction :: actions
+  neighbourRender = false*/
+  action = generalaction
   launch()
 }
 

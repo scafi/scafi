@@ -7,14 +7,14 @@ import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXDrawer, GradientFXDrawer, StandardFXDrawer}
 object DISIExample extends App {
   import Launcher._
-  program = classOf[Main4]
-  drawer = FastFXDrawer
+  program = classOf[Main]
+  drawer = GradientFXDrawer
   nodes = 20000
 
   boundary = Some(Rectangle(500,500))
   //GradientFXDrawer.maxValue = boundary.get.w.toInt
   radius = 6
-  actions = generalaction :: actions
+  action = generalaction
   neighbourRender = false
   launch()
 }

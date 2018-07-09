@@ -17,8 +17,8 @@ object Test extends App {
   nodes = 10000
   boundary = Some(Rectangle(500,500))
   radius = 8
-  neighbourRender = false*/
-  actions = generalaction :: actions
+  neighbourRender = true*/
+  action = generalaction
   launch()
 }
 class Simple extends AggregateProgram  with BlockG with StandardSensors {

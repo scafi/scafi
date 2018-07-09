@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.gui.launcher.scalaFX
 
+import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
 import javafx.embed.swing.JFXPanel
 
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.scheduler
@@ -27,10 +28,10 @@ object Launcher {
   var drawer : FXDrawer = StandardFXDrawer
   val shape = Rectangle(3,3)
   var boundary : Option[Rectangle] = None
-  val ticked = 33
+  val ticked = 66
   var radius = 70.0
   var nodes = 1000
-  var actions : List[ACTION] = List();
+  var action : ACTION = generalaction;
   var maxPoint = 1000
   var neighbourRender = false
   var program : Class[_] = classOf[Simple]
@@ -66,7 +67,9 @@ object Launcher {
 
     randomize2D(nodes,boundary)
     //gridLike2D(400,200,radius)
-    actions.foreach(scafi.addAction(_))
+
+
+    scafi.setAction(action)
     scafi.setProgramm(program)
     scafi.simulationPrototype = Some(ScafiBridge.createRadiusPrototype(radius))
     val x = System.currentTimeMillis()
@@ -79,14 +82,15 @@ object Launcher {
       if(neighbourRender) {
         pane.outNeighbour(world.network.neighbours() map{x => world(x._1).get -> world(x._2)})
       }
-      //window.get.renderSimulation()
+      window.get.renderSimulation()
     } {
       scafi.start()
-      val movement = new MovementSyncController(0.01f,world,500)
-      movement.start()
+      val movement = new MovementSyncController(0.01f,world,50)
+      //movement.start()
       scheduler <-- inputLogic <-- movement <-- scafi <-- render
       scheduler.delta_=(ticked)
       scheduler.start()
+      //TODO ERRORE ! SCHEDLUER SLEEP FOR A LOT OF TIME
     }
   }
 }

@@ -54,7 +54,7 @@ object SimpleScafiWorld extends ScafiLikeWorld   {
   var boundary: Option[B] = None
   class ExternalNodePrototype(override val shape: Option[S]) extends NodePrototype
 
-  class InternalNode private[SimpleScafiWorld](val id : Int,
+  protected class InternalNode private[SimpleScafiWorld](val id : Int,
                                                     val shape : Option[S],
                                                     val position : P,
                                                     val devices : Set[DEVICE]) extends AggregateNode {
