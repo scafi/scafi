@@ -59,7 +59,7 @@ class BasicAggregateWorldTest extends FunSpec with Matchers{
 
   checkThat("multiple event store only the node changed") {
     val anObserver = aggregateWorld.createObserver(Set(NodesDeviceChanged))
-    aggregateWorld <-- anObserver
+    assert(aggregateWorld attach anObserver)
     assert(anObserver.nodeChanged.isEmpty)
     aggregateWorld.moveNode(node.id,Point.ZERO)
     assert(anObserver.nodeChanged.size == 1)

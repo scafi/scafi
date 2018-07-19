@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.test.help
 
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable.AggregateWorld
 import it.unibo.scafi.simulation.gui.model.graphics2D.Shape2D
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource

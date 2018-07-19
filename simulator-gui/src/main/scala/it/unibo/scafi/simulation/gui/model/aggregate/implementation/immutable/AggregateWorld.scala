@@ -1,75 +1,40 @@
-package it.unibo.scafi.simulation.gui.model.aggregate
+package it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable
 
+import it.unibo.scafi.simulation.gui.model.aggregate.AbstractAggregateWorld
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.implementation.immutable.ObservableWorld
 /**
   * aggregate world define a mutable world with mutable node and device
   */
 //TODO CREATE AN OBSERVER THAT COULD BE OBSERVER DEVICE EVENT
-trait AggregateWorld extends ObservableWorld with AggregateConcept{
+trait AggregateWorld extends ObservableWorld with AbstractAggregateWorld with AggregateConcept {
   this : AggregateWorld.Dependency =>
-  /**
-    * move a node in other position
-    * @param n the node
-    * @param p the new position
-    * @throws IllegalArgumentException if the node isn't in the world
-    * @return true if the movement is allowed false otherwise
-    */
+
   def moveNode(n : ID, p : P) : Boolean = {
     val node = this.getNodeOrThrows(n)
     produceResult(node,p ,filterPosition(node,p),a => WorldEvent(Set(a.id),NodesMoved))
   }
 
-  /**
-    * move a set of node in a new position
-    * @param nodes the map of node and new position
-    * @throws IllegalArgumentException if some node aren't in the world
-    * @return the node that can't be mode
-    */
+
   def moveNodes(nodes : Map[ID,P]): Set[NODE] = {
     produceResult(nodes,filterPosition,a => WorldEvent(a map {_.id},NodesMoved))
   }
-  /**
-    * add a device to a node in the world
-    * @param n the node
-    * @param d the device name
-    * @throws IllegalArgumentException if the node isn't in world
-    * @return true if the node is in the world false otherwise
-    */
   def addDevice(n: ID,d : DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
     val nodeChanged  = toggleDevice(node,d,true)
     produceResult(node,d,nodeChanged,a => WorldEvent(Set(a.id),NodesDeviceChanged))
   }
 
-  /**
-    * insert device in a set of node
-    * @param nodes the nodes and the device to add
-    * @throws IllegalArgumentException if some node aren't in the world
-    * @return the set of node that can't add a device
-    */
   def addDevices(nodes : Map[ID,DEVICE]) : Set[NODE] = {
     produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,true),a => WorldEvent(a map {_.id},NodesDeviceChanged))
   }
-  /**
-    * remove a device in a node in the world
-    * @param n the node
-    * @param d the device name
-    * @throws IllegalArgumentException if the node isn't in world
-    * @return true if the node is in the world false otherwise
-    */
+
   def removeDevice(n: ID,d : DEVICE): Boolean = {
     val node = getNodeOrThrows(n)
     val nodeChanged = toggleDevice(node,d,false)
     produceResult(node,d, nodeChanged , a => WorldEvent(Set(a.id),NodesDeviceChanged))
   }
 
-  /**
-    * remove a device in a set of node
-    * @param nodes the nodes with the device associated
-    * @throws IllegalArgumentException if some node aren't in the world
-    * @return the set of node that can't remove the device
-    */
   def removeDevices(nodes : Map[ID,DEVICE]) : Set[NODE] = {
     produceResult(nodes,(a,b : DEVICE) => toggleDevice(a,b,false),a => WorldEvent(a map {_.id},NodesDeviceChanged))
   }

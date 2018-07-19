@@ -1,14 +1,13 @@
 package it.unibo.scafi.simulation.gui.model.simulation
 //TODO ADJUST PERFOMANCE!
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesDeviceChanged
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
-import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable.AggregateWorld
 
 import scala.collection.mutable
 /**
   * define a platform for simple simulation
   */
-trait BasicPlatform extends AggregateWorld with ConnectedWorld{
+trait BasicPlatform extends Platform with AggregateWorld {
   self : BasicPlatform.Dependency =>
   override type DEVICE <: Sensor[Any]
   override type DEVICE_PROTOTYPE <: SensorPrototype[Any]
@@ -21,15 +20,7 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
     * the interface of a sensor
     * @tparam E the type of value
     */
-  trait Sensor[E] extends AggregateDevice {
-    /**
-      * the value of server
-      * @return the value
-      */
-    def value : E
-
-    override def toString: String = super.toString + "value = " + value
-  }
+  trait Sensor[E] extends AbstractSensor[E] with AggregateDevice
   /**
     * the prototype of sensor
    */
@@ -118,7 +109,7 @@ trait BasicPlatform extends AggregateWorld with ConnectedWorld{
 }
 
 object BasicPlatform {
-  type Dependency = AggregateWorld.Dependency
+  type Dependency = Platform.Dependency
 }
 
 

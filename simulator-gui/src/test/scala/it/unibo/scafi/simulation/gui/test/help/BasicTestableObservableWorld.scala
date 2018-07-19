@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.test.help
 
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.implementation.immutable.ObservableWorld
 import it.unibo.scafi.simulation.gui.model.core._
 import it.unibo.scafi.simulation.gui.model.space.Point2D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource

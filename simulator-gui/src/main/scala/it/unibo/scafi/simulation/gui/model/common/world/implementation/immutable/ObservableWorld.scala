@@ -1,39 +1,26 @@
-package it.unibo.scafi.simulation.gui.model.common.world
+package it.unibo.scafi.simulation.gui.model.common.world.implementation.immutable
 
-import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
-import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
+import it.unibo.scafi.simulation.gui.model.common.world.implementation.mutable.{ObservableWorld => MutableNodeObservableWorld}
+import it.unibo.scafi.simulation.gui.pattern.observer.Source
+
+import scala.collection.mutable
+//TODO METTI A POSTO I COMMENTI
 /**
   * a world mutable, the observer want to see the changes in the world
   */
-trait ObservableWorld extends World {
+trait ObservableWorld extends AbstractObservableWorld {
   self : ObservableWorld.Dependency =>
-  override type O = WorldObserver
 
-  private var _nodes : Map[ID,NODE] = Map[ID,NODE]()
+  //other implementation could access to internal node structure
 
-  override def nodes = _nodes.values.toSet
+  private var internalMap : Map[ID,NODE] = Map[ID,NODE]()
 
-  override def apply(node : ID) : Option[NODE] = _nodes.get(node)
+  override def nodes = internalMap.values.toSet
 
-  override def apply(node : Set[ID]) : Set[NODE] = _nodes.filter {y => node.contains(y._1)}.values.toSet
+  override def apply(node : ID) : Option[NODE] = internalMap.get(node)
 
-  final def + (n : NODE): this.type = {
-    insertNode(n)
-    this
-  }
-  final def ++ (n : Set[NODE]) : this.type = {
-    insertNodes(n)
-    this
-  }
-  final def - (n : ID): this.type = {
-    removeNode(n)
-    this
-  }
-  final def -- (n : Set[ID]): this.type = {
-    removeNodes(n)
-    this
-  }
+  override def apply(node : Set[ID]) : Set[NODE] = internalMap.filter { y => node.contains(y._1)}.values.toSet
   /**
     * add a node in the world
     * @param n the node want to add
@@ -42,9 +29,9 @@ trait ObservableWorld extends World {
     *                    the position is not allowed
     */
   def insertNode (n:NODE) : Boolean = {
-    if(_nodes contains n.id) return false
+    if(internalMap contains n.id) return false
     if(!nodeAllowed(n)) return false
-    _nodes += n.id -> n
+    internalMap += n.id -> n
     this notify WorldEvent(Set(n.id),NodesAdded)
     true
   }
@@ -56,7 +43,7 @@ trait ObservableWorld extends World {
     */
   def insertNodes (n : Set[NODE]): Set[NODE] = {
     val nodeToAdd = n filter {x => !nodes.contains(x) && nodeAllowed(x)}
-    _nodes = _nodes ++ nodeToAdd.map {x => x.id -> x}
+    internalMap = internalMap ++ nodeToAdd.map { x => x.id -> x}
     this notify WorldEvent(nodeToAdd map {_.id},NodesAdded)
     return n -- nodeToAdd
   }
@@ -67,9 +54,9 @@ trait ObservableWorld extends World {
     * @return true if the node is removed false otherwise
     */
   def removeNode(n: ID) : Boolean = {
-    if(!(_nodes contains n)) return false
+    if(!(internalMap contains n)) return false
     val node = this.apply(n)
-    _nodes -= n
+    internalMap -= n
     this notify WorldEvent(Set(node.get.id),NodesRemoved)
     true
   }
@@ -80,9 +67,9 @@ trait ObservableWorld extends World {
     * @return the set of node that aren't in the wolrd
     */
   def removeNodes(n:Set[ID]) : Set[NODE] = {
-    val nodeToRemove = n filter{x => _nodes.keySet.contains(x)}
+    val nodeToRemove = n filter{x => internalMap.keySet.contains(x)}
     val nodeNotify = this.apply(nodeToRemove)
-    _nodes = _nodes -- nodeToRemove
+    internalMap = internalMap -- nodeToRemove
     this notify WorldEvent(nodeNotify map {_.id},NodesRemoved)
     return this.apply(n -- nodeToRemove)
   }
@@ -90,9 +77,9 @@ trait ObservableWorld extends World {
   /**
     * remove all node in the world
     */
-  def clear() = {
-    val ids = this._nodes.keySet
-    this._nodes = Map.empty
+  def clear() : Unit = {
+    val ids = this.internalMap.keySet
+    this.internalMap = Map.empty
     this notify WorldEvent(ids,NodesRemoved)
   }
   /**
@@ -102,18 +89,17 @@ trait ObservableWorld extends World {
     */
   final protected def nodeAllowed(n:NODE) : Boolean = {
     if(!this.metric.positionAllowed(n.position) ||
-        this.boundary.isDefined &&
+      this.boundary.isDefined &&
         !boundary.get.nodeAllowed(n.position,n.shape)) return false
     true
   }
-
   /**
     * method call to add nodes in the world, this
     * method don't produce event like insert node
     * @param n the nodes to add
     */
   protected def addBeforeEvent(n : Set[NODE]) = {
-    _nodes = _nodes ++ n.map {x => x.id -> x}
+    internalMap ++= n.map { x => x.id -> x}
   }
 
   /**
@@ -122,34 +108,8 @@ trait ObservableWorld extends World {
     * @param n the nodes to remove
     */
   protected def removeBeforeEvent(n : Set[ID]) = {
-    _nodes = _nodes -- n
+    internalMap --=  n
   }
-  /**
-    * define an observer for a world
-    */
-  class WorldObserver private[ObservableWorld](listenEvent : Set[EventType]) extends Observer {
-    override def update(event: Event): Unit = {
-      event match {
-        case WorldEvent(n,e) => if(listenEvent contains e) super.update(event)
-        case _ =>
-      }
-    }
-
-    /**
-      * tells the set of nodes changed
-      * @return
-      */
-    def nodeChanged(): Set[ID] = events map {_.asInstanceOf[WorldEvent]} flatMap {_.nodes} toSet
-  }
-
-  /**
-    * the event produced by world
-    * @param nodes the node changed
-    * @param eventType the type of event produced
-    */
-  case class WorldEvent(nodes: Set[ID],eventType: EventType) extends Event
-  //simple factory
-  def createObserver(listenEvent : Set[EventType]) : O = new WorldObserver(listenEvent)
 }
 object ObservableWorld {
 

@@ -10,15 +10,7 @@ class BasicTestIncarnation extends FunSpec with Matchers{
   val world  = SimpleScafiWorld
   val fakeRandomNumber = 10
   val fakeRadius = 10
-  /*
-  val prototype = new ScafiPrototype {
-    override def randomSeed: Long = fakeRandomNumber
 
-    override def randomDeviceSeed: Long = fakeRandomNumber
-
-    override def radius: Double = fakeRadius
-  }
-  */
   val bigNumber = 1000
   val proto = new world.ExternalNodePrototype(None)
   (0 to 1000) foreach {world + world.nodeFactory.create(_,Point3D(math.random,math.random,math.random),Set(),proto)}
@@ -52,32 +44,4 @@ class BasicTestIncarnation extends FunSpec with Matchers{
       case _ => fail()
     }
   }
-  /*
-  contract.initialize(world,prototype)
-  val x = 1
-  checkThat("an external simulation created:") {
-    assert(contract.getSimulation.isDefined)
-  }
-  checkThat("I can't initialize two times the simulation") {
-    try {
-      contract.initialize(world,prototype)
-      fail()
-    } catch {
-      case _ =>
-    }
-  }
-  checkThat("the node must be the same") {
-    assert(contract.getSimulation.get.space.elemPositions.size == world.nodes.size)
-
-  }
-  checkThat("the ids must be the same") {
-    val worldIds = world.nodes map {
-      _.id
-    }
-    assert(contract.getSimulation.get.space.elemPositions forall { x => worldIds.contains(x._1) })
-  }
-  checkThat("a nodes has a set of neighbours") {
-    assert(contract.getSimulation.get.neighbourhood(aNode).size > 0)
-  }
-  */
 }

@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.controller
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable.AggregateWorld
 //TODO REFACTOR THIS
 class SimpleInputController[W <: AggregateWorld](val w: ScafiLikeWorld) extends InputCommandController[W] {
   case class MoveCommand(ids : Map[w.ID, w.P]) extends Command {

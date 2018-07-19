@@ -13,7 +13,6 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.nodeToAbsolutePosition
 
 object FastFXDrawer extends FXDrawer {
 
-
   override type OUTPUTNODE = javafx.scene.shape.Shape
   override def nodeGraphicsNode[INPUTNODE <: World#NODE](node: INPUTNODE): OUTPUTNODE = nodeToShape.create(node)
 

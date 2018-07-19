@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld.SensorType
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable.AggregateWorld
 import it.unibo.scafi.simulation.gui.model.graphics2D.Shape2D
 import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
 import it.unibo.scafi.simulation.gui.model.space.Point3D
@@ -10,7 +10,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 /**
   * a world describe a plaftform like scafi
   */
-trait ScafiLikeWorld extends BasicPlatform with SimpleSource{
+trait ScafiLikeWorld extends BasicPlatform with SimpleSource {
   self : ScafiLikeWorld.Dependency =>
   override type ID = Int
   override type NAME = String

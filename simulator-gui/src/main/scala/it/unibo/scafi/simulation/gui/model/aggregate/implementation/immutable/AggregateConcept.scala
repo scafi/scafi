@@ -1,12 +1,12 @@
-package it.unibo.scafi.simulation.gui.model.aggregate
+package it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable
 
-import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.implementation.immutable.AbstractObservableWorld
 
 /**
   * define the main concept for an aggregate world
   */
 trait AggregateConcept  {
-  self : ObservableWorld =>
+  self : AbstractObservableWorld =>
   /**
     * the type of factory to create a node
     */
@@ -20,7 +20,6 @@ trait AggregateConcept  {
 
   type DEVICE_PROTOTYPE <: DevicePrototype
 
-  type DEVICE <: AggregateDevice
 
   type NODE <: AggregateNode
 
@@ -39,7 +38,8 @@ trait AggregateConcept  {
   }
   /**
     * define a skeleton of a node
-    */
+    */  type DEVICE <: AggregateDevice
+
   trait NodePrototype {
     /**
       * @return a shape of a generic node
