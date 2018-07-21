@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.controller.logical
 
-import it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable.AggregateWorld
 
 import scala.util.Random
 class RemoveLogicController[W <: AggregateWorld](val world : AggregateWorld) extends LogicController[W]{

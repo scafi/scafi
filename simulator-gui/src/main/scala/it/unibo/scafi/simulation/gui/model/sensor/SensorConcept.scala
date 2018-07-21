@@ -49,7 +49,6 @@ object SensorConcept {
     * it used to typify a sensor
     */
   trait SensorType {
-    import reflect.runtime.universe._
     type SENSOR
 
     /**
@@ -64,7 +63,7 @@ object SensorConcept {
       * @param arg a new value of sensor
       * @return true if the value is legit false otherwise
       */
-    def accept[E : TypeTag](arg : E): Boolean
+    def accept[E](arg : E): Boolean
   }
 
   /**
@@ -73,7 +72,7 @@ object SensorConcept {
     * @return None if the sensor is not a MutableSensor false other
     */
   def anyToMutable(sensor : Any) : Option[MutableSensor] = {
-    if(!classOf[MutableSensor].isAssignableFrom(sensor.getClass)) None
+    if(!sensor.isInstanceOf[MutableSensor]) None
     else Some(sensor.asInstanceOf[MutableSensor])
   }
 

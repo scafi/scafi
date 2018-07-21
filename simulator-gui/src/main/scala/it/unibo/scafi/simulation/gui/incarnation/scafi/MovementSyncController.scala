@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
-import it.unibo.scafi.simulation.gui.controller.logical.{AsyncLogicController, LogicController}
+import it.unibo.scafi.simulation.gui.controller.logical.LogicController
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 
 import scala.util.Random

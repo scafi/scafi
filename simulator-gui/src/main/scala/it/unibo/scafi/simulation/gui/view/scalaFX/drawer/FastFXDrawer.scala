@@ -5,8 +5,7 @@ import javafx.scene.shape.Shape
 
 import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors.DisplaySensor.DoubleSensor
-import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors.OnOffSensor
+import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.Led
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXDrawer.doubleToColor
 import it.unibo.scafi.simulation.gui.view.scalaFX.nodeToAbsolutePosition
 
@@ -23,7 +22,7 @@ object FastFXDrawer extends FXDrawer {
     val point = nodeToAbsolutePosition(node)
     if(!lastValue.isDefined) {
       dev match {
-        case OnOffSensor(value) => {
+        case Led(value) => {
           val shape = node.asInstanceOf[Shape]
           if(value){
             val color = StandardFXDrawer.colors(dev.name.toString)

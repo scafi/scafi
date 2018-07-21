@@ -12,6 +12,12 @@ trait SensorDefinition extends SensorConcept {
 
   override type SENSOR_VALUE = Any
 
+  override type DEVICE = Sensor[SENSOR_VALUE]
+
+  override protected type MUTABLE_DEVICE = MutableSensor[SENSOR_VALUE]
+
+  override type DEVICE_PRODUCER = DeviceProducer
+
   /**
     * an implementation of a mutable sensor
     * @param name the name of sensor
@@ -31,6 +37,22 @@ trait SensorDefinition extends SensorConcept {
     }
 
     def value : SENSOR_VALUE = _val
+
+    def canEqual(other: Any): Boolean = other.isInstanceOf[MutableSensorImpl]
+
+    override def equals(other: Any): Boolean = other match {
+      case that: MutableSensorImpl =>
+        (that canEqual this) &&
+          name == that.name &&
+          sensorType == that.sensorType &&
+          stream == that.stream
+      case _ => false
+    }
+
+    override def hashCode(): Int = {
+      val state = Seq(name, sensorType, stream)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    }
   }
   /**
     * a producer of led sensor, it can be on or off
@@ -81,7 +103,7 @@ object SensorDefinition {
       }
     }
 
-    override def accept[E:TypeTag](arg: E): Boolean = arg.isInstanceOf[SENSOR]
+    override def accept[E](arg: E): Boolean = arg.isInstanceOf[SENSOR]
   }
   //pattern matching used to check is sensor has a generic type
   object General extends SensorType {
@@ -95,7 +117,7 @@ object SensorDefinition {
         case _ => None
       }
     }
-    override def accept[E:TypeTag](arg: E): Boolean = true
+    override def accept[E](arg: E): Boolean = true
   }
   //pattern matching used to check is sensor has a float value
   object DoubleSensor extends SensorType {
@@ -105,11 +127,11 @@ object SensorDefinition {
       if(optionSensor.isEmpty) return None
       val sensor = optionSensor.get
       sensor.sensorType match {
-        case Led => Some(sensor.value.asInstanceOf[SENSOR])
+        case DoubleSensor => Some(sensor.value.asInstanceOf[SENSOR])
         case _ => None
       }
     }
-    override def accept[E:TypeTag](arg: E): Boolean = arg.isInstanceOf[Number]
+    override def accept[E](arg: E): Boolean = arg.isInstanceOf[Number]
 
   }
 }

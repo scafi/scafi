@@ -29,15 +29,19 @@ import it.unibo.scafi.space.Point3D
 
 import scala.concurrent.duration.FiniteDuration
 import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
+import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
+import it.unibo.scafi.simulation.gui.launcher.WorldConfig.dev
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorOutput
 object GradientsDemo extends App{
   import Launcher._
   /* FIRST SIMULATION */
   program = classOf[ClassicGradient]
   drawer = GradientFXDrawer
-  boundary = Some(Rectangle(500,500))
+  outSensor = Set(dev(gsensor,0.0,sensorOutput))
+  boundary = Some(Rectangle(1000,1000))
   GradientFXDrawer.maxValue = boundary.get.w.toInt
-  nodes = 10000
+  nodes = 50000
   radius = 7
 
   /*program = classOf[ShortestPathProgram]

@@ -7,7 +7,7 @@ import org.scalatest.{FunSpec, Matchers}
 
 class BasicTestIncarnation extends FunSpec with Matchers{
   val checkThat = new ItWord
-  val world  = SimpleScafiWorld
+  /*val world  = SimpleScafiWorld
   val fakeRandomNumber = 10
   val fakeRadius = 10
 
@@ -43,5 +43,5 @@ class BasicTestIncarnation extends FunSpec with Matchers{
       case DisplaySensor(t) => assert(t == anotherValue)
       case _ => fail()
     }
-  }
+  }*/
 }

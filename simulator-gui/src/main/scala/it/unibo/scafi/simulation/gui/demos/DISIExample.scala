@@ -1,19 +1,22 @@
 package it.unibo.scafi.simulation.gui.demos
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
-import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
 import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
+import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
+import it.unibo.scafi.simulation.gui.launcher.WorldConfig.dev
+import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXDrawer, GradientFXDrawer, StandardFXDrawer}
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorOutput
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXDrawer
 object DISIExample extends App {
   import Launcher._
   program = classOf[Main]
   drawer = GradientFXDrawer
   nodes = 20000
-
+  outSensor = Set(dev(gsensor,0.0,sensorOutput))
   boundary = Some(Rectangle(500,500))
   //GradientFXDrawer.maxValue = boundary.get.w.toInt
-  radius = 6
+  radius = 4
   action = generalaction
   neighbourRender = false
   launch()

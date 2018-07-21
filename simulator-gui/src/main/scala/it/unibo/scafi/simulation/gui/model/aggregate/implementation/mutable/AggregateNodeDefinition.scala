@@ -2,7 +2,6 @@ package it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable
 
 trait AggregateNodeDefinition extends AggregateConcept {
   self: AggregateNodeDefinition.Dependency =>
-
   /**
     * skeleton of a mutable node
     * @param id the node id
@@ -36,6 +35,20 @@ trait AggregateNodeDefinition extends AggregateConcept {
     override def devices: Set[DEVICE] = devs.values map{_.view} toSet
 
     def getMutableDevice(name : NAME) : Option[MUTABLE_DEVICE] = devs.get(name)
+
+    def canEqual(other: Any): Boolean = other.isInstanceOf[AbstractMutableNode]
+
+    override def equals(other: Any): Boolean = other match {
+      case that: AbstractMutableNode =>
+        (that canEqual this) &&
+          id == that.id
+      case _ => false
+    }
+
+    override def hashCode(): Int = {
+      val state = Seq(id)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    }
   }
 
   /**

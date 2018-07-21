@@ -16,7 +16,7 @@ object Actions {
       (w : ScafiLikeWorld, id : Int) => {
         val devs = w(id).get.devices
         val dev = devs.find {y => y.name == gsensor.name}.get
-        world.changeSensorValue(id,gsensor.name,export.root)
+        if(dev.value != export.root) world.changeSensorValue(id,gsensor.name,export.root)
       }
     }
   }

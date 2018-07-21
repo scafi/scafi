@@ -1,20 +1,18 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
 import javafx.scene.control.Label
-import javafx.scene.shape.Shape
 
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors.{DisplaySensor, OnOffSensor}
-import it.unibo.scafi.simulation.gui.view.Drawer
+import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.{General, Led}
 import it.unibo.scafi.simulation.gui.view.scalaFX._
 
 import scalafx.application.Platform
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Circle, Ellipse, Rectangle}
+import scalafx.scene.shape.Ellipse
 
 object StandardFXDrawer extends FXDrawer {
 
@@ -34,10 +32,10 @@ object StandardFXDrawer extends FXDrawer {
       Platform.runLater {
         val lastDev = lastValue.get
         dev match {
-          case DisplaySensor(value) => {
-            lastDev.asInstanceOf[Label].setText(value)
+          case General(value) => {
+            lastDev.asInstanceOf[Label].setText(value.toString)
           }
-          case OnOffSensor(value) => {
+          case Led(value) => {
             lastDev.setVisible(value)
           }
           case _ =>
@@ -53,13 +51,13 @@ object StandardFXDrawer extends FXDrawer {
     import scalafx.Includes._
     val point = nodeToAbsolutePosition(node)
     dev match {
-      case DisplaySensor(value) => {
-        val label = new Label(value)
+      case General(value) => {
+        val label = new Label(value.toString)
         label.layoutX.bind(node.translateX + point.x)
         label.layoutY.bind(node.translateY + point.y)
         Some(label)
       }
-      case OnOffSensor(value) => {
+      case Led(value) => {
         val res : Node = new Ellipse {
           this.centerX.bind(node.translateX + point.x)
           this.centerY.bind(node.translateY + point.y)

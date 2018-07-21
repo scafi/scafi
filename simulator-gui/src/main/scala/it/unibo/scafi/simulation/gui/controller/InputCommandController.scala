@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.controller
 
-import it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable.AggregateWorld
 
 /**
   * define a generic controller that controls input by a generic view

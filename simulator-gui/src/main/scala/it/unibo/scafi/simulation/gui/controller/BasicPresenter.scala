@@ -4,18 +4,16 @@ import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
 import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
+import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
 import it.unibo.scafi.simulation.gui.pattern.observer.Source
 import it.unibo.scafi.simulation.gui.view.SimulationView
 
-import scala.collection.mutable
-
 /**
-  * the render of output to a graphics view (scalafx library)
   * @param world to show
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */
-class BasicPresenter[W <: BasicPlatform with Source](val world : W,
-                                                     val neighbourRender : Boolean) extends Presenter[W]{
+class BasicPresenter[W <: SensorPlatform](val world : W,
+                                          val neighbourRender : Boolean) extends Presenter[W]{
 
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))

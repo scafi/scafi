@@ -132,7 +132,6 @@ class FXSimulationPane[W <: World] (val inputController : InputCommandController
         }
       }
     }
-
     Platform.runLater{
       this.children.addAll(toAdd:_*)
     }

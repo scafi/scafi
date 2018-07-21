@@ -1,13 +1,9 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
-import javafx.scene.Node
-import javafx.scene.shape.Shape
-
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors.DisplaySensor.DoubleSensor
+import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.DoubleSensor
 import it.unibo.scafi.simulation.gui.view.scalaFX.nodeToAbsolutePosition
 
-import scalafx.scene.control.Label
 import scalafx.scene.paint.Color
 
 object GradientFXDrawer extends FXDrawer {

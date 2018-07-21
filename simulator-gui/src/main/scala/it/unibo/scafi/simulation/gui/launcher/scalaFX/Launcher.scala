@@ -1,17 +1,16 @@
 package it.unibo.scafi.simulation.gui.launcher.scalaFX
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
 import javafx.embed.swing.JFXPanel
 
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.scheduler
 import it.unibo.scafi.simulation.gui.controller.{BasicPresenter, SimpleInputController}
 import it.unibo.scafi.simulation.gui.demos.Simple
-import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions.ACTION
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld.{in, out}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions.{ACTION, _}
 import it.unibo.scafi.simulation.gui.incarnation.scafi._
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
 import it.unibo.scafi.simulation.gui.launcher.WorldConfig._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{sensorInput, sensorOutput}
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXDrawer, StandardFXDrawer}
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.FXSimulationPane
@@ -24,31 +23,30 @@ object Launcher {
   val r = new Random()
   new JFXPanel()
   //WORLD DEFINITION
-  val world = SimpleScafiWorld
+  val world = ScafiWorld
   var drawer : FXDrawer = StandardFXDrawer
   val shape = Rectangle(3,3)
   var boundary : Option[Rectangle] = None
-  val ticked = 66
+  val ticked = 150
   var radius = 70.0
   var nodes = 1000
   var action : ACTION = generalaction;
   var maxPoint = 1000
   var neighbourRender = false
+  var outSensor = Set(dev(gsensor,true,sensorOutput))
   var program : Class[_] = classOf[Simple]
   devs = Set(
-    dev(sens1,false,in),
-    dev(sens2,false,in),
-    dev(sens3,false,in),
-    dev(gsensor,false,out),
-    dev(gsensor1,"",out)
+    dev(sens1,false,sensorInput),
+    dev(sens2,false,sensorInput),
+    dev(sens3,false,sensorInput)
   )
-  nodeProto = NodePrototype(shape)
   //SHOW THE WINDOW IMMEDIATLY
   val inputLogic = new SimpleInputController[ScafiLikeWorld](world)
 
   implicit val scafi = ScafiBridge(world)
 
   def launch(): Unit = {
+    devs ++= outSensor
     if(boundary.isDefined) {
       putBoundary(boundary.get)
     }

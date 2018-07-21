@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.controller.logical
 
 import it.unibo.scafi.simulation.gui.controller.Controller
-import it.unibo.scafi.simulation.gui.model.aggregate.implementation.immutable.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable.AggregateWorld
 
 /**
   * a controller that has a defined logic to change
