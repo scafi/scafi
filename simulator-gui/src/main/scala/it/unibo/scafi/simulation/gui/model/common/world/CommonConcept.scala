@@ -1,11 +1,11 @@
-package it.unibo.scafi.simulation.gui.model.common.world.implementation.mutable
+package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.core.World
 
 /**
-  * Some useful definition use in observable word
+  * Some concept use in observable word
   */
-trait CommonDefinition {
+trait CommonConcept {
   self : World =>
   /**
     * the world has an internal representation of node that is mutable
@@ -57,6 +57,6 @@ trait CommonDefinition {
 
 }
 
-object CommonDefinition {
+object CommonConcept {
   type Dependency = AbstractObservableWorld
 }

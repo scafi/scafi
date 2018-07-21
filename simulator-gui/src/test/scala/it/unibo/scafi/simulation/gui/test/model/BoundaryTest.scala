@@ -1,12 +1,12 @@
 package it.unibo.scafi.simulation.gui.test.model
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.model.space.Point3D
-import it.unibo.scafi.simulation.gui.test.help.AggregateWorldImpl
+import it.unibo.scafi.simulation.gui.test.help.AbstractWorldImpl
 import org.scalatest.{FunSpec, Matchers}
 
 class BoundaryTest extends FunSpec with Matchers {
   val checkThat = new ItWord
-  val world = new AggregateWorldImpl
+  val world = new AbstractWorldImpl
   val width = 10
   val heigth = 10
   world.boundary = Some(new world.ShapeBoundary(Rectangle(width,heigth)))

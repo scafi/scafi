@@ -3,9 +3,7 @@ package it.unibo.scafi.simulation.gui.controller
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
-import it.unibo.scafi.simulation.gui.model.simulation.BasicPlatform
 import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
-import it.unibo.scafi.simulation.gui.pattern.observer.Source
 import it.unibo.scafi.simulation.gui.view.SimulationView
 
 /**

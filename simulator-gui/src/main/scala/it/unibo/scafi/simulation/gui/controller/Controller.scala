@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.controller
 
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.SchedulerObserver
-import it.unibo.scafi.simulation.gui.model.common.world.implementation.mutable.ObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 
 /**
   * the root trait of all controller

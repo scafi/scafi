@@ -1,11 +1,11 @@
-package it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable
+package it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable
 
-import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorStream, SensorType}
-import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.{DoubleSensor, General, Led}
+import it.unibo.scafi.simulation.gui.model.sensor.{SensorConcept, SensorWorld}
+import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.{DoubleSensor, General, Led}
 
 /**
-  * describe a principle sensor definition
+  * describe main sensor definition
   */
 trait SensorDefinition extends SensorConcept {
   self : SensorDefinition.Dependency =>
@@ -83,7 +83,6 @@ trait SensorDefinition extends SensorConcept {
 }
 
 object SensorDefinition {
-  import reflect.runtime.universe._
   type Dependency = SensorWorld
   /**
     * a set of sensor type

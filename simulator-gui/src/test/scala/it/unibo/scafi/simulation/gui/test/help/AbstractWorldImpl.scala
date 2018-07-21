@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.test.help
 
-import it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable.{AbstractAggregateWorld, AggregateNodeDefinition}
+import it.unibo.scafi.simulation.gui.model.aggregate.{AbstractAggregateWorld, AbstractNodeDefinition}
 import it.unibo.scafi.simulation.gui.model.core.Shape
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 /**
   * a class used to test abstract aggragate world and aggregate node definition
   */
-class AggregateWorldImpl extends StandardWorldDefinition with AbstractAggregateWorld with SimpleSource with AggregateNodeDefinition  {
+class AbstractWorldImpl extends StandardWorldDefinition with AbstractAggregateWorld with SimpleSource with AbstractNodeDefinition  {
   override type MUTABLE_NODE = AbstractMutableNode
   override type NODE_PRODUCER = AbstractNodeBuilder
   override protected type MUTABLE_DEVICE = RootMutableDevice

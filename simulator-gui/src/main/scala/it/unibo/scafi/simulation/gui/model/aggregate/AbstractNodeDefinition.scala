@@ -1,7 +1,10 @@
-package it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable
+package it.unibo.scafi.simulation.gui.model.aggregate
 
-trait AggregateNodeDefinition extends AggregateConcept {
-  self: AggregateNodeDefinition.Dependency =>
+/**
+  * a skeleton of node in a aggregate world
+  */
+trait AbstractNodeDefinition extends AggregateConcept {
+  self: AbstractNodeDefinition.Dependency =>
   /**
     * skeleton of a mutable node
     * @param id the node id
@@ -33,6 +36,15 @@ trait AggregateNodeDefinition extends AggregateConcept {
     }
 
     override def devices: Set[DEVICE] = devs.values map{_.view} toSet
+
+    override def getDevice(name: NAME): Option[DEVICE] = {
+      val dev = devs.get(name)
+      if(dev.isEmpty) {
+        None
+      } else {
+        Some(dev.get.view)
+      }
+    }
 
     def getMutableDevice(name : NAME) : Option[MUTABLE_DEVICE] = devs.get(name)
 
@@ -66,6 +78,6 @@ trait AggregateNodeDefinition extends AggregateConcept {
 
 }
 
-object AggregateNodeDefinition {
+object AbstractNodeDefinition {
   type Dependency = AggregateConcept.Dependency
 }

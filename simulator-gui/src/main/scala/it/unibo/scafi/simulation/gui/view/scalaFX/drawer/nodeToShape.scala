@@ -6,7 +6,6 @@ import javafx.scene.shape.{Circle, Rectangle, Shape}
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.model.simulation.BasicSensors.{DisplaySensor, OnOffSensor}
 import it.unibo.scafi.simulation.gui.view.Drawer
 import it.unibo.scafi.simulation.gui.view.scalaFX._
 

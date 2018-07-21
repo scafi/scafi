@@ -1,10 +1,9 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiLikeWorld.in
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAdded
-import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{sensorInput, sensorOutput}
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorInput
 import it.unibo.scafi.space.Point3D
 class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world : W) extends ScafiBridge[W](world){
 

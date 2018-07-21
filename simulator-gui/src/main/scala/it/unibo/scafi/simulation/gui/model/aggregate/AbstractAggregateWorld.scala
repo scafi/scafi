@@ -1,63 +1,61 @@
 package it.unibo.scafi.simulation.gui.model.aggregate
 
-import it.unibo.scafi.simulation.gui.model.common.world.implementation.immutable.AbstractObservableWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent._
+import it.unibo.scafi.simulation.gui.model.common.world.AbstractObservableWorld
 
 /**
-  * this world define the main method to change node position and modify the set of node devices
-  *
+  * a skeleton of aggregateWorld implementation
   */
-//TODO CREATE AN OBSERVER THAT COULD BE OBSERVER DEVICE EVENT
-trait AbstractAggregateWorld {
-  self : AbstractAggregateWorld.Dependency =>
-  /**
-    * move a node in other position
-    * @param n the node
-    * @param p the new position
-    * @throws IllegalArgumentException if the node isn't in the world
-    * @return true if the movement is allowed false otherwise
-    */
-  def moveNode(n : ID, p : P) : Boolean
+trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld {
+  self: AbstractAggregateWorld.Dependency =>
 
-  /**
-    * move a set of node in a new position
-    * @param nodes the map of node and new position
-    * @throws IllegalArgumentException if some node aren't in the world
-    * @return the node that can't be mode
-    */
-  def moveNodes(nodes : Map[ID,P]): Set[NODE]
-  /**
-    * add a device to a node in the world
-    * @param n the node
-    * @param d the device name
-    * @throws IllegalArgumentException if the node isn't in world
-    * @return true if the node is in the world false otherwise
-    */
-  def addDevice(n: ID,d : DEVICE): Boolean
+  override type MUTABLE_NODE <: AggregateMutableNode
 
-  /**
-    * insert device in a set of node
-    * @param nodes the nodes and the device to add
-    * @throws IllegalArgumentException if some node aren't in the world
-    * @return the set of node that can't add a device
-    */
-  def addDevices(nodes : Map[ID,DEVICE]) : Set[NODE]
-  /**
-    * remove a device in a node in the world
-    * @param n the node
-    * @param d the device name
-    * @throws IllegalArgumentException if the node isn't in world
-    * @return true if the node is in the world false otherwise
-    */
-  def removeDevice(n: ID,d : DEVICE): Boolean
+  def moveNode(id : ID, position : P) : Boolean = {
+    val node = getNodeOrThrows(id)
+    //get the old position, if the new position is outside the world boundary, the node return to initial position
+    val oldPosition = node.position
+    //move the node in the new position
+    node.position = position
+    //check if the position il allowed
+    if(nodeAllowed(node)) {
+      //notify all observer of world changes
+      notify(WorldEvent(node.id,NodesMoved))
+      true
+    } else {
+      node.position = oldPosition
+      false
+    }
+  }
 
-  /**
-    * remove a device in a set of node
-    * @param nodes the nodes with the device associated
-    * @throws IllegalArgumentException if some node aren't in the world
-    * @return the set of node that can't remove the device
-    */
-  def removeDevices(nodes : Map[ID,DEVICE]) : Set[NODE]
+  def addDevice(id: ID,deviceProducer : DEVICE_PRODUCER): Boolean = {
+    val device = deviceProducer.build
+    val node = getNodeOrThrows(id)
+    //try to add new device in the node selected
+    val added = node.addDevice(device)
+    if(added) {
+      //tell to all observer the world changes
+      notify(WorldEvent(node.id,NodesDeviceChanged))
+      true
+    } else {
+      false
+    }
+  }
+
+  def removeDevice(id: ID,name : NAME): Boolean = {
+    val node = getNodeOrThrows(id)
+    //try to remove the device with the name selected
+    val removed = node.removeDevice(name)
+    if(removed) {
+      //tell to all observer the world changes
+      notify(WorldEvent(node.id,NodesDeviceChanged))
+      true
+    } else {
+      false
+    }
+  }
 }
+
 object AbstractAggregateWorld {
-  type Dependency = AbstractObservableWorld with AbstractObservableWorld.Dependency
+  type Dependency = AggregateWorld.Dependency
 }

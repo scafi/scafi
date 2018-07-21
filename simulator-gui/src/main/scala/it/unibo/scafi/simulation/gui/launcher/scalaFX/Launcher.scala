@@ -27,7 +27,7 @@ object Launcher {
   var drawer : FXDrawer = StandardFXDrawer
   val shape = Rectangle(3,3)
   var boundary : Option[Rectangle] = None
-  val ticked = 150
+  val ticked = 33
   var radius = 70.0
   var nodes = 1000
   var action : ACTION = generalaction;
@@ -84,7 +84,7 @@ object Launcher {
     } {
       scafi.start()
       val movement = new MovementSyncController(0.01f,world,50)
-      //movement.start()
+      movement.start
       scheduler <-- inputLogic <-- movement <-- scafi <-- render
       scheduler.delta_=(ticked)
       scheduler.start()

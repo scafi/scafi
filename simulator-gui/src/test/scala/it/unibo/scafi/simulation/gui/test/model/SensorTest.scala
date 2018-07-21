@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.test.model
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesDeviceChanged
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{sensorInput, sensorOutput}
-import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.Led
+import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.Led
 import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.test.help.SensorWorldImpl
 import org.scalatest.{FunSpec, Matchers}

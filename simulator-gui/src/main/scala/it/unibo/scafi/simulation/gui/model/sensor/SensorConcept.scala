@@ -1,5 +1,5 @@
 package it.unibo.scafi.simulation.gui.model.sensor
-import it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorStream, SensorType}
 
 /**

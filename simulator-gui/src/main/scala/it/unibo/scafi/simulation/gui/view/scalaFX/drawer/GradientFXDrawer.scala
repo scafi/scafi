@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.DoubleSensor
+import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.DoubleSensor
 import it.unibo.scafi.simulation.gui.view.scalaFX.nodeToAbsolutePosition
 
 import scalafx.scene.paint.Color

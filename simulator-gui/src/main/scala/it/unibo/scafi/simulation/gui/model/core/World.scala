@@ -114,7 +114,7 @@ trait World {
       * @param name of device
       * @return a device if it is attach on the node
       */
-    final def getDevice(name : NAME) : Option[DEVICE] = devices find {_.name == name}
+    def getDevice(name : NAME) : Option[DEVICE] = devices find {_.name == name}
 
     override def toString = s"Node id = $id, position = $position, shape = $shape, devices = $devices"
   }

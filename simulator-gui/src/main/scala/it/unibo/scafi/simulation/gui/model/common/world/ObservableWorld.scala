@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.model.common.world.implementation.mutable
+package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 import it.unibo.scafi.simulation.gui.model.core.World
@@ -7,7 +7,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
 /**
   * describe a mutable world with the possibility to add or remove node
   */
-trait ObservableWorld extends World with CommonDefinition {
+trait ObservableWorld extends World with CommonConcept {
   self: ObservableWorld.Dependency =>
   override type O = WorldObserver
 
@@ -37,9 +37,13 @@ trait ObservableWorld extends World with CommonDefinition {
   protected def nodeAllowed(n:MUTABLE_NODE) : Boolean
 
   class WorldObserver private[ObservableWorld](listenEvent : Set[EventType]) extends Observer {
+    private var ids : Set[ID] = Set.empty
     override def update(event: Event): Unit = {
       event match {
-        case WorldEvent(n,e) => if(listenEvent contains e) super.update(event)
+        case WorldEvent(n,e) => if(listenEvent contains e) {
+          super.update(event)
+          ids += n
+        }
         case _ =>
       }
     }
@@ -48,7 +52,11 @@ trait ObservableWorld extends World with CommonDefinition {
       * tells the set of nodes changed
       * @return
       */
-    def nodeChanged(): Set[ID] = events map {_.asInstanceOf[WorldEvent]} flatMap {_.nodes} toSet
+    def nodeChanged(): Set[ID] = {
+      val res = ids
+      ids = ids.empty
+      return res
+    }
   }
 
   /**
@@ -56,7 +64,7 @@ trait ObservableWorld extends World with CommonDefinition {
     * @param nodes the node changed
     * @param eventType the type of event produced
     */
-  case class WorldEvent(nodes : Iterable[ID],eventType: EventType) extends Event
+  case class WorldEvent(nodes : ID,eventType: EventType) extends Event
 
   //simple factory
   def createObserver(listenEvent : Set[EventType]) : O = new WorldObserver(listenEvent)

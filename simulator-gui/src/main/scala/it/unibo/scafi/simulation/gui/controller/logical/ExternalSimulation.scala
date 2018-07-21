@@ -1,9 +1,10 @@
 package it.unibo.scafi.simulation.gui.controller.logical
 
-import it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable.AggregateWorld
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 
 /**
   * define an external simulation that controls the current world
+ *
   * @tparam W
   */
 trait ExternalSimulation[W <: AggregateWorld] extends AsyncLogicController[W]{

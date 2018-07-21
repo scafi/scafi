@@ -3,12 +3,12 @@ package it.unibo.scafi.simulation.gui.test.model
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point3D}
-import it.unibo.scafi.simulation.gui.test.help.AggregateWorldImpl
+import it.unibo.scafi.simulation.gui.test.help.AbstractWorldImpl
 import org.scalatest.{FunSpec, Matchers}
 
 class AggregateTest extends FunSpec with Matchers {
   val checkThat = new ItWord
-  val world = new AggregateWorldImpl
+  val world = new AbstractWorldImpl
   val zero = Point.ZERO
   val nodeNumber = 100
   val devProducer = new world.DeviceBuilder(world.led) :: new world.DeviceBuilder(world.motor) :: Nil

@@ -5,7 +5,7 @@ import javafx.scene.control.Label
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.{General, Led}
+import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.{General, Led}
 import it.unibo.scafi.simulation.gui.view.scalaFX._
 
 import scalafx.application.Platform

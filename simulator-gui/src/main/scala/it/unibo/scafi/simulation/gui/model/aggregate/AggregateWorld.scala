@@ -1,6 +1,6 @@
-package it.unibo.scafi.simulation.gui.model.aggregate.implementation.mutable
+package it.unibo.scafi.simulation.gui.model.aggregate
 
-import it.unibo.scafi.simulation.gui.model.common.world.implementation.mutable.ObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 
 /**
   * define a trait of aggregate world

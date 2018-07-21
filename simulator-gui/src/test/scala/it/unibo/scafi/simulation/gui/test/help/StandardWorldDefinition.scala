@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.help
 
+import it.unibo.scafi.simulation.gui.model.common.world.AbstractObservableWorld
 import it.unibo.scafi.simulation.gui.model.common.{BoundaryDefinition, MetricDefinition}
-import it.unibo.scafi.simulation.gui.model.common.world.implementation.mutable.AbstractObservableWorld
 import it.unibo.scafi.simulation.gui.model.core.Shape
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 

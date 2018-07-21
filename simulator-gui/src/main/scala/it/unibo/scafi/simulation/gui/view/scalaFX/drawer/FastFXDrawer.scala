@@ -1,12 +1,10 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
-import javafx.scene.Node
 import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
 
 import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.model.sensor.implementation.mutable.SensorDefinition.Led
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXDrawer.doubleToColor
+import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.Led
 import it.unibo.scafi.simulation.gui.view.scalaFX.nodeToAbsolutePosition
 
 

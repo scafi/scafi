@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.model.common.world.implementation.mutable
+package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
 /**
@@ -30,7 +30,7 @@ trait AbstractObservableWorld extends ObservableWorld {
       //add node into node map
       internalMap += node.id -> node
       //notify the observers of world changes
-      notify(WorldEvent(List(node.id),NodesAdded))
+      notify(WorldEvent(node.id,NodesAdded))
       true
     }
 
@@ -46,7 +46,7 @@ trait AbstractObservableWorld extends ObservableWorld {
       //if the node is in the world i remove it
       internalMap -= node.get.id
       //notify the observer of world changes
-      notify(WorldEvent(List(node.get.id),NodesRemoved))
+      notify(WorldEvent(node.get.id,NodesRemoved))
       true
     }
   }
