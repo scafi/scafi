@@ -28,14 +28,14 @@ class BasicPresenter[W <: SensorPlatform](val world : W,
     val nodesRemoved = removed.nodeChanged()
     if (!nodesRemoved.isEmpty) {
       LogManager.log("view erasing..", LogManager.Middle)
-      out.get.removeNode(nodesRemoved)
+      nodesRemoved foreach { out.get.removeNode(_)}
     }
     //MOVING
     val nodesMoved = moved.nodeChanged()
     val x = System.currentTimeMillis()
     if (!nodesMoved.isEmpty) {
       LogManager.log("NODE MOVED : " + nodesMoved, LogManager.Low)
-      var toAdd : Map[world.NODE,Set[world.NODE]] = Map()
+      var toAdd : Map[world.ID,Set[world.ID]] = Map()
       var toRemove : Map[world.ID,Set[world.ID]] = Map()
       nodesMoved foreach { x =>
         val node = world(x).get
@@ -49,21 +49,22 @@ class BasicPresenter[W <: SensorPlatform](val world : W,
             toRemove += id -> ids
           }
           if (!add.isEmpty) {
-            toAdd += node -> world.apply(add)
+            toAdd += node.id -> add
           }
         }
       }
       this.prevNeighbour = world.network.neighbours()
       val x = System.currentTimeMillis()
-      out.get.outNode(world.apply(nodesMoved))
+      nodesMoved foreach {x => out.get.outNode(world(x).get)}
       if(neighbourRender) {
-        out.get.outNeighbour(toAdd)
-        out.get.removeNeighbour(toRemove)
+        toAdd foreach { x => out.get.outNeighbour(x)}
+        toRemove foreach {x => out.get.removeNeighbour(x)}
       }
     }
     val deviceToOut = devChanged.nodeChanged()
     if(!deviceToOut.isEmpty) {
-      out.get.outDevice(world.apply(deviceToOut))
+      deviceToOut foreach {x => out.get.outDevice(world(x).get)}
     }
+    out.get.flush()
   }
 }

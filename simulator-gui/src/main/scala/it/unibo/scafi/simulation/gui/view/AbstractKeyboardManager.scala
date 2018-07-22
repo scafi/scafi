@@ -21,14 +21,14 @@ trait AbstractKeyboardManager [W <: World]{
   /**
     * a map that associate the keyboard code with the command to process
     */
-  protected var commands : Map[AbstractKeyCode,Set[W#ID] => Command] = Map.empty
+  protected var commands : Map[AbstractKeyCode,Set[Any] => Command] = Map.empty
 
   /**
     * add a command to execute
     * @param code the code of keyboard
     * @param command a command to execute
     */
-  final def addCommand(code : AbstractKeyCode, command : Set[W#ID] => Command) = commands += code -> command
+  final def addCommand(code : AbstractKeyCode, command : Set[Any] => Command) = commands += code -> command
 
 }
 object  AbstractKeyboardManager {

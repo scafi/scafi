@@ -3,16 +3,15 @@ package it.unibo.scafi.simulation.gui.view
 
 
 import scalafx.application.Platform
-
 import it.unibo.scafi.simulation.gui.model.core.{Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
-//TODO THINK WHERE ADD COLOR (SIMPLE TEST)
-//TODO FOR PERFORMANCE USE IMAGE INSTEAD OF SHAPE -> TO DRAW IMAGE JAVAFX DON'T USE CPU , ONLY GPU
+import scalafx.scene.paint.Color
 package object scalaFX {
+  val lineColor = Color(0.8,0.8,0.8,0.2)
   object RichPlatform {
     def thenRunLater(graphics: => Any)(after: => Any): Unit = {
       Platform.runLater{

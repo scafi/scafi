@@ -19,6 +19,7 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.{RichPlatform, SimulationWindo
 import scala.util.Random
 import scalafx.application.Platform
 import scalafx.scene.layout.HBox
+
 object Launcher {
   val r = new Random()
   new JFXPanel()
@@ -27,7 +28,7 @@ object Launcher {
   var drawer : FXDrawer = StandardFXDrawer
   val shape = Rectangle(3,3)
   var boundary : Option[Rectangle] = None
-  val ticked = 33
+  val ticked = 66
   var radius = 70.0
   var nodes = 1000
   var action : ACTION = generalaction;
@@ -53,10 +54,10 @@ object Launcher {
     import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
     val pane = new FXSimulationPane[world.type](inputLogic,drawer) with KeyboardManager[world.type] with FXSelectionArea[world.type]
 
-    pane.addCommand(Code1, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,sens1.name))
-    pane.addCommand(Code2, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,sens2.name))
-    pane.addCommand(Code3, (ids : Set[Int]) => inputLogic.DeviceOnCommand(ids,sens3.name))
-    pane.addMovementAction((ids : Map[Int,world.P]) => inputLogic.MoveCommand(ids))
+    pane.addCommand(Code1, (ids : Set[Any]) => inputLogic.DeviceOnCommand(ids,sens1.name))
+    pane.addCommand(Code2, (ids : Set[Any]) => inputLogic.DeviceOnCommand(ids,sens2.name))
+    pane.addCommand(Code3, (ids : Set[Any]) => inputLogic.DeviceOnCommand(ids,sens3.name))
+    pane.addMovementAction((ids : Map[Any,world.P]) => inputLogic.MoveCommand(ids))
     var window : Option[SimulationWindow] = None
     Platform.runLater {
       window = Some(new SimulationWindow(new HBox{}, pane, true))
@@ -76,15 +77,15 @@ object Launcher {
     val render = new BasicPresenter(world,neighbourRender)
     render.out = Some(pane)
     RichPlatform.thenRunLater{
-      pane.outNode(world.nodes)
+      world.nodes foreach {pane.outNode(_)}
       if(neighbourRender) {
-        pane.outNeighbour(world.network.neighbours() map{x => world(x._1).get -> world(x._2)})
+        world.network.neighbours()  foreach {pane.outNeighbour(_)}
       }
       window.get.renderSimulation()
     } {
       scafi.start()
       val movement = new MovementSyncController(0.01f,world,50)
-      movement.start
+      //movement.start
       scheduler <-- inputLogic <-- movement <-- scafi <-- render
       scheduler.delta_=(ticked)
       scheduler.start()

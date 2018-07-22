@@ -56,23 +56,9 @@ trait Source {
 trait Event
 
 trait Observer {
-  private var _events : List[Event] = List[Event]()
   /**
     * store the event received
     * @param event the event produced
     */
-  def update(event: Event) : Unit = _events = event :: _events
-
-  /**
-    * @return the sequence of event listened and clear the current queue of event
-    */
-  def events : Seq[Event] = {
-    val res = this._events
-    this._events = List[Event]()
-    res
-  }
-  /**
-    * clear the queue of events
-    */
-  def clear() : Unit = events
+  def update(event: Event) : Unit
 }

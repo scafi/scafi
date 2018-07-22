@@ -18,8 +18,8 @@ import scalafx.scene.shape.Circle
 trait FXSelectionArea[W <: World] extends AbstractSelectionArea[W]{
   self : AbstractFXSimulationPane[W] =>
   implicit val inputController : InputCommandController[_]
-  private var moved : Map[W#ID,(Node,Point2D)] = Map.empty
-  private var _selected : Set[W#ID] = Set.empty
+  private var moved : Map[Any,(Node,Point2D)] = Map.empty
+  private var _selected : Set[Any] = Set.empty
   private var startPoint : Point2D = new Point2D(0,0)
   private var r : DoubleProperty = DoubleProperty(0)
   private var circle : Option[Circle] = None
@@ -82,7 +82,7 @@ trait FXSelectionArea[W <: World] extends AbstractSelectionArea[W]{
               //TODO PROBLEM HERE
               this._selected = this.moved.keySet
             } else if(!this.moved.isEmpty) {
-              val toMove = moved.map {x =>x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2).asInstanceOf[W#P]}
+              val toMove = moved.map {x =>x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2)}
               this.command.foreach(x => inputController.exec(x(toMove)))
               clearSelected()
             }
@@ -99,5 +99,5 @@ trait FXSelectionArea[W <: World] extends AbstractSelectionArea[W]{
     this.moved.values.foreach { x => this.children -= x._1}
     this.moved = Map.empty
   }
-  override def selected : Set[W#ID] = this._selected
+  override def selected : Set[Any] = this._selected
 }

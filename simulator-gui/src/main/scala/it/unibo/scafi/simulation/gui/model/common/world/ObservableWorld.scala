@@ -41,7 +41,6 @@ trait ObservableWorld extends World with CommonConcept {
     override def update(event: Event): Unit = {
       event match {
         case WorldEvent(n,e) => if(listenEvent contains e) {
-          super.update(event)
           ids += n
         }
         case _ =>
@@ -57,6 +56,11 @@ trait ObservableWorld extends World with CommonConcept {
       ids = ids.empty
       return res
     }
+
+    /**
+      * clear the notification associated to this observer
+      */
+    def clear(): Unit = ids = ids.empty
   }
 
   /**

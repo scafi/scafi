@@ -71,9 +71,9 @@ object SensorConcept {
     * @param sensor the sensor
     * @return None if the sensor is not a MutableSensor false other
     */
-  def anyToMutable(sensor : Any) : Option[MutableSensor] = {
-    if(!sensor.isInstanceOf[MutableSensor]) None
-    else Some(sensor.asInstanceOf[MutableSensor])
+  def anyToMutable(sensor : Any) : Option[MutableSensor] = sensor match {
+      case sens : MutableSensor => Some(sens)
+      case _ => None
   }
 
   /**

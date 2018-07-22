@@ -76,14 +76,16 @@ object Scheduler {
     */
   case class Tick(timeElapsed : Float) extends Event
 
-  trait SchedulerObserver extends Observer{
+  trait SchedulerObserver extends Observer {
     override def update(event: Event): Unit = {
       event match {
         case Tick(t) => this.onTick(t)
-        case _ => super.update(event)
+        case _ =>
       }
     }
     //TEMPLATE METHOD
     def onTick(float: Float)
+
+    def clear() = {}
   }
 }

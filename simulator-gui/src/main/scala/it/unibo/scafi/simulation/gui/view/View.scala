@@ -17,33 +17,38 @@ trait SimulationView[W <: World] extends View{
     * out a set of node that are added or moved
     * @param node the nodes
     */
-  def outNode(node : Set[W#NODE])
+  def outNode(node : W#NODE)
 
   /**
     * remove a node into the output
     * @param node the node
     */
-  def removeNode(node : Set[W#ID])
+  def removeNode(node : W#ID)
 
   /**
     * out a neighbour of a node
     */
-  def outNeighbour(nodes : Map[W#NODE,Set[W#NODE]])
+  def outNeighbour(nodes : (W#ID,Set[W#ID]))
 
   /**
     * remove a set of neighbour of a node
     */
-  def removeNeighbour(nodes : Map[W#ID,Set[W#ID]])
+  def removeNeighbour(nodes : (W#ID,Set[W#ID]))
 
   /**
     * output the device associated to the node
     * @param node the node
     */
-  def outDevice(node : Set[W#NODE])
+  def outDevice(node : W#NODE)
 
   /**
     * remove all devices associated to a node
     * @param node the node
     */
-  def clearDevice(node : Set[W#ID])
+  def clearDevice(node : W#ID)
+
+  /**
+    * apply the changes declared
+    */
+  def flush()
 }

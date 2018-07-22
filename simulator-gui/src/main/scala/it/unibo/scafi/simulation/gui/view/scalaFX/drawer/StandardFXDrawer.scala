@@ -29,6 +29,7 @@ object StandardFXDrawer extends FXDrawer {
 
   def deviceToGraphicsNode[INPUTDEV <: World#DEVICE](node: OUTPUTNODE, dev: INPUTDEV, lastValue: Option[OUTPUTNODE]): Option[OUTPUTNODE] = {
     if (lastValue.isDefined) {
+      //TODO non è la soluzione migliore pensa ad un'alternativa
       Platform.runLater {
         val lastDev = lastValue.get
         dev match {
