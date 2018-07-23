@@ -28,7 +28,7 @@ object Launcher {
   var drawer : FXDrawer = StandardFXDrawer
   val shape = Rectangle(3,3)
   var boundary : Option[Rectangle] = None
-  val ticked = 66
+  val ticked = 1000
   var radius = 70.0
   var nodes = 1000
   var action : ACTION = generalaction;
@@ -52,7 +52,7 @@ object Launcher {
       putBoundary(boundary.get)
     }
     import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
-    val pane = new FXSimulationPane[world.type](inputLogic,drawer) with KeyboardManager[world.type] with FXSelectionArea[world.type]
+    val pane = new FXSimulationPane(inputLogic,drawer) with KeyboardManager with FXSelectionArea
 
     pane.addCommand(Code1, (ids : Set[Any]) => inputLogic.DeviceOnCommand(ids,sens1.name))
     pane.addCommand(Code2, (ids : Set[Any]) => inputLogic.DeviceOnCommand(ids,sens2.name))
@@ -65,7 +65,7 @@ object Launcher {
     }
 
     randomize2D(nodes,boundary)
-    //gridLike2D(400,200,radius)
+    //gridLike2D(100,100,radius)
 
 
     scafi.setAction(action)
@@ -85,7 +85,7 @@ object Launcher {
     } {
       scafi.start()
       val movement = new MovementSyncController(0.01f,world,50)
-      //movement.start
+      movement.start
       scheduler <-- inputLogic <-- movement <-- scafi <-- render
       scheduler.delta_=(ticked)
       scheduler.start()

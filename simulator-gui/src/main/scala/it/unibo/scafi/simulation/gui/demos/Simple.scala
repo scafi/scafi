@@ -12,9 +12,9 @@ object Test extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher._
   program = classOf[Simple]
   drawer = StandardFXDrawer
-  nodes = 1000
-  boundary = Some(Rectangle(1920,1080))
-  radius = 80
+  nodes = 10
+  boundary = Some(Rectangle(500,500))
+  radius = 100
   neighbourRender = true
   outSensor = Set(dev(gsensor,false,sensorOutput))
   /*drawer = FastFXDrawer

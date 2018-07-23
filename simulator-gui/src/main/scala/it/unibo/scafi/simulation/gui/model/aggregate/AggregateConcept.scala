@@ -1,6 +1,8 @@
 package it.unibo.scafi.simulation.gui.model.aggregate
 
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
+import it.unibo.scafi.simulation.gui.pattern.observer.Event
 
 /**
   * describe a set of aggregate concept used to define an aggregate world
@@ -72,6 +74,43 @@ trait AggregateConcept {
     */
   trait FactoryNodeProducer extends RootNodeProducer {
     def buildAll() : Iterable[MUTABLE_NODE]
+  }
+  /**
+    * an event produced when a device attached in a node changed
+    * @param id the node id
+    * @param name the device name
+    * @param eventType the type of event
+    */
+  case class DeviceEvent(id : ID, name : NAME, eventType: EventType) extends Event
+
+  protected class AggregateWorldObserver(events : Set[EventType]) extends WorldObserver(events) {
+    private var devs : Map[ID,Set[NAME]] = Map()
+    override def update(event: Event): Unit = {
+      event match {
+        case DeviceEvent(id,name,e) => if(listenEvent contains e) {
+          ids += id
+          if(devs.get(id).isEmpty) devs += id -> Set()
+          devs += id -> (devs.get(id).get + name)
+        }
+        case _ => super.update(event)
+      }
+    }
+
+    override def nodeChanged(): Set[ID] = {
+      devs = devs.empty
+      super.nodeChanged()
+    }
+
+    override def clear(): Unit = {
+      devs = devs.empty
+      super.clear()
+    }
+
+    def deviceChanged() : Map[ID,Set[NAME]] = {
+      val res = this.devs
+      this.clear()
+      res
+    }
   }
 }
 

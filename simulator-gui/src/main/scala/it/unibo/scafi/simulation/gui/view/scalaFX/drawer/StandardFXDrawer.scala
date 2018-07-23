@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
+import javafx.scene
 import javafx.scene.control.Label
 
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
@@ -24,31 +25,25 @@ object StandardFXDrawer extends FXDrawer {
   val size: Map[String, Double] = Map(sens1.name -> 1, sens2.name -> 3, sens3.name -> 5, gsensor.name -> 7)
   val radius = 2
 
-  override def nodeGraphicsNode[INPUTNODE <: World#NODE](node: INPUTNODE): OUTPUTNODE = nodeToShape.create(node)
+  override def nodeGraphicsNode(node: NODE): OUTPUTNODE = nodeToShape.create(node)
 
+  override def deviceToGraphicsNode (node: OUTPUTNODE, dev: DEVICE): Option[OUTPUTNODE] = drawNode(dev,node)
 
-  def deviceToGraphicsNode[INPUTDEV <: World#DEVICE](node: OUTPUTNODE, dev: INPUTDEV, lastValue: Option[OUTPUTNODE]): Option[OUTPUTNODE] = {
-    if (lastValue.isDefined) {
-      //TODO non è la soluzione migliore pensa ad un'alternativa
-      Platform.runLater {
-        val lastDev = lastValue.get
-        dev match {
-          case General(value) => {
-            lastDev.asInstanceOf[Label].setText(value.toString)
-          }
-          case Led(value) => {
-            lastDev.setVisible(value)
-          }
-          case _ =>
-        }
+  override def updateDevice(node : OUTPUTNODE, dev: DEVICE, graphicsDevice: Option[OUTPUTNODE]): Unit = {
+    if(graphicsDevice.isEmpty) return
+    val graphics = graphicsDevice.get
+    dev match {
+      case General(value) => {
+        graphics.asInstanceOf[Label].setText(value.toString)
       }
-      None
-    } else {
-      drawNode(dev,node)
+      case Led(value) => {
+        graphics.setVisible(value)
+      }
+      case _ =>
     }
   }
 
-  private def drawNode[INPUTDEV <: World#DEVICE](dev: INPUTDEV, node: OUTPUTNODE): Option[OUTPUTNODE] = {
+  private def drawNode (dev: DEVICE, node: OUTPUTNODE): Option[OUTPUTNODE] = {
     import scalafx.Includes._
     val point = nodeToAbsolutePosition(node)
     dev match {

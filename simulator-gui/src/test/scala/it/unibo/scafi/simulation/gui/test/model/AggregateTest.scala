@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.test.model
 
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent._
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point3D}
 import it.unibo.scafi.simulation.gui.test.help.AbstractWorldImpl
@@ -53,7 +53,7 @@ class AggregateTest extends FunSpec with Matchers {
 
   checkThat("i can observe all event") {
     val movedObserver = world.createObserver(Set(NodesMoved))
-    val deviceChanged = world.createObserver(Set(NodesDeviceChanged))
+    val deviceChanged = world.createObserver(Set(NodeDeviceChanged))
     val insertNode = world.createObserver(Set(NodesAdded))
     val removedNode = world.createObserver(Set(NodesRemoved))
     assert(movedObserver.nodeChanged().isEmpty)

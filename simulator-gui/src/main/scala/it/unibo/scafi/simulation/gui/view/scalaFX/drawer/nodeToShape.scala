@@ -1,20 +1,15 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
-import javafx.scene.Node
 import javafx.scene.shape.{Circle, Rectangle, Shape}
 
-import it.unibo.scafi.simulation.gui.launcher.SensorName._
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.view.Drawer
 import it.unibo.scafi.simulation.gui.view.scalaFX._
 
-import scalafx.application.Platform
 import scalafx.geometry.{Point2D => FXPoint}
-import scalafx.scene.Node
 import scalafx.scene.paint.Color
 private[drawer] object nodeToShape {
-  def create[INPUTNODE <: World#NODE](node: INPUTNODE): Shape = {
+  def create (node: World#Node): Shape = {
     val p: FXPoint = node.position
     import scalafx.Includes._
     val defaultShape = new Rectangle {

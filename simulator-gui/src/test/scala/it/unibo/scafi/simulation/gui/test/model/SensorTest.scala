@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.test.model
 
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesDeviceChanged
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodeDeviceChanged
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{sensorInput, sensorOutput}
 import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.Led
 import it.unibo.scafi.simulation.gui.model.space.Point
@@ -60,7 +60,7 @@ class SensorTest extends FunSpec with Matchers{
 
   checkThat("observer can see the device changes") {
     world.clear()
-    val observer = world.createObserver(Set(NodesDeviceChanged))
+    val observer = world.createObserver(Set(NodeDeviceChanged))
     world attach observer
     assert(observer.nodeChanged().isEmpty)
     world.insertNode(new world.NodeBuilder(id = 0, position = zero, producer = sensorBuilders))

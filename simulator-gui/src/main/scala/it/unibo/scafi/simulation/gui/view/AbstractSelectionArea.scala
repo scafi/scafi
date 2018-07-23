@@ -6,10 +6,9 @@ import it.unibo.scafi.simulation.gui.model.space.Point3D
 
 /**
   * define a trait used to select and clear item
-  * @tparam W the world showed
   */
-trait AbstractSelectionArea [W <: World]{
-  self : SimulationView[W] =>
+trait AbstractSelectionArea {
+  self : SimulationView =>
 
   protected var command : Option[Map[Any,Point3D] => Command] = None
   /**

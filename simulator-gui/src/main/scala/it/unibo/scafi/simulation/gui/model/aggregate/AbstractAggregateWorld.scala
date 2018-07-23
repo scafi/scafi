@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.gui.model.aggregate
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent._
 import it.unibo.scafi.simulation.gui.model.common.world.AbstractObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 
 /**
   * a skeleton of aggregateWorld implementation
@@ -9,6 +10,7 @@ import it.unibo.scafi.simulation.gui.model.common.world.AbstractObservableWorld
 trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld {
   self: AbstractAggregateWorld.Dependency =>
 
+  override type O = AggregateWorldObserver
   override type MUTABLE_NODE <: AggregateMutableNode
 
   def moveNode(id : ID, position : P) : Boolean = {
@@ -20,7 +22,7 @@ trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld
     //check if the position il allowed
     if(nodeAllowed(node)) {
       //notify all observer of world changes
-      notify(WorldEvent(node.id,NodesMoved))
+      notify(NodeEvent(node.id,NodesMoved))
       true
     } else {
       node.position = oldPosition
@@ -35,7 +37,8 @@ trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld
     val added = node.addDevice(device)
     if(added) {
       //tell to all observer the world changes
-      notify(WorldEvent(node.id,NodesDeviceChanged))
+      notify(NodeEvent(node.id,NodeDeviceChanged))
+      notify(DeviceEvent(node.id,device.name,NodeDeviceRemoved))
       true
     } else {
       false
@@ -48,12 +51,14 @@ trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld
     val removed = node.removeDevice(name)
     if(removed) {
       //tell to all observer the world changes
-      notify(WorldEvent(node.id,NodesDeviceChanged))
+      notify(NodeEvent(node.id,NodeDeviceChanged))
+      notify(DeviceEvent(node.id,name,NodeDeviceRemoved))
       true
     } else {
       false
     }
   }
+  def createObserver(listenEvent : Set[EventType]) : O = new AggregateWorldObserver(listenEvent)
 }
 
 object AbstractAggregateWorld {

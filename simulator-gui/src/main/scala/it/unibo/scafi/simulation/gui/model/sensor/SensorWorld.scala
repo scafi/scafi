@@ -1,7 +1,8 @@
 package it.unibo.scafi.simulation.gui.model.sensor
 
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesDeviceChanged
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodeDeviceChanged
 import it.unibo.scafi.simulation.gui.model.aggregate.{AbstractAggregateWorld, AggregateWorld}
+import it.unibo.scafi.simulation.gui.model.sensor.SensorEvent.SensorChanged
 
 /**
   * describe a sensor world
@@ -21,7 +22,8 @@ trait SensorWorld extends AbstractAggregateWorld with SensorNetwork  {
     } else {
       dev.get.value = value
       //notify the observer of world changes
-      notify(WorldEvent(id,NodesDeviceChanged))
+      notify(NodeEvent(id,NodeDeviceChanged))
+      notify(DeviceEvent(id,name,SensorChanged))
       true
     }
   }

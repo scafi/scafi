@@ -15,8 +15,8 @@ import scalafx.scene.shape.Circle
 /**
   * the logic of selection a set of node
   */
-trait FXSelectionArea[W <: World] extends AbstractSelectionArea[W]{
-  self : AbstractFXSimulationPane[W] =>
+trait FXSelectionArea extends AbstractSelectionArea {
+  self : AbstractFXSimulationPane =>
   implicit val inputController : InputCommandController[_]
   private var moved : Map[Any,(Node,Point2D)] = Map.empty
   private var _selected : Set[Any] = Set.empty

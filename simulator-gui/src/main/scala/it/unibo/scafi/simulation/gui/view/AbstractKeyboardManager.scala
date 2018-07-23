@@ -6,10 +6,10 @@ import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager.AbstractKeyCod
 
 /**
   * a generic keyboard manager used to process user input
-  * @tparam W the type of world showed
+
   */
-trait AbstractKeyboardManager [W <: World]{
-  self : AbstractSelectionArea[W] =>
+trait AbstractKeyboardManager {
+  self : AbstractSelectionArea =>
   /**
     * the type of library keycode
     */

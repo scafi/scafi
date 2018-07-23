@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
+import javafx.scene.shape.Shape
+
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.DoubleSensor
 import it.unibo.scafi.simulation.gui.view.scalaFX.nodeToAbsolutePosition
@@ -10,23 +12,17 @@ object GradientFXDrawer extends FXDrawer {
   var maxValue = 1000.0
   val maxColor = 255.0
   override type OUTPUTNODE = javafx.scene.shape.Shape
-  override def deviceToGraphicsNode[INPUTDEV <: World#DEVICE](node: OUTPUTNODE, dev: INPUTDEV, lastValue: Option[OUTPUTNODE]): Option[OUTPUTNODE] = {
-    //the offset to the label of the y coordinate
-    import scalafx.Includes._
-    val nodeWidth = node.boundsInLocal().getWidth
-    var currentR = nodeWidth
-    val point = nodeToAbsolutePosition(node)
-    if(!lastValue.isDefined) {
-      dev match {
-        case DoubleSensor(value) => {
-          node.fillProperty().setValue(doubleToColor(value))
-        }
-        case _ => None
-      }
-    }
-    None
-  }
 
+  override def deviceToGraphicsNode(node: OUTPUTNODE, dev: DEVICE): Option[OUTPUTNODE] = None
+
+  override def updateDevice(node: OUTPUTNODE, dev: DEVICE, graphicsDevice: Option[OUTPUTNODE]): Unit = {
+    dev match {
+      case DoubleSensor(value) => {
+        node.fillProperty().setValue(doubleToColor(value))
+      }
+      case _ => None
+    }
+  }
   private implicit def doubleToColor(v : Double) : Color  = {
     if(v > maxValue) {
       Color.Black
@@ -36,5 +32,5 @@ object GradientFXDrawer extends FXDrawer {
     }
 
   }
-  override def nodeGraphicsNode[INPUTNODE <: World#NODE](node: INPUTNODE): OUTPUTNODE = nodeToShape.create(node)
+  override def nodeGraphicsNode (node: NODE): OUTPUTNODE = nodeToShape.create(node)
 }

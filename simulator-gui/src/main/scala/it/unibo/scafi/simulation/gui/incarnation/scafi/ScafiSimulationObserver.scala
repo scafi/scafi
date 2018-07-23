@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAdded
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorInput
 import it.unibo.scafi.space.Point3D
@@ -9,7 +9,7 @@ class ScafiSimulationObserver[W <: ScafiLikeWorld](override protected val world 
 
   //TODO BRIDGE
   private val checkMoved = world.createObserver(Set(NodesMoved))
-  private val checkChanged = world.createObserver(Set(NodesDeviceChanged))
+  private val checkChanged = world.createObserver(Set(NodeDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
   private var exportProduced : Map[ID,(W,world.ID) => Unit] = Map()
   world <-- checkAdded <-- checkChanged <-- checkAdded <-- checkMoved

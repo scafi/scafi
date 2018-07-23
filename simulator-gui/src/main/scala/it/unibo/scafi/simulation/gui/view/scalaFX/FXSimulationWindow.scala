@@ -20,7 +20,7 @@ import scalafx.stage.Stage
 import scalafx.util.Duration
 
 class SimulationWindow(private val infoPane : HBox,
-                       private val simulationPane : AbstractFXSimulationPane[_],
+                       private val simulationPane : AbstractFXSimulationPane,
                        private val debug: Boolean = false) extends Stage with Window {
   private val Padding = 20
   private val exitValue = 1

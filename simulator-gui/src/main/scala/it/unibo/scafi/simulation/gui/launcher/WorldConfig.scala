@@ -62,17 +62,14 @@ object WorldConfig {
   }
 
   def gridLike2D(row : Int, column : Int, distance : Double): Unit = {
-    /*var node : Set[NODE] = Set()
     val z = 0
     var nodes = 0;
+    world clear()
     for(i <- 1 until row ) {
       for(j <- 1 until column) {
         nodes += 1
-        node += nodeFactory.create(nodes,Point3D(i * distance ,j * distance ,z),devs,nodeProto)
+        world.insertNode(new world.NodeBuilder(nodes,Point3D(i * distance,j * distance,z),Some(Rectangle(2,2)),devs.toList))
       }
     }
-    println(node)
-    world clear()
-    world ++ node*/
   }
 }

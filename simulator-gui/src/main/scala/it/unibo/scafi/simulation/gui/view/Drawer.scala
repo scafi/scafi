@@ -10,14 +10,27 @@ trait Drawer {
     * the type of node to draw
     */
   type OUTPUTNODE
-
+  type NODE = World#Node
+  type DEVICE = World#Device
   /**
     * take a world node and create its graphics representation
     * @param node the input node
-    * @tparam INPUTNODE a generic input node
     * @return the graphics node created
     */
-  def nodeGraphicsNode[INPUTNODE <: World#NODE] (node : INPUTNODE) : OUTPUTNODE
+  def nodeGraphicsNode(node : World#Node) : OUTPUTNODE
 
-  def deviceToGraphicsNode[INPUTDEV <: World#DEVICE](node: OUTPUTNODE,dev : INPUTDEV, lastValue : Option[OUTPUTNODE]) : Option[OUTPUTNODE]
+  /**
+    * create a graphics representation of device passed
+    * @param node the node
+    * @param dev the device attached on node
+    * @return the graphics representation
+    */
+  def deviceToGraphicsNode(node: OUTPUTNODE,dev : DEVICE) : Option[OUTPUTNODE]
+
+  /**
+    * update the device value
+    * @param dev the device
+    * @param graphicsDevice graphics device representation
+    */
+  def updateDevice(node : OUTPUTNODE, dev: DEVICE, graphicsDevice : Option[OUTPUTNODE])
 }

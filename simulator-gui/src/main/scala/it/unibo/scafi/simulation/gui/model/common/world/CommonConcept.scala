@@ -1,6 +1,8 @@
 package it.unibo.scafi.simulation.gui.model.common.world
 
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer}
 
 /**
   * Some concept use in observable word
@@ -55,6 +57,42 @@ trait CommonConcept {
     def build() : MUTABLE_NODE
   }
 
+  /**
+    * description of world observer
+    * @param listenEvent the event that the instance observe
+    */
+  protected class WorldObserver (val listenEvent : Set[EventType]) extends Observer {
+    protected var ids : Set[ID] = Set.empty
+    override def update(event: Event): Unit = {
+      event match {
+        case NodeEvent(n,e) => if(listenEvent contains e) {
+          ids += n
+        }
+        case _ =>
+      }
+    }
+    /**
+      * tells the set of nodes changed
+      * @return
+      */
+    def nodeChanged(): Set[ID] = {
+      val res = ids
+      ids = ids.empty
+      return res
+    }
+
+    /**
+      * clear the notification associated to this observer
+      */
+    def clear(): Unit = ids = ids.empty
+  }
+
+  /**
+    * the event produced when node changed
+    * @param nodes the node changed
+    * @param eventType the type of event produced
+    */
+  case class NodeEvent(nodes : ID, eventType: EventType) extends Event
 }
 
 object CommonConcept {

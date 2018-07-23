@@ -15,5 +15,9 @@ object AggregateEvent {
   /**
     * this type of event is produced when a node change the internal representation of device
     */
-  object NodesDeviceChanged extends EventType
+  object NodeDeviceChanged extends EventType
+
+  object NodeDeviceAdded extends EventType
+
+  object NodeDeviceRemoved extends EventType
 }

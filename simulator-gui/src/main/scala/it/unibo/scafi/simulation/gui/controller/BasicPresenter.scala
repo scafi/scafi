@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.controller
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodesDeviceChanged, NodesMoved}
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesRemoved
 import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
 import it.unibo.scafi.simulation.gui.view.SimulationView
@@ -15,11 +15,11 @@ class BasicPresenter[W <: SensorPlatform](val world : W,
 
   val removed = world.createObserver(Set(NodesRemoved))
   val moved = world.createObserver(Set(NodesMoved))
-  val devChanged = world.createObserver(Set(NodesDeviceChanged))
-  var out : Option[SimulationView[world.type]] = None
+  val devChanged = world.createObserver(Set(NodeDeviceChanged))
+  var out : Option[SimulationView] = None
   private var prevNeighbour : Map[world.ID,Set[world.ID]] = world.network.neighbours()
   world <-- removed <-- moved <-- devChanged
-  override type OUTPUT = SimulationView[world.type]
+  override type OUTPUT = SimulationView
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
     if(out.isEmpty) {
@@ -49,7 +49,7 @@ class BasicPresenter[W <: SensorPlatform](val world : W,
             toRemove += id -> ids
           }
           if (!add.isEmpty) {
-            toAdd += node.id -> add
+            toAdd += id -> add
           }
         }
       }

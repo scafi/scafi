@@ -8,9 +8,9 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.pane.ZoomablePane
 
 import scalafx.scene.input.{KeyCode, KeyEvent}
 import scalafx.scene.layout.Pane
-trait KeyboardManager [W <: World] extends AbstractKeyboardManager[W]{
+trait KeyboardManager extends AbstractKeyboardManager {
 
-  self : AbstractFXSimulationPane[W] with FXSelectionArea[W] =>
+  self : AbstractFXSimulationPane with FXSelectionArea =>
   override type KEYCODE = KeyCode
   implicit val inputController : InputCommandController[_]
   abstractToReal += Code1 -> KeyCode.Digit1

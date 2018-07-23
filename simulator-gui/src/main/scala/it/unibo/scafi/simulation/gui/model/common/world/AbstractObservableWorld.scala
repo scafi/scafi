@@ -30,7 +30,7 @@ trait AbstractObservableWorld extends ObservableWorld {
       //add node into node map
       internalMap += node.id -> node
       //notify the observers of world changes
-      notify(WorldEvent(node.id,NodesAdded))
+      notify(NodeEvent(node.id,NodesAdded))
       true
     }
 
@@ -46,7 +46,7 @@ trait AbstractObservableWorld extends ObservableWorld {
       //if the node is in the world i remove it
       internalMap -= node.get.id
       //notify the observer of world changes
-      notify(WorldEvent(node.get.id,NodesRemoved))
+      notify(NodeEvent(node.get.id,NodesRemoved))
       true
     }
   }

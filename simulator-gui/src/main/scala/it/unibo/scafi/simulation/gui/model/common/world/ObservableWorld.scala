@@ -9,7 +9,7 @@ import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
   */
 trait ObservableWorld extends World with CommonConcept {
   self: ObservableWorld.Dependency =>
-  override type O = WorldObserver
+  override type O <: WorldObserver
 
   /**
     * method used to insert node produced by the instance passed
@@ -36,42 +36,8 @@ trait ObservableWorld extends World with CommonConcept {
     */
   protected def nodeAllowed(n:MUTABLE_NODE) : Boolean
 
-  class WorldObserver private[ObservableWorld](listenEvent : Set[EventType]) extends Observer {
-    private var ids : Set[ID] = Set.empty
-    override def update(event: Event): Unit = {
-      event match {
-        case WorldEvent(n,e) => if(listenEvent contains e) {
-          ids += n
-        }
-        case _ =>
-      }
-    }
-
-    /**
-      * tells the set of nodes changed
-      * @return
-      */
-    def nodeChanged(): Set[ID] = {
-      val res = ids
-      ids = ids.empty
-      return res
-    }
-
-    /**
-      * clear the notification associated to this observer
-      */
-    def clear(): Unit = ids = ids.empty
-  }
-
-  /**
-    * the event produced by world
-    * @param nodes the node changed
-    * @param eventType the type of event produced
-    */
-  case class WorldEvent(nodes : ID,eventType: EventType) extends Event
-
   //simple factory
-  def createObserver(listenEvent : Set[EventType]) : O = new WorldObserver(listenEvent)
+  def createObserver(listenEvent : Set[EventType]) : O
 }
 
 object ObservableWorld {

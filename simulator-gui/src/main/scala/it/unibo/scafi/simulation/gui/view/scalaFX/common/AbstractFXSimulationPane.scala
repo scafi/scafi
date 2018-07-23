@@ -14,12 +14,12 @@ import scalafx.scene.layout.Pane
   * define a generic interface on a fx simulation pane
   */
 
-trait AbstractFXSimulationPane[W <: World] extends ZoomablePane with GraphicsView with SimulationView[W] {
+trait AbstractFXSimulationPane extends ZoomablePane with GraphicsView with SimulationView {
   val drawer : FXDrawer
   /**
     * get the nodes showed
     * @return the nodes drawed
     */
-  def nodes : Map[W#ID,(drawer.OUTPUTNODE,Point2D)]
+  def nodes : Map[ID,(drawer.OUTPUTNODE,Point2D)]
 
 }
