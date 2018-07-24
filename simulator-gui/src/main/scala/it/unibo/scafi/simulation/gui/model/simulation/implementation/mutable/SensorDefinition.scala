@@ -88,49 +88,16 @@ object SensorDefinition {
     * a set of sensor type
     */
 
-  //pattern mateching used to check is sensor is led
+  //strategy to verify if the value is correct
   object Led extends SensorType {
-    override type SENSOR = Boolean
-
-    def unapply(arg: Any): Option[SENSOR] = {
-      val optionSensor = SensorConcept.anyToMutable(arg)
-      if(optionSensor.isEmpty) return None
-      val sensor = optionSensor.get
-      sensor.sensorType match {
-        case Led => Some(sensor.value.asInstanceOf[Boolean])
-        case _ => None
-      }
-    }
-
-    override def accept[E](arg: E): Boolean = arg.isInstanceOf[SENSOR]
+    override def accept[E](arg: E): Boolean = arg.isInstanceOf[Boolean]
   }
-  //pattern matching used to check is sensor has a generic type
+  //strategy to verify if the value is correct
   object General extends SensorType {
-    override type SENSOR = Any
-    def unapply(arg: Any): Option[Any] = {
-      val optionSensor = SensorConcept.anyToMutable(arg)
-      if(optionSensor.isEmpty) return None
-      val sensor = optionSensor.get
-      sensor.value match {
-        case General => Some(sensor.value.asInstanceOf[Boolean])
-        case _ => None
-      }
-    }
     override def accept[E](arg: E): Boolean = true
   }
-  //pattern matching used to check is sensor has a float value
+  //strategy to verify if the value is correct
   object DoubleSensor extends SensorType {
-    override type SENSOR = Double
-    def unapply(arg: Any): Option[SENSOR] = {
-      val optionSensor = SensorConcept.anyToMutable(arg)
-      if(optionSensor.isEmpty) return None
-      val sensor = optionSensor.get
-      sensor.sensorType match {
-        case DoubleSensor => Some(sensor.value.asInstanceOf[SENSOR])
-        case _ => None
-      }
-    }
     override def accept[E](arg: E): Boolean = arg.isInstanceOf[Number]
-
   }
 }

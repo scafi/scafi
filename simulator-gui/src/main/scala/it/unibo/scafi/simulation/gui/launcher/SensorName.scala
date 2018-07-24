@@ -13,6 +13,6 @@ object SensorName {
   val sens3 : Name = new Name{val name = "sens3"}
   val gsensor : Name = new Name{val name = "value"}
   val gsensor1 : Name = new Name{val name = "output"}
-  val gsesonr2 : Name = new Name{val name = "generic2"}
+  val gsensor2 : Name = new Name{val name = "generic2"}
 
 }

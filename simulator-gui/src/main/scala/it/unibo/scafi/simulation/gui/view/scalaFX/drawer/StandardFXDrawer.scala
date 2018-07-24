@@ -1,15 +1,12 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
-import javafx.scene
 import javafx.scene.control.Label
 
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
-import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.{General, Led}
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 import it.unibo.scafi.simulation.gui.view.scalaFX._
 
-import scalafx.application.Platform
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
@@ -33,11 +30,9 @@ object StandardFXDrawer extends FXDrawer {
     if(graphicsDevice.isEmpty) return
     val graphics = graphicsDevice.get
     dev match {
-      case General(value) => {
-        graphics.asInstanceOf[Label].setText(value.toString)
-      }
-      case Led(value) => {
-        graphics.setVisible(value)
+      case SensorDevice(sens) => sens.value match {
+        case led : Boolean => graphics.setVisible(led)
+        case v => graphics.asInstanceOf[Label].setText(v.toString)
       }
       case _ =>
     }
@@ -47,26 +42,28 @@ object StandardFXDrawer extends FXDrawer {
     import scalafx.Includes._
     val point = nodeToAbsolutePosition(node)
     dev match {
-      case General(value) => {
-        val label = new Label(value.toString)
-        label.layoutX.bind(node.translateX + point.x)
-        label.layoutY.bind(node.translateY + point.y)
-        Some(label)
-      }
-      case Led(value) => {
-        val res : Node = new Ellipse {
-          this.centerX.bind(node.translateX + point.x)
-          this.centerY.bind(node.translateY + point.y)
-          this.radiusX = size(dev.name.toString)
-          this.radiusY = size(dev.name.toString)
-          this.strokeWidth = radius
-          val color: Color = colors(dev.name.toString)
-          this.stroke = color
-          this.fill = Color.Transparent
-          this.visible = value
-          this.smooth = false
+      case SensorDevice(sens) => sens.value match {
+        case led : Boolean => {
+          val res : Node = new Ellipse {
+            this.centerX.bind(node.translateX + point.x)
+            this.centerY.bind(node.translateY + point.y)
+            this.radiusX = size(dev.name.toString)
+            this.radiusY = size(dev.name.toString)
+            this.strokeWidth = radius
+            val color: Color = colors(dev.name.toString)
+            this.stroke = color
+            this.fill = Color.Transparent
+            this.visible = led
+            this.smooth = false
+          }
+          Some(res)
         }
-        Some(res)
+        case v => {
+          val label = new Label(v.toString)
+          label.layoutX.bind(node.translateX + point.x)
+          label.layoutY.bind(node.translateY + point.y)
+          Some(label)
+        }
       }
       case _ => None
     }

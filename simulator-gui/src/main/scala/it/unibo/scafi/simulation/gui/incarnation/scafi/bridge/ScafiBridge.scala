@@ -1,7 +1,8 @@
-package it.unibo.scafi.simulation.gui.incarnation.scafi
+package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
 
 import scala.util.Random
 /**

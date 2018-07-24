@@ -1,16 +1,9 @@
 package it.unibo.scafi.simulation.gui.view
 
 /**
-  * an graphical output
-  */
-trait GraphicsView extends View
-
-/**
   * a window is a container of graphics output
   */
-trait Window extends Container {
-
-  override type OUTPUT <: GraphicsView
+trait Window[OUTPUT <: View] extends Container[OUTPUT] {
 
   /**
     * @return the name of windows

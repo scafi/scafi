@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.launcher
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorld
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorld
 import it.unibo.scafi.simulation.gui.launcher.SensorName._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.model.graphics2D.Shape2D
@@ -10,7 +10,7 @@ import it.unibo.scafi.simulation.gui.model.space.Point3D
 import scala.util.Random
 //TODO COMPLETE
 object WorldConfig {
-  import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorld._
+  import ScafiWorld._
 
   val world : ScafiWorld.type = ScafiWorld
 

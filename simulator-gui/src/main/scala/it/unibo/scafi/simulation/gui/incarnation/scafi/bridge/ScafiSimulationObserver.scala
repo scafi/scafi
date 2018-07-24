@@ -1,6 +1,7 @@
-package it.unibo.scafi.simulation.gui.incarnation.scafi
+package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAdded
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorInput

@@ -32,8 +32,8 @@ class SensorTest extends FunSpec with Matchers{
     assert(dev.nonEmpty)
 
     val sensor = dev.get
-    sensor match {
-      case Led(v) => assert(!v)
+    sensor.value match {
+      case led : Boolean => assert(!led)
 
       case _ => fail("the sensor is a led")
     }

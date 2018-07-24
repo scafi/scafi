@@ -49,15 +49,6 @@ object SensorConcept {
     * it used to typify a sensor
     */
   trait SensorType {
-    type SENSOR
-
-    /**
-      * used for pattern matching
-      * @param arg the value to match
-      * @return None if arg isn't a sensor, the sensor value otherwise
-      */
-    def unapply(arg: Any): Option[SENSOR]
-
     /**
       * used to verify the value of sensor
       * @param arg a new value of sensor
@@ -67,13 +58,13 @@ object SensorConcept {
   }
 
   /**
-    * method used to try to convert any type to mutable senor
-    * @param sensor the sensor
-    * @return None if the sensor is not a MutableSensor false other
+    * pattern matching used to verify if an object is a sensor device
     */
-  def anyToMutable(sensor : Any) : Option[MutableSensor] = sensor match {
-      case sens : MutableSensor => Some(sens)
+  object SensorDevice {
+    def unapply(arg: Any): Option[SensorConcept#Sensor[_ <: Any]] = arg match {
+      case sens : SensorConcept#Sensor[Any] => Some(sens)
       case _ => None
+    }
   }
 
   /**

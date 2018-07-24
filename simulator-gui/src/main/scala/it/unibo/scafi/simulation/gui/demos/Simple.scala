@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.demos
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, _}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.Actions._
 import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
 import it.unibo.scafi.simulation.gui.launcher.WorldConfig
 import it.unibo.scafi.simulation.gui.launcher.WorldConfig.dev
@@ -12,8 +12,8 @@ object Test extends App {
   import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher._
   program = classOf[Simple]
   drawer = StandardFXDrawer
-  nodes = 10
-  boundary = Some(Rectangle(500,500))
+  nodes = 500
+  boundary = Some(Rectangle(1920,1080))
   radius = 100
   neighbourRender = true
   outSensor = Set(dev(gsensor,false,sensorOutput))

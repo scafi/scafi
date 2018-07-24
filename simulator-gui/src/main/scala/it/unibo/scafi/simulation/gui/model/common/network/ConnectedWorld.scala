@@ -1,12 +1,13 @@
 package it.unibo.scafi.simulation.gui.model.common.network
 
+import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 import it.unibo.scafi.simulation.gui.model.core.World
 
 /**
   * a world with a network
   */
 trait ConnectedWorld {
-  this : World =>
+  this : ConnectedWorld.Dependency =>
   /**
     * the type of network
     */
@@ -36,4 +37,12 @@ trait ConnectedWorld {
     return the current representation of the network
    */
   def network : NET
+}
+object ConnectedWorld {
+  type Dependency = World
+
+  /**
+    * event produced when the node neighbour change
+    */
+  object NeighbourChanged extends EventType
 }

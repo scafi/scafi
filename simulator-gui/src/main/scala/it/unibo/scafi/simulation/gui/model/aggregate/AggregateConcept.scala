@@ -83,6 +83,10 @@ trait AggregateConcept {
     */
   case class DeviceEvent(id : ID, name : NAME, eventType: EventType) extends Event
 
+  /**
+    * an obsever that want to see device changes
+    * @param events
+    */
   protected class AggregateWorldObserver(events : Set[EventType]) extends WorldObserver(events) {
     private var devs : Map[ID,Set[NAME]] = Map()
     override def update(event: Event): Unit = {

@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.controller.Command
+import it.unibo.scafi.simulation.gui.controller.input.Command
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager.AbstractKeyCode
 
@@ -19,16 +19,26 @@ trait AbstractKeyboardManager {
     */
   protected var abstractToReal : Map[AbstractKeyCode, KEYCODE] = Map.empty
   /**
+    * a map that associate the keyboard code with the command to process, has id in input
+    */
+  protected var idsCommands : Map[AbstractKeyCode,Set[Any] => Command] = Map.empty
+  /**
     * a map that associate the keyboard code with the command to process
     */
-  protected var commands : Map[AbstractKeyCode,Set[Any] => Command] = Map.empty
+  protected var genericCommands : Map[AbstractKeyCode,() => Command] = Map.empty
+  /**
+    * add a command to execute
+    * @param code the code of keyboard
+    * @param command a command to execute
+    */
+  final def addCommand(code : AbstractKeyCode, command : Set[Any] => Command) = idsCommands += code -> command
 
   /**
     * add a command to execute
     * @param code the code of keyboard
     * @param command a command to execute
     */
-  final def addCommand(code : AbstractKeyCode, command : Set[Any] => Command) = commands += code -> command
+  final def addCommand(code : AbstractKeyCode, command : () => Command) = genericCommands += code -> command
 
 }
 object  AbstractKeyboardManager {

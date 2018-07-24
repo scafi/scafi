@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.controller.Command
+import it.unibo.scafi.simulation.gui.controller.input.Command
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 

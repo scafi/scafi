@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.incarnation.scafi
+package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
 import it.unibo.scafi.incarnations.BasicAbstractSpatialSimulationIncarnation
 import it.unibo.scafi.space.Point3D

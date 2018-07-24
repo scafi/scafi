@@ -3,7 +3,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
 
 import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
-import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.Led
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 
 
 object FastFXDrawer extends FXDrawer {
@@ -17,18 +17,19 @@ object FastFXDrawer extends FXDrawer {
   override def updateDevice(node : OUTPUTNODE, dev: DEVICE, graphicsDevice: Option[OUTPUTNODE]): Unit = {
     import scalafx.Includes._
     dev match {
-      case Led(value) => {
-        val shape = node.asInstanceOf[Shape]
-        if (value) {
-          val color = StandardFXDrawer.colors(dev.name.toString)
-          if (gsensor.name == dev.name && shape.fillProperty().value == Color.BLACK) {
-            node.fillProperty().setValue(color)
-          } else if (gsensor.name != dev.name) {
-            node.fillProperty().setValue(color)
-          }
-        } else {
-          if (jfxPaint2sfx(shape.fillProperty().value) == StandardFXDrawer.colors(dev.name.toString)) {
-            node.fillProperty().setValue(Color.BLACK)
+      case SensorDevice(sens) => sens.value match {
+        case led : Boolean => {
+          if (led) {
+            val color = StandardFXDrawer.colors(dev.name.toString)
+            if (gsensor.name == dev.name && node.fillProperty().value == Color.BLACK) {
+              node.fillProperty().setValue(color)
+            } else if (gsensor.name != dev.name) {
+              node.fillProperty().setValue(color)
+            }
+          } else {
+            if (jfxPaint2sfx(node.fillProperty().value) == StandardFXDrawer.colors(dev.name.toString)) {
+              node.fillProperty().setValue(Color.BLACK)
+            }
           }
         }
       }

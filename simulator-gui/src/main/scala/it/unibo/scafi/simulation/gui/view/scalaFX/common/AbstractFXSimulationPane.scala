@@ -1,20 +1,17 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
 
-import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.view.SimulationView
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXDrawer
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.ZoomablePane
-import it.unibo.scafi.simulation.gui.view.{GraphicsView, SimulationView}
 
 import scalafx.geometry.Point2D
-import scalafx.scene.Node
-import scalafx.scene.layout.Pane
 
 /**
   * define a generic interface on a fx simulation pane
   */
 
-trait AbstractFXSimulationPane extends ZoomablePane with GraphicsView with SimulationView {
+trait AbstractFXSimulationPane extends ZoomablePane with SimulationView {
   val drawer : FXDrawer
   /**
     * get the nodes showed

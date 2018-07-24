@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.demos
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.Actions._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.Actions._
 import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
 import it.unibo.scafi.simulation.gui.launcher.WorldConfig.dev
 import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher

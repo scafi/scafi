@@ -1,10 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
-import javafx.scene.shape.Shape
-
-import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.DoubleSensor
-import it.unibo.scafi.simulation.gui.view.scalaFX.nodeToAbsolutePosition
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 
 import scalafx.scene.paint.Color
 
@@ -17,8 +13,9 @@ object GradientFXDrawer extends FXDrawer {
 
   override def updateDevice(node: OUTPUTNODE, dev: DEVICE, graphicsDevice: Option[OUTPUTNODE]): Unit = {
     dev match {
-      case DoubleSensor(value) => {
-        node.fillProperty().setValue(doubleToColor(value))
+      case SensorDevice(sens) => sens.value match {
+        case numeric : Double => node.fillProperty().setValue(doubleToColor(numeric))
+        case _ =>
       }
       case _ => None
     }

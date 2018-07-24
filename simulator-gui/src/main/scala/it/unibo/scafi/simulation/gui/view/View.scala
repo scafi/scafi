@@ -1,13 +1,22 @@
 package it.unibo.scafi.simulation.gui.view
 
+import it.unibo.scafi.simulation.gui.controller.input.{inputCommandController, InputController}
 import it.unibo.scafi.simulation.gui.model.core.World
+import jdk.internal.util.xml.impl.Input
 
 trait View
 
-trait Container {
-  type OUTPUT <: View
+trait Container[OUTPUT <: View] {
+  /**
+    * @return the current output in container
+    */
+  def output : OUTPUT
 
-  def output : Set[OUTPUT]
+  /**
+    * try to render the output
+    * @return true if the output is rendered false otherwise
+    */
+  def render : Unit
 }
 /**
   * describe a generic output of a simulation
@@ -15,6 +24,7 @@ trait Container {
 trait SimulationView extends View {
   type NODE = World#Node
   type ID = Any
+  type DEVICE = World#Device
   /**
     * out a set of node that are added or moved
     * @param node the nodes
@@ -41,7 +51,7 @@ trait SimulationView extends View {
     * output the device associated to the node
     * @param node the node
     */
-  def outDevice(node : NODE)
+  def outDevice(node : ID, device : DEVICE)
 
   /**
     * remove all devices associated to a node

@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.incarnation.scafi
+package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
 import it.unibo.scafi.simulation.gui.model.common.world.WorldDefinition.World3D
 import it.unibo.scafi.simulation.gui.model.common.{BoundaryDefinition, MetricDefinition}

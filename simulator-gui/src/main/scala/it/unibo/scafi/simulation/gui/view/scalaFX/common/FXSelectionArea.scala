@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
-import it.unibo.scafi.simulation.gui.controller.InputCommandController
+import it.unibo.scafi.simulation.gui.controller.input.inputCommandController
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.view.AbstractSelectionArea
@@ -17,7 +17,6 @@ import scalafx.scene.shape.Circle
   */
 trait FXSelectionArea extends AbstractSelectionArea {
   self : AbstractFXSimulationPane =>
-  implicit val inputController : InputCommandController[_]
   private var moved : Map[Any,(Node,Point2D)] = Map.empty
   private var _selected : Set[Any] = Set.empty
   private var startPoint : Point2D = new Point2D(0,0)
@@ -83,7 +82,7 @@ trait FXSelectionArea extends AbstractSelectionArea {
               this._selected = this.moved.keySet
             } else if(!this.moved.isEmpty) {
               val toMove = moved.map {x =>x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2)}
-              this.command.foreach(x => inputController.exec(x(toMove)))
+              this.command.foreach(x => inputCommandController.exec(x(toMove)))
               clearSelected()
             }
           }

@@ -1,7 +1,5 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
-import it.unibo.scafi.simulation.gui.controller.InputCommandController
-import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.AbstractFXSimulationPane
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXDrawer
 import it.unibo.scafi.simulation.gui.view.scalaFX.{NodeLine, _}
@@ -11,9 +9,7 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Point2D
 import scalafx.scene.Node
-import scalafx.scene.paint.Color
-class FXSimulationPane (val inputController : InputCommandController[_],
-                                    override val drawer : FXDrawer) extends AbstractFXSimulationPane {
+class FXSimulationPane (override val drawer : FXDrawer) extends AbstractFXSimulationPane {
   //internal representation of node
   private val _nodes : mutable.Map[ID,(drawer.OUTPUTNODE,Point2D)] = mutable.Map()
   //internal representation of neighbour
@@ -24,6 +20,8 @@ class FXSimulationPane (val inputController : InputCommandController[_],
   type ACTION = ()=>Unit
   //a list of changes that are show only when a presenter call flush
   private var changes : List[ACTION] = List.empty
+
+  private var neighbourToRemove : List[javafx.scene.Node] = List()
   def nodes : Map[ID,(drawer.OUTPUTNODE,Point2D)] =_nodes.toMap
 
   override def outNode(node: NODE): Unit = {
@@ -73,17 +71,17 @@ class FXSimulationPane (val inputController : InputCommandController[_],
   }
 
   def removeNeighbour(nodes : (ID,Set[_ <: ID])) = {
+    var nodeToRemove : List[NodeLine] = List()
     //utility method used to remove a neigbour
     def erase(start: ID, end: ID): Unit = {
       //take the neighbour of current node
       val map = this.neighbours(start)
       val toRemove = map(end)
-      //unbind the link with proprieties
-      toRemove.unbind()
-      //remove the current link
-      val action : ACTION = (() => this.children -= toRemove)
-      changes = action :: changes
+      //add te node to remove to removing list
+      nodeToRemove = toRemove :: nodeToRemove
+
       map -= end
+
     }
     //verify if neighbour is already show or not
     def checkPresence(start: ID, end: ID) = this.neighbours.get(start).isDefined && this.neighbours(start).contains(end)
@@ -96,34 +94,35 @@ class FXSimulationPane (val inputController : InputCommandController[_],
         erase(x, nodes._1)
       }
     }}
+    val removing = nodeToRemove
+    val action = () => removing foreach {x => {
+      x.unbind()
+      neighbourToRemove = x :: neighbourToRemove
+    }}
+    changes = action :: changes
   }
   //TODO METTI A POSTO IN SEGUITO, EVITA DI ITERARE OGNI VOLTA TUTTI I DEVICE PER DINCI
-  override def outDevice(node: NODE): Unit = {
-    var toAdd : List[javafx.scene.Node] = List()
+  override def outDevice(id: ID, dev : DEVICE): Unit = {
+    if(!devices.get(id).isDefined) devices += id -> mutable.Map()
+    val oldDev = devices(id)
 
-    val devs = node.devices
-    if(!devices.get(node.id).isDefined) devices += node.id -> mutable.Map()
-    val oldDev = devices(node.id)
-    devs foreach {
-      dev => {
-        val current : drawer.OUTPUTNODE = _nodes(node.id)._1
-        val oldPrintedDev = oldDev.get(dev.name)
-        val newDev : Option[drawer.OUTPUTNODE] = if(!oldPrintedDev.isDefined) {
-          drawer.deviceToGraphicsNode(current,dev)
-        } else {
-          None
-        }
-
-        if(newDev.isDefined){
-          oldDev += dev.name.toString -> newDev.get
-          val action : ACTION = (() => this.children.add(newDev.get))
-          changes = action :: changes
-        }
-
-        val action : ACTION = (() => drawer.updateDevice(current,dev,oldDev.get(dev.name)))
-        changes = action :: changes
-      }
+    val current : drawer.OUTPUTNODE = _nodes(id)._1
+    val oldPrintedDev = oldDev.get(dev.name)
+    val newDev : Option[drawer.OUTPUTNODE] = if(!oldPrintedDev.isDefined) {
+      drawer.deviceToGraphicsNode(current,dev)
+    } else {
+      None
     }
+
+    if(newDev.isDefined){
+      oldDev += dev.name -> newDev.get
+      val action : ACTION = (() => this.children.add(newDev.get))
+      changes = action :: changes
+    }
+
+    val action : ACTION = (() => drawer.updateDevice(current,dev,oldDev.get(dev.name)))
+    changes = action :: changes
+
   }
 
   override def clearDevice(node: ID): Unit = {
@@ -136,7 +135,12 @@ class FXSimulationPane (val inputController : InputCommandController[_],
   }
 
   override def flush(): Unit = Platform.runLater {
-      changes.foreach{_()}
-      changes = List.empty
+    val changeToApply = changes
+    changes = List.empty
+    var id = 0
+    changeToApply foreach {_()}
+    val removing = neighbourToRemove
+    this.children.removeAll(removing:_*)
+    neighbourToRemove = List.empty
   }
 }

@@ -1,11 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.simulation.implementation
 
-import it.unibo.scafi.simulation.gui.model.aggregate.{AbstractAggregateWorld, AbstractNodeDefinition}
-import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld
-import it.unibo.scafi.simulation.gui.model.sensor.{SensorConcept, SensorNetwork, SensorWorld}
+import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld.NeighbourChanged
 import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
-import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition
-import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 
 import scala.collection.mutable.{Map => MMap}
 /**
@@ -41,7 +37,10 @@ trait StandardNetwork  {
       * @param node      the node in thw world
       * @param neighbour the neighbour
       */
-    override def setNeighbours(node: ID, neighbour: Set[ID]): Unit = neigh += node -> neighbour
+    override def setNeighbours(node: ID, neighbour: Set[ID]): Unit = {
+      neigh += node -> neighbour
+      StandardNetwork.this.notify(StandardNetwork.this.NodeEvent(node,NeighbourChanged))
+    }
   }
 
 }
