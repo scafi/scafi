@@ -1,6 +1,5 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
 
-import javafx.embed.swing.JFXPanel
 import javafx.event.EventHandler
 import javafx.stage.WindowEvent
 
@@ -20,12 +19,9 @@ import scalafx.scene.layout.{BorderPane, HBox, StackPane}
 import scalafx.stage.Stage
 import scalafx.util.Duration
 
-object SimulationWindow {
-  new JFXPanel()
-}
-class SimulationWindow(private val infoPane : HBox,
-                       private val simulationPane : AbstractFXSimulationPane,
-                       private val debug: Boolean = false) extends Stage with Window[SimulationView] {
+class FXSimulationWindow(private val infoPane : HBox,
+                         private val simulationPane : AbstractFXSimulationPane,
+                         private val debug: Boolean = false) extends Stage with Window[SimulationView] {
   private val Padding = 20
   private val exitValue = 1
   private val logoPanel = new LoadingLogo

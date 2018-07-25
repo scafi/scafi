@@ -23,40 +23,22 @@ import java.time.temporal.ChronoUnit
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins, FieldUtils, GenericUtils, ID, StandardSensors, TimeUtils}
 import it.unibo.scafi.simulation.gui.demos.DoubleUtils.Precision
-import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXDrawer, GradientFXDrawer, StandardFXDrawer}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutputPolicy
 import it.unibo.scafi.space.Point3D
 
 import scala.concurrent.duration.FiniteDuration
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.Actions._
-import it.unibo.scafi.simulation.gui.launcher.SensorName.gsensor
-import it.unibo.scafi.simulation.gui.launcher.WorldConfig.dev
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
-import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorOutput
 object GradientsDemo extends App{
-  import Launcher._
-  /* FIRST SIMULATION */
-  program = classOf[ClassicGradient]
-  drawer = GradientFXDrawer
-  outSensor = Set(dev(gsensor,0.0,sensorOutput))
-  action = generalaction
-  boundary = Some(Rectangle(1000,1000))
-  GradientFXDrawer.maxValue = boundary.get.w.toInt
-  nodes = 100
-  radius = 200
-  neighbourRender = true
 
-  /*program = classOf[ShortestPathProgram]
-  drawer = FastFXDrawer
-  boundary = Some(Rectangle(500,500))
-  GradientFXDrawer.maxValue = boundary.get.w.toInt
-  nodes = 20000
-  radius = 6
-  neighbourRender = false*/
-  action = generalaction
-  launch()
+  ScafiProgramBuilder (
+    worldInitializer = Random(20000,500,500),
+    simulation = RadiusSimulation(program = classOf[ShortestPathProgram], radius = 6),
+    outputPolicy = GradientFXOutputPolicy
+  ).launch()
 }
-
+@Demo
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
   def main = g2(sense1, sense2)
 
@@ -72,7 +54,7 @@ class GradientWithObstacle extends AggregateProgram with SensorDefinitions with 
     classic(isSrc)
   }
 }
-
+@Demo
 class SteeringProgram extends AggregateProgram with SensorDefinitions {
   def main = steering(sense1)
 
@@ -100,14 +82,14 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
     override def compare(x: (A, B, C), y: (A, B, C)): Int = (x._1,x._2).compareTo((y._1,y._2))
   }
 }
-
+@Demo
 class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
   def main = {
     val g = classic(sense1)
     ShortestPath(sense2, g)
   }
 }
-
+@Demo
 class CheckSpeed extends AggregateProgram with Gradients with BlockG with SensorDefinitions with GenericUtils {
   implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
     override def default: LocalDateTime = LocalDateTime.now()
@@ -128,42 +110,43 @@ class CheckSpeed extends AggregateProgram with Gradients with BlockG with Sensor
     f"${meanTimeToReach}ms; ${distance}%.1f; $speed%.3f; $expectedSpeed%.3f"
   }
 }
-
+@Demo
 class GradientComparison extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
-
+@Demo
 class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradientBIS(sense1)
 }
-
+@Demo
 class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradientSVD(sense1)
 }
+@Demo
 class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = crf(sense1)
 }
-
+@Demo
 class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradient(sense1)
 }
-
+@Demo
 class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classic(sense1)
 }
-
+@Demo
 class ClassicGradientWithG extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithG(sense1)
 }
-
+@Demo
 class ClassicGradientWithGv2 extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithGv2(sense1)
 }
-
+@Demo
 class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithUnboundedG(sense1)
 }
-
+@Demo
 class DistanceBetween extends AggregateProgram with SensorDefinitions with BlockG {
   def isSource: Boolean = sense1
   def isTarget: Boolean = sense2

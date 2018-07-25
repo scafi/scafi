@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
 
 import it.unibo.scafi.simulation.gui.view.SimulationView
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXDrawer
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXOutputPolicy
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.ZoomablePane
 
 import scalafx.geometry.Point2D
@@ -12,7 +12,7 @@ import scalafx.geometry.Point2D
   */
 
 trait AbstractFXSimulationPane extends ZoomablePane with SimulationView {
-  val drawer : FXDrawer
+  val drawer : FXOutputPolicy
   /**
     * get the nodes showed
     * @return the nodes drawed

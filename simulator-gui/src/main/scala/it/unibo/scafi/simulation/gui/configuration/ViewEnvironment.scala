@@ -23,7 +23,7 @@ trait ViewEnvironment[V <: View] {
   def container : Container[V]
 
   /**
-    * initialize the environment
+    * init the view environment
     */
   def init()
 }

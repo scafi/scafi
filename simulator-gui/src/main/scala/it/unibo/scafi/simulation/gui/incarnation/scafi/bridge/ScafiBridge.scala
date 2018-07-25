@@ -2,26 +2,28 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 
 import scala.util.Random
 /**
   * define a generic bridge with scafi
-  * @tparam W the internal world representation
   */
-abstract class ScafiBridge [W <: ScafiLikeWorld](protected val world : W) extends ExternalSimulation[W] {
+abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld] {
   override type EXTERNAL_SIMULATION = SpaceAwareSimulator
   override type SIMULATION_PROTOTYPE = () => EXTERNAL_SIMULATION
   override type SIMULATION_CONTRACT = ScafiSimulationContract
-
   /**
-    * define the execution context
+    * the world
     */
+  val world = scafiWorld
+
   var simulationPrototype: Option[SIMULATION_PROTOTYPE] = None
   override protected val threadName: String = "scafi-bridge"
   //TODO remember to add a defualt operation
-  protected var action : PartialFunction[EXPORT,(W,ID)=>Unit] = _
+  protected var action : PartialFunction[EXPORT,(ScafiLikeWorld,ID)=>Unit] = _
+
   private var context : Option[CONTEXT=>EXPORT] = None
+
   protected def runningContext : CONTEXT=>EXPORT = {
     require(context.isDefined)
     context.get
@@ -38,7 +40,8 @@ abstract class ScafiBridge [W <: ScafiLikeWorld](protected val world : W) extend
     }
   }
 
-  def setAction(operation : PartialFunction[EXPORT,(W,ID)=>Unit]): Unit = action = operation
+  def setAction(operation : PartialFunction[EXPORT,(ScafiLikeWorld,ID)=>Unit]): Unit = action = operation
+
   class ScafiSimulationContract extends ExternalSimulationContract{
 
     private var currentSimulation : Option[EXTERNAL_SIMULATION] = None
@@ -55,7 +58,7 @@ abstract class ScafiBridge [W <: ScafiLikeWorld](protected val world : W) extend
       context = Some(program.get.newInstance().asInstanceOf[CONTEXT=>EXPORT])
       this.currentSimulation = Some(createSimulation(world,prototype))
     }
-    private def createSimulation(w : W, p : SIMULATION_PROTOTYPE) : SpaceAwareSimulator = {
+    private def createSimulation(w : ScafiLikeWorld, p : SIMULATION_PROTOTYPE) : SpaceAwareSimulator = {
       p()
     }
   }
@@ -63,7 +66,7 @@ abstract class ScafiBridge [W <: ScafiLikeWorld](protected val world : W) extend
 
 object ScafiBridge {
   val rand = new Random
-  def createRadiusPrototype[W <: ScafiLikeWorld](radius: Double)(implicit bridged: ScafiBridge[W]): () => bridged.EXTERNAL_SIMULATION = {
+  def createRadiusPrototype[W <: ScafiLikeWorld](radius: Double)(implicit bridged: ScafiBridge): () => bridged.EXTERNAL_SIMULATION = {
     () => {
       val w = bridged.world
       val nodes: Map[ID, P] = w.nodes map {n => n.id -> new P(n.position.x,n.position.y,n.position.z)} toMap
@@ -82,5 +85,5 @@ object ScafiBridge {
       res
     }
   }
-  def apply(w : ScafiLikeWorld) : ScafiBridge[ScafiLikeWorld] = new ScafiSimulationObserver(w)
+  def apply(w : ScafiLikeWorld) : ScafiBridge= new ScafiSimulationObserver
 }

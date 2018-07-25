@@ -6,15 +6,9 @@ import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
 
 import scala.concurrent.duration._
 object AgereExample extends App {
-  import Launcher._
-  program = classOf[AgereDemo]
-  nodes = 50
-  maxPoint = 1000
-  radius = 250
-  launch()
+
 }
-
-
+@Demo
 class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefinitions {
   /* Parameters */
   val t_fail = (15 seconds)     // Time w/o failures

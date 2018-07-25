@@ -59,7 +59,7 @@ trait SensorDefinition extends SensorConcept {
     * @param name the name of led
     * @param v the initial value
     */
-  final case class LedProducer(name : NAME, v : Boolean, stream : SensorStream) extends DeviceProducer {
+  final case class LedProducer(name : NAME, v : Boolean = false, stream : SensorStream) extends DeviceProducer {
     override def build: MUTABLE_DEVICE = new MutableSensorImpl(name,v,Led,stream)
   }
 
@@ -68,7 +68,7 @@ trait SensorDefinition extends SensorConcept {
     * @param name name of sensor
     * @param v the initial value
     */
-  final case class GeneralSensorProducer(name : NAME, v : Any, stream : SensorStream) extends DeviceProducer {
+  final case class GeneralSensorProducer(name : NAME, v : Any = "", stream : SensorStream) extends DeviceProducer {
     override def build: MUTABLE_DEVICE = new MutableSensorImpl(name,v,General,stream)
   }
 
@@ -77,7 +77,7 @@ trait SensorDefinition extends SensorConcept {
     * @param name the name of sensor
     * @param v the initial value
     */
-  final case class DoubleSensorValue(name : NAME, v : Double, stream : SensorStream) extends DeviceProducer {
+  final case class DoubleSensorValue(name : NAME, v : Double = 0.0, stream : SensorStream) extends DeviceProducer {
     override def build: MUTABLE_DEVICE = new MutableSensorImpl(name,v,DoubleSensor, stream)
   }
 }

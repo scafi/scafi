@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
-import it.unibo.scafi.simulation.gui.view.Drawer
+import it.unibo.scafi.simulation.gui.view.OutputPolicy
 
-trait FXDrawer extends Drawer{
+trait FXOutputPolicy extends OutputPolicy{
   type OUTPUTNODE <: javafx.scene.Node
 }

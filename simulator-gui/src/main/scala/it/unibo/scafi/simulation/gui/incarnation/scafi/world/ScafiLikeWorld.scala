@@ -19,7 +19,7 @@ trait ScafiLikeWorld extends SensorPlatform with World3D with SensorDefinition w
 /**
   * an incarnation to a scafi world
   */
-object ScafiWorld extends ScafiLikeWorld
+object scafiWorld extends ScafiLikeWorld
   with StandardNetwork
   with BoundaryDefinition
   with MetricDefinition {

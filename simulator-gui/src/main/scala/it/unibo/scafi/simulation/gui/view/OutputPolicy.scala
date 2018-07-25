@@ -3,9 +3,9 @@ package it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.model.core.World
 
 /**
-  * a drawer of node
+  * a strategy to render a node
   */
-trait Drawer {
+trait OutputPolicy {
   /**
     * the type of node to draw
     */

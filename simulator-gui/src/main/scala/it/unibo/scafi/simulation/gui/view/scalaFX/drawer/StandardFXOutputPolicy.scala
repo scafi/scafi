@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
 import javafx.scene.control.Label
 
-import it.unibo.scafi.simulation.gui.launcher.SensorName._
+import it.unibo.scafi.simulation.gui.configuration.SensorName._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 import it.unibo.scafi.simulation.gui.view.scalaFX._
@@ -12,7 +12,7 @@ import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Ellipse
 
-object StandardFXDrawer extends FXDrawer {
+object StandardFXOutputPolicy extends FXOutputPolicy {
 
   override type OUTPUTNODE = javafx.scene.Node
   val colors: Map[String, Color] = Map(sens1.name -> Color.Red,

@@ -4,7 +4,7 @@ import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 
 import scalafx.scene.paint.Color
 
-object GradientFXDrawer extends FXDrawer {
+object GradientFXOutputPolicy extends FXOutputPolicy {
   var maxValue = 1000.0
   val maxColor = 255.0
   override type OUTPUTNODE = javafx.scene.shape.Shape

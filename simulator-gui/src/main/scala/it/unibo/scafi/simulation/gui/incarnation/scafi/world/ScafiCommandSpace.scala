@@ -15,19 +15,19 @@ object ScafiCommandSpace extends CommandSpace {
     * @param ids the id to move
     */
   case class MoveCommand(ids : Map[Any, Point3D]) extends Command {
-    var oldPos : Map[ScafiWorld.ID,Point3D] = Map()
+    var oldPos : Map[scafiWorld.ID,Point3D] = Map()
     override def make(): Unit = ids.foreach(x => {
       x._1 match {
-        case id : ScafiWorld.ID => {
-          oldPos += id -> ScafiWorld(id).get.position
-          ScafiWorld.moveNode(id,x._2)
+        case id : scafiWorld.ID => {
+          oldPos += id -> scafiWorld(id).get.position
+          scafiWorld.moveNode(id,x._2)
         }
 
         case _ =>
       }
     })
 
-    override def unmake(): Unit = oldPos foreach { x => ScafiWorld.moveNode(x._1,x._2)}
+    override def unmake(): Unit = oldPos foreach { x => scafiWorld.moveNode(x._1,x._2)}
 
     override def buildFromString(string: String): Option[Command] = None
   }
@@ -39,16 +39,16 @@ object ScafiCommandSpace extends CommandSpace {
     */
   case class ToggleDeviceCommand(ids : Set[Any], name : Any) extends Command {
     private def toggleDevice(): Unit =  name match {
-      case name : ScafiWorld.NAME => {
+      case name : scafiWorld.NAME => {
         ids foreach {
           x => x match {
-            case id : ScafiWorld.ID => {
-              val node = ScafiWorld(id)
+            case id : scafiWorld.ID => {
+              val node = scafiWorld(id)
               if(node.isDefined) {
                 val dev = node.get.getDevice(name)
                 dev.get match {
                   case SensorDevice(sens) => sens.value match {
-                    case led: Boolean => ScafiWorld.changeSensorValue(id, name, !led)
+                    case led: Boolean => scafiWorld.changeSensorValue(id, name, !led)
                     case _ =>
                   }
                 }

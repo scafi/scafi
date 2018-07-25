@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.launcher
+package it.unibo.scafi.simulation.gui.configuration
 
 object SensorName {
   trait Name {
