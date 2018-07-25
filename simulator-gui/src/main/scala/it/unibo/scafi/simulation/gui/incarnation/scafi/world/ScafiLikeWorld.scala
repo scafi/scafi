@@ -30,8 +30,5 @@ object scafiWorld extends ScafiLikeWorld
 
   override val metric: M = cartesinMetric
 
-  /**
-    * A boundary of the world (a world may has no boundary)
-    */
   var boundary: Option[B] = None
 }

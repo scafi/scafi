@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.configuration.SensorName.gsensor
+import it.unibo.scafi.simulation.gui.configuration.SensorName.output1
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation.EXPORT
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 
@@ -15,8 +15,8 @@ object Actions {
     override def apply(export : EXPORT) : (ScafiLikeWorld, Int) => Unit = {
       (w : ScafiLikeWorld, id : Int) => {
         val devs = w(id).get.devices
-        val dev = devs.find {y => y.name == gsensor.name}.get
-        if(dev.value != export.root) scafiWorld.changeSensorValue(id,gsensor.name,export.root)
+        val dev = devs.find {y => y.name == output1.name}.get
+        if(dev.value != export.root) scafiWorld.changeSensorValue(id,output1.name,export.root)
       }
     }
   }

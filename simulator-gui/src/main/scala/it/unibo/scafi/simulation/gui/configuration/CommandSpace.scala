@@ -13,5 +13,4 @@ trait CommandSpace {
     * @return a command defined in this space
     */
   def fromString(string : String) : Option[Command]
-
 }

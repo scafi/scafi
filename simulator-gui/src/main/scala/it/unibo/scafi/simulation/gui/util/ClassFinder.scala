@@ -1,8 +1,6 @@
-package it.unibo.scafi.simulation.gui.launcher.scalaFX
+package it.unibo.scafi.simulation.gui.util
 
 import java.io.{File, IOException}
-import java.net.URL
-import java.util.{Enumeration}
 
 object ClassFinder {
   /**

@@ -9,57 +9,66 @@ import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorP
 import it.unibo.scafi.simulation.gui.view.SimulationView
 
 /**
+  * describe a simulation preseneter
   * @param world to show
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */
 class SimulationPresenter[W <: SensorPlatform](val world : W,
                                                val neighbourRender : Boolean) extends Presenter[W,SimulationView]{
 
-  val removed = world.createObserver(Set(NodesRemoved))
-  val moved = world.createObserver(Set(NodesMoved,NodesAdded))
-  val devChanged = world.createObserver(Set(SensorChanged))
-  val networkChanged = world.createObserver(Set(NeighbourChanged))
+  //observer used to check world chages
+  private val removed = world.createObserver(Set(NodesRemoved))
+  private val moved = world.createObserver(Set(NodesMoved,NodesAdded))
+  private val devChanged = world.createObserver(Set(SensorChanged))
+  private val networkChanged = world.createObserver(Set(NeighbourChanged))
   private var out : Option[SimulationView] = None
+  //used to render neigbhbour correctly
   private var prevNeighbour : Map[world.ID,Set[world.ID]] = Map()
-  world <-- removed <-- moved <-- devChanged <-- networkChanged
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
     if(out.isEmpty) {
-      return;
+      return
     }
     val nodesRemoved = removed.nodeChanged()
     if (!nodesRemoved.isEmpty) {
       LogManager.log("view erasing..", LogManager.Middle)
       nodesRemoved foreach { out.get.removeNode(_)}
     }
-    //MOVING
+    //set of node moved
     val nodesMoved = moved.nodeChanged()
-    val x = System.currentTimeMillis()
+    //used to remove or add neighbour
     var toAdd : Map[world.ID,Set[world.ID]] = Map()
     var toRemove : Map[world.ID,Set[world.ID]] = Map()
 
     val neighbourChanged = networkChanged.nodeChanged()
     neighbourChanged foreach ( x => {
+      //take old neighbour
       val oldIds = this.prevNeighbour.get(x)
+      //take new neighbour
       val newIds = world.network.neighbours(x)
       val id: world.ID = world(x).get.id
+      //ids to remove
       val ids: Set[world.ID] = oldIds.getOrElse(Set()) -- newIds
+      //neighbour to add
       val add = newIds -- oldIds.getOrElse(Set())
-      if (!ids.isEmpty) {
+      if (ids.nonEmpty) {
         toRemove += id -> ids
       }
-      if (!add.isEmpty) {
+      if (add.nonEmpty) {
         toAdd += id -> add
       }
     })
-
+    //change the neigbour map with new neigbour map
     this.prevNeighbour = world.network.neighbours()
+    //put the node moved in out
     nodesMoved foreach {x => out.get.outNode(world(x).get)}
+    //if neighbour render il enable, show the neighbour
     if(neighbourRender) {
       toRemove foreach {x => out.get.removeNeighbour(x)}
       toAdd foreach { x => out.get.outNeighbour(x)}
     }
     val deviceToOut = devChanged.deviceChanged()
+    //show the device changes in the view
     if(!deviceToOut.isEmpty) {
       deviceToOut map {x => x._1 -> {
         x._2 foreach { name => {
@@ -67,6 +76,7 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
         }}
       }}
     }
+    //flush the changes
     out.get.flush()
   }
 

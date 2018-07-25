@@ -35,6 +35,7 @@ class FXSimulationWindow(private val infoPane : HBox,
   scene  = new Scene {
     content = mainPane
   }
+
   import scalafx.Includes._
   scene.value.setOnKeyPressed((e : KeyEvent) => {
     simulationPane.fireEvent(e)

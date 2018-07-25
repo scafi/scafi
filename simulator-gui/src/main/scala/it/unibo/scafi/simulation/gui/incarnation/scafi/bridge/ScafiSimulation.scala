@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiBridge.rand
+import scala.util.Random
 
 
 /**
@@ -38,7 +38,8 @@ object ScafiSimulation {
   case class RadiusSimulation(val program : Class[_], val action : Actions.ACTION = Actions.generalAction, val radius : Double = 0.0) extends ScafiSimulation {
 
     override def create: ScafiBridge = {
-      val bridge = new ScafiSimulationObserver
+      val rand : Random = new Random()
+      val bridge = scafiSimulationObserver
       val proto = () => {
         val w = bridge.world
         val nodes: Map[ID, P] = w.nodes map {n => n.id -> new P(n.position.x,n.position.y,n.position.z)} toMap
@@ -57,8 +58,8 @@ object ScafiSimulation {
         res
       }
       bridge.simulationPrototype = Some(proto)
-      bridge.setProgramm(program)
-      bridge.setAction(action)
+      bridge.program = program
+      bridge.action = action
       bridge
     }
   }

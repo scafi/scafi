@@ -2,7 +2,9 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
 import scalafx.scene.Node
 import scalafx.scene.control.ScrollPane
+import scalafx.scene.input.{InputEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.layout.Pane
+import scalafx.Includes._
 
 /**
   * a pane that allow pan over another pane
@@ -11,12 +13,11 @@ import scalafx.scene.layout.Pane
   */
 class PannablePane(pane : Node, attachOn : Option[Pane] = None) extends ScrollPane {
   this.content = pane
-  this.pannable = true
-  this.hbarPolicy = ScrollPane.ScrollBarPolicy.Never;
-  this.vbarPolicy = ScrollPane.ScrollBarPolicy.Never;
+  this.pannable = false
+  this.hbarPolicy = ScrollPane.ScrollBarPolicy.Always;
+  this.vbarPolicy = ScrollPane.ScrollBarPolicy.Always;
   if(attachOn.isDefined) {
     this.prefHeight.bind(attachOn.get.prefHeightProperty())
     this.prefWidth.bind(attachOn.get.prefWidthProperty())
   }
-
 }

@@ -6,7 +6,8 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation.Ra
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, StandardFXOutputPolicy}
+import it.unibo.scafi.simulation.gui.util.ClassFinder
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, GradientFXOutputPolicy, StandardFXOutputPolicy}
 
 import scalafx.Includes._
 import scalafx.application.JFXApp
@@ -20,8 +21,8 @@ object Launcher extends JFXApp  {
   val finded = classes.filter(x => x.isAnnotationPresent(classOf[Demo]) && !x.isInterface)
 
   private var simulations = Map.empty[String,Class[_]]
-  finded foreach {x => simulations += x.getName() -> x}
-  private val drawer = Map("rich" -> StandardFXOutputPolicy, "poor" -> FastFXOutputPolicy)
+  finded foreach {x => simulations += x.getSimpleName -> x}
+  private val drawer = Map("rich" -> StandardFXOutputPolicy, "poor" -> FastFXOutputPolicy, "color" -> GradientFXOutputPolicy)
   val w = 800
   val h = 600
   val comboSim = new ComboBox[String](simulations.keys.toList)

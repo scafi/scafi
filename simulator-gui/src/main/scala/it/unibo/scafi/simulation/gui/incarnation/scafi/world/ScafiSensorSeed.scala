@@ -21,9 +21,9 @@ object ScafiSensorSeed {
     /**
       * @return a sequence of scafi builder
       */
-    override lazy val sensor: Iterable[scafiWorld.DEVICE_PRODUCER] = List(scafiWorld.LedProducer(sens1.name,false,sensorInput),
-                                                                                scafiWorld.LedProducer(sens2.name,false,sensorInput),
-                                                                                scafiWorld.LedProducer(sens3.name,false,sensorInput),
-                                                                                scafiWorld.GeneralSensorProducer(name = gsensor.name,stream = sensorOutput))
+    override lazy val sensor: Iterable[scafiWorld.DEVICE_PRODUCER] = List(scafiWorld.LedProducer(sensor1.name,false,sensorInput),
+                                                                                scafiWorld.LedProducer(sensor2.name,false,sensorInput),
+                                                                                scafiWorld.LedProducer(sensor3.name,false,sensorInput),
+                                                                                scafiWorld.GeneralSensorProducer(name = output1.name,stream = sensorOutput))
   }
 }

@@ -58,7 +58,17 @@ trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld
       false
     }
   }
-  def createObserver(listenEvent : Set[EventType]) : O = new AggregateWorldObserver(listenEvent)
+
+  /**
+    * create a world obsever
+    * @param listenEvent the event that observer observe
+    * @return the observer created
+    */
+  def createObserver(listenEvent : Set[EventType]) : O = {
+    val res = new AggregateWorldObserver(listenEvent)
+    self.attach(res)
+    res
+  }
 }
 
 object AbstractAggregateWorld {

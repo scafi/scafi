@@ -16,22 +16,34 @@ import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Priority
 trait Scheduler extends Source {
   override type O = Scheduler.SchedulerObserver
 
+  /**
+    * start to schedule controller
+    */
   def start()
 
+  /**
+    * stop to schedule controller
+    */
   def stop()
 
   /**
     * time in mills of each tick
     * @return the time
     */
-  def delta() : Int
+  def delta : Int
+
+  /**
+    * setter of delta value
+    * @param d new delta value
+    */
+  def delta_=(d : Int)
 }
 
 object Scheduler {
   object scheduler extends Scheduler with PrioritySource {
     private[this] var d : Int = _
     private[this] var on = false
-    private[this] var end = true
+    private[this] var end = false
     private[this] val mainThread = new Runnable {
       private[this] var elapsed = delta
       override def run(): Unit = {
@@ -50,7 +62,7 @@ object Scheduler {
       }
     }
     override def start(): Unit = {
-      require(delta > 0 && end)
+      require(delta > 0 && !end)
       on = true
       val thread : Thread = new Thread(mainThread)
       thread.setName("scafi-gui-scheduler")
@@ -65,7 +77,7 @@ object Scheduler {
       require(v > 0)
       d = v
     }
-    def delta = d
+    def delta : Int = d
 
   }
   //factory (singleton like)

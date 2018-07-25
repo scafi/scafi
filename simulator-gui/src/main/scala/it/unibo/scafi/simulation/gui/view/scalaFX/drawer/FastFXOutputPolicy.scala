@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
 
-import it.unibo.scafi.simulation.gui.configuration.SensorName.gsensor
+import it.unibo.scafi.simulation.gui.configuration.SensorName.output1
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 
 
@@ -21,9 +21,9 @@ object FastFXOutputPolicy extends FXOutputPolicy {
         case led : Boolean => {
           if (led) {
             val color = StandardFXOutputPolicy.colors(dev.name.toString)
-            if (gsensor.name == dev.name && node.fillProperty().value == Color.BLACK) {
+            if (output1.name == dev.name && node.fillProperty().value == Color.BLACK) {
               node.fillProperty().setValue(color)
-            } else if (gsensor.name != dev.name) {
+            } else if (output1.name != dev.name) {
               node.fillProperty().setValue(color)
             }
           } else {
@@ -32,6 +32,7 @@ object FastFXOutputPolicy extends FXOutputPolicy {
             }
           }
         }
+        case _ =>
       }
     }
   }

@@ -5,7 +5,7 @@ import javafx.embed.swing.JFXPanel
 import it.unibo.scafi.simulation.gui.configuration.ViewEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.FXSimulationPane
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{FXSimulationPane, ZoomablePane}
 import it.unibo.scafi.simulation.gui.view.{AbstractKeyboardManager, AbstractSelectionArea, Container, SimulationView}
 
 import scalafx.application.Platform

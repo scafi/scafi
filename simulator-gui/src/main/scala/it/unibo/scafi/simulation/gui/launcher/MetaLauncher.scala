@@ -37,7 +37,7 @@ class MetaLauncher[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironme
     programEnv.controller.foreach{scheduler.attach(_)}
     scheduler.attach(programEnv.simulation)
     scheduler.attach(programEnv.presenter)
-    scheduler.delta_=(programEnv.policy.tick)
+    scheduler.delta = programEnv.policy.tick
     scheduler.start()
 
   }

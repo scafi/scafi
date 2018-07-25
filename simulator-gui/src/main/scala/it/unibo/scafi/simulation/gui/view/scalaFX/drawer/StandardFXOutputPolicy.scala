@@ -13,13 +13,14 @@ import scalafx.scene.paint.Color
 import scalafx.scene.shape.Ellipse
 
 object StandardFXOutputPolicy extends FXOutputPolicy {
-
+  //TODO create a non static color map
   override type OUTPUTNODE = javafx.scene.Node
-  val colors: Map[String, Color] = Map(sens1.name -> Color.Red,
-    sens2.name -> Color.Yellow,
-    sens3.name -> Color.Blue,
-    gsensor.name -> Color.LimeGreen)
-  val size: Map[String, Double] = Map(sens1.name -> 1, sens2.name -> 3, sens3.name -> 5, gsensor.name -> 7)
+  private val maxTextLength = 200
+  val colors: Map[String, Color] = Map(sensor1.name -> Color.Red,
+    sensor2.name -> Color.Yellow,
+    sensor3.name -> Color.Blue,
+    output1.name -> Color.LimeGreen)
+  val size: Map[String, Double] = Map(sensor1.name -> 1, sensor2.name -> 3, sensor3.name -> 5, output1.name -> 7)
   val radius = 2
 
   override def nodeGraphicsNode(node: NODE): OUTPUTNODE = nodeToShape.create(node)
@@ -32,6 +33,7 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
     dev match {
       case SensorDevice(sens) => sens.value match {
         case led : Boolean => graphics.setVisible(led)
+        case numeric : Double => graphics.asInstanceOf[Label].setText(numeric.toInt.toString)
         case v => graphics.asInstanceOf[Label].setText(v.toString)
       }
       case _ =>
@@ -60,6 +62,7 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
         }
         case v => {
           val label = new Label(v.toString)
+          label.setMaxWidth(maxTextLength)
           label.layoutX.bind(node.translateX + point.x)
           label.layoutY.bind(node.translateY + point.y)
           Some(label)

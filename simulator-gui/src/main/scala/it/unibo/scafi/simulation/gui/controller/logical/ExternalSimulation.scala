@@ -5,42 +5,57 @@ import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 /**
   * define an external simulation that controls the current world
  *
-  * @tparam W
+  * @tparam W the internal world representation
   */
-trait ExternalSimulation[W <: AggregateWorld] extends AsyncLogicController[W]{
-  //BRIDGE
+abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicName : String) extends AsyncLogicController[W]{
+  //BRIDGE, external simulation type
   type EXTERNAL_SIMULATION
+  //BRIDGE, a prototype to create simulation
   type SIMULATION_PROTOTYPE
+  //BRIDGE, a contract used to create simulation
   type SIMULATION_CONTRACT <: ExternalSimulationContract
-  protected val world : W
-  //factory method
 
   /**
-    * start the external simulation with the default seed
+    * @return the simulation world
+    */
+  protected def world : W
+  //factory method
+  /**
+    * the contract used to create external simulation
+    * @return the contract used to create external simulation
     */
   def contract  : SIMULATION_CONTRACT
-
+  /**
+    * @return the current simulation prototype
+    */
   def simulationPrototype : Option[SIMULATION_PROTOTYPE]
 
   /**
-    * initialize the external simulation, this operation must be before all thing
+    * initialize the external simulation
     */
   def init() = {
+    //to initialize the simulation the prototype must be defined
     require(simulationPrototype.isDefined)
+    //use contract to initialize the simulation
     contract.initialize(simulationPrototype.get)
   }
 
   override def start(): Unit = {
-    require(contract.getSimulation.isDefined)
+    //verify if the contract is defined, otherwhise the simulation can't start
+    require(contract.simulation.isDefined)
     super.start()
   }
   /**
     * restart the simulation with another seed
     */
   def restart() = {
-    require(contract.getSimulation.isDefined && simulationPrototype.isDefined)
+    //verify if the contract and the prototype is defined, other the simulation can't restart
+    require(contract.simulation.isDefined && simulationPrototype.isDefined)
+    //stop the current simulation
     super.stop()
+    //use contact to restart simulation
     contract.restart(simulationPrototype.get)
+    //start the simulation
     super.start()
   }
 
@@ -49,17 +64,20 @@ trait ExternalSimulation[W <: AggregateWorld] extends AsyncLogicController[W]{
     * @throws IllegalArgumentException if there isn't simulation stopped
     */
   def continue() = {
-    require(isStopped && contract.getSimulation.isDefined)
+    require(isStopped && contract.simulation.isDefined)
     super.start()
   }
 
+  /**
+    * describe a contract used to create external simulation
+    */
   trait ExternalSimulationContract {
     /**
     * get the current external simulation
     *
     * @return None if the simulation isn't initialize, Some otherwhise
     */
-    def getSimulation: Option[EXTERNAL_SIMULATION]
+    def simulation: Option[EXTERNAL_SIMULATION]
 
     /**
       * initialize the external simulation

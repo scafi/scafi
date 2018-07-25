@@ -8,13 +8,13 @@ import it.unibo.scafi.simulation.gui.model.space.Point3D
 /**
   * a place used to defined command from scafi framework
   */
-object ScafiCommandSpace extends CommandSpace {
+object scafiWorldCommandSpace extends CommandSpace {
 
   /**
     * a command used to move a set of id to another position in a scafi world
     * @param ids the id to move
     */
-  case class MoveCommand(ids : Map[Any, Point3D]) extends Command {
+  case class MoveCommand(ids : Map[_ <: Any, Point3D]) extends Command {
     var oldPos : Map[scafiWorld.ID,Point3D] = Map()
     override def make(): Unit = ids.foreach(x => {
       x._1 match {
@@ -37,7 +37,7 @@ object ScafiCommandSpace extends CommandSpace {
     * @param ids the set of node id
     * @param name the name of device
     */
-  case class ToggleDeviceCommand(ids : Set[Any], name : Any) extends Command {
+  case class ToggleDeviceCommand(ids : Set[_ <: Any], name : Any) extends Command {
     private def toggleDevice(): Unit =  name match {
       case name : scafiWorld.NAME => {
         ids foreach {

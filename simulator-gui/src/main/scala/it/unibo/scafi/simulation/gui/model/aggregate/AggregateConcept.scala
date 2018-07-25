@@ -70,12 +70,6 @@ trait AggregateConcept {
   }
 
   /**
-    * a trait used to create a sequence of node
-    */
-  trait FactoryNodeProducer extends RootNodeProducer {
-    def buildAll() : Iterable[MUTABLE_NODE]
-  }
-  /**
     * an event produced when a device attached in a node changed
     * @param id the node id
     * @param name the device name

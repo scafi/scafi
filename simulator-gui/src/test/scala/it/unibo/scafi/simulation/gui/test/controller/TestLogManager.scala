@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.test.controller
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import org.scalatest.{FunSpec, Matchers}
-class TestLogManager extends FunSpec with Matchers{
+class TestLogManager extends FunSpec with Matchers {
   val checkThat = new ItWord
   import LogManager._
   val lowPriority = new TestableLogObserver(Set(Low))

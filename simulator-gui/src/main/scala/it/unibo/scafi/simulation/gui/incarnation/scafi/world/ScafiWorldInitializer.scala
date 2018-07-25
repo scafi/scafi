@@ -64,8 +64,8 @@ object ScafiWorldInitializer {
       val z = 0
       var nodes = 0;
       scafiWorld clear()
-      for(i <- 1 until row) {
-        for(j <- 1 until column) {
+      for(i <- 1 to row) {
+        for(j <- 1 to column) {
           nodes += 1
           scafiWorld.insertNode(new scafiWorld.NodeBuilder(nodes,Point3D(i * space,j * space,z),Some(Rectangle(2,2)),sensors.sensor.toList))
         }

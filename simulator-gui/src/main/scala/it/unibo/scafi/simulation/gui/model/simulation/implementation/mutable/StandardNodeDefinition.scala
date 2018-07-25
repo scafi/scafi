@@ -40,6 +40,13 @@ trait StandardNodeDefinition extends SensorDefinition {
     override def devices: Set[DEVICE] = this.deviceView
   }
 
+  /**
+    * a single node builder, produce always the same node
+    * @param id the node id
+    * @param position the node position
+    * @param shape the node shape
+    * @param producer a list of device producer
+    */
   class NodeBuilder(id : ID, position : P, shape : Option[S] = None, producer : List[DEVICE_PRODUCER] = List.empty)
     extends AbstractNodeBuilder(id,shape,position,producer) {
 
