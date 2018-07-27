@@ -71,7 +71,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val scafi = project.in(file(".")).
-  aggregate(core, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
+  aggregate(core, commons, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
   settings(commonSettings:_*).
   settings(sharedPublishSettings:_*).
   settings(
@@ -82,7 +82,7 @@ lazy val scafi = project.in(file(".")).
 lazy val commons = project.
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
-  settings(name := "commons")
+  settings(name := "scafi-commons")
 
 lazy val core = project.
   dependsOn(commons).
