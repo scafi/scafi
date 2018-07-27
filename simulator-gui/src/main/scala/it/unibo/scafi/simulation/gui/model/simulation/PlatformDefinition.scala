@@ -19,6 +19,12 @@ object PlatformDefinition {
     * a sensor platform :
     * describe a connected world with a sensor network
     */
-  trait SensorPlatform extends SensorWorld with ConnectedWorld with SensorConcept with AbstractNodeDefinition with SimpleSource
+  trait SensorPlatform extends SensorWorld
+    with ConnectedWorld
+    with SensorConcept
+    with AbstractNodeDefinition
+    with SimpleSource {
+    override type SENSOR_VALUE = Any
+  }
 
 }

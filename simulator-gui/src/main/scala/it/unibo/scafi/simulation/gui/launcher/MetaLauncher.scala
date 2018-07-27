@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.launcher
 
-import it.unibo.scafi.simulation.gui.configuration.{CommandMapping, ProgramEnvironment, ViewEnvironment}
+import it.unibo.scafi.simulation.gui.configuration.command.CommandMapping
+import it.unibo.scafi.simulation.gui.configuration.{ProgramEnvironment, ViewEnvironment}
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.scheduler
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.view.View

@@ -16,11 +16,11 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
   //TODO create a non static color map
   override type OUTPUTNODE = javafx.scene.Node
   private val maxTextLength = 200
-  val colors: Map[String, Color] = Map(sensor1.name -> Color.Red,
-    sensor2.name -> Color.Yellow,
-    sensor3.name -> Color.Blue,
-    output1.name -> Color.LimeGreen)
-  val size: Map[String, Double] = Map(sensor1.name -> 1, sensor2.name -> 3, sensor3.name -> 5, output1.name -> 7)
+  val colors: Map[String, Color] = Map(sensor1 -> Color.Red,
+    sensor2 -> Color.Yellow,
+    sensor3 -> Color.Blue,
+    output1 -> Color.LimeGreen)
+  val size: Map[String, Double] = Map(sensor1 -> 1, sensor2 -> 3, sensor3 -> 5, output1 -> 7)
   val radius = 2
 
   override def nodeGraphicsNode(node: NODE): OUTPUTNODE = nodeToShape.create(node)

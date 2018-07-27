@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.controller.logical.{ExternalSimulation, SimulationCommandSpace}
+import it.unibo.scafi.simulation.gui.configuration.command.SimulationCommandSpace
+import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld

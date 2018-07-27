@@ -1,7 +1,7 @@
-package it.unibo.scafi.simulation.gui.controller.logical
+package it.unibo.scafi.simulation.gui.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.CommandSpace
 import it.unibo.scafi.simulation.gui.controller.input.Command
+import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 
 /**

@@ -1,8 +1,9 @@
-package it.unibo.scafi.simulation.gui.demos
+package it.unibo.scafi.simulation.gui.demo
 
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BuildingBlocks}
-import it.unibo.scafi.simulation.gui.launcher.scalaFX.Launcher
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.launcher.scafi.FXLauncher
 
 import scala.concurrent.duration._
 object AgereExample extends App {

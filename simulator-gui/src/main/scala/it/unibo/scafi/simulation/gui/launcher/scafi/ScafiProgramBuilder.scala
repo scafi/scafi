@@ -1,10 +1,11 @@
 package it.unibo.scafi.simulation.gui.launcher.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.ProgramEnvironment.{FastPerformancePolicy, PerformancePolicy}
-import it.unibo.scafi.simulation.gui.configuration.{CommandMapping, ViewEnvironment}
+import it.unibo.scafi.simulation.gui.configuration.ViewEnvironment
+import it.unibo.scafi.simulation.gui.configuration.command.CommandMapping
 import it.unibo.scafi.simulation.gui.controller.presenter.SimulationPresenter
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld, ScafiWorldInitializer}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.{ScafiCommandMapping, ScafiProgramEnvironment}
 import it.unibo.scafi.simulation.gui.launcher.MetaLauncher
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment

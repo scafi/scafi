@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.configuration
+package it.unibo.scafi.simulation.gui.configuration.command
 
 import it.unibo.scafi.simulation.gui.controller.input.Command
 

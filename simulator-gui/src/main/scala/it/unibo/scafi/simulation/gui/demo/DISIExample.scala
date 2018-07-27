@@ -1,11 +1,13 @@
-package it.unibo.scafi.simulation.gui.demos
+package it.unibo.scafi.simulation.gui.demo
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutputPolicy
 object DISIExample extends App {
+  val demoInfo = classOf[Main].getAnnotation(classOf[Demo])
   ScafiProgramBuilder (
     worldInitializer = Grid(100,100,5),
     simulation = RadiusSimulation(program = classOf[Main], radius = 10),
@@ -15,9 +17,9 @@ object DISIExample extends App {
 
 abstract class DISIDemoAggregateProgram extends AggregateProgram {
   import it.unibo.scafi.simulation.gui.configuration.SensorName._
-  def sense1 = sense[Boolean](sensor1.name)
-  def sense2 = sense[Boolean](sensor2.name)
-  def sense3 = sense[Boolean](sensor3.name)
+  def sense1 = sense[Boolean](sensor1)
+  def sense2 = sense[Boolean](sensor2)
+  def sense3 = sense[Boolean](sensor3)
   def boolToInt(b: Boolean) = mux(b){1}{0}
   def nbrRange = nbrvar[Double]("nbrRange")
 }

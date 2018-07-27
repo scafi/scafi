@@ -16,14 +16,15 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.demos
+package it.unibo.scafi.simulation.gui.demo
 
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins, FieldUtils, GenericUtils, ID, StandardSensors, TimeUtils}
-import it.unibo.scafi.simulation.gui.demos.DoubleUtils.Precision
+import it.unibo.scafi.simulation.gui.demo.DoubleUtils.Precision
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutputPolicy
@@ -126,7 +127,7 @@ class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions
 class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = crf(sense1)
 }
-@Demo
+@Demo(simulationType =  SimulationType.ON_OFF_INPUT_ANY_OUTPUT)
 class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradient(sense1)
 }

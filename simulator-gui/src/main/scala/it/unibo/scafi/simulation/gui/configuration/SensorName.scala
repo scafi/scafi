@@ -4,18 +4,40 @@ package it.unibo.scafi.simulation.gui.configuration
   * a space used to define a set of sensor name
   */
 object SensorName {
-  trait Name {
-    def name : String
-  }
-
   /**
     * all sensor name accept
     */
-  val sensor1 : Name = new Name{val name = "sens1"}
-  val sensor2 : Name = new Name{val name = "sens2"}
-  val sensor3 : Name = new Name{val name = "sens3"}
-  val output1 : Name = new Name{val name = "output"}
-  val output2 : Name = new Name{val name = "output1"}
-  val output3 : Name = new Name{val name = "output2"}
+  var sensor1 : String = "sens1"
+  var sensor2 : String = "sens2"
+  var sensor3 : String = "sens3"
+  var output1 : String = "output"
+  var output2 : String = "output1"
+  var output3 : String = "output2"
 
+  val inputSensor = List(sensor1,sensor2,sensor3)
+
+  val outputSensor = List(output1,output2,output3)
+
+  /**
+    * a method used to change sensor namespace
+    * @param sensor1 sensor1 name
+    * @param sensor2 sensor2 name
+    * @param sensor3 sensor3 name
+    * @param output1 output1 name
+    * @param output2 output2 name
+    * @param output3 output3 name
+    */
+  def sensorNamespace(sensor1 : String = sensor1,
+                      sensor2 : String = sensor2,
+                      sensor3 : String = sensor3,
+                      output1 : String = output1,
+                      output2 : String = sensor2,
+                      output3 : String = sensor3) : Unit = {
+    this.sensor1 = sensor1
+    this.sensor2 = sensor2
+    this.sensor3 = sensor3
+    this.output1 = output1
+    this.output2 = output2
+    this.output3 = output3
+  }
 }
