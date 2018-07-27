@@ -5,4 +5,21 @@ scala:
    - 2.12.2
 
 script:
-   - sbt ++$TRAVIS_SCALA_VERSION test
+   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi" ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi'
+
+before_deploy:
+  - echo Preparing for deploy
+
+deploy:
+  - provider: surge
+    project: ./target/scala-2.12/unidoc/
+    domain: scafi-docs.surge.sh
+    skip_cleanup: true
+    on:
+      branch: master
+      tags: true
+  - provider: surge
+    project: ./target/scala-2.12/unidoc/
+    domain: scafi-docs-unstable.surge.sh
+    skip_cleanup: true
+    on: develop

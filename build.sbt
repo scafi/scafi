@@ -62,7 +62,7 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.12.2",
   version := "0.3.0",
   compileScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
   (compile in Compile) <<= (compile in Compile) dependsOn compileScalastyle,
@@ -71,12 +71,14 @@ lazy val commonSettings = Seq(
 )
 
 lazy val scafi = project.in(file(".")).
+  enablePlugins(ScalaUnidocPlugin).
   aggregate(core, commons, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
   settings(commonSettings:_*).
   settings(sharedPublishSettings:_*).
   settings(
     // Prevents aggregated project (root) to be published
-    packagedArtifacts in file(".") := Map.empty
+    packagedArtifacts in file(".") := Map.empty,
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos)
   )
 
 lazy val commons = project.
