@@ -24,7 +24,15 @@ trait StdLib_StateManagement{
   trait StateManagement {
     self: FieldCalculusSyntax with StandardSensors =>
 
-    def remember[T](value: T): T = rep(value)(identity)
+    def roundCounter(): Long =
+      rep(0L)(_+1)
+
+    def remember[T](value: T): T =
+      rep(value)(identity)
+
+    def captureChange[T](x: T): Boolean = rep((x,false)) { case (value, _) =>
+      (x, value != x)
+    }._2
 
     /**
       * @return true when the given parameter goes from false to true (starting from false); false otherwise
@@ -39,5 +47,15 @@ trait StdLib_StateManagement{
     def goesDown(value: Boolean): Boolean = rep((false, false)) { case (old, trigger) =>
       (value, !value && value != old)
     }._2
+
+    /**
+      * It is a simple building block which returns the same values
+      *  it receives in input delayed by one computation round.
+      */
+    def delay[T](value: T): T = {
+      var res = value
+      rep(value){ old => res = old; value }
+      res
+    }
   }
 }

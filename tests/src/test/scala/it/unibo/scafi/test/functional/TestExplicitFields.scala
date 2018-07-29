@@ -51,12 +51,10 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   private[this] class GradientProgram extends AggregateProgram with ExplicitFields with StandardSensors with TestLib {
-    override type MainResult = Double
     override def main() = gradient(sense[Boolean](SRC)) + 1
   }
 
   private[this] class PartitionProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override type MainResult = Double
     override def main() = branch(sense[Boolean](FLAG)){
       fnbr(1.0).withoutSelf
     }{
@@ -65,7 +63,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   private[this] class DomainMismatchProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override type MainResult = Double
     override def main(): Double = {
       val f1 = branch(sense[Boolean](FLAG)){ fnbr(1.0).withoutSelf }{ fnbr(-1.0) }
       val f2 = branch(sense[Boolean](SRC)){ fnbr(10.0) }{ fnbr(0.0) }
@@ -74,7 +71,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   private[this] class DomainWithDefaultsProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override type MainResult = Map[ID,String]
     override def main(): Map[ID,String] = {
       val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
       val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
@@ -83,7 +79,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   private[this] class DomainUnionProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override type MainResult = Map[ID,String]
     override def main(): Map[ID,String] = {
       val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
       val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }

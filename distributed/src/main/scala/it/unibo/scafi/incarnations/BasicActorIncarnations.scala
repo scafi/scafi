@@ -18,15 +18,54 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
 import it.unibo.scafi.distrib.actor.p2p.{Platform => P2pActorPlatform}
-import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform}
-import it.unibo.scafi.distrib.actor.server.{SpatialPlatform => SpatialServerBasedActorPlatform}
-import it.unibo.scafi.space.{Point2D, BasicSpatialAbstraction}
+import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform, SpatialPlatform => SpatialServerBasedActorPlatform}
+import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
+import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 
 trait BasicAbstractActorIncarnation
   extends BasicAbstractDistributedIncarnation
-  with ActorPlatform
+    with ActorPlatform {
+  override type ComputationContext = CONTEXT with ComputationContextContract
+  override type ComputationExport = EXPORT with ComputationExportContract
+  override type UID = Int
+  override type LSensorName = String
+  override type NSensorName = String
+  override type DataFactory = DataFactoryContract
+  override type Program = AggregateProgram with ProgramContract
+  override val interopUID = interopID
+  override val linearUID = linearID
+
+  implicit def adaptProgram(program: AggregateProgram): AggregateProgram with ProgramContract =
+    new AggregateProgram with ProgramContract {
+      override def round(ctx: ComputationContext): ComputationExport =
+        program.round(ctx)
+
+      override def main(): Any =
+        program.main()
+    }
+
+  implicit def adaptExport(export: EXPORT): ComputationExport =
+    new ExportImpl with ComputationExportContract {
+      override def get[A](path: Path): Option[A] = export.get(path)
+      override def put[A](path: Path, value: A): A = export.put(path, value)
+      override def root[A](): A = export.root()
+    }
+
+  implicit def adaptContext(ctx: CONTEXT): ComputationContext =
+    new BaseContextImpl(ctx.selfId, ctx.exports()) with ComputationContextContract {
+      override def sense[T](lsns: String): Option[T] = ctx.sense(lsns)
+      override def nbrSense[T](nsns: String)(nbr: Int): Option[T] = ctx.nbrSense(nsns)(nbr)
+    }
+
+  override val dataFactory = new DataFactoryContract {
+    override def context(id: UID,
+                         exports: Map[UID, ComputationExport],
+                         lsns: Map[LSensorName, Any],
+                         nsns: Map[NSensorName, Map[UID, Any]]): ComputationContext =
+      factory.context(id, exports, lsns, nsns)
+  }
+}
 
 object BasicActorP2P extends BasicAbstractActorIncarnation
   with P2pActorPlatform with Serializable

@@ -28,6 +28,7 @@ trait Stdlib_BlockG {
   trait BlockG {
     self: FieldCalculusSyntax with StandardSensors =>
 
+    // TODO: flawed!!! must minimise only on the distance but use 'field' as default
     def G[V: Bounded](source: Boolean, field: V, acc: V => V, metric: => Double): V =
       rep((Double.MaxValue, field)) { case (dist, value) =>
         mux(source) {

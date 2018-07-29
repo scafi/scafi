@@ -16,11 +16,17 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.incarnations
+package it.unibo.scafi.distrib.actor
 
-import it.unibo.scafi.distrib.Platform
+import it.unibo.scafi.distrib.actor.patterns.PeriodicObservableInputProviderActor
 
-trait BasicAbstractDistributedIncarnation extends
-  BasicAbstractIncarnation with Platform {
+trait PlatformSensors { self: Platform.Subcomponent =>
+
+  abstract class PeriodicObservableSensorActor[T](name: LSensorName) extends
+  PeriodicObservableInputProviderActor[LSensorName,T](name) {
+    override def currentStateMessage: Any = {
+      new MsgLocalSensorValue(name,value.get)
+    }
+  }
 
 }

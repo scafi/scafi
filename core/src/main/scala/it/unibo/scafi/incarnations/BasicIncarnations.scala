@@ -18,8 +18,9 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.space.{BasicSpatialAbstraction}
+import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.BasicTimeAbstraction
+import it.unibo.utils.{Interop, Linearizable}
 
 /**
  * An aggregate-programming system is ultimately created

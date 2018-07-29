@@ -18,7 +18,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils, StandardSensors}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
@@ -89,7 +89,8 @@ class ShortestPathProgram extends AggregateProgram with Gradients with SensorDef
   }
 }
 
-class CheckSpeed extends AggregateProgram with Gradients with BlockG with SensorDefinitions with GenericUtils {
+class CheckSpeed extends AggregateProgram
+    with Gradients with BlockG with SensorDefinitions with GenericUtils with StateManagement {
   implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
     override def default: LocalDateTime = LocalDateTime.now()
   }
@@ -167,6 +168,7 @@ object DoubleUtils {
 trait Gradients extends BlockG
   with FieldUtils
   with TimeUtils
+  with StateManagement
   with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
 
 
@@ -228,9 +230,10 @@ trait Gradients extends BlockG
       def distance = Math.max(nbrRange(), delta * communicationRadius)
 
       import BoundedTypeClasses._; import Builtins.Bounded._ // for min/maximizing over tuples
-      val maxLocalSlope = maxHood {
+      val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
+      /*maxHood {
         ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
-      }
+      }*/
       val constraint = minHoodPlus{ (nbr{g} + distance) }
 
       mux(source){ 0.0 }{
@@ -400,7 +403,8 @@ trait Gradients extends BlockG
       case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
         // (1) Let's calculate new values for spaceDistEst and sourceId
         import BoundedTypeClasses._; import Builtins.Bounded._
-        val (newSpaceDistEst, newSourceId) = minHood {
+        val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
+        /* minHood {
           mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
           { // let's discard neighbours where 'obsolete' flag is true
             // (unless 'obsolete' flag is true for all the neighbours)
@@ -410,7 +414,7 @@ trait Gradients extends BlockG
             // let's use classic gradient calculation
             (nbr{spaceDistEst} + metric, nbr{sourceId})
           }
-        }
+        }*/
 
         // (2) The most recent timeDistEst for the newSourceId is retrieved
         // by minimising nbrs' values for timeDistEst + their relative time distance
