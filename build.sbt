@@ -15,6 +15,7 @@ val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
 val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
+val playJson   = "com.typesafe.play" %% "play-json"   % "2.6.9"
 
 lazy val sharedPublishSettings = Seq(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
@@ -125,7 +126,7 @@ lazy val spala = project.
   settings(sharedPublishSettings: _*).
   settings(
     name := "spala",
-    libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt)
+    libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt, playJson)
   )
 
 // 'distributed' project definition
