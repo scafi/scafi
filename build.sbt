@@ -37,8 +37,8 @@ inThisBuild(List(  sonatypeProfileName := "it.unibo.apice.scafiteam", // Your pr
     else
       Opts.resolver.sonatypeStaging
   ),
-  pgpPublicRing := file("./travis/local.pubring.asc"),
-  pgpSecretRing := file("./travis/local.secring.asc")
+  pgpPublicRing := file("./.travis/local.pubring.gpg"),
+  pgpSecretRing := file("./.travis/local.secring.gpg")
 ))
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
