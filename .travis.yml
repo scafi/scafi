@@ -11,6 +11,16 @@ before_deploy:
   - echo Preparing for deploy
 
 deploy:
+  - provider: releases
+    api_key:
+      secure: POLoNhB5BpUIXXdZeM9d46KYASzFl+RhWX7aSESqtSRI58GfqzSpLYDjN5gv6j11n1qLppZwklbYff790HGlSypxT+Z/l0Dom/GH+Qj2ucn3DX38tbP2Y6mb7FYXRs1vIYq9Cdo5CaU6X68VV+y35DzVovcW33N9YyQZgrBY1SNQaN6rwkk2OTLeGqDQe3LFKYj/+HSCHvTVi//xF+XPKYJ6U+vX9jE+5CwGNoaGkFfLDfHzQKqtuTujUjDyzjTH1dvIni/nxswc26/q/SBtNmXjnotPX5NtfP2vFA0RZI9gf3sDKmNc8aCvfHu5+/gwe/Hxaz2o+AuZycQoEgtN87Y/4HShJc4iC7+oV/gam6kDpJQI0yNqGuZYo6w9PUOPG10tMfdZRzsNxdvq9tiksULAh8SyE1fD4iQr1dsQ2RA8cA5e2VGgm4n72lvrVIBPqP0AW9jX6TcZGDOSTuZYfVNwr+ewLJ0Mvw7lFzb+u4PTNZM8r8vjVv5SLKjGQv/6AfrOOvouBzYFoA4jtKN1RYgeJDUVvkdwGj8XOId/pTG1jGa9Loy2bIeYCGSEd3cUYOh6DkAxCN9PRnd5mLJaI58cYZD3Nep9OIaQhvi0Vy3aPBkhOfJVHDDRwvyYfFwKcKiEEoCXu+b38ugtskYhd5yc29p/y+/BsFcaC9x1R6M=
+    file_glob: true
+    file: core/target/scala-*/scafi-core-assembly-*.jar
+    skip_cleanup: true
+    on:
+      all_branches: true
+      #branch: master
+      #tags: true
   - provider: surge
     project: ./target/scala-2.12/unidoc/
     domain: scafi-docs.surge.sh
@@ -22,4 +32,6 @@ deploy:
     project: ./target/scala-2.12/unidoc/
     domain: scafi-docs-unstable.surge.sh
     skip_cleanup: true
-    on: develop
+    # on: develop
+    on:
+      all_branches: true
