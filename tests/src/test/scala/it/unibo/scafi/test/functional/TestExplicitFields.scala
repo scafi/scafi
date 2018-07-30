@@ -96,7 +96,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
 
   ExplicitFields should "support construction of gradients" in new SimulationContextFixture {
     // ACT
-    exec(new GradientProgram, ntimes = fewRounds)(net)
+    exec(new GradientProgram, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
