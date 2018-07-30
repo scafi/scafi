@@ -24,8 +24,8 @@ deploy:
     skip_cleanup: true
     on:
       all_branches: true
-      branch: master
-      tags: true
+      #branch: master
+      #tags: true
   - provider: surge
     project: ./target/scala-2.12/unidoc/
     domain: scafi-docs.surge.sh
@@ -38,7 +38,7 @@ deploy:
     project: ./target/scala-2.12/unidoc/
     domain: scafi-docs-unstable.surge.sh
     skip_cleanup: true
-    # on: develop
     on:
+      # branch: develop
       all_branches: true
       condition: $TRAVIS_SCALA_VERSION = 2.12.2
