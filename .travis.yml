@@ -15,21 +15,28 @@ scala:
    - ${RELEASE_SCALA_VERSION}
 
 script:
-   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi" ]; then
-       bash travis_build.sh;
-     else
-       bash travis_build_pullrequest.sh;
-     fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi" ]; then
+      bash travis_build.sh;
+    else
+      bash travis_build_pullrequest.sh;
+    fi'
+
+before_install:
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+      openssl aes-256-cbc -K $encrypted_e508d9beb0ba_key -iv $encrypted_e508d9beb0ba_iv -in .travis/secrets.tar.enc -out .travis/local.secrets.tar -d;
+      tar xv -C .travis -f .travis/secrets.tar;
+      sbt ++$TRAVIS_SCALA_VERSION releaseEarly;
+    fi'
 
 before_deploy:
   - echo Preparing for deploy
 
 deploy:
   - provider: script
-    script: scripts/travis_deploy.sh
+    script: travis_deploy.sh
     skip_cleanup: true
-    on:
-      branch: master
+    #on:
+    #  branch: master
   - provider: releases
     api_key:
       secure: POLoNhB5BpUIXXdZeM9d46KYASzFl+RhWX7aSESqtSRI58GfqzSpLYDjN5gv6j11n1qLppZwklbYff790HGlSypxT+Z/l0Dom/GH+Qj2ucn3DX38tbP2Y6mb7FYXRs1vIYq9Cdo5CaU6X68VV+y35DzVovcW33N9YyQZgrBY1SNQaN6rwkk2OTLeGqDQe3LFKYj/+HSCHvTVi//xF+XPKYJ6U+vX9jE+5CwGNoaGkFfLDfHzQKqtuTujUjDyzjTH1dvIni/nxswc26/q/SBtNmXjnotPX5NtfP2vFA0RZI9gf3sDKmNc8aCvfHu5+/gwe/Hxaz2o+AuZycQoEgtN87Y/4HShJc4iC7+oV/gam6kDpJQI0yNqGuZYo6w9PUOPG10tMfdZRzsNxdvq9tiksULAh8SyE1fD4iQr1dsQ2RA8cA5e2VGgm4n72lvrVIBPqP0AW9jX6TcZGDOSTuZYfVNwr+ewLJ0Mvw7lFzb+u4PTNZM8r8vjVv5SLKjGQv/6AfrOOvouBzYFoA4jtKN1RYgeJDUVvkdwGj8XOId/pTG1jGa9Loy2bIeYCGSEd3cUYOh6DkAxCN9PRnd5mLJaI58cYZD3Nep9OIaQhvi0Vy3aPBkhOfJVHDDRwvyYfFwKcKiEEoCXu+b38ugtskYhd5yc29p/y+/BsFcaC9x1R6M=
