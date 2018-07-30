@@ -65,6 +65,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.2",
   version := "0.3.0",
   compileScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
+  (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) <<= (compile in Compile) dependsOn compileScalastyle,
   // Cross-Building
   crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
