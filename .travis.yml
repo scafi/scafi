@@ -14,8 +14,6 @@ script:
 
 before_deploy:
   - echo Preparing for deploy
-  - pwd
-  - cd ${TRAVIS_BUILD_DIR}
 
 deploy:
   - provider: releases
@@ -35,6 +33,7 @@ deploy:
     on:
       branch: master
       tags: true
+      condition: $TRAVIS_SCALA_VERSION = 2.12.2
   - provider: surge
     project: ./target/scala-2.12/unidoc/
     domain: scafi-docs-unstable.surge.sh
@@ -42,3 +41,4 @@ deploy:
     # on: develop
     on:
       all_branches: true
+      condition: $TRAVIS_SCALA_VERSION = 2.12.2
