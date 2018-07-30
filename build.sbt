@@ -53,6 +53,13 @@ lazy val commonSettings = Seq(
   crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
 )
 
+lazy val noPublishSettings =
+  Seq(
+    publishArtifact := false,
+    publish := (),
+    publishLocal := ()
+  )
+
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
   aggregate(core, commons, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
@@ -116,6 +123,7 @@ lazy val distributed = project.
 lazy val tests = project.
   dependsOn(core, simulator).
   settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
   settings(
     name := "scafi-tests",
     libraryDependencies += scalatest
@@ -125,6 +133,7 @@ lazy val tests = project.
 lazy val demos = project.
   dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos"
   )
