@@ -58,6 +58,5 @@ deploy:
     domain: scafi-docs-unstable.surge.sh
     skip_cleanup: true
     on:
-      # branch: develop
-      all_branches: true
+      branch: develop
       condition: $TRAVIS_SCALA_VERSION = ${RELEASE_SCALA_VERSION}
