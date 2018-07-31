@@ -18,6 +18,64 @@
 
 package it.unibo.scafi.distrib.actor
 
+import akka.serialization.SerializerWithStringManifest
+import play.api.libs.json._
+
+trait PlatformJsonSerialization { self: Platform.Subcomponent =>
+  implicit val msgExportWrites: Writes[PlatformMessages#MsgExport] = Writes { msg =>
+    Json.obj("from" -> Json.toJson(msg.from.asInstanceOf[UID]), "export" -> Json.toJson(msg.export.asInstanceOf[ComputationExport]))
+  }
+  implicit val msgExportReads: Reads[MsgExport] = js =>
+    JsSuccess { MsgExport((js \ "from").as[UID], (js \ "export").as[ComputationExport]) }
+
+  implicit val msgNeighborhoodExportsWrites: Writes[PlatformMessages#MsgNeighborhoodExports] = Writes { msg =>
+    Json.obj("id" -> Json.toJson(msg.id.asInstanceOf[UID]), "nbrs" -> Json.toJson(msg.nbrs.asInstanceOf[Map[UID, Option[ComputationExport]]]))
+  }
+  implicit val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = js =>
+    JsSuccess { MsgNeighborhoodExports((js \ "id").as[UID], (js \ "nbrs").as[Map[UID, Option[ComputationExport]]]) }
+
+  implicit val nbrsReads: Reads[Map[UID, Option[ComputationExport]]] = json => JsSuccess {
+    json.as[JsObject].value.map {
+      case (k, v) => (Json.toJson(k).as[UID], v.asOpt[ComputationExport])
+    }.toMap
+  }
+
+  implicit val uidWrites: Writes[UID]
+  implicit val uidReads: Reads[UID]
+
+  implicit val computationExportWrites: Writes[ComputationExport]
+  implicit val computationExportReads: Reads[ComputationExport]
+}
+
+trait CustomSerializer extends SerializerWithStringManifest with Platform with PlatformJsonSerialization {
+  private[this] val Identifier = 4096
+  val MsgExportManifest = "MsgExport"; val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
+
+  override def identifier: Int = Identifier
+
+  override def manifest(obj: AnyRef): String = obj match {
+    case _: PlatformMessages#MsgExport => MsgExportManifest
+    case _: PlatformMessages#MsgNeighborhoodExports => MsgNeighborhoodExportsManifest
+  }
+
+  override def toBinary(obj: AnyRef): Array[Byte] = obj match {
+    case me: PlatformMessages#MsgExport => Json.toJson(me.asInstanceOf[MsgExport]).toString().getBytes
+    case mne: PlatformMessages#MsgNeighborhoodExports => Json.toJson(mne.asInstanceOf[MsgNeighborhoodExports]).toString.getBytes
+  }
+
+  override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
+    case MsgExportManifest => Json.parse(bytes).validate[MsgExport] match {
+      case s: JsSuccess[MsgExport] => s.value
+      case e: JsError => println("Errors: " + JsError.toJson(e).toString()); e
+    }
+    case MsgNeighborhoodExportsManifest => Json.parse(bytes).validate[MsgNeighborhoodExports] match {
+      case s: JsSuccess[MsgNeighborhoodExports] => s.value
+      case e: JsError => println("Errors: " + JsError.toJson(e).toString()); e
+    }
+  }
+}
+
+/*
 import akka.actor.ExtendedActorSystem
 import akka.serialization.{JavaSerializer, Serializer}
 
@@ -55,4 +113,4 @@ class CustomSerializer(ext: ExtendedActorSystem) extends Serializer {
     //ext.log.debug(s"\n### SERIALIZING: ${o}\n")
     javaSerializer.toBinary(o)
   }
-}
+}*/
