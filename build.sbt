@@ -64,6 +64,7 @@ lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
   aggregate(core, commons, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
   settings(commonSettings:_*).
+  settings(noPublishSettings:_*).
   settings(
     // Prevents aggregated project (root) to be published
     packagedArtifacts := Map.empty,
