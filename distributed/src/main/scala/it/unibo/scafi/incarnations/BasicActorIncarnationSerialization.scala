@@ -18,29 +18,91 @@
 
 package it.unibo.scafi.incarnations
 
+import akka.actor.ExtendedActorSystem
 import it.unibo.scafi.distrib.actor.CustomSerializer
 import it.unibo.scafi.distrib.actor.p2p.{Platform => P2pActorPlatform}
 import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform}
 import play.api.libs.json._
 
 trait BasicActorIncarnationSerializer extends CustomSerializer with BasicAbstractActorIncarnation {
-  override implicit val uidWrites: Writes[UID] = id => JsString(id.toString)
-  override implicit val uidReads: Reads[UID] = id => JsSuccess { id.as[String].toInt }
 
-  override implicit val computationExportWrites: Writes[ComputationExport] = export => {
+  override implicit val computationExportWrites: Writes[Export with ExportOps with Serializable with ComputationExportContract] = export =>
     export.root().getClass.getName match {
-      case "java.lang.Integer" => Json.obj("root" -> export.root().toString, "type" -> "Int")
-      case _ => Json.obj("root" -> JsString(export.root()), "type" -> "String")
+      case "java.lang.Integer" => Json.obj("root" -> JsNumber(export.root().asInstanceOf[Int]))
+      case s => Json.obj("root" -> s.toString)
     }
+  override implicit val computationExportReads: Reads[Export with ExportOps with Serializable with ComputationExportContract] = js => {
+    val factory = new EngineFactory(); val export = factory.emptyExport()
+    (js \ "root").get match {
+      case n: JsNumber => export.put(factory.emptyPath(), n.as[Int])
+      case s => export.put(factory.emptyPath(), s.toString)
+    }
+    JsSuccess {
+      export
+    }
+  }
+
+  /*override implicit val computationExportWrites: Writes[ComputationExport] = export => {
+    val field = classOf[ExportImpl].getDeclaredField("map"); field.setAccessible(true)
+    val map = field.get(export).asInstanceOf[MMap[Path,Any]]; field.setAccessible(false)
+    Json.obj("map" -> map)
   }
   override implicit val computationExportReads: Reads[ComputationExport] = js => {
     val export = new EngineFactory().emptyExport()
-    (js \ "type").as[String] match {
-      case "Int" => export.put(factory.emptyPath(), (js \ "root").as[Int]); JsSuccess { export }
-      case _ => export.put(factory.emptyPath(), (js \ "root").as[String]); JsSuccess { export }
+    val field = classOf[ExportImpl].getDeclaredField("map"); field.setAccessible(true)
+    field.set(export, (js \ "map").as[MMap[Path,Any]]); field.setAccessible(false)
+    JsSuccess { export }
+  }
+
+  implicit val mapWrites: Writes[MMap[Path, Any]] = map => Json.obj(map.map {
+    case (k, v) => v match {
+      case i:Int => val ret = (Json.toJson(k).as[String], Json.toJsFieldJsValueWrapper(i)); ret
+      case _ => val ret = Json.toJson(k).as[String] -> Json.toJsFieldJsValueWrapper(v.toString); ret
+    }
+  }.toSeq: _*)
+  implicit val expMapReads: Reads[MMap[Path, Any]] = js => JsSuccess {
+    MMap(js.as[JsObject].value.map {
+      case (k, v) => v match {
+        case n:JsNumber => (Json.toJson(k).as[Path], n.as[Int])
+      }
+    }.toMap.toSeq: _*)
+  }
+
+  implicit val pathWrites: Writes[Path] = path => Json.obj("list" -> Json.toJson(path.asInstanceOf[PathImpl].path))
+  implicit val pathReads: Reads[Path] = js => JsSuccess { new PathImpl((js \ "list").as[List[Slot]]) }
+
+  implicit val slotWrites: Writes[Slot] = {
+    case Nbr(index) => Json.obj("type"->"Nbr", "index"->index)
+    case Rep(index) => Json.obj("type"->"Rep", "index"->index)
+    case FoldHood(index) => Json.obj("type"->"FoldHood", "index"->index)
+    case FunCall(index, funId) => funId match {
+      case i:Int => Json.obj("type"->"FunCall", "index"->index, "funId"->i)
+      case s => Json.obj("type"->"FunCall", "index"->index, "funId"->s.toString)
+    }
+    case Scope(key) => key match {
+      case i:Int => Json.obj("type"->"Scope", "key"->i)
+      case s => Json.obj("type"->"Scope", "key"->s.toString)
     }
   }
+  implicit val slotReads: Reads[Slot] = js =>
+    (js \ "type").as[String] match {
+      case "Nbr" => JsSuccess { Nbr((js \ "index").as[Int]) }
+      case "Rep" => JsSuccess { Rep((js \ "index").as[Int]) }
+      case "FoldHood" => JsSuccess { FoldHood((js \ "index").as[Int]) }
+      case "FunCall" => JsSuccess {
+        js \ "funId" match {
+          case n: JsNumber => FunCall((js \ "index").as[Int], n.as[Int])
+          case s => FunCall((js \ "index").as[Int], s.as[String])
+        }
+      }
+      case "Scope" => JsSuccess {
+        js \ "key" match {
+          case n: JsNumber => Scope(n.as[Int])
+          case s => Scope(s.as[String])
+        }
+      }
+    }*/
 }
 
-case class BasicActorP2pSerializer() extends BasicActorIncarnationSerializer with P2pActorPlatform
-case class BasicActorServerBasedSerializer() extends BasicActorIncarnationSerializer with ServerBasedActorPlatform
+case class BasicActorP2pSerializer(ext: ExtendedActorSystem) extends BasicActorIncarnationSerializer with P2pActorPlatform
+case class BasicActorServerBasedSerializer(ext: ExtendedActorSystem) extends BasicActorIncarnationSerializer with ServerBasedActorPlatform

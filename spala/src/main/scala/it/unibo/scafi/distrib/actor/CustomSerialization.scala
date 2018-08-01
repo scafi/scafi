@@ -18,38 +18,52 @@
 
 package it.unibo.scafi.distrib.actor
 
+import akka.actor.ExtendedActorSystem
 import akka.serialization.SerializerWithStringManifest
 import play.api.libs.json._
 
 trait PlatformJsonSerialization { self: Platform.Subcomponent =>
   implicit val msgExportWrites: Writes[PlatformMessages#MsgExport] = Writes { msg =>
-    Json.obj("from" -> Json.toJson(msg.from.asInstanceOf[UID]), "export" -> Json.toJson(msg.export.asInstanceOf[ComputationExport]))
+    Json.obj("from" -> uidToJs(msg.from.asInstanceOf[UID]), "export" -> Json.toJson(msg.export.asInstanceOf[ComputationExport]))
   }
   implicit val msgExportReads: Reads[MsgExport] = js =>
-    JsSuccess { MsgExport((js \ "from").as[UID], (js \ "export").as[ComputationExport]) }
+    JsSuccess { MsgExport(jsToUid((js \ "from").get).asInstanceOf[UID], (js \ "export").as[ComputationExport]) }
 
   implicit val msgNeighborhoodExportsWrites: Writes[PlatformMessages#MsgNeighborhoodExports] = Writes { msg =>
-    Json.obj("id" -> Json.toJson(msg.id.asInstanceOf[UID]), "nbrs" -> Json.toJson(msg.nbrs.asInstanceOf[Map[UID, Option[ComputationExport]]]))
+    Json.obj("id" -> uidToJs(msg.id.asInstanceOf[UID]), "nbrs" -> Json.toJson(msg.nbrs.asInstanceOf[Map[UID, Option[ComputationExport]]]))
   }
   implicit val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = js =>
-    JsSuccess { MsgNeighborhoodExports((js \ "id").as[UID], (js \ "nbrs").as[Map[UID, Option[ComputationExport]]]) }
+    JsSuccess { MsgNeighborhoodExports(jsToUid((js \ "id").get).asInstanceOf[UID], (js \ "nbrs").as[Map[UID, Option[ComputationExport]]]) }
 
-  implicit val nbrsReads: Reads[Map[UID, Option[ComputationExport]]] = json => JsSuccess {
-    json.as[JsObject].value.map {
-      case (k, v) => (Json.toJson(k).as[UID], v.asOpt[ComputationExport])
+  implicit val nbrsWrites: Writes[Map[UID, Option[ComputationExport]]] = map => Json.obj(map.map {
+    case (k, v) =>
+      (k.toString, Json.toJsFieldJsValueWrapper(v))
+  }.toSeq: _*)
+  implicit val nbrsReads: Reads[Map[UID, Option[ComputationExport]]] = js => JsSuccess {
+    js.as[JsObject].value.map {
+      case (k, v) => (jsToUid(Json.toJson(k)).asInstanceOf[UID], v.asOpt[ComputationExport])
     }.toMap
   }
 
-  implicit val uidWrites: Writes[UID]
-  implicit val uidReads: Reads[UID]
-
   implicit val computationExportWrites: Writes[ComputationExport]
   implicit val computationExportReads: Reads[ComputationExport]
+
+  private def uidToJs(uid: UID): JsValue = uid match {
+    case i: Int => Json.obj("id" -> i)
+    case s: String => Json.obj("id" -> s)
+  }
+  private def jsToUid(js: JsValue): Any = (js \ "id").get match {
+    case n: JsNumber => n.as[Int]
+    case s: JsString => s.as[String]
+  }
+
 }
 
 trait CustomSerializer extends SerializerWithStringManifest with Platform with PlatformJsonSerialization {
-  private[this] val Identifier = 4096
-  val MsgExportManifest = "MsgExport"; val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
+  private val Identifier = 4096
+  private val MsgExportManifest = "MsgExport"; private val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
+
+  val ext: ExtendedActorSystem
 
   override def identifier: Int = Identifier
 
@@ -66,11 +80,13 @@ trait CustomSerializer extends SerializerWithStringManifest with Platform with P
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
     case MsgExportManifest => Json.parse(bytes).validate[MsgExport] match {
       case s: JsSuccess[MsgExport] => s.value
-      case e: JsError => println("Errors: " + JsError.toJson(e).toString()); e
+      case e: JsError => ext.log.debug(s"\nCannot deserialize:" + JsError.toJson(e).toString)
+        SystemMsgClassNotFound(JsError.toJson(e).toString)
     }
     case MsgNeighborhoodExportsManifest => Json.parse(bytes).validate[MsgNeighborhoodExports] match {
       case s: JsSuccess[MsgNeighborhoodExports] => s.value
-      case e: JsError => println("Errors: " + JsError.toJson(e).toString()); e
+      case e: JsError => ext.log.debug(s"\nCannot deserialize:" + JsError.toJson(e).toString)
+        SystemMsgClassNotFound(JsError.toJson(e).toString)
     }
   }
 }
