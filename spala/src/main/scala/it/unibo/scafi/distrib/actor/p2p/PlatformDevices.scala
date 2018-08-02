@@ -32,13 +32,10 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     def neighbourhoodManagementBehavior: Receive = {
       case info @ NbrInfo(idn,_,_,_) => mergeNeighborInfo(idn,info)
       case MsgDeviceLocation(idn, ref) => mergeNeighborInfo(idn,NbrInfo(idn,None,Some(ref),None))
-      /*case MsgExport(from, export) => {
+      case MsgExport(from, export) => {
         mergeNeighborInfo(from, NbrInfo(from, None, Some(sender), Some(sender.path.toString)))
         updateNeighborsState(Map(from -> Some(export)))
-      }*/
-      case msg if msg.isInstanceOf[MsgExport] => val exp = msg.asInstanceOf[MsgExport]
-        mergeNeighborInfo(exp.from, NbrInfo(exp.from, None, Some(sender), Some(sender.path.toString)))
-        updateNeighborsState(Map(exp.from -> Some(exp.export)))
+      }
       case MsgRemoveNeighbor(idn) => removeNeighbor(idn)
     }
 
