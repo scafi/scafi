@@ -18,28 +18,27 @@
 
 package it.unibo.scafi.incarnations
 
-import akka.actor.ExtendedActorSystem
-import it.unibo.scafi.distrib.actor.CustomSerializer
-import it.unibo.scafi.distrib.actor.p2p.{Platform => P2pActorPlatform}
-import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform}
+import it.unibo.scafi.distrib.actor.{BaseCustomSerializer, CustomSerializer}
 import play.api.libs.json._
 
-trait BasicActorIncarnationSerializer extends CustomSerializer with BasicAbstractActorIncarnation {
+trait BasicActorIncarnationSerializer extends BaseCustomSerializer { self: BasicAbstractActorIncarnation =>
+  CustomSerializer.incarnation = Some(this)
 
-  override implicit val computationExportWrites: Writes[Export with ExportOps with Serializable with ComputationExportContract] = export =>
+  override def uidToJs(uid: UID): JsValue = Json.obj("id" -> uid)
+  override def jsToUid(js: JsValue): UID = (js \ "id").as[Int]
+
+  override implicit val computationExportWrites: Writes[ComputationExport] = export =>
     export.root().getClass.getName match {
       case "java.lang.Integer" => Json.obj("root" -> JsNumber(export.root().asInstanceOf[Int]))
       case s => Json.obj("root" -> s.toString)
     }
-  override implicit val computationExportReads: Reads[Export with ExportOps with Serializable with ComputationExportContract] = js => {
+  override implicit val computationExportReads: Reads[ComputationExport] = js => {
     val factory = new EngineFactory(); val export = factory.emptyExport()
     (js \ "root").get match {
       case n: JsNumber => export.put(factory.emptyPath(), n.as[Int])
       case s => export.put(factory.emptyPath(), s.toString)
     }
-    JsSuccess {
-      export
-    }
+    JsSuccess { export }
   }
 
   /*override implicit val computationExportWrites: Writes[ComputationExport] = export => {
@@ -103,6 +102,3 @@ trait BasicActorIncarnationSerializer extends CustomSerializer with BasicAbstrac
       }
     }*/
 }
-
-case class BasicActorP2pSerializer(ext: ExtendedActorSystem) extends BasicActorIncarnationSerializer with P2pActorPlatform
-case class BasicActorServerBasedSerializer(ext: ExtendedActorSystem) extends BasicActorIncarnationSerializer with ServerBasedActorPlatform
