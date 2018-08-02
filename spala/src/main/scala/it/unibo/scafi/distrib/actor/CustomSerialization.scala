@@ -45,88 +45,64 @@ trait PlatformJsonSerialization { self: Platform.Subcomponent =>
     }.toMap
   }
 
+  def uidToJs(uid: UID): JsValue
+  def jsToUid(js: JsValue): Any
+
   implicit val computationExportWrites: Writes[ComputationExport]
   implicit val computationExportReads: Reads[ComputationExport]
-
-  private def uidToJs(uid: UID): JsValue = uid match {
-    case i: Int => Json.obj("id" -> i)
-    case s: String => Json.obj("id" -> s)
-  }
-  private def jsToUid(js: JsValue): Any = (js \ "id").get match {
-    case n: JsNumber => n.as[Int]
-    case s: JsString => s.as[String]
-  }
-
 }
 
-trait CustomSerializer extends SerializerWithStringManifest with Platform with PlatformJsonSerialization {
-  private val Identifier = 4096
-  private val MsgExportManifest = "MsgExport"; private val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
+trait BaseCustomSerializer extends PlatformJsonSerialization { self: Platform =>
+  val MsgExportManifest = "MsgExport"
+  val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
 
-  val ext: ExtendedActorSystem
-
-  override def identifier: Int = Identifier
-
-  override def manifest(obj: AnyRef): String = obj match {
-    case _: PlatformMessages#MsgExport => MsgExportManifest
-    case _: PlatformMessages#MsgNeighborhoodExports => MsgNeighborhoodExportsManifest
+  def manifest(obj: AnyRef): Option[String] = obj match {
+    case _: PlatformMessages#MsgExport => Some(MsgExportManifest)
+    case _: PlatformMessages#MsgNeighborhoodExports => Some(MsgNeighborhoodExportsManifest)
+    case _ => None
   }
 
-  override def toBinary(obj: AnyRef): Array[Byte] = obj match {
-    case me: PlatformMessages#MsgExport => Json.toJson(me.asInstanceOf[MsgExport]).toString().getBytes
-    case mne: PlatformMessages#MsgNeighborhoodExports => Json.toJson(mne.asInstanceOf[MsgNeighborhoodExports]).toString.getBytes
+  def toBinary(obj: AnyRef): Option[Array[Byte]] = obj match {
+    case me: PlatformMessages#MsgExport =>
+      Some(Json.toJson(me.asInstanceOf[MsgExport]).toString.getBytes)
+    case mne: PlatformMessages#MsgNeighborhoodExports =>
+      Some(Json.toJson(mne.asInstanceOf[MsgNeighborhoodExports]).toString.getBytes)
+    case _ => None
   }
 
-  override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
+  def fromBinary(bytes: Array[Byte], manifest: String): Option[AnyRef] = manifest match {
     case MsgExportManifest => Json.parse(bytes).validate[MsgExport] match {
-      case s: JsSuccess[MsgExport] => s.value
-      case e: JsError => ext.log.debug(s"\nCannot deserialize:" + JsError.toJson(e).toString)
-        SystemMsgClassNotFound(JsError.toJson(e).toString)
+      case s: JsSuccess[MsgExport] => Some(s.value)
+      case _ => None
     }
     case MsgNeighborhoodExportsManifest => Json.parse(bytes).validate[MsgNeighborhoodExports] match {
-      case s: JsSuccess[MsgNeighborhoodExports] => s.value
-      case e: JsError => ext.log.debug(s"\nCannot deserialize:" + JsError.toJson(e).toString)
-        SystemMsgClassNotFound(JsError.toJson(e).toString)
+      case s: JsSuccess[MsgNeighborhoodExports] => Some(s.value)
+      case _ => None
     }
   }
 }
 
-/*
-import akka.actor.ExtendedActorSystem
-import akka.serialization.{JavaSerializer, Serializer}
+class CustomSerializer(ext: ExtendedActorSystem) extends SerializerWithStringManifest {
+  private def incarnation = CustomSerializer.incarnation
 
-class CustomSerializer(ext: ExtendedActorSystem) extends Serializer {
-  val javaSerializer = new JavaSerializer(ext)
+  override def identifier: Int = 4096
 
-  override val identifier: Int = 999
+  override def manifest(obj: AnyRef): String = incarnation.map(_.manifest(obj) match {
+    case Some(m) => m
+    case _ => "UnknownManifest"
+  }).getOrElse("UnknownManifest")
 
-  override def includeManifest: Boolean = false
+  override def toBinary(obj: AnyRef): Array[Byte] = incarnation.map(_.toBinary(obj) match {
+    case Some(tb) => tb
+    case _ => ext.log.debug(s"\nCannot serialize: " + obj); Array[Byte]()
+  }).getOrElse(Array[Byte]())
 
-  override def fromBinary(bytes: Array[Byte], manifest: Option[Class[_]]): AnyRef = {
-    try {
-      javaSerializer.fromBinary(bytes)
-    } catch {
-      /**
-       * Typically ClassNotFoundException means the current class is not found
-       * and NoClassDefFoundError means a dependent class for the currently loaded class is not found
-       * http://stackoverflow.com/questions/1457863/what-causes-and-what-are-the-differences-between-noclassdeffounderror-and-classn
-       */
-      case exc: ClassNotFoundException => {
-        ext.log.debug(s"\nCannot deserialize (ClassNotFound): ${exc.getMessage}")
-        //throw exc
-        SystemMsgClassNotFound(exc.getMessage)
-      }
-      case exc: NoClassDefFoundError => {
-        val missingClass = exc.getMessage.drop(1).dropRight(1).replace('/','.')
-        ext.log.debug(s"\nCannot deserialize (NoClassDefFound): ${exc.getMessage}" +
-          s"\nMissing class: $missingClass")
-        SystemMsgClassNotFound(missingClass)
-      }
-    }
-  }
+  override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = incarnation.map(_.fromBinary(bytes, manifest) match {
+    case Some(fb) => fb
+    case _ => ext.log.debug(s"\nCannot deserialize: " + manifest); SystemMsgClassNotFound(manifest)
+  }).getOrElse(SystemMsgClassNotFound(manifest))
+}
 
-  override def toBinary(o: AnyRef): Array[Byte] = {
-    //ext.log.debug(s"\n### SERIALIZING: ${o}\n")
-    javaSerializer.toBinary(o)
-  }
-}*/
+object CustomSerializer {
+  var incarnation: Option[BaseCustomSerializer] = None
+}
