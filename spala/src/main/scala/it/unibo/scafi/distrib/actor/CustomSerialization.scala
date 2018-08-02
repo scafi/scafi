@@ -89,8 +89,8 @@ class CustomSerializer(ext: ExtendedActorSystem) extends SerializerWithStringMan
 
   override def manifest(obj: AnyRef): String = incarnation.map(_.manifest(obj) match {
     case Some(m) => m
-    case _ => "UnknownManifest"
-  }).getOrElse("UnknownManifest")
+    case _ => obj.getClass.getName
+  }).getOrElse("")
 
   override def toBinary(obj: AnyRef): Array[Byte] = incarnation.map(_.toBinary(obj) match {
     case Some(tb) => tb
@@ -100,7 +100,7 @@ class CustomSerializer(ext: ExtendedActorSystem) extends SerializerWithStringMan
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = incarnation.map(_.fromBinary(bytes, manifest) match {
     case Some(fb) => fb
     case _ => ext.log.debug(s"\nCannot deserialize: " + manifest); SystemMsgClassNotFound(manifest)
-  }).getOrElse(SystemMsgClassNotFound(manifest))
+  }).getOrElse(None)
 }
 
 object CustomSerializer {
