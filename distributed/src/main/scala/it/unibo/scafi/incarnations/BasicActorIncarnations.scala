@@ -24,7 +24,7 @@ import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
 import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 
 trait BasicAbstractActorIncarnation
-  extends BasicAbstractDistributedIncarnation
+  extends BasicAbstractDistributedIncarnation with BasicActorIncarnationSerializer
     with ActorPlatform {
   override type ComputationContext = CONTEXT with ComputationContextContract
   override type ComputationExport = EXPORT with ComputationExportContract
