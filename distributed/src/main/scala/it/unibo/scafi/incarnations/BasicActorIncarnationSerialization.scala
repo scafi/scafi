@@ -20,6 +20,7 @@ package it.unibo.scafi.incarnations
 
 import it.unibo.scafi.distrib.actor.{BaseCustomSerializer, CustomSerializer}
 import play.api.libs.json._
+import scala.collection.mutable.{Map => MMap}
 
 trait BasicActorIncarnationSerializer extends BaseCustomSerializer { self: BasicAbstractActorIncarnation =>
   CustomSerializer.incarnation = Some(this)
@@ -27,7 +28,7 @@ trait BasicActorIncarnationSerializer extends BaseCustomSerializer { self: Basic
   override def uidToJs(uid: UID): JsValue = Json.obj("id" -> uid)
   override def jsToUid(js: JsValue): UID = (js \ "id").as[Int]
 
-  override implicit val computationExportWrites: Writes[ComputationExport] = export =>
+  /*override implicit val computationExportWrites: Writes[ComputationExport] = export =>
     export.root().getClass.getName match {
       case "java.lang.Integer" => Json.obj("root" -> JsNumber(export.root().asInstanceOf[Int]))
       case s => Json.obj("root" -> s.toString)
@@ -39,32 +40,59 @@ trait BasicActorIncarnationSerializer extends BaseCustomSerializer { self: Basic
       case s => export.put(factory.emptyPath(), s.toString)
     }
     JsSuccess { export }
-  }
+  }*/
 
-  /*override implicit val computationExportWrites: Writes[ComputationExport] = export => {
-    val field = classOf[ExportImpl].getDeclaredField("map"); field.setAccessible(true)
-    val map = field.get(export).asInstanceOf[MMap[Path,Any]]; field.setAccessible(false)
-    Json.obj("map" -> map)
-  }
+  override implicit val computationExportWrites: Writes[ComputationExport] = export =>
+    Json.obj("map" -> export.getMap.asInstanceOf[Map[Path,Any]])
+
   override implicit val computationExportReads: Reads[ComputationExport] = js => {
     val export = new EngineFactory().emptyExport()
     val field = classOf[ExportImpl].getDeclaredField("map"); field.setAccessible(true)
-    field.set(export, (js \ "map").as[MMap[Path,Any]]); field.setAccessible(false)
+    field.set(export, MMap((js \ "map").as[Map[Path,Any]].toSeq:_*)); field.setAccessible(false)
     JsSuccess { export }
   }
 
-  implicit val mapWrites: Writes[MMap[Path, Any]] = map => Json.obj(map.map {
+  /*implicit val expMapWrites: Writes[Map[Path, Any]] = map => Json.obj(map.map {
     case (k, v) => v match {
       case i:Int => val ret = (Json.toJson(k).as[String], Json.toJsFieldJsValueWrapper(i)); ret
       case _ => val ret = Json.toJson(k).as[String] -> Json.toJsFieldJsValueWrapper(v.toString); ret
     }
   }.toSeq: _*)
-  implicit val expMapReads: Reads[MMap[Path, Any]] = js => JsSuccess {
-    MMap(js.as[JsObject].value.map {
+  implicit val expMapReads: Reads[Map[Path, Any]] = js => JsSuccess {
+    js.as[JsObject].value.map {
       case (k, v) => v match {
         case n:JsNumber => (Json.toJson(k).as[Path], n.as[Int])
       }
-    }.toMap.toSeq: _*)
+    }.toMap
+  }*/
+
+  implicit val expMapWrites: Writes[Map[Path, Any]] = map =>
+    Json.obj("keys" -> map.keys, "values" -> anyListToJs(map.values.toList))
+
+  implicit val expMapReads: Reads[Map[Path, Any]] = js =>
+    JsSuccess { ((js \ "keys").as[List[Path]] zip jsToAnyList((js \ "values").get)).toMap }
+
+  /*implicit val anyWrites: Writes[Any] = {
+    case i:Int => Json.obj("type" -> "Int", "val" -> i)
+    case s:String => Json.obj("type" -> "String", "val" -> s)
+  }
+  implicit val anyReads: Reads[Any] = js => {
+    (js \ "type").as[String] match {
+      case "Int" => JsSuccess { (js \ "val").as[Int] }
+      case "String" => JsSuccess { (js \ "val").as[String] }
+    }
+  }*/
+
+  def anyListToJs(list: List[Any]): JsValue = JsArray(list.map(anyToJs))
+  def jsToAnyList(js: JsValue): List[Any] = List(js.as[JsArray].value.map(jsToAny))
+
+  def anyToJs(any: Any): JsValue = any match {
+    case i:Int => Json.obj("type" -> "Int", "val" -> i)
+    case s:String => Json.obj("type" -> "String", "val" -> s)
+  }
+  def jsToAny(js: JsValue): Any = (js \ "type").as[String] match {
+    case "Int" => (js \ "val").as[Int]
+    case "String" => (js \ "val").as[String]
   }
 
   implicit val pathWrites: Writes[Path] = path => Json.obj("list" -> Json.toJson(path.asInstanceOf[PathImpl].path))
@@ -100,5 +128,5 @@ trait BasicActorIncarnationSerializer extends BaseCustomSerializer { self: Basic
           case s => Scope(s.as[String])
         }
       }
-    }*/
+    }
 }
