@@ -21,30 +21,25 @@ package it.unibo.scafi.distrib.actor.serialization
 import play.api.libs.json.{JsArray, JsValue, Json}
 
 trait JsonPrimitivesSerialization {
-  def anyToJs: PartialFunction[Any, JsValue] = numberToJs orElse {
+  def anyToJs: PartialFunction[Any, JsValue] = {
     case b:Boolean => Json.obj("type" -> "Boolean", "val" -> b)
     case b:Byte => Json.obj("type" -> "Byte", "val" -> b)
-    case c:Char => Json.obj("type" -> "Char", "val" -> c.toString)
-    case s:String => Json.obj("type" -> "String", "val" -> s)
-  }
-  def jsToAny: PartialFunction[JsValue, Any] = jsToNumber orElse {
-    case b if (b \ "type").as[String] == "Boolean" => (b \ "val").as[Boolean]
-    case b if (b \ "type").as[String] == "Byte" => (b \ "val").as[Byte]
-    case c if (c \ "type").as[String] == "Char" => (c \ "val").as[String].head
-    case s if (s \ "type").as[String] == "String" => (s \ "val").as[String]
-  }
-
-  private def numberToJs: PartialFunction[Any, JsValue] = {
     case i:Int => Json.obj("type" -> "Int", "val" -> i)
     case l:Long => Json.obj("type" -> "Long", "val" -> l)
     case f:Float => Json.obj("type" -> "Float", "val" -> f)
     case d:Double => Json.obj("type" -> "Double", "val" -> d)
+    case c:Char => Json.obj("type" -> "Char", "val" -> c.toString)
+    case s:String => Json.obj("type" -> "String", "val" -> s)
   }
-  private def jsToNumber: PartialFunction[JsValue, Any] = {
+  def jsToAny: PartialFunction[JsValue, Any] = {
+    case b if (b \ "type").as[String] == "Boolean" => (b \ "val").as[Boolean]
+    case b if (b \ "type").as[String] == "Byte" => (b \ "val").as[Byte]
     case i if (i \ "type").as[String] == "Int" => (i \ "val").as[Int]
     case l if (l \ "type").as[String] == "Long" => (l \ "val").as[Long]
     case f if (f \ "type").as[String] == "Float" => (f \ "val").as[Float]
     case d if (d \ "type").as[String] == "Double" => (d \ "val").as[Double]
+    case c if (c \ "type").as[String] == "Char" => (c \ "val").as[String].head
+    case s if (s \ "type").as[String] == "String" => (s \ "val").as[String]
   }
 }
 

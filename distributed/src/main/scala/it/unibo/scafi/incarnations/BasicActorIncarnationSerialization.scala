@@ -26,22 +26,10 @@ import scala.collection.mutable.{Map => MMap}
 trait BasicActorIncarnationSerialization extends AbstractJsonSerializer { self: BasicAbstractActorIncarnation =>
   CustomSerializer.incarnation = Some(this)
 
-  override def anyToJs: PartialFunction[Any, JsValue] = super.anyToJs orElse slotToJs orElse {
+  override def anyToJs: PartialFunction[Any, JsValue] = super.anyToJs orElse {
     case u:UID => Json.obj("type" -> "UID", "val" -> u.asInstanceOf[Int])
     case e:ComputationExport => Json.obj("type" -> "ComputationExport", "val" -> anyToJs(e.getMap))
     case p:Path => Json.obj("type" -> "Path", "list" -> anyToJs(p.asInstanceOf[PathImpl].path))
-  }
-  override def jsToAny: PartialFunction[JsValue, Any] = super.jsToAny orElse jsToSlot orElse {
-    case u if (u \ "type").as[String] == "UID" => (u \ "val").as[Int]
-    case e if (e \ "type").as[String] == "ComputationExport" =>
-      val export = new EngineFactory().emptyExport()
-      val field = classOf[ExportImpl].getDeclaredField("map"); field.setAccessible(true)
-      field.set(export, MMap(jsToAny((e \ "val").get).asInstanceOf[Map[Any,Any]].toSeq:_*)); field.setAccessible(false)
-      adaptExport(export)
-    case p if (p \ "type").as[String] == "Path" => new PathImpl(jsToAny((p \ "list").get).asInstanceOf[List[Slot]])
-  }
-
-  private def slotToJs: PartialFunction[Any, JsValue] = {
     case s:Slot => s match {
       case Nbr(index) => Json.obj("type" -> "Slot", "slotType" -> "Nbr", "index" -> index)
       case Rep(index) => Json.obj("type" -> "Slot", "slotType" -> "Rep", "index" -> index)
@@ -50,7 +38,14 @@ trait BasicActorIncarnationSerialization extends AbstractJsonSerializer { self: 
       case Scope(key) => Json.obj("type" -> "Slot", "slotType" -> "Scope", "key" -> anyToJs(key))
     }
   }
-  private def jsToSlot: PartialFunction[JsValue, Any] = {
+  override def jsToAny: PartialFunction[JsValue, Any] = super.jsToAny orElse {
+    case u if (u \ "type").as[String] == "UID" => (u \ "val").as[Int]
+    case e if (e \ "type").as[String] == "ComputationExport" =>
+      val export = new EngineFactory().emptyExport()
+      val field = classOf[ExportImpl].getDeclaredField("map"); field.setAccessible(true)
+      field.set(export, MMap(jsToAny((e \ "val").get).asInstanceOf[Map[Any,Any]].toSeq:_*)); field.setAccessible(false)
+      adaptExport(export)
+    case p if (p \ "type").as[String] == "Path" => new PathImpl(jsToAny((p \ "list").get).asInstanceOf[List[Slot]])
     case s if (s \ "type").as[String] == "Slot" => (s \ "slotType").as[String] match {
       case "Nbr" => Nbr((s \ "index").as[Int])
       case "Rep" => Rep((s \ "index").as[Int])
