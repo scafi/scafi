@@ -27,7 +27,7 @@ trait BaseSerializer {
   def fromBinary(bytes: Array[Byte], manifest: String): Option[AnyRef]
 }
 
-trait AbstractJsonSerializer extends BaseSerializer with JsonMessagesSerialization { self: Platform =>
+trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSerialization { self: Platform =>
   val MsgExportManifest = "MsgExport"
   val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
 
