@@ -32,11 +32,11 @@ object scafiSimulationObserver extends ScafiBridge {
     }
     if(time > 1000000000L) {
       values ::= tick
-      println("current : " + tick)
+      /*println("current : " + tick)
       println("min : " + values.min)
       println("max : " + values.max)
       println("avg : " + values.sum / values.size)
-      println("time alapsed : " + printTime)
+      println("time alapsed : " + printTime)*/
       tick = 0;
       time = 0;
       printTime += 1

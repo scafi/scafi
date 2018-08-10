@@ -11,6 +11,9 @@ import it.unibo.scafi.simulation.gui.view.{AbstractKeyboardManager, AbstractSele
 import scalafx.application.Platform
 import scalafx.scene.layout.HBox
 
+/**
+  * standard fx view eniromento
+  */
 object ScalaFXEnvironment extends ViewEnvironment[SimulationView]{
   //init jx application
   new JFXPanel()
@@ -28,7 +31,7 @@ object ScalaFXEnvironment extends ViewEnvironment[SimulationView]{
 
   override def init(): Unit = {
     Platform.runLater {
-      val x = cont
+      cont
     }
   }
 }

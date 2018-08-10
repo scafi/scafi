@@ -21,5 +21,3 @@ object Actions {
     }
   }
 }
-
-class JavaActions(val action : PartialFunction[EXPORT,(ScafiLikeWorld,Int)=>Unit])

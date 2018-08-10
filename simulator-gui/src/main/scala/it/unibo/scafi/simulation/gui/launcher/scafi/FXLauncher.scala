@@ -2,9 +2,10 @@ package it.unibo.scafi.simulation.gui.launcher.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.gui.demo._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationProfile}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiSeed, ScafiWorldInitializer}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, GradientFXOutputPolicy, StandardFXOutputPolicy}
 
@@ -67,13 +68,15 @@ object FXLauncher extends JFXApp  {
     val annotation : Demo = simulations(program).getAnnotation(classOf[Demo])
     val profile : SimulationProfile = annotation.simulationType.profile
     val init : ScafiWorldInitializer= builder match {
-      case "random" => Random(node, w, h, sensors = profile.sensorSeed)
+      case "random" => Random(node, w, h)
       case "grid" => Grid(w / radius, h / radius, radius)
       case _ => Random(node, w, h)
     }
     ScafiProgramBuilder (
       worldInitializer = init,
-      simulation = RadiusSimulation(program = simulations(program), radius = inputRadius.text.value.toInt, action = profile.action ),
+      scafiSeed = ScafiSeed(deviceSeed = profile.sensorSeed),
+      scafiSimulationSeed = ScafiSimulationSeed(program = simulations(program), action = profile.action),
+      simulationInitializer = RadiusSimulationInitializer(radius = inputRadius.text.value.toInt),
       outputPolicy = drawer(drawerPassed),
       neighbourRender = true,
       perfomance = NearRealTimePolicy,

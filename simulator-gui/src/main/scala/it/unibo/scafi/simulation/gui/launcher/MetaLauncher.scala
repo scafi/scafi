@@ -40,6 +40,5 @@ class MetaLauncher[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironme
     scheduler.attach(programEnv.presenter)
     scheduler.delta = programEnv.policy.tick
     scheduler.start()
-
   }
 }

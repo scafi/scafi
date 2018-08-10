@@ -1,7 +1,8 @@
 package it.unibo.scafi.simulation.gui.demo
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
@@ -10,7 +11,8 @@ object DISIExample extends App {
   val demoInfo = classOf[Main].getAnnotation(classOf[Demo])
   ScafiProgramBuilder (
     worldInitializer = Grid(100,100,5),
-    simulation = RadiusSimulation(program = classOf[Main], radius = 10),
+    scafiSimulationSeed = ScafiSimulationSeed(classOf[Main]),
+    simulationInitializer = RadiusSimulationInitializer(radius = 10),
     outputPolicy = GradientFXOutputPolicy
   ).launch()
 }

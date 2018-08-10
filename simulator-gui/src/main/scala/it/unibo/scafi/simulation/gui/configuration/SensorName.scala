@@ -13,9 +13,13 @@ object SensorName {
   var output1 : String = "output"
   var output2 : String = "output1"
   var output3 : String = "output2"
-
+  /**
+    * return the name of all input sensor
+    */
   val inputSensor = List(sensor1,sensor2,sensor3)
-
+  /**
+    * return the name of all output sensor
+    */
   val outputSensor = List(output1,output2,output3)
 
   /**

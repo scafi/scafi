@@ -23,20 +23,22 @@ import java.time.temporal.ChronoUnit
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins, FieldUtils, GenericUtils, ID, StandardSensors, TimeUtils}
 import it.unibo.scafi.simulation.gui.demo.DoubleUtils.Precision
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulation.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutputPolicy
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutputPolicy
 import it.unibo.scafi.space.Point3D
 
 import scala.concurrent.duration.FiniteDuration
 object GradientsDemo extends App{
 
   ScafiProgramBuilder (
-    worldInitializer = Random(20000,500,500),
-    simulation = RadiusSimulation(program = classOf[ShortestPathProgram], radius = 6),
-    outputPolicy = GradientFXOutputPolicy
+    worldInitializer = Random(node = 20000, width = 500, height = 500),
+    scafiSimulationSeed = ScafiSimulationSeed(classOf[ShortestPathProgram]),
+    simulationInitializer = RadiusSimulationInitializer(radius = 6),
+    outputPolicy = FastFXOutputPolicy
   ).launch()
 }
 @Demo

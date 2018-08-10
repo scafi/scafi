@@ -4,40 +4,29 @@ import scala.util.Random
 
 
 /**
-  * describe a simulation skeleton of scafi framework
+  * describe a scafi simulation initializer, it is used to initialize the external simulation by a seed passed
+  * the difference between ScafiSimulationSeed is that this has the target to create a bridge with the seed passed
+  * the seed instead has the target to describe a scafi simulation skeleton
   */
-trait ScafiSimulation {
-  /**
-    * class of program
-    * @return the instance of this class
-    */
-  def program : Class[_]
-
-  /**
-    * the action of simulation
-    * @return the instance of action
-    */
-  def action : Actions.ACTION
+trait ScafiSimulationInitializer {
 
   /**
     * create the simulation
     * @return
     */
-  def create : ScafiBridge
+  def create(scafiSimulationSeed: ScafiSimulationSeed) : ScafiBridge
 }
 
-object ScafiSimulation {
+object ScafiSimulationInitializer {
   import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 
   /**
     * standard scafi simulation
-    * @param program the program to execute
-    * @param action the action on output
     * @param radius the radius of neighbour
     */
-  case class RadiusSimulation(val program : Class[_], val action : Actions.ACTION = Actions.generalAction, val radius : Double = 0.0) extends ScafiSimulation {
+  case class RadiusSimulationInitializer(val radius : Double = 0.0) extends ScafiSimulationInitializer {
 
-    override def create: ScafiBridge = {
+    override def create(scafiSimulationSeed : ScafiSimulationSeed): ScafiBridge = {
       val rand : Random = new Random()
       val bridge = scafiSimulationObserver
       val proto = () => {
@@ -58,8 +47,8 @@ object ScafiSimulation {
         res
       }
       bridge.simulationPrototype = Some(proto)
-      bridge.program = program
-      bridge.action = action
+      bridge.program = scafiSimulationSeed.program
+      bridge.action = scafiSimulationSeed.action
       bridge
     }
   }
