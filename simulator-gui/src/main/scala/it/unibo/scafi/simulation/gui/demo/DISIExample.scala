@@ -4,8 +4,8 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram,
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
-import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutputPolicy
 object DISIExample extends App {
   val demoInfo = classOf[Main].getAnnotation(classOf[Demo])

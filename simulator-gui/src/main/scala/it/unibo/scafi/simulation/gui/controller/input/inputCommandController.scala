@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.controller.input
 
+import it.unibo.scafi.simulation.gui.configuration.command.Command
+
 /**
   * an input controller that execute command
   */

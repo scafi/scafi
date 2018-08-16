@@ -1,7 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.configuration.command.SimulationCommandSpace
-import it.unibo.scafi.simulation.gui.controller.input.Command
+import it.unibo.scafi.simulation.gui.configuration.command.Command
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
@@ -81,15 +80,5 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
     private def createSimulation(w : ScafiLikeWorld, p : SIMULATION_PROTOTYPE) : SpaceAwareSimulator = {
       p()
     }
-  }
-}
-
-object ScafiBridge {
-
-  /**
-    * scafi command space
-    */
-  object scafiSimulationCommandSpace extends SimulationCommandSpace {
-    override val simulation: ExternalSimulation[_ <: AggregateWorld] = scafiSimulationObserver
   }
 }

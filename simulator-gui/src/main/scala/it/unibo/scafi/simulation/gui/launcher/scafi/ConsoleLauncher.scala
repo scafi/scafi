@@ -1,9 +1,11 @@
 package it.unibo.scafi.simulation.gui.launcher.scafi
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiBridge.scafiSimulationCommandSpace
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld.scafiWorldCommandSpace
-import it.unibo.scafi.simulation.gui.launcher.MetaConsoleApplication
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiLanguage
+import it.unibo.scafi.simulation.gui.launcher.MetaLanguage
 
-object ConsoleLauncher extends App {
-  new MetaConsoleApplication(scafiConsoleConfigurator,scafiWorldCommandSpace,scafiSimulationCommandSpace)
+/**
+  * allow to launch scafi simulation
+  */
+object ConsoleLauncher {
+  new MetaLanguage(ScafiLanguage.configurationLanguage,ScafiLanguage.config).run()
 }

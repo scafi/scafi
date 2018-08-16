@@ -26,8 +26,8 @@ import it.unibo.scafi.simulation.gui.demo.DoubleUtils.Precision
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
-import it.unibo.scafi.simulation.gui.launcher.scafi.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutputPolicy
 import it.unibo.scafi.space.Point3D
 

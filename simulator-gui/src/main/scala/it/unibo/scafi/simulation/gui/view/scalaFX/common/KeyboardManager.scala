@@ -19,17 +19,26 @@ trait KeyboardManager extends AbstractKeyboardManager {
 
   self.onKeyPressed = (e: KeyEvent) => {
     e.consume()
-    idsCommands.find { x => {
+    idsValueCommands.find { x => {
       abstractToReal(x._1) == e.getCode
     }
     } foreach { x =>
-      inputCommandController.exec(x._2(self.selected))
+      val arg = x._2(valueMapped(x._1),selected)
+      factoryMapped(x._1).create(arg) foreach {inputCommandController.exec(_)}
     }
     genericCommands.find { x => {
       abstractToReal(x._1) == e.getCode
     }
     } foreach { x =>
-      inputCommandController.exec(x._2())
+      val arg = x._2(valueMapped(x._1))
+      factoryMapped(x._1).create(arg) foreach {inputCommandController.exec(_)}
+    }
+    idsCommands.find { x => {
+      abstractToReal(x._1) == e.getCode
+    }
+    } foreach { x =>
+      val arg = x._2(selected)
+      factoryMapped(x._1).create(arg) foreach {inputCommandController.exec(_)}
     }
   }
 }

@@ -82,7 +82,11 @@ trait FXSelectionArea extends AbstractSelectionArea {
               this._selected = this.moved.keySet
             } else if(!this.moved.isEmpty) {
               val toMove = moved.map {x =>x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2)}
-              this.command.foreach(x => inputCommandController.exec(x(toMove)))
+              if(command.isDefined) {
+                val arg = this.command.get(toMove)
+                inputCommandController.exec(factory.get.create(arg).get)
+              }
+              //this.command.foreach(x => inputCommandController.exec(x(toMove)))
               clearSelected()
             }
           }

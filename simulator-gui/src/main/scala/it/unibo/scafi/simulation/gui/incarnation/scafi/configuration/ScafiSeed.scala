@@ -1,6 +1,7 @@
-package it.unibo.scafi.simulation.gui.incarnation.scafi.world
+package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
 import it.unibo.scafi.simulation.gui.configuration.{DeviceSeed, WorldSeed}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiDeviceSeed, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 
 /**

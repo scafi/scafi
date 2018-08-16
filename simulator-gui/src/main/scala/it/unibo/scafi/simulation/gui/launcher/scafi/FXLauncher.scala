@@ -5,7 +5,8 @@ import it.unibo.scafi.simulation.gui.demo._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationProfile}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiSeed, ScafiWorldInitializer}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiSeed}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, GradientFXOutputPolicy, StandardFXOutputPolicy}
 

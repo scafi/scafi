@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiSeed, ScafiWorldInitializer, scafiWorld}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiWorldInitializer, scafiWorld}
 import org.scalatest.{FunSpec, Matchers}
 
 class ConfigurationTest extends FunSpec with Matchers{

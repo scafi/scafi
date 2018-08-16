@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.controller.input.Command
-import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
+import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 
 /**
@@ -10,7 +10,9 @@ import it.unibo.scafi.simulation.gui.model.space.Point3D
 trait AbstractSelectionArea {
   self : SimulationView =>
 
-  protected var command : Option[Map[Any,Point3D] => Command] = None
+  protected var command : Option[Map[Any,Point3D] => CommandArg] = None
+
+  protected var factory : Option[CommandFactory] = None
   /**
     * @return get the ids of nodes selected
     */
@@ -20,5 +22,8 @@ trait AbstractSelectionArea {
     * add a movement strategy
     * @param command the command used to move node
     */
-  def addMovementAction(command : Map[Any,Point3D] => Command) = this.command = Some(command)
+  def addMovementAction(command : Map[Any,Point3D] => CommandArg, factory : CommandFactory) = {
+    this.command = Some(command)
+    this.factory = Some(factory)
+  }
 }
