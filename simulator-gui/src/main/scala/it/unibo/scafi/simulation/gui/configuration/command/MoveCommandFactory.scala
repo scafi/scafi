@@ -38,12 +38,9 @@ class MoveCommandFactory(private val world : AggregateWorld)(implicit val analyz
 }
 
 object MoveCommandFactory {
-
   /**
     * move arg used to create a move command
     * @param map associated ad id to a position
     */
   case class MoveArg(map : Map[Any,Any]) extends CommandArg
-
-
 }

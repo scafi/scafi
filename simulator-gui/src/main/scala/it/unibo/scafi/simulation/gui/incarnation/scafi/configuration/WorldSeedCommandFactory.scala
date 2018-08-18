@@ -39,7 +39,7 @@ object WorldSeedCommandFactory {
     */
   object WorldSeedStringParser extends StringCommandParser {
     val regex = raw"worldSeed=seed\{shape=(.*)\}".r
-    override def parse: Option[CommandFactory.CommandArg] = arg match {
+    override def parse(arg : String): Option[CommandFactory.CommandArg] = arg match {
       case regex(stringShape) => {
         val shape = toShape(stringShape)
         if(shape.isEmpty) None

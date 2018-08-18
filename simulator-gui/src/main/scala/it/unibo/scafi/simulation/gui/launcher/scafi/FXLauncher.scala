@@ -1,11 +1,14 @@
 package it.unibo.scafi.simulation.gui.launcher.scafi
 
+import javafx.scene.layout.HBox
+
 import it.unibo.scafi.simulation.gui.configuration.ProgramEnvironment.NearRealTimePolicy
+import it.unibo.scafi.simulation.gui.configuration.command.FieldParser
 import it.unibo.scafi.simulation.gui.demo._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationProfile}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiSeed}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{RandomCommandFactory, ScafiProgramBuilder, ScafiSeed}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, GradientFXOutputPolicy, StandardFXOutputPolicy}
@@ -18,7 +21,30 @@ import scalafx.scene.control.{Button, ComboBox, Label, TextField}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.Color._
-object FXLauncher extends JFXApp  {
+import scalafx.stage.Stage
+
+class FXLauncher(private val singleSection : Map[String,FieldParser]) extends Stage{
+  val vbox = new VBox()
+  singleSection.foreach (
+    x => {
+      val name = new Label(x._1)
+      val added = new VBox
+      val field = x._2.fields foreach {
+        y => {
+          val fieldName = new Label(y.name)
+          val input = new TextField()
+          added.children.add(new HBox(fieldName,input))
+        }
+      }
+      vbox.children.addAll(name,added)
+    }
+  )
+  this.scene = new Scene {
+    fill = White
+    content = vbox
+  }
+}
+object FXLauncher extends JFXApp {
   private var simulations = TreeMap.empty[String,Class[_]]
   demos foreach {x => simulations += x.getSimpleName -> x}
 
@@ -58,7 +84,7 @@ object FXLauncher extends JFXApp  {
       }
     }
   }
-
+  new FXLauncher(Map("random" -> RandomCommandFactory.RandomFieldParser)).show()
   click.onMouseClicked = (e: MouseEvent) => {
     val node = inputNode.text.value.toInt
     val program = comboSim.value.value

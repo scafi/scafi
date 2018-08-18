@@ -37,14 +37,10 @@ object CommandFactory {
     */
   trait CommandParser[A] {
     /**
-      * @return argument associated to the oommand parser
-      */
-    def arg : A
-    /**
       * try to create command arg via value passed
       * @return None if the value is not legit Some of argument otherwise
       */
-    def parse : Option[CommandArg]
+    def parse(arg : A) : Option[CommandArg]
 
     /**
       * describe a way to use parser
@@ -75,12 +71,12 @@ object CommandFactory {
     private val descriptionMap = Map(Toggle -> "toggle command: allow to on off a set of sensor",
       Move -> "move command: allow to move a set of node to another position",
       Simulation -> "simulation command: allow to stop or continue a simulation",
-      Random -> "random command initializer, allow to create a random initializer",
-      Grid -> "grid command initilializer, allow to create a grid initializer",
-      Demo -> "demo command, allow to show and set current demo simulation",
-      Launch -> "launch command, allow to launch the simulation",
-      Radius -> "radius simulation command, allow to create a neighbour simulation",
-      WorldSeed -> "world seed command, allow to create a seed to simulation")
+      Random -> "random command initializer: allow to create a random initializer",
+      Grid -> "grid command initilializer: allow to create a grid initializer",
+      Demo -> "demo command: allow to show and set current demo simulation",
+      Launch -> "launch command: allow to launch the simulation",
+      Radius -> "radius simulation command: allow to create a neighbour simulation",
+      WorldSeed -> "world seed command: allow to create a seed to simulation")
 
     /**
       * allow to get the description associated with the name passed

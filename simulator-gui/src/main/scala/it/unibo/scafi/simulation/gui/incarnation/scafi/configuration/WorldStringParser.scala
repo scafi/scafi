@@ -15,7 +15,7 @@ object WorldStringParser {
     */
   object ToggleStringParser extends StringCommandParser {
     private val regex = raw"toggle (\d+),(.*)".r
-    override def parse: Option[CommandArg] = arg match {
+    override def parse(arg : String): Option[CommandArg] = arg match {
       case regex(id,name) => Some(ToggleArg(name,Set(id.toInt)))
       case _ => None
     }
@@ -26,7 +26,7 @@ object WorldStringParser {
   object MoveStringParser extends StringCommandParser {
     private val regex2d = raw"move (\d+),point\((\d+),(\d+)\)".r
     private val regex3d = raw"move (\d+),point\((\d+),(\d+),(\d+)\)".r
-    override def parse: Option[CommandArg] = arg match {
+    override def parse(arg : String): Option[CommandArg] = arg match {
       case regex2d(id,x,y) => Some(MoveArg(Map(id.toInt -> Point3D(x.toInt,y.toInt,0))))
       case regex3d(id,x,y,z) => Some(MoveArg(Map(id.toInt -> Point3D(x.toInt,y.toInt,z.toInt))))
       case _ => None

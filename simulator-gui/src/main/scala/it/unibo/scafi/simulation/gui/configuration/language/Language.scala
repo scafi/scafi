@@ -25,8 +25,7 @@ trait Language {
     } else if (command == Language.Description) {
       parsers.values.map {x => x.name + " " + CommandFactory.CommandFactoryDescription.descriptionCommand(x.name)}.reduce((x,y) => x + "\n" + y)
     } else {
-      parsers.keySet.foreach {x => x.arg = command}
-      val commandProduced = parsers.map {x => x._2 -> x._1.parse}
+      val commandProduced = parsers.map {x => x._2 -> x._1.parse(command)}
         .filter {x => x._2.isDefined}
         .map {x => x._1.create(x._2.get)}
         .filter {_.isDefined}
@@ -45,7 +44,6 @@ object Language {
   private [language] val Description = "description"
   private [language] val Ok = "+"
   private [language] val Wrong = "no command found, type help or description to see all command"
-  trait StringCommandParser extends CommandParser[String] {
-    var arg : String = ""
-  }
+
+  trait StringCommandParser extends CommandParser[String]
 }

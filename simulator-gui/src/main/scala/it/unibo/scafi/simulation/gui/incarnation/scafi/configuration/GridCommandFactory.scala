@@ -3,7 +3,8 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandFactoryName.CommandName
-import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.command.FieldParser.{Field, FieldValue, IntField}
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory, FieldParser}
 import it.unibo.scafi.simulation.gui.configuration.language.Language.StringCommandParser
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.GridCommandFactory.GridArg
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Grid
@@ -37,12 +38,31 @@ object GridCommandFactory {
     */
   case class GridArg(space : Int, row : Int, column : Int) extends CommandArg
   object GridStringParser extends StringCommandParser  {
-    override def parse: Option[CommandFactory.CommandArg] = arg match {
+    override def parse(arg : String): Option[CommandFactory.CommandArg] = arg match {
       case regex(space,row,column) => {
         Some(GridArg(space.toInt,row.toInt,column.toInt))
       }
       case _ => None
     }
     override def help: String = "type initializer=grid(space,column,row) to create a grid initializer"
+  }
+
+  object GridFieldParser extends FieldParser {
+    override def fields: Set[FieldParser.Field] = Set(Field("space",IntField),Field("row",IntField), Field("column",IntField))
+
+    override def parse(arg: Iterable[FieldParser.FieldValue]): Option[CommandArg] = {
+      var space : Option[Int] = None
+      var row : Option[Int] = None
+      var column : Option[Int] = None
+      arg foreach {_ match {
+        case FieldValue(name @ "space",v : Int) => space = Some(v)
+        case FieldValue(name @ "row", v : Int) => row = Some(v)
+        case FieldValue(name @ "column", v : Int) => column = Some(v)
+      }}
+      if(space.isDefined && row.isDefined && column.isDefined) Some(GridArg(space.get,row.get,column.get))
+      else None
+    }
+
+    override def help: String = ""
   }
 }

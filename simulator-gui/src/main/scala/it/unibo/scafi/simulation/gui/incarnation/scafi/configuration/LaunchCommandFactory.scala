@@ -59,7 +59,7 @@ object LaunchCommandFactory {
     */
   object LaunchStringParser extends StringCommandParser {
 
-    override def parse: Option[CommandFactory.CommandArg] = if(arg == "launch") Some(EmptyArg) else None
+    override def parse(arg : String): Option[CommandFactory.CommandArg] = if(arg == "launch") Some(EmptyArg) else None
 
     override def help: String = "use launch to launch application"
   }

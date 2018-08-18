@@ -64,7 +64,7 @@ object SimulationCommandFactory {
       *
       * @return None if the value is not legit Some of argument otherwise
       */
-    override def parse: Option[CommandArg] = arg match {
+    override def parse(arg : String): Option[CommandArg] = arg match {
       case "stop" => Some(StopArg)
       case "continue" => Some(ContinueArg)
       case _ => None

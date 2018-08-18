@@ -40,7 +40,7 @@ object RadiusCommandFactory {
     * a radius string parser used to parse a string into a radius argument
     */
   object RadiusStringParser extends StringCommandParser  {
-    override def parse: Option[CommandFactory.CommandArg] = arg match {
+    override def parse(arg : String): Option[CommandFactory.CommandArg] = arg match {
       case regex(radius) => Some(RadiusArg(radius.toInt))
       case  _ => None
     }
