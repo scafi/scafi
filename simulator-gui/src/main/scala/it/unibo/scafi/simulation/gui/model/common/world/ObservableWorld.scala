@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, Source}
+import it.unibo.scafi.simulation.gui.pattern.observer.Source
 
 /**
   * describe a mutable world with the possibility to add or remove node

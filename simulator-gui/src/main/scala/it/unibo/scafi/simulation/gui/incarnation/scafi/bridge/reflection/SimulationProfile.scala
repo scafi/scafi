@@ -1,8 +1,8 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection
 
-import it.unibo.scafi.simulation.gui.configuration.DeviceSeed
 import it.unibo.scafi.simulation.gui.configuration.SensorName._
 import it.unibo.scafi.simulation.gui.configuration.command.CommandMapping
+import it.unibo.scafi.simulation.gui.configuration.seed.DeviceSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandMapping.{AdHocToggleMapping, standardMapping}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.Actions._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiDeviceSeed.{AdHocDeviceSeed, standardSeed}

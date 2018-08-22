@@ -12,52 +12,32 @@ trait AbstractKeyboardManager {
   /**
     * the type of library keycode
     */
-  type KEYCODE
+  type KEY_CODE
+  /**
+    * key code combination
+    */
+  type KEYCODE_COMBINATION
   /**
     * mapping the abstract key code to real
     */
-  protected var abstractToReal : Map[AbstractKeyCode, KEYCODE] = Map.empty
-  /**
-    * a map that associate the keyboard code with the command to process, has id in input and a value
-    */
-  protected var idsValueCommands : Map[AbstractKeyCode,(Any,Set[Any]) => CommandArg] = Map.empty
+  protected var abstractToReal : Map[AbstractKeyCode, KEY_CODE] = Map.empty
 
-  /**
-    * a map that associate the keyboard code with the command to process, has id in input
-    */
-  protected var idsCommands : Map[AbstractKeyCode,(Set[Any]) => CommandArg] = Map.empty
-  /**
-    * a map that associate the keyboard code with the command to process
-    */
-  protected var genericCommands : Map[AbstractKeyCode,(Any) => CommandArg] = Map.empty
+  protected var abstractToCombination : Map[AbstractKeyCode,KEYCODE_COMBINATION] = Map.empty
+
+  protected var commandArgs : Map[AbstractKeyCode,CommandArg] = Map.empty
 
   protected var factoryMapped : Map[AbstractKeyCode,CommandFactory] = Map.empty
 
-  protected var valueMapped : Map[AbstractKeyCode,Any] = Map.empty
-  /**
-    * add a command to execute
-    * @param code the code of keyboard
-    * @param command a command to execute
-    */
-  final def addCommand(code : AbstractKeyCode, command : (Any,Set[Any]) => CommandArg, factory : CommandFactory, value : Any) = {
-    idsValueCommands += code -> command
-    valueMapped += code -> value
+  protected var valueMapped : Map[AbstractKeyCode,String] = Map.empty
+
+  final def addCommand(code : AbstractKeyCode, arg : CommandArg, factory : CommandFactory, additionalArg : String) = {
+    commandArgs += code -> arg
+    valueMapped += code -> additionalArg
     factoryMapped += code -> factory
   }
 
-  /**
-    * add a command to execute
-    * @param code the code of keyboard
-    * @param command a command to execute
-    */
-  final def addCommand(code : AbstractKeyCode, command : (Set[Any]) => CommandArg, factory : CommandFactory) = {
-    idsCommands += code -> command
-    factoryMapped += code -> factory
-  }
-
-  final def addCommand(code : AbstractKeyCode, command : (Any) => CommandArg, factory : CommandFactory, value : Any) = {
-    genericCommands += code -> command
-    valueMapped += code -> value
+  final def addCommand(code : AbstractKeyCode, arg : CommandArg, factory : CommandFactory) = {
+    commandArgs += code -> arg
     factoryMapped += code -> factory
   }
 
@@ -67,7 +47,7 @@ object  AbstractKeyboardManager {
   /**
     * describe an abstract key code
     */
-  trait AbstractKeyCode
+  sealed trait AbstractKeyCode
 
   /**
     * a set of code
@@ -77,4 +57,6 @@ object  AbstractKeyboardManager {
   object Code3 extends AbstractKeyCode
   object Code4 extends AbstractKeyCode
   object Code5 extends AbstractKeyCode
+  object Undo extends AbstractKeyCode
+
 }

@@ -2,7 +2,6 @@ package it.unibo.scafi.simulation.gui.test.model
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodeDeviceChanged
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{sensorInput, sensorOutput}
-import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition.Led
 import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.test.help.SensorWorldImpl
 import org.scalatest.{FunSpec, Matchers}
@@ -45,6 +44,16 @@ class SensorTest extends FunSpec with Matchers{
       case e => assert(true)
     }
   }
+
+  checkThat("i can't change sensor value of node that hasn't a sensor") {
+    try {
+      world.changeSensorValue(-1,defaultName,true)
+      assert(false)
+    } catch {
+      case _ =>
+    }
+  }
+
 
   checkThat("i can create a sensor network") {
     world.clear()

@@ -2,11 +2,13 @@ package it.unibo.scafi.simulation.gui.view
 
 
 
-import scalafx.application.Platform
+import javafx.embed.swing.JFXPanel
+
 import it.unibo.scafi.simulation.gui.model.core.{Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
+import scalafx.application.Platform
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
@@ -42,4 +44,7 @@ package object scalaFX {
     Point3D(start.x + n.translateX.value, start.y + n.translateY.value, defaultZ)
   }
 
+  def initializeScalaFXPlatform (): Unit = {
+    new JFXPanel
+  }
 }

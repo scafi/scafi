@@ -1,8 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
-import it.unibo.scafi.simulation.gui.configuration.{DeviceSeed, WorldInitializer, WorldSeed}
+import it.unibo.scafi.simulation.gui.configuration.seed.WorldInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiSeed
-import it.unibo.scafi.simulation.gui.model.core.Shape
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 
@@ -36,13 +35,13 @@ object ScafiWorldInitializer {
 
   /**
     * create a grid like world
-    * @param row number of row
-    * @param column number of column
-    * @param space space between node
+    * @param space number of row
+    * @param row number of column
+    * @param column space between node
     */
-  case class Grid(row : Int,
-                  column: Int,
-                  space : Int) extends ScafiWorldInitializer {
+  case class Grid(space : Int,
+                  row: Int,
+                  column : Int) extends ScafiWorldInitializer {
     override def init(seed : SEED): Unit = {
       val z = 0
       var nodes = 0;

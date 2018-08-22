@@ -1,88 +1,177 @@
 package it.unibo.scafi.simulation.gui.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandFactoryName.CommandName
-
+import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
+import it.unibo.scafi.simulation.gui.util.Result
+import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
+import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 /**
-  * a generic factory used to create command via command arg
+  * a factory used to create a set of command
   */
 trait CommandFactory {
-  /**
-    * @return the name of factory
-    */
-  def name : CommandName
+  import CommandFactory._
+
+  implicit val descriptionFile = "command-description"
+  private val wrongElementNumber = Fail("the argument number is wrong")
 
   /**
-    * create a command with the command args
-    * @param arg the command arg
-    * @return None if the arg is not legit some of command otherwise
+    * @return the command name
     */
-  def create(arg : CommandArg) : Option[Command]
+  def name : String
+
+  /**
+    * @return command description
+    */
+  def description : String = international(name)
+
+  /**
+    * this method return a sequence of command argument that this factory accept to create command
+    * @return a sequence of command argument description
+    */
+  def commandArgsDescription : Seq[CommandArgDescription]
+
+  /**
+    * this method is used to create a command,
+    * the argument is a map of String -> Any, the factory
+    * check if the argument if accepted and create the command
+    * associated with the factory
+    * @param args the command argument
+    * @return (Success,Some(Command)) if the arguments are accepted (Fail,None) otherwise
+    */
+  final def create(args : CommandArg) : CreationResult = {
+    if(args.size < commandArgsDescription.filter(!_.optional).length || args.size > commandArgsDescription.length) {
+      (wrongElementNumber,None)
+    } else {
+      createPolicy(args)
+    }
+  }
+
+  /**
+    * a strategy defined by command factory implementatoin
+    * @param args the command args
+    * @return (Success,Some(Command)) if the arguments are accepted (Fail,None) otherwise
+    */
+  //TEMPLATE METHOD
+  protected def createPolicy(args : CommandArg) : (Result,Option[Command])
 }
 
 object CommandFactory {
+  /**
+    * the type of command arg
+    */
+  type CommandArg = Map[String,Any]
 
   /**
-    * the root trait of all command argument
+    * the type of creation method
     */
-  trait CommandArg
+  type CreationResult = (Result,Option[Command])
 
   /**
-    * empty arg, some command can be create without argument
+    * this case class is used to describe a command argument
+    * @param name the argument name
+    * @param valueType the argument type
+    * @param optional a boolean value that tells if the argument is optional or not
+    * @param description a description of argument
+    * @param defaultValue the defaul value associated with the command argument
     */
-  object EmptyArg extends CommandArg
+  case class CommandArgDescription(name : String,
+                                   valueType: ValueType,
+                                   optional: Boolean = false,
+                                   description: String = "",
+                                   defaultValue: Option[Any] = None)
 
   /**
-    * a parser used to create command arg
+    * describe argument type accepted
     */
-  trait CommandParser[A] {
-    /**
-      * try to create command arg via value passed
-      * @return None if the value is not legit Some of argument otherwise
-      */
-    def parse(arg : A) : Option[CommandArg]
+  sealed trait ValueType
 
-    /**
-      * describe a way to use parser
-      * @return a help
-      */
-    def help : String
+  /**
+    * int value type
+    */
+  object IntType extends ValueType {
+    override def toString: String = "int"
   }
 
   /**
-    * an enumeration of command factory name
+    * double value type
     */
-  object CommandFactoryName extends Enumeration {
-    /**
-      * the type of command name
-      */
-    type CommandName = Value
-    /**
-      * all command factory names
-      */
-    val Toggle, Move, Simulation, Random, Grid, Radius, Demo, Launch, WorldSeed = Value
+  object DoubleType extends ValueType {
+    override def toString: String = "double"
+  }
+  /**
+    * string value type
+    */
+  object StringType extends ValueType {
+    override def toString: String = "string"
   }
 
   /**
-    * a utility object used to get the description associated with the command name
+    * any value type
     */
-  object CommandFactoryDescription {
-    import CommandFactoryName._
-    private val descriptionMap = Map(Toggle -> "toggle command: allow to on off a set of sensor",
-      Move -> "move command: allow to move a set of node to another position",
-      Simulation -> "simulation command: allow to stop or continue a simulation",
-      Random -> "random command initializer: allow to create a random initializer",
-      Grid -> "grid command initilializer: allow to create a grid initializer",
-      Demo -> "demo command: allow to show and set current demo simulation",
-      Launch -> "launch command: allow to launch the simulation",
-      Radius -> "radius simulation command: allow to create a neighbour simulation",
-      WorldSeed -> "world seed command: allow to create a seed to simulation")
-
-    /**
-      * allow to get the description associated with the name passed
-      * @param name the command name
-      * @return the description associated with the name
-      */
-    def descriptionCommand(name : CommandName) = descriptionMap(name)
+  object AnyType extends ValueType {
+    override def toString: String = "any"
   }
+
+  /**
+    * describe a finite set of value that the argument accept
+    * @param value the arguments accepted
+    */
+  case class LimitedValueType(value : Any * ) extends ValueType {
+    override def toString: String = "values=" + value.mkString(" ")
+  }
+
+  /**
+    * the argument has a sequence of value associated
+    * @param value the type of value
+    */
+  case class MultiValue(value : ValueType) extends ValueType {
+    override def toString: String = "sequence of " + value.toString
+  }
+
+  /**
+    * the argument is another map that map a value type to another
+    * @param key the key type
+    * @param value the value type
+    */
+  case class MapValue(key : ValueType, value : ValueType) extends ValueType {
+    override def toString: String = "map of key " + key + " and value" + value
+  }
+
+  /**
+    * this method is used to create a string when the parameter name is wrong
+    * @param expected the parameter name expected into the command arg
+    * @return the string created
+    */
+  def wrongParameterName(expected : String) = s"you pass $expected to run command"
+
+  /**
+    * this method is used to create a string when the parameter type is wrong
+    * @param expected the parameter type expected
+    * @param parameter the name of parameter
+    * @return the string created
+    */
+  def wrongTypeParameter(expected : ValueType, parameter: String) = s"the parameter $parameter has type $expected"
+
+  /**
+    * this method is used to create creation result in a fast way
+    * @param commandLogic the internal logic of command
+    * @return the creation result created
+    */
+  def easyResultCreation(commandLogic : () => Unit) : CreationResult = (Success,Some(onlyMakeCommand(() => {
+    commandLogic()
+    Success
+  })))
+
+  /**
+    * utility method used to create a creation result when command creation is failed
+    * @param failReason the fail reason of creation
+    * @return (Fail passed,None)
+    */
+  def creationFailed(failReason : Fail[_]) : CreationResult = (failReason,None)
+
+  /**
+    * utility method used to create a creation result when command creation is made
+    * @param command the command created
+    * @return (Success,command passed)
+    */
+  def creationSuccessful(command : Command) : CreationResult = (Success,Some(command))
 }

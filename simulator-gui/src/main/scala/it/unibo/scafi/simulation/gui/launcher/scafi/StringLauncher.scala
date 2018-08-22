@@ -1,11 +1,16 @@
 package it.unibo.scafi.simulation.gui.launcher.scafi
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiLanguage
+import it.unibo.scafi.simulation.gui.configuration.parser.ConfigurationMachine
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.ScafiParser
 
+/**
+  * string launcher used to launch simulation via string
+  */
 object StringLauncher {
-  val lang = ScafiLanguage.configurationLanguage
-  def apply(commands : String): Unit = {
-    lang.parse(commands)
-    println(lang.parse(ScafiLanguage.launch))
+  def apply(string : String): Unit = {
+    import ScafiParser._
+    val configurationMachine = new ConfigurationMachine(UnixConfiguration)
+    string.split(";") foreach {configurationMachine.process(_)}
+    configurationMachine.process("launch")
   }
 }

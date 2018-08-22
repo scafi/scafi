@@ -1,8 +1,6 @@
 package it.unibo.scafi.simulation.gui.model.common
 
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.model.space.Point3D
-import it.unibo.scafi.space.Point2D
 
 /**
   * some standard metric definition

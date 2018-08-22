@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
-import it.unibo.scafi.simulation.gui.controller.input.inputCommandController
-import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
+import it.unibo.scafi.simulation.gui.util.Result.Success
 import it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.view.AbstractSelectionArea
 
@@ -82,11 +82,9 @@ trait FXSelectionArea extends AbstractSelectionArea {
               this._selected = this.moved.keySet
             } else if(!this.moved.isEmpty) {
               val toMove = moved.map {x =>x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2)}
-              if(command.isDefined) {
-                val arg = this.command.get(toMove)
-                inputCommandController.exec(factory.get.create(arg).get)
+              if(argumentName.isDefined && factory.isDefined) {
+                InputCommandController.virtualMachine.process((factory.get,Map(argumentName.get -> toMove)))
               }
-              //this.command.foreach(x => inputCommandController.exec(x(toMove)))
               clearSelected()
             }
           }

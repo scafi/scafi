@@ -7,15 +7,15 @@ import it.unibo.scafi.simulation.gui.util.Result.Fail
   * command pattern, a logic encapsulated inside a instance of command
   * a command can be undone
  */
-sealed trait Command {
+trait Command {
   /**
-    * the logic of do in command
+    * the execution command logic
     * @return Success if there isn't error Fail otherwise
     */
   def make : () => Result
 
   /**
-    * the logic of undo command
+    * the logic to remove changes of do method
     * @return Success if there isn't error Fail otherwise
     *
     */
@@ -31,16 +31,16 @@ object Command {
   final case class command(override val make : () => Result) (override val unmake : () => Result) extends Command
 
   /**
-    * a command that is reversable (the unmake has the same function)
-    * @param make the logic of make and unmake
+    * a command that is reversible (the undo has the same function)
+    * @param make the logic of make and undo
     */
   final case class reverseCommand(override val make : () => Result) extends Command {
     override val unmake: () => Result = make
   }
 
   /**
-    * a command that isn't reverseble, return always fail in undo
-    * @param make the logic of make
+    * a command that isn't reversible, return always fail in undo
+    * @param make the logic of do
     */
   final case class onlyMakeCommand(override val make : () => Result) extends Command {
     override val unmake: () => Result = () => Fail("undo unsupported")

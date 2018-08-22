@@ -1,8 +1,7 @@
 package it.unibo.scafi.simulation.gui.view
 
+import it.unibo.scafi.simulation.gui.configuration.command.AbstractMoveCommandFactory.MultiMoveCommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
-import it.unibo.scafi.simulation.gui.model.space.Point3D
 
 /**
   * define a trait used to select and clear item
@@ -10,7 +9,7 @@ import it.unibo.scafi.simulation.gui.model.space.Point3D
 trait AbstractSelectionArea {
   self : SimulationView =>
 
-  protected var command : Option[Map[Any,Point3D] => CommandArg] = None
+  protected var argumentName : Option[String] = None
 
   protected var factory : Option[CommandFactory] = None
   /**
@@ -19,11 +18,12 @@ trait AbstractSelectionArea {
   def selected : Set[Any]
 
   /**
-    * add a movement strategy
-    * @param command the command used to move node
+    * used to add movement factory, it create a move command
+    * @param factory the movement factory
+    * @param valueName the name of argument
     */
-  def addMovementAction(command : Map[Any,Point3D] => CommandArg, factory : CommandFactory) = {
-    this.command = Some(command)
+  def addMovementFactory(factory : MultiMoveCommandFactory, valueName : String) = {
+    this.argumentName = Some(valueName)
     this.factory = Some(factory)
   }
 }

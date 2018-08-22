@@ -14,7 +14,6 @@ import scalafx.scene.shape.Line
 class NodeLine(private val start : Node, private val end : Node, c : Color) extends Line{
   val ps = nodeToAbsolutePosition(start)
   val pend = nodeToAbsolutePosition(end)
-  import scalafx.Includes._
   /*TODO USE BETTER UNBIND*/
   val startXL = new ChangeListener[Number] {
     override def changed(observable: ObservableValue[_ <: Number], oldValue: Number, newValue: Number): Unit =

@@ -51,6 +51,14 @@ class AggregateTest extends FunSpec with Matchers {
     assert(node.position == newPosition)
   }
 
+  checkThat("i can't move node that isn't in the world") {
+    try {
+      world.moveNode(-1,Point3D(0,0,0))
+      assert(false)
+    } catch {
+      case _ =>
+    }
+  }
   checkThat("i can observe all event") {
     val movedObserver = world.createObserver(Set(NodesMoved))
     val deviceChanged = world.createObserver(Set(NodeDeviceChanged))

@@ -1,22 +1,27 @@
 package it.unibo.scafi.simulation.gui.configuration
 
 /**
-  * a configuratio places where link the seed to initialize a program
-  * @tparam S the seed type
+  * a configuration used to configure a program
   */
-trait Configuration [S <: WorldSeed[_,_,_], I <: WorldInitializer[S]]{
-  /**
-    * @return a world initializer
-    */
-  def worldInitializer : Option[I]
+trait Configuration
+
+object Configuration {
 
   /**
-    * @return a world seed
+    * a configuration builder used to create configuration
+    * @tparam C the configuration type
     */
-  def worldSeed : Option[S]
+  trait ConfigurationBuilder[C <: Configuration]{
+    /**
+      * tell if the builder build configuration or not
+      * @return true if the configuration is created false otherwise
+      */
+    def created : Boolean
 
-  /**
-    * @return true if the program is launched false otherwise
-    */
-  def launched : Boolean
+    /**
+      * try to create the configuration
+      * @return None if builder can't create configuration Some(configuration) otherwise
+      */
+    def create() : Option[C]
+  }
 }

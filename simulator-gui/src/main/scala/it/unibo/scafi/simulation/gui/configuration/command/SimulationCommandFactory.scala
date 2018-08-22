@@ -1,80 +1,55 @@
 package it.unibo.scafi.simulation.gui.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.command
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandFactoryName.CommandName
-import it.unibo.scafi.simulation.gui.configuration.command.SimulationCommandFactory.{ContinueArg, StopArg}
-import it.unibo.scafi.simulation.gui.configuration.language.Language.StringCommandParser
+import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription, LimitedValueType}
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 
 /**
-  * a simulation command factory used to create command to manage a simulation
-  * @param simulation the simulation managed
+  * a factory used to create command to manage a simulation
+  * @param simulation the simulation managed by command
   */
-class SimulationCommandFactory(simulation : ExternalSimulation[_ <: AggregateWorld]) extends CommandFactory{
+class SimulationCommandFactory(simulation : ExternalSimulation[_]) extends CommandFactory {
+  import SimulationCommandFactory._
+  import CommandFactory._
+  override val name: String = "simulation-action"
 
-  override val name: CommandName = CommandFactory.CommandFactoryName.Simulation
+  override def commandArgsDescription: Seq[CommandArgDescription] = CommandArgDescription(Action,
+    LimitedValueType(Continue, Stop)) :: Nil
 
-  override def create(arg: CommandFactory.CommandArg): Option[Command] = arg match {
-    case StopArg => Some(command(stop)(continue))
-    case ContinueArg => Some(command(continue)(stop))
-    case _ => None
+  override def createPolicy(args: CommandArg): (Result,Option[Command]) = {
+    args.get(Action) match {
+      case Some(Stop) => creationSuccessful(command(stop)(continue))
+      case Some(Continue) => creationSuccessful(command(continue)(stop))
+      case Some(_) => creationFailed(Fail(wrongTypeParameter(LimitedValueType(Continue,Stop),Action)))
+      case _ => creationFailed(Fail(wrongParameterName(Action)))
+    }
   }
 
-  private def stop() : Result =  try {
-    simulation.stop()
-    Success
-  } catch {
-    case _ => Fail(SimulationCommandFactory.alreadyStopped)
+  private def stop() : Result = {
+    try {
+      simulation.stop()
+      Success
+    } catch {
+      case e => Fail(SimulationCommandFactory.StopError)
+    }
   }
 
-  private def continue() : Result = try {
-    simulation.continue()
-    Success
-  } catch  {
-    case _ => Fail(SimulationCommandFactory.notStopped)
+  private def continue() : Result = {
+    try {
+      simulation.continue()
+      Success
+    } catch {
+      case e => Fail(SimulationCommandFactory.ContinueError)
+    }
   }
 }
 
 object SimulationCommandFactory {
-  private [SimulationCommandFactory] val alreadyStopped = "the simulation is already stopped"
-
-  private [SimulationCommandFactory] val notStopped = "the simulation isn't stopped "
-
-  /**
-    * stop arg used to stopped the simulation
-    */
-  object StopArg extends CommandArg {
-    override def toString: String = "stop"
-  }
-
-  /**
-    * continue arg used to continue the simulation
-    */
-  object ContinueArg extends CommandArg {
-    override def toString: String = "continue"
-  }
-
-  object SimulationStringParser extends StringCommandParser {
-    /**
-      * try to create command arg via value passed
-      *
-      * @return None if the value is not legit Some of argument otherwise
-      */
-    override def parse(arg : String): Option[CommandArg] = arg match {
-      case "stop" => Some(StopArg)
-      case "continue" => Some(ContinueArg)
-      case _ => None
-    }
-
-    /**
-      * describe a way to use parser
-      *
-      * @return a help
-      */
-    override def help: String = "use stop to stop current simulation\nuse continue to restart a simulation"
-}
+  val Action = "action"
+  val Stop = "stop"
+  val Continue = "continue"
+  private[SimulationCommandFactory] val StopError = "the simulation is already stopped"
+  private[SimulationCommandFactory] val ContinueError = "the simulation is already on run"
 }

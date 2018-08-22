@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
-import it.unibo.scafi.simulation.gui.configuration.DeviceSeed
 import it.unibo.scafi.simulation.gui.configuration.SensorName._
+import it.unibo.scafi.simulation.gui.configuration.seed.DeviceSeed
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorStream, sensorInput, sensorOutput}
 
 /**

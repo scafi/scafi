@@ -1,23 +1,42 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
-import it.unibo.scafi.simulation.gui.configuration.ProgramEnvironment.{PerformancePolicy, StandardPolicy}
-import it.unibo.scafi.simulation.gui.configuration.ViewEnvironment
 import it.unibo.scafi.simulation.gui.configuration.command.CommandMapping
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{PerformancePolicy, StandardPolicy}
+import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
+import it.unibo.scafi.simulation.gui.configuration.{Program, ProgramBuilder}
 import it.unibo.scafi.simulation.gui.controller.presenter.SimulationPresenter
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandMapping.standardMapping
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiProgramEnvironment
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationInitializer, ScafiSimulationSeed}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.{ScafiCommandMapping, ScafiProgramEnvironment}
-import it.unibo.scafi.simulation.gui.launcher.MetaLauncher
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
 import it.unibo.scafi.simulation.gui.view.{OutputPolicy, SimulationView}
 
 /**
-  * a builder used to create a scafi simulation
+  * scafi program builder used to create scafi program
+  * @param configuration the scafi configuration used to initialize program
   */
+private class ScafiProgramBuilder(override val configuration: ScafiConfiguration) extends ProgramBuilder[ScafiConfiguration] {
+  override def create: Program[_,_] = {
+    val presenter = new SimulationPresenter[ScafiLikeWorld](scafiWorld,configuration.neighbourRender)
+    //check if outputpolicy is supported
+    val env : ViewEnvironment[SimulationView] = configuration.outputPolicy match {
+      case policy : FXOutputPolicy => {
+        ScalaFXEnvironment.drawer = policy
+        ScalaFXEnvironment
+      }
+      case _ => throw new IllegalArgumentException("output policy don't supported")
+    }
+    //init the world
+    configuration.worldInitializer.init(configuration.scafiSeed)
+    val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationSeed)
+    new Program[ScafiLikeWorld,SimulationView](new ScafiProgramEnvironment(presenter,bridged,configuration.perfomance),env,configuration.commandMapping)
+  }
+}
 object ScafiProgramBuilder {
   /**
-    * allow to create a meta launcher passing some parameter
+    * allow to create a program passing some parameter
     * @param scafiSeed the world seed in scafi context
     * @param worldInitializer a world initializer to initialize scafi world
     * @param commandMapping a command mapping used to map some keyboard (and selection) input to an action
@@ -30,25 +49,26 @@ object ScafiProgramBuilder {
     */
   def apply(scafiSeed : ScafiSeed = ScafiSeed.standard,
             worldInitializer: ScafiWorldInitializer,
-            commandMapping: CommandMapping = ScafiCommandMapping.standardMapping,
+            commandMapping: CommandMapping = standardMapping,
             scafiSimulationSeed : ScafiSimulationSeed,
             simulationInitializer: ScafiSimulationInitializer,
             outputPolicy: OutputPolicy = StandardFXOutputPolicy,
             neighbourRender: Boolean = false,
-            perfomance: PerformancePolicy = StandardPolicy): MetaLauncher[ScafiLikeWorld,SimulationView] = {
-    //standard presenter
-    val presenter = new SimulationPresenter[ScafiLikeWorld](scafiWorld,neighbourRender)
-    //check if outputpolicy is supported
-    val env : ViewEnvironment[SimulationView] = outputPolicy match {
-      case policy : FXOutputPolicy => {
-        ScalaFXEnvironment.drawer = policy
-        ScalaFXEnvironment
-      }
-      case _ => throw new IllegalArgumentException("output policy don't supported")
-    }
-    //init the world
-    worldInitializer.init(scafiSeed)
-    val bridged = simulationInitializer.create(scafiSimulationSeed)
-    new MetaLauncher[ScafiLikeWorld,SimulationView](new ScafiProgramEnvironment(presenter,bridged,perfomance),env,commandMapping)
+            perfomance: PerformancePolicy = StandardPolicy): Program[_,_] = {
+    new ScafiProgramBuilder(new ScafiConfiguration(scafiSeed,
+      worldInitializer,
+      commandMapping,
+      scafiSimulationSeed,
+      simulationInitializer,
+      outputPolicy,
+      neighbourRender,
+      perfomance)).create
   }
+
+  /**
+    * create a program builder passing the configuration craeted
+    * @param configuration the program configuration
+    * @return the program create
+    */
+  def apply(configuration : ScafiConfiguration) : Program[_,_] = new ScafiProgramBuilder(configuration).create
 }

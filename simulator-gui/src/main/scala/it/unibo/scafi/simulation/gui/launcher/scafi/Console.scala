@@ -1,11 +1,21 @@
 package it.unibo.scafi.simulation.gui.launcher.scafi
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration._
-import it.unibo.scafi.simulation.gui.launcher.MetaLanguage
+import it.unibo.scafi.simulation.gui.configuration.parser.{ConfigurationMachine, RuntimeMachine}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command._
 
 /**
-  * allow to run scafi simulation and run some runtime command
+  * a scafi program launcher via console
   */
 object Console extends App {
-  new MetaLanguage(ScafiLanguage.configurationLanguage,ScafiLanguage.config,Some(ScafiLanguage.runtimeLanguage)).run()
+  import ScafiParser._
+
+  val configurationMachine = new ConfigurationMachine(UnixConfiguration)
+  val runtimeMachine = new RuntimeMachine(UnixRuntime)
+  println("welcome")
+  while(!scafiConfiguration.created){
+    println(configurationMachine.process(readLine()))
+  }
+  while(true) {
+    println(runtimeMachine.process((readLine())))
+  }
 }

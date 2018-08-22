@@ -1,6 +1,5 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
-import it.unibo.scafi.simulation.gui.configuration.command.WorldTypeAnalyzer
 import it.unibo.scafi.simulation.gui.model.common.{BoundaryDefinition, MetricDefinition}
 import it.unibo.scafi.simulation.gui.model.simulation.implementation.StandardNetwork
 

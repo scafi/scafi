@@ -2,10 +2,10 @@ package it.unibo.scafi.simulation.gui.view.scalaFX
 
 import javafx.embed.swing.JFXPanel
 
-import it.unibo.scafi.simulation.gui.configuration.ViewEnvironment
+import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{FXSimulationPane, ZoomablePane}
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.FXSimulationPane
 import it.unibo.scafi.simulation.gui.view.{AbstractKeyboardManager, AbstractSelectionArea, Container, SimulationView}
 
 import scalafx.application.Platform
@@ -15,8 +15,6 @@ import scalafx.scene.layout.HBox
   * standard fx view eniromento
   */
 object ScalaFXEnvironment extends ViewEnvironment[SimulationView]{
-  //init jx application
-  new JFXPanel()
 
   var drawer : FXOutputPolicy = StandardFXOutputPolicy
 
@@ -30,6 +28,7 @@ object ScalaFXEnvironment extends ViewEnvironment[SimulationView]{
   override def container: Container[SimulationView] = cont
 
   override def init(): Unit = {
+    initializeScalaFXPlatform
     Platform.runLater {
       cont
     }

@@ -3,10 +3,9 @@ package it.unibo.scafi.simulation.gui.controller.synchronization
 import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, PrioritySource, Source}
 
 /**
-  * very important concept in this contest:
   * Scheduler has internal frequency used to
   * notify his observer.
-  * the observer in this contest are Controller
+  * the observers are Controller,
   * each controller must be change the world
   * only when scheduler notify it.
   * the main reason of this structure is to separate

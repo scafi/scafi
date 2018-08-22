@@ -1,0 +1,106 @@
+package it.unibo.scafi.simulation.gui.view.scalaFX.launcher
+
+import javafx.scene.control.{Tab, TabPane, TitledPane}
+import javafx.scene.layout.{StackPane => JFXStackPane}
+
+import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
+import it.unibo.scafi.simulation.gui.configuration.parser.VirtualMachine
+import it.unibo.scafi.simulation.gui.view.WindowConfiguration
+
+import scalafx.scene.Scene
+import scalafx.scene.control.TabPane.TabClosingPolicy
+import scalafx.scene.control._
+import scalafx.scene.input.MouseEvent
+import scalafx.scene.layout.{StackPane, VBox}
+import scalafx.scene.text.Font
+import scalafx.stage.Stage
+class ScalaFXLauncher(factories : List[CommandFactory],
+                      subsection : Map[String,List[String]],
+                      unixMachine : VirtualMachine[String])(implicit val window : WindowConfiguration) extends Stage {
+  import ScalaFXLauncher._
+  //collections used to save field box created
+  private var tabPaneSections : Map[TabPane,List[FieldBox]] = Map.empty
+  private var sections : List[FieldBox] = List.empty
+  //create a window with the width and height selected
+  this.width = window.width
+  this.height = window.height
+  this.title = window.name
+  //create the main content
+  private val mainContent = new VBox
+  mainContent.children.add(ScalaFXLauncher.Title(window.name))
+  this.scene = new Scene {
+    content = mainContent
+  }
+
+  //main content change the size with the stage with
+  mainContent.prefWidth.bind(this.width)
+  //create subsection pane
+  subsection foreach (x => {
+    //each subsection is a tab, the parent of tabs is a tab pane
+    val tabPane = new TabPane
+    //the tab can't be closed
+    tabPane.setTabClosingPolicy(TabClosingPolicy.Unavailable);
+    //foreach subsection create a field box with the factory selected
+    var fieldBoxes : List[FieldBox] = List.empty
+    x._2 foreach(y => {
+      //create a tab with the name selected
+      val tab = new Tab(y)
+      //find the factory associated with the name
+      val factory = factories.find(z => z.name == y).get
+      //create a tooltip to show factory description
+      tab.setGraphic(Help(new Tooltip(factory.description)))
+      //put the fieldbox as the tab content
+      val box : FieldBox = FieldBox(factory)
+      tab.setContent(box)
+      fieldBoxes = fieldBoxes ::: box :: Nil
+      //add tab created
+      tabPane.getTabs.add(tab)
+    })
+    tabPaneSections += tabPane -> fieldBoxes
+    //add subsection into section ( a titled pane)
+    mainContent.children.add(new TitledPane(x._1,tabPane))
+
+  })
+  //here i put other factory in the scene, added is a set of all pane added
+  private val added = subsection.values.flatten.toSet
+  factories foreach (x => {
+    //if the factory isn't added, i create the new field box and add into scene
+    if(!added.contains(x.name)) {
+      val box = FieldBox(x)
+      val pane = new TitledPane(x.name,box)
+      pane.setGraphic(Help(new Tooltip(x.description)))
+      mainContent.children.add(pane)
+      sections = box :: sections
+    }
+  })
+  //create a button used to launch scafi simulation
+  val button = new Button(Launch)
+  import scalafx.Includes._
+  button.onMouseClicked = (e : MouseEvent) => {
+    sections.foreach(x => {unixMachine.process(x.toUnix)})
+    for(tabSection <- this.tabPaneSections) {
+      val tab = tabSection._1.getSelectionModel.getSelectedIndex
+      unixMachine.process(tabSection._2(tab).toUnix)
+    }
+    unixMachine.process(Launch)
+    this.close()
+  }
+
+  mainContent.children.add(new JFXStackPane(button))
+}
+
+object ScalaFXLauncher {
+  val FieldBoxSpacing = 10
+  val Launch = "launch"
+  val FontName = "Verdana"
+  val FontSize = 40
+  private case class Title(name:String) extends StackPane {
+    val title = new Label(name)
+    title.font = Font(FontName,FontSize)
+    this.children.add(title)
+  }
+}
+
+
+
+

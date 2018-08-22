@@ -5,7 +5,6 @@ import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 
 /**
   * an input controller for aggregate world
- *
   */
 trait InputController extends Controller[AggregateWorld]
 

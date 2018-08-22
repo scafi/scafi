@@ -71,4 +71,6 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
       case _ => None
     }
   }
+
+  override def toString: String = "standard-fx"
 }

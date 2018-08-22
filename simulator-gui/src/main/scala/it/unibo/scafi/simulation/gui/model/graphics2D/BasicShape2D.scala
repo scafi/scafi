@@ -1,7 +1,6 @@
 package it.unibo.scafi.simulation.gui.model.graphics2D
 
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
-import it.unibo.scafi.simulation.gui.model.space.Point._
 
 /**
   * define some basic operation

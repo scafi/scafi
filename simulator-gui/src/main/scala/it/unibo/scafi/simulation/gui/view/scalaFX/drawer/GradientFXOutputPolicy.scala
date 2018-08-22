@@ -30,4 +30,7 @@ object GradientFXOutputPolicy extends FXOutputPolicy {
 
   }
   override def nodeGraphicsNode (node: NODE): OUTPUTNODE = nodeToShape.create(node)
+
+
+  override def toString: String = "gradient-fx"
 }

@@ -2,9 +2,7 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
 import scalafx.scene.Node
 import scalafx.scene.control.ScrollPane
-import scalafx.scene.input.{InputEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.layout.Pane
-import scalafx.Includes._
 
 /**
   * a pane that allow pan over another pane

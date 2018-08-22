@@ -1,8 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 import javafx.scene.paint.Color
-import javafx.scene.shape.Shape
 
-import it.unibo.scafi.simulation.gui.configuration.SensorName.output1
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorDevice, sensorOutput}
 
 
@@ -36,4 +34,6 @@ object FastFXOutputPolicy extends FXOutputPolicy {
       }
     }
   }
+
+  override def toString: String = "fast-fx"
 }

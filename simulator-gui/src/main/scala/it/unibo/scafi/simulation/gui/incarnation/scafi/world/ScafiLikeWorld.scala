@@ -16,6 +16,9 @@ trait ScafiLikeWorld extends SensorPlatform with World3D with SensorDefinition w
 }
 
 object ScafiLikeWorld {
+  /**
+    * scafi runtime analyzer
+    */
   implicit val analyzer: WorldTypeAnalyzer = new WorldTypeAnalyzer {
     override def acceptName(name: Any): Boolean = name match {
       case name : scafiWorld.NAME => true

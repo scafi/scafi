@@ -2,7 +2,6 @@ package it.unibo.scafi.simulation.gui.test.help
 
 import it.unibo.scafi.simulation.gui.model.aggregate.{AbstractAggregateWorld, AbstractNodeDefinition}
 import it.unibo.scafi.simulation.gui.model.core.Shape
-import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 
 /**
