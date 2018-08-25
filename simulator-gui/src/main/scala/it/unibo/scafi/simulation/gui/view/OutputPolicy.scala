@@ -9,7 +9,7 @@ trait OutputPolicy {
   /**
     * the type of node to draw
     */
-  type OUTPUTNODE
+  type OUTPUT_NODE
   type NODE = World#Node
   type DEVICE = World#Device
   /**
@@ -17,7 +17,7 @@ trait OutputPolicy {
     * @param node the input node
     * @return the graphics node created
     */
-  def nodeGraphicsNode(node : World#Node) : OUTPUTNODE
+  def nodeGraphicsNode(node : World#Node) : OUTPUT_NODE
 
   /**
     * create a graphics representation of device passed
@@ -25,12 +25,12 @@ trait OutputPolicy {
     * @param dev the device attached on node
     * @return the graphics representation
     */
-  def deviceToGraphicsNode(node: OUTPUTNODE,dev : DEVICE) : Option[OUTPUTNODE]
+  def deviceToGraphicsNode(node: OUTPUT_NODE, dev : DEVICE) : Option[OUTPUT_NODE]
 
   /**
     * update the device value
     * @param dev the device
     * @param graphicsDevice graphics device representation
     */
-  def updateDevice(node : OUTPUTNODE, dev: DEVICE, graphicsDevice : Option[OUTPUTNODE])
+  def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice : Option[OUTPUT_NODE])
 }

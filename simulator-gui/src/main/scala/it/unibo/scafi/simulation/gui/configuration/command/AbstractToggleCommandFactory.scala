@@ -64,7 +64,7 @@ object AbstractToggleCommandFactory {
       }
       //if the argument passed has another name the creation of command if failed
       if(sensorName.isEmpty || value.isEmpty) {
-        creationFailed(Fail(CommandFactory.wrongParameterName(Name + " " + Ids)))
+        creationFailed(Fail(CommandFactory.wrongParameterName(Name, Ids)))
       } else {
         //otherwise i can create the new command used to toggle the id selected
         val name = sensorName.get.asInstanceOf[world.NAME]
@@ -74,6 +74,5 @@ object AbstractToggleCommandFactory {
 
     }
     override val name: String = "toggle-multiple"
-
   }
 }

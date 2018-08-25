@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.launcher.scafi
 
+import java.util.Locale
+
 import com.sun.xml.internal.bind.api.impl.NameConverter.Standard
 import it.unibo.scafi.simulation.gui.configuration.parser.{ConfigurationMachine, UnixLikeParser}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
@@ -8,6 +10,7 @@ import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 import it.unibo.scafi.simulation.gui.view.scalaFX._
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, StandardFXOutputPolicy}
 import it.unibo.scafi.simulation.gui.view.scalaFX.launcher.ScalaFXLauncher
+import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 
 import scalafx.application.Platform
 
@@ -16,19 +19,19 @@ import scalafx.application.Platform
   */
 object GraphicsLauncher extends App {
   implicit val scafiConfiguration = new ScafiConfigurationBuilder
-  implicit val window = new WindowConfiguration {override val name: String = "Scafi"
-    override val width: Int = 800
-    override val height: Int = 600
-  }
+  import ScalaFXEnvironment.window
+
+  locale = Locale.ITALY
   val randomFactory = new RandomWorldCommandFactory
   val gridFactory = new GridWorldCommandFactory
   val radiusFactory = new RadiusSimulationCommandFactory
   val outputFactory = new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy)
-  val factories = List(radiusFactory,gridFactory,randomFactory,outputFactory)
+  val performanceFactory = new PerformanceCommandFactory
+  val factories = List(radiusFactory,gridFactory,randomFactory,outputFactory,performanceFactory)
 
   val parser = new UnixLikeParser(new LaunchCommandFactory :: factories:_*)
   val machine = new ConfigurationMachine(parser)
-  val map = Map("world initializer" -> List(randomFactory.name,gridFactory.name))
+  val map = Map(international("world-initializer")(KeyFile.Configuration) -> List(randomFactory,gridFactory))
   initializeScalaFXPlatform
   Platform.runLater{new ScalaFXLauncher(factories,map,machine).show()}
 }

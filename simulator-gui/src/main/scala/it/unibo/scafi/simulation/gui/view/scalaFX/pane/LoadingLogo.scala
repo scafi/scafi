@@ -9,7 +9,6 @@ import scalafx.scene.layout.VBox
   */
 //TODO RICORDATI DI GESTIRE LE STRINGE CON RESOURCE BOUNDLE
 class LoadingLogo extends Group {
-  val loading = "Loading.."
   val image =  new Image(getClass.getResourceAsStream("/loadingLogo.png"))
   this.children = new VBox{
     this.children = new ImageView(image)

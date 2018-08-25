@@ -3,6 +3,7 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 import it.unibo.scafi.simulation.gui.configuration.SensorName.output1
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation.EXPORT
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
+import it.unibo.scafi.simulation.gui.model.space.{Point, Point3D}
 
 /**
   * describe action to actuate to the world, by export produced
@@ -20,4 +21,16 @@ object Actions {
       }
     }
   }
+
+  val movementAction : ACTION = new ACTION {
+    override def isDefinedAt(x: EXPORT): Boolean = true
+
+    override def apply(v1: EXPORT): (ScafiLikeWorld, Int) => Unit = (w : ScafiLikeWorld, id : Int) => {
+      val (x,y) = v1.root().asInstanceOf[(Double,Double)]
+      val oldPos = w(id).get.position
+      val point = Point3D(oldPos.x + (x * 1000),oldPos.y + (y * 1000),oldPos.z)
+      w.moveNode(id,point)
+    }
+  }
+
 }

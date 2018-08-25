@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.configuration
 
-import it.unibo.scafi.simulation.gui.configuration.command.CommandMapping
+import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
 import it.unibo.scafi.simulation.gui.configuration.environment.{ProgramEnvironment, ViewEnvironment}
 import it.unibo.scafi.simulation.gui.controller.synchronization.Scheduler.scheduler
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
@@ -16,7 +16,7 @@ import it.unibo.scafi.simulation.gui.view.View
   */
 class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,V],
                                               viewEnv : ViewEnvironment[V],
-                                              commandMapping : CommandMapping) {
+                                              commandMapping : CommandBinding) {
 
   private var _launched : Boolean = false
   def launched : Boolean = _launched

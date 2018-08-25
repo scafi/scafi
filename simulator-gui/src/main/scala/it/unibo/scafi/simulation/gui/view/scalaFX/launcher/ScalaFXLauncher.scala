@@ -3,10 +3,13 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.launcher
 import javafx.scene.control.{Tab, TabPane, TitledPane}
 import javafx.scene.layout.{StackPane => JFXStackPane}
 
+import it.unibo.scafi.platform.Platform
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.gui.configuration.parser.VirtualMachine
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.LoadingLogo
 
+import scalafx.geometry.Insets
 import scalafx.scene.Scene
 import scalafx.scene.control.TabPane.TabClosingPolicy
 import scalafx.scene.control._
@@ -15,9 +18,10 @@ import scalafx.scene.layout.{StackPane, VBox}
 import scalafx.scene.text.Font
 import scalafx.stage.Stage
 class ScalaFXLauncher(factories : List[CommandFactory],
-                      subsection : Map[String,List[String]],
+                      subsection : Map[String,List[CommandFactory]],
                       unixMachine : VirtualMachine[String])(implicit val window : WindowConfiguration) extends Stage {
   import ScalaFXLauncher._
+  import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   //collections used to save field box created
   private var tabPaneSections : Map[TabPane,List[FieldBox]] = Map.empty
   private var sections : List[FieldBox] = List.empty
@@ -27,13 +31,25 @@ class ScalaFXLauncher(factories : List[CommandFactory],
   this.title = window.name
   //create the main content
   private val mainContent = new VBox
-  mainContent.children.add(ScalaFXLauncher.Title(window.name))
-  this.scene = new Scene {
+  //used to scroll main content
+  private val scrollPane = new ScrollPane {
     content = mainContent
   }
+  mainContent.children.add(ScalaFXLauncher.Title(window.name))
+  this.scene = new Scene {
+    content = new ScrollPane{
+      content = scrollPane
+    }
+  }
 
-  //main content change the size with the stage with
-  mainContent.prefWidth.bind(this.width)
+  //show always scroll bar
+  scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.Never
+  scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.Never
+  scrollPane.padding = Insets { FieldBoxSpacing }
+  scrollPane.prefHeight.bind(this.scene.value.heightProperty())
+  scrollPane.prefWidth.bind(this.scene.value.widthProperty())
+  //main content change the size with the scrollPane with
+  mainContent.prefWidth.bind(scrollPane.prefWidth - RightScrollPanePadding)
   //create subsection pane
   subsection foreach (x => {
     //each subsection is a tab, the parent of tabs is a tab pane
@@ -44,9 +60,9 @@ class ScalaFXLauncher(factories : List[CommandFactory],
     var fieldBoxes : List[FieldBox] = List.empty
     x._2 foreach(y => {
       //create a tab with the name selected
-      val tab = new Tab(y)
+      val tab = new Tab(international(y.name)(KeyFile.CommandName))
       //find the factory associated with the name
-      val factory = factories.find(z => z.name == y).get
+      val factory = y
       //create a tooltip to show factory description
       tab.setGraphic(Help(new Tooltip(factory.description)))
       //put the fieldbox as the tab content
@@ -65,9 +81,9 @@ class ScalaFXLauncher(factories : List[CommandFactory],
   private val added = subsection.values.flatten.toSet
   factories foreach (x => {
     //if the factory isn't added, i create the new field box and add into scene
-    if(!added.contains(x.name)) {
+    if(!added.contains(x)) {
       val box = FieldBox(x)
-      val pane = new TitledPane(x.name,box)
+      val pane = new TitledPane(international(x.name)(KeyFile.CommandName),box)
       pane.setGraphic(Help(new Tooltip(x.description)))
       mainContent.children.add(pane)
       sections = box :: sections
@@ -91,13 +107,15 @@ class ScalaFXLauncher(factories : List[CommandFactory],
 
 object ScalaFXLauncher {
   val FieldBoxSpacing = 10
+  val RightScrollPanePadding = 20
   val Launch = "launch"
   val FontName = "Verdana"
   val FontSize = 40
+
   private case class Title(name:String) extends StackPane {
     val title = new Label(name)
     title.font = Font(FontName,FontSize)
-    this.children.add(title)
+    this.children.add(new LoadingLogo)
   }
 }
 

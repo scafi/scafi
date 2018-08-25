@@ -40,6 +40,7 @@ trait KeyboardManager extends AbstractKeyboardManager {
         }
         InputCommandController.virtualMachine.process((factoryMapped(code), arg))
       }
+      case _ =>
     }
 
   }

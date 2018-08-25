@@ -6,7 +6,7 @@ import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.FXSimulationPane
-import it.unibo.scafi.simulation.gui.view.{AbstractKeyboardManager, AbstractSelectionArea, Container, SimulationView}
+import it.unibo.scafi.simulation.gui.view._
 
 import scalafx.application.Platform
 import scalafx.scene.layout.HBox
@@ -14,13 +14,19 @@ import scalafx.scene.layout.HBox
 /**
   * standard fx view eniromento
   */
-object ScalaFXEnvironment extends ViewEnvironment[SimulationView]{
+object ScalaFXEnvironment extends ViewEnvironment[SimulationView] {
 
+  implicit val window = new WindowConfiguration {
+    override val name: String = "Scafi"
+    override val width: Int = 800
+    override val height: Int = 600
+  }
   var drawer : FXOutputPolicy = StandardFXOutputPolicy
 
   lazy val pane = new FXSimulationPane(drawer) with FXSelectionArea with KeyboardManager
 
   lazy val cont = new FXSimulationWindow(new HBox,pane,true)
+
   override def keyboard: AbstractKeyboardManager = pane
 
   override def selection: Option[AbstractSelectionArea] = Some(pane)

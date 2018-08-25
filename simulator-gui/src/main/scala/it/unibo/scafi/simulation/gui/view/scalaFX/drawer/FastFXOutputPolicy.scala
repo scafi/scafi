@@ -6,13 +6,13 @@ import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorDevice, s
 
 object FastFXOutputPolicy extends FXOutputPolicy {
 
-  override type OUTPUTNODE = javafx.scene.shape.Shape
+  override type OUTPUT_NODE = javafx.scene.shape.Shape
 
-  override def nodeGraphicsNode (node: NODE): OUTPUTNODE = nodeToShape.create(node)
+  override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = nodeToShape.create(node)
 
-  override def deviceToGraphicsNode (node: OUTPUTNODE, dev: DEVICE): Option[OUTPUTNODE] = None
+  override def deviceToGraphicsNode (node: OUTPUT_NODE, dev: DEVICE): Option[OUTPUT_NODE] = None
 
-  override def updateDevice(node : OUTPUTNODE, dev: DEVICE, graphicsDevice: Option[OUTPUTNODE]): Unit = {
+  override def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = {
     import scalafx.Includes._
     dev match {
       case SensorDevice(sens) => sens.value match {

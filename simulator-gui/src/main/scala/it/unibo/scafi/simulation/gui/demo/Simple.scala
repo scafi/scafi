@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.demo
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, _}
-import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.FastPerformancePolicy
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPerformancePolicy, NearRealTimePolicy, StandardPolicy}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
@@ -11,12 +11,12 @@ import it.unibo.scafi.simulation.gui.launcher.scafi.StringLauncher
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutputPolicy
 object Test extends App {
   ScafiProgramBuilder (
-    worldInitializer = Grid(10,200,100),
+    worldInitializer = Random(1000,1920,1080),
     scafiSimulationSeed = ScafiSimulationSeed(program = classOf[Simple]),
-    simulationInitializer = RadiusSimulationInitializer( radius = 10),
+    simulationInitializer = RadiusSimulationInitializer( radius = 80),
     outputPolicy = StandardFXOutputPolicy,
-    neighbourRender = false,
-    perfomance = FastPerformancePolicy
+    neighbourRender = true,
+    perfomance = NearRealTimePolicy
   ).launch()
   //FileLauncher{"C:\\Users\\paggi\\Desktop\\init.txt"}
   /*StringLauncher{"random-world " +

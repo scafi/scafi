@@ -14,12 +14,12 @@ trait LogicController[W <: AggregateWorld] extends Controller[W] {
     * start the internal logic
     * @throws IllegalStateException if the simulation is started
     */
-  def start
+  def start() : Unit
 
   /**
     * stop the internal logic
     * @throws IllegalStateException if the simulation is stopped
     */
-  def stop
+  def stop() : Unit
 }
 

@@ -18,12 +18,10 @@ class RandomWorldCommandFactory(implicit val scafiConfiguration: ScafiConfigurat
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   override val name: String = "random-world"
 
-  override val description: String = "command uses to create a random world"
-
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
-    List(CommandArgDescription(Node,IntType,description = international(name + "-" + Node)),
-      CommandArgDescription(Width,IntType, description = international(name + "-" + Width)),
-      CommandArgDescription(Height,IntType, description = international(name + "-" + Height)))
+    List(CommandArgDescription(Node,IntType,description = international(name, Node)),
+      CommandArgDescription(Width,IntType, description = international(name, Width)),
+      CommandArgDescription(Height,IntType, description = international(name, Height)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {
     //the command arguments used to create command
@@ -59,7 +57,7 @@ class RandomWorldCommandFactory(implicit val scafiConfiguration: ScafiConfigurat
       }))
     } else {
       //if the value name is different return a failed result
-      creationFailed(Fail(wrongParameterName(Node + " " + Width + " " + Height)))
+      creationFailed(Fail(wrongParameterName(Node , Width, Height)))
     }
   }
 }

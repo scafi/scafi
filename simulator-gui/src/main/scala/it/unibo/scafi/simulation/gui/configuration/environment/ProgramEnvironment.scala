@@ -57,6 +57,7 @@ object ProgramEnvironment {
     */
   case object NearRealTimePolicy extends PerformancePolicy {
     override val tick: Int = 16
+    override def toString: String = "near-real-time"
   }
 
   /**
@@ -64,6 +65,7 @@ object ProgramEnvironment {
     */
   case object StandardPolicy extends PerformancePolicy {
     override val tick: Int = 66
+    override def toString: String = "standard"
   }
 
   /**
@@ -71,5 +73,6 @@ object ProgramEnvironment {
     */
   case object FastPerformancePolicy extends PerformancePolicy {
     override val tick: Int = 200
+    override def toString: String = "fast"
   }
 }

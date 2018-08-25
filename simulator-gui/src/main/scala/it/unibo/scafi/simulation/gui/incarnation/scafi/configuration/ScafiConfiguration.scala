@@ -2,9 +2,9 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
 import it.unibo.scafi.simulation.gui.configuration.Configuration
 import it.unibo.scafi.simulation.gui.configuration.Configuration.ConfigurationBuilder
-import it.unibo.scafi.simulation.gui.configuration.command.CommandMapping
+import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{NearRealTimePolicy, PerformancePolicy}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandMapping.standardMapping
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.standardBinding
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationInitializer, ScafiSimulationSeed}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer
 import it.unibo.scafi.simulation.gui.view.OutputPolicy
@@ -22,13 +22,13 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutputPolicy
   * @param perfomance the scafi perfomance program
   */
 case class ScafiConfiguration (scafiSeed : ScafiSeed,
-                          worldInitializer: ScafiWorldInitializer,
-                          commandMapping: CommandMapping,
-                          scafiSimulationSeed : ScafiSimulationSeed,
-                          simulationInitializer: ScafiSimulationInitializer,
-                          outputPolicy: OutputPolicy,
-                          neighbourRender: Boolean = true,
-                          perfomance: PerformancePolicy) extends Configuration
+                               worldInitializer: ScafiWorldInitializer,
+                               commandMapping: CommandBinding,
+                               scafiSimulationSeed : ScafiSimulationSeed,
+                               simulationInitializer: ScafiSimulationInitializer,
+                               outputPolicy: OutputPolicy,
+                               neighbourRender: Boolean = true,
+                               perfomance: PerformancePolicy) extends Configuration
 
 object ScafiConfiguration {
 
@@ -46,13 +46,13 @@ object ScafiConfiguration {
     * @param perfomance (standard => NearRealTimePolicy)
     */
   class ScafiConfigurationBuilder(var scafiSeed : Option[ScafiSeed] = Some(ScafiSeed.standard),
-                             var worldInitializer: Option[ScafiWorldInitializer] = None,
-                             var commandMapping: Option[CommandMapping] = Some(standardMapping),
-                             var scafiSimulationSeed : Option[ScafiSimulationSeed] = None,
-                             var simulationInitializer: Option[ScafiSimulationInitializer] = None,
-                             var outputPolicy: Option[OutputPolicy] = Some(StandardFXOutputPolicy) ,
-                             var neighbourRender: Boolean = true,
-                             var perfomance: Option[PerformancePolicy] = Some(NearRealTimePolicy)) extends ConfigurationBuilder[ScafiConfiguration] {
+                                  var worldInitializer: Option[ScafiWorldInitializer] = None,
+                                  var commandMapping: Option[CommandBinding] = Some(standardBinding),
+                                  var scafiSimulationSeed : Option[ScafiSimulationSeed] = None,
+                                  var simulationInitializer: Option[ScafiSimulationInitializer] = None,
+                                  var outputPolicy: Option[OutputPolicy] = Some(StandardFXOutputPolicy),
+                                  var neighbourRender: Boolean = true,
+                                  var perfomance: Option[PerformancePolicy] = Some(NearRealTimePolicy)) extends ConfigurationBuilder[ScafiConfiguration] {
     private var _created = false
     def create() : Option[ScafiConfiguration] = {
       if(created) return None

@@ -13,7 +13,11 @@ public enum SimulationType {
     /**
      * this simulation profile has only one sensor and produced a general output
      */
-    ON_OFF_INPUT_ANY_OUTPUT(SimulationProfile.onOffInputAnyOutput$.MODULE$);
+    ON_OFF_INPUT_ANY_OUTPUT(SimulationProfile.onOffInputAnyOutput$.MODULE$),
+    /**
+     * a movement simulation
+     */
+    MOVEMENT((SimulationProfile.movementProfile$.MODULE$));
 
     private final SimulationProfile _profile;
 

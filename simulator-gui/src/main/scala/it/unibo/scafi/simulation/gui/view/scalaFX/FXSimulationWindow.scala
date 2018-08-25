@@ -5,7 +5,7 @@ import javafx.stage.WindowEvent
 
 import com.sun.javafx.perf.PerformanceTracker
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.AbstractFXSimulationPane
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.{LoadingLogo, PannablePane}
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane._
 import it.unibo.scafi.simulation.gui.view.{SimulationView, Window}
 
 import scalafx.animation.FadeTransition
@@ -14,32 +14,41 @@ import scalafx.event.ActionEvent
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.Label
-import scalafx.scene.input.KeyEvent
+import scalafx.scene.input.{KeyEvent, ScrollEvent}
 import scalafx.scene.layout.{BorderPane, HBox, StackPane}
 import scalafx.stage.Stage
 import scalafx.util.Duration
-
+import scalafx.Includes._
 class FXSimulationWindow(private val infoPane : HBox,
                          private val simulationPane : AbstractFXSimulationPane,
                          private val debug: Boolean = false) extends Stage with Window[SimulationView] {
   private val Padding = 20
   private val exitValue = 1
   private val logoPanel = new LoadingLogo
-  private val mainPane = new StackPane{
-    this.minWidth = 800
-    this.minHeight = 600
+
+  import javafx.stage.Screen
+  val screen = Screen.getPrimary.getVisualBounds
+  private val mainPane = new StackPane {
+    this.minWidth = screen.getMaxX
+    this.minHeight = screen.getMaxY
   }
+
   this.onCloseRequest = new EventHandler[WindowEvent] {
     override def handle(event: WindowEvent): Unit = System.exit(exitValue)
   }
-  scene  = new Scene {
+  scene = new Scene {
     content = mainPane
   }
 
-  import scalafx.Includes._
+  ZoomAction(mainPane,simulationPane)
+  DragAction(simulationPane)
+
   scene.value.setOnKeyPressed((e : KeyEvent) => {
     simulationPane.fireEvent(e)
   })
+
+  this.fullScreen = true
+
   mainPane.setAlignment(Pos.Center)
   mainPane.children = logoPanel
   this.title = name
@@ -68,8 +77,7 @@ class FXSimulationWindow(private val infoPane : HBox,
       val debugInfo = new Label()
       infoPane.children.addAll(debugInfo)
       val pannablePane = new PannablePane(simulationPane,Some(pane))
-
-      pane.setCenter(pannablePane)
+      pane.setCenter(simulationPane)
       //TODO BETTER
       val tracker = PerformanceTracker.getSceneTracker(scene.value)
       val t = new Thread(new Runnable {

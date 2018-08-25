@@ -16,8 +16,8 @@ class SingleToggleCommandFactory(override val world : ScafiLikeWorld = scafiWorl
   override val name: String = "toggle"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
-    List(CommandArgDescription(Id,IntType,description = international(name + "-" + Id)),
-      CommandArgDescription(Name,StringType,description = international(name + "-" + Name)))
+    List(CommandArgDescription(Id,IntType,description = international(name, Id)),
+      CommandArgDescription(Name,StringType,description = international(name, Name)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {
     //parameter used to create command
@@ -41,7 +41,7 @@ class SingleToggleCommandFactory(override val world : ScafiLikeWorld = scafiWorl
     if(id.isDefined && name.isDefined) {
       creationSuccessful(toggle(name.get,List(id.get)))
     } else {
-      creationFailed(Fail(wrongParameterName(Id + " " + Name)))
+      creationFailed(Fail(wrongParameterName(Id, Name)))
     }
   }
 }

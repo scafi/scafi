@@ -22,6 +22,7 @@ object ScafiParser {
     new LaunchCommandFactory,
     new ExitCommandFactory,
     new LanguageCommandFactory,
+    new PerformanceCommandFactory,
     new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy))
   /**
     * parser unix like used to parse string value in runtime command

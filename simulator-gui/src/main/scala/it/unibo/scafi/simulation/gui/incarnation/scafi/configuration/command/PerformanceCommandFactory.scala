@@ -2,45 +2,45 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPerformancePolicy, NearRealTimePolicy, StandardPolicy}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
-import it.unibo.scafi.simulation.gui.view.OutputPolicy
 
 /**
-  * a factory uses to create a command that set the output policy
-  * @param outputs the outpolicy supported
-  * @param scafiConfiguration implicit scafi configuration
+  * a factory used to set a program performance
+  * @param scafiConfiguration the configuration builder used to build configuration
   */
-class OutputCommandFactory(outputs : OutputPolicy *)(implicit val scafiConfiguration : ScafiConfigurationBuilder) extends CommandFactory{
+class PerformanceCommandFactory(implicit val scafiConfiguration : ScafiConfigurationBuilder) extends CommandFactory {
   import CommandFactory._
-  import OutputCommandFactory._
+  import PerformanceCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
-  private val outputMap = outputs map {x => x.toString -> x} toMap
-  private val argType = LimitedValueType(outputMap.keySet.toSeq:_*)
-  override val name: String = "output"
-
+  override val name: String = "performance"
+  private val performanceMap = Map(
+    NearRealTimePolicy.toString -> NearRealTimePolicy,
+    FastPerformancePolicy.toString -> FastPerformancePolicy,
+    StandardPolicy.toString -> StandardPolicy
+  )
+  val argType = LimitedValueType(performanceMap.keySet.toSeq:_*)
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
     List(CommandArgDescription(Name,
       argType,
       description = international(name, Name),
-      defaultValue = scafiConfiguration.outputPolicy.map {_.toString}))
+      defaultValue = scafiConfiguration.perfomance.map{_.toString} ))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Name) match {
-    case Some(value : String) => if(outputMap.get(value).isDefined) {
+    case Some(value : String) => if(performanceMap.contains(value)) {
       creationSuccessful(onlyMakeCommand(() => {
-        scafiConfiguration.outputPolicy = outputMap.get(value)
+        scafiConfiguration.perfomance = performanceMap.get(value)
         Success
       }))
-
     } else {
       creationFailed(Fail(wrongTypeParameter(argType,Name)))
     }
-    case Some(_) =>  creationFailed(Fail(wrongTypeParameter(argType,Name)))
     case _ => creationFailed(Fail(wrongParameterName(Name)))
   }
 }
 
-object OutputCommandFactory {
+object PerformanceCommandFactory {
   val Name = "name"
 }

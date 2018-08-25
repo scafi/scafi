@@ -13,5 +13,4 @@ class ListCommandFactory(private val commandFactories: CommandFactory *) extends
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] = Seq.empty
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = easyResultCreation(() => commandFactories.foreach(x => println(x.name)))
-
 }

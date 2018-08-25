@@ -14,7 +14,7 @@ import scalafx.scene.shape.Ellipse
 
 object StandardFXOutputPolicy extends FXOutputPolicy {
   //TODO create a non static color map
-  override type OUTPUTNODE = javafx.scene.Node
+  override type OUTPUT_NODE = javafx.scene.Node
   private val maxTextLength = 200
   val colors: Map[String, Color] = Map(sensor1 -> Color.Red,
     sensor2 -> Color.Yellow,
@@ -23,11 +23,11 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
   val size: Map[String, Double] = Map(sensor1 -> 1, sensor2 -> 3, sensor3 -> 5, output1 -> 7)
   val radius = 2
 
-  override def nodeGraphicsNode(node: NODE): OUTPUTNODE = nodeToShape.create(node)
+  override def nodeGraphicsNode(node: NODE): OUTPUT_NODE = nodeToShape.create(node)
 
-  override def deviceToGraphicsNode (node: OUTPUTNODE, dev: DEVICE): Option[OUTPUTNODE] = drawNode(dev,node)
+  override def deviceToGraphicsNode (node: OUTPUT_NODE, dev: DEVICE): Option[OUTPUT_NODE] = drawNode(dev,node)
 
-  override def updateDevice(node : OUTPUTNODE, dev: DEVICE, graphicsDevice: Option[OUTPUTNODE]): Unit = {
+  override def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = {
     if(graphicsDevice.isEmpty) return
     val graphics = graphicsDevice.get
     dev match {
@@ -40,7 +40,7 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
     }
   }
 
-  private def drawNode (dev: DEVICE, node: OUTPUTNODE): Option[OUTPUTNODE] = {
+  private def drawNode (dev: DEVICE, node: OUTPUT_NODE): Option[OUTPUT_NODE] = {
     import scalafx.Includes._
     val point = nodeToAbsolutePosition(node)
     dev match {

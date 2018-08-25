@@ -28,7 +28,7 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSee
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutputPolicy
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, GradientFXOutputPolicy}
 import it.unibo.scafi.space.Point3D
 
 import scala.concurrent.duration.FiniteDuration
@@ -36,9 +36,9 @@ object GradientsDemo extends App{
 
   ScafiProgramBuilder (
     worldInitializer = Random(node = 20000, width = 500, height = 500),
-    scafiSimulationSeed = ScafiSimulationSeed(classOf[ShortestPathProgram]),
+    scafiSimulationSeed = ScafiSimulationSeed(classOf[ClassicGradient]),
     simulationInitializer = RadiusSimulationInitializer(radius = 6),
-    outputPolicy = FastFXOutputPolicy
+    outputPolicy = GradientFXOutputPolicy
   ).launch()
 }
 @Demo

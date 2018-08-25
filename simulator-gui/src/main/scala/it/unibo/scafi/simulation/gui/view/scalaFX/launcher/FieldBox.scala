@@ -15,7 +15,7 @@ import scalafx.scene.control.{ComboBox, Label, TextField, Tooltip}
 import scalafx.scene.layout.{HBox, VBox}
 
 case class FieldBox(factory: CommandFactory)(implicit val window : WindowConfiguration) extends VBox {
-  private val argBoxes = factory.commandArgsDescription.map{ArgBox(_)}
+  private val argBoxes = factory.commandArgsDescription.map{ArgBox(_,factory.name)}
   this.spacing = FieldBoxSpacing
   argBoxes foreach {x => this.children.add(x)}
 
@@ -25,13 +25,14 @@ case class FieldBox(factory: CommandFactory)(implicit val window : WindowConfigu
 }
 
 object FieldBox {
+  import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   val PercentageLeft = 0.2
   val PercentageRight = 0.7
-  case class ArgBox(arg : CommandArgDescription)(implicit val window : WindowConfiguration) extends HBox {
+  case class ArgBox(arg : CommandArgDescription, factoryName : String)(implicit val window : WindowConfiguration) extends HBox {
     private val objectProperty : ObjectProperty[Any] = new ObjectProperty[Any]()
     private val argPane = new JFXStackPane()
-    private val argName = new Label(arg.name)
-    argName.tooltip = new Tooltip((arg.description))
+    private val argName = new Label(international(factoryName, arg.name)(KeyFile.CommandName))
+    argName.tooltip = new Tooltip(arg.description)
     argPane.getChildren.add(argName)
     this.children.add(argPane)
     argPane.setPrefWidth(window.width * PercentageLeft)

@@ -4,6 +4,7 @@ import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory._
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory, ListCommandFactory}
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
+import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 
 import scala.util.Try
 
@@ -68,20 +69,25 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
   }
 
   private def help(factory: CommandFactory) : String = {
+    implicit val file = KeyFile.Configuration
+    val argument = i"argument"
+    val description = i"description"
+    val typeName = i"type"
+    val optional = i"optional"
     val result = factory.name + " " + factory.description
     if(factory.commandArgsDescription.isEmpty) {
       result
     } else {
-      result + " argument = " + (factory.commandArgsDescription.map(x => "[" + x.name + "] " +
-        "description :" +x.description + "" +
-        "; type = ["+ x.valueType+"]" +
-        (if(x.optional) " [option]" else "") +
+      result + s" $argument = " + (factory.commandArgsDescription.map(x => "[" + international(factory.name,x.name)(KeyFile.CommandName) + "] " +
+        s"$description :" +x.description + "" +
+        s"; $typeName = ["+ x.valueType+"]" +
+        (if(x.optional) s" [$optional]" else "") +
         (if(x.defaultValue.isDefined) " default = " + x.defaultValue.get.toString else "")).mkString(";"))
     }
   }
 }
 
 object UnixLikeParser {
-  val NoCommandFound = Fail("no command found, try to type list-command to see all command")
+  def NoCommandFound = Fail(international("no-command-found")(KeyFile.Configuration))
   val Help = "-help"
 }

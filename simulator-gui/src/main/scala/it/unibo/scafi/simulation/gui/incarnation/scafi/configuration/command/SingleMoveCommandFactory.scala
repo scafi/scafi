@@ -17,10 +17,10 @@ class SingleMoveCommandFactory(override val world : ScafiLikeWorld = scafiWorld)
   override val name: String = "move"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
-    List(CommandArgDescription(Id,IntType,description = international(name + "-" + Id)),
-      CommandArgDescription(X,IntType,description = international(name + "-" + X)),
-      CommandArgDescription(Y,IntType,description = international(name + "-" + Y)),
-      CommandArgDescription(Z,IntType,true,international(name + "-" + Z)))
+    List(CommandArgDescription(Id,IntType,description = international(name, Id)),
+      CommandArgDescription(X,IntType,description = international(name, X)),
+      CommandArgDescription(Y,IntType,description = international(name, Y)),
+      CommandArgDescription(Z,IntType,true,international(name, Z)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {
     var id : Option[Int] = None
@@ -56,7 +56,7 @@ class SingleMoveCommandFactory(override val world : ScafiLikeWorld = scafiWorld)
       val newPos = Map(id.get -> Point3D(x.get,y.get,z.getOrElse(0.0)))
       creationSuccessful(move(newPos))
     } else {
-      creationFailed(Fail(wrongParameterName(Id + " " + X + " " + Y)))
+      creationFailed(Fail(wrongParameterName(Id, X, Y)))
     }
   }
 }

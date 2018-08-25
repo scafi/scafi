@@ -19,9 +19,9 @@ class GridWorldCommandFactory(implicit val scafiConfiguration: ScafiConfiguratio
   override val name: String = "grid-world"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
-    List(CommandArgDescription(Space,IntType,description = international(name +"-" + Space)),
-      CommandArgDescription(Column,IntType,description = international(name +"-" + Space)),
-      CommandArgDescription(Row,IntType,description = international(name +"-" + Space)))
+    List(CommandArgDescription(Space,IntType,description = international(name, Space)),
+      CommandArgDescription(Column,IntType,description = international(name, Space)),
+      CommandArgDescription(Row,IntType,description = international(name, Space)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {
     //command argument used to create command
@@ -58,7 +58,7 @@ class GridWorldCommandFactory(implicit val scafiConfiguration: ScafiConfiguratio
       }))
     } else {
       //if the value name is different return a failed result
-      creationFailed(Fail(CommandFactory.wrongParameterName(Space + " " + Column + " " + Row)))
+      creationFailed(Fail(CommandFactory.wrongParameterName(Space, Column, Row)))
     }
   }
 }

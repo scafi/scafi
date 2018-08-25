@@ -1,11 +1,11 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
-import it.unibo.scafi.simulation.gui.configuration.command.CommandMapping
+import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{PerformancePolicy, StandardPolicy}
 import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
 import it.unibo.scafi.simulation.gui.configuration.{Program, ProgramBuilder}
 import it.unibo.scafi.simulation.gui.controller.presenter.SimulationPresenter
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandMapping.standardMapping
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.standardBinding
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiProgramEnvironment
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationInitializer, ScafiSimulationSeed}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
@@ -49,7 +49,7 @@ object ScafiProgramBuilder {
     */
   def apply(scafiSeed : ScafiSeed = ScafiSeed.standard,
             worldInitializer: ScafiWorldInitializer,
-            commandMapping: CommandMapping = standardMapping,
+            commandMapping: CommandBinding = standardBinding,
             scafiSimulationSeed : ScafiSimulationSeed,
             simulationInitializer: ScafiSimulationInitializer,
             outputPolicy: OutputPolicy = StandardFXOutputPolicy,

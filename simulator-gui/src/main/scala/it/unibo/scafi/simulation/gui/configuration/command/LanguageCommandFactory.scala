@@ -16,15 +16,8 @@ class LanguageCommandFactory extends CommandFactory {
   override def name: String = "language"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
-    List(CommandArgDescription(Name,supported,description = international(name + "-" + Name) ,defaultValue = Some("en")))
+    List(CommandArgDescription(Name,supported,description = international(name,Name) ,defaultValue = Some("en")))
 
-
-  /**
-    * a strategy defined by command factory implementatoin
-    *
-    * @param args the command args
-    * @return (Success,Some(Command)) if the arguments are accepted (Fail,None) otherwise
-    */
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Name) match {
     case Some(nameValue : String) => if(map.contains(nameValue)) {
       creationSuccessful(onlyMakeCommand(() => {
@@ -37,7 +30,6 @@ class LanguageCommandFactory extends CommandFactory {
     case Some(_) => creationFailed(Fail(wrongTypeParameter(supported,Name)))
     case _ => creationFailed(Fail(wrongParameterName(Name)))
   }
-
 }
 
 object LanguageCommandFactory {

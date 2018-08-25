@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.gui.view.{AbstractKeyboardManager, AbstractSele
 /**
   * a strategy used to map command
   */
-trait CommandMapping {
+trait CommandBinding {
   /**
     * map the command with the main input policy
     * @param keyboard keyboard manager

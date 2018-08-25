@@ -34,5 +34,7 @@ class LaunchCommandFactory(implicit val scafiConfiguration : ScafiConfigurationB
 }
 
 object LaunchCommandFactory {
-  val ArgumentProblem = "you can't launch demo before set all parameter"
+  import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
+  implicit val key = KeyFile.Error
+  def ArgumentProblem = i"argument-problem"
 }

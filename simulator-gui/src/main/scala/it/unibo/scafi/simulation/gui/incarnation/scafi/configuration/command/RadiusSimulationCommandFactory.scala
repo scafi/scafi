@@ -25,8 +25,8 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
   private lazy val scafiDemo = demo.demos.map {_.getSimpleName}
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
-    List(CommandArgDescription(DemoValue,LimitedValueType(scafiDemo:_*),description = international(name + "-" + DemoValue)),
-      CommandArgDescription(Radius,DoubleType,description = international(name + "-" + Radius)))
+    List(CommandArgDescription(DemoValue,LimitedValueType(scafiDemo:_*),description = international(name, DemoValue)),
+      CommandArgDescription(Radius,DoubleType,description = international(name, Radius)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {
     //argument used to create this command
@@ -62,7 +62,7 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
       }))
     } else {
       //if the value name is different return a failed result
-      creationFailed(Fail(wrongParameterName(DemoValue+ " " + Radius)))
+      creationFailed(Fail(wrongParameterName(DemoValue, Radius)))
     }
   }
 }

@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
+import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
@@ -10,8 +11,8 @@ import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManag
 trait CommandFactory {
   import CommandFactory._
 
-  implicit val descriptionFile = "command-description"
-  private val wrongElementNumber = Fail("the argument number is wrong")
+  implicit val descriptionFile = ResourceBundleManager.KeyFile.CommandDescription
+  private def wrongElementNumber = Fail(international("wrong-element")(KeyFile.Error))
 
   /**
     * @return the command name
@@ -55,6 +56,7 @@ trait CommandFactory {
 }
 
 object CommandFactory {
+  import ResourceBundleManager._
   /**
     * the type of command arg
     */
@@ -138,10 +140,15 @@ object CommandFactory {
 
   /**
     * this method is used to create a string when the parameter name is wrong
-    * @param expected the parameter name expected into the command arg
+    * @param expected the parameter names expected into the command arg
     * @return the string created
     */
-  def wrongParameterName(expected : String) = s"you pass $expected to run command"
+  def wrongParameterName(expected : String *) = {
+    implicit val file = KeyFile.Configuration
+    val pass = i"pass"
+    val runCommand = i"run-command"
+    s"$pass ${expected.mkString(",")} $runCommand"
+  }
 
   /**
     * this method is used to create a string when the parameter type is wrong
@@ -149,7 +156,12 @@ object CommandFactory {
     * @param parameter the name of parameter
     * @return the string created
     */
-  def wrongTypeParameter(expected : ValueType, parameter: String) = s"the parameter $parameter has type $expected"
+  def wrongTypeParameter(expected : ValueType, parameter: String) = {
+    implicit val file = KeyFile.Configuration
+    val parameter = i"parameter"
+    val isType = i"is-type"
+    s"$parameter $parameter $isType $expected"
+  }
 
   /**
     * this method is used to create creation result in a fast way

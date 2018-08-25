@@ -13,7 +13,7 @@ object InputCommandController extends InputController {
   type Argument = (CommandFactory,Map[String,Any])
   private var commands : List[Command] = List.empty
   private var undoList : List[Command] = List.empty
-  private val maxSize = 5
+  private val maxSize = 10
 
   /**
     * put the command in the queue list
