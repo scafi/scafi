@@ -1,6 +1,7 @@
-package it.unibo.scafi.simulation.gui.configuration.command
+package it.unibo.scafi.simulation.gui.configuration.command.factory
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.command
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}

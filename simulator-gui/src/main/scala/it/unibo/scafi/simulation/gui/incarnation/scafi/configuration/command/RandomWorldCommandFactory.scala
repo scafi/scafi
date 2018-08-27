@@ -51,10 +51,7 @@ class RandomWorldCommandFactory(implicit val scafiConfiguration: ScafiConfigurat
 
     if(width.isDefined && height.isDefined && node.isDefined) {
       //create the command
-      creationSuccessful(onlyMakeCommand(() => {
-        scafiConfiguration.worldInitializer = Some(Random(node.get,width.get,height.get))
-        Success
-      }))
+      easyResultCreation(() => scafiConfiguration.worldInitializer = Some(Random(node.get,width.get,height.get)))
     } else {
       //if the value name is different return a failed result
       creationFailed(Fail(wrongParameterName(Node , Width, Height)))

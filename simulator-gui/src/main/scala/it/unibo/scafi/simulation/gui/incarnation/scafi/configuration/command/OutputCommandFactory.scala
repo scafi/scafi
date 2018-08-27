@@ -28,11 +28,7 @@ class OutputCommandFactory(outputs : OutputPolicy *)(implicit val scafiConfigura
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Name) match {
     case Some(value : String) => if(outputMap.get(value).isDefined) {
-      creationSuccessful(onlyMakeCommand(() => {
-        scafiConfiguration.outputPolicy = outputMap.get(value)
-        Success
-      }))
-
+      easyResultCreation(() => scafiConfiguration.outputPolicy = outputMap.get(value))
     } else {
       creationFailed(Fail(wrongTypeParameter(argType,Name)))
     }

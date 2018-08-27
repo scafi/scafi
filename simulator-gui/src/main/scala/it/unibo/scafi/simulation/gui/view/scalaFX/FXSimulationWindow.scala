@@ -4,105 +4,96 @@ import javafx.event.EventHandler
 import javafx.stage.WindowEvent
 
 import com.sun.javafx.perf.PerformanceTracker
+import it.unibo.scafi.simulation.gui.view.WindowConfiguration.{FullScreen, Window => WindowBound}
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.AbstractFXSimulationPane
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane._
-import it.unibo.scafi.simulation.gui.view.{SimulationView, Window}
+import it.unibo.scafi.simulation.gui.view.{SimulationView, Window, WindowConfiguration}
 
+import scalafx.Includes._
 import scalafx.animation.FadeTransition
 import scalafx.application.Platform
 import scalafx.event.ActionEvent
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.Label
-import scalafx.scene.input.{KeyEvent, ScrollEvent}
-import scalafx.scene.layout.{BorderPane, HBox, StackPane}
+import scalafx.scene.image.ImageView
+import scalafx.scene.input.KeyEvent
+import scalafx.scene.layout._
 import scalafx.stage.Stage
 import scalafx.util.Duration
-import scalafx.Includes._
-class FXSimulationWindow(private val infoPane : HBox,
-                         private val simulationPane : AbstractFXSimulationPane,
-                         private val debug: Boolean = false) extends Stage with Window[SimulationView] {
-  private val Padding = 20
-  private val exitValue = 1
-  private val logoPanel = new LoadingLogo
 
-  import javafx.stage.Screen
-  val screen = Screen.getPrimary.getVisualBounds
-  private val mainPane = new StackPane {
-    this.minWidth = screen.getMaxX
-    this.minHeight = screen.getMaxY
+private [scalaFX] class FXSimulationWindow(private val simulationPane : AbstractFXSimulationPane,
+                                           private val debug: Boolean = false,
+                                           override val windowConfiguration : WindowConfiguration)
+                                            extends LogoStage(windowConfiguration) with Window[SimulationView] {
+  import FXSimulationWindow._
+  import PaneExtension._
+  private val mainPane = new StackPane
+  FXLogger.show()
+  windowConfiguration.size match {
+    case FullScreen => this.fullScreen = true
+    case WindowBound(w,h) => {
+      this.width = w
+      this.height = h
+    }
   }
-
   this.onCloseRequest = new EventHandler[WindowEvent] {
-    override def handle(event: WindowEvent): Unit = System.exit(exitValue)
+    override def handle(event: WindowEvent): Unit = System.exit(ExitValue)
   }
+
   scene = new Scene {
     content = mainPane
   }
-
-  ZoomAction(mainPane,simulationPane)
-  DragAction(simulationPane)
 
   scene.value.setOnKeyPressed((e : KeyEvent) => {
     simulationPane.fireEvent(e)
   })
 
-  this.fullScreen = true
-
   mainPane.setAlignment(Pos.Center)
-  mainPane.children = logoPanel
+  mainPane.children = logo
   this.title = name
 
-  override def name: String = "Simulation pane"
+  override def name: String = windowConfiguration.name
 
   override def close: Unit = this.close()
 
   override def output : SimulationView = simulationPane
 
-  /**
-    * try to render the output
-    *
-    * @return true if the output is rendered false otherwise
-    */
   override def render: Unit = {
     Platform.runLater {
-      this.show()
+      implicit val sceneValue : Scene = scene.value
+      bindSize(mainPane)
       val timeToWait = 1000
-      val pane = new BorderPane {
-        padding = Insets(Padding)
+      this.show()
+      val pane = new BorderPane
+      pane.style = "-fx-border-color: black"
+      val anchorPane = new AnchorPane {
+        children = simulationPane
       }
-      import scalafx.Includes._
-      infoPane.padding = Insets(Padding)
-      pane.setTop(infoPane)
-      val debugInfo = new Label()
-      infoPane.children.addAll(debugInfo)
-      val pannablePane = new PannablePane(simulationPane,Some(pane))
-      pane.setCenter(simulationPane)
-      //TODO BETTER
-      val tracker = PerformanceTracker.getSceneTracker(scene.value)
-      val t = new Thread(new Runnable {
-        override def run(): Unit = {
-          while(true) {
-            Platform.runLater{
-              debugInfo.setText("FPS : "+tracker.getInstantFPS + " PULSE: " + tracker.getInstantPulses)
-            }
-            Thread.sleep(1000)
-          }
-        }
-      })
+      anchorPane.style = "-fx-border-color: black"
+      bindSize(simulationPane)
+      bindSize(anchorPane, 0.95,0.85)
+      clip(anchorPane)
+      zoomPane(anchorPane,simulationPane)
+      dragPane(simulationPane)
+      pane.setCenter(anchorPane)
       if(debug) {
-        t.start()
+        trackFps(scene.value)
       }
-      pane.prefWidthProperty().bind(this.getScene().widthProperty())
-      pane.prefHeightProperty().bind(this.getScene().heightProperty())
-      val fade = new FadeTransition(Duration.apply(timeToWait),logoPanel)
+      val fade = new FadeTransition(Duration.apply(timeToWait),logo)
       fade.toValue = 0
       fade.fromValue = 1
       fade.onFinished = (e:ActionEvent) => {
         this.mainPane.children = pane
-
       }
+
       fade.playFromStart()
     }
   }
+}
+
+private [scalaFX] object FXSimulationWindow {
+  private val SimulationPaneSize = 0.8
+  private val Padding = 20
+  private val ExitValue = 1
 }

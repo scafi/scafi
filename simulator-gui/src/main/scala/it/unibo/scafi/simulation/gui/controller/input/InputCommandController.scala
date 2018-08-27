@@ -3,14 +3,16 @@ package it.unibo.scafi.simulation.gui.controller.input
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.parser.{AnyParser, RuntimeMachine}
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.util.Result.Success
+import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 
 /**
   * an input controller that execute command
   */
 object InputCommandController extends InputController {
   type Argument = (CommandFactory,Map[String,Any])
+  private val commandError = "command-error"
   private var commands : List[Command] = List.empty
   private var undoList : List[Command] = List.empty
   private val maxSize = 10
@@ -33,8 +35,13 @@ object InputCommandController extends InputController {
   }
 
   private def addToUndoAndExec(c : Command ) {
+    import LogManager._
     //exec the command
-    c.make()
+    c.make() match {
+      case Fail(e) => LogManager.notify(StringLog(Channel.Error,commandError,e.toString))
+      case _ =>
+    }
+    LogManager
     //if the list has max size element
     undoList = if(undoList.size == maxSize) {
       //the new list hasn't the last child

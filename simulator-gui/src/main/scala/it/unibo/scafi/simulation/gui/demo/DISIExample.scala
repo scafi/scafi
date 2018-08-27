@@ -11,9 +11,9 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutputPolicy
 object DISIExample extends App {
   val demoInfo = classOf[Main].getAnnotation(classOf[Demo])
   ScafiProgramBuilder (
-    worldInitializer = Grid(5,5,5),
+    worldInitializer = Grid(5,10,10),
     scafiSimulationSeed = ScafiSimulationSeed(classOf[Main]),
-    simulationInitializer = RadiusSimulationInitializer(radius = 7),
+    simulationInitializer = RadiusSimulationInitializer(radius = 5),
     outputPolicy = GradientFXOutputPolicy,
     perfomance = FastPerformancePolicy,
     neighbourRender = true

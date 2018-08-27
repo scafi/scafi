@@ -10,7 +10,13 @@ trait OutputPolicy {
     * the type of node to draw
     */
   type OUTPUT_NODE
+  /**
+    * the root node type
+    */
   type NODE = World#Node
+  /**
+    * the root device type
+    */
   type DEVICE = World#Device
   /**
     * take a world node and create its graphics representation

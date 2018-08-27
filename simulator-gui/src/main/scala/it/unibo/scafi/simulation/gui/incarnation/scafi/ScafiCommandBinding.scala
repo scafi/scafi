@@ -1,9 +1,10 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.SensorName
-import it.unibo.scafi.simulation.gui.configuration.command.AbstractMoveCommandFactory.MultiMoveCommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.AbstractToggleCommandFactory.MultiToggleCommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.{AbstractToggleCommandFactory, CommandBinding, SimulationCommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
+import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory.MultiMoveCommandFactory
+import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractToggleCommandFactory.MultiToggleCommandFactory
+import it.unibo.scafi.simulation.gui.configuration.command.factory.{AbstractToggleCommandFactory, SimulationCommandFactory}
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationObserver
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
@@ -23,6 +24,7 @@ object ScafiCommandBinding {
     override def map(keyboard: AbstractKeyboardManager, selection: Option[AbstractSelectionArea]): Unit = {
       keyboard.addCommand(Code4, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Stop), simulationFactory)
       keyboard.addCommand(Code5, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Continue), simulationFactory)
+      keyboard.addCommand(Code6, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Restart),simulationFactory)
       keyboard.addCommand(Undo, Map(), InputCommandController.UndoCommandFactory)
       selection match {
         case Some(selectionArea) => selectionArea.addMovementFactory(moveFactory,"map")

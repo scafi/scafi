@@ -1,11 +1,13 @@
-package it.unibo.scafi.simulation.gui.configuration.command
+package it.unibo.scafi.simulation.gui.configuration.command.factory
+
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, easyResultCreation}
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.util.Result
 
 /**
   * a factory used to create exit command
   */
-class ExitCommandFactory extends CommandFactory {
+object ExitCommandFactory extends CommandFactory {
   override def name: String = "exit"
 
   override def description: String = "exit to application"

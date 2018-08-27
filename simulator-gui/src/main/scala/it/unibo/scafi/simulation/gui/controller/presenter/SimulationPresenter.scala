@@ -31,7 +31,6 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
     }
     val nodesRemoved = removed.nodeChanged()
     if (!nodesRemoved.isEmpty) {
-      LogManager.log("view erasing..", LogManager.Middle)
       nodesRemoved foreach { out.get.removeNode(_)}
     }
     //set of node moved

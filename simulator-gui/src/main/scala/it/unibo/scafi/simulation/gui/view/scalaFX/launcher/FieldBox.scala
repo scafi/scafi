@@ -3,18 +3,20 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.launcher
 import javafx.scene.Node
 
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArgDescription, IntType, LimitedValueType}
-import it.unibo.scafi.simulation.gui.view.scalaFX.launcher.ScalaFXLauncher.{FieldBoxSpacing}
+import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{BooleanType, CommandArgDescription, IntType, LimitedValueType}
+import it.unibo.scafi.simulation.gui.view.scalaFX.launcher.ScalaFXLauncher.FieldBoxSpacing
 import javafx.scene.layout.{StackPane => JFXStackPane}
 
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
+import it.unibo.scafi.simulation.gui.view.scalaFX.common.IntField
 import it.unibo.scafi.simulation.gui.view.scalaFX.launcher.FieldBox.ArgBox
 
 import scalafx.beans.property.ObjectProperty
-import scalafx.scene.control.{ComboBox, Label, TextField, Tooltip}
+import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, VBox}
-
-case class FieldBox(factory: CommandFactory)(implicit val window : WindowConfiguration) extends VBox {
+import it.unibo.scafi.simulation.gui.view.scalaFX._
+private [launcher] case class FieldBox(factory: CommandFactory)(implicit val window : WindowConfiguration) extends VBox {
   private val argBoxes = factory.commandArgsDescription.map{ArgBox(_,factory.name)}
   this.spacing = FieldBoxSpacing
   argBoxes foreach {x => this.children.add(x)}
@@ -24,18 +26,19 @@ case class FieldBox(factory: CommandFactory)(implicit val window : WindowConfigu
   }
 }
 
-object FieldBox {
+private[launcher] object FieldBox {
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   val PercentageLeft = 0.2
   val PercentageRight = 0.7
   case class ArgBox(arg : CommandArgDescription, factoryName : String)(implicit val window : WindowConfiguration) extends HBox {
+    private val windowRect : Rectangle = window
     private val objectProperty : ObjectProperty[Any] = new ObjectProperty[Any]()
     private val argPane = new JFXStackPane()
     private val argName = new Label(international(factoryName, arg.name)(KeyFile.CommandName))
     argName.tooltip = new Tooltip(arg.description)
     argPane.getChildren.add(argName)
     this.children.add(argPane)
-    argPane.setPrefWidth(window.width * PercentageLeft)
+    argPane.setPrefWidth(windowRect.w * PercentageLeft)
     private val node : Node = arg.valueType match {
       case LimitedValueType(values @_*) => {
         val combo = new ComboBox[Any](values)
@@ -48,9 +51,16 @@ object FieldBox {
       }
       case IntType => {
         val field = new IntField {}
+        arg.defaultValue.foreach {x => field.text = x.toString}
         objectProperty.bind(field.text)
         field
       }
+      case BooleanType => {
+        val comboBox = new CheckBox()
+        objectProperty.bind(comboBox.selected)
+        comboBox
+      }
+
       case _ => {
         val field = new TextField{
           text = arg.defaultValue.map(_.toString).getOrElse("")
@@ -61,7 +71,7 @@ object FieldBox {
     }
 
     private val nodePane = new JFXStackPane(node)
-    nodePane.setPrefWidth(window.width * PercentageRight)
+    nodePane.setPrefWidth(windowRect.w * PercentageRight)
     this.children.add(nodePane)
     def value : String = objectProperty.value.toString
   }

@@ -3,39 +3,45 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.launcher
 import javafx.scene.control.{Tab, TabPane, TitledPane}
 import javafx.scene.layout.{StackPane => JFXStackPane}
 
-import it.unibo.scafi.platform.Platform
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.gui.configuration.parser.VirtualMachine
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.LoadingLogo
+import it.unibo.scafi.simulation.gui.view.scalaFX.LogoStage
+import it.unibo.scafi.simulation.gui.view.scalaFX.common.Help
+import it.unibo.scafi.simulation.gui.view.scalaFX.pane.Logo
 
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
 import scalafx.scene.control.TabPane.TabClosingPolicy
 import scalafx.scene.control._
+import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.MouseEvent
-import scalafx.scene.layout.{StackPane, VBox}
-import scalafx.scene.text.Font
+import scalafx.scene.layout.{Pane, VBox}
 import scalafx.stage.Stage
 class ScalaFXLauncher(factories : List[CommandFactory],
                       subsection : Map[String,List[CommandFactory]],
-                      unixMachine : VirtualMachine[String])(implicit val window : WindowConfiguration) extends Stage {
+                      unixMachine : VirtualMachine[String])
+                     (implicit val window : WindowConfiguration) extends LogoStage(window) {
   import ScalaFXLauncher._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   //collections used to save field box created
   private var tabPaneSections : Map[TabPane,List[FieldBox]] = Map.empty
   private var sections : List[FieldBox] = List.empty
+
   //create a window with the width and height selected
-  this.width = window.width
-  this.height = window.height
+  val windowRect : Rectangle = window
+  this.width = windowRect.w
+  this.height = windowRect.h
   this.title = window.name
   //create the main content
+
   private val mainContent = new VBox
   //used to scroll main content
   private val scrollPane = new ScrollPane {
     content = mainContent
   }
-  mainContent.children.add(ScalaFXLauncher.Title(window.name))
+  mainContent.children.add(new JFXStackPane(logo))
   this.scene = new Scene {
     content = new ScrollPane{
       content = scrollPane
@@ -111,12 +117,6 @@ object ScalaFXLauncher {
   val Launch = "launch"
   val FontName = "Verdana"
   val FontSize = 40
-
-  private case class Title(name:String) extends StackPane {
-    val title = new Label(name)
-    title.font = Font(FontName,FontSize)
-    this.children.add(new LoadingLogo)
-  }
 }
 
 

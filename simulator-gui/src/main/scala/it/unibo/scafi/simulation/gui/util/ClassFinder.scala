@@ -42,7 +42,7 @@ object ClassFinder {
     * @throws ClassNotFoundException
     */
   @throws[ClassNotFoundException]
-  def findClasses(directory: File, packageName: String): List[Class[_]] = {
+  private def findClasses(directory: File, packageName: String): List[Class[_]] = {
     var classes = List.empty[Class[_]]
     if (!directory.exists) return classes
     val files = directory.listFiles

@@ -48,8 +48,7 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
     }
 
     if(demoClass.isDefined && radius.isDefined) {
-      creationSuccessful(onlyMakeCommand(() => {
-        //get the demo annotation
+      easyResultCreation(() => {
         val demo : Demo = demoClass.get.getAnnotation(classOf[Demo])
         //take the profile marked
         val profile = demo.simulationType.profile
@@ -58,8 +57,7 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
         scafiConfiguration.commandMapping = Some(profile.commandMapping)
         scafiConfiguration.simulationInitializer = Some(RadiusSimulationInitializer(radius.get))
         scafiConfiguration.scafiSimulationSeed = Some(ScafiSimulationSeed(program = demoClass.get,action = profile.action))
-        Success
-      }))
+      })
     } else {
       //if the value name is different return a failed result
       creationFailed(Fail(wrongParameterName(DemoValue, Radius)))

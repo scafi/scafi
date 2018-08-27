@@ -1,10 +1,11 @@
-package it.unibo.scafi.simulation.gui.view.scalaFX.launcher
+package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
 import javafx.scene.text.{Font, FontWeight}
+
 import scalafx.Includes._
 import scalafx.scene.control.{Label, Tooltip}
 
-case class Help(val tooltipHelp : Tooltip) extends Label {
+private [scalaFX] case class Help(val tooltipHelp : Tooltip) extends Label {
   this.text = " ? "
   this.tooltip = tooltipHelp
   this.font = Font.font("Verdana", FontWeight.BOLD, 15)

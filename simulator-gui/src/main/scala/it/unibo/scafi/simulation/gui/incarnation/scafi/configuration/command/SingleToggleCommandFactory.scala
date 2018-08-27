@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command._
+import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractToggleCommandFactory
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail

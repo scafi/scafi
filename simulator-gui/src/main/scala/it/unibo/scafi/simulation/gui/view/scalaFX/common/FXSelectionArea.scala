@@ -16,9 +16,10 @@ import scalafx.scene.shape.Circle
 /**
   * the logic of selection a set of node
   */
-trait FXSelectionArea extends AbstractSelectionArea {
+private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
   self : AbstractFXSimulationPane =>
-  private var moved : Map[Any,(Node,Point2D)] = Map.empty
+  private var oldWidth = self.width
+  private var moved : Map[Any,Node] = Map.empty
   private var _selected : Set[Any] = Set.empty
   private var startPoint : Point2D = new Point2D(0,0)
   private val radiusProperty : DoubleProperty = DoubleProperty(0)
@@ -53,7 +54,7 @@ trait FXSelectionArea extends AbstractSelectionArea {
                 this.centerX = startPoint.x
                 this.centerY = startPoint.y
                 this.radius.bind(radiusProperty)
-                this.fill = Color.rgb(255,0,0,0.2)
+                this.fill = FXSelectionArea.CircleColor
                 this.stroke = Color.Black
               })
               this.children.add(circle.get)
@@ -69,18 +70,18 @@ trait FXSelectionArea extends AbstractSelectionArea {
           //circle created or moved
           case MouseEvent.MouseReleased => {
             if(this.circle.isDefined && this.moved.isEmpty) {
-              this.moved = this.nodes.map {x => x -> nodeTranslationToPosition(x._2._1,x._2._2)}
-                .filter{x => this.circle.get.contains(x._2)}
-                .map {x => x._1._1 -> (RichNode(x._1._2._1).cloneNode(),x._2)}
+              this.moved = this.nodes.filter{x => this.circle.get.contains(nodeToPosition(x._2))}
+                .map {x => x._1 -> (RichNode(x._2).cloneNode())}
               this.moved.foreach(x => {
-                x._2._1.translateX.bind(circle.get.translateX)
-                x._2._1.translateY.bind(circle.get.translateY)
+                x._2.translateX.bind(circle.get.translateX)
+                x._2.translateY.bind(circle.get.translateY)
+                x._2.opacity = FXSelectionArea.ClonedOpacity
               })
-              this.moved.values foreach {x => this.children += x._1}
+              this.moved.values foreach {x => this.children += x}
 
               this._selected = this.moved.keySet
             } else if(!this.moved.isEmpty) {
-              val toMove = moved.map {x => x._1 -> view.scalaFX.nodeToWorldPosition(x._2._1,x._2._2)}
+              val toMove = moved.map {x => x._1 -> view.scalaFX.nodeToPosition(x._2)} map {x => x._1 -> pointToWorldPosition(x._2)}
               if(argumentName.isDefined && factory.isDefined) {
                 InputCommandController.virtualMachine.process((factory.get,Map(argumentName.get -> toMove)))
               }
@@ -94,14 +95,22 @@ trait FXSelectionArea extends AbstractSelectionArea {
     }
   }
   private def clearSelected() = {
-    this.children.remove(this.circle.get)
-    this.circle = None
-    Platform.runLater {
-      this.moved.values.foreach { x => this.children -= x._1}
-      this.moved = Map.empty
+    this.circle match {
+      case Some(c) => {
+        this.children.remove(c)
+        this.circle = None
+        Platform.runLater {
+          this.moved.values.foreach { x => this.children -= x}
+          this.moved = Map.empty
+        }
+      }
+      case _ =>
     }
-
   }
-
   override def selected : Set[Any] = this._selected
+}
+
+object FXSelectionArea {
+  private [FXSelectionArea] lazy val CircleColor = Color.rgb(255,0,0,0.2)
+  private [FXSelectionArea] lazy val ClonedOpacity = 0.2
 }

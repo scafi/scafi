@@ -11,7 +11,7 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationIn
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
-import it.unibo.scafi.simulation.gui.view.{OutputPolicy, SimulationView}
+import it.unibo.scafi.simulation.gui.view.{OutputPolicy, SimulationView, WindowConfiguration}
 
 /**
   * scafi program builder used to create scafi program
@@ -28,6 +28,7 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
       }
       case _ => throw new IllegalArgumentException("output policy don't supported")
     }
+    env.windowConfiguration = ScafiWindowInfo(env.windowConfiguration)
     //init the world
     configuration.worldInitializer.init(configuration.scafiSeed)
     val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationSeed)

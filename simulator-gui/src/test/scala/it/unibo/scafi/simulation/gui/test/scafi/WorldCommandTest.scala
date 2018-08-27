@@ -1,11 +1,11 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.SensorName
-import it.unibo.scafi.simulation.gui.configuration.command.{AbstractMoveCommandFactory, AbstractToggleCommandFactory}
-import it.unibo.scafi.simulation.gui.configuration.command.AbstractMoveCommandFactory.MultiMoveCommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.AbstractToggleCommandFactory.MultiToggleCommandFactory
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld.analyzer
+import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory.MultiMoveCommandFactory
+import it.unibo.scafi.simulation.gui.configuration.command.factory.{AbstractMoveCommandFactory, AbstractToggleCommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractToggleCommandFactory.MultiToggleCommandFactory
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiSeed
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}

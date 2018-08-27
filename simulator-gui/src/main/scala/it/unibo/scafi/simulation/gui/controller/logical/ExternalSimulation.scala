@@ -51,8 +51,10 @@ abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicNa
   def restart() = {
     //verify if the contract and the prototype is defined, other the simulation can't restart
     require(contract.simulation.isDefined && simulationPrototype.isDefined)
-    //stop the current simulation
-    super.stop()
+    //stop the current simulation (if isn't already stope
+    if(!this.isStopped) {
+      super.stop()
+    }
     //use contact to restart simulation
     contract.restart(simulationPrototype.get)
     //start the simulation

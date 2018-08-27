@@ -1,5 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationObserver.{contract, world}
+
 import scala.util.Random
 
 
@@ -44,11 +46,11 @@ object ScafiSimulationInitializer {
         w.nodes  foreach { x =>
           x.devices foreach {y => res.chgSensorValue(y.name,Set(x.id),y.value)}
         }
+        res.getAllNeighbours().foreach { x => world.network.setNeighbours(x._1,x._2.toSet)}
         res
       }
       bridge.simulationPrototype = Some(proto)
-      bridge.program = scafiSimulationSeed.program
-      bridge.action = scafiSimulationSeed.action
+      bridge.simulationSeed = scafiSimulationSeed
       bridge
     }
   }

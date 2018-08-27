@@ -1,13 +1,13 @@
-package it.unibo.scafi.simulation.gui.view.scalaFX.launcher
+package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
 import java.util.function.UnaryOperator
 import java.util.regex.Pattern
-import javafx.scene.control.{IndexRange, TextFormatter}
+import javafx.scene.control.TextFormatter
 import javafx.util.converter.IntegerStringConverter
 
 import scalafx.scene.control.TextField
 
-class IntField extends TextField {
+private [scalaFX] class IntField extends TextField {
   val integerFilter = new  UnaryOperator[TextFormatter.Change] {
     private val DIGIT_PATTERN = Pattern.compile("\\d*")
     private val FIRST_DIGIT = Pattern.compile("[1-9]")

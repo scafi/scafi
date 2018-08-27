@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
-import it.unibo.scafi.simulation.gui.configuration.command.WorldTypeAnalyzer
+import it.unibo.scafi.simulation.gui.configuration.command.factory.WorldTypeAnalyzer
 import it.unibo.scafi.simulation.gui.model.common.world.WorldDefinition.World3D
 import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
 import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.{SensorDefinition, StandardNodeDefinition}

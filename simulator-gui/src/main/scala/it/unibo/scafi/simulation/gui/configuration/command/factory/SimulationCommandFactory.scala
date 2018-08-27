@@ -1,7 +1,7 @@
-package it.unibo.scafi.simulation.gui.configuration.command
+package it.unibo.scafi.simulation.gui.configuration.command.factory
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.command
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription, LimitedValueType}
+import it.unibo.scafi.simulation.gui.configuration.command.Command.{command, onlyMakeCommand}
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
@@ -11,8 +11,8 @@ import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
   * @param simulation the simulation managed by command
   */
 class SimulationCommandFactory(simulation : ExternalSimulation[_]) extends CommandFactory {
-  import SimulationCommandFactory._
   import CommandFactory._
+  import SimulationCommandFactory._
   override val name: String = "simulation-action"
 
   override def commandArgsDescription: Seq[CommandArgDescription] = CommandArgDescription(Action,
@@ -22,6 +22,7 @@ class SimulationCommandFactory(simulation : ExternalSimulation[_]) extends Comma
     args.get(Action) match {
       case Some(Stop) => creationSuccessful(command(stop)(continue))
       case Some(Continue) => creationSuccessful(command(continue)(stop))
+      case Some(Restart) => easyResultCreation(() => simulation.restart())
       case Some(_) => creationFailed(Fail(wrongTypeParameter(LimitedValueType(Continue,Stop),Action)))
       case _ => creationFailed(Fail(wrongParameterName(Action)))
     }
@@ -50,6 +51,7 @@ object SimulationCommandFactory {
   val Action = "action"
   val Stop = "stop"
   val Continue = "continue"
+  val Restart = "restart"
   private[SimulationCommandFactory] val StopError = "the simulation is already stopped"
   private[SimulationCommandFactory] val ContinueError = "the simulation is already on run"
 }

@@ -1,10 +1,11 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.{ExitCommandFactory, LanguageCommandFactory, SimulationCommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.command.factory.{ExitCommandFactory, LanguageCommandFactory, SimulationCommandFactory, WindowConfigurationCommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.parser.{Parser, UnixLikeParser}
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationObserver
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
+import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, StandardFXOutputPolicy}
 
 /**
@@ -20,10 +21,11 @@ object ScafiParser {
     new GridWorldCommandFactory,
     new RadiusSimulationCommandFactory,
     new LaunchCommandFactory,
-    new ExitCommandFactory,
+    ExitCommandFactory,
     new LanguageCommandFactory,
     new PerformanceCommandFactory,
-    new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy))
+    new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy),
+    new WindowConfigurationCommandFactory(ScalaFXEnvironment))
   /**
     * parser unix like used to parse string value in runtime command
     */

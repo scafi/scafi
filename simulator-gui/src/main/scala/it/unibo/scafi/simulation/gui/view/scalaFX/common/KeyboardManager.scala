@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
 import javafx.scene.input.KeyCombination
 
+import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
 import it.unibo.scafi.simulation.gui.util.Result.Success
@@ -9,7 +10,7 @@ import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
 
 import scalafx.scene.input.{KeyCode, KeyCodeCombination, KeyEvent}
-trait KeyboardManager extends AbstractKeyboardManager {
+private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
 
   self: AbstractFXSimulationPane with FXSelectionArea =>
   override type KEY_CODE = KeyCode
@@ -20,6 +21,7 @@ trait KeyboardManager extends AbstractKeyboardManager {
   abstractToReal += Code3 -> KeyCode.Digit3
   abstractToReal += Code4 -> KeyCode.Digit4
   abstractToReal += Code5 -> KeyCode.Digit5
+  abstractToReal += Code6 -> KeyCode.Digit6
 
   abstractToCombination += Undo -> new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)
   import scalafx.Includes._
@@ -32,13 +34,13 @@ trait KeyboardManager extends AbstractKeyboardManager {
 
   private def computeCommand(code : AbstractKeyCode): Unit = {
     this.commandArgs.get(code) match {
-      case Some(standardArg : CommandArg) => {
+      case Some((factory : CommandFactory,standardArg : CommandArg)) => {
         val arg : CommandArg = if(this.valueMapped.get(code).isDefined) {
           (standardArg + (this.valueMapped(code) -> selected))
         } else {
           standardArg
         }
-        InputCommandController.virtualMachine.process((factoryMapped(code), arg))
+        InputCommandController.virtualMachine.process(factory, arg)
       }
       case _ =>
     }

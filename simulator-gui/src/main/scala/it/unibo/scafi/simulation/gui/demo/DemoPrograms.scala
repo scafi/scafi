@@ -29,7 +29,7 @@ import scala.concurrent.duration.Duration
 import scala.util.Random
 object DemoPrograms extends App {
   StringLauncher{"grid-world " +
-   "200 10 5;radius-simulation DemoMeanCounter 200"}
+   "200 10 5;radius-simulation Mid 200"}
 }
 @Demo
 class Mid extends AggregateProgram {

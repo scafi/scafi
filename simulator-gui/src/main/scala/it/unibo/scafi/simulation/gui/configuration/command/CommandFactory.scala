@@ -106,6 +106,10 @@ object CommandFactory {
     override def toString: String = "string"
   }
 
+  object BooleanType extends ValueType {
+    override def toString: String = "boolean"
+  }
+
   /**
     * any value type
     */

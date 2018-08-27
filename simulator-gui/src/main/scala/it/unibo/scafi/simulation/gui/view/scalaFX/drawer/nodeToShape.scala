@@ -23,8 +23,8 @@ private[drawer] object nodeToShape {
     if (node.shape.isDefined) {
       node.shape.get match {
         case r: InternalRectangle => shape = new Rectangle {
-          this.x = p.x
-          this.y = p.y
+          this.x = p.x - r.w / 2
+          this.y = p.y - r.h / 2
           this.width = r.w
           this.height = r.h
         }

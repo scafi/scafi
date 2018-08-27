@@ -1,7 +1,8 @@
-package it.unibo.scafi.simulation.gui.configuration.command
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
+package it.unibo.scafi.simulation.gui.configuration.command.factory
+
+import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, _}
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory._
 
 /**
   * a factory used to list all command passed

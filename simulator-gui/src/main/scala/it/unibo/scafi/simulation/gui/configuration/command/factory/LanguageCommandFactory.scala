@@ -1,15 +1,16 @@
-package it.unibo.scafi.simulation.gui.configuration.command
+package it.unibo.scafi.simulation.gui.configuration.command.factory
+
 import java.util.Locale
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription, LimitedValueType}
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 
 class LanguageCommandFactory extends CommandFactory {
-  import LanguageCommandFactory._
   import CommandFactory._
+  import LanguageCommandFactory._
   import ResourceBundleManager._
   private val map = Map("en" -> Locale.ENGLISH, "it" -> Locale.ITALIAN)
   private val supported = LimitedValueType(map.keySet.toSeq:_*)
@@ -20,10 +21,7 @@ class LanguageCommandFactory extends CommandFactory {
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Name) match {
     case Some(nameValue : String) => if(map.contains(nameValue)) {
-      creationSuccessful(onlyMakeCommand(() => {
-        ResourceBundleManager.locale = map(nameValue)
-        Success
-      }))
+      easyResultCreation(() => ResourceBundleManager.locale = map(nameValue))
     } else {
       creationFailed(Fail(wrongTypeParameter(supported,Name)))
     }

@@ -51,11 +51,7 @@ class GridWorldCommandFactory(implicit val scafiConfiguration: ScafiConfiguratio
     }
 
     if(space.isDefined && column.isDefined && row.isDefined) {
-      //create the command
-      creationSuccessful(onlyMakeCommand(() => {
-        scafiConfiguration.worldInitializer = Some(Grid(space.get,column.get,row.get))
-        Success
-      }))
+      easyResultCreation(() => scafiConfiguration.worldInitializer = Some(Grid(space.get,column.get,row.get)))
     } else {
       //if the value name is different return a failed result
       creationFailed(Fail(CommandFactory.wrongParameterName(Space, Column, Row)))

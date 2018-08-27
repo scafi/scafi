@@ -7,6 +7,17 @@ import it.unibo.scafi.simulation.gui.view._
   */
 trait ViewEnvironment[V <: View] {
   /**
+    * describe window parameter
+    * @return a window configuration
+    */
+  def windowConfiguration : WindowConfiguration
+
+  /**
+    * used to set the window configuration
+    * @param configuration the configuration to set
+    */
+  def windowConfiguration_=(configuration: WindowConfiguration) : Unit
+  /**
     * @return keyboard manager attached on view
     */
   def keyboard : AbstractKeyboardManager

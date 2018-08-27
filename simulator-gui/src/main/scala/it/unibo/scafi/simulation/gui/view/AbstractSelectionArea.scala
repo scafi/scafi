@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.configuration.command.AbstractMoveCommandFactory.MultiMoveCommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
+import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory.MultiMoveCommandFactory
 
 /**
   * define a trait used to select and clear item
@@ -16,7 +16,6 @@ trait AbstractSelectionArea {
     * @return get the ids of nodes selected
     */
   def selected : Set[Any]
-
   /**
     * used to add movement factory, it create a move command
     * @param factory the movement factory

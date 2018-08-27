@@ -17,7 +17,7 @@ object ScafiSeed {
   /**
     * a standard seed used to initialize a scafi world
     */
-  val standard : ScafiSeed = new ScafiSeedImpl(Some(Rectangle(2,2)), None, ScafiDeviceSeed.standardSeed)
+  val standard : ScafiSeed = new ScafiSeedImpl(Some(Rectangle(5,5)), None, ScafiDeviceSeed.standardSeed)
 
   /**
     * allow to create a scafi seed

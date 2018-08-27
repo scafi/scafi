@@ -19,10 +19,6 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
     * current simulation prototype, at begging no prototype defined
     */
   var simulationPrototype: Option[SIMULATION_PROTOTYPE] = None
-  /**
-    * action used to produced changes into internal world
-    */
-  var action : PartialFunction[EXPORT,(ScafiLikeWorld,ID)=>Unit] = Actions.generalAction
   //scafi execution context
   private var context : Option[CONTEXT=>EXPORT] = None
 
@@ -34,47 +30,37 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
     context.get
   }
 
-  private var _program : Option[Class[_]] = None
+  private var simSeed : Option[ScafiSimulationSeed] = None
 
-  /**
-    * @return simulation program
-    */
-  def program : Option[Class[_]] = _program
+  def simulationSeed : Option[ScafiSimulationSeed] = simSeed
 
-  /**
-    * setter of program, if program don't is class of CONTEXT => EXPORT the program don't set
-    * @param programClass
-    */
-  def program_=(programClass : Class[_]): Unit = {
-    if(programClass.newInstance().isInstanceOf[CONTEXT=>EXPORT]) {
-      this._program = Some(programClass)
-    }
+  def simulationSeed_= (simulationSeed: ScafiSimulationSeed) = {
+    require(simulationSeed != null)
+    simSeed = Some(simulationSeed)
   }
-
   //describe scafi contract like
   override val contract = new ExternalSimulationContract {
     private var currentSimulation : Option[EXTERNAL_SIMULATION] = None
     override def simulation: Option[SpaceAwareSimulator] = this.currentSimulation
 
     override def initialize(prototype: SIMULATION_PROTOTYPE): Unit = {
+
       //to initialize the simulation, current simulation must be empty and program must be definied
-      require(currentSimulation.isEmpty && program.isDefined)
+      require(currentSimulation.isEmpty && simulationSeed.isDefined)
+
       //create context by program passed
-      context = Some(program.get.newInstance().asInstanceOf[CONTEXT=>EXPORT])
+      context = Some(simulationSeed.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
       //create new simulation
-      this.currentSimulation = Some(createSimulation(world,prototype))
+      this.currentSimulation = Some(prototype())
     }
 
     override def restart(prototype: SIMULATION_PROTOTYPE): Unit = {
       //to restart simulation current simulation must be defined
       require(currentSimulation.isDefined)
       //create the instance of program
-      context = Some(program.get.newInstance().asInstanceOf[CONTEXT=>EXPORT])
+      context = Some(simulationSeed.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
       //set current simulation to another
-      this.currentSimulation = Some(createSimulation(world,prototype))
-    }
-    private def createSimulation(w : ScafiLikeWorld, p : SIMULATION_PROTOTYPE) : SpaceAwareSimulator = {
-      p()
+      this.currentSimulation = Some(prototype())
     }
   }
 }

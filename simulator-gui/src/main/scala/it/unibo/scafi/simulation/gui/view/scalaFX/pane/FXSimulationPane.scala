@@ -10,10 +10,11 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Point2D
 import scalafx.scene.Node
+import scalafx.scene.layout.Priority
 
-class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFXSimulationPane {
+private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFXSimulationPane {
   //internal representation of node
-  private val _nodes : mutable.Map[ID,(drawer.OUTPUT_NODE,Point2D)] = mutable.Map()
+  private val _nodes : mutable.Map[ID,drawer.OUTPUT_NODE] = mutable.Map()
   //internal representation of neighbour
   private val neighbours : mutable.Map[ID,mutable.Map[ID,NodeLine]] = mutable.Map()
   //internal representation of devices
@@ -24,15 +25,16 @@ class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFX
   private var changes : List[ACTION] = List.empty
 
   private var neighbourToRemove : mutable.ListBuffer[javafx.scene.Node] = ListBuffer()
-  def nodes : Map[ID,(drawer.OUTPUT_NODE,Point2D)] =_nodes.toMap
+  def nodes : Map[ID,drawer.OUTPUT_NODE] =_nodes.toMap
 
   override def outNode(node: NODE): Unit = {
     //take the current node position
     val p : Point2D = node.position
     if(_nodes.contains(node.id)) {
       //if the node is already show, the view change the node position
-      val (n,oldP) = _nodes(node.id)
+      val n = _nodes(node.id)
       //with bind propriety, i can moved the node
+      val oldP = nodeToAbsolutePosition(n)
       val action : ACTION = () => {
         n.translateX = p.x - oldP.x
         n.translateY = p.y - oldP.y
@@ -51,7 +53,7 @@ class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFX
     } else {
       //if the node isn't show, with drawer i create new graphics instanced associated with the node
       val shape : drawer.OUTPUT_NODE = drawer.nodeGraphicsNode(node)
-      this._nodes += node.id -> (shape,p)
+      this._nodes += node.id -> shape
       //add the new shape in the view
       val action : ACTION = () => {
         this.children += shape
@@ -71,10 +73,10 @@ class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFX
       }
     }
     //i take the current graphics node
-    val gnode = this._nodes(node._1)._1
+    val gnode = this._nodes(node._1)
     //foreach neighbour i create a new link
     node._2 foreach { x => {
-      val endGnode = this._nodes(x)._1
+      val endGnode = this._nodes(x)
       val link : NodeLine = new NodeLine(gnode,endGnode,lineColor)
       val add = () => {
         val action : ACTION = (() => this.children.add(link))
@@ -121,7 +123,7 @@ class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFX
     if(!devices.get(id).isDefined) devices += id -> mutable.Map()
     val oldDev = devices(id)
 
-    val current : drawer.OUTPUT_NODE = _nodes(id)._1
+    val current : drawer.OUTPUT_NODE = _nodes(id)
     val oldPrintedDev = oldDev.get(dev.name)
     val newDev : Option[drawer.OUTPUT_NODE] = if(!oldPrintedDev.isDefined) {
       drawer.deviceToGraphicsNode(current,dev)

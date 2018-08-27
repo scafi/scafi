@@ -4,7 +4,7 @@ package it.unibo.scafi.simulation.gui.view
   * a window is a container of graphics output
   */
 trait Window[OUTPUT <: View] extends Container[OUTPUT] {
-
+  def windowConfiguration : WindowConfiguration
   /**
     * @return the name of windows
     */
@@ -13,5 +13,5 @@ trait Window[OUTPUT <: View] extends Container[OUTPUT] {
   /**
     * close the window
     */
-  def close
+  def close() : Unit
 }

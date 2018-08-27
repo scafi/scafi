@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.configuration.command
+package it.unibo.scafi.simulation.gui.configuration.command.factory
 
 /**
   * a strategy used to check the correctness of type at runtime

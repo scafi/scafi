@@ -3,7 +3,6 @@ package it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager.AbstractKeyCode
-//TODO RIMETTI A POSTO I COMMENTI
 /**
   * a generic keyboard manager used to process user input
   */
@@ -21,25 +20,26 @@ trait AbstractKeyboardManager {
     * mapping the abstract key code to real
     */
   protected var abstractToReal : Map[AbstractKeyCode, KEY_CODE] = Map.empty
-
+  /**
+    * associate an abstract key code to a key combination
+    */
   protected var abstractToCombination : Map[AbstractKeyCode,KEYCODE_COMBINATION] = Map.empty
-
-  protected var commandArgs : Map[AbstractKeyCode,CommandArg] = Map.empty
-
-  protected var factoryMapped : Map[AbstractKeyCode,CommandFactory] = Map.empty
-
+  /**
+    * associate an abstract key code to an argument and a factory used to pass at a run time machine to
+    * process input argument
+    */
+  protected var commandArgs : Map[AbstractKeyCode,(CommandFactory,CommandArg)] = Map.empty
+  /**
+    * a map used to add another argument to pass at runtime machine
+    */
   protected var valueMapped : Map[AbstractKeyCode,String] = Map.empty
 
   final def addCommand(code : AbstractKeyCode, arg : CommandArg, factory : CommandFactory, additionalArg : String) = {
-    commandArgs += code -> arg
+    commandArgs += code -> (factory,arg)
     valueMapped += code -> additionalArg
-    factoryMapped += code -> factory
   }
 
-  final def addCommand(code : AbstractKeyCode, arg : CommandArg, factory : CommandFactory) = {
-    commandArgs += code -> arg
-    factoryMapped += code -> factory
-  }
+  final def addCommand(code : AbstractKeyCode, arg : CommandArg, factory : CommandFactory) = commandArgs += code -> (factory,arg)
 
 }
 object  AbstractKeyboardManager {
@@ -57,6 +57,7 @@ object  AbstractKeyboardManager {
   object Code3 extends AbstractKeyCode
   object Code4 extends AbstractKeyCode
   object Code5 extends AbstractKeyCode
+  object Code6 extends AbstractKeyCode
   object Undo extends AbstractKeyCode
 
 }

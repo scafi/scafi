@@ -1,7 +1,8 @@
 package it.unibo.scafi.simulation.gui.configuration.parser
 
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory._
-import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory, ListCommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.command.factory.ListCommandFactory
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
@@ -59,6 +60,11 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
       }
       case DoubleType => if(Try(value.toDouble).isSuccess) {
         Some(value.toDouble)
+      } else {
+        None
+      }
+      case BooleanType => if(Try(value.toBoolean).isSuccess) {
+        Some(value.toBoolean)
       } else {
         None
       }

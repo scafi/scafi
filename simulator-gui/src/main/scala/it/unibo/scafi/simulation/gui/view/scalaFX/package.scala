@@ -2,17 +2,20 @@ package it.unibo.scafi.simulation.gui.view
 
 
 
+import javafx.application.Application
 import javafx.embed.swing.JFXPanel
 
 import it.unibo.scafi.simulation.gui.model.core.{Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
+import it.unibo.scafi.simulation.gui.view.WindowConfiguration.{FullScreen, Window}
 
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Circle, Rectangle}
+import scalafx.stage.Screen
 package object scalaFX {
+  //color of neighbour line
   val lineColor = Color(0.8,0.8,0.8,0.2)
 
   /**
@@ -20,13 +23,26 @@ package object scalaFX {
     * @param p the point
     * @return the fx point
     */
-  implicit def PointToScalaFXPoint(p : Point) : FXPoint = p match {
+  implicit def pointToScalaFXPoint(p : Point) : FXPoint = p match {
     case p: Point3D => new FXPoint(p.x,p.y)
     case p : Point2D => new FXPoint(p.x,p.y)
   }
 
-  def nodeTranslationToPosition(n : Node, p: FXPoint) : FXPoint = new FXPoint(n.translateX.value + p.x, n.translateY.value + p.y)
+  /**
+    * get the position of node
+    * @param n the node
+    * @return the position in the scene
+    */
+  def nodeToPosition(n : Node) : FXPoint = {
+    val node = nodeToAbsolutePosition(n)
+    return new FXPoint(node.x + n.translateX.value, node.y + n.translateY.value)
+  }
 
+  /**
+    * get the absolute position of node (a position that don't compute node translation)
+    * @param n the node
+    * @return absolute position
+    */
   def nodeToAbsolutePosition(n : Node) : FXPoint = {
     val bounds = n.boundsInLocal.value
     val middleWidth = bounds.getWidth / 2
@@ -34,19 +50,28 @@ package object scalaFX {
     new FXPoint(bounds.getMinX + middleWidth, bounds.getMinY + middleHeight)
   }
 
-  def nodeToWorldPosition(n: Node, start : FXPoint) : Point3D = {
-    val defaultZ = 0
-    Point3D(start.x + n.translateX.value, start.y + n.translateY.value, defaultZ)
-  }
+  /**
+    * convert fx point into model point
+    * @param p the point to convert
+    * @return node converted
+    */
+  def pointToWorldPosition(p : FXPoint) : Point3D = Point3D(p.x,p.y,0)
 
+  /**
+    * initialize fx environment
+    */
   def initializeScalaFXPlatform (): Unit = {
     new JFXPanel
+    Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA)
   }
-
+  /**
+    * a rich representation of fx node that can be cloned
+    * @param node the clonable node
+    */
   implicit class RichNode(node : Node) {
+    import javafx.scene.shape.{Circle, Rectangle}
+
     import scalafx.Includes._
-    import javafx.scene.shape.Rectangle
-    import javafx.scene.shape.Circle
     val standardNode = new Rectangle(2,2)
     def cloneNode() : Node = {
       node.delegate match {

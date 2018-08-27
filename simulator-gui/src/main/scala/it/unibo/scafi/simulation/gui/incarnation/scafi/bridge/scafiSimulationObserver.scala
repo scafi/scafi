@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager.IntLog
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceChanged, NodesMoved}
@@ -7,6 +8,7 @@ import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAd
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorInput
 import it.unibo.scafi.space.Point3D
 object scafiSimulationObserver extends ScafiBridge {
+  private val OutputChannel = "simulation round"
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkChanged = world.createObserver(Set(NodeDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
@@ -24,6 +26,7 @@ object scafiSimulationObserver extends ScafiBridge {
       val before = System.nanoTime()
       val result = net.exec(runningContext)
       time += System.nanoTime() - before
+      val action = this.simulationSeed.get.action
       tick += 1;
       if(action.isDefinedAt(result._2)) {
         exportProduced += result._1 -> action(result._2)
@@ -31,16 +34,18 @@ object scafiSimulationObserver extends ScafiBridge {
       // TODO CHIEDI COME GESTIRE GLI EXPORT exportProduced :::= (actions.filter { x => x.isDefinedAt(result._2) } map { x => result._1 -> x(result._2) }).toList
     }
     if(time > 1000000000L) {
-      /*
+      import it.unibo.scafi.simulation.gui.controller.logger.{LogManager => log}
+
       values ::= tick
-      println("current : " + tick)
+      log.notify(IntLog(OutputChannel, "instant", tick.toInt))
+      /*println("current : " + tick)
       println("min : " + values.min)
       println("max : " + values.max)
       println("avg : " + values.sum / values.size)
-      println("time alapsed : " + printTime)
+      println("time alapsed : " + printTime)*/
       tick = 0;
       time = 0;
-      printTime += 1*/
+      printTime += 1
     }
   }
   //TODO PERFORMANCE ISSUE! CHECK OUT!
@@ -60,16 +65,12 @@ object scafiSimulationObserver extends ScafiBridge {
         (oldNeigh ++ neigh) foreach {x => {world.network.setNeighbours(x,contract.simulation.get.neighbourhood(x))}}
       }
     }
-    block = true;
+    block = true
     val toCompute = exportProduced
     exportProduced = Map.empty
-    block = false;
+    block = false
     val toComputeMap = toCompute
     toComputeMap foreach { x => x._2(world,x._1)}
-  }
-  override def init() = {
-    super.init()
-    contract.simulation.get.getAllNeighbours().foreach { x => world.network.setNeighbours(x._1,x._2.toSet)}
   }
 }
 

@@ -1,7 +1,7 @@
-package it.unibo.scafi.simulation.gui.configuration.command
+package it.unibo.scafi.simulation.gui.configuration.command.factory
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.reverseCommand
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{AnyType, CommandArg, CommandArgDescription, MultiValue}
+import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
