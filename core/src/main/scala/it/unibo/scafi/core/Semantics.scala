@@ -62,6 +62,7 @@ trait Semantics extends Core with Language {
   }
 
   trait ExportOps { self: EXPORT =>
+    def getMap[A]: Map[Path, A]
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
   }

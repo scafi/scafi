@@ -20,10 +20,10 @@ package it.unibo.scafi.distrib.actor
 
 import it.unibo.scafi.distrib.actor.extensions.CodeMobilityExtension
 import it.unibo.scafi.distrib.{CustomClassLoader, CustomClassLoaderRegistry, LoadClassBytes}
-
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Actor, ActorRef}
 import akka.util.Timeout
 import it.unibo.scafi.distrib.actor.patterns.BasicActorBehavior
+import it.unibo.scafi.distrib.actor.serialization.CustomSerializer
 
 import scala.concurrent.duration._
 

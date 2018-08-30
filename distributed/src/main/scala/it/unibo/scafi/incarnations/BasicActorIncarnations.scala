@@ -24,7 +24,7 @@ import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
 import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 
 trait BasicAbstractActorIncarnation
-  extends BasicAbstractDistributedIncarnation
+  extends BasicAbstractDistributedIncarnation with AbstractJsonIncarnationSerializer
     with ActorPlatform {
   override type ComputationContext = CONTEXT with ComputationContextContract
   override type ComputationExport = EXPORT with ComputationExportContract
@@ -47,9 +47,12 @@ trait BasicAbstractActorIncarnation
 
   implicit def adaptExport(export: EXPORT): ComputationExport =
     new ExportImpl with ComputationExportContract {
+      override def getMap[A]: Map[Path, A] = export.getMap
       override def get[A](path: Path): Option[A] = export.get(path)
       override def put[A](path: Path, value: A): A = export.put(path, value)
       override def root[A](): A = export.root()
+
+      override def toString: String = export.toString
     }
 
   implicit def adaptContext(ctx: CONTEXT): ComputationContext =

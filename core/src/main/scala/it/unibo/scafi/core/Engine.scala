@@ -39,6 +39,8 @@ trait Engine extends Semantics {
 
   class ExportImpl() extends Export with ExportOps with Serializable { self: EXPORT =>
     private val map = MMap[Path,Any]()
+
+    def getMap[A]: Map[Path, A] = map.map { case (k,v) => k -> v.asInstanceOf[A] }.toMap
     def put[A](path: Path, value: A) : A = { map += (path -> value); value }
     def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
     def root[A](): A = get[A](factory.emptyPath()).get
