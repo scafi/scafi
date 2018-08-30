@@ -4,6 +4,9 @@ import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 
 import scalafx.scene.paint.Color
 
+/**
+  * a gradient policy
+  */
 object GradientFXOutputPolicy extends FXOutputPolicy {
   var maxValue = 1000.0
   val maxColor = 255.0

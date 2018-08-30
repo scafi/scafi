@@ -12,6 +12,9 @@ import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Ellipse
 
+/**
+  * standard policy used to show nodes
+  */
 object StandardFXOutputPolicy extends FXOutputPolicy {
   //TODO create a non static color map
   override type OUTPUT_NODE = javafx.scene.Node

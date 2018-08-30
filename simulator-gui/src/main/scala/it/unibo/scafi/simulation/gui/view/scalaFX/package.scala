@@ -9,6 +9,7 @@ import it.unibo.scafi.simulation.gui.model.core.{Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration.{FullScreen, Window}
+import it.unibo.scafi.simulation.gui.view.scalaFX.style.StyleFile
 
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
@@ -65,8 +66,8 @@ package object scalaFX {
     Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA)
   }
   /**
-    * a rich representation of fx node that can be cloned
-    * @param node the clonable node
+    * a rich representation of fx node that can be cloned and add style safety
+    * @param node the node
     */
   implicit class RichNode(node : Node) {
     import javafx.scene.shape.{Circle, Rectangle}
@@ -94,4 +95,5 @@ package object scalaFX {
       }
     }
   }
+
 }

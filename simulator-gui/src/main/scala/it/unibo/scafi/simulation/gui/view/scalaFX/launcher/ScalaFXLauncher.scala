@@ -9,16 +9,21 @@ import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 import it.unibo.scafi.simulation.gui.view.scalaFX.LogoStage
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.Help
-import it.unibo.scafi.simulation.gui.view.scalaFX.pane.Logo
 
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
 import scalafx.scene.control.TabPane.TabClosingPolicy
 import scalafx.scene.control._
-import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.MouseEvent
-import scalafx.scene.layout.{Pane, VBox}
-import scalafx.stage.Stage
+import scalafx.scene.layout.VBox
+
+/**
+  * allow to create a UI used to create a simulation
+  * @param factories the command factory used to configuration and launch simulation
+  * @param subsection the alternative of a command factory
+  * @param unixMachine a virtual machine used to process string input
+  * @param window the window configuration used to set up stage
+  */
 class ScalaFXLauncher(factories : List[CommandFactory],
                       subsection : Map[String,List[CommandFactory]],
                       unixMachine : VirtualMachine[String])
@@ -37,17 +42,15 @@ class ScalaFXLauncher(factories : List[CommandFactory],
   //create the main content
 
   private val mainContent = new VBox
+  mainContent.stylesheets.add("style/main-launcher-style.css")
   //used to scroll main content
   private val scrollPane = new ScrollPane {
     content = mainContent
   }
   mainContent.children.add(new JFXStackPane(logo))
   this.scene = new Scene {
-    content = new ScrollPane{
-      content = scrollPane
-    }
+    content = scrollPane
   }
-
   //show always scroll bar
   scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.Never
   scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.Never
@@ -96,7 +99,7 @@ class ScalaFXLauncher(factories : List[CommandFactory],
     }
   })
   //create a button used to launch scafi simulation
-  val button = new Button(Launch)
+  val button = new Button(international(Launch)(KeyFile.View))
   import scalafx.Includes._
   button.onMouseClicked = (e : MouseEvent) => {
     sections.foreach(x => {unixMachine.process(x.toUnix)})

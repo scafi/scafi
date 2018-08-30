@@ -8,13 +8,17 @@ import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManag
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 
+/**
+  * a factory used to create command to change language
+  */
 class LanguageCommandFactory extends CommandFactory {
   import CommandFactory._
   import LanguageCommandFactory._
   import ResourceBundleManager._
+  //language supported
   private val map = Map("en" -> Locale.ENGLISH, "it" -> Locale.ITALIAN)
   private val supported = LimitedValueType(map.keySet.toSeq:_*)
-  override def name: String = "language"
+  override val name: String = "language"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
     List(CommandArgDescription(Name,supported,description = international(name,Name) ,defaultValue = Some("en")))

@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.configuration.environment
 
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.PerformancePolicy
+import it.unibo.scafi.simulation.gui.configuration.logger.LogConfiguration
 import it.unibo.scafi.simulation.gui.controller.input.InputController
 import it.unibo.scafi.simulation.gui.controller.logical.{ExternalSimulation, LogicController}
 import it.unibo.scafi.simulation.gui.controller.presenter.Presenter
@@ -38,6 +39,12 @@ trait ProgramEnvironment[W <: AggregateWorld, V <: View] {
     * @return the controller
     */
   def controller : Iterable[LogicController[W]]
+
+  /**
+    * a configuration used to set up log
+    * @return the log configuration
+    */
+  def logConfiguration : LogConfiguration
 }
 
 object ProgramEnvironment {

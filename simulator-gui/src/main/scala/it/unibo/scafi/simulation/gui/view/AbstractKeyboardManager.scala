@@ -8,6 +8,7 @@ import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager.AbstractKeyCod
   */
 trait AbstractKeyboardManager {
   self : AbstractSelectionArea =>
+
   /**
     * the type of library keycode
     */
@@ -40,7 +41,16 @@ trait AbstractKeyboardManager {
   }
 
   final def addCommand(code : AbstractKeyCode, arg : CommandArg, factory : CommandFactory) = commandArgs += code -> (factory,arg)
+  /**
+    * tell foreach command the action associated
+   */
+  final def commandDescription : String = toDescription(abstractToReal) + "\n" + toDescription(abstractToCombination)
 
+  private def toDescription[A](map : Map[AbstractKeyCode,A]) : String = map.map{ x => x._2.toString().toLowerCase() -> x._1}
+    .filter { x => commandArgs.contains(x._2)}
+    .map { x => commandArgs(x._2) -> x._1}
+    .map {x => s"${x._2} ${x._1._1.description} ( ${x._1._2.mkString(":")})"}
+    .mkString("\n")
 }
 object  AbstractKeyboardManager {
 
@@ -52,12 +62,12 @@ object  AbstractKeyboardManager {
   /**
     * a set of code
     */
-  object Code1 extends AbstractKeyCode
-  object Code2 extends AbstractKeyCode
-  object Code3 extends AbstractKeyCode
-  object Code4 extends AbstractKeyCode
-  object Code5 extends AbstractKeyCode
-  object Code6 extends AbstractKeyCode
-  object Undo extends AbstractKeyCode
+  case object Code1 extends AbstractKeyCode
+  case object Code2 extends AbstractKeyCode
+  case object Code3 extends AbstractKeyCode
+  case object Code4 extends AbstractKeyCode
+  case object Code5 extends AbstractKeyCode
+  case object Code6 extends AbstractKeyCode
+  case object Undo extends AbstractKeyCode
 
 }

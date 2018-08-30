@@ -73,6 +73,6 @@ object AbstractToggleCommandFactory {
       }
 
     }
-    override val name: String = "toggle-multiple"
+    override val name: String = "multi-toggle"
   }
 }

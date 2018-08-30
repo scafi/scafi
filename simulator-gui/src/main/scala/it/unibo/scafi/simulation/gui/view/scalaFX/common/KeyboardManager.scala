@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.common
 
-import javafx.scene.input.KeyCombination
+import javafx.scene.input.{KeyCodeCombination, KeyCombination}
 
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.CommandArg
@@ -9,7 +9,11 @@ import it.unibo.scafi.simulation.gui.util.Result.Success
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
 
-import scalafx.scene.input.{KeyCode, KeyCodeCombination, KeyEvent}
+import scalafx.scene.input.{KeyCode, KeyEvent}
+
+/**
+  * scalafx keyboard manager
+  */
 private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
 
   self: AbstractFXSimulationPane with FXSelectionArea =>
@@ -27,9 +31,9 @@ private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
   import scalafx.Includes._
 
   self.onKeyPressed = (e: KeyEvent) => {
-    e.consume()
     this.abstractToReal.filter{x => x._2 == e.getCode()}.foreach{x => computeCommand(x._1)}
     this.abstractToCombination.filter { x => x._2.`match`(e)}.foreach(x => computeCommand(x._1))
+    e.consume()
   }
 
   private def computeCommand(code : AbstractKeyCode): Unit = {
@@ -44,7 +48,7 @@ private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
       }
       case _ =>
     }
-
   }
+
 }
 

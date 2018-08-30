@@ -53,8 +53,8 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
         //take the profile marked
         val profile = demo.simulationType.profile
         //change configuration value by profile value description
-        scafiConfiguration.scafiSeed = Some(ScafiSeed(deviceSeed = profile.sensorSeed))
-        scafiConfiguration.commandMapping = Some(profile.commandMapping)
+        scafiConfiguration.scafiSeed = ScafiSeed(deviceSeed = profile.sensorSeed)
+        scafiConfiguration.commandMapping = profile.commandMapping
         scafiConfiguration.simulationInitializer = Some(RadiusSimulationInitializer(radius.get))
         scafiConfiguration.scafiSimulationSeed = Some(ScafiSimulationSeed(program = demoClass.get,action = profile.action))
       })

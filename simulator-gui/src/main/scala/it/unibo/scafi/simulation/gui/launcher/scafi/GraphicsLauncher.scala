@@ -19,7 +19,7 @@ import scalafx.application.Platform
 /**
   * a graphics launcher used to launch scafi simulation
   */
-object GraphicsLauncher extends App {
+private object GraphicsLauncher extends App {
   import ScafiWindowInfo._
   implicit val scafiConfiguration = new ScafiConfigurationBuilder
   implicit val window = ScafiWindowInfo(ScalaFXEnvironment.windowConfiguration)

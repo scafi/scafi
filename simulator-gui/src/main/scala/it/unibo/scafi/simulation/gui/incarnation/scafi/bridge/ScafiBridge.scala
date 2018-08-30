@@ -11,9 +11,6 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   override type SIMULATION_PROTOTYPE = () => EXTERNAL_SIMULATION
   override type SIMULATION_CONTRACT = ExternalSimulationContract
 
-  /**
-    * the world
-    */
   val world = scafiWorld
   /**
     * current simulation prototype, at begging no prototype defined
@@ -32,9 +29,15 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
 
   private var simSeed : Option[ScafiSimulationSeed] = None
 
+  /**
+    * @return the current simulation seed
+    */
   def simulationSeed : Option[ScafiSimulationSeed] = simSeed
 
-  def simulationSeed_= (simulationSeed: ScafiSimulationSeed) = {
+  /**
+    * @param simulationSeed the simulation seed used to initialize the simulation
+    */
+  def simulationSeed_= (simulationSeed: ScafiSimulationSeed) : Unit = {
     require(simulationSeed != null)
     simSeed = Some(simulationSeed)
   }

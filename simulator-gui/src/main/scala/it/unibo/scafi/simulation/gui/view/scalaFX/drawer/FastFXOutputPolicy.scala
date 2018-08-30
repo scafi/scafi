@@ -3,7 +3,9 @@ import javafx.scene.paint.Color
 
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorDevice, sensorOutput}
 
-
+/**
+  * a policy that try to render less information
+  */
 object FastFXOutputPolicy extends FXOutputPolicy {
 
   override type OUTPUT_NODE = javafx.scene.shape.Shape

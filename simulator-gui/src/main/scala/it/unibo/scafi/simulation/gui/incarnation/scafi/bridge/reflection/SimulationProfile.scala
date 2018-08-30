@@ -14,10 +14,19 @@ import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager.Code1
   * describe a simulation profile used with reflection
   */
 trait SimulationProfile {
+  /**
+    * @return the simulation command mapping
+    */
   def commandMapping : CommandBinding
 
+  /**
+    * @return a sensor seed used to initialize sensors
+    */
   def sensorSeed : DeviceSeed[scafiWorld.DEVICE_PRODUCER]
 
+  /**
+    * @return output action of simulation
+    */
   def action : ACTION
 }
 
@@ -46,6 +55,9 @@ object SimulationProfile {
     override val action: ACTION = generalAction
   }
 
+  /**
+    * a scafi profile that describe a simulation with moving nodes
+    */
   object movementProfile extends SimulationProfile {
     override def commandMapping: CommandBinding = baseBinding
 

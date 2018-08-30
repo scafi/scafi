@@ -35,9 +35,9 @@ import scala.concurrent.duration.FiniteDuration
 object GradientsDemo extends App{
 
   ScafiProgramBuilder (
-    worldInitializer = Random(node = 20000, width = 500, height = 500),
+    worldInitializer = Random(node = 50000, width = 500, height = 500),
     scafiSimulationSeed = ScafiSimulationSeed(classOf[ClassicGradient]),
-    simulationInitializer = RadiusSimulationInitializer(radius = 6),
+    simulationInitializer = RadiusSimulationInitializer(radius = 3),
     outputPolicy = GradientFXOutputPolicy
   ).launch()
 }

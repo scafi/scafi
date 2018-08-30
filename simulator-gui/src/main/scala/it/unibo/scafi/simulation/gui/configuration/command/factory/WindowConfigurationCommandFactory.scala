@@ -1,6 +1,5 @@
 package it.unibo.scafi.simulation.gui.configuration.command.factory
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
@@ -8,10 +7,15 @@ import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 
+/**
+  * a factory used to create command that modify window configuration
+  * @param viewEnv the view environment where command change window confiuration
+  */
 class WindowConfigurationCommandFactory(viewEnv : ViewEnvironment[_]) extends CommandFactory{
   import CommandFactory._
   import WindowConfigurationCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
+  //the standard view configuration
   private val rect : Rectangle = viewEnv.windowConfiguration
   override val name: String = "window-configuration"
 

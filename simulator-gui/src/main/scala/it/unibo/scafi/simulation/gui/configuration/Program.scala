@@ -10,13 +10,13 @@ import it.unibo.scafi.simulation.gui.view.View
   * a program that can be launched
   * @param programEnv the program environment
   * @param viewEnv the view environment
-  * @param commandMapping a strategy to map command
+  * @param commandBinding a strategy to map command
   * @tparam W world type
   * @tparam V view type
   */
 class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,V],
                                               viewEnv : ViewEnvironment[V],
-                                              commandMapping : CommandBinding) {
+                                              commandBinding : CommandBinding) {
 
   private var _launched : Boolean = false
   def launched : Boolean = _launched
@@ -24,7 +24,7 @@ class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,
     //initialize the view
     viewEnv.init()
     //map command
-    commandMapping.map(viewEnv.keyboard, viewEnv.selection)
+    commandBinding(viewEnv.keyboard, viewEnv.selection)
     //initialized the simulation
     programEnv.simulation.init()
     //put output into the presenter
@@ -35,6 +35,8 @@ class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,
     programEnv.simulation.start()
     //start all logic controller
     programEnv.controller.foreach( _.start)
+    //init log
+    programEnv.logConfiguration()
     //init scheduler
     scheduler.attach(programEnv.input)
     programEnv.controller.foreach{scheduler.attach(_)}

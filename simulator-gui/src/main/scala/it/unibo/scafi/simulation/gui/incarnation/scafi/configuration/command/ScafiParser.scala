@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.factory.{ExitCommandFactory, LanguageCommandFactory, SimulationCommandFactory, WindowConfigurationCommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.command.factory._
 import it.unibo.scafi.simulation.gui.configuration.parser.{Parser, UnixLikeParser}
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationObserver
@@ -24,6 +24,7 @@ object ScafiParser {
     ExitCommandFactory,
     new LanguageCommandFactory,
     new PerformanceCommandFactory,
+    new GraphicsLogCommandFactory,
     new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy),
     new WindowConfigurationCommandFactory(ScalaFXEnvironment))
   /**
@@ -32,5 +33,6 @@ object ScafiParser {
   val UnixRuntime : Parser[String] = new UnixLikeParser(new SimulationCommandFactory(scafiSimulationObserver),
     new SingleMoveCommandFactory,
     new SingleToggleCommandFactory,
+    ExitCommandFactory,
     InputCommandController.UndoCommandFactory)
 }

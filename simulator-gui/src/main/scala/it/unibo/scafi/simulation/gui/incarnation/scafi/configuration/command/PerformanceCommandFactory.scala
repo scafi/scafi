@@ -26,11 +26,11 @@ class PerformanceCommandFactory(implicit val scafiConfiguration : ScafiConfigura
     List(CommandArgDescription(Name,
       argType,
       description = international(name, Name),
-      defaultValue = scafiConfiguration.perfomance.map{_.toString} ))
+      defaultValue = Some(scafiConfiguration.perfomance.toString)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Name) match {
     case Some(value : String) => if(performanceMap.contains(value)) {
-      easyResultCreation(() => scafiConfiguration.perfomance = performanceMap.get(value))
+      easyResultCreation(() => scafiConfiguration.perfomance = performanceMap(value))
     } else {
       creationFailed(Fail(wrongTypeParameter(argType,Name)))
     }

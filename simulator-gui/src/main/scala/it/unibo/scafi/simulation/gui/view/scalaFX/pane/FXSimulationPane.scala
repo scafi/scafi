@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
-import it.unibo.scafi.simulation.gui.view.scalaFX.common.AbstractFXSimulationPane
+import it.unibo.scafi.simulation.gui.view.scalaFX.common.{AbstractFXSimulationPane, FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXOutputPolicy
 import it.unibo.scafi.simulation.gui.view.scalaFX.{NodeLine, _}
 
@@ -12,7 +12,7 @@ import scalafx.geometry.Point2D
 import scalafx.scene.Node
 import scalafx.scene.layout.Priority
 
-private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFXSimulationPane {
+private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFXSimulationPane  with FXSelectionArea with KeyboardManager{
   //internal representation of node
   private val _nodes : mutable.Map[ID,drawer.OUTPUT_NODE] = mutable.Map()
   //internal representation of neighbour

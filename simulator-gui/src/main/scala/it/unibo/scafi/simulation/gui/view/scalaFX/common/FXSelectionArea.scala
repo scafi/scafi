@@ -90,7 +90,6 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
           }
           case _ => {}
         }
-        me.consume()
       }
     }
   }

@@ -41,7 +41,6 @@ object InputCommandController extends InputController {
       case Fail(e) => LogManager.notify(StringLog(Channel.Error,commandError,e.toString))
       case _ =>
     }
-    LogManager
     //if the list has max size element
     undoList = if(undoList.size == maxSize) {
       //the new list hasn't the last child

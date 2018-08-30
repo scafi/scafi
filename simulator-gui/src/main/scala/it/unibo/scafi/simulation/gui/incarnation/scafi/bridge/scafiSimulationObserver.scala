@@ -12,7 +12,7 @@ object scafiSimulationObserver extends ScafiBridge {
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkChanged = world.createObserver(Set(NodeDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
-  private var exportProduced : Map[ID,(ScafiLikeWorld,world.ID) => Unit] = Map()
+  private var exportProduced : Map[ID,world.ID => Unit] = Map()
   private var tick = 0L;
   private var time = 0L;
   private var block = false; //used to has a blocking access to list
@@ -70,7 +70,7 @@ object scafiSimulationObserver extends ScafiBridge {
     exportProduced = Map.empty
     block = false
     val toComputeMap = toCompute
-    toComputeMap foreach { x => x._2(world,x._1)}
+    toComputeMap foreach { x => x._2(x._1)}
   }
 }
 

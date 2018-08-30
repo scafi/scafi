@@ -16,6 +16,12 @@ import scalafx.beans.property.ObjectProperty
 import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, VBox}
 import it.unibo.scafi.simulation.gui.view.scalaFX._
+
+/**
+  * this box take a command factory and create a controll
+  * @param factory the command factory
+  * @param window the window configuration
+  */
 private [launcher] case class FieldBox(factory: CommandFactory)(implicit val window : WindowConfiguration) extends VBox {
   private val argBoxes = factory.commandArgsDescription.map{ArgBox(_,factory.name)}
   this.spacing = FieldBoxSpacing
@@ -30,6 +36,13 @@ private[launcher] object FieldBox {
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   val PercentageLeft = 0.2
   val PercentageRight = 0.7
+
+  /**
+    * single commnd factory argument
+    * @param arg the command argument description
+    * @param factoryName the name of factory
+    * @param window the window configuration
+    */
   case class ArgBox(arg : CommandArgDescription, factoryName : String)(implicit val window : WindowConfiguration) extends HBox {
     private val windowRect : Rectangle = window
     private val objectProperty : ObjectProperty[Any] = new ObjectProperty[Any]()
@@ -56,9 +69,9 @@ private[launcher] object FieldBox {
         field
       }
       case BooleanType => {
-        val comboBox = new CheckBox()
-        objectProperty.bind(comboBox.selected)
-        comboBox
+        val checkBox = new CheckBox()
+        objectProperty.bind(checkBox.selected)
+        checkBox
       }
 
       case _ => {
@@ -73,6 +86,6 @@ private[launcher] object FieldBox {
     private val nodePane = new JFXStackPane(node)
     nodePane.setPrefWidth(windowRect.w * PercentageRight)
     this.children.add(nodePane)
-    def value : String = objectProperty.value.toString
+    def value : String = if(objectProperty.value == null) "" else objectProperty.value.toString
   }
 }

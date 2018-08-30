@@ -8,9 +8,7 @@ import it.unibo.scafi.simulation.gui.util.Result
   * a factory used to create exit command
   */
 object ExitCommandFactory extends CommandFactory {
-  override def name: String = "exit"
-
-  override def description: String = "exit to application"
+  override val name: String = "exit"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] = Seq.empty
 

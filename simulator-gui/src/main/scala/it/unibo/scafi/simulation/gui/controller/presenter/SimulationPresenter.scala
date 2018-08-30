@@ -1,6 +1,5 @@
 package it.unibo.scafi.simulation.gui.controller.presenter
 
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesMoved
 import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld.NeighbourChanged
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
@@ -9,7 +8,7 @@ import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorP
 import it.unibo.scafi.simulation.gui.view.SimulationView
 
 /**
-  * describe a simulation preseneter
+  * describe a simulation presenter
   * @param world to show
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */

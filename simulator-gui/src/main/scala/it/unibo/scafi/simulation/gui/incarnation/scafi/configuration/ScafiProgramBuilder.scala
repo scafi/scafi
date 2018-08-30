@@ -3,6 +3,7 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{PerformancePolicy, StandardPolicy}
 import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
+import it.unibo.scafi.simulation.gui.configuration.logger.LogConfiguration
 import it.unibo.scafi.simulation.gui.configuration.{Program, ProgramBuilder}
 import it.unibo.scafi.simulation.gui.controller.presenter.SimulationPresenter
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.standardBinding
@@ -21,18 +22,19 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
   override def create: Program[_,_] = {
     val presenter = new SimulationPresenter[ScafiLikeWorld](scafiWorld,configuration.neighbourRender)
     //check if outputpolicy is supported
-    val env : ViewEnvironment[SimulationView] = configuration.outputPolicy match {
+    val viewEnv : ViewEnvironment[SimulationView] = configuration.outputPolicy match {
       case policy : FXOutputPolicy => {
         ScalaFXEnvironment.drawer = policy
         ScalaFXEnvironment
       }
       case _ => throw new IllegalArgumentException("output policy don't supported")
     }
-    env.windowConfiguration = ScafiWindowInfo(env.windowConfiguration)
+    viewEnv.windowConfiguration = ScafiWindowInfo(viewEnv.windowConfiguration)
     //init the world
     configuration.worldInitializer.init(configuration.scafiSeed)
     val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationSeed)
-    new Program[ScafiLikeWorld,SimulationView](new ScafiProgramEnvironment(presenter,bridged,configuration.perfomance),env,configuration.commandMapping)
+    val programEnv = new ScafiProgramEnvironment(presenter,bridged,configuration.perfomance,configuration.logConfiguration)
+    new Program[ScafiLikeWorld,SimulationView](programEnv, viewEnv,configuration.commandMapping)
   }
 }
 object ScafiProgramBuilder {
@@ -55,6 +57,7 @@ object ScafiProgramBuilder {
             simulationInitializer: ScafiSimulationInitializer,
             outputPolicy: OutputPolicy = StandardFXOutputPolicy,
             neighbourRender: Boolean = false,
+            log : LogConfiguration = ScafiProgramEnvironment.scafiStandardLog,
             perfomance: PerformancePolicy = StandardPolicy): Program[_,_] = {
     new ScafiProgramBuilder(new ScafiConfiguration(scafiSeed,
       worldInitializer,
@@ -63,6 +66,7 @@ object ScafiProgramBuilder {
       simulationInitializer,
       outputPolicy,
       neighbourRender,
+      log,
       perfomance)).create
   }
 

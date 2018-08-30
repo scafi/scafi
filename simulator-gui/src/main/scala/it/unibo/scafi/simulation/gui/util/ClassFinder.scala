@@ -2,6 +2,9 @@ package it.unibo.scafi.simulation.gui.util
 
 import java.io.{File, IOException}
 
+/**
+  * allow to find clss in a package
+  */
 object ClassFinder {
   /**
     * Scans all classes accessible from the context class loader which belong to the given package and subpackages.

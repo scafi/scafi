@@ -22,7 +22,7 @@ trait CommandFactory {
   /**
     * @return command description
     */
-  def description : String = international(name)
+  final def description : String = international(name)
 
   /**
     * this method return a sequence of command argument that this factory accept to create command
@@ -56,6 +56,13 @@ trait CommandFactory {
 }
 
 object CommandFactory {
+  /**
+    * used to create empty arg parameter used to create command
+    * @tparam A the type of first element
+    * @tparam B the type of second element
+    * @return emtpy map
+    */
+  def emptyArg[A,B] : Map[A,B] = Map.empty
   import ResourceBundleManager._
   /**
     * the type of command arg
@@ -106,6 +113,9 @@ object CommandFactory {
     override def toString: String = "string"
   }
 
+  /**
+    * boolean type
+    */
   object BooleanType extends ValueType {
     override def toString: String = "boolean"
   }

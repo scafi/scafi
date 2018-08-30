@@ -2,6 +2,9 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 
+/**
+  * a windows information for scafi application
+  */
 object ScafiWindowInfo {
   val name = "Scafi"
 

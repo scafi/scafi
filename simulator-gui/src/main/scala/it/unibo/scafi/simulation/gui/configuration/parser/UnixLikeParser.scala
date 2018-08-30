@@ -6,6 +6,7 @@ import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFact
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 
 import scala.util.Try
 
@@ -27,8 +28,9 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
     commandFactories.find(_.name == arrayArg(commandIndex)) match {
         //verify if in string contais -help
       case Some(factory) => if(arrayArg.contains(Help)){
+        import it.unibo.scafi.simulation.gui.controller.logger.LogManager._
         //create a command to show help associated to a command
-        easyResultCreation(() => println(help(factory)))
+        easyResultCreation(() => LogManager.notify(StringLog(Channel.CommandResult,Label.Empty,help(factory))))
       } else {
         //otherwise create a command by the rigth command factory, remove the first value that
         //match with command name

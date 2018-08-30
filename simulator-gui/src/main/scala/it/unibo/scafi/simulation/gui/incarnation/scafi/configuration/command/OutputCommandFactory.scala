@@ -24,11 +24,11 @@ class OutputCommandFactory(outputs : OutputPolicy *)(implicit val scafiConfigura
     List(CommandArgDescription(Name,
       argType,
       description = international(name, Name),
-      defaultValue = scafiConfiguration.outputPolicy.map {_.toString}))
+      defaultValue = Some(scafiConfiguration.outputPolicy.toString)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Name) match {
     case Some(value : String) => if(outputMap.get(value).isDefined) {
-      easyResultCreation(() => scafiConfiguration.outputPolicy = outputMap.get(value))
+      easyResultCreation(() => scafiConfiguration.outputPolicy = outputMap(value))
     } else {
       creationFailed(Fail(wrongTypeParameter(argType,Name)))
     }

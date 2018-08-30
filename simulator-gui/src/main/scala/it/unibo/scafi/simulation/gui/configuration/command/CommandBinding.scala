@@ -11,5 +11,5 @@ trait CommandBinding {
     * @param keyboard keyboard manager
     * @param selection selection manager
     */
-  def map(keyboard : AbstractKeyboardManager, selection : Option[AbstractSelectionArea] = None)
+  def apply(keyboard : AbstractKeyboardManager, selection : Option[AbstractSelectionArea] = None)
 }

@@ -25,4 +25,5 @@ trait AbstractSelectionArea {
     this.argumentName = Some(valueName)
     this.factory = Some(factory)
   }
+
 }
