@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.logger
 
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{IntLog, Log, LogObserver}
-import it.unibo.scafi.simulation.gui.view.GraphicsLogger
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{IntLog, Log, LogObserver, TreeLog}
+import it.unibo.scafi.simulation.gui.view.{GraphicsLogger, scalaFX}
 
 import scalafx.scene.control.TabPane
 
@@ -9,6 +9,7 @@ import scalafx.scene.control.TabPane
   * standard fx graphics logger
   */
 object FXLogger extends TabPane with LogObserver {
+  scalaFX.initializeScalaFXPlatform
   this.stylesheets.add("style/tab-pane.css")
   private var channelToStrategy : Map[String,FXLogStrategy] = Map.empty
 
@@ -17,6 +18,7 @@ object FXLogger extends TabPane with LogObserver {
       case Some(logType) => FXLogStrategy(logType)
       case _ => log match {
         case IntLog(_,_,_) => FXLogStrategy(GraphicsLogger.lineChart)
+        case TreeLog(_,_,_) => FXLogStrategy(GraphicsLogger.treeView)
         case _ => FXLogStrategy(GraphicsLogger.textual)
       }
     }

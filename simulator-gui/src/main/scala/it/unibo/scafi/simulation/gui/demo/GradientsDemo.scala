@@ -24,7 +24,7 @@ import java.time.temporal.ChronoUnit
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins, FieldUtils, GenericUtils, ID, StandardSensors, TimeUtils}
 import it.unibo.scafi.simulation.gui.demo.DoubleUtils.Precision
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
@@ -36,7 +36,7 @@ object GradientsDemo extends App{
 
   ScafiProgramBuilder (
     worldInitializer = Random(node = 50000, width = 500, height = 500),
-    scafiSimulationSeed = ScafiSimulationSeed(classOf[ClassicGradient]),
+    scafiSimulationInfo = ScafiSimulationInformation(classOf[ClassicGradient]),
     simulationInitializer = RadiusSimulationInitializer(radius = 3),
     outputPolicy = GradientFXOutputPolicy
   ).launch()

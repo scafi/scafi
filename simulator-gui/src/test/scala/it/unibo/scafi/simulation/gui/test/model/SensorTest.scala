@@ -61,7 +61,7 @@ class SensorTest extends FunSpec with Matchers{
       world.insertNode(new world.NodeBuilder(id = elem, position = zero, producer = sensorBuilders))
     }
     assert(world.nodes.nonEmpty)
-    assert(world.nodes.size == nodeNumber)
+    world.nodes.size shouldEqual nodeNumber
 
     assert(world.changeSensorValue(0,ledSensor,true))
     assert(world(0).get.getDevice(ledSensor).get.value != world(1).get.getDevice(ledSensor).get.value)

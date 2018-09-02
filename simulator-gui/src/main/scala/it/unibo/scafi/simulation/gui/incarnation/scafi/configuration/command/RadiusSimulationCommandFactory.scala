@@ -5,10 +5,10 @@ import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFact
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription, IntType, LimitedValueType}
 import it.unibo.scafi.simulation.gui.demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 
@@ -53,10 +53,10 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
         //take the profile marked
         val profile = demo.simulationType.profile
         //change configuration value by profile value description
-        scafiConfiguration.scafiSeed = ScafiSeed(deviceSeed = profile.sensorSeed)
+        scafiConfiguration.scafiSeed = ScafiWorldInformation(deviceSeed = profile.sensorSeed)
         scafiConfiguration.commandMapping = profile.commandMapping
         scafiConfiguration.simulationInitializer = Some(RadiusSimulationInitializer(radius.get))
-        scafiConfiguration.scafiSimulationSeed = Some(ScafiSimulationSeed(program = demoClass.get,action = profile.action))
+        scafiConfiguration.scafiSimulationSeed = Some(ScafiSimulationInformation(program = demoClass.get,action = profile.action))
       })
     } else {
       //if the value name is different return a failed result

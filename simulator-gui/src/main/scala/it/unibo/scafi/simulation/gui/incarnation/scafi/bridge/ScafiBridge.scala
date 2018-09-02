@@ -10,7 +10,7 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   override type EXTERNAL_SIMULATION = SpaceAwareSimulator
   override type SIMULATION_PROTOTYPE = () => EXTERNAL_SIMULATION
   override type SIMULATION_CONTRACT = ExternalSimulationContract
-
+  protected var idsObserved : Set[world.ID] = Set.empty
   val world = scafiWorld
   /**
     * current simulation prototype, at begging no prototype defined
@@ -19,6 +19,13 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   //scafi execution context
   private var context : Option[CONTEXT=>EXPORT] = None
 
+  def observeExport(id : world.ID): Unit = {
+    if(idsObserved.contains(id)) {
+      idsObserved -= id
+    } else {
+      idsObserved += id
+    }
+  }
   /**
     * @return current running context (if it is defined)
     */
@@ -27,17 +34,17 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
     context.get
   }
 
-  private var simSeed : Option[ScafiSimulationSeed] = None
+  private var simSeed : Option[ScafiSimulationInformation] = None
 
   /**
     * @return the current simulation seed
     */
-  def simulationSeed : Option[ScafiSimulationSeed] = simSeed
+  def simulationSeed : Option[ScafiSimulationInformation] = simSeed
 
   /**
     * @param simulationSeed the simulation seed used to initialize the simulation
     */
-  def simulationSeed_= (simulationSeed: ScafiSimulationSeed) : Unit = {
+  def simulationSeed_= (simulationSeed: ScafiSimulationInformation) : Unit = {
     require(simulationSeed != null)
     simSeed = Some(simulationSeed)
   }

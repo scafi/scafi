@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.view
 
 import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.view.OutputPolicy.noOutput
 
 /**
   * a strategy to render a node
@@ -39,4 +40,14 @@ trait OutputPolicy {
     * @param graphicsDevice graphics device representation
     */
   def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice : Option[OUTPUT_NODE])
+}
+
+object OutputPolicy {
+  final case object noOutput extends OutputPolicy {
+
+    override type OUTPUT_NODE = Nothing
+    override def nodeGraphicsNode(node: World#Node): OUTPUT_NODE = ???
+    override def deviceToGraphicsNode(node: OUTPUT_NODE, dev: noOutput.DEVICE): Option[OUTPUT_NODE] = None
+    override def updateDevice(node: OUTPUT_NODE, dev: noOutput.DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = {}
+  }
 }

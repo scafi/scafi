@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
 import it.unibo.scafi.simulation.gui.configuration.SensorName._
-import it.unibo.scafi.simulation.gui.configuration.seed.DeviceSeed
+import it.unibo.scafi.simulation.gui.configuration.seed.DeviceConfiguration
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorStream, sensorInput, sensorOutput}
 
 /**
@@ -12,7 +12,7 @@ object ScafiDeviceSeed {
   /**
     * set of sensor seed factory
     */
-  case object standardSeed extends DeviceSeed[scafiWorld.DEVICE_PRODUCER] {
+  case object standardConfiguration$ extends DeviceConfiguration[scafiWorld.DEVICE_PRODUCER] {
     /**
       * @return a sequence of scafi builder
       */
@@ -26,7 +26,7 @@ object ScafiDeviceSeed {
     * a class that describe a set of producer passed
     * @param sens a set of sensor describe with a name, default value ad a stream
     */
-  case class AdHocDeviceSeed(sens : List[(String,Any,SensorStream)]) extends DeviceSeed[scafiWorld.DEVICE_PRODUCER] {
+  case class AdHocDeviceConfiguration(sens : List[(String,Any,SensorStream)]) extends DeviceConfiguration[scafiWorld.DEVICE_PRODUCER] {
     /**
       * @return a sequence of scafi builder
       */

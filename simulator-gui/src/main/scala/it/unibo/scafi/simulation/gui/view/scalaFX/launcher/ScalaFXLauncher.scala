@@ -42,7 +42,6 @@ class ScalaFXLauncher(factories : List[CommandFactory],
   //create the main content
 
   private val mainContent = new VBox
-  mainContent.stylesheets.add("style/main-launcher-style.css")
   //used to scroll main content
   private val scrollPane = new ScrollPane {
     content = mainContent
@@ -51,6 +50,7 @@ class ScalaFXLauncher(factories : List[CommandFactory],
   this.scene = new Scene {
     content = scrollPane
   }
+  this.scene.value.getStylesheets.add("style/main-launcher-style.css")
   //show always scroll bar
   scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.Never
   scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.Never

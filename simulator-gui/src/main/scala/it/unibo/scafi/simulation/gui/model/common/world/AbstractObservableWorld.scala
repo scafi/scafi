@@ -52,7 +52,6 @@ trait AbstractObservableWorld extends ObservableWorld {
   }
 
   override protected def nodeAllowed(n: MUTABLE_NODE): Boolean =  {
-    //TODO mantere questa divisione tra metrica e boundary??
 
     if(!this.metric.positionAllowed(n.position) ||
       this.boundary.isDefined &&

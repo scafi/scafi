@@ -37,10 +37,8 @@ class UnixParserTest extends FunSpec with Matchers {
 
   checkThat("i can parser a command describe by a factory"){
     val result = parser.parse(s"$commandName $firstValue $aValue")
-    result._1 match {
-      case Fail(_) => assert(false)
-      case _ =>
-    }
+    result._1 shouldBe Success
+
   }
 
   checkThat("i can't create a command not described by factory") {
@@ -69,17 +67,11 @@ class UnixParserTest extends FunSpec with Matchers {
 
   checkThat("i can list all command") {
     val result = parser.parse(s"$listCommand")
-    result._1 match {
-      case Fail(_) => assert(false)
-      case _ =>
-    }
+    result._1 shouldBe Success
   }
 
   checkThat("i can see help of a command") {
     val result = parser.parse(s"$commandName $help")
-    result._1 match {
-      case Fail(_) => assert(false)
-      case _ =>
-    }
+    result._1 shouldBe Success
   }
 }

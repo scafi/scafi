@@ -2,19 +2,15 @@ package it.unibo.scafi.simulation.gui.view
 
 
 
-import javafx.application.Application
 import javafx.embed.swing.JFXPanel
 
 import it.unibo.scafi.simulation.gui.model.core.{Shape => InternalShape}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
-import it.unibo.scafi.simulation.gui.view.WindowConfiguration.{FullScreen, Window}
-import it.unibo.scafi.simulation.gui.view.scalaFX.style.StyleFile
 
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
-import scalafx.stage.Screen
 package object scalaFX {
   //color of neighbour line
   val lineColor = Color(0.8,0.8,0.8,0.2)
@@ -63,7 +59,6 @@ package object scalaFX {
     */
   def initializeScalaFXPlatform (): Unit = {
     new JFXPanel
-    Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA)
   }
   /**
     * a rich representation of fx node that can be cloned and add style safety

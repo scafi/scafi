@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
@@ -11,7 +11,7 @@ class ConfigurationBuilderTest extends FunSpec with Matchers{
   val checkThat = new ItWord
   val worldInitializer = new Random(100,10,10)
   val simulationInitializer = new RadiusSimulationInitializer(10)
-  val simulationSeed = ScafiSimulationSeed(program = classOf[ConfigurationBuilderTest])
+  val simulationSeed = ScafiSimulationInformation(program = classOf[ConfigurationBuilderTest])
   checkThat("an empty scafi builder can't create a configuration") {
     val builder = new ScafiConfigurationBuilder
     assert(builder.create().isEmpty)

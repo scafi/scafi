@@ -40,6 +40,7 @@ trait Engine extends Semantics {
     def put[A](path: Path, value: A) : A = { map += (path -> value); value }
     def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
     def root[A](): A = get[A](factory.emptyPath()).get
+    def paths : Map[Path,Any] = Map(map.toSeq:_*)
 
     override def toString: String = map.toString
   }

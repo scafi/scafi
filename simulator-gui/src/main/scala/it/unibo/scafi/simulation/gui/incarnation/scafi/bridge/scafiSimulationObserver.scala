@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager.IntLog
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, IntLog, TreeLog}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceChanged, NodesMoved}
@@ -21,10 +22,22 @@ object scafiSimulationObserver extends ScafiBridge {
   override protected val maxDelta: Option[Int] = None
   override protected def AsyncLogicExecution(): Unit = {
     if(block) return;
+
     if(contract.simulation.isDefined) {
       val net = contract.simulation.get
       val before = System.nanoTime()
       val result = net.exec(runningContext)
+      if(idsObserved.contains(result._1)) {
+        val mapped = result._2.paths.toSeq.map {x => {
+          if(x._1.isRoot) {
+            (None,x._1,x._2)
+          } else {
+            (Some(x._1.pull()),x._1,x._2)
+          }
+        }}.sortWith((x,y) => x._2.level < y._2.level)
+        LogManager.notify(TreeLog[Path](Channel.Export,result._1.toString,mapped))
+      }
+
       time += System.nanoTime() - before
       val action = this.simulationSeed.get.action
       tick += 1;
@@ -38,17 +51,12 @@ object scafiSimulationObserver extends ScafiBridge {
 
       values ::= tick
       log.notify(IntLog(OutputChannel, "instant", tick.toInt))
-      /*println("current : " + tick)
-      println("min : " + values.min)
-      println("max : " + values.max)
-      println("avg : " + values.sum / values.size)
-      println("time alapsed : " + printTime)*/
       tick = 0;
       time = 0;
       printTime += 1
     }
   }
-  //TODO PERFORMANCE ISSUE! CHECK OUT!
+
   override def onTick(float: Float): Unit = {
     val moved = checkMoved.nodeChanged()
     val devs = checkChanged.nodeChanged()
@@ -72,6 +80,15 @@ object scafiSimulationObserver extends ScafiBridge {
     val toComputeMap = toCompute
     toComputeMap foreach { x => x._2(x._1)}
   }
+
+  implicit class RichPath(path : Path) {
+    def level : Int = if(path.isRoot) {
+      0
+    } else {
+      path.toString.split("/").size + 1
+    }
+  }
+
 }
 
 

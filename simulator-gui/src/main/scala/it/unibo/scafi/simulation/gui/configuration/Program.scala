@@ -15,35 +15,46 @@ import it.unibo.scafi.simulation.gui.view.View
   * @tparam V view type
   */
 class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,V],
-                                              viewEnv : ViewEnvironment[V],
+                                              viewEnv : Option[ViewEnvironment[V]],
                                               commandBinding : CommandBinding) {
 
   private var _launched : Boolean = false
   def launched : Boolean = _launched
   def launch(): Unit = {
     //initialize the view
-    viewEnv.init()
+    viewEnv.foreach {_.init()}
     //map command
-    commandBinding(viewEnv.keyboard, viewEnv.selection)
-    //initialized the simulation
-    programEnv.simulation.init()
-    //put output into the presenter
-    programEnv.presenter.output(viewEnv.container.output)
+    viewEnv match {
+      case Some(view) => commandBinding(view.keyboard, view.selection)
+      case _ =>
+    }
     //render the output
-    viewEnv.container.render
-    //start simulation
-    programEnv.simulation.start()
+    viewEnv.foreach {_.container.render}
     //start all logic controller
     programEnv.controller.foreach( _.start)
     //init log
     programEnv.logConfiguration()
+    //initialized the simulation
+    programEnv.simulation.init()
+    //start simulation
+    programEnv.simulation.start()
     //init scheduler
     scheduler.attach(programEnv.input)
     programEnv.controller.foreach{scheduler.attach(_)}
     scheduler.attach(programEnv.simulation)
-    scheduler.attach(programEnv.presenter)
+    //put output into the presenter
+    viewEnv match {
+      case Some(view) => {
+        programEnv.presenter.output(view.container.output)
+        scheduler.attach(programEnv.presenter)
+      }
+
+      case _ =>
+    }
     scheduler.delta = programEnv.policy.tick
-    scheduler.start()
+    scheduler.start(
+
+    )
     _launched = true
   }
 }

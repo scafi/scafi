@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiWorldInitializer, scafiWorld}
 import org.scalatest.{FunSpec, Matchers}
 
@@ -18,7 +18,7 @@ class InitializerTest extends FunSpec with Matchers{
   val aNodeId = 1
   checkThat("random initializer create a random world") {
     world.clear()
-    val init = ScafiWorldInitializer.Random(node,width,height).init(ScafiSeed.standard)
+    val init = ScafiWorldInitializer.Random(node,width,height).init(ScafiWorldInformation.standard)
     assert(world.nodes.nonEmpty)
     assert(world.nodes.size == node)
     assert(world(aNodeId).get.devices.nonEmpty)
@@ -27,7 +27,7 @@ class InitializerTest extends FunSpec with Matchers{
 
   checkThat("grid initializer create a grid like workd") {
     world.clear()
-    val init = ScafiWorldInitializer.Grid(width,height,space).init(ScafiSeed.standard)
+    val init = ScafiWorldInitializer.Grid(width,height,space).init(ScafiWorldInformation.standard)
     assert(world.nodes.nonEmpty)
     assert(world.nodes.size == width * height)
     assert(world(aNodeId).get.devices.nonEmpty)

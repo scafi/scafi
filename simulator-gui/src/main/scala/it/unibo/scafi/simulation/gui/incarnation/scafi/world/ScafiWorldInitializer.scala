@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
 import it.unibo.scafi.simulation.gui.configuration.seed.WorldInitializer
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 
@@ -10,9 +10,9 @@ import scala.util.{Random => RandomGenerator}
 /**
   * the interface of a scafi world initializer
   */
-trait ScafiWorldInitializer extends WorldInitializer[ScafiSeed]
+trait ScafiWorldInitializer extends WorldInitializer[ScafiWorldInformation]
 object ScafiWorldInitializer {
-  type SEED = ScafiSeed
+  type SEED = ScafiWorldInformation
   val standardShape = Rectangle(2,2)
   /**
     * create a random world

@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld.anal
 import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory.MultiMoveCommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.factory.{AbstractMoveCommandFactory, AbstractToggleCommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractToggleCommandFactory.MultiToggleCommandFactory
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiSeed
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
@@ -22,7 +22,7 @@ class WorldCommandTest extends FunSpec with Matchers {
   val toggleFactory = new MultiToggleCommandFactory(scafiWorld)
   val moveCommandFactory = new MultiMoveCommandFactory(scafiWorld)
 
-  ScafiWorldInitializer.Random(node,worldSize,worldSize).init(ScafiSeed.standard)
+  ScafiWorldInitializer.Random(node,worldSize,worldSize).init(ScafiWorldInformation.standard)
 
   checkThat("i can move node with move command") {
     val newPoint = Point3D(1,1,1)

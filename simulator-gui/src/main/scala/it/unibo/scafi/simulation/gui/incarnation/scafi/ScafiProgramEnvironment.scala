@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.gui.controller.logical.{ExternalSimulation, Log
 import it.unibo.scafi.simulation.gui.controller.presenter.Presenter
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
 import it.unibo.scafi.simulation.gui.view.scalaFX.logger.FXLogger
-import it.unibo.scafi.simulation.gui.view.{SimulationView, WindowConfiguration}
+import it.unibo.scafi.simulation.gui.view.{SimulationView, WindowConfiguration, scalaFX}
 
 /**
   * scafi enviroment
@@ -31,6 +31,7 @@ object ScafiProgramEnvironment {
   val scafiStandardLog = new LogConfiguration {
     override def apply(): Unit = {
       LogConfiguration.standardLog()
+      scalaFX.initializeScalaFXPlatform
       FXLogger.acceptChannel(LogManager.acceptAll)
       LogManager.attach(FXLogger)
     }

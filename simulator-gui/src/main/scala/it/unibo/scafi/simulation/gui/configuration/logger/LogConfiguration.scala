@@ -27,7 +27,7 @@ object LogConfiguration {
     override def apply(): Unit = {
       val consoleTimestampOutput = new ConsoleTimestampOutputObserver
       val consoleOutput = new ConsoleOutputObserver
-      FileOutputObserver.acceptChannel(acceptExceptThese(Set(Channel.CommandResult)))
+      FileOutputObserver.acceptChannel(acceptExceptThese(Set(Channel.CommandResult,Channel.Export)))
       consoleTimestampOutput.acceptChannel(acceptThese(Set(Channel.Error)))
       consoleOutput.acceptChannel(acceptThese(Set(Channel.CommandResult)))
       LogManager.attach(consoleOutput)

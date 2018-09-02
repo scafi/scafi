@@ -2,10 +2,10 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection
 
 import it.unibo.scafi.simulation.gui.configuration.SensorName._
 import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
-import it.unibo.scafi.simulation.gui.configuration.seed.DeviceSeed
+import it.unibo.scafi.simulation.gui.configuration.seed.DeviceConfiguration
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.{AdHocToggleBinding, baseBinding, standardBinding}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.Actions._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiDeviceSeed.{AdHocDeviceSeed, standardSeed}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiDeviceSeed.{AdHocDeviceConfiguration, standardConfiguration$}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager.Code1
@@ -22,7 +22,7 @@ trait SimulationProfile {
   /**
     * @return a sensor seed used to initialize sensors
     */
-  def sensorSeed : DeviceSeed[scafiWorld.DEVICE_PRODUCER]
+  def sensorSeed : DeviceConfiguration[scafiWorld.DEVICE_PRODUCER]
 
   /**
     * @return output action of simulation
@@ -38,7 +38,7 @@ object SimulationProfile {
   object standardProfile extends SimulationProfile {
     override val commandMapping: CommandBinding = standardBinding
 
-    override val sensorSeed: DeviceSeed[scafiWorld.DEVICE_PRODUCER] = standardSeed
+    override val sensorSeed: DeviceConfiguration[scafiWorld.DEVICE_PRODUCER] = standardConfiguration$
 
     override val action: ACTION = generalAction
   }
@@ -49,7 +49,7 @@ object SimulationProfile {
   object onOffInputAnyOutput extends SimulationProfile {
     override val commandMapping: CommandBinding = AdHocToggleBinding(Map(Code1 -> sensor1))
 
-    override val sensorSeed: DeviceSeed[scafiWorld.DEVICE_PRODUCER] = AdHocDeviceSeed(List((sensor1,false,SensorConcept.sensorInput),
+    override val sensorSeed: DeviceConfiguration[scafiWorld.DEVICE_PRODUCER] = AdHocDeviceConfiguration(List((sensor1,false,SensorConcept.sensorInput),
       (output1,"",SensorConcept.sensorOutput)))
 
     override val action: ACTION = generalAction
@@ -61,7 +61,7 @@ object SimulationProfile {
   object movementProfile extends SimulationProfile {
     override def commandMapping: CommandBinding = baseBinding
 
-    override def sensorSeed: DeviceSeed[scafiWorld.DEVICE_PRODUCER] = AdHocDeviceSeed(List((output1,(0,0),SensorConcept.sensorOutput)))
+    override def sensorSeed: DeviceConfiguration[scafiWorld.DEVICE_PRODUCER] = AdHocDeviceConfiguration(List((output1,(0,0),SensorConcept.sensorOutput)))
 
     override def action: ACTION = movementAction
   }

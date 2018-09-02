@@ -22,7 +22,7 @@ trait CommandFactory {
   /**
     * @return command description
     */
-  final def description : String = international(name)
+  def description : String = international(name)
 
   /**
     * this method return a sequence of command argument that this factory accept to create command

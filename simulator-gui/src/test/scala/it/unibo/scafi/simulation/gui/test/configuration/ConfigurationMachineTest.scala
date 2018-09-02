@@ -27,7 +27,7 @@ class ConfigurationMachineTest extends FunSpec with Matchers {
   checkThat("i can process a command described in configuration machine parser") {
     val calledTimes = called
     val result = configurationMachine.process(command)
-    assert(result == VirtualMachine.Ok)
+    result shouldEqual VirtualMachine.Ok
     assert(calledTimes != called)
   }
 

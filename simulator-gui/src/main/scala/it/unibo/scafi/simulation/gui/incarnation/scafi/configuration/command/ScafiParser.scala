@@ -5,6 +5,7 @@ import it.unibo.scafi.simulation.gui.configuration.parser.{Parser, UnixLikeParse
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationObserver
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
+import it.unibo.scafi.simulation.gui.view.OutputPolicy.noOutput
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, StandardFXOutputPolicy}
 
@@ -25,7 +26,7 @@ object ScafiParser {
     new LanguageCommandFactory,
     new PerformanceCommandFactory,
     new GraphicsLogCommandFactory,
-    new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy),
+    new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy,noOutput),
     new WindowConfigurationCommandFactory(ScalaFXEnvironment))
   /**
     * parser unix like used to parse string value in runtime command
@@ -34,5 +35,6 @@ object ScafiParser {
     new SingleMoveCommandFactory,
     new SingleToggleCommandFactory,
     ExitCommandFactory,
+    LookExportCommandFactory,
     InputCommandController.UndoCommandFactory)
 }

@@ -2,15 +2,16 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.logger
 
 import javafx.scene.chart.XYChart
 
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{DoubleLog, IntLog, Log}
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{DoubleLog, IntLog, Log, TreeLog}
 import it.unibo.scafi.simulation.gui.view.GraphicsLogger
 import it.unibo.scafi.simulation.gui.view.GraphicsLogger.{LogType, textual}
 
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.scene.chart.{Axis, LineChart, NumberAxis}
-import scalafx.scene.control.{Tab, TextArea}
-import scalafx.scene.layout.StackPane
+import scalafx.scene.control._
+import scalafx.scene.layout.{StackPane, VBox}
+import scalafx.Includes._
 /**
   * a strategy used to display log information
   */
@@ -41,6 +42,7 @@ object FXLogStrategy {
   def apply(logType : LogType) : FXLogStrategy = logType match {
     case `textual` => new TextOutput
     case GraphicsLogger.lineChart => new LineChartOutput
+    case GraphicsLogger.treeView => new TreeOutput
   }
 
   /**
@@ -103,6 +105,7 @@ object FXLogStrategy {
     private val pane = new StackPane {
       children = area
     }
+
     pane.stylesheets.add("style/console-like.css")
     override def init(channel : String): Unit = {
       val tab = new Tab {
@@ -122,4 +125,55 @@ object FXLogStrategy {
       }
     }
   }
+  private class TreeOutput extends FXLogStrategy {
+    var mappedTree : Map[String, TreeItem[String]] = Map.empty
+    val tree = new TreeView[String]
+    val rootElem = new TreeItem[String]
+    tree.stylesheets.add("style/console-like.css")
+    override def init(channel: String): Unit = {
+      val tab = new Tab {
+        text = channel
+        closable = false
+        content = tree
+      }
+      Platform.runLater {
+        tree.root = rootElem
+        rootElem.value = channel
+        FXLogger.tabs.add(tab)
+      }
+    }
+    /**
+      *
+      * @param log out the log passed
+      */
+    override def out(log: Log[_]): Unit = {
+      var map : Map[Any,TreeItem[String]] = Map.empty
+      log match {
+        case TreeLog(_,name,list) => {
+          Platform.runLater {
+            val logRoot = mappedTree.get(name) match {
+              case Some(tree) => tree
+              case _ => {
+                val tree = new TreeItem[String]
+                rootElem.children += tree
+                mappedTree += name -> tree
+                tree
+              }
+            }
+
+            logRoot.value = name + " " + list(0)._2.toString + " "  + list(0)._3.toString
+            logRoot.children.clear()
+            map += list(0)._2 -> logRoot
+            list.tail foreach { x => {
+              val elem = new TreeItem[String](x._2.toString.substring(x._1.get.toString.size) + " " + x._3.toString)
+              map(x._1.get).children.add(elem)
+              elem.expanded = true
+              map += x._2 -> elem
+            }}
+          }
+        }
+      }
+    }
+  }
+
 }

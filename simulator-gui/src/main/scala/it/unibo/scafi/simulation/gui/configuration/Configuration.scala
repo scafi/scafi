@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.configuration
 
 /**
-  * a configuration used to configure a program
+  * a generic configuration used to configure a program
   */
 trait Configuration
 

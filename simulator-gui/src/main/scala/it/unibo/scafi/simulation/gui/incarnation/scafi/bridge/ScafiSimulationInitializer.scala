@@ -6,8 +6,8 @@ import scala.util.Random
 
 
 /**
-  * describe a scafi simulation initializer, it is used to initialize the external simulation by a seed passed
-  * the difference between ScafiSimulationSeed is that this has the target to create a bridge with the seed passed
+  * describe a scafi simulation initializer, it is used to initialize the external simulation by a simulation information
+  * the difference between scafiSimulationInformation is that this has the target to create a bridge with the seed passed
   * the seed instead has the target to describe a scafi simulation skeleton
   */
 trait ScafiSimulationInitializer {
@@ -16,7 +16,7 @@ trait ScafiSimulationInitializer {
     * create the simulation
     * @return
     */
-  def create(scafiSimulationSeed: ScafiSimulationSeed) : ScafiBridge
+  def create(scafiSimulationSeed: ScafiSimulationInformation) : ScafiBridge
 }
 
 object ScafiSimulationInitializer {
@@ -28,7 +28,7 @@ object ScafiSimulationInitializer {
     */
   case class RadiusSimulationInitializer(val radius : Double = 0.0) extends ScafiSimulationInitializer {
 
-    override def create(scafiSimulationSeed : ScafiSimulationSeed): ScafiBridge = {
+    override def create(scafiSimulationSeed : ScafiSimulationInformation): ScafiBridge = {
       val rand : Random = new Random()
       val bridge = scafiSimulationObserver
       val proto = () => {
@@ -36,13 +36,12 @@ object ScafiSimulationInitializer {
         val nodes: Map[ID, P] = w.nodes map {n => n.id -> new P(n.position.x,n.position.y,n.position.z)} toMap
         val createdSpace  = new QuadTreeSpace(nodes,radius)
         val createdDevs =  nodes.map { case (d, p) => d -> new DevInfo(d, p,
-          lsns => if (lsns == "sensor") 1 else 0,
+          lsns => 0,
           nsns => nbr => null)
         }
         val res : SpaceAwareSimulator = new SpaceAwareSimulator(simulationSeed = rand.nextInt(),randomSensorSeed = rand.nextInt(),
           space = createdSpace,
           devs = createdDevs)
-        nodes map {x => w(x._1).get} foreach {x => x.devices.foreach(y => res.chgSensorValue(y.name,Set(x.id),y.value))}
         w.nodes  foreach { x =>
           x.devices foreach {y => res.chgSensorValue(y.name,Set(x.id),y.value)}
         }

@@ -120,6 +120,9 @@ object LogManager extends SimpleSource {
     */
   case class StringLog(channel: String, label: String, value : String) extends Log[String]
 
+  case class TreeLog[NODE] (channel : String, label : String, value : Seq[(Option[NODE],NODE,Any)])
+    extends Log[Seq[(Option[NODE],NODE,Any)]]
+
   /**
     * a set of standard channel
     */
@@ -127,6 +130,7 @@ object LogManager extends SimpleSource {
     val Error = "error"
     val Std = "standard"
     val CommandResult = "command"
+    val Export = "export"
   }
 
   /**
@@ -166,8 +170,6 @@ object LogManager extends SimpleSource {
   }
 
   class ConsoleOutputObserver extends LogObserver {
-    override protected def processLog(log: Log[_]): Unit =
-      println(log.value)
-
+    override protected def processLog(log: Log[_]): Unit = println(log.value)
   }
 }

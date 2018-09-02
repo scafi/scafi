@@ -34,7 +34,7 @@ private [scalaFX] class LogoStage(window: WindowConfiguration) extends Stage {
   }
 
   window.iconPath match {
-    case Some(name : String) => this.getIcons.add(Logo.small(name))
+    case Some(name : String) => this.getIcons.add(Logo.middle(name))
     case _ =>
   }
 }

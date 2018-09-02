@@ -27,7 +27,7 @@ class AggregateTest extends FunSpec with Matchers {
 
   checkThat("I can add multiple node in the world") {
     (0 until nodeNumber) foreach {x => world.insertNode(new world.NodeBuilder(id = x, position = zero))}
-    assert(world.nodes.size == nodeNumber)
+    world.nodes.size shouldBe nodeNumber
   }
 
   checkThat("i can take device of a node") {
@@ -39,7 +39,7 @@ class AggregateTest extends FunSpec with Matchers {
     assert(dev.isDefined)
     val fakeDev = node.getDevice("fake")
     assert(fakeDev.isEmpty)
-    assert(node.devices.size == devProducer.size)
+    node.devices.size shouldEqual devProducer.size
   }
 
   checkThat("i can move node in an aggregate world") {
@@ -48,7 +48,7 @@ class AggregateTest extends FunSpec with Matchers {
     val newPosition = Point3D(10,0,0)
     assert(world.moveNode(0,newPosition))
     val node = world(0).get
-    assert(node.position == newPosition)
+    node.position shouldEqual newPosition
   }
 
   checkThat("i can't move node that isn't in the world") {

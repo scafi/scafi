@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.gui.configuration.{Program, ProgramBuilder}
 import it.unibo.scafi.simulation.gui.controller.presenter.SimulationPresenter
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.standardBinding
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiProgramEnvironment
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationInitializer, ScafiSimulationSeed}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationInitializer, ScafiSimulationInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
@@ -22,14 +22,18 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
   override def create: Program[_,_] = {
     val presenter = new SimulationPresenter[ScafiLikeWorld](scafiWorld,configuration.neighbourRender)
     //check if outputpolicy is supported
-    val viewEnv : ViewEnvironment[SimulationView] = configuration.outputPolicy match {
+    val viewEnv : Option[ViewEnvironment[SimulationView]] = configuration.outputPolicy match {
       case policy : FXOutputPolicy => {
         ScalaFXEnvironment.drawer = policy
-        ScalaFXEnvironment
+        Some(ScalaFXEnvironment)
       }
+      case OutputPolicy.`noOutput` => None
       case _ => throw new IllegalArgumentException("output policy don't supported")
     }
-    viewEnv.windowConfiguration = ScafiWindowInfo(viewEnv.windowConfiguration)
+    //set name, logo and icon to view environment
+    if(viewEnv.isDefined) {
+      viewEnv.get.windowConfiguration = ScafiWindowInfo(viewEnv.get.windowConfiguration)
+    }
     //init the world
     configuration.worldInitializer.init(configuration.scafiSeed)
     val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationSeed)
@@ -40,29 +44,29 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
 object ScafiProgramBuilder {
   /**
     * allow to create a program passing some parameter
-    * @param scafiSeed the world seed in scafi context
+    * @param scafiWorldInfo the world seed in scafi context
     * @param worldInitializer a world initializer to initialize scafi world
     * @param commandMapping a command mapping used to map some keyboard (and selection) input to an action
-    * @param scafiSimulationSeed a seed used to set some parameter in scafi bridge simulation
+    * @param scafiSimulationInfo a seed used to set some parameter in scafi bridge simulation
     * @param simulationInitializer a simulation initializer used to initialize scafi bridge simulation
     * @param outputPolicy strategy describe how to output some information
     * @param neighbourRender allow to render or not neighbour
     * @param perfomance the perfomance of program context
     * @return
     */
-  def apply(scafiSeed : ScafiSeed = ScafiSeed.standard,
+  def apply(scafiWorldInfo : ScafiWorldInformation = ScafiWorldInformation.standard,
             worldInitializer: ScafiWorldInitializer,
             commandMapping: CommandBinding = standardBinding,
-            scafiSimulationSeed : ScafiSimulationSeed,
+            scafiSimulationInfo : ScafiSimulationInformation,
             simulationInitializer: ScafiSimulationInitializer,
             outputPolicy: OutputPolicy = StandardFXOutputPolicy,
             neighbourRender: Boolean = false,
             log : LogConfiguration = ScafiProgramEnvironment.scafiStandardLog,
             perfomance: PerformancePolicy = StandardPolicy): Program[_,_] = {
-    new ScafiProgramBuilder(new ScafiConfiguration(scafiSeed,
+    new ScafiProgramBuilder(new ScafiConfiguration(scafiWorldInfo,
       worldInitializer,
       commandMapping,
-      scafiSimulationSeed,
+      scafiSimulationInfo,
       simulationInitializer,
       outputPolicy,
       neighbourRender,

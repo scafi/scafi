@@ -1,11 +1,13 @@
 @import "scroll-bar.css";
 .root * {
     -fx-font-family: Consolas;
+    -fx-background: #505050;
+    -fx-text-fill: #ffffff;
+
 }
 .titled-pane
 {
     -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em; /* 2 10 3 10 */
-    -fx-text-fill: #000000;
     -fx-font-size: 14px;
     -fx-background-radius: 0px;
 }
@@ -17,7 +19,6 @@
     -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em; /* 2 10 3 10 */
 }
 .titled-pane * {
-    -fx-text-fill: #000000;
     -fx-font-size: 14px;
 }
 .tooltip {
@@ -46,7 +47,6 @@
     -fx-focus-color: transparent;
 }
 .tab-label {
-    -fx-text-fill: #000000;
     -fx-font-size: 14px;
 }
 .button {
@@ -83,9 +83,9 @@
 }
 .text-field {
     -fx-control-inner-background:#a0a0a0;
-    -fx-highlight-fill: #000000;
-    -fx-highlight-text-fill: #000000;
-    -fx-text-fill: #000000;
+    -fx-highlight-fill: #ffffff;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-text-fill: #ffffff;
     -fx-border-radius:0px;
 }
 .text-field:focused {
