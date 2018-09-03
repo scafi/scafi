@@ -27,6 +27,7 @@ trait JsonPrimitivesSerialization {
     case i:Int => Json.obj("type" -> "Int", "val" -> i)
     case l:Long => Json.obj("type" -> "Long", "val" -> l)
     case f:Float => Json.obj("type" -> "Float", "val" -> f)
+    case Double.PositiveInfinity => Json.obj("type" -> "DoublePositiveInfinity")
     case d:Double => Json.obj("type" -> "Double", "val" -> d)
     case c:Char => Json.obj("type" -> "Char", "val" -> c.toString)
     case s:String => Json.obj("type" -> "String", "val" -> s)
@@ -37,6 +38,7 @@ trait JsonPrimitivesSerialization {
     case i if (i \ "type").as[String] == "Int" => (i \ "val").as[Int]
     case l if (l \ "type").as[String] == "Long" => (l \ "val").as[Long]
     case f if (f \ "type").as[String] == "Float" => (f \ "val").as[Float]
+    case i if (i \ "type").as[String] == "DoublePositiveInfinity" => Double.PositiveInfinity
     case d if (d \ "type").as[String] == "Double" => (d \ "val").as[Double]
     case c if (c \ "type").as[String] == "Char" => (c \ "val").as[String].head
     case s if (s \ "type").as[String] == "String" => (s \ "val").as[String]
