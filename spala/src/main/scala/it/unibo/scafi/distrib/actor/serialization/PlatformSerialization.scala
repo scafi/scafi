@@ -30,16 +30,19 @@ trait BaseSerializer {
 trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSerialization { self: Platform =>
   val MsgExportManifest = "MsgExport"
   val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
+  val MsgRegistrationManifest = "MsgRegistration"
 
   override def manifest(obj: AnyRef): Option[String] = obj match {
     case _: MsgExport => Some(MsgExportManifest)
     case _: MsgNeighborhoodExports => Some(MsgNeighborhoodExportsManifest)
+    case _: MsgRegistration => Some(MsgRegistrationManifest)
     case _ => None
   }
 
   override def toBinary(obj: AnyRef): Option[Array[Byte]] = obj match {
     case me: MsgExport => Some(Json.toJson(me.asInstanceOf[MsgExport]).toString.getBytes)
     case mne: MsgNeighborhoodExports => Some(Json.toJson(mne.asInstanceOf[MsgNeighborhoodExports]).toString.getBytes)
+    case mr: MsgRegistration => Some(Json.toJson(mr.asInstanceOf[MsgRegistration]).toString.getBytes)
     case _ => None
   }
 
@@ -50,6 +53,10 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     }
     case MsgNeighborhoodExportsManifest => Json.parse(bytes).validate[MsgNeighborhoodExports] match {
       case s: JsSuccess[MsgNeighborhoodExports] => Some(s.value)
+      case _ => None
+    }
+    case MsgRegistrationManifest => Json.parse(bytes).validate[MsgRegistration] match {
+      case s: JsSuccess[MsgRegistration] => Some(s.value)
       case _ => None
     }
   }
@@ -64,6 +71,9 @@ trait JsonMessagesSerialization extends JsonOptionSerialization with JsonCollect
     Json.obj("id" -> anyToJs(msg.id), "nbrs" -> anyToJs(msg.nbrs))
   implicit val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = js => JsSuccess { MsgNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID],
     jsToAny((js \ "nbrs").get).asInstanceOf[Map[UID, Option[ComputationExport]]]) }
+
+  implicit val msgRegistrationWrites: Writes[MsgRegistration] = msg => Json.obj("id" -> anyToJs(msg.id))
+  implicit val msgRegistrationReads: Reads[MsgRegistration] = js => JsSuccess { MsgRegistration(jsToAny((js \ "id").get).asInstanceOf[UID]) }
 
   override def anyToJs: PartialFunction[Any, JsValue] = super[JsonOptionSerialization].anyToJs orElse super[JsonCollectionsSerialization].anyToJs
 }
