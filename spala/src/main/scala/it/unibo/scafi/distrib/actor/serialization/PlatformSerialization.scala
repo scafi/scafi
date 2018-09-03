@@ -31,11 +31,13 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
   val MsgExportManifest = "MsgExport"
   val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
   val MsgRegistrationManifest = "MsgRegistration"
+  val MsgSensorValueManifest = "MsgSensorValue"
 
   override def manifest(obj: AnyRef): Option[String] = obj match {
     case _: MsgExport => Some(MsgExportManifest)
     case _: MsgNeighborhoodExports => Some(MsgNeighborhoodExportsManifest)
     case _: MsgRegistration => Some(MsgRegistrationManifest)
+    case _: MsgSensorValue => Some(MsgSensorValueManifest)
     case _ => None
   }
 
@@ -43,6 +45,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     case me: MsgExport => Some(Json.toJson(me.asInstanceOf[MsgExport]).toString.getBytes)
     case mne: MsgNeighborhoodExports => Some(Json.toJson(mne.asInstanceOf[MsgNeighborhoodExports]).toString.getBytes)
     case mr: MsgRegistration => Some(Json.toJson(mr.asInstanceOf[MsgRegistration]).toString.getBytes)
+    case msv: MsgSensorValue => Some(Json.toJson(msv.asInstanceOf[MsgSensorValue]).toString.getBytes)
     case _ => None
   }
 
@@ -57,6 +60,10 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     }
     case MsgRegistrationManifest => Json.parse(bytes).validate[MsgRegistration] match {
       case s: JsSuccess[MsgRegistration] => Some(s.value)
+      case _ => None
+    }
+    case MsgSensorValueManifest => Json.parse(bytes).validate[MsgSensorValue] match {
+      case s: JsSuccess[MsgSensorValue] => Some(s.value)
       case _ => None
     }
   }
@@ -74,6 +81,11 @@ trait JsonMessagesSerialization extends JsonOptionSerialization with JsonCollect
 
   implicit val msgRegistrationWrites: Writes[MsgRegistration] = msg => Json.obj("id" -> anyToJs(msg.id))
   implicit val msgRegistrationReads: Reads[MsgRegistration] = js => JsSuccess { MsgRegistration(jsToAny((js \ "id").get).asInstanceOf[UID]) }
+
+  implicit val msgSensorValueWrites: Writes[MsgSensorValue] = msg =>
+    Json.obj("id" -> anyToJs(msg.id), "name" -> anyToJs(msg.name), "value" -> anyToJs(msg.value))
+  implicit val msgSensorValueReads: Reads[MsgSensorValue] = js => JsSuccess { MsgSensorValue(jsToAny((js \ "id").get).asInstanceOf[UID],
+    jsToAny((js \ "name").get).asInstanceOf[LSensorName], jsToAny((js \ "value").get)) }
 
   override def anyToJs: PartialFunction[Any, JsValue] = super[JsonOptionSerialization].anyToJs orElse super[JsonCollectionsSerialization].anyToJs
 }

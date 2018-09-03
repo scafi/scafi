@@ -19,6 +19,7 @@
 package it.unibo.scafi.incarnations
 
 import it.unibo.scafi.distrib.actor.serialization.{AbstractJsonPlatformSerializer, CustomSerializer}
+import it.unibo.scafi.space.Point3D
 import play.api.libs.json._
 
 import scala.collection.mutable.{Map => MMap}
@@ -29,6 +30,7 @@ trait AbstractJsonIncarnationSerializer extends AbstractJsonPlatformSerializer {
   override def anyToJs: PartialFunction[Any, JsValue] = super.anyToJs orElse {
     case u:UID => Json.obj("type" -> "UID", "val" -> u.asInstanceOf[Int])
     case e:ComputationExport => Json.obj("type" -> "ComputationExport", "val" -> anyToJs(e.getMap))
+    case p:Point3D => Json.obj("type" -> "Point3D", "x" -> p.x, "y" -> p.y, "z" -> p.z)
     case p:Path => Json.obj("type" -> "Path", "list" -> anyToJs(p.asInstanceOf[PathImpl].path))
     case s:Slot => s match {
       case Nbr(index) => Json.obj("type" -> "Slot", "slotType" -> "Nbr", "index" -> index)
@@ -45,6 +47,8 @@ trait AbstractJsonIncarnationSerializer extends AbstractJsonPlatformSerializer {
       val field = classOf[ExportImpl].getDeclaredField("map"); field.setAccessible(true)
       field.set(export, MMap(jsToAny((e \ "val").get).asInstanceOf[Map[Any,Any]].toSeq:_*)); field.setAccessible(false)
       adaptExport(export)
+    case p if (p \ "type").as[String] == "Point3D" => new Point3D(jsToAny((p \ "x").get).asInstanceOf[Double],
+      jsToAny((p \ "y").get).asInstanceOf[Double], jsToAny((p \ "z").get).asInstanceOf[Double])
     case p if (p \ "type").as[String] == "Path" => new PathImpl(jsToAny((p \ "list").get).asInstanceOf[List[Slot]])
     case s if (s \ "type").as[String] == "Slot" => (s \ "slotType").as[String] match {
       case "Nbr" => Nbr((s \ "index").as[Int])
