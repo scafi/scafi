@@ -6,7 +6,7 @@ import it.unibo.scafi.simulation.gui.controller.input.{InputCommandController, I
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.logical.{ExternalSimulation, LogicController}
 import it.unibo.scafi.simulation.gui.controller.presenter.Presenter
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 import it.unibo.scafi.simulation.gui.view.scalaFX.logger.FXLogger
 import it.unibo.scafi.simulation.gui.view.{SimulationView, WindowConfiguration, scalaFX}
 
@@ -25,6 +25,8 @@ class ScafiProgramEnvironment(val presenter : Presenter[ScafiLikeWorld,Simulatio
                               extends ProgramEnvironment[ScafiLikeWorld,SimulationView] {
 
   override val input: InputController = InputCommandController
+
+  override val world: ScafiLikeWorld = scafiWorld
 }
 
 object ScafiProgramEnvironment {

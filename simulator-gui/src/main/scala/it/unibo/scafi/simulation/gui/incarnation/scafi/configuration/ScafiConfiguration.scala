@@ -14,7 +14,7 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutputPolicy
 
 /**
   * the implementation of configuration in scafi context
-  * @param scafiSeed a seed used to describe general information used to create a scafi program
+  * @param scafiWorldInfo a seed used to describe general information used to create a scafi program
   * @param worldInitializer a strategy used to initialize the world
   * @param commandMapping a command mapping used to map keyboard value to some execution logic
   * @param scafiSimulationSeed a seed used to initialize simulation
@@ -23,7 +23,7 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutputPolicy
   * @param neighbourRender render or not neighbour
   * @param perfomance the scafi perfomance program
   */
-case class ScafiConfiguration (scafiSeed : ScafiWorldInformation,
+case class ScafiConfiguration (scafiWorldInfo : ScafiWorldInformation,
                                worldInitializer: ScafiWorldInitializer,
                                commandMapping: CommandBinding,
                                scafiSimulationSeed : ScafiSimulationInformation,

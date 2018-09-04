@@ -3,7 +3,9 @@ package it.unibo.scafi.simulation.gui.model.sensor
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 
 /**
-  * describe a network of sensor attach on a device
+  * describe a network of sensor attach on a node,
+  * you can produce actuation on the world by changed
+  * sensor value
   */
 trait SensorNetwork extends SensorConcept {
   self : SensorNetwork.Dependency =>

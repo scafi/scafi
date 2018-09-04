@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.simulation
 
 import it.unibo.scafi.simulation.gui.model.aggregate.{AbstractAggregateWorld, AbstractNodeDefinition}
+import it.unibo.scafi.simulation.gui.model.common.BoundaryDefinition
 import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld
 import it.unibo.scafi.simulation.gui.model.sensor.{SensorConcept, SensorNetwork, SensorWorld}
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
@@ -23,7 +24,8 @@ object PlatformDefinition {
     with ConnectedWorld
     with SensorConcept
     with AbstractNodeDefinition
-    with SimpleSource {
+    with SimpleSource
+    with BoundaryDefinition {
     override type SENSOR_VALUE = Any
   }
 

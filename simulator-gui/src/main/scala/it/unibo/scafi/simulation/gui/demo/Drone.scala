@@ -3,27 +3,31 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram,
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPerformancePolicy, NearRealTimePolicy, StandardPolicy}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actions, ScafiSimulationInformation}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, ScafiSimulationInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.ScafiParser
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Circle
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutputPolicy
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{ImageFXOutputPolicy, StandardFXOutputPolicy}
 
 object Drone extends App {
+
+  def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
+  private val worldSize = (500,500)
   ScafiProgramBuilder (
-    worldInitializer = Random(500,500,500),
-    scafiSimulationInfo = ScafiSimulationInformation(program = classOf[BlobDroneSystemExplorationDemo],action = Actions.movementAction),
+    worldInitializer = Random(500,worldSize._1,worldSize._2),
+    scafiSimulationInfo = ScafiSimulationInformation(program = classOf[BlobDroneSystemExplorationDemo],action = Actuator.movementActuator),
     simulationInitializer = RadiusSimulationInitializer( radius = 40),
-    scafiWorldInfo = ScafiWorldInformation(shape = Some(Circle(4))),
-    outputPolicy = StandardFXOutputPolicy,
+    scafiWorldInfo = ScafiWorldInformation(shape = Some(Circle(10))),
+    outputPolicy = ImageFXOutputPolicy,
     neighbourRender = true,
     perfomance = NearRealTimePolicy
   ).launch()
 }
+
 @Demo(simulationType = SimulationType.MOVEMENT)
 class BasicMovement extends AggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
-  override def main:(Double, Double) = randomMovement()
+  override def main:(Double, Double) = Drone.tupleToWorldSize(randomMovement())
 }
 @Demo(simulationType = SimulationType.MOVEMENT)
 class Movement extends AggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
@@ -34,7 +38,7 @@ class Movement extends AggregateProgram with SensorDefinitions with FlockingLib 
   private val repulsionRange: Double = 100
   private val obstacleForce: Double = 400.0
 
-  override def main:(Double, Double) = rep(randomMovement())(behaviour3)
+  override def main:(Double, Double) = Drone.tupleToWorldSize(rep(randomMovement())(behaviour3))
 
   private def behaviour1(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {
@@ -71,7 +75,7 @@ class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinit
   private val neighboursThr = 4
 
 
-  override def main(): (Double, Double) = rep(randomMovement(), (0.5,0.5))(behaviour)._1
+  override def main(): (Double, Double) = Drone.tupleToWorldSize(rep(randomMovement(), (0.5,0.5))(behaviour)._1)
 
   private def flockWithBase(myTuple: ((Double, Double),(Double,Double))): ((Double, Double),(Double,Double)) = {
   val myPosition = currentPosition()

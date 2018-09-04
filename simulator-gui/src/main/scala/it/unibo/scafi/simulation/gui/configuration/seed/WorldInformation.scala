@@ -23,7 +23,7 @@ trait WorldInformation[D <: AggregateConcept#DeviceProducer,
   def boundary : Option[B]
 
   /**
-    * @return device seed that describe device associated with node
+    * @return device producers that describe device associated with node
     */
-  def deviceSeed : DeviceConfiguration[D]
+  def deviceProducers : Iterable[D]
 }

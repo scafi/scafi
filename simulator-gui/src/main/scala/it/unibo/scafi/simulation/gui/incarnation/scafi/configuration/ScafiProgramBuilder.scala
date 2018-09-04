@@ -35,7 +35,7 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
       viewEnv.get.windowConfiguration = ScafiWindowInfo(viewEnv.get.windowConfiguration)
     }
     //init the world
-    configuration.worldInitializer.init(configuration.scafiSeed)
+    configuration.worldInitializer.init(configuration.scafiWorldInfo)
     val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationSeed)
     val programEnv = new ScafiProgramEnvironment(presenter,bridged,configuration.perfomance,configuration.logConfiguration)
     new Program[ScafiLikeWorld,SimulationView](programEnv, viewEnv,configuration.commandMapping)

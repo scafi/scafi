@@ -2,9 +2,9 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
 import javafx.scene.control.Label
 
-import it.unibo.scafi.simulation.gui.configuration.SensorName._
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
+import it.unibo.scafi.simulation.gui.view.ViewSetting._
 import it.unibo.scafi.simulation.gui.view.scalaFX._
 
 import scalafx.geometry.{Point2D => FXPoint}
@@ -19,14 +19,9 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
   //TODO create a non static color map
   override type OUTPUT_NODE = javafx.scene.Node
   private val maxTextLength = 200
-  val colors: Map[String, Color] = Map(sensor1 -> Color.Red,
-    sensor2 -> Color.Yellow,
-    sensor3 -> Color.Blue,
-    output1 -> Color.LimeGreen)
-  val size: Map[String, Double] = Map(sensor1 -> 1, sensor2 -> 3, sensor3 -> 5, output1 -> 7)
   val radius = 2
 
-  override def nodeGraphicsNode(node: NODE): OUTPUT_NODE = nodeToShape.create(node)
+  override def nodeGraphicsNode(node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
 
   override def deviceToGraphicsNode (node: OUTPUT_NODE, dev: DEVICE): Option[OUTPUT_NODE] = drawNode(dev,node)
 
@@ -49,13 +44,14 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
     dev match {
       case SensorDevice(sens) => sens.value match {
         case led : Boolean => {
+          val index = deviceName.indexOf(dev.name.toString)
           val res : Node = new Ellipse {
             this.centerX.bind(node.translateX + point.x)
             this.centerY.bind(node.translateY + point.y)
-            this.radiusX = size(dev.name.toString)
-            this.radiusY = size(dev.name.toString)
+            this.radiusX = index * radius + 1
+            this.radiusY = index * radius + 1
             this.strokeWidth = radius
-            val color: Color = colors(dev.name.toString)
+            val color: Color = deviceColor(index % deviceColor.size)
             this.stroke = color
             this.fill = Color.Transparent
             this.visible = led

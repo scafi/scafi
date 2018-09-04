@@ -118,8 +118,6 @@ object ScalaFXLauncher {
   val FieldBoxSpacing = 10
   val RightScrollPanePadding = 20
   val Launch = "launch"
-  val FontName = "Verdana"
-  val FontSize = 40
 }
 
 

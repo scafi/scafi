@@ -13,17 +13,20 @@ import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 class SimulationCommandFactory(simulation : ExternalSimulation[_]) extends CommandFactory {
   import CommandFactory._
   import SimulationCommandFactory._
+  private val deltaTick = 1
   override val name: String = "simulation-action"
 
   override def commandArgsDescription: Seq[CommandArgDescription] = CommandArgDescription(Action,
-    LimitedValueType(Continue, Stop)) :: Nil
+    LimitedValueType(Continue, Stop, Restart, Slow, Fast)) :: Nil
 
   override def createPolicy(args: CommandArg): (Result,Option[Command]) = {
     args.get(Action) match {
       case Some(Stop) => creationSuccessful(command(stop)(continue))
       case Some(Continue) => creationSuccessful(command(continue)(stop))
       case Some(Restart) => easyResultCreation(() => simulation.restart())
-      case Some(_) => creationFailed(Fail(wrongTypeParameter(LimitedValueType(Continue,Stop),Action)))
+      case Some(Slow) => easyResultCreation(() => simulation.increaseDelta(deltaTick))
+      case Some(Fast) => easyResultCreation(() => simulation.decreaseDelta(deltaTick))
+      case Some(_) => creationFailed(Fail(wrongTypeParameter(LimitedValueType(Continue,Stop,Restart),Action)))
       case _ => creationFailed(Fail(wrongParameterName(Action)))
     }
   }
@@ -52,6 +55,8 @@ object SimulationCommandFactory {
   val Stop = "stop"
   val Continue = "continue"
   val Restart = "restart"
+  val Slow = "slow"
+  val Fast = "fast"
   private[SimulationCommandFactory] val StopError = "the simulation is already stopped"
   private[SimulationCommandFactory] val ContinueError = "the simulation is already on run"
 }

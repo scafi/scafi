@@ -3,7 +3,8 @@ package it.unibo.scafi.simulation.gui.model.aggregate
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
 
 /**
-  * define a trait of aggregate world
+  * define a trait of aggregate world, you can make some actuation like
+  * move node and attach/ detach device on node
   */
 trait AggregateWorld extends ObservableWorld with AggregateConcept {
   self : AggregateWorld.Dependency =>

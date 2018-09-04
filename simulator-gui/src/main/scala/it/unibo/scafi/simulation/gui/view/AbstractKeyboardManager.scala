@@ -68,6 +68,8 @@ object  AbstractKeyboardManager {
   case object Code4 extends AbstractKeyCode
   case object Code5 extends AbstractKeyCode
   case object Code6 extends AbstractKeyCode
+  case object Plus extends AbstractKeyCode
+  case object Minus extends  AbstractKeyCode
   case object Undo extends AbstractKeyCode
 
 }

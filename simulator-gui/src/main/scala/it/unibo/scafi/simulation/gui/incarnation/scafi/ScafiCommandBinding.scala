@@ -28,6 +28,8 @@ object ScafiCommandBinding {
       keyboard.addCommand(Code4, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Stop), simulationFactory)
       keyboard.addCommand(Code5, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Continue), simulationFactory)
       keyboard.addCommand(Code6, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Restart),simulationFactory)
+      keyboard.addCommand(Plus, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Fast),simulationFactory)
+      keyboard.addCommand(Minus, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Slow),simulationFactory)
       keyboard.addCommand(Undo, Map(), InputCommandController.UndoCommandFactory)
       selection match {
         case Some(selectionArea) => selectionArea.addMovementFactory(moveFactory,"map")

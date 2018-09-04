@@ -18,7 +18,7 @@ trait SensorConcept {
     def value : V
 
     /**
-      * @return the stream of sensor, if it is acquisition sensor or it is a output sensor
+      * @return the stream of sensor
       */
     def stream : SensorStream
 
@@ -30,7 +30,9 @@ trait SensorConcept {
     * @tparam V the type of value
     */
   protected trait MutableSensor[V] <: Sensor[V] with RootMutableDevice {
-
+    /**
+      * the value of sensor can change at run time
+      */
     var value : V
 
     /**
@@ -69,6 +71,9 @@ object SensorConcept {
 
   /**
     * describe the stream of sensor, can be inputStream or OutputStream
+    * sensor stream has this task:
+    * node can use sensor like an input, check input and produce a result value
+    * or node can use sensor like an output where put the result of computation
     */
   sealed trait SensorStream
 

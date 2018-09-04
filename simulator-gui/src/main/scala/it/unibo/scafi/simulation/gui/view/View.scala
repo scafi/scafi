@@ -1,6 +1,8 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.simulation.gui.model.common.BoundaryDefinition
+import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
+import it.unibo.scafi.simulation.gui.model.space.Point
 
 trait View
 
@@ -57,6 +59,17 @@ trait SimulationView extends View {
     */
   def clearDevice(node : ID)
 
+  /**
+    * set the boundary in the simulation view
+    * @param boundary world boundary
+    */
+  def setBoundary(boundary : Shape)
+
+  /**
+    * set wall inside map
+    * @param walls the world walls
+    */
+  def setWalls(walls : (Point, Shape) *)
   /**
     * apply the changes declared
     */

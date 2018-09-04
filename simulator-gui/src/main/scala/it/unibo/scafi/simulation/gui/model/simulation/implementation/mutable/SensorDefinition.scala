@@ -25,7 +25,10 @@ trait SensorDefinition extends SensorConcept {
     * @param sensorType the sensor type, used to check the correctness of new value
     * @param stream the stream of sensor
     */
-  protected class MutableSensorImpl(val name: NAME, sensorValue : SENSOR_VALUE, val sensorType: SensorType, val stream : SensorStream) extends MutableSensor[SENSOR_VALUE] {
+  protected class MutableSensorImpl(val name: NAME,
+                                    sensorValue : SENSOR_VALUE,
+                                    val sensorType: SensorType,
+                                    val stream : SensorStream) extends MutableSensor[SENSOR_VALUE] {
     private var _val = sensorValue
     require(name != null && sensorValue != null && sensorType != null)
     override def view: DEVICE = this

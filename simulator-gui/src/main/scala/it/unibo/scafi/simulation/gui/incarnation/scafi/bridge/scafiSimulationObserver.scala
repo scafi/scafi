@@ -9,23 +9,17 @@ import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAd
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorInput
 import it.unibo.scafi.space.Point3D
 object scafiSimulationObserver extends ScafiBridge {
-  private val OutputChannel = "simulation round"
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkChanged = world.createObserver(Set(NodeDeviceChanged))
   private val checkAdded = world.createObserver(Set(NodesAdded))
   private var exportProduced : Map[ID,world.ID => Unit] = Map()
-  private var tick = 0L;
-  private var time = 0L;
   private var block = false; //used to has a blocking access to list
-  private var printTime = 0;
-  private var values = List[Long]()
   override protected val maxDelta: Option[Int] = None
   override protected def AsyncLogicExecution(): Unit = {
     if(block) return;
 
     if(contract.simulation.isDefined) {
       val net = contract.simulation.get
-      val before = System.nanoTime()
       val result = net.exec(runningContext)
       if(idsObserved.contains(result._1)) {
         val mapped = result._2.paths.toSeq.map {x => {
@@ -37,23 +31,10 @@ object scafiSimulationObserver extends ScafiBridge {
         }}.sortWith((x,y) => x._2.level < y._2.level)
         LogManager.notify(TreeLog[Path](Channel.Export,result._1.toString,mapped))
       }
-
-      time += System.nanoTime() - before
       val action = this.simulationSeed.get.action
-      tick += 1;
       if(action.isDefinedAt(result._2)) {
         exportProduced += result._1 -> action(result._2)
       }
-      // TODO CHIEDI COME GESTIRE GLI EXPORT exportProduced :::= (actions.filter { x => x.isDefinedAt(result._2) } map { x => result._1 -> x(result._2) }).toList
-    }
-    if(time > 1000000000L) {
-      import it.unibo.scafi.simulation.gui.controller.logger.{LogManager => log}
-
-      values ::= tick
-      log.notify(IntLog(OutputChannel, "instant", tick.toInt))
-      tick = 0;
-      time = 0;
-      printTime += 1
     }
   }
 

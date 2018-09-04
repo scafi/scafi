@@ -1,5 +1,12 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
+import javafx.scene.paint.ImagePattern
+
+import it.unibo.scafi.simulation.gui.model.common.BoundaryDefinition
+import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.simulation.gui.model.space.Point
+import it.unibo.scafi.simulation.gui.view.ViewSetting
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{AbstractFXSimulationPane, FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXOutputPolicy
 import it.unibo.scafi.simulation.gui.view.scalaFX.{NodeLine, _}
@@ -10,7 +17,11 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Point2D
 import scalafx.scene.Node
+import it.unibo.scafi.simulation.gui.view.ViewSetting._
+
+import scalafx.scene.image.Image
 import scalafx.scene.layout.Priority
+import scalafx.scene.paint.{Color, Paint}
 
 private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFXSimulationPane  with FXSelectionArea with KeyboardManager{
   //internal representation of node
@@ -159,6 +170,35 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
       val removing = neighbourToRemove
       this.children.removeAll(removing:_*)
       neighbourToRemove.clear()
+    }
+  }
+
+  override def setBoundary (boundary: Shape): Unit = {
+    val shape = modelShapeToFXShape.apply(Some(boundary), Point.ZERO)
+    boundary match {
+      case Rectangle(_,_,_) => shape.relocate(0,0)
+      case _ =>
+    }
+    shape.strokeWidth = 1
+    shape.stroke = Color.Black
+    val fill : Paint = ViewSetting.backgroundImage match {
+      case Some(value) => new ImagePattern(new Image(value))
+      case _ => ViewSetting.backgroundColor
+    }
+    shape.fill = fill
+    this.children.add(shape)
+  }
+
+  override def setWalls(walls: (Point, Shape)*): Unit = {
+    for(wall <- walls) {
+      val shape = modelShapeToFXShape(Some(wall._2),Point.ZERO)
+      val fxp : Point2D = wall._1
+      shape.relocate(fxp.x,fxp.y)
+
+      shape.strokeWidth = 1
+      shape.stroke = Color.Black
+      shape.fill = new ImagePattern(new Image("wall.jpg"))
+      this.children.add(shape)
     }
   }
 }

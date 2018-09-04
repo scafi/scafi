@@ -18,7 +18,6 @@ import scalafx.scene.shape.Circle
   */
 private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
   self : AbstractFXSimulationPane =>
-  private var oldWidth = self.width
   private var moved : Map[Any,Node] = Map.empty
   private var _selected : Set[Any] = Set.empty
   private var startPoint : Point2D = new Point2D(0,0)
@@ -96,6 +95,7 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
   private def clearSelected() = {
     this.circle match {
       case Some(c) => {
+        this._selected = Set.empty
         this.children.remove(c)
         this.circle = None
         Platform.runLater {

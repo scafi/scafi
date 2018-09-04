@@ -26,11 +26,7 @@ object BasicShape2D {
     */
   case class Circle(r : Float, override val orientation : Float = 0) extends Shape2D {
     override def contains(p: Point): Boolean = {
-      def check(x : Double, y : Double) : Boolean = math.sqrt(x * x + y * y) <= r
-      println(p match {
-        case Point2D(x,y) => check(x,y)
-        case Point3D(x,y,_) => check(x,y)
-      })
+      def check(x : Double, y : Double) : Boolean = math.sqrt(((x-r) * (x-r) + (y-r) * (y-r))) <= r
       p match {
         case Point2D(x,y) => check(x,y)
         case Point3D(x,y,z) => check(x,y)

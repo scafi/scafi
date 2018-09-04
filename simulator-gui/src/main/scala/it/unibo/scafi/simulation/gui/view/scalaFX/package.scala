@@ -12,9 +12,6 @@ import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
 package object scalaFX {
-  //color of neighbour line
-  val lineColor = Color(0.8,0.8,0.8,0.2)
-
   /**
     * convert a point in a point2D in javafx
     * @param p the point
@@ -72,15 +69,19 @@ package object scalaFX {
     def cloneNode() : Node = {
       node.delegate match {
         case rect : Rectangle => {
-          new Rectangle(rect.x.value + rect.translateX.value,
+          val rectCloned = new Rectangle(rect.x.value + rect.translateX.value,
             rect.y.value + rect.translateY.value,
             rect.width.value,
             rect.height.value)
+          rectCloned.fill = rect.fill()
+          rectCloned
         }
         case circle : Circle => {
-          new Circle(circle.centerX.value + circle.translateX.value,
+          val circleCloned = new Circle(circle.centerX.value + circle.translateX.value,
             circle.centerY.value + circle.translateY.value,
             circle.radius.value)
+          circleCloned.fill = circle.fill()
+          circleCloned
         }
         case _ => {
           standardNode.x = nodeToAbsolutePosition(node).x + node.translateX.value

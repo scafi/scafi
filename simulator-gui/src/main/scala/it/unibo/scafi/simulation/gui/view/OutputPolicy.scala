@@ -44,7 +44,6 @@ trait OutputPolicy {
 
 object OutputPolicy {
   final case object noOutput extends OutputPolicy {
-
     override type OUTPUT_NODE = Nothing
     override def nodeGraphicsNode(node: World#Node): OUTPUT_NODE = ???
     override def deviceToGraphicsNode(node: OUTPUT_NODE, dev: noOutput.DEVICE): Option[OUTPUT_NODE] = None

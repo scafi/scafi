@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
-import javafx.scene.paint.Color
-
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorDevice, sensorOutput}
+import it.unibo.scafi.simulation.gui.view.ViewSetting._
+import it.unibo.scafi.simulation.gui.view.scalaFX.modelShapeToFXShape
 
 /**
   * a policy that try to render less information
@@ -10,7 +10,7 @@ object FastFXOutputPolicy extends FXOutputPolicy {
 
   override type OUTPUT_NODE = javafx.scene.shape.Shape
 
-  override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = nodeToShape.create(node)
+  override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
 
   override def deviceToGraphicsNode (node: OUTPUT_NODE, dev: DEVICE): Option[OUTPUT_NODE] = None
 
@@ -19,16 +19,17 @@ object FastFXOutputPolicy extends FXOutputPolicy {
     dev match {
       case SensorDevice(sens) => sens.value match {
         case led : Boolean => {
+          val index = deviceName.indexOf(dev.name.toString)
           if (led) {
-            val color = StandardFXOutputPolicy.colors(dev.name.toString)
-            if (sens.stream == sensorOutput && node.fillProperty().value == Color.BLACK) {
+            val color = deviceColor(index % deviceColor.size)
+            if (sens.stream == sensorOutput && jfxPaint2sfx(node.fillProperty().value) == nodeColor) {
               node.fillProperty().setValue(color)
             } else if (sens.stream != sensorOutput) {
               node.fillProperty().setValue(color)
             }
           } else {
-            if (jfxPaint2sfx(node.fillProperty().value) == StandardFXOutputPolicy.colors(dev.name.toString)) {
-              node.fillProperty().setValue(Color.BLACK)
+            if (jfxPaint2sfx(node.fillProperty().value) == deviceColor(index % deviceColor.size)) {
+              node.fillProperty().setValue(nodeColor)
             }
           }
         }

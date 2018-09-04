@@ -26,6 +26,8 @@ private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
   abstractToReal += Code4 -> KeyCode.Digit4
   abstractToReal += Code5 -> KeyCode.Digit5
   abstractToReal += Code6 -> KeyCode.Digit6
+  abstractToReal += Plus -> KeyCode.Plus
+  abstractToReal += Minus -> KeyCode.Minus
 
   abstractToCombination += Undo -> new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)
   import scalafx.Includes._

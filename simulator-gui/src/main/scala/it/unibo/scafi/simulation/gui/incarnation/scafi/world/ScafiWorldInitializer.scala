@@ -12,7 +12,7 @@ import scala.util.{Random => RandomGenerator}
   */
 trait ScafiWorldInitializer extends WorldInitializer[ScafiWorldInformation]
 object ScafiWorldInitializer {
-  type SEED = ScafiWorldInformation
+  type INFO = ScafiWorldInformation
   val standardShape = Rectangle(2,2)
   /**
     * create a random world
@@ -23,13 +23,14 @@ object ScafiWorldInitializer {
   case class Random(node : Int,
                     width : Int,
                     height : Int) extends ScafiWorldInitializer {
-    override def init(seed : SEED): Unit = {
+    override def init(worldInfo : INFO): Unit = {
+      scafiWorld.boundary = worldInfo.boundary
       val r = new RandomGenerator()
       //all nodes on the same 2d planes
       val z = 0
       scafiWorld clear()
-      (0 until node) foreach {x => scafiWorld.insertNode(new scafiWorld.NodeBuilder(x,Point3D(r.nextInt(width),r.nextInt(height),z),seed.shape,seed.deviceSeed.devices.toList))}
-      scafiWorld.boundary = seed.boundary
+      (0 until node) foreach {x => scafiWorld.insertNode(new scafiWorld.NodeBuilder(x,Point3D(r.nextInt(width),r.nextInt(height),z),worldInfo.shape,worldInfo.deviceProducers.toList))}
+
     }
   }
 
@@ -42,17 +43,17 @@ object ScafiWorldInitializer {
   case class Grid(space : Int,
                   row: Int,
                   column : Int) extends ScafiWorldInitializer {
-    override def init(seed : SEED): Unit = {
+    override def init(worldInfo : INFO): Unit = {
+      scafiWorld.boundary = worldInfo.boundary
       val z = 0
       var nodes = 0;
       scafiWorld clear()
       for(i <- 1 to row) {
         for(j <- 1 to column) {
           nodes += 1
-          scafiWorld.insertNode(new scafiWorld.NodeBuilder(nodes,Point3D(i * space,j * space,z),seed.shape,seed.deviceSeed.devices.toList))
+          scafiWorld.insertNode(new scafiWorld.NodeBuilder(nodes,Point3D(i * space,j * space,z),worldInfo.shape,worldInfo.deviceProducers.toList))
         }
       }
-      scafiWorld.boundary = seed.boundary
     }
   }
 }

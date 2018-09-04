@@ -131,6 +131,7 @@ object LogManager extends SimpleSource {
     val Std = "standard"
     val CommandResult = "command"
     val Export = "export"
+    val SimulationRound = "simulation round"
   }
 
   /**

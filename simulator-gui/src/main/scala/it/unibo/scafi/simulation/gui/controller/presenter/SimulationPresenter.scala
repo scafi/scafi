@@ -21,6 +21,8 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
   private val devChanged = world.createObserver(Set(SensorChanged))
   private val networkChanged = world.createObserver(Set(NeighbourChanged))
   private var out : Option[SimulationView] = None
+
+
   //used to render neigbhbour correctly
   private var prevNeighbour : Map[world.ID,Set[world.ID]] = Map()
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
@@ -83,5 +85,10 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
     *
     * @param view the output where presenter put changes
     */
-  override def output(view: SimulationView): Unit = out = Some(view)
+  override def output(view: SimulationView): Unit = {
+    require(view != null)
+    out = Some(view)
+    world.worldBound.foreach(view.setBoundary(_))
+    view.setWalls(world.worldWalls:_*)
+  }
 }

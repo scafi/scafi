@@ -1,6 +1,8 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
+import it.unibo.scafi.simulation.gui.view.WindowConfiguration
+import it.unibo.scafi.simulation.gui.view.scalaFX.{ScalaFXEnvironment, modelShapeToFXShape}
 
 import scalafx.scene.paint.Color
 
@@ -8,7 +10,7 @@ import scalafx.scene.paint.Color
   * a gradient policy
   */
 object GradientFXOutputPolicy extends FXOutputPolicy {
-  var maxValue = 1000.0
+  var maxValue = WindowConfiguration.toWindowRect(ScalaFXEnvironment.windowConfiguration).w
   val maxColor = 255.0
   override type OUTPUT_NODE = javafx.scene.shape.Shape
 
@@ -32,7 +34,7 @@ object GradientFXOutputPolicy extends FXOutputPolicy {
     }
 
   }
-  override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = nodeToShape.create(node)
+  override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
 
 
   override def toString: String = "gradient-fx"

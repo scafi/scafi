@@ -2,17 +2,17 @@ package it.unibo.scafi.simulation.gui.demo
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, _}
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.NearRealTimePolicy
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInformation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutputPolicy
 object Test extends App {
   ScafiProgramBuilder (
-    worldInitializer = Random(1000,1920,1080),
+    worldInitializer = Grid(10,100,100),
     scafiSimulationInfo = ScafiSimulationInformation(program = classOf[Simple]),
-    simulationInitializer = RadiusSimulationInitializer( radius = 80),
+    simulationInitializer = RadiusSimulationInitializer( radius = 10),
     outputPolicy = StandardFXOutputPolicy,
     neighbourRender = true,
     perfomance = NearRealTimePolicy

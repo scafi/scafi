@@ -13,6 +13,10 @@ import it.unibo.scafi.simulation.gui.view.View
   */
 trait ProgramEnvironment[W <: AggregateWorld, V <: View] {
   /**
+    * @return the program world
+    */
+  def world : W
+  /**
     * the input controller of this program
     * @return the input controller
     */

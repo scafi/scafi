@@ -15,28 +15,12 @@ trait StandardNetwork  {
   val network : NET = new NetworkImpl
 
   private class NetworkImpl extends Network {
-    private var neigh : MMap[ID,Set[ID]] = MMap.empty
-    /**
-      * the neighbours of a node
-      *
-      * @param n the node
-      * @return a set of neighbours
-      */
+    private var neigh : Map[ID,Set[ID]] = Map.empty
+
     override def neighbours(n: ID): Set[ID] = neigh.getOrElse(n,Set())
 
-    /**
-      * the neighbour in the world
-      *
-      * @return the network
-      */
-    override def neighbours(): Map[ID, Set[ID]] = neigh toMap
+    override def neighbours(): Map[ID, Set[ID]] = neigh
 
-    /**
-      * set a neighbours of a node
-      *
-      * @param node      the node in thw world
-      * @param neighbour the neighbour
-      */
     override def setNeighbours(node: ID, neighbour: Set[ID]): Unit = {
       neigh += node -> neighbour
       StandardNetwork.this.notify(StandardNetwork.this.NodeEvent(node,NeighbourChanged))

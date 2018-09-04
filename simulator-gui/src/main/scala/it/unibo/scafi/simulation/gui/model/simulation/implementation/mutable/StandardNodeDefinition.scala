@@ -13,6 +13,12 @@ trait StandardNodeDefinition extends SensorDefinition {
 
   override type NODE_PRODUCER = AbstractNodeBuilder
 
+  /**
+    * the implementation of node
+    * @param id the node id
+    * @param position the initial node position
+    * @param shape the node shape
+    */
   private class StandardNode(id: ID, position: P, shape: Option[S]) extends AbstractMutableNode(id, position, shape) {
     //performance reason
     private var deviceView : Set[DEVICE] = Set.empty
