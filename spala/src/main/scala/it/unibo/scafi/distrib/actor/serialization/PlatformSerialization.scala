@@ -30,16 +30,28 @@ trait BaseSerializer {
 trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSerialization { self: Platform =>
   val MsgExportManifest = "MsgExport"
   val MsgNeighborhoodExportsManifest = "MsgNeighborhoodExports"
+  val MsgRegistrationManifest = "MsgRegistration"
+  val MsgSensorValueManifest = "MsgSensorValue"
+  val MsgNeighborManifest = "MsgNeighbor"
+  val MsgGetNeighborhoodExportsManifest = "MsgGetNeighborhoodExports"
 
   override def manifest(obj: AnyRef): Option[String] = obj match {
     case _: MsgExport => Some(MsgExportManifest)
     case _: MsgNeighborhoodExports => Some(MsgNeighborhoodExportsManifest)
+    case _: MsgRegistration => Some(MsgRegistrationManifest)
+    case _: MsgSensorValue => Some(MsgSensorValueManifest)
+    case _: MsgNeighbor => Some(MsgNeighborManifest)
+    case _: MsgGetNeighborhoodExports => Some(MsgGetNeighborhoodExportsManifest)
     case _ => None
   }
 
   override def toBinary(obj: AnyRef): Option[Array[Byte]] = obj match {
     case me: MsgExport => Some(Json.toJson(me.asInstanceOf[MsgExport]).toString.getBytes)
     case mne: MsgNeighborhoodExports => Some(Json.toJson(mne.asInstanceOf[MsgNeighborhoodExports]).toString.getBytes)
+    case mr: MsgRegistration => Some(Json.toJson(mr.asInstanceOf[MsgRegistration]).toString.getBytes)
+    case msv: MsgSensorValue => Some(Json.toJson(msv.asInstanceOf[MsgSensorValue]).toString.getBytes)
+    case mn: MsgNeighbor => Some(Json.toJson(mn.asInstanceOf[MsgNeighbor]).toString.getBytes)
+    case mn: MsgGetNeighborhoodExports => Some(Json.toJson(mn.asInstanceOf[MsgGetNeighborhoodExports]).toString.getBytes)
     case _ => None
   }
 
@@ -50,6 +62,22 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     }
     case MsgNeighborhoodExportsManifest => Json.parse(bytes).validate[MsgNeighborhoodExports] match {
       case s: JsSuccess[MsgNeighborhoodExports] => Some(s.value)
+      case _ => None
+    }
+    case MsgRegistrationManifest => Json.parse(bytes).validate[MsgRegistration] match {
+      case s: JsSuccess[MsgRegistration] => Some(s.value)
+      case _ => None
+    }
+    case MsgSensorValueManifest => Json.parse(bytes).validate[MsgSensorValue] match {
+      case s: JsSuccess[MsgSensorValue] => Some(s.value)
+      case _ => None
+    }
+    case MsgNeighborManifest => Json.parse(bytes).validate[MsgNeighbor] match {
+      case s: JsSuccess[MsgNeighbor] => Some(s.value)
+      case _ => None
+    }
+    case MsgGetNeighborhoodExportsManifest => Json.parse(bytes).validate[MsgGetNeighborhoodExports] match {
+      case s: JsSuccess[MsgGetNeighborhoodExports] => Some(s.value)
       case _ => None
     }
   }
@@ -64,6 +92,22 @@ trait JsonMessagesSerialization extends JsonOptionSerialization with JsonCollect
     Json.obj("id" -> anyToJs(msg.id), "nbrs" -> anyToJs(msg.nbrs))
   implicit val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = js => JsSuccess { MsgNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID],
     jsToAny((js \ "nbrs").get).asInstanceOf[Map[UID, Option[ComputationExport]]]) }
+
+  implicit val msgRegistrationWrites: Writes[MsgRegistration] = msg => Json.obj("id" -> anyToJs(msg.id))
+  implicit val msgRegistrationReads: Reads[MsgRegistration] = js => JsSuccess { MsgRegistration(jsToAny((js \ "id").get).asInstanceOf[UID]) }
+
+  implicit val msgSensorValueWrites: Writes[MsgSensorValue] = msg =>
+    Json.obj("id" -> anyToJs(msg.id), "name" -> anyToJs(msg.name), "value" -> anyToJs(msg.value))
+  implicit val msgSensorValueReads: Reads[MsgSensorValue] = js => JsSuccess { MsgSensorValue(jsToAny((js \ "id").get).asInstanceOf[UID],
+    jsToAny((js \ "name").get).asInstanceOf[LSensorName], jsToAny((js \ "value").get)) }
+
+  implicit val msgNeighborWrites: Writes[MsgNeighbor] = msg => Json.obj("id" -> anyToJs(msg.id), "idn" -> anyToJs(msg.idn))
+  implicit val msgNeighborReads: Reads[MsgNeighbor] = js =>
+    JsSuccess { MsgNeighbor(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "idn").get).asInstanceOf[UID]) }
+
+  implicit val msgGetNeighborhoodExportsWrites: Writes[MsgGetNeighborhoodExports] = msg => Json.obj("id" -> anyToJs(msg.id))
+  implicit val msgGetNeighborhoodExportsReads: Reads[MsgGetNeighborhoodExports] = js =>
+    JsSuccess { MsgGetNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID]) }
 
   override def anyToJs: PartialFunction[Any, JsValue] = super[JsonOptionSerialization].anyToJs orElse super[JsonCollectionsSerialization].anyToJs
 }
