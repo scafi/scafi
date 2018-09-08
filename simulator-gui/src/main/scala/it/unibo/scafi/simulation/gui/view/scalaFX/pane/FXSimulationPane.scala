@@ -4,7 +4,7 @@ import javafx.scene.paint.ImagePattern
 
 import it.unibo.scafi.simulation.gui.model.common.BoundaryDefinition
 import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle, Rectangle}
 import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.view.ViewSetting
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{AbstractFXSimulationPane, FXSelectionArea, KeyboardManager}
@@ -131,23 +131,26 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     changes = action :: changes
   }
   override def outDevice(id: ID, dev : DEVICE): Unit = {
+    //create new mutable map if no device is defined
     if(!devices.get(id).isDefined) devices += id -> mutable.Map()
     val oldDev = devices(id)
-
+    //get the node where the device is attached
     val current : drawer.OUTPUT_NODE = _nodes(id)
+    //get ol prited dev (if it is defined)
     val oldPrintedDev = oldDev.get(dev.name)
+    //try to create new dev (if it is defined)
     val newDev : Option[drawer.OUTPUT_NODE] = if(!oldPrintedDev.isDefined) {
       drawer.deviceToGraphicsNode(current,dev)
     } else {
       None
     }
-
+    //if it is defined create a new device associated to node
     if(newDev.isDefined){
       oldDev += dev.name -> newDev.get
       val action : ACTION = (() => this.children.add(newDev.get))
       changes = action :: changes
     }
-
+    //add action to produce, each time try to update device status
     val action : ACTION = (() => drawer.updateDevice(current,dev,oldDev.get(dev.name)))
     changes = action :: changes
 
@@ -162,13 +165,16 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     }
   }
 
+  //show the changes make to the world
   override def flush(): Unit = {
     val changeToApply = changes
     changes = List.empty
+    val removing = neighbourToRemove
     Platform.runLater {
       changeToApply foreach {_()}
-      val removing = neighbourToRemove
-      this.children.removeAll(removing:_*)
+      if(removing.nonEmpty) {
+        this.children.removeAll(removing:_*)
+      }
       neighbourToRemove.clear()
     }
   }
@@ -176,7 +182,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
   override def setBoundary (boundary: Shape): Unit = {
     val shape = modelShapeToFXShape.apply(Some(boundary), Point.ZERO)
     boundary match {
-      case Rectangle(_,_,_) => shape.relocate(0,0)
+      case Rectangle(_,_,_) | Circle(_,_) => shape.relocate(0,0)
       case _ =>
     }
     shape.strokeWidth = 1
@@ -186,7 +192,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
       case _ => ViewSetting.backgroundColor
     }
     shape.fill = fill
-    this.children.add(shape)
+    Platform.runLater { this.children.add(shape)}
   }
 
   override def setWalls(walls: (Point, Shape)*): Unit = {
@@ -198,7 +204,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
       shape.strokeWidth = 1
       shape.stroke = Color.Black
       shape.fill = new ImagePattern(new Image("wall.jpg"))
-      this.children.add(shape)
+      Platform.runLater { this.children.add(shape)}
     }
   }
 }

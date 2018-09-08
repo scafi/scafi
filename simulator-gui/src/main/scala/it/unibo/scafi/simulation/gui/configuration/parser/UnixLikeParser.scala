@@ -42,7 +42,6 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
   }
 
   private def toCommandArg(factory : CommandFactory, args : Array[String]) : Map[String,Any] = {
-    //remove the first value that
     if(args.size > factory.commandArgsDescription.length) return Map.empty
     //create command arg via string
     (0 until args.size).map{i => factory.commandArgsDescription(i).name -> stringToValue(args(i),factory.commandArgsDescription(i))}
@@ -52,6 +51,8 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
   }
 
   private def stringToValue(value : String, commandArgDescription: CommandArgDescription): Option[Any] = {
+    //if value passed is equals to emptyValue return none
+    if(value == emptyValue) return None
     //try to parse string value to the rigth value
     //some value aren't supported
     commandArgDescription.valueType match {
@@ -98,4 +99,5 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
 object UnixLikeParser {
   def NoCommandFound = Fail(international("no-command-found")(KeyFile.Configuration))
   val Help = "-help"
+  val emptyValue = "_"
 }

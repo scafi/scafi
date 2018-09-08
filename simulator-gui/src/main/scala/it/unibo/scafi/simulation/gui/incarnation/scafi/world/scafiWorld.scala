@@ -8,7 +8,6 @@ import it.unibo.scafi.simulation.gui.model.simulation.implementation.StandardNet
   */
 object scafiWorld extends ScafiLikeWorld
   with StandardNetwork
-  with BoundaryDefinition
   with MetricDefinition {
 
   override type B = Boundary

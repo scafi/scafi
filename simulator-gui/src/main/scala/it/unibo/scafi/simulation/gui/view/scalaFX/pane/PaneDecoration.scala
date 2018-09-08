@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.gui.configuration.command.factory.ExitCommandFa
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager.{KeyFile, _}
 import it.unibo.scafi.simulation.gui.configuration.parser.RuntimeMachine
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.ScafiParser
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser
 
 import scalafx.Includes._
 import scalafx.event.ActionEvent
@@ -54,7 +54,6 @@ object PaneDecoration {
     * @return console created
     */
   def createConsole(outerPane : Pane) : Node = {
-    //TODO metti su runtime machine in un posto condiviso
     val runtime = new RuntimeMachine[String](ScafiParser.UnixRuntime)
     val inputText = new TextField()
 

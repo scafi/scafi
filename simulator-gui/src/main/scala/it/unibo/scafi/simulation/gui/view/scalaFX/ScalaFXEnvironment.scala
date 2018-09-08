@@ -1,21 +1,20 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX
 
-import com.sun.javafx.css.StyleManager
 import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
 import it.unibo.scafi.simulation.gui.view._
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutput}
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.FXSimulationPane
 
 import scalafx.application.Platform
 
 /**
-  * standard fx view eniromento
+  * standard fx view environment
   */
 object ScalaFXEnvironment extends ViewEnvironment[SimulationView] {
   lazy val standardConfiguration = WindowConfiguration.apply(800,600)
   var windowConfiguration : WindowConfiguration = standardConfiguration
   //standard value of fx application
-  var drawer : FXOutputPolicy = StandardFXOutputPolicy
+  var drawer : FXOutputPolicy = StandardFXOutput
   //simulation pane
   private lazy val pane = new FXSimulationPane(drawer)
   //main container

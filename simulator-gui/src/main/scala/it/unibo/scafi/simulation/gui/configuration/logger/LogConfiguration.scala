@@ -1,6 +1,8 @@
 package it.unibo.scafi.simulation.gui.configuration.logger
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
+import it.unibo.scafi.simulation.gui.view.scalaFX
+import it.unibo.scafi.simulation.gui.view.scalaFX.logger.FXLogger
 
 /**
   * allow to configure log system
@@ -15,7 +17,7 @@ object LogConfiguration {
   /**
     * no log used in the application
     */
-  object noLog extends LogConfiguration {
+  case object NoLog extends LogConfiguration {
     override def apply(): Unit = {}
   }
 
@@ -23,7 +25,7 @@ object LogConfiguration {
     * a standard configuration used log in standard out and in different file name
     * called as log chanell
     */
-  object standardLog extends LogConfiguration {
+  case object StandardLog extends LogConfiguration {
     override def apply(): Unit = {
       val consoleTimestampOutput = new ConsoleTimestampOutputObserver
       val consoleOutput = new ConsoleOutputObserver
@@ -33,6 +35,18 @@ object LogConfiguration {
       LogManager.attach(consoleOutput)
       LogManager.attach(FileOutputObserver)
       LogManager.attach(consoleTimestampOutput)
+    }
+  }
+
+  /**
+    * this configuration show log in a graphics form
+    */
+  case object GraphicsLog extends LogConfiguration {
+    override def apply(): Unit = {
+      LogConfiguration.StandardLog()
+      scalaFX.initializeScalaFXPlatform
+      FXLogger.acceptChannel(LogManager.acceptAll)
+      LogManager.attach(FXLogger)
     }
   }
 }

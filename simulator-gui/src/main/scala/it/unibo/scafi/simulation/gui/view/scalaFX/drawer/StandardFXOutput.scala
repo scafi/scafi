@@ -15,10 +15,8 @@ import scalafx.scene.shape.Ellipse
 /**
   * standard policy used to show nodes
   */
-object StandardFXOutputPolicy extends FXOutputPolicy {
-  //TODO create a non static color map
+case object StandardFXOutput extends FXOutputPolicy {
   override type OUTPUT_NODE = javafx.scene.Node
-  private val maxTextLength = 200
   val radius = 2
 
   override def nodeGraphicsNode(node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
@@ -70,6 +68,4 @@ object StandardFXOutputPolicy extends FXOutputPolicy {
       case _ => None
     }
   }
-
-  override def toString: String = "standard-fx"
 }

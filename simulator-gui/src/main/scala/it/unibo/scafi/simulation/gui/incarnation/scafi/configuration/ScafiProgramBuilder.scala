@@ -6,12 +6,12 @@ import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
 import it.unibo.scafi.simulation.gui.configuration.logger.LogConfiguration
 import it.unibo.scafi.simulation.gui.configuration.{Program, ProgramBuilder}
 import it.unibo.scafi.simulation.gui.controller.presenter.SimulationPresenter
-import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.standardBinding
+import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.StandardBinding
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiProgramEnvironment
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationInitializer, ScafiSimulationInformation}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationInitializer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutputPolicy}
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutput}
 import it.unibo.scafi.simulation.gui.view.{OutputPolicy, SimulationView, WindowConfiguration}
 
 /**
@@ -36,7 +36,7 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
     }
     //init the world
     configuration.worldInitializer.init(configuration.scafiWorldInfo)
-    val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationSeed)
+    val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationInformation)
     val programEnv = new ScafiProgramEnvironment(presenter,bridged,configuration.perfomance,configuration.logConfiguration)
     new Program[ScafiLikeWorld,SimulationView](programEnv, viewEnv,configuration.commandMapping)
   }
@@ -54,15 +54,16 @@ object ScafiProgramBuilder {
     * @param perfomance the perfomance of program context
     * @return
     */
-  def apply(scafiWorldInfo : ScafiWorldInformation = ScafiWorldInformation.standard,
-            worldInitializer: ScafiWorldInitializer,
-            commandMapping: CommandBinding = standardBinding,
-            scafiSimulationInfo : ScafiSimulationInformation,
-            simulationInitializer: ScafiSimulationInitializer,
-            outputPolicy: OutputPolicy = StandardFXOutputPolicy,
-            neighbourRender: Boolean = false,
-            log : LogConfiguration = ScafiProgramEnvironment.scafiStandardLog,
-            perfomance: PerformancePolicy = StandardPolicy): Program[_,_] = {
+  def apply(
+             worldInitializer: ScafiWorldInitializer,
+             scafiSimulationInfo : SimulationInfo,
+             simulationInitializer: ScafiSimulationInitializer,
+             scafiWorldInfo : ScafiWorldInformation = ScafiWorldInformation.standard,
+             commandMapping: CommandBinding = StandardBinding,
+             outputPolicy: OutputPolicy = StandardFXOutput,
+             neighbourRender: Boolean = false,
+             log : LogConfiguration = LogConfiguration.GraphicsLog,
+             perfomance: PerformancePolicy = StandardPolicy): Program[_,_] = {
     new ScafiProgramBuilder(new ScafiConfiguration(scafiWorldInfo,
       worldInitializer,
       commandMapping,

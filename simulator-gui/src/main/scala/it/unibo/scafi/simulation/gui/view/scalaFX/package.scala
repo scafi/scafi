@@ -91,5 +91,4 @@ package object scalaFX {
       }
     }
   }
-
 }

@@ -4,8 +4,8 @@ import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeComma
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription, IntType, LimitedValueType}
 import it.unibo.scafi.simulation.gui.demo
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInformation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
@@ -53,10 +53,10 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
         //take the profile marked
         val profile = demo.simulationType.profile
         //change configuration value by profile value description
-        scafiConfiguration.scafiSeed = ScafiWorldInformation(deviceSeed = profile.sensorSeed)
+        scafiConfiguration.scafiWorldInfo = ScafiWorldInformation(deviceSeed = profile.sensorSeed)
         scafiConfiguration.commandMapping = profile.commandMapping
-        scafiConfiguration.simulationInitializer = Some(RadiusSimulationInitializer(radius.get))
-        scafiConfiguration.scafiSimulationSeed = Some(ScafiSimulationInformation(program = demoClass.get,action = profile.action))
+        scafiConfiguration.simulationInitializer = Some(RadiusSimulation(radius.get))
+        scafiConfiguration.scafiSimulationInformation = Some(SimulationInfo(program = demoClass.get,actuator = profile.action))
       })
     } else {
       //if the value name is different return a failed result

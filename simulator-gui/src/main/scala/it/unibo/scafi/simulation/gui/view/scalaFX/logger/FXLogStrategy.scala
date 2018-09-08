@@ -23,7 +23,6 @@ trait FXLogStrategy {
   def init(channel : String)
 
   /**
-    *
     * @param log out the log passed
     */
   def out(log : Log[_])
@@ -125,6 +124,10 @@ object FXLogStrategy {
       }
     }
   }
+
+  /**
+    * show log like a tree
+    */
   private class TreeOutput extends FXLogStrategy {
     var mappedTree : Map[String, TreeItem[String]] = Map.empty
     val tree = new TreeView[String]
@@ -172,6 +175,8 @@ object FXLogStrategy {
             }}
           }
         }
+
+        case _ =>
       }
     }
   }

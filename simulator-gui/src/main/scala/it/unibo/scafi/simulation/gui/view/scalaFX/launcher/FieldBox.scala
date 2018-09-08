@@ -70,6 +70,9 @@ private[launcher] object FieldBox {
       }
       case BooleanType => {
         val checkBox = new CheckBox()
+        if(arg.defaultValue.isDefined){
+          checkBox.selected = arg.defaultValue.get.asInstanceOf[Boolean]
+        }
         objectProperty.bind(checkBox.selected)
         checkBox
       }

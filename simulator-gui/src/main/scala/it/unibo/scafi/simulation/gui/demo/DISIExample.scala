@@ -1,21 +1,21 @@
 package it.unibo.scafi.simulation.gui.demo
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, _}
-import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.FastPerformancePolicy
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInformation
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.FastPolicy
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Grid
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutputPolicy
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutput
 object DISIExample extends App {
   val demoInfo = classOf[Main].getAnnotation(classOf[Demo])
   ScafiProgramBuilder (
     worldInitializer = Grid(5,10,10),
-    scafiSimulationInfo = ScafiSimulationInformation(classOf[Main]),
-    simulationInitializer = RadiusSimulationInitializer(radius = 5),
-    outputPolicy = GradientFXOutputPolicy,
-    perfomance = FastPerformancePolicy,
+    scafiSimulationInfo = SimulationInfo(classOf[Main]),
+    simulationInitializer = RadiusSimulation(radius = 5),
+    outputPolicy = GradientFXOutput,
+    perfomance = FastPolicy,
     neighbourRender = true
   ).launch()
 }

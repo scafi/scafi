@@ -6,7 +6,7 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.modelShapeToFXShape
 /**
   * a policy that try to render less information
   */
-object FastFXOutputPolicy extends FXOutputPolicy {
+case object FastFXOutput extends FXOutputPolicy {
 
   override type OUTPUT_NODE = javafx.scene.shape.Shape
 
@@ -37,6 +37,4 @@ object FastFXOutputPolicy extends FXOutputPolicy {
       }
     }
   }
-
-  override def toString: String = "fast-fx"
 }

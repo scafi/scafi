@@ -5,13 +5,36 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnat
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 
+/**
+  * describe a scafi actuator used to change world state
+  * by export produced
+  * @tparam OUT the type of value read by actuator
+  */
 trait Actuator[OUT] extends PartialFunction[EXPORT, (scafiWorld.ID => Unit)] {
+  /**
+    * put the sensor name where actuator change his state
+    * @param name the name of actuator
+    */
   def sensorName_=(name : String)
 
+  /**
+    * convert any val in the output value
+    * @return none if the actuator can convert a specific value some of option otherwise
+    */
   def valueParser : (Any) => (Option[OUT])
 
+  /**
+    * put the action used to parse any val
+    * @param function the function used to parse any vale
+    */
   def valueParser_= (function : (Any) => (Option[OUT]))
 
+  /**
+    * partial function : actuator is defined only when value parser
+    * return Some value
+    * @param x the export to parse
+    * @return true if value parser return Some false otherwise
+    */
   override def isDefinedAt(x: EXPORT): Boolean = valueParser(x.root()).isDefined
 }
 /**
@@ -19,7 +42,9 @@ trait Actuator[OUT] extends PartialFunction[EXPORT, (scafiWorld.ID => Unit)] {
   */
 object Actuator {
   private val w = scafiWorld
-
+  /**
+    * an actuator that put export converted into sensor specified
+    */
   val generalActuator : Actuator[Any] = new Actuator[Any] {
     private var name = output1
     private var action: (Any) => (Option[Any]) = v => Some(v)
@@ -38,7 +63,9 @@ object Actuator {
       case _ =>
     }
   }
-
+  /**
+    * an actuator that move node by export produced
+    */
   val movementActuator : Actuator[(Double,Double)] = new Actuator[(Double, Double)] {
     private var name = output1
     private var action : (Any) => (Option[(Double,Double)]) = v => Some(v.asInstanceOf[(Double,Double)])

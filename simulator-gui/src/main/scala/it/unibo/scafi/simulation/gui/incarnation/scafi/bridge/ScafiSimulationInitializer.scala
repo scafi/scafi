@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationObserver.{contract, world}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor.{contract, world}
 
 import scala.util.Random
 
@@ -16,7 +16,7 @@ trait ScafiSimulationInitializer {
     * create the simulation
     * @return
     */
-  def create(scafiSimulationSeed: ScafiSimulationInformation) : ScafiBridge
+  def create(scafiSimulationSeed: SimulationInfo) : ScafiBridge
 }
 
 object ScafiSimulationInitializer {
@@ -26,17 +26,17 @@ object ScafiSimulationInitializer {
     * standard scafi simulation
     * @param radius the radius of neighbour
     */
-  case class RadiusSimulationInitializer(val radius : Double = 0.0) extends ScafiSimulationInitializer {
+  case class RadiusSimulation(val radius : Double = 0.0) extends ScafiSimulationInitializer {
 
-    override def create(scafiSimulationSeed : ScafiSimulationInformation): ScafiBridge = {
+    override def create(scafiSimulationSeed : SimulationInfo): ScafiBridge = {
       val rand : Random = new Random()
-      val bridge = scafiSimulationObserver
+      val bridge = scafiSimulationExecutor
       val proto = () => {
         val w = bridge.world
         val nodes: Map[ID, P] = w.nodes map {n => n.id -> new P(n.position.x,n.position.y,n.position.z)} toMap
         val createdSpace  = new QuadTreeSpace(nodes,radius)
         val createdDevs =  nodes.map { case (d, p) => d -> new DevInfo(d, p,
-          lsns => 0,
+          lsns => "",
           nsns => nbr => null)
         }
         val res : SpaceAwareSimulator = new SpaceAwareSimulator(simulationSeed = rand.nextInt(),randomSensorSeed = rand.nextInt(),

@@ -1,6 +1,5 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.model.common.BoundaryDefinition
 import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
 import it.unibo.scafi.simulation.gui.model.space.Point
 

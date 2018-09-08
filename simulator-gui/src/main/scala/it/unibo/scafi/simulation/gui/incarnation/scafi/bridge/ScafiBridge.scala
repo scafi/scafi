@@ -34,17 +34,17 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
     context.get
   }
 
-  private var simSeed : Option[ScafiSimulationInformation] = None
+  private var simSeed : Option[SimulationInfo] = None
 
   /**
     * @return the current simulation seed
     */
-  def simulationSeed : Option[ScafiSimulationInformation] = simSeed
+  def simulationSeed : Option[SimulationInfo] = simSeed
 
   /**
     * @param simulationSeed the simulation seed used to initialize the simulation
     */
-  def simulationSeed_= (simulationSeed: ScafiSimulationInformation) : Unit = {
+  def simulationSeed_= (simulationSeed: SimulationInfo) : Unit = {
     require(simulationSeed != null)
     simSeed = Some(simulationSeed)
   }
@@ -71,6 +71,21 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
       context = Some(simulationSeed.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
       //set current simulation to another
       this.currentSimulation = Some(prototype())
+    }
+  }
+}
+
+object ScafiBridge {
+
+  /**
+    * implicit class used to compute the path level in the tree
+    * @param path the path passed
+    */
+  implicit class RichPath(path : Path) {
+    def level : Int = if(path.isRoot) {
+      0
+    } else {
+      path.toString.split("/").size + 1
     }
   }
 }

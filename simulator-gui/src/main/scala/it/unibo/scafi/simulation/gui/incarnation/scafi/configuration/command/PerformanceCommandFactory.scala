@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
-import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPerformancePolicy, NearRealTimePolicy, StandardPolicy}
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPolicy, NearRealTimePolicy, StandardPolicy}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
@@ -18,7 +18,7 @@ class PerformanceCommandFactory(implicit val scafiConfiguration : ScafiConfigura
   override val name: String = "performance"
   private val performanceMap = Map(
     NearRealTimePolicy.toString -> NearRealTimePolicy,
-    FastPerformancePolicy.toString -> FastPerformancePolicy,
+    FastPolicy.toString -> FastPolicy,
     StandardPolicy.toString -> StandardPolicy
   )
   val argType = LimitedValueType(performanceMap.keySet.toSeq:_*)

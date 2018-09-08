@@ -9,7 +9,7 @@ import scalafx.scene.paint.Color
 /**
   * a gradient policy
   */
-object GradientFXOutputPolicy extends FXOutputPolicy {
+case object GradientFXOutput extends FXOutputPolicy {
   var maxValue = WindowConfiguration.toWindowRect(ScalaFXEnvironment.windowConfiguration).w
   val maxColor = 255.0
   override type OUTPUT_NODE = javafx.scene.shape.Shape
@@ -35,7 +35,4 @@ object GradientFXOutputPolicy extends FXOutputPolicy {
 
   }
   override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
-
-
-  override def toString: String = "gradient-fx"
 }

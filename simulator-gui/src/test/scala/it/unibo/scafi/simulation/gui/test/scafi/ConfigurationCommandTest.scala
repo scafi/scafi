@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.parser.{ConfigurationMachine, VirtualMachine}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.ScafiParser
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser
 import org.scalatest.{FunSpec, Matchers}
 
 class ConfigurationCommandTest extends FunSpec with Matchers {

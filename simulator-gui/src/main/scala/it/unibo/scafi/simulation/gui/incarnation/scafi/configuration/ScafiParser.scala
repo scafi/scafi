@@ -1,13 +1,15 @@
-package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
+package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
 import it.unibo.scafi.simulation.gui.configuration.command.factory._
+import it.unibo.scafi.simulation.gui.configuration.logger.LogConfiguration._
 import it.unibo.scafi.simulation.gui.configuration.parser.{Parser, UnixLikeParser}
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationObserver
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command._
 import it.unibo.scafi.simulation.gui.view.OutputPolicy.noOutput
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutputPolicy, StandardFXOutputPolicy}
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutput, StandardFXOutput}
 
 /**
   * describe the scafi parser
@@ -26,12 +28,14 @@ object ScafiParser {
     new LanguageCommandFactory,
     new PerformanceCommandFactory,
     new GraphicsLogCommandFactory,
-    new OutputCommandFactory(FastFXOutputPolicy,StandardFXOutputPolicy,noOutput),
-    new WindowConfigurationCommandFactory(ScalaFXEnvironment))
+    new OutputCommandFactory(FastFXOutput,StandardFXOutput,noOutput),
+    new WindowConfigurationCommandFactory(ScalaFXEnvironment),
+    new LogCommandFactory(NoLog,StandardLog,GraphicsLog),
+    new RenderCommandFactory)
   /**
     * parser unix like used to parse string value in runtime command
     */
-  val UnixRuntime : Parser[String] = new UnixLikeParser(new SimulationCommandFactory(scafiSimulationObserver),
+  val UnixRuntime : Parser[String] = new UnixLikeParser(new SimulationCommandFactory(scafiSimulationExecutor),
     new SingleMoveCommandFactory,
     new SingleToggleCommandFactory,
     ExitCommandFactory,

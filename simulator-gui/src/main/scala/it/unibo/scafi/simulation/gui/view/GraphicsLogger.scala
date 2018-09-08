@@ -29,6 +29,9 @@ object GraphicsLogger {
     */
   case object lineChart extends LogType
 
+  /**
+    * a tree visualization of log
+    */
   case object treeView extends LogType
   val logTypes : Seq[LogType] = textual :: lineChart :: Nil
 }

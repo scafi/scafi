@@ -1,25 +1,26 @@
 package it.unibo.scafi.simulation.gui.demo
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, _}
-import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPerformancePolicy, NearRealTimePolicy, StandardPolicy}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulationInitializer
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPolicy, NearRealTimePolicy, StandardPolicy}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, ScafiSimulationInformation}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.ScafiParser
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiParser, ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Circle
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{ImageFXOutputPolicy, StandardFXOutputPolicy}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
+import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle, Rectangle}
+import it.unibo.scafi.simulation.gui.model.space.Point3D
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{ImageFXOutput, StandardFXOutput}
+import it.unibo.scafi.space.Point2D
 
 object Drone extends App {
-
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
   private val worldSize = (500,500)
   ScafiProgramBuilder (
     worldInitializer = Random(500,worldSize._1,worldSize._2),
-    scafiSimulationInfo = ScafiSimulationInformation(program = classOf[BlobDroneSystemExplorationDemo],action = Actuator.movementActuator),
-    simulationInitializer = RadiusSimulationInitializer( radius = 40),
-    scafiWorldInfo = ScafiWorldInformation(shape = Some(Circle(10))),
-    outputPolicy = ImageFXOutputPolicy,
+    scafiSimulationInfo = SimulationInfo(program = classOf[BlobDroneSystemExplorationDemo],actuator = Actuator.movementActuator),
+    simulationInitializer = RadiusSimulation( radius = 40),
+    scafiWorldInfo = ScafiWorldInformation(shape = Some(Rectangle(10,10))),
+    outputPolicy = ImageFXOutput,
     neighbourRender = true,
     perfomance = NearRealTimePolicy
   ).launch()

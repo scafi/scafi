@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.launcher.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.parser.ConfigurationMachine
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.ScafiParser
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser
 
 /**
   * string launcher used to launch simulation via string

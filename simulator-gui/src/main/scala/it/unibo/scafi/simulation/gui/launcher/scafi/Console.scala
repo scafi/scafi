@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command._
   * a scafi program launcher via console
   */
 private object Console extends App {
-  import ScafiParser._
+  import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   import it.unibo.scafi.simulation.gui.controller.logger.LogManager._
   val configurationMachine = new ConfigurationMachine(UnixConfiguration)

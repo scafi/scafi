@@ -28,14 +28,3 @@ class ScafiProgramEnvironment(val presenter : Presenter[ScafiLikeWorld,Simulatio
 
   override val world: ScafiLikeWorld = scafiWorld
 }
-
-object ScafiProgramEnvironment {
-  val scafiStandardLog = new LogConfiguration {
-    override def apply(): Unit = {
-      LogConfiguration.standardLog()
-      scalaFX.initializeScalaFXPlatform
-      FXLogger.acceptChannel(LogManager.acceptAll)
-      LogManager.attach(FXLogger)
-    }
-  }
-}

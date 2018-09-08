@@ -16,6 +16,7 @@ import scalafx.Includes._
   * @param window the window configuration used to set up stage
   */
 private [scalaFX] class LogoStage(window: WindowConfiguration) extends Stage {
+  //verify the windows size and put the right dimension
   window.size match {
     case FullScreen => {
       this.fullScreen = true
@@ -28,11 +29,12 @@ private [scalaFX] class LogoStage(window: WindowConfiguration) extends Stage {
       this.minHeight = h
     }
   }
+  //put logo if it is defined
   protected val logo = window.logoPath match{
     case Some(name : String) => new ImageView(Logo.big(name))
     case _ => new Pane()
   }
-
+  //put icon if it is defined
   window.iconPath match {
     case Some(name : String) => this.getIcons.add(Logo.middle(name))
     case _ =>

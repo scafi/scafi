@@ -6,7 +6,12 @@ import it.unibo.scafi.simulation.gui.view.{GraphicsLogger, scalaFX}
 import scalafx.scene.control.TabPane
 
 /**
-  * standard fx graphics logger
+  * standard fx graphics logger used to show log accepted
+  * by default FXLogger has standard reppresentation for some log typg:
+  *   - IntLog are showed with a line chart
+  *   - TreeLog are showed with a tree view
+  *   - other are showed with textual form
+  * the reppresentation could be changed by call GraphicsLogger.addStrategy(channel,StrategyType)
   */
 object FXLogger extends TabPane with LogObserver {
   scalaFX.initializeScalaFXPlatform

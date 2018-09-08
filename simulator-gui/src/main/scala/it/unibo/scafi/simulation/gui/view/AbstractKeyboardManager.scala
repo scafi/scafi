@@ -46,6 +46,9 @@ trait AbstractKeyboardManager {
    */
   final def commandDescription : String = toDescription(abstractToReal) + "\n" + toDescription(abstractToCombination)
 
+  /*
+  * A method used to create help
+  * */
   private def toDescription[A](map : Map[AbstractKeyCode,A]) : String = map.map{ x => x._2.toString().toLowerCase() -> x._1}
     .filter { x => commandArgs.contains(x._2)}
     .map { x => commandArgs(x._2) -> x._1}
