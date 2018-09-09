@@ -28,7 +28,7 @@ import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
 trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
   self: SimulationPlatform.PlatformDependency with BasicSpatialAbstraction =>
 
-  class DevInfo(val id: ID, var pos: P, var lsns: LSNS=>Any, var nsns: (NSNS)=>(ID)=>Any){
+  class DevInfo(val id: ID, var pos: P, var lsns: Map[LSNS,Any] = Map.empty, var nsns: (NSNS)=>(ID)=>Any){
     override def toString: String = s"Device[id: $id, pos: $pos]"
   }
 
@@ -64,7 +64,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = {
       ids.foreach(id => {
         val f = devs(id).lsns
-        devs(id).lsns = sname => if(name==sname) value else f(sname)
+        devs(id).lsns += name -> value
       })
     }
 
@@ -72,9 +72,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
 
       import NetworkSimulator.Optionable
 
-      override def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] = {
-        lsnsMap.get(lsns).flatMap(_.get(selfId)).orElse(devs.get(id).map(_.lsns(lsns))).map(_.asInstanceOf[T])
-      }
+      override def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =  devs.get(id).flatMap{x => x.lsns.get(lsns)}.map{_.asInstanceOf[T]}
 
       override def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
         devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])
