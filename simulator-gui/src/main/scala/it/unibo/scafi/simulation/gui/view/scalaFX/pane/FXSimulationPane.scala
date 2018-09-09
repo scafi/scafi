@@ -29,7 +29,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
   //internal representation of neighbour
   private val neighbours : mutable.Map[ID,mutable.Map[ID,NodeLine]] = mutable.Map()
   //internal representation of devices
-  private val devices : mutable.Map[ID,mutable.Map[Any,drawer.OUTPUT_NODE]] = mutable.Map()
+  private val devices : mutable.Map[ID,mutable.Map[NAME,drawer.OUTPUT_NODE]] = mutable.Map()
   //used to flush method
   type ACTION = () => Unit
   //a list of changes that are show only when a presenter call flush
@@ -78,10 +78,9 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
   override def outNeighbour(node : (ID,Set[_ <: ID])): Unit = {
     val map : mutable.Map[ID,NodeLine] = this.neighbours.get(node._1) match {
       case Some(_) => this.neighbours(node._1)
-      case _ => {
+      case _ =>
         this.neighbours += node._1 -> mutable.Map()
         this.neighbours(node._1)
-      }
     }
     //i take the current graphics node
     val gnode = this._nodes(node._1)
@@ -90,7 +89,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
       val endGnode = this._nodes(x)
       val link : NodeLine = new NodeLine(gnode,endGnode,lineColor)
       val add = () => {
-        val action : ACTION = (() => this.children.add(link))
+        val action : ACTION = () => this.children.add(link)
         changes = action :: changes
       }
       this.neighbours.get(x) match {
@@ -104,7 +103,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     }}
   }
 
-  def removeNeighbour(nodes : (ID,Set[_ <: ID])) = {
+  def removeNeighbour(nodes : (ID,Set[_ <: ID])) : Unit = {
     var nodeToRemove : List[javafx.scene.Node] = List()
     //utility method used to remove a neigbour
     def erase(start: ID, end: ID): Unit = {
@@ -132,14 +131,14 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
   }
   override def outDevice(id: ID, dev : DEVICE): Unit = {
     //create new mutable map if no device is defined
-    if(!devices.get(id).isDefined) devices += id -> mutable.Map()
+    if(devices.get(id).isEmpty) devices += id -> mutable.Map()
     val oldDev = devices(id)
     //get the node where the device is attached
     val current : drawer.OUTPUT_NODE = _nodes(id)
     //get ol prited dev (if it is defined)
     val oldPrintedDev = oldDev.get(dev.name)
     //try to create new dev (if it is defined)
-    val newDev : Option[drawer.OUTPUT_NODE] = if(!oldPrintedDev.isDefined) {
+    val newDev : Option[drawer.OUTPUT_NODE] = if(oldPrintedDev.isEmpty) {
       drawer.deviceToGraphicsNode(current,dev)
     } else {
       None
@@ -147,21 +146,26 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     //if it is defined create a new device associated to node
     if(newDev.isDefined){
       oldDev += dev.name -> newDev.get
-      val action : ACTION = (() => this.children.add(newDev.get))
+      val action : ACTION = () => this.children.add(newDev.get)
       changes = action :: changes
     }
     //add action to produce, each time try to update device status
-    val action : ACTION = (() => drawer.updateDevice(current,dev,oldDev.get(dev.name)))
+    val action : ACTION = () => drawer.updateDevice(current,dev,oldDev.get(dev.name))
     changes = action :: changes
 
   }
 
-  override def clearDevice(node: ID): Unit = {
-    //remove all device associated with a id
-    val toRemove : List[Node] = List()
-    if (this.devices.get(node).isDefined) {
-      this.devices(node) foreach {x => this.changes = (() => this.children -= x._2).asInstanceOf[ACTION] :: changes}
-      this.devices -= node
+  override def clearDevice(node: ID, devName : NAME): Unit = {
+    if(devices.get(node).isDefined && devices(node).get(devName).isDefined) {
+      val guiNode = devices(node)(devName)
+      devices(node) -= devName
+
+      val action : ACTION = () => {
+        guiNode.visible = false
+        this.children -= guiNode
+      }
+      changes = action :: changes
+
     }
   }
 

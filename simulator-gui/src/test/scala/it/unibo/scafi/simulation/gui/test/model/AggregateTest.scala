@@ -42,6 +42,15 @@ class AggregateTest extends FunSpec with Matchers {
     node.devices.size shouldEqual devProducer.size
   }
 
+  checkThat("i can remove device of a node") {
+    world.clear()
+    val nodeBuilder = new world.NodeBuilder(id = 0, position = zero, producer = devProducer)
+    world.insertNode(nodeBuilder)
+    assert(world.removeDevice(0, world.led.name))
+    val node = world(0)
+    assert(node.get.getDevice(world.led.name).isEmpty)
+  }
+
   checkThat("i can move node in an aggregate world") {
     world.clear()
     world.insertNode(simpleNodeBuilder)
@@ -79,7 +88,7 @@ class AggregateTest extends FunSpec with Matchers {
     assert(movedObserver.nodeChanged().nonEmpty)
     assert(movedObserver.nodeChanged().isEmpty)
 
-    world.addDevice(0,devProducer(0))
+    world.addDevice(0,devProducer.head)
     assert(deviceChanged.nodeChanged().nonEmpty)
     assert(deviceChanged.nodeChanged().isEmpty)
     world.removeNode(0)

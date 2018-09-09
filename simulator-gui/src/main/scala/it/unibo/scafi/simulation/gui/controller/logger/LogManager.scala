@@ -25,14 +25,14 @@ object LogManager extends SimpleSource {
       * allow to filter some channel il log observer
       * @param channel the channel list that describe what channel accept or not
       */
-    def acceptChannel(channel : ChannelList) = this.channelAccepted = channel
+    def acceptChannel(channel : ChannelList) : Unit = this.channelAccepted = channel
 
     override final def update(event: Event): Unit = event match {
     //verify if the log received can be showed
       case log : Log[_] => channelAccepted match {
         case `acceptAll` => processLog(log)
-        case acceptThese(set) if(set.contains(log.channel)) => processLog(log)
-        case acceptExceptThese(set) if(!set.contains(log.channel)) => processLog(log)
+        case acceptThese(set) if set.contains(log.channel) => processLog(log)
+        case acceptExceptThese(set) if !set.contains(log.channel) => processLog(log)
         case _ =>
       }
     }
@@ -131,7 +131,7 @@ object LogManager extends SimpleSource {
     val Std = "standard"
     val CommandResult = "command"
     val Export = "export"
-    val SimulationRound = "simulation round"
+    val SimulationRound = "simulation-round"
   }
 
   /**
@@ -147,9 +147,9 @@ object LogManager extends SimpleSource {
   object FileOutputObserver extends LogObserver {
     import it.unibo.scafi.simulation.gui.util.FileUtil._
     //verify if the outputDirectory is created or not
-    Try{outputDirectory.createDirectory(true,true)}
+    Try{outputDirectory.createDirectory(force = true,failIfExists = true)}
     //home path used to create file
-    implicit val home = outputDirectory.path
+    implicit val home : String = outputDirectory.path
     //the set of channel logged, used to create the right number of file
     private var channel : Set[String] = Set.empty
     override protected def processLog(log: Log[_]): Unit = if(channel.contains(log.channel)) {

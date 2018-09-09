@@ -38,7 +38,7 @@ trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld
     if(added) {
       //tell to all observer the world changes
       notify(NodeEvent(node.id,NodeDeviceChanged))
-      notify(DeviceEvent(node.id,device.name,NodeDeviceRemoved))
+      notify(DeviceEvent(node.id,device.name,NodeDeviceAdded))
       true
     } else {
       false

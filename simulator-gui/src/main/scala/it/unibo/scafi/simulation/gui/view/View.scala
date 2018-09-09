@@ -15,7 +15,7 @@ trait Container[OUTPUT <: View] {
     * try to render the output
     * @return true if the output is rendered false otherwise
     */
-  def render : Unit
+  def render() : Unit
 }
 /**
   * describe a generic output of a simulation
@@ -23,6 +23,7 @@ trait Container[OUTPUT <: View] {
 trait SimulationView extends View {
   type NODE = World#Node
   type ID = Any
+  type NAME = Any
   type DEVICE = World#Device
   /**
     * out a set of node that are added or moved
@@ -53,10 +54,10 @@ trait SimulationView extends View {
   def outDevice(node : ID, device : DEVICE)
 
   /**
-    * remove all devices associated to a node
+    * remove device associated to a node
     * @param node the node
     */
-  def clearDevice(node : ID)
+  def clearDevice(node : ID, name : NAME)
 
   /**
     * set the boundary in the simulation view

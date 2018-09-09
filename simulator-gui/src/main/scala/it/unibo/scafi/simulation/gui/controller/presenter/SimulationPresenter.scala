@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.controller.presenter
 
-import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodesMoved
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceAdded, NodeDeviceRemoved, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld.NeighbourChanged
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.{NodesAdded, NodesRemoved}
 import it.unibo.scafi.simulation.gui.model.sensor.SensorEvent.SensorChanged
@@ -19,6 +19,8 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
   private val removed = world.createObserver(Set(NodesRemoved))
   private val moved = world.createObserver(Set(NodesMoved,NodesAdded))
   private val devChanged = world.createObserver(Set(SensorChanged))
+  private val devAdded = world.createObserver(Set(NodeDeviceAdded))
+  private val devRemoved = world.createObserver(Set(NodeDeviceRemoved))
   private val networkChanged = world.createObserver(Set(NeighbourChanged))
   private var out : Option[SimulationView] = None
 
@@ -30,10 +32,7 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
     if(out.isEmpty) {
       return
     }
-    val nodesRemoved = removed.nodeChanged()
-    if (!nodesRemoved.isEmpty) {
-      nodesRemoved foreach { out.get.removeNode(_)}
-    }
+    removed.nodeChanged() foreach { out.get.removeNode(_)}
     //set of node moved
     val nodesMoved = moved.nodeChanged()
     //used to remove or add neighbour
@@ -67,15 +66,17 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
       toRemove foreach {x => out.get.removeNeighbour(x)}
       toAdd foreach { x => out.get.outNeighbour(x)}
     }
-    val deviceToOut = devChanged.deviceChanged()
-    //show the device changes in the view
-    if(!deviceToOut.isEmpty) {
-      deviceToOut map {x => x._1 -> {
-        x._2 foreach { name => {
-          out.get.outDevice(x._1,world(x._1).get.getDevice(name).get)
-        }}
+    //show the changed associated to device
+    (devChanged.deviceChanged() ++ devAdded.deviceChanged()) map {x => x._1 -> {
+      x._2 foreach { name => {
+        out.get.outDevice(x._1,world(x._1).get.getDevice(name).get)
       }}
-    }
+    }}
+    //remove device in the view
+    devRemoved.deviceChanged(). foreach { nodeDevices => {
+      nodeDevices._2 foreach (device => out.get.clearDevice(nodeDevices._1,device))
+    }}
+
     //flush the changes
     out.get.flush()
   }
@@ -88,7 +89,7 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
   override def output(view: SimulationView): Unit = {
     require(view != null)
     out = Some(view)
-    world.worldBound.foreach(view.setBoundary(_))
+    world.worldBound.foreach(view.setBoundary _)
     view.setWalls(world.worldWalls:_*)
   }
 }

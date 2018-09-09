@@ -15,7 +15,7 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutput, Standard
   * describe the scafi parser
   */
 object ScafiParser {
-  implicit val scafiConfiguration = new ScafiConfigurationBuilder
+  implicit val scafiConfiguration : ScafiConfigurationBuilder= new ScafiConfigurationBuilder
   /**
     * parser unix like used to parse string value in configuration command
     */
@@ -40,5 +40,6 @@ object ScafiParser {
     new SingleToggleCommandFactory,
     ExitCommandFactory,
     LookExportCommandFactory,
-    InputCommandController.UndoCommandFactory)
+    InputCommandController.UndoCommandFactory,
+    ShowIdCommandFactory)
 }
