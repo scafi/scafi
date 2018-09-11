@@ -35,7 +35,7 @@ trait AbstractNodeDefinition extends AggregateConcept {
       }
     }
 
-    override def devices: Set[DEVICE] = devs.values map{_.view} toSet
+    override def devices: Set[DEVICE] = devs.values.map{_.view}.toSet
 
     override def getDevice(name: NAME): Option[DEVICE] = {
       val dev = devs.get(name)

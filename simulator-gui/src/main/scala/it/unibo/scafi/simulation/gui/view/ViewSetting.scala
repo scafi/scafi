@@ -9,7 +9,7 @@ import scalafx.scene.paint.Color
   */
 object ViewSetting {
   /**
-    * divece name that view can show correctly
+    * device name that view can show correctly
    */
   lazy val deviceName : List[String] = SensorName.inputSensor ++ SensorName.outputSensor
   /**
@@ -27,7 +27,7 @@ object ViewSetting {
   /**
     * color of neighbour line
    */
-  var lineColor = Color(0,0,0,0.2)
+  var lineColor : Color = Color(0,0,0,0.2)
   /**
     * max size of label
     */
@@ -35,7 +35,7 @@ object ViewSetting {
   /**
     * the value of world background
     */
-  var backgroundColor = Color.Transparent
+  var backgroundColor : Color = Color.Transparent
   /**
     * background image (if it is present)
      */

@@ -11,7 +11,7 @@ import scalafx.Includes._
 import scalafx.geometry.{Point2D => FXPoint}
 
 /**
-  * a startegy used to convert model shape into scalafx shape
+  * a strategy used to convert model shape into scalafx shape
   */
 private[scalaFX] object modelShapeToFXShape {
   def apply(shape: Option[ModelShape], position : Point): Shape = {

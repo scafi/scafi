@@ -85,6 +85,7 @@ trait World {
   /**
     * Node describe an immutable object in a world
     */
+  //noinspection AbstractValueInTrait
   trait Node {
 
     /**
@@ -121,6 +122,7 @@ trait World {
   /**
     * a generic immutable device that could be attached to a node
     */
+  //noinspection AbstractValueInTrait
   trait Device {
     /**
       * the name of the device, it must immutable

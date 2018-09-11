@@ -1,23 +1,27 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
-import it.unibo.scafi.simulation.gui.configuration.seed.WorldInformation
+import it.unibo.scafi.simulation.gui.configuration.information.WorldInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiDeviceProducers, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 
 /**
-  * describe world seed in scafi context
+  * describe main world information in scafi context
   */
 trait ScafiWorldInformation extends WorldInformation[scafiWorld.DEVICE_PRODUCER,scafiWorld.B,scafiWorld.S]
 
 object ScafiWorldInformation {
+  private val standardShape = Some(Rectangle(3,3))
   private class ScafiWorldInformationImpl(override val shape : Option[scafiWorld.S],
                                           override val boundary : Option[scafiWorld.B],
                                           override val deviceProducers : Iterable[scafiWorld.DEVICE_PRODUCER]) extends ScafiWorldInformation
 
   /**
-    * a standard seed used to initialize a scafi world
+    * a standard information used to initialize a scafi world:
+    *   - the shape of node is rectangle
+    *   - the world hasn't boundary
+    *   - the device attached on node are described by {@see ScafiDeviceProducers.standardConfiguration}
     */
-  val standard : ScafiWorldInformation = new ScafiWorldInformationImpl(Some(Rectangle(5,5)), None, ScafiDeviceProducers.standardConfiguration)
+  val standard : ScafiWorldInformation = new ScafiWorldInformationImpl(standardShape, None, ScafiDeviceProducers.standardConfiguration)
 
   /**
     * allow to create a scafi seed

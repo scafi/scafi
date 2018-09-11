@@ -11,7 +11,7 @@ import scalafx.scene.control.TextField
   * a text field that accept only integer
   */
 private [scalaFX] class IntField extends TextField {
-  val integerFilter = new  UnaryOperator[TextFormatter.Change] {
+  private val integerFilter = new  UnaryOperator[TextFormatter.Change] {
     private val DIGIT_PATTERN = Pattern.compile("\\d*")
     private val FIRST_DIGIT = Pattern.compile("[1-9]")
     override def apply(aT: TextFormatter.Change): TextFormatter.Change = {

@@ -1,10 +1,9 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
+import it.unibo.scafi.simulation.gui.util.Result.Fail
 import it.unibo.scafi.simulation.gui.view.OutputPolicy
 
 /**
@@ -16,7 +15,7 @@ class OutputCommandFactory(outputs : OutputPolicy *)(implicit val scafiConfigura
   import CommandFactory._
   import OutputCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
-  private val outputMap = outputs map {x => x.toString -> x} toMap
+  private val outputMap = outputs.map{x => x.toString -> x}.toMap
   private val argType = LimitedValueType(outputMap.keySet.toSeq:_*)
   override val name: String = "output"
 

@@ -2,11 +2,10 @@ package it.unibo.scafi.simulation.gui.configuration.command.factory
 
 import java.util.Locale
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager
 import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
+import it.unibo.scafi.simulation.gui.util.Result.Fail
 
 /**
   * a factory used to create command to change language

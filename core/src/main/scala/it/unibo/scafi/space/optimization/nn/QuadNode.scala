@@ -13,13 +13,7 @@ private[nn] class QuadNode[A] (center: Point3D,
                    var children: Seq[QuadNode[A]]){
   override def toString: String = s"center $center width $width"
   private val Dim = 3
-  val nodeElements =  mutable.ListBuffer[(Point3D,A)]()
-
-  /** for testing purposes only; used in QuadTreeSuite.scala
-    *
-    * @return center and width of the box
-    */
-  def getCenterWidth(): (Point3D, Point3D) = (center, width)
+  val nodeElements : mutable.ListBuffer[(Point3D,A)] = mutable.ListBuffer[(Point3D,A)]()
 
   /** Tests whether the queryPoint is in the node, or a child of that node
     *
@@ -49,7 +43,6 @@ private[nn] class QuadNode[A] (center: Point3D,
 
   /** minDist is defined so that every point in the box has distance to queryPoint greater
     * than minDist (minDist adopted from "Nearest Neighbors Queries" by N. Roussopoulos et al.)
-    *
     * @param queryPoint
     */
   def minDist(queryPoint: Point3D): Double = {

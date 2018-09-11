@@ -1,9 +1,8 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, IntLog, TreeLog}
+import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, TreeLog}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.{NodeDeviceChanged, NodesMoved}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.NodesAdded
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.sensorInput
@@ -18,14 +17,13 @@ object scafiSimulationExecutor extends ScafiBridge {
   //observer used to verify world changes
   private val checkMoved = world.createObserver(Set(NodesMoved))
   private val checkChanged = world.createObserver(Set(NodeDeviceChanged))
-  private val checkAdded = world.createObserver(Set(NodesAdded))
   private var exportProduced : Map[ID,world.ID => Unit] = Map()
   //variable used to block asyncLogicExecution
   private val sync = Sync.apply
   override protected val maxDelta: Option[Int] = None
   override protected def AsyncLogicExecution(): Unit = {
     //if block is true, async logic execution do nothing
-    if(sync.blocked) return;
+    if(sync.blocked) return
 
     if(contract.simulation.isDefined) {
       val net = contract.simulation.get
@@ -54,7 +52,6 @@ object scafiSimulationExecutor extends ScafiBridge {
     //get the modification of world
     val moved = checkMoved.nodeChanged()
     val devs = checkChanged.nodeChanged()
-    val added = checkAdded.nodeChanged()
     if(contract.simulation.isDefined) {
       val bridge = contract.simulation.get
       //change the value of sensor in scafi simulation
@@ -64,7 +61,7 @@ object scafiSimulationExecutor extends ScafiBridge {
         val node = world(x).get
         //update the neighbours
         val oldNeigh = contract.simulation.get.neighbourhood(x)
-        contract.simulation.get.setPosition((x), Point3D(node.position.x, node.position.y, node.position.z))
+        contract.simulation.get.setPosition(x, Point3D(node.position.x, node.position.y, node.position.z))
         val neigh = contract.simulation.get.neighbourhood(x)
         world.network.setNeighbours(x,neigh)
         (oldNeigh ++ neigh) foreach {x => {world.network.setNeighbours(x,contract.simulation.get.neighbourhood(x))}}

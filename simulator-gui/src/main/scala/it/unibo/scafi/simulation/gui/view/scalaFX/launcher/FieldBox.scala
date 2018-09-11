@@ -1,24 +1,22 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.launcher
 
 import javafx.scene.Node
+import javafx.scene.layout.{StackPane => JFXStackPane}
 
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{BooleanType, CommandArgDescription, IntType, LimitedValueType}
-import it.unibo.scafi.simulation.gui.view.scalaFX.launcher.ScalaFXLauncher.FieldBoxSpacing
-import javafx.scene.layout.{StackPane => JFXStackPane}
-
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.IntField
 import it.unibo.scafi.simulation.gui.view.scalaFX.launcher.FieldBox.ArgBox
+import it.unibo.scafi.simulation.gui.view.scalaFX.launcher.ScalaFXLauncher.FieldBoxSpacing
 
 import scalafx.beans.property.ObjectProperty
 import scalafx.scene.control._
 import scalafx.scene.layout.{HBox, VBox}
-import it.unibo.scafi.simulation.gui.view.scalaFX._
 
 /**
-  * this box take a command factory and create a controll
+  * this box take a command factory and create a control
   * @param factory the command factory
   * @param window the window configuration
   */
@@ -38,7 +36,7 @@ private[launcher] object FieldBox {
   val PercentageRight = 0.7
 
   /**
-    * single commnd factory argument
+    * single command factory argument
     * @param arg the command argument description
     * @param factoryName the name of factory
     * @param window the window configuration
@@ -53,37 +51,31 @@ private[launcher] object FieldBox {
     this.children.add(argPane)
     argPane.setPrefWidth(windowRect.w * PercentageLeft)
     private val node : Node = arg.valueType match {
-      case LimitedValueType(values @_*) => {
-        val combo = new ComboBox[Any](values)
+      case LimitedValueType(values @_*) => val combo = new ComboBox[Any](values)
         if(arg.defaultValue.isDefined){
-          (0 until values.size).filter(i => values.apply(i) == arg.defaultValue.get)
+          values.indices.filter(i => values.apply(i) == arg.defaultValue.get)
             .foreach(x => combo.getSelectionModel.select(x))
         }
         objectProperty.bind(combo.value)
         combo
-      }
-      case IntType => {
-        val field = new IntField {}
+
+      case IntType => val field = new IntField {}
         arg.defaultValue.foreach {x => field.text = x.toString}
         objectProperty.bind(field.text)
         field
-      }
-      case BooleanType => {
-        val checkBox = new CheckBox()
+
+      case BooleanType => val checkBox = new CheckBox()
         if(arg.defaultValue.isDefined){
           checkBox.selected = arg.defaultValue.get.asInstanceOf[Boolean]
         }
         objectProperty.bind(checkBox.selected)
         checkBox
-      }
 
-      case _ => {
-        val field = new TextField{
-          text = arg.defaultValue.map(_.toString).getOrElse("")
+      case _ => val field = new TextField{
+          text = arg.defaultValue.fold("")(_.toString)
         }
         objectProperty.bind(field.text)
         field
-      }
     }
 
     private val nodePane = new JFXStackPane(node)

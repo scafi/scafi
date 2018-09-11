@@ -14,17 +14,18 @@ import scalafx.scene.control._
 import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import scalafx.scene.layout.Pane
 /**
-  * a set of method that allow to decorate a pane
+  * a set of method that allow to decorate a scalafx pane
   */
 object PaneDecoration {
   /**
-    * create a menu bar
+    * create a menu bar that allow to close application and
+    * show help associated to command insert to application
     * @param outerPane the main pane
     * @param help string
     * @return a menu bar with help string
     */
   def createMenu(outerPane : Pane, help : String) : MenuBar = {
-    implicit val keyFile = KeyFile.View
+    implicit val keyFile : String = KeyFile.View
     val helpTooltip = new Tooltip(help)
     helpTooltip.prefWidth = 200
     helpTooltip.wrapText = true
@@ -34,14 +35,14 @@ object PaneDecoration {
     val helpLabel = new Label(i"help")
     val exit = new MenuItem(i"exit")
     val helpItem = new CustomMenuItem(helpLabel)
-    helpItem.onAction = (e : ActionEvent) => {
+    helpItem.onAction = (_ : ActionEvent) => {
       val bounds = helpLabel.localToScreen(helpLabel.boundsInLocal.value)
       helpTooltip.show(helpLabel,bounds.getMaxX,bounds.getMaxY)
     }
-    outerPane.onMouseClicked = (e: MouseEvent) => helpTooltip.hide()
+    outerPane.onMouseClicked = (_: MouseEvent) => helpTooltip.hide()
     file.getItems.addAll(helpItem,new SeparatorMenuItem(),exit)
 
-    exit.onAction = (e : ActionEvent) => InputCommandController.virtualMachine.process(ExitCommandFactory,CommandFactory.emptyArg)
+    exit.onAction = (_ : ActionEvent) => InputCommandController.virtualMachine.process(ExitCommandFactory,CommandFactory.emptyArg)
 
     menuBar.menus += file
 
@@ -58,7 +59,7 @@ object PaneDecoration {
     val inputText = new TextField()
 
     outerPane.handleEvent(MouseEvent.MouseClicked) {
-      me : MouseEvent => outerPane.requestFocus()
+      _ : MouseEvent => outerPane.requestFocus()
     }
     inputText.handleEvent(KeyEvent.KeyPressed) {
       key : KeyEvent => {

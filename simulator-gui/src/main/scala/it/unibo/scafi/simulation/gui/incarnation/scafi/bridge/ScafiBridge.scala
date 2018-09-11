@@ -11,7 +11,7 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   override type SIMULATION_PROTOTYPE = () => EXTERNAL_SIMULATION
   override type SIMULATION_CONTRACT = ExternalSimulationContract
   protected var idsObserved : Set[world.ID] = Set.empty
-  val world = scafiWorld
+  val world : ScafiLikeWorld = scafiWorld
   /**
     * current simulation prototype, at begging no prototype defined
     */
@@ -49,13 +49,13 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
     simSeed = Some(simulationSeed)
   }
   //describe scafi contract like
-  override val contract = new ExternalSimulationContract {
+  override val contract : ExternalSimulationContract = new ExternalSimulationContract {
     private var currentSimulation : Option[EXTERNAL_SIMULATION] = None
     override def simulation: Option[SpaceAwareSimulator] = this.currentSimulation
 
     override def initialize(prototype: SIMULATION_PROTOTYPE): Unit = {
 
-      //to initialize the simulation, current simulation must be empty and program must be definied
+      //to initialize the simulation, current simulation must be empty and program must be defined
       require(currentSimulation.isEmpty && simulationSeed.isDefined)
 
       //create context by program passed
@@ -85,7 +85,7 @@ object ScafiBridge {
     def level : Int = if(path.isRoot) {
       0
     } else {
-      path.toString.split("/").size + 1
+      path.toString.split("/").length + 1
     }
   }
 }

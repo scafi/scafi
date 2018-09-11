@@ -8,8 +8,8 @@ class BoundaryTest extends FunSpec with Matchers {
   val checkThat = new ItWord
   val world = new AbstractWorldImpl
   val width = 10
-  val heigth = 10
-  world.boundary = Some(new world.ShapeBoundary(Rectangle(width,heigth)))
+  val height = 10
+  world.boundary = Some(world.ShapeBoundary(Rectangle(width,height)))
 
   checkThat("I can put node only inside the world") {
     assert(world.insertNode(new world.NodeBuilder(0,Point3D(0,0,0))))
@@ -24,7 +24,7 @@ class BoundaryTest extends FunSpec with Matchers {
 
   }
 
-  world.boundary = Some(new world.ShapeBoundary(Rectangle(width,heigth), (Point3D(1,1,0),Rectangle(2,2))))
+  world.boundary = Some(world.ShapeBoundary(Rectangle(width,height), (Point3D(1,1,0),Rectangle(2,2))))
 
   checkThat("in inclusive bound i can't add node") {
     world.clear()

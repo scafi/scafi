@@ -19,17 +19,23 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT2}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object TimerDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.SimpleTimer" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 100 // number of nodes
-  launch()
+
+object TimerDemo extends App {
+  ScafiProgramBuilder (
+    Random(100,500,500),
+    SimulationInfo(program = classOf[SimpleTimer]),
+    RadiusSimulation(radius = 140),
+    neighbourRender = true
+  ).launch()
 }
 
+@Demo
 class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT2 {
   override def main() = branch(sense1){linearFlow(100)}{0}
 }

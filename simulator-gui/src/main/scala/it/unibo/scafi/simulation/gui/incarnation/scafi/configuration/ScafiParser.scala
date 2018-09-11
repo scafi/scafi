@@ -7,15 +7,16 @@ import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command._
-import it.unibo.scafi.simulation.gui.view.OutputPolicy.noOutput
+import it.unibo.scafi.simulation.gui.view.OutputPolicy.NoOutput
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutput, StandardFXOutput}
 
 /**
-  * describe the scafi parser
+  * describe the set of information used to create virtual machine with command
+  * supported by scafi application
   */
 object ScafiParser {
-  implicit val scafiConfiguration : ScafiConfigurationBuilder= new ScafiConfigurationBuilder
+  implicit val scafiConfiguration : ScafiConfigurationBuilder = new ScafiConfigurationBuilder
   /**
     * parser unix like used to parse string value in configuration command
     */
@@ -28,7 +29,7 @@ object ScafiParser {
     new LanguageCommandFactory,
     new PerformanceCommandFactory,
     new GraphicsLogCommandFactory,
-    new OutputCommandFactory(FastFXOutput,StandardFXOutput,noOutput),
+    new OutputCommandFactory(FastFXOutput,StandardFXOutput,NoOutput),
     new WindowConfigurationCommandFactory(ScalaFXEnvironment),
     new LogCommandFactory(NoLog,StandardLog,GraphicsLog),
     new RenderCommandFactory)

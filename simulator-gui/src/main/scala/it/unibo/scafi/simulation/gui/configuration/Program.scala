@@ -29,9 +29,9 @@ class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,
       case _ =>
     }
     //render the output
-    viewEnv.foreach {_.container.render}
+    viewEnv.foreach {_.container.render()}
     //start all logic controller
-    programEnv.controller.foreach( _.start)
+    programEnv.controller.foreach( _.start())
     //init log
     programEnv.logConfiguration()
     //initialized the simulation
@@ -44,11 +44,9 @@ class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,
     scheduler.attach(programEnv.simulation)
     //put output into the presenter
     viewEnv match {
-      case Some(view) => {
+      case Some(view) =>
         programEnv.presenter.output(view.container.output)
         scheduler.attach(programEnv.presenter)
-      }
-
       case _ =>
     }
     scheduler.delta = programEnv.policy.tick

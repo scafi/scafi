@@ -10,7 +10,6 @@ import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
 
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
-import scalafx.scene.paint.Color
 package object scalaFX {
   /**
     * convert a point in a point2D in javafx
@@ -29,7 +28,7 @@ package object scalaFX {
     */
   def nodeToPosition(n : Node) : FXPoint = {
     val node = nodeToAbsolutePosition(n)
-    return new FXPoint(node.x + n.translateX.value, node.y + n.translateY.value)
+    new FXPoint(node.x + n.translateX.value, node.y + n.translateY.value)
   }
 
   /**
@@ -54,11 +53,11 @@ package object scalaFX {
   /**
     * initialize fx environment
     */
-  def initializeScalaFXPlatform (): Unit = {
+  def initializeScalaFXPlatform(): Unit = {
     new JFXPanel
   }
   /**
-    * a rich representation of fx node that can be cloned and add style safety
+    * a rich representation of fx node that can be cloned
     * @param node the node
     */
   implicit class RichNode(node : Node) {
@@ -68,26 +67,23 @@ package object scalaFX {
     val standardNode = new Rectangle(2,2)
     def cloneNode() : Node = {
       node.delegate match {
-        case rect : Rectangle => {
+        case rect : Rectangle =>
           val rectCloned = new Rectangle(rect.x.value + rect.translateX.value,
             rect.y.value + rect.translateY.value,
             rect.width.value,
             rect.height.value)
           rectCloned.fill = rect.fill()
           rectCloned
-        }
-        case circle : Circle => {
+        case circle : Circle =>
           val circleCloned = new Circle(circle.centerX.value + circle.translateX.value,
             circle.centerY.value + circle.translateY.value,
             circle.radius.value)
           circleCloned.fill = circle.fill()
           circleCloned
-        }
-        case _ => {
+        case _ =>
           standardNode.x = nodeToAbsolutePosition(node).x + node.translateX.value
           standardNode.y = nodeToAbsolutePosition(node).y + node.translateY.value
           standardNode
-        }
       }
     }
   }

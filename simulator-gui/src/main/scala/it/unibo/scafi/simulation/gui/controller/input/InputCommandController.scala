@@ -9,6 +9,10 @@ import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 
 /**
   * an input controller that execute command
+  * it has a oommand queue that is process
+  * when scheduler tick this concept.
+  * support undo action to remove
+  * last command chages
   */
 object InputCommandController extends InputController {
   type Argument = (CommandFactory,Map[String,Any])
@@ -19,9 +23,9 @@ object InputCommandController extends InputController {
 
   /**
     * put the command in the queue list
-    * @param c
+    * @param command the command to add into queue list
     */
-  def exec(c : Command) = commands = commands ::: (c :: Nil)
+  def exec(command : Command) : Unit = commands = commands ::: (command :: Nil)
 
   override def onTick(float: Float): Unit = {
     //for each command check that some of these are undo command
@@ -42,7 +46,7 @@ object InputCommandController extends InputController {
       case _ =>
     }
     //if the list has max size element
-    undoList = if(undoList.size == maxSize) {
+    undoList = if(undoList.lengthCompare(maxSize) == 0) {
       //the new list hasn't the last child
       c :: undoList.dropRight(1)
     } else {
@@ -53,12 +57,12 @@ object InputCommandController extends InputController {
   private def undo(): Unit = {
     //verify if the list has an element
     undoList = undoList.headOption match {
-      case Some(head : Command) => {
+      case Some(head : Command) =>
         //unmake change
         head.unmake()
         //the new undo list is the last list without head
         undoList.tail
-      }
+
       case _ => List.empty
     }
   }

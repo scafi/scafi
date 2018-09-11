@@ -2,6 +2,13 @@ package it.unibo.scafi.simulation.gui.view
 
 /**
   * utility to set information on graphics log
+  * you can change graphics configuration associated to
+  * some channel like this:
+  * <pre>
+  *  {@code
+  *     GraphicsLogger.addStrategy("output",LogType.textual
+  *  }
+  * </pre>
   */
 object GraphicsLogger {
 
@@ -12,7 +19,7 @@ object GraphicsLogger {
     * @param channel the channel
     * @param logType the log strategy type
     */
-  def addStrategy(channel : String, logType: LogType) = strategyType += channel -> logType
+  def addStrategy(channel : String, logType: LogType) : Unit = strategyType += channel -> logType
 
   /**
     * root type of log type

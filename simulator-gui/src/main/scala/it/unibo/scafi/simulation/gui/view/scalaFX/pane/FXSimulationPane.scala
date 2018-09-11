@@ -2,11 +2,11 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
 import javafx.scene.paint.ImagePattern
 
-import it.unibo.scafi.simulation.gui.model.common.BoundaryDefinition
-import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
+import it.unibo.scafi.simulation.gui.model.core.Shape
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle, Rectangle}
 import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.view.ViewSetting
+import it.unibo.scafi.simulation.gui.view.ViewSetting._
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{AbstractFXSimulationPane, FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXOutputPolicy
 import it.unibo.scafi.simulation.gui.view.scalaFX.{NodeLine, _}
@@ -16,11 +16,7 @@ import scala.collection.mutable.ListBuffer
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Point2D
-import scalafx.scene.Node
-import it.unibo.scafi.simulation.gui.view.ViewSetting._
-
 import scalafx.scene.image.Image
-import scalafx.scene.layout.Priority
 import scalafx.scene.paint.{Color, Paint}
 
 private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFXSimulationPane  with FXSelectionArea with KeyboardManager{
@@ -55,6 +51,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
           neighbours(node.id) foreach {x => {
             neighbours.get(x._1) match {
               case Some(map : mutable.Map[_,_]) => map.get(node.id) foreach {x => x.update()}
+              case _ =>
             }
           }}
         }
@@ -135,7 +132,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     val oldDev = devices(id)
     //get the node where the device is attached
     val current : drawer.OUTPUT_NODE = _nodes(id)
-    //get ol prited dev (if it is defined)
+    //get old printed dev (if it is defined)
     val oldPrintedDev = oldDev.get(dev.name)
     //try to create new dev (if it is defined)
     val newDev : Option[drawer.OUTPUT_NODE] = if(oldPrintedDev.isEmpty) {
@@ -169,7 +166,6 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     }
   }
 
-  //show the changes make to the world
   override def flush(): Unit = {
     val changeToApply = changes
     changes = List.empty
@@ -183,7 +179,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     }
   }
 
-  override def setBoundary (boundary: Shape): Unit = {
+  override def boundary_= (boundary: Shape): Unit = {
     val shape = modelShapeToFXShape.apply(Some(boundary), Point.ZERO)
     boundary match {
       case Rectangle(_,_,_) | Circle(_,_) => shape.relocate(0,0)
@@ -199,7 +195,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     Platform.runLater { this.children.add(shape)}
   }
 
-  override def setWalls(walls: (Point, Shape)*): Unit = {
+  override def walls_= (walls: (Point, Shape)*): Unit = {
     for(wall <- walls) {
       val shape = modelShapeToFXShape(Some(wall._2),Point.ZERO)
       val fxp : Point2D = wall._1

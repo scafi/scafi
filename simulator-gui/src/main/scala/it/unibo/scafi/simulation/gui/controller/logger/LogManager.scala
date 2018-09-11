@@ -10,12 +10,19 @@ import scala.util.Try
   * a manager of logger observer, each message is send to all
   * log observer, each one(looking the priority) decide to log or
   * not the message
+  * you can log information in this way:
+  *
+  * <pre>
+  *   {@code
+  *     LogManager.notify(IntLog("output","value",0)
+  *   }
+  * </pre>
   */
 object LogManager extends SimpleSource {
   override type O = LogObserver
 
   /**
-    * a root class of LogMager observer
+    * a root class of LogManager observer
     */
   trait LogObserver extends Observer {
     //a list of channel accepted

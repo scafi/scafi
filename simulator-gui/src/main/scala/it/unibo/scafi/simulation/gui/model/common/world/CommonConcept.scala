@@ -78,7 +78,7 @@ trait CommonConcept {
     def nodeChanged(): Set[ID] = {
       val res = ids
       ids = ids.empty
-      return res
+      res
     }
 
     /**

@@ -16,7 +16,7 @@ object BasicShape2D {
       def check(x : Double, y : Double) : Boolean = x >= 0 && y >= 0 && x <= w && y <= h
       p match {
         case Point2D(x,y) => check(x, y)
-        case Point3D(x,y,z) => check(x, y)
+        case Point3D(x,y,_) => check(x, y)
       }
     }
   }
@@ -26,10 +26,10 @@ object BasicShape2D {
     */
   case class Circle(r : Float, override val orientation : Float = 0) extends Shape2D {
     override def contains(p: Point): Boolean = {
-      def check(x : Double, y : Double) : Boolean = math.sqrt(((x-r) * (x-r) + (y-r) * (y-r))) <= r
+      def check(x : Double, y : Double) : Boolean = math.sqrt((x-r) * (x-r) + (y-r) * (y-r)) <= r
       p match {
         case Point2D(x,y) => check(x,y)
-        case Point3D(x,y,z) => check(x,y)
+        case Point3D(x,y,_) => check(x,y)
       }
     }
   }
@@ -42,10 +42,10 @@ object BasicShape2D {
   case class Polygon(override val orientation: Float ,points: Point2D *) extends Shape2D {
     //TODO FAST SOLUTION,
     import javafx.scene.shape.{Polygon => JFXPolygon}
-    private val internalPoly = new JFXPolygon(points.map {x => List(x.x,x.y)}.flatten:_*)
+    private val internalPoly = new JFXPolygon(points.flatMap {x => List(x.x,x.y)}:_*)
     override def contains(p: Point): Boolean = p match {
       case Point2D(x,y) => internalPoly.contains(x,y)
-      case Point3D(x,y,z) => internalPoly.contains(x,y)
+      case Point3D(x,y,_) => internalPoly.contains(x,y)
     }
 
   }

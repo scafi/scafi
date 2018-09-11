@@ -2,17 +2,27 @@ package it.unibo.scafi.simulation.gui.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager
+import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
-import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 /**
   * a factory used to create a set of command
+  * with a factory you can create command like these:
+  *
+  * <pre>
+  *    {@code
+  *       val creationResult = factory.create(Map("arg1" -> value1, "arg2" -> value"))
+  *    }
+  * </pre>
+  *
+  * factories isn't used directly (in general) but it is used for example in
+  * @see it.unibo.scafi.simulation.gui.configuration.parser.UnixLikeParser
   */
 trait CommandFactory {
   import CommandFactory._
 
-  implicit val descriptionFile = ResourceBundleManager.KeyFile.CommandDescription
-  private def wrongElementNumber = Fail(international("wrong-element")(KeyFile.Error))
+  implicit val descriptionFile : String = ResourceBundleManager.KeyFile.CommandDescription
+  private def wrongElementNumber : Fail[String] = Fail(international("wrong-element")(KeyFile.Error))
 
   /**
     * @return the command name
@@ -39,7 +49,7 @@ trait CommandFactory {
     * @return (Success,Some(Command)) if the arguments are accepted (Fail,None) otherwise
     */
   final def create(args : CommandArg) : CreationResult = {
-    if(args.size < commandArgsDescription.filter(!_.optional).length || args.size > commandArgsDescription.length) {
+    if(args.size < commandArgsDescription.count(!_.optional) || args.size > commandArgsDescription.length) {
       (wrongElementNumber,None)
     } else {
       createPolicy(args)
@@ -47,7 +57,7 @@ trait CommandFactory {
   }
 
   /**
-    * a strategy defined by command factory implementatoin
+    * a strategy defined by command factory implementation
     * @param args the command args
     * @return (Success,Some(Command)) if the arguments are accepted (Fail,None) otherwise
     */
@@ -60,7 +70,7 @@ object CommandFactory {
     * used to create empty arg parameter used to create command
     * @tparam A the type of first element
     * @tparam B the type of second element
-    * @return emtpy map
+    * @return empty map
     */
   def emptyArg[A,B] : Map[A,B] = Map.empty
   import ResourceBundleManager._
@@ -80,7 +90,7 @@ object CommandFactory {
     * @param valueType the argument type
     * @param optional a boolean value that tells if the argument is optional or not
     * @param description a description of argument
-    * @param defaultValue the defaul value associated with the command argument
+    * @param defaultValue the default value associated with the command argument
     */
   case class CommandArgDescription(name : String,
                                    valueType: ValueType,
@@ -157,8 +167,8 @@ object CommandFactory {
     * @param expected the parameter names expected into the command arg
     * @return the string created
     */
-  def wrongParameterName(expected : String *) = {
-    implicit val file = KeyFile.Configuration
+  def wrongParameterName(expected : String *) : String = {
+    implicit val file : String  = KeyFile.Configuration
     val pass = i"pass"
     val runCommand = i"run-command"
     s"$pass ${expected.mkString(",")} $runCommand"
@@ -170,8 +180,8 @@ object CommandFactory {
     * @param parameter the name of parameter
     * @return the string created
     */
-  def wrongTypeParameter(expected : ValueType, parameter: String) = {
-    implicit val file = KeyFile.Configuration
+  def wrongTypeParameter(expected : ValueType, parameter: String) : String = {
+    implicit val file : String = KeyFile.Configuration
     val parameter = i"parameter"
     val isType = i"is-type"
     s"$parameter $parameter $isType $expected"

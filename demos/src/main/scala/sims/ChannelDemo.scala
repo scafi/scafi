@@ -19,18 +19,19 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object ChannelDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.Channel" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.05 // neighbourhood radius
-  Settings.Sim_NumNodes = 5000 // number of nodes
-  Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
-  Settings.To_String = (b: Any) => ""
-  launch()
-}
+object ChannelDemo extends App {
+  ScafiProgramBuilder (
+    Random(500,500,500),
+    SimulationInfo(program = classOf[Channel]),
+    RadiusSimulation(radius = 40),
+    neighbourRender = true
+  ).launch()}
 
 /**
   * Channel with obstacles
@@ -38,6 +39,8 @@ object ChannelDemo extends Launcher {
   *   - Sense2: destination area
   *   - Sense3: obstacles
   */
+
+@Demo
 class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
 
   def channel(source: Boolean, target: Boolean, width: Double): Boolean =

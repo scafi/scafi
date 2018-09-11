@@ -14,7 +14,7 @@ class GraphicsLogCommandFactory extends CommandFactory {
   import GraphicsLogCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 
-  private val logTypeMap : Map[String,LogType] = GraphicsLogger.logTypes map { x => x.toString -> x} toMap
+  private val logTypeMap : Map[String,LogType] = GraphicsLogger.logTypes.map{ x => x.toString -> x}.toMap
   private val typesAccept = LimitedValueType(logTypeMap.keySet)
   override val name: String = "graphics-log"
 

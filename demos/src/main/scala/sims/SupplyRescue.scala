@@ -19,23 +19,26 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BlockT2}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import lib.{FlockingLib, Movement2DSupport}
 
-object SupplyRescue extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.SupplyRescueDemo" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  //Settings.Sim_Topology = Topologies.Grid_HighVar
-  Settings.Sim_NbrRadius = 0.1 // neighbourhood radius
-  Settings.Sim_NumNodes = 50 // number of nodes
-  //Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
-  Settings.Movement_Activator = (b: Any) => b.asInstanceOf[(Double, Double)]
-  //Settings.To_String = (b: Any) => ""
-  Settings.Sim_DrawConnections = true
-  Settings.Sim_realTimeMovementUpdate = false
-  //Settings.Sim_Draw_Sensor_Radius = true
-  launch()
+object SupplyRescue extends App {
+  lazy val worldSize = (500,500)
+  def tupleToWorldSize(tuple : (Double,Double)) = if(tuple != null) {
+    (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
+  } else {
+    (0.0,0.0)
+  }
+  ScafiProgramBuilder (
+    Random(500,worldSize._1,worldSize._1),
+    SimulationInfo(program = classOf[SupplyRescueDemo], actuator = Actuator.movementActuator),
+    RadiusSimulation(radius = 40),
+    neighbourRender = true
+  ).launch()
 }
 
 /**
@@ -46,11 +49,13 @@ object SupplyRescue extends Launcher {
   *    - Sense3 - Nodes that retrieve supplies and bring them to the base
   *    - Sense4 - Base
   */
-class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG with BlockT2 {
 
-  override def main():(Double, Double) = rep({
+@Demo(simulationType = SimulationType.MOVEMENT)
+class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG with BlockT2 {
+  import SupplyRescue._
+  override def main():(Double, Double) = tupleToWorldSize(rep({
     (0.0, 0.0)
-  }, true)(behavior)._1
+  }, true)(behavior)._1)
 
   private def behavior(tuple: ((Double,Double), Boolean)): ((Double,Double), Boolean) = {
     mux(sense1){

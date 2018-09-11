@@ -8,11 +8,11 @@ import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 import org.scalatest.{FunSpec, Matchers}
 
 class ConfigurationMachineTest extends FunSpec with Matchers {
-  val checkThat = new ItWord
-  val command = "command"
-  val fakeCommand = "fake"
-  var called = 0
-  val parser = new Parser[String] {
+  private val checkThat = new ItWord
+  private val command = "command"
+  private val fakeCommand = "fake"
+  private var called = 0
+  private val parser = new Parser[String] {
     override def parse(arg: String): (Result, Option[Command]) = if(arg == command) {
     CommandFactory.creationSuccessful(onlyMakeCommand(() => {
       called += 1

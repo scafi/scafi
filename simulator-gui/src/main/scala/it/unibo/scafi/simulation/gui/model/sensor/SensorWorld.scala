@@ -18,12 +18,11 @@ trait SensorWorld extends AbstractAggregateWorld with SensorNetwork  {
     //find the dev with name passed
     node.getMutableDevice(name) match {
       case None => false
-      case Some(device) => {
+      case Some(device) =>
         device.value = value
         notify(NodeEvent(id, NodeDeviceChanged))
         notify(DeviceEvent(id, name, SensorChanged))
         true
-      }
     }
   }
 }

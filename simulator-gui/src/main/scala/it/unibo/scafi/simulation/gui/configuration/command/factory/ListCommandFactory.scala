@@ -16,7 +16,7 @@ class ListCommandFactory(private val commandFactories: CommandFactory *) extends
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = easyResultCreation(() => {
     import LogManager._
-    val output = commandFactories.map {x => x.name} mkString("\n")
+    val output = commandFactories.map {x => x.name} mkString "\n"
     LogManager.notify(StringLog(Channel.CommandResult,Label.Empty,output))
   })
 }

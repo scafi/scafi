@@ -23,7 +23,7 @@ object LogConfiguration {
 
   /**
     * a standard configuration used log in standard out and in different file name
-    * called as log chanell
+    * called as log chanel
     */
   case object StandardLog extends LogConfiguration {
     override def apply(): Unit = {
@@ -44,7 +44,7 @@ object LogConfiguration {
   case object GraphicsLog extends LogConfiguration {
     override def apply(): Unit = {
       LogConfiguration.StandardLog()
-      scalaFX.initializeScalaFXPlatform
+      scalaFX.initializeScalaFXPlatform()
       FXLogger.acceptChannel(LogManager.acceptAll)
       LogManager.attach(FXLogger)
     }

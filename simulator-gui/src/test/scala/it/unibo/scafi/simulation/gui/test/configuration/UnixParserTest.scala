@@ -8,15 +8,16 @@ import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 import org.scalatest.{FunSpec, Matchers}
 
+//noinspection NameBooleanParameters,NameBooleanParameters,NameBooleanParameters
 class UnixParserTest extends FunSpec with Matchers {
-  val checkThat = new ItWord
-  val commandName = "command"
-  val commandNotDescribed = "acommand"
-  val listCommand = "list-command"
-  val help = "-help"
-  val firstValue = 1
-  val aValue = "avalue"
-  val aFactory = new CommandFactory {
+  private val checkThat = new ItWord
+  private val commandName = "command"
+  private val commandNotDescribed = "a-command"
+  private val listCommand = "list-command"
+  private val help = "-help"
+  private val firstValue = 1
+  private val aValue = "a-value"
+  private val aFactory = new CommandFactory {
     override val description: String = ""
 
     override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {

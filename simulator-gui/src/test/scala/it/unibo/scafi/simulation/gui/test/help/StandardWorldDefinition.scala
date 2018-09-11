@@ -15,7 +15,7 @@ class StandardWorldDefinition extends MetricDefinition with BoundaryDefinition {
   override type B = Boundary
   override type M = Metric
 
-  var metric: M = cartesinMetric
+  var metric: M = this.cartesianMetric
 
   var boundary: Option[B] = None
 }

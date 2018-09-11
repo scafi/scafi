@@ -7,10 +7,11 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfig
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import org.scalatest.{FunSpec, Matchers}
 
+//noinspection NameBooleanParameters,NameBooleanParameters
 class ConfigurationBuilderTest extends FunSpec with Matchers{
   val checkThat = new ItWord
-  val worldInitializer = new Random(100,10,10)
-  val simulationInitializer = new RadiusSimulation(10)
+  val worldInitializer = Random(100,10,10)
+  val simulationInitializer = RadiusSimulation(10)
   val simulationSeed = SimulationInfo(program = classOf[ConfigurationBuilderTest])
   checkThat("an empty scafi builder can't create a configuration") {
     val builder = new ScafiConfigurationBuilder
@@ -25,11 +26,10 @@ class ConfigurationBuilderTest extends FunSpec with Matchers{
       scafiSimulationInformation = Some(simulationSeed)
     )
     withNamedArgument.create() match {
-      case Some(configuration : ScafiConfiguration) => {
-        assert(configuration.worldInitializer == worldInitializer &&
+      case Some(configuration : ScafiConfiguration) => assert(configuration.worldInitializer == worldInitializer &&
         configuration.simulationInitializer == simulationInitializer &&
         configuration.scafiSimulationInformation == simulationSeed)
-      }
+
       case _ => assert(false)
     }
     assert(withNamedArgument.created)
@@ -39,11 +39,10 @@ class ConfigurationBuilderTest extends FunSpec with Matchers{
 
     builder.create() match {
 
-      case Some(configuration : ScafiConfiguration)  => {
-        assert(configuration.worldInitializer == worldInitializer &&
+      case Some(configuration : ScafiConfiguration) => assert(configuration.worldInitializer == worldInitializer &&
           configuration.simulationInitializer == simulationInitializer &&
           configuration.scafiSimulationInformation == simulationSeed)
-      }
+
       case _ => assert(false)
     }
     assert(builder.created)

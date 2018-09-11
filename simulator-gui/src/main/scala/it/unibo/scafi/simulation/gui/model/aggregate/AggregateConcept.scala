@@ -21,6 +21,7 @@ trait AggregateConcept {
     * the node state can be changed only by world.
     * outside the client can only see the node state
     */
+  //noinspection AbstractValueInTrait
   protected trait AggregateMutableNode extends RootMutableNode {
     /**
       * the position on node is variable
@@ -35,7 +36,7 @@ trait AggregateConcept {
 
     /**
       * remove the device with the name associated
-      * @param name
+      * @param name the device name to remove
       */
     def removeDevice(name : NAME) : Boolean
 
@@ -78,8 +79,8 @@ trait AggregateConcept {
   case class DeviceEvent(id : ID, name : NAME, eventType: EventType) extends Event
 
   /**
-    * an obsever that want to see device changes
-    * @param events
+    * an observer that want to see device changes
+    * @param events the events accepted by this observer
     */
   protected class AggregateWorldObserver(events : Set[EventType]) extends WorldObserver(events) {
     private var devs : Map[ID,Set[NAME]] = Map()
@@ -88,7 +89,7 @@ trait AggregateConcept {
         case DeviceEvent(id,name,e) => if(listenEvent contains e) {
           ids += id
           if(devs.get(id).isEmpty) devs += id -> Set()
-          devs += id -> (devs.get(id).get + name)
+          devs += id -> (devs(id) + name)
         }
         case _ => super.update(event)
       }

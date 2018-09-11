@@ -17,7 +17,7 @@ import scalafx.scene.{Node, Scene}
 import scalafx.util.Duration
 
 /**
-  * a set of strategy to add functionality to javafx pane
+  * a set of strategy to add functionality to scalafx pane
   */
 private [scalaFX] object PaneExtension {
   private val ScaleFactor = 1.1
@@ -26,16 +26,16 @@ private [scalaFX] object PaneExtension {
   /**
     * bind the region size to scene
     * @param node the region
-    * @param percentageWidth
-    * @param percentageHeight
+    * @param percentageWidth the percentage width of binded node
+    * @param percentageHeight the percentage height of binded node
     * @param scene
     */
   def bindSize(node : Region,percentageWidth : Double = 1, percentageHeight : Double = 1) (implicit scene : Scene): Unit = {
     bindHeight()
     bindWidth()
 
-    scene.width.addListener((o : Observable) => bindWidth())
-    scene.height.addListener((o : Observable) => bindHeight())
+    scene.width.addListener((_ : Observable) => bindWidth())
+    scene.height.addListener((_ : Observable) => bindHeight())
 
     def bindHeight(): Unit = {
       node.minHeight = scene.height.value * percentageHeight
@@ -55,8 +55,8 @@ private [scalaFX] object PaneExtension {
   def clip(pane : Pane) : Unit = {
     val rect = new Rectangle()
     pane.clip = rect
-    pane.heightProperty().addListener((o : Observable) => rect.height = pane.height.value)
-    pane.widthProperty().addListener((o : Observable) => rect.width = pane.width.value)
+    pane.heightProperty().addListener((_ : Observable) => rect.height = pane.height.value)
+    pane.widthProperty().addListener((_ : Observable) => rect.width = pane.width.value)
   }
 
   /**
@@ -68,7 +68,7 @@ private [scalaFX] object PaneExtension {
     require(innerNode != null && outerNode != null)
 
       outerNode.onScroll = (e : ScrollEvent) => {
-      val scaleFactor = if (e.getDeltaY() > 0) ScaleFactor else 1 / ScaleFactor
+      val scaleFactor = if (e.getDeltaY > 0) ScaleFactor else 1 / ScaleFactor
       if (!(scaleFactor < ScaleFactor && innerNode.scaleX.value < minZoomOut)) {
         val oldScale: Double = innerNode.getScaleX
         val scale: Double = oldScale * scaleFactor
@@ -76,8 +76,8 @@ private [scalaFX] object PaneExtension {
 
         // determine offset that we will have to move the node
         val bounds: Bounds = innerNode.localToScene(innerNode.getBoundsInLocal)
-        val dx: Double = (e.x - ((bounds.getWidth / 2) + bounds.getMinX))
-        val dy: Double = (e.y - ((bounds.getHeight / 2) + bounds.getMinY))
+        val dx: Double = e.x - ((bounds.getWidth / 2) + bounds.getMinX)
+        val dy: Double = e.y - ((bounds.getHeight / 2) + bounds.getMinY)
         // timeline that scales and moves the node
         innerNode.translateX = innerNode.translateX.value - f * dx
         innerNode.translateY = innerNode.translateY.value - f * dy
@@ -93,7 +93,6 @@ private [scalaFX] object PaneExtension {
     */
   def dragPane(pane : Node) : Unit = {require(pane != null)
     var onDrag = false
-    val minScale = 1
     var x, y: Double = 0
     pane.onMouseDragged = (e: MouseEvent) => {
       if(onDrag) {
@@ -107,7 +106,7 @@ private [scalaFX] object PaneExtension {
         onDrag = true
       }
     }
-    pane.onMouseReleased = (e : MouseEvent) => onDrag = false}
+    pane.onMouseReleased = (_ : MouseEvent) => onDrag = false}
 
   /**
     * allow to track scene fps

@@ -42,7 +42,6 @@ abstract class AbstractToggleCommandFactory(val world : SensorPlatform) extends 
 object AbstractToggleCommandFactory {
   val Name = "name"
   val Ids = "ids"
-  private val wrongElementType = Fail("argument passed has wrong element type")
   class MultiToggleCommandFactory(override val world : SensorPlatform)(implicit val analyzer: WorldTypeAnalyzer)
     extends AbstractToggleCommandFactory(world) {
     import CommandFactory._
@@ -54,7 +53,7 @@ object AbstractToggleCommandFactory {
       var value : Option[Iterable[_]] = None
       //verify if the name argument is set and the name value is accepted
       args.get(Name) match {
-        case Some(name) => if(analyzer.acceptName(name)) sensorName = Some(name)
+        case Some(name : String) => if(analyzer.acceptName(name)) sensorName = Some(name)
         case _ => return creationFailed(Fail(wrongTypeParameter(AnyType,Name)))
       }
       //verify if the ids argument is set and the ids value is accepted

@@ -7,10 +7,12 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.{ScalaFXEnvironment, modelShap
 import scalafx.scene.paint.Color
 
 /**
-  * a gradient policy
+  * a output strategy that associated a color to
+  * number, allow to see graphically the result
+  * of computation
   */
 case object GradientFXOutput extends FXOutputPolicy {
-  var maxValue = WindowConfiguration.toWindowRect(ScalaFXEnvironment.windowConfiguration).w
+  lazy val maxValue : Float = WindowConfiguration.toWindowRect(ScalaFXEnvironment.windowConfiguration).w
   val maxColor = 255.0
   override type OUTPUT_NODE = javafx.scene.shape.Shape
 
@@ -29,8 +31,8 @@ case object GradientFXOutput extends FXOutputPolicy {
     if(v > maxValue) {
       Color.Black
     } else {
-      val color = ((maxColor / maxValue) * v - 255) * -1;
-      Color.rgb(color.toInt,0,0);
+      val color = ((maxColor / maxValue) * v - 255) * -1
+      Color.rgb(color.toInt,0,0)
     }
 
   }

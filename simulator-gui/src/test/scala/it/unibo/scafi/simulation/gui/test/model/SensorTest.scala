@@ -6,17 +6,18 @@ import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.test.help.SensorWorldImpl
 import org.scalatest.{FunSpec, Matchers}
 
+//noinspection NameBooleanParameters,NameBooleanParameters,NameBooleanParameters
 class SensorTest extends FunSpec with Matchers{
-  val checkThat = new ItWord
+  private val checkThat = new ItWord
   //sensor world with any type of sensor,
-  val world = new SensorWorldImpl
-  val zero = Point.ZERO
-  val nodeNumber = 100
-  val defaultName = "input"
-  val ledSensor = "led"
-  val generalSensor = "value"
-  val floatSensor = "temp"
-  val sensorBuilders : List[world.DEVICE_PRODUCER]= new world.LedProducer("led",false,sensorInput) ::
+  private  val world = new SensorWorldImpl
+  private val zero = Point.ZERO
+  private val nodeNumber = 100
+  private val defaultName = "input"
+  private val ledSensor = "led"
+  private val generalSensor = "value"
+  private val floatSensor = "temp"
+  private val sensorBuilders : List[world.DEVICE_PRODUCER]= new world.LedProducer("led",false,sensorInput) ::
                        new world.GeneralSensorProducer("value",0,sensorInput) ::
                        new world.DoubleSensorValue("temp",10.5,sensorOutput) :: Nil
   checkThat("i can add node with sensor") {
@@ -37,6 +38,7 @@ class SensorTest extends FunSpec with Matchers{
       case _ => fail("the sensor is a led")
     }
 
+    //noinspection DangerousCatchAll
     try {
       world.changeSensorValue(0,defaultName,"aa")
       fail("i can't change sensor value to another sensor type")
@@ -46,6 +48,7 @@ class SensorTest extends FunSpec with Matchers{
   }
 
   checkThat("i can't change sensor value of node that hasn't a sensor") {
+    //noinspection DangerousCatchAll
     try {
       world.changeSensorValue(-1,defaultName,true)
       assert(false)
@@ -57,7 +60,7 @@ class SensorTest extends FunSpec with Matchers{
 
   checkThat("i can create a sensor network") {
     world.clear()
-    for (elem <- (0 until nodeNumber)) {
+    for (elem <- 0 until nodeNumber) {
       world.insertNode(new world.NodeBuilder(id = elem, position = zero, producer = sensorBuilders))
     }
     assert(world.nodes.nonEmpty)

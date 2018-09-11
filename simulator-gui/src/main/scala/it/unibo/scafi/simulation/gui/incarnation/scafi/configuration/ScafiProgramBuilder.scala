@@ -12,22 +12,21 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiSimulationIn
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutput}
-import it.unibo.scafi.simulation.gui.view.{OutputPolicy, SimulationView, WindowConfiguration}
+import it.unibo.scafi.simulation.gui.view.{OutputPolicy, SimulationView}
 
-/**
-  * scafi program builder used to create scafi program
-  * @param configuration the scafi configuration used to initialize program
-  */
+/*
+ * scafi program builder used to create scafi program
+ * @param configuration the scafi configuration used to initialize program
+ */
 private class ScafiProgramBuilder(override val configuration: ScafiConfiguration) extends ProgramBuilder[ScafiConfiguration] {
   override def create: Program[_,_] = {
     val presenter = new SimulationPresenter[ScafiLikeWorld](scafiWorld,configuration.neighbourRender)
-    //check if outputpolicy is supported
+    //check if output policy is supported
     val viewEnv : Option[ViewEnvironment[SimulationView]] = configuration.outputPolicy match {
-      case policy : FXOutputPolicy => {
+      case policy : FXOutputPolicy =>
         ScalaFXEnvironment.drawer = policy
         Some(ScalaFXEnvironment)
-      }
-      case OutputPolicy.`noOutput` => None
+      case OutputPolicy.NoOutput => None
       case _ => throw new IllegalArgumentException("output policy don't supported")
     }
     //set name, logo and icon to view environment
@@ -37,13 +36,23 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
     //init the world
     configuration.worldInitializer.init(configuration.scafiWorldInfo)
     val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationInformation)
-    val programEnv = new ScafiProgramEnvironment(presenter,bridged,configuration.perfomance,configuration.logConfiguration)
+    val programEnv = new ScafiProgramEnvironment(presenter,bridged,configuration.performance,configuration.logConfiguration)
     new Program[ScafiLikeWorld,SimulationView](programEnv, viewEnv,configuration.commandMapping)
   }
 }
 object ScafiProgramBuilder {
   /**
     * allow to create a program passing some parameter
+    * you can launch a scafi aggregate application like this:
+    * <pre>
+    *   {@code
+         ScafiProgramBuilder (
+            Random(500,500,500),
+            SimulationInfo(program = classOf[Simple]),
+            RadiusSimulation(radius = 40)
+          ).launch()
+    *   }
+    * </pre>
     * @param scafiWorldInfo the world seed in scafi context
     * @param worldInitializer a world initializer to initialize scafi world
     * @param commandMapping a command mapping used to map some keyboard (and selection) input to an action
@@ -51,8 +60,8 @@ object ScafiProgramBuilder {
     * @param simulationInitializer a simulation initializer used to initialize scafi bridge simulation
     * @param outputPolicy strategy describe how to output some information
     * @param neighbourRender allow to render or not neighbour
-    * @param perfomance the perfomance of program context
-    * @return
+    * @param performance the perfomance of program context
+    * @return the program create by information passed
     */
   def apply(
              worldInitializer: ScafiWorldInitializer,
@@ -63,7 +72,7 @@ object ScafiProgramBuilder {
              outputPolicy: OutputPolicy = StandardFXOutput,
              neighbourRender: Boolean = false,
              log : LogConfiguration = LogConfiguration.GraphicsLog,
-             perfomance: PerformancePolicy = StandardPolicy): Program[_,_] = {
+             performance: PerformancePolicy = StandardPolicy): Program[_,_] = {
     new ScafiProgramBuilder(new ScafiConfiguration(scafiWorldInfo,
       worldInitializer,
       commandMapping,
@@ -72,11 +81,11 @@ object ScafiProgramBuilder {
       outputPolicy,
       neighbourRender,
       log,
-      perfomance)).create
+      performance)).create
   }
 
   /**
-    * create a program builder passing the configuration craeted
+    * create a program builder passing the configuration created
     * @param configuration the program configuration
     * @return the program create
     */

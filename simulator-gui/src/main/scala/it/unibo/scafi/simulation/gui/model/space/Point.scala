@@ -5,7 +5,7 @@ package it.unibo.scafi.simulation.gui.model.space
   */
 sealed trait Point
 object Point {
-  object ZERO extends Point3D(0,0,0);
+  object ZERO extends Point3D(0,0,0)
 }
 /**
   * describe a 3D position

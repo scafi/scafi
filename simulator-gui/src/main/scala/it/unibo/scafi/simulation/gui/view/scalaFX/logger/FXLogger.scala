@@ -7,14 +7,13 @@ import scalafx.scene.control.TabPane
 
 /**
   * standard fx graphics logger used to show log accepted
-  * by default FXLogger has standard reppresentation for some log typg:
+  * by default FXLogger has standard representation for some log type:
   *   - IntLog are showed with a line chart
   *   - TreeLog are showed with a tree view
   *   - other are showed with textual form
-  * the reppresentation could be changed by call GraphicsLogger.addStrategy(channel,StrategyType)
   */
 object FXLogger extends TabPane with LogObserver {
-  scalaFX.initializeScalaFXPlatform
+  scalaFX.initializeScalaFXPlatform()
   this.stylesheets.add("style/tab-pane.css")
   private var channelToStrategy : Map[String,FXLogStrategy] = Map.empty
 
@@ -31,12 +30,11 @@ object FXLogger extends TabPane with LogObserver {
   override protected def processLog(log: Log[_]): Unit = {
     val strategy : FXLogStrategy = channelToStrategy.get(log.channel) match {
       case Some(s) => s
-      case _ => {
+      case _ =>
         val res = createStrategy(log)
         res.init(log.channel)
         this.channelToStrategy += log.channel -> res
         res
-      }
     }
     strategy.out(log)
   }

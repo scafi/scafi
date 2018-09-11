@@ -6,10 +6,11 @@ import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration.{FullScreen, Window}
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.Logo
 
+import scalafx.Includes._
+import scalafx.scene.Node
 import scalafx.scene.image.ImageView
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
-import scalafx.Includes._
 
 /**
   * a stage with an icon ad logo
@@ -18,19 +19,17 @@ import scalafx.Includes._
 private [scalaFX] class LogoStage(window: WindowConfiguration) extends Stage {
   //verify the windows size and put the right dimension
   window.size match {
-    case FullScreen => {
+    case FullScreen =>
       this.fullScreen = true
       this.fullScreenExitKey = KeyCombination.NO_MATCH
-    }
-    case Window(w,h) => {
+    case Window(w,h) =>
       this.width = w
       this.minWidth = w
       this.height = h
       this.minHeight = h
-    }
   }
   //put logo if it is defined
-  protected val logo = window.logoPath match{
+  protected val logo : Node = window.logoPath match{
     case Some(name : String) => new ImageView(Logo.big(name))
     case _ => new Pane()
   }

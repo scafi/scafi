@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.configuration.seed
+package it.unibo.scafi.simulation.gui.configuration.information
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateConcept
 import it.unibo.scafi.simulation.gui.model.core.{Shape, World}

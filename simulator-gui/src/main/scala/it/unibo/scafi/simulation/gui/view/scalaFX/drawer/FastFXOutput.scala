@@ -4,7 +4,9 @@ import it.unibo.scafi.simulation.gui.view.ViewSetting._
 import it.unibo.scafi.simulation.gui.view.scalaFX.modelShapeToFXShape
 
 /**
-  * a policy that try to render less information
+  * a output strategy that show led sensor:
+  * show the led with changing node color,
+  * output node using {@see StandardFXOuput}
   */
 case object FastFXOutput extends FXOutputPolicy {
 
@@ -18,7 +20,7 @@ case object FastFXOutput extends FXOutputPolicy {
     import scalafx.Includes._
     dev match {
       case SensorDevice(sens) => sens.value match {
-        case led : Boolean => {
+        case led : Boolean =>
           val index = deviceName.indexOf(dev.name.toString)
           if (led) {
             val color = deviceColor(index % deviceColor.size)
@@ -32,7 +34,6 @@ case object FastFXOutput extends FXOutputPolicy {
               node.fillProperty().setValue(nodeColor)
             }
           }
-        }
         case _ =>
       }
     }

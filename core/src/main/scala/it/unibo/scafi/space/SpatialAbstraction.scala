@@ -215,9 +215,16 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     val DefaultProximityThreshold: Double = 1
   }
 
+  /**
+    * a space that used quad tree index to compute neighbour
+    * @param pos the position of noe
+    * @param radius radius of neighbour range
+    * @tparam E the type of node
+    */
   class QuadTreeSpace[E](pos : Map[E,P],radius : Double) extends Space3D[E](pos,radius) {
-    var nMap: TrieMap[E, Set[E]] = TrieMap.empty
-    val neighbourIndex: NNIndex[E] = NNIndex(pos)
+    private var nMap: TrieMap[E, Set[E]] = TrieMap.empty
+    //TODO CREATE AN INDEX THAT INCREASE HIS SIZE WITH NODE POSITIONING
+    private val neighbourIndex: NNIndex[E] = NNIndex(pos)
     override def setLocation(e: E, p: P): Unit = {
       resetNeighbours(e)
       neighbourIndex -= (elemPositions(e))
@@ -231,7 +238,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
 
     private def addNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) + e) }}}
     private def calculateNeighbours(e: E): Unit = {
-      val neigh: (E, Set[E]) = e -> (neighbourIndex <--> (elemPositions(e), radius) map {
+      val neigh: (E, Set[E]) = e -> (neighbourIndex neighbours (elemPositions(e), radius) map {
         _._2
       } toSet)
       this.nMap += neigh

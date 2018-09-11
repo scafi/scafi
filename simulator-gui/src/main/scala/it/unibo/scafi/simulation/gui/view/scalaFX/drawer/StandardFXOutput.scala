@@ -13,7 +13,11 @@ import scalafx.scene.paint.Color
 import scalafx.scene.shape.Ellipse
 
 /**
-  * standard policy used to show nodes
+  * standard policy used to show nodes.
+  * node are showed using javafx shapes
+  * using standard mapping.
+  * led device are showed like ellipse with some color
+  * other device are showed with a label
   */
 case object StandardFXOutput extends FXOutputPolicy {
   //the type of output is Node because string device are showed like label
@@ -22,7 +26,7 @@ case object StandardFXOutput extends FXOutputPolicy {
   private val radius = 2
   //allow to show multiple label
   private var labelOut = Map.empty[OUTPUT_NODE, List[OUTPUT_NODE]]
-  //label offset beetween two label
+  //label offset between two label
   private val labelOffset = 15
   //used standard conversion of model shape to scalafx shape
   override def nodeGraphicsNode(node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
@@ -75,9 +79,7 @@ case object StandardFXOutput extends FXOutputPolicy {
           //list tell me how many label is render on the scene, this value allow to show label one under the other
           val list : List[OUTPUT_NODE] = labelOut.get(node) match {
             case None => List.empty[OUTPUT_NODE]
-            case Some(list : List[OUTPUT_NODE]) =>
-              var filteredList = list.filter(x => x != null).filter(x => x.isVisible)
-              filteredList
+            case Some(list : List[OUTPUT_NODE]) => list.filter(x => x != null).filter(x => x.isVisible)
           }
           val label = new Label(v.toString)
           label.setMaxWidth(maxTextLength)

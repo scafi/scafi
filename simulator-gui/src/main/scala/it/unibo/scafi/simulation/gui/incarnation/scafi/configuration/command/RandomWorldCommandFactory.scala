@@ -1,20 +1,18 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription, IntType}
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
+import it.unibo.scafi.simulation.gui.util.Result.Fail
 
 /**
   * a factory used to create a command used to set the world initializer as random initializer
   * @param scafiConfiguration the scafi configuration builder
   */
 class RandomWorldCommandFactory(implicit val scafiConfiguration: ScafiConfigurationBuilder) extends CommandFactory {
-  import RandomWorldCommandFactory._
   import CommandFactory._
+  import RandomWorldCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   override val name: String = "random-world"
 

@@ -4,12 +4,12 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.common
 import it.unibo.scafi.simulation.gui.view.SimulationView
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXOutputPolicy
 
-import scalafx.geometry.Point2D
 import scalafx.scene.layout.Pane
 
 /**
   * define a generic interface on a fx simulation pane
   */
+//noinspection AbstractValueInTrait
 
 private [scalaFX] trait AbstractFXSimulationPane extends Pane with SimulationView {
   val drawer : FXOutputPolicy

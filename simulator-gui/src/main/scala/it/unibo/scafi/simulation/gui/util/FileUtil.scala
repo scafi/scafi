@@ -8,8 +8,8 @@ import scala.reflect.io.Directory
   * an object that describe a set of file util
   */
 object FileUtil {
-  lazy val homeDirectory = System.getProperty("user.home")
-  lazy val outputDirectory = Directory(homeDirectory + "\\" + ".scafi-output")
+  lazy val homeDirectory : String = System.getProperty("user.home")
+  lazy val outputDirectory : Directory = Directory(homeDirectory + "\\" + ".scafi-output")
 
   /**
     * create a path start to home

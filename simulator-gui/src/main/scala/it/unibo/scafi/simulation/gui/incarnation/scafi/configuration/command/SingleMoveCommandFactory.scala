@@ -21,7 +21,7 @@ class SingleMoveCommandFactory(override val world : ScafiLikeWorld = scafiWorld)
     List(CommandArgDescription(Id,IntType,description = international(name, Id)),
       CommandArgDescription(X,IntType,description = international(name, X)),
       CommandArgDescription(Y,IntType,description = international(name, Y)),
-      CommandArgDescription(Z,IntType,true,international(name, Z)))
+      CommandArgDescription(Z,IntType,optional = true,international(name, Z)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {
     var id : Option[Int] = None

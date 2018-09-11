@@ -37,7 +37,6 @@ private[nn] class QuadTree[A] private (
                                       minVec: Point3D,
                                       maxVec: Point3D,
                                       maxPerBox: Int) extends  NNIndex[A]{
-  private val Dim = 3
   val root = new QuadNode((minVec + maxVec) * 0.5,
     maxVec - minVec, this, Seq.empty)
 
@@ -144,27 +143,41 @@ private[nn] class QuadTree[A] private (
 }
 
 object QuadTree {
-  private val thr = Point3D(2000,2000,2000)
-  implicit val positionOrdering: Ordering[Point3D] = new Ordering[Point3D] {
-    override def compare(a: Point3D, b: Point3D): Int = {
-      if (a.z > b.z){ +1 }
-      else if (a.z < b.z){ -1 }
-      else if (a.y > b.y){ +1 }
-      else if (a.y < b.y){ -1 }
-      else if (a.x > b.x){ +1 }
-      else if (a.x < b.x){ -1 }
-      else { 0 }
-    }
-  }
+  /**
+    * create an neighbour index
+    * @param elems the elements to add in the index
+    * @tparam A the type of element wrapped in node
+    * @return the index created
+    */
   def apply[A](elems : Iterable[(A,Point3D)]) : NNIndex[A] = {
-    val min = elems.minBy(_._2)._2 - thr
-    val max = elems.maxBy(_._2)._2 + thr
+    //a big threshold used to create nnindex, allow to create a fake unlimited space
+    val thr = Point3D(20000,20000,0)
+    /**
+      * used to compute the lowest point and the highest
+      */
+    val min = Point3D(elems.minBy(_._2.x)._2.x,elems.minBy(_._2.y)._2.y,elems.minBy(_._2.z)._2.z) - thr
+    val max = Point3D(elems.maxBy(_._2.x)._2.x,elems.maxBy(_._2.y)._2.y,elems.maxBy(_._2.z)._2.z) + thr
     val q = new QuadTree[A](min,max,computeElemsForBox(elems.size))
     q ++= (elems map {x => (x._2,x._1)})
+  }
+  /*
+   * a constant used to normalize the function computeElemsForBox
+   */
+  private val normalizeConstantBox = 10
+  /*
+    * a function used to compute the number of elements in box (empirical value)
+    * @param elems the number of elements
+    * @return the max number of elements in a box
+    */
+  private def computeElemsForBox(elems : Int) = normalizeConstantBox * math.log10(elems).toInt
 
-  }
-  private def computeElemsForBox(elems : Int) = 10 * math.log10(elems).toInt
-  def apply[A](min : Point3D, max : Point3D, maxElems: Int) : NNIndex[A] = {
-    new QuadTree[A](min,max,maxElems)
-  }
+  /**
+    * create a neighbour index with bound specified
+    * @param min the lowest point in the space
+    * @param max the biggest point in the space
+    * @param elems the number of element in the space
+    * @tparam A the type of element wrapped in node
+    * @return the index created
+    */
+  def apply[A](min : Point3D, max : Point3D, elems: Int) : NNIndex[A] = new QuadTree[A](min,max,computeElemsForBox(elems))
 }

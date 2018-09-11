@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.gui.pattern.observer
 //OBSERVER PATTERN
 /**
   * define a generic event source
+  *
   */
 trait Source {
   /**
@@ -21,13 +22,13 @@ trait Source {
     */
   final def <-- (observer : O): this.type = {
     attach(observer)
-    return this
+    this
   }
 
 
   final def <--! (observer : O): this.type =  {
     detach(observer)
-    return this
+    this
   }
 
   /**
@@ -47,7 +48,7 @@ trait Source {
     * notify all the observer
     * @param e the event generate
     */
-  def notify(e :Event) =  observers foreach (_ update e)
+  def notify(e :Event) : Unit = observers foreach (_ update e)
 }
 
 /**

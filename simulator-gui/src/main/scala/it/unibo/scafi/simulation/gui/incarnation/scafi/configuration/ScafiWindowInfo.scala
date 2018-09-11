@@ -11,6 +11,12 @@ object ScafiWindowInfo {
   val logoPath = "loadingLogo.png"
 
   val iconPath = "icon.png"
+
+  /**
+    * put scafi information in a generic window configuration
+    * @param windowConfiguration the window configuration
+    * @return the window configuration with scafi setting
+    */
   def apply (windowConfiguration: WindowConfiguration) : WindowConfiguration = {
     windowConfiguration.clone(ScafiWindowInfo.name,Some(ScafiWindowInfo.logoPath),Some(ScafiWindowInfo.iconPath))
   }

@@ -34,7 +34,7 @@ trait SensorDefinition extends SensorConcept {
     override def view: DEVICE = this
 
 
-    def value_=(newValue: SENSOR_VALUE) = {
+    def value_=(newValue: SENSOR_VALUE) : Unit = {
       require(newValue != null && sensorType.accept(newValue))
       _val = newValue
     }
@@ -60,10 +60,10 @@ trait SensorDefinition extends SensorConcept {
   /**
     * a producer of led sensor, it can be on or off
     * @param name the name of led
-    * @param v the initial value
+    * @param value the initial value
     */
-  final case class LedProducer(name : NAME, v : Boolean = false, stream : SensorStream) extends DeviceProducer {
-    override def build: MUTABLE_DEVICE = new MutableSensorImpl(name,v,Led,stream)
+  final case class LedProducer(name : NAME, value : Boolean = false, stream : SensorStream) extends DeviceProducer {
+    override def build: MUTABLE_DEVICE = new MutableSensorImpl(name,value,Led,stream)
   }
 
   /**

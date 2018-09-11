@@ -2,15 +2,22 @@ package it.unibo.scafi.simulation.gui.launcher.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.parser.{ConfigurationMachine, RuntimeMachine}
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command._
 
 /**
-  * a scafi program launcher via console
+  * a scafi program launcher via console with unix like language
+  * to run a simulation in console you can type:
+  * <pre>
+  *   {@code
+  *      random-world 1000 500 500
+  *      radius-simulation Simple 10
+  *      launch
+  *   }
+  * </pre>
   */
-private object Console extends App {
-  import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser._
+object Console extends App {
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   import it.unibo.scafi.simulation.gui.controller.logger.LogManager._
+  import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser._
   val configurationMachine = new ConfigurationMachine(UnixConfiguration)
   val runtimeMachine = new RuntimeMachine(UnixRuntime)
   println(international("welcome")(KeyFile.Configuration))
@@ -21,6 +28,6 @@ private object Console extends App {
   }
   LogManager.detach(log)
   while(true) {
-    println(runtimeMachine.process((readLine())))
+    println(runtimeMachine.process(readLine()))
   }
 }

@@ -44,11 +44,10 @@ object Scheduler {
     private[this] var on = false
     private[this] var end = false
     private[this] val mainThread = new Runnable {
-      private[this] var elapsed = delta
       override def run(): Unit = {
         while(on) {
           val t0 = System.currentTimeMillis()
-          scheduler notify(Tick(delta))
+          scheduler notify Tick(delta)
           val t1 = System.currentTimeMillis()
           val wait = if (t1 - t0 > delta) {
             0
@@ -72,7 +71,7 @@ object Scheduler {
       on = false
     }
 
-    def delta_=(v : Int) = {
+    def delta_=(v : Int) : Unit = {
       require(v > 0)
       d = v
     }
@@ -88,7 +87,7 @@ object Scheduler {
   case class Tick(timeElapsed : Float) extends Event
 
   /**
-    * root class of all schedulter observer
+    * root class of all scheduler observer
     */
   trait SchedulerObserver extends Observer {
     override def update(event: Event): Unit = {

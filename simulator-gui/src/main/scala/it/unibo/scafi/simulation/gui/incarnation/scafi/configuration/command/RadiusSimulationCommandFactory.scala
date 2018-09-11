@@ -1,8 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription, IntType, LimitedValueType}
 import it.unibo.scafi.simulation.gui.demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
@@ -10,15 +8,15 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
+import it.unibo.scafi.simulation.gui.util.Result.Fail
 
 /**
   * a factory used to create a command that set a simulation initializer as radius simulation
-  * @param scafiConfiguration
+  * @param scafiConfiguration the scafi configuration
   */
 class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfigurationBuilder) extends CommandFactory {
-  import RadiusSimulationCommandFactory._
   import CommandFactory._
+  import RadiusSimulationCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
   override val name: String = "radius-simulation"
 
@@ -35,7 +33,7 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
 
     //verify if demo is present and if demo value is correct
     args.get(DemoValue) match {
-      case Some(stringFrom : String) if(demo.nameToDemoClass.get(stringFrom).isDefined) => demoClass = demo.nameToDemoClass.get(stringFrom)
+      case Some(stringFrom : String) if demo.nameToDemoClass.get(stringFrom).isDefined => demoClass = demo.nameToDemoClass.get(stringFrom)
       case Some(_) => return creationFailed(Fail(wrongTypeParameter(LimitedValueType(scafiDemo:_*),DemoValue)))
       case _ =>
     }

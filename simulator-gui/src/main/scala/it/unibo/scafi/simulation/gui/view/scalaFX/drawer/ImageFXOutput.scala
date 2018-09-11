@@ -4,14 +4,15 @@ import javafx.scene.paint.ImagePattern
 import it.unibo.scafi.simulation.gui.model.core.World
 import it.unibo.scafi.simulation.gui.view.ViewSetting
 
+import scalafx.Includes._
 import scalafx.scene.image.Image
 import scalafx.scene.shape.Shape
-import scalafx.Includes._
 /**
-  * show node like a drone
+  * show node using image specified in view setting
+  * device are showed using {@see StandardFXOutput}
   */
 case object ImageFXOutput extends FXOutputPolicy {
-  //load drone imege
+  //load drone image
   private lazy val image = new Image(ViewSetting.nodeImagePath)
   private lazy val pattern = new ImagePattern(image)
   override type OUTPUT_NODE = StandardFXOutput.OUTPUT_NODE

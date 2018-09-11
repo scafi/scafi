@@ -6,6 +6,8 @@ import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorP
 import scala.collection.mutable.{Map => MMap}
 /**
   * a standard network definition
+  * it doesn't checks network
+  * topology and network correctness
   */
 trait StandardNetwork  {
   self: SensorPlatform =>

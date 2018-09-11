@@ -10,8 +10,7 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.scene.chart.{Axis, LineChart, NumberAxis}
 import scalafx.scene.control._
-import scalafx.scene.layout.{StackPane, VBox}
-import scalafx.Includes._
+import scalafx.scene.layout.StackPane
 /**
   * a strategy used to display log information
   */
@@ -29,11 +28,11 @@ trait FXLogStrategy {
 }
 
 /**
-  * a set of fx log stategy
+  * a set of fx log strategy
   */
 object FXLogStrategy {
   /**
-    * simple factory, create a log stategy
+    * simple factory, create a log strategy
     * with log type passed
     * @param logType the log type passed
     * @return log strategy
@@ -48,7 +47,7 @@ object FXLogStrategy {
     * a line chart output, show numeric value in a line chart
     */
   private class LineChartOutput extends FXLogStrategy {
-    var i = 0;
+    var i = 0
     private val maxElement = 50
     val numberX : Axis[Number] = new NumberAxis
     numberX.tickLabelsVisible = false
@@ -73,7 +72,7 @@ object FXLogStrategy {
     }
 
     override def out(log: Log[_]): Unit = {
-      def outInChar(name : String, value : Number) = Platform.runLater {
+      def outInChar(name : String, value : Number) : Unit = Platform.runLater {
         if(series.getData.size > maxElement) {
           series.getData.remove(0)
           series.dataProperty().value.foreach(x => x.setXValue(x.getXValue.intValue() - 1))
@@ -117,7 +116,7 @@ object FXLogStrategy {
 
     override def out(log: Log[_]): Unit = {
       Platform.runLater {
-        val size = area.text.value.size
+        val size = area.text.value.length
         val currentText = area.text.value
         val label = if(log.label.isEmpty) "" else log.label + " "
         area.text = label + log.value + "\n" + currentText.substring(0, if(size > maxChar) maxChar else size)
@@ -152,29 +151,26 @@ object FXLogStrategy {
     override def out(log: Log[_]): Unit = {
       var map : Map[Any,TreeItem[String]] = Map.empty
       log match {
-        case TreeLog(_,name,list) => {
+        case TreeLog(_,name,list) =>
           Platform.runLater {
             val logRoot = mappedTree.get(name) match {
-              case Some(tree) => tree
-              case _ => {
-                val tree = new TreeItem[String]
+              case Some(tree : LogType) => tree
+              case _ => val tree = new TreeItem[String]
                 rootElem.children += tree
                 mappedTree += name -> tree
                 tree
-              }
             }
 
-            logRoot.value = name + " " + list(0)._2.toString + " "  + list(0)._3.toString
+            logRoot.value = name + " " + list.head._2.toString + " "  + list.head._3.toString
             logRoot.children.clear()
-            map += list(0)._2 -> logRoot
+            map += list.head._2 -> logRoot
             list.tail foreach { x => {
-              val elem = new TreeItem[String](x._2.toString.substring(x._1.get.toString.size) + " " + x._3.toString)
+              val elem = new TreeItem[String](x._2.toString.substring(x._1.get.toString.length) + " " + x._3.toString)
               map(x._1.get).children.add(elem)
               elem.expanded = true
               map += x._2 -> elem
             }}
           }
-        }
 
         case _ =>
       }

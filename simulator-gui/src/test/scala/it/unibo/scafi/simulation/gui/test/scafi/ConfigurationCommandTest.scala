@@ -1,11 +1,11 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.parser.{ConfigurationMachine, VirtualMachine}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser._
 import org.scalatest.{FunSpec, Matchers}
 
 class ConfigurationCommandTest extends FunSpec with Matchers {
-  import ScafiParser._
+
   val checkThat = new ItWord
 
   val configurationMachine = new ConfigurationMachine(UnixConfiguration)
@@ -28,7 +28,7 @@ class ConfigurationCommandTest extends FunSpec with Matchers {
     val wrongGridTypeArg = configurationMachine.process("grid-world 19 20 1.2")
     assert(wrongGridTypeArg != VirtualMachine.Ok)
     val wrongGridNumberArg = configurationMachine.process("grid-world 10 10 10 20")
-    assert(wrongGridTypeArg != VirtualMachine.Ok)
+    assert(wrongGridNumberArg != VirtualMachine.Ok)
   }
 
   checkThat("i can create a simulation initializer described in unix configuration") {
@@ -38,7 +38,7 @@ class ConfigurationCommandTest extends FunSpec with Matchers {
   }
 
   checkThat("i can't create a simulation initializer with wrong arg") {
-    val simulationWrongDemoName = configurationMachine.process("radius-simulation Aclass 10")
+    val simulationWrongDemoName = configurationMachine.process("radius-simulation class 10")
     assert(simulationWrongDemoName != VirtualMachine.Ok)
     val simulationWrongArgNumber = configurationMachine.process("radius-simulation Simple 10 10")
     assert(simulationWrongArgNumber != VirtualMachine.Ok)

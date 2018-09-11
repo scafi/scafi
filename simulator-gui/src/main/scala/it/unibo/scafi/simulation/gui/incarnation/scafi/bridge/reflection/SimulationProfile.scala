@@ -33,6 +33,8 @@ object SimulationProfile {
 
   /**
     * standard scafi profile : there is a set of on off input sensor and a set of any output sensor
+    * a possible scenario:
+    *   you want create a simulation with tree on off input device, and only a type of output
     */
   object standardProfile extends SimulationProfile {
     override val commandMapping: CommandBinding = StandardBinding
@@ -44,6 +46,8 @@ object SimulationProfile {
 
   /**
     * a scafi profile that describe a simulation with one on off sensor and any output sensor
+    * a possible scenario:
+    *   you want create a simulation with only an on off device with only one type of output
     */
   object onOffInputAnyOutput extends SimulationProfile {
     override val commandMapping: CommandBinding = AdHocToggleBinding(Map(Code1 -> sensor1))
@@ -56,6 +60,8 @@ object SimulationProfile {
 
   /**
     * a scafi profile that describe a simulation with moving nodes
+    * a possible scenario:
+    *   you want create a simulation to show a set of drone that are moving in the world with some logic
     */
   object movementProfile extends SimulationProfile {
     override def commandMapping: CommandBinding = BaseBinding

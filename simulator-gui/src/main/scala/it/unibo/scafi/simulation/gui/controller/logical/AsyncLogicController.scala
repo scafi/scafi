@@ -1,7 +1,6 @@
 package it.unibo.scafi.simulation.gui.controller.logical
 
 import java.util.concurrent.TimeUnit
-import java.util.logging.LogManager
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, IntLog}
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
@@ -30,7 +29,7 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W] {
 
   private var stopped = true
   /**
-    * current executor of asyn logic
+    * current executor of async logic
     */
   protected var currentExecutor : ActorExecutor = new ActorExecutor()
   //TEMPLATE METHOD
@@ -60,8 +59,8 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W] {
         if(time > 1000000000L) {
           import it.unibo.scafi.simulation.gui.controller.logger.{LogManager => log}
           log.notify(IntLog(Channel.SimulationRound, "instant", tick))
-          tick = 0;
-          time = 0;
+          tick = 0
+          time = 0
         }
       }
     }
@@ -70,7 +69,7 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W] {
   /**
     * start async logic it must be stopped
     */
-  def start() = {
+  def start() : Unit = {
     require(stopped)
     stopped = false
     currentExecutor.start()
@@ -79,7 +78,7 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W] {
   /**
     * stop the current async logic, it must be don't stopped
     */
-  def stop() = {
+  def stop() : Unit = {
     require(!stopped)
     stopped = true
     currentExecutor = new ActorExecutor

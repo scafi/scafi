@@ -3,15 +3,13 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment
 import it.unibo.scafi.simulation.gui.configuration.logger.LogConfiguration
 import it.unibo.scafi.simulation.gui.controller.input.{InputCommandController, InputController}
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.logical.{ExternalSimulation, LogicController}
 import it.unibo.scafi.simulation.gui.controller.presenter.Presenter
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
-import it.unibo.scafi.simulation.gui.view.scalaFX.logger.FXLogger
-import it.unibo.scafi.simulation.gui.view.{SimulationView, WindowConfiguration, scalaFX}
+import it.unibo.scafi.simulation.gui.view.SimulationView
 
 /**
-  * scafi enviroment
+  * scafi environment used to configure scafi application
   * @param presenter the presenter of scafi simulation
   * @param simulation the simulation
   * @param policy the policy

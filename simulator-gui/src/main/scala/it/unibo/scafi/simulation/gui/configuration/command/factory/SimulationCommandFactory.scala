@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.configuration.command.factory
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.{command, onlyMakeCommand}
+import it.unibo.scafi.simulation.gui.configuration.command.Command.command
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.util.Result
@@ -32,6 +32,7 @@ class SimulationCommandFactory(simulation : ExternalSimulation[_]) extends Comma
   }
 
   private def stop() : Result = {
+    //noinspection DangerousCatchAll
     try {
       simulation.stop()
       Success
@@ -41,6 +42,7 @@ class SimulationCommandFactory(simulation : ExternalSimulation[_]) extends Comma
   }
 
   private def continue() : Result = {
+    //noinspection DangerousCatchAll
     try {
       simulation.continue()
       Success

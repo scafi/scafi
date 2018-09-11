@@ -27,8 +27,10 @@ trait SensorConcept {
 
   /**
     * a mutable sensor, used inside the world to change his state
+ *
     * @tparam V the type of value
     */
+  //noinspection AbstractValueInTrait
   protected trait MutableSensor[V] <: Sensor[V] with RootMutableDevice {
     /**
       * the value of sensor can change at run time
@@ -72,8 +74,9 @@ object SensorConcept {
   /**
     * describe the stream of sensor, can be inputStream or OutputStream
     * sensor stream has this task:
-    * node can use sensor like an input, check input and produce a result value
-    * or node can use sensor like an output where put the result of computation
+    * node can use sensor:
+    *   as acquisition (the node check the value and produce a result)
+    *   as writable output (after computation node change the state of a sensor of this type)
     */
   sealed trait SensorStream
 

@@ -1,11 +1,10 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.Command.onlyMakeCommand
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPolicy, NearRealTimePolicy, StandardPolicy}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
+import it.unibo.scafi.simulation.gui.util.Result.Fail
 
 /**
   * a factory used to set a program performance
@@ -26,11 +25,11 @@ class PerformanceCommandFactory(implicit val scafiConfiguration : ScafiConfigura
     List(CommandArgDescription(Name,
       argType,
       description = international(name, Name),
-      defaultValue = Some(scafiConfiguration.perfomance.toString)))
+      defaultValue = Some(scafiConfiguration.performance.toString)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Name) match {
     case Some(value : String) => if(performanceMap.contains(value)) {
-      easyResultCreation(() => scafiConfiguration.perfomance = performanceMap(value))
+      easyResultCreation(() => scafiConfiguration.performance = performanceMap(value))
     } else {
       creationFailed(Fail(wrongTypeParameter(argType,Name)))
     }

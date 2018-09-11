@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.gui.model.core.Shape
 import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
 
 /**
-  * a class used to test abstract aggragate world and aggregate node definition
+  * a class used to test abstract aggregate world and aggregate node definition
   */
 class AbstractWorldImpl extends StandardWorldDefinition with AbstractAggregateWorld with SimpleSource with AbstractNodeDefinition  {
   override type MUTABLE_NODE = AbstractMutableNode
@@ -38,8 +38,8 @@ class AbstractWorldImpl extends StandardWorldDefinition with AbstractAggregateWo
     val name = "Motor"
   }
 
-  class DeviceBuilder(devsType : DeviceType) extends DeviceProducer {
-    override def build: RootMutableDevice = new DeviceImpl(devsType.name)
+  class DeviceBuilder(deviceType : DeviceType) extends DeviceProducer {
+    override def build: RootMutableDevice = new DeviceImpl(deviceType.name)
   }
 
   //simple node producer definition
@@ -49,7 +49,7 @@ class AbstractWorldImpl extends StandardWorldDefinition with AbstractAggregateWo
 
     override def build(): AbstractMutableNode = {
       val node = new NodeImpl(id,position,shape)
-      producer map {_.build} foreach {node.addDevice(_)}
+      producer map {_.build} foreach {node.addDevice _}
       node
     }
   }

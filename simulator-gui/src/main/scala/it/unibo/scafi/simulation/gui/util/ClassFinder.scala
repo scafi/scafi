@@ -2,8 +2,10 @@ package it.unibo.scafi.simulation.gui.util
 
 import java.io.{File, IOException}
 
+import scala.util.Try
+
 /**
-  * allow to find clss in a package
+  * allow to find class in a package
   */
 object ClassFinder {
   /**
@@ -11,8 +13,6 @@ object ClassFinder {
     *
     * @param packageName The base package
     * @return The classes
-    * @throws ClassNotFoundException
-    * @throws IOException
     */
   @throws[ClassNotFoundException]
   @throws[IOException]
@@ -26,12 +26,13 @@ object ClassFinder {
       resources.hasMoreElements
     }) {
       val resource = resources.nextElement
+      println(resource)
       val file : File = new File(resource.getFile)
       dirs = file :: dirs
     }
     var classes = List.empty[Class[_]]
     for (directory <- dirs) {
-      classes = (findClasses(directory, packageName)) ::: classes
+      classes = findClasses(directory, packageName) ::: classes
     }
     classes
   }
@@ -42,7 +43,6 @@ object ClassFinder {
     * @param directory   The base directory
     * @param packageName The package name for classes found inside the base directory
     * @return The classes
-    * @throws ClassNotFoundException
     */
   @throws[ClassNotFoundException]
   private def findClasses(directory: File, packageName: String): List[Class[_]] = {
@@ -52,9 +52,9 @@ object ClassFinder {
     for (file <- files) {
       if (file.isDirectory) {
         assert(!file.getName.contains("."))
-        classes = classes ::: (findClasses(file, packageName + "." + file.getName))
+        classes = classes ::: findClasses(file, packageName + "." + file.getName)
       } else if (file.getName.endsWith(".class")) {
-        classes = Class.forName(packageName + '.' + file.getName.substring(0, file.getName.length - 6)) :: classes
+        Try{classes = Class.forName(packageName + '.' + file.getName.substring(0, file.getName.length - 6)) :: classes}
       }
     }
     classes

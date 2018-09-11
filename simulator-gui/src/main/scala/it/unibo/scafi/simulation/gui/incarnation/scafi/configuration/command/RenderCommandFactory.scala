@@ -1,7 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
-import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory.{CommandArg, CommandArgDescription}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
@@ -16,7 +15,7 @@ class RenderCommandFactory(implicit val scafiConfiguration: ScafiConfigurationBu
   override val name: String = "render-configuration"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
-    List(CommandArgDescription(Neighbour,BooleanType,true,international(name,Neighbour),defaultValue = Some(scafiConfiguration.neighbourRender)))
+    List(CommandArgDescription(Neighbour,BooleanType,optional = true,international(name,Neighbour),defaultValue = Some(scafiConfiguration.neighbourRender)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Neighbour) match {
     case Some(value : Boolean) => easyResultCreation(() => scafiConfiguration.neighbourRender = value)

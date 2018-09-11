@@ -3,7 +3,7 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 import scalafx.scene.image.Image
 
 /**
-  * allow to create small image
+  * allow to create an image with a logo passed
   */
 private [scalaFX] object Logo {
   private def toLogo(name : String, w : Double, h : Double) : Image = new Image(getClass.getResourceAsStream(s"/$name"),w,h,true,false)

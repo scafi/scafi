@@ -8,26 +8,25 @@ import org.scalatest.{FunSpec, Matchers}
   * a test used to check the correctness of scafi world initializer
   */
 class InitializerTest extends FunSpec with Matchers{
-  val checkThat = new ItWord
-
-  val world = scafiWorld
-  val node = 100
-  val width = 10
-  val space = 1
-  val height = 10
-  val aNodeId = 1
+  private val checkThat = new ItWord
+  private val world = scafiWorld
+  private val node = 100
+  private val width = 10
+  private val space = 1
+  private val height = 10
+  private val aNodeId = 1
   checkThat("random initializer create a random world") {
     world.clear()
-    val init = ScafiWorldInitializer.Random(node,width,height).init(ScafiWorldInformation.standard)
+    ScafiWorldInitializer.Random(node,width,height).init(ScafiWorldInformation.standard)
     assert(world.nodes.nonEmpty)
     assert(world.nodes.size == node)
     assert(world(aNodeId).get.devices.nonEmpty)
     assert(world.boundary.isEmpty)
   }
 
-  checkThat("grid initializer create a grid like workd") {
+  checkThat("grid initializer create a grid like world") {
     world.clear()
-    val init = ScafiWorldInitializer.Grid(width,height,space).init(ScafiWorldInformation.standard)
+    ScafiWorldInitializer.Grid(width,height,space).init(ScafiWorldInformation.standard)
     assert(world.nodes.nonEmpty)
     assert(world.nodes.size == width * height)
     assert(world(aNodeId).get.devices.nonEmpty)

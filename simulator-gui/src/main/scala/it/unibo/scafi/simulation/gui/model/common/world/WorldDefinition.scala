@@ -5,6 +5,9 @@ import it.unibo.scafi.simulation.gui.model.space.{Point2D, Point3D}
 
 /**
   * a standard world definition
+  * at this moment there isn't
+  * like between position type (point3d,point2d)
+  * and shape type
   */
 object WorldDefinition {
   /**

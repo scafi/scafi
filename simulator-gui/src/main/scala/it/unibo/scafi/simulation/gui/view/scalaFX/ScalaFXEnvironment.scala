@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.pane.FXSimulationPane
 import scalafx.application.Platform
 
 /**
-  * standard fx view environment
+  * standard fx view environment for simulation view
   */
 object ScalaFXEnvironment extends ViewEnvironment[SimulationView] {
   lazy val standardConfiguration = WindowConfiguration.apply(800,600)
@@ -27,9 +27,9 @@ object ScalaFXEnvironment extends ViewEnvironment[SimulationView] {
   override def container: Container[SimulationView] = cont
   //initialize fx environment
   override def init(): Unit = {
-    initializeScalaFXPlatform
+    initializeScalaFXPlatform()
     Platform.runLater {
-      val container = cont
+      cont
     }
   }
 }

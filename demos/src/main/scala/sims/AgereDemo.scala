@@ -19,20 +19,23 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BuildingBlocks}
-import it.unibo.scafi.simulation.gui.Settings
-import sims.BasicDemo.launch
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
 import scala.concurrent.duration._
 
 object AgereDemoMain extends App {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.AgereDemo" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 50 // number of nodes
-  launch()
+  ScafiProgramBuilder (
+    Random(500,500,500),
+    SimulationInfo(program = classOf[GradientWithObstacle]),
+    RadiusSimulation(radius = 40),
+    neighbourRender = true
+  ).launch()
 }
-
+@Demo
 class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefinitions {
   /* Parameters */
   val t_fail = (15 seconds)     // Time w/o failures

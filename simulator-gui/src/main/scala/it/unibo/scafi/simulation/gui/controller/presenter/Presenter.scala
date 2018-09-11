@@ -5,7 +5,8 @@ import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
 import it.unibo.scafi.simulation.gui.view.View
 
 /**
-  * controls the world and update the output
+  * controls the world changes and update the output
+  * based on changes
   */
 trait Presenter[W <: AggregateWorld, OUTPUT <: View] extends Controller[W] {
   /**

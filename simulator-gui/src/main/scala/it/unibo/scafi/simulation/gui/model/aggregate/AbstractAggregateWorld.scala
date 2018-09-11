@@ -6,6 +6,7 @@ import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventTy
 
 /**
   * a skeleton of aggregateWorld implementation
+  *
   */
 trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld {
   self: AbstractAggregateWorld.Dependency =>
@@ -60,7 +61,7 @@ trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld
   }
 
   /**
-    * create a world obsever
+    * create a world observer
     * @param listenEvent the event that observer observe
     * @return the observer created
     */

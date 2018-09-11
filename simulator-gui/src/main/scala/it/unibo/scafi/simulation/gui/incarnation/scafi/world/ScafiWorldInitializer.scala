@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
-import it.unibo.scafi.simulation.gui.configuration.seed.WorldInitializer
+import it.unibo.scafi.simulation.gui.configuration.information.WorldInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.model.space.Point3D
@@ -46,7 +46,7 @@ object ScafiWorldInitializer {
     override def init(worldInfo : INFO): Unit = {
       scafiWorld.boundary = worldInfo.boundary
       val z = 0
-      var nodes = 0;
+      var nodes = 0
       scafiWorld clear()
       for(i <- 1 to row) {
         for(j <- 1 to column) {

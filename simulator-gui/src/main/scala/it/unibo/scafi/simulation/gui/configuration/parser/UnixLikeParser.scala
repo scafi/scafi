@@ -3,10 +3,10 @@ package it.unibo.scafi.simulation.gui.configuration.parser
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory._
 import it.unibo.scafi.simulation.gui.configuration.command.factory.ListCommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
-import it.unibo.scafi.simulation.gui.util.Result
-import it.unibo.scafi.simulation.gui.util.Result.Fail
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
+import it.unibo.scafi.simulation.gui.util.Result
+import it.unibo.scafi.simulation.gui.util.Result.Fail
 
 import scala.util.Try
 
@@ -20,19 +20,19 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
   import UnixLikeParser._
   //add list command factory used to list the command supported
   private val commandFactories : Seq[CommandFactory] =  factories.+:(new ListCommandFactory(factories:_*))
-  //the index in the string splitted of command name
+  //the index in the string split of command name
   private val commandIndex = 0
   override def parse(arg: String): (Result,Option[Command]) = {
     //split the string with spaces
     val arrayArg = arg.split(" ")
     commandFactories.find(_.name == arrayArg(commandIndex)) match {
-        //verify if in string contais -help
+        //verify if in string contains -help
       case Some(factory) => if(arrayArg.contains(Help)){
         import it.unibo.scafi.simulation.gui.controller.logger.LogManager._
         //create a command to show help associated to a command
         easyResultCreation(() => LogManager.notify(StringLog(Channel.CommandResult,Label.Empty,help(factory))))
       } else {
-        //otherwise create a command by the rigth command factory, remove the first value that
+        //otherwise create a command by the right command factory, remove the first value that
         //match with command name
         factory.create(toCommandArg(factory,arrayArg.drop(1)))
       }
@@ -42,9 +42,9 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
   }
 
   private def toCommandArg(factory : CommandFactory, args : Array[String]) : Map[String,Any] = {
-    if(args.size > factory.commandArgsDescription.length) return Map.empty
+    if(args.length > factory.commandArgsDescription.length) return Map.empty
     //create command arg via string
-    (0 until args.size).map{i => factory.commandArgsDescription(i).name -> stringToValue(args(i),factory.commandArgsDescription(i))}
+    args.indices.map{i => factory.commandArgsDescription(i).name -> stringToValue(args(i),factory.commandArgsDescription(i))}
       .filter(x => x._2.isDefined)
       .map(x => x._1 -> x._2.get)
       .toMap
@@ -53,7 +53,7 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
   private def stringToValue(value : String, commandArgDescription: CommandArgDescription): Option[Any] = {
     //if value passed is equals to emptyValue return none
     if(value == emptyValue) return None
-    //try to parse string value to the rigth value
+    //try to parse string value to the right value
     //some value aren't supported
     commandArgDescription.valueType match {
       case IntType => if(Try(value.toLong).isSuccess){
@@ -72,13 +72,13 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
         None
       }
       case StringType => Some(value)
-      case LimitedValueType(_*) => {Some(value)}
+      case LimitedValueType(_*) => Some(value)
       case _ => None
     }
   }
 
   private def help(factory: CommandFactory) : String = {
-    implicit val file = KeyFile.Configuration
+    implicit val file : String = KeyFile.Configuration
     val argument = i"argument"
     val description = i"description"
     val typeName = i"type"
@@ -87,11 +87,11 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
     if(factory.commandArgsDescription.isEmpty) {
       result
     } else {
-      result + s" $argument = " + (factory.commandArgsDescription.map(x => "[" + international(factory.name,x.name)(KeyFile.CommandName) + "] " +
+      result + s" $argument = " + factory.commandArgsDescription.map(x => "[" + international(factory.name,x.name)(KeyFile.CommandName) + "] " +
         s"$description :" +x.description + "" +
         s"; $typeName = ["+ x.valueType+"]" +
         (if(x.optional) s" [$optional]" else "") +
-        (if(x.defaultValue.isDefined) " default = " + x.defaultValue.get.toString else "")).mkString(";"))
+        (if(x.defaultValue.isDefined) " default = " + x.defaultValue.get.toString else "")).mkString(";")
     }
   }
 }

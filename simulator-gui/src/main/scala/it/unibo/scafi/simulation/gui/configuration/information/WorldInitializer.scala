@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.configuration.seed
+package it.unibo.scafi.simulation.gui.configuration.information
 
 /**
   * a strategy interface used to initialize a world with world information.

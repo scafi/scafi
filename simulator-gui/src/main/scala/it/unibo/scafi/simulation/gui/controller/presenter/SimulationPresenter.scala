@@ -8,14 +8,17 @@ import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorP
 import it.unibo.scafi.simulation.gui.view.SimulationView
 
 /**
-  * describe a simulation presenter
+  * describe a simulation presenter.
+  * allow to output graphics information about node changing (move, device update...)
+  * you can choose to render or not neighbour and the output where to put
+  * world changes
   * @param world to show
   * @param neighbourRender a boolean value to define if show the neighbours or not
   */
 class SimulationPresenter[W <: SensorPlatform](val world : W,
                                                val neighbourRender : Boolean) extends Presenter[W,SimulationView]{
 
-  //observer used to check world chages
+  //observer used to check world changes
   private val removed = world.createObserver(Set(NodesRemoved))
   private val moved = world.createObserver(Set(NodesMoved,NodesAdded))
   private val devChanged = world.createObserver(Set(SensorChanged))
@@ -25,7 +28,7 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
   private var out : Option[SimulationView] = None
 
 
-  //used to render neigbhbour correctly
+  //used to render neighbour correctly
   private var prevNeighbour : Map[world.ID,Set[world.ID]] = Map()
   //RENDER COMPONENT DECIDE WHAT RENDER TO OUTPUT AND HOW
   override def onTick(float: Float): Unit = {
@@ -57,7 +60,7 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
         toAdd += id -> add
       }
     })
-    //change the neigbour map with new neigbour map
+    //change the neighbour map with new neighbour map
     this.prevNeighbour = world.network.neighbours()
     //put the node moved in out
     nodesMoved foreach {x => out.get.outNode(world(x).get)}
@@ -89,7 +92,7 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
   override def output(view: SimulationView): Unit = {
     require(view != null)
     out = Some(view)
-    world.worldBound.foreach(view.setBoundary _)
-    view.setWalls(world.worldWalls:_*)
+    world.worldBound.foreach(x => view.boundary_=(x))
+    view.walls_= (world.worldWalls:_*)
   }
 }

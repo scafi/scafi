@@ -64,7 +64,7 @@ class ScalaFXLauncher(factories : List[CommandFactory],
     //each subsection is a tab, the parent of tabs is a tab pane
     val tabPane = new TabPane
     //the tab can't be closed
-    tabPane.setTabClosingPolicy(TabClosingPolicy.Unavailable);
+    tabPane.setTabClosingPolicy(TabClosingPolicy.Unavailable)
     //foreach subsection create a field box with the factory selected
     var fieldBoxes : List[FieldBox] = List.empty
     x._2 foreach(y => {
@@ -101,7 +101,7 @@ class ScalaFXLauncher(factories : List[CommandFactory],
   //create a button used to launch scafi simulation
   val button = new Button(international(Launch)(KeyFile.View))
   import scalafx.Includes._
-  button.onMouseClicked = (e : MouseEvent) => {
+  button.onMouseClicked = (_ : MouseEvent) => {
     sections.foreach(x => {unixMachine.process(x.toUnix)})
     for(tabSection <- this.tabPaneSections) {
       val tab = tabSection._1.getSelectionModel.getSelectedIndex

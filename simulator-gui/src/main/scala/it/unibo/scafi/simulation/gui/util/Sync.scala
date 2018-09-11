@@ -5,12 +5,12 @@ package it.unibo.scafi.simulation.gui.util
   */
 trait Sync {
   /**
-    * @return true if the function is blocked false othewise
+    * @return true if the function is blocked false otherwise
     */
   def blocked : Boolean
 
   /**
-    * the function execute in safe contex
+    * the function execute in safe context
     * @param f the function
     */
   def apply(f : => Unit)
@@ -19,7 +19,7 @@ object Sync {
   /**
     * @return a Synchronization object
     */
-  def apply = new Sync {
+  def apply : Sync = new Sync {
     private var block = false
     override def blocked: Boolean = block
 

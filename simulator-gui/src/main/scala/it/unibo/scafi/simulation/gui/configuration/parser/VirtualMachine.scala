@@ -4,7 +4,15 @@ package it.unibo.scafi.simulation.gui.configuration.parser
   * an abstraction used to compute command, accepted an argument that is
   * try to parse by parser, if the parser create the command the virtual
   * machine execute
-  * @tparam A
+  * you can used virtual machine like this:
+  * <pre>
+  *   @{code
+  *     val machine : VirtualMachine[String] = new ConfigurationMachine[String](...)
+  *     machine.process("list-command")
+  *   }
+  * </pre>
+  * the machine try to convert list-command in a command and after he execute it
+  * @tparam A the type of input value that machine parse and execute
   */
 trait VirtualMachine[A] {
   /**

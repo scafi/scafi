@@ -8,7 +8,7 @@ trait SimpleSource extends Source {
   override def attach(observer : O): Boolean = {
     if (_observers contains observer) return false
     _observers += observer
-    return true
+    true
   }
   /**
     * remove an observer to the source
@@ -18,7 +18,7 @@ trait SimpleSource extends Source {
   def detach(observer: O) : Boolean = {
     if (!(_observers contains observer)) return false
     _observers -= observer
-    return true
+    true
   }
   protected def observers: Iterable[O] = _observers
 }

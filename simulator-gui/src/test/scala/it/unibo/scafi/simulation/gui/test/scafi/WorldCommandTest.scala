@@ -1,11 +1,11 @@
 package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.SensorName
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld.analyzer
 import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory.MultiMoveCommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.factory.{AbstractMoveCommandFactory, AbstractToggleCommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractToggleCommandFactory.MultiToggleCommandFactory
+import it.unibo.scafi.simulation.gui.configuration.command.factory.{AbstractMoveCommandFactory, AbstractToggleCommandFactory}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld.analyzer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
@@ -14,13 +14,14 @@ import org.scalatest.{FunSpec, Matchers}
 /**
   * test used to check the correctness of command factory that modify the world
   */
+//noinspection SpellCheckingInspection,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters,NameBooleanParameters
 class WorldCommandTest extends FunSpec with Matchers {
-  val checkThat = new ItWord
-  val world = scafiWorld
-  val node = 100
-  val worldSize = 50
-  val toggleFactory = new MultiToggleCommandFactory(scafiWorld)
-  val moveCommandFactory = new MultiMoveCommandFactory(scafiWorld)
+  private val checkThat = new ItWord
+  private val world = scafiWorld
+  private val node = 100
+  private val worldSize = 50
+  private val toggleFactory = new MultiToggleCommandFactory(scafiWorld)
+  private val moveCommandFactory = new MultiMoveCommandFactory(scafiWorld)
 
   ScafiWorldInitializer.Random(node,worldSize,worldSize).init(ScafiWorldInformation.standard)
 
@@ -89,14 +90,15 @@ class WorldCommandTest extends FunSpec with Matchers {
       case _ =>
     }
 
+    //noinspection SpellCheckingInspection
     val moreArgumentError = toggleFactory.create(Map(AbstractToggleCommandFactory.Name -> SensorName.sensor1,
-      AbstractToggleCommandFactory.Ids -> Set(0), "aname" -> "avalue"))
+      AbstractToggleCommandFactory.Ids -> Set(0), "drone" -> "fly"))
     moreArgumentError._1 match {
       case Success => assert(false)
       case _ =>
     }
 
-    val wrongNameArgumentToggle = toggleFactory.create(Map("avalue" -> SensorName.sensor1,
+    val wrongNameArgumentToggle = toggleFactory.create(Map("fly" -> SensorName.sensor1,
       AbstractToggleCommandFactory.Ids -> Set(0)))
 
     wrongNameArgumentToggle._1 match {

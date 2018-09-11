@@ -4,11 +4,27 @@ import java.util.{Locale, ResourceBundle}
 
 /**
   * a manger used to manage different language
+  * you change use resource manager in two way
+  * or used a string context
+  * <pre>
+  *   {@code
+  *     implicit val file = KeyFile.Error
+  *     val nameSolved = i"value"
+  *   }
+  * </pre>
+  *
+  * or directly
+  * <pre>
+  *   {@code
+  *     implicit val file = KeyFile.Error
+  *     val nameSolved = internation("value")
+  *   {
+  * </pre>
   */
 object ResourceBundleManager {
   private val Separator = "-"
   private val baseFolder = "bundles//"
-  var locale = Locale.ENGLISH
+  var locale : Locale = Locale.ENGLISH
 
   /**
     * find the word linked to key passed

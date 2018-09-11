@@ -25,6 +25,11 @@ import scalafx.util.Duration
 
 /**
   * scalafx implementation of Window
+  * this window has a VBox pane that show:
+  *   -1 menuBar: with menu bar you can exit to application and see all command supported
+  *   -2 logPane: with CTRL + L you enable the log pane: show the log of program
+  *   -3 simulationPane: show the output of simulation
+  *   -4 console: with CTRL + L you enable console: allow to run command to change world / simulation state
   * @param simulationPane the simulation pane
   * @param debug if you want to show fps or not
   * @param windowConfiguration the window configuration
@@ -47,7 +52,7 @@ private [scalaFX] class FXSimulationWindow(private val simulationPane : FXSimula
   }
 
   //menu bar used to show help and allow to exit to application
-  val menuBar = createMenu(simulationPane,simulationPane.commandDescription + "\n" + international("command-description")(KeyFile.View))
+  private val menuBar = createMenu(simulationPane,simulationPane.commandDescription + "\n" + international("command-description")(KeyFile.View))
   //allow to catch key pressed on simulation pane
   scene.value.setOnKeyPressed((e : KeyEvent) => {
     simulationPane.fireEvent(e)
@@ -63,7 +68,7 @@ private [scalaFX] class FXSimulationWindow(private val simulationPane : FXSimula
 
   override def output : SimulationView = simulationPane
   //render entire window
-  override def render: Unit = {
+  override def render(): Unit = {
     Platform.runLater {
       //used for pane extension
       implicit val sceneValue : Scene = scene.value
@@ -93,7 +98,7 @@ private [scalaFX] class FXSimulationWindow(private val simulationPane : FXSimula
       fade.toValue = 0
       fade.fromValue = 1
       //at the end of transition simulation pane in render
-      fade.onFinished = (e:ActionEvent) => {
+      fade.onFinished = (_ :ActionEvent) => {
         this.mainPane.children = List(menuBar,pane,console)
         showHidePanel(pane, console, 0, -outOfBoundScreen(ConsoleHeight), new KeyCodeCombination(KeyCode.K, KeyCombination.CONTROL_DOWN))
         showHidePanel(pane, FXLogger,outOfBoundScreen(LogWidth), 0, new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN))
@@ -105,12 +110,10 @@ private [scalaFX] class FXSimulationWindow(private val simulationPane : FXSimula
 }
 
 private [scalaFX] object FXSimulationWindow {
-  private val SimulationPaneSize = 0.8
-  private val Padding = 20
   private val ExitValue = 1
   private val LogWidth = 0.3
   private val LogHeight = 0.7
   private val fadeTime = 1000
   private val ConsoleHeight = 0.1
-  private def outOfBoundScreen(widthPercentage : Double) : Double = 2 * widthPercentage * (Screen.primary.bounds.width)
+  private def outOfBoundScreen(widthPercentage : Double) : Double = 2 * widthPercentage * Screen.primary.bounds.width
 }

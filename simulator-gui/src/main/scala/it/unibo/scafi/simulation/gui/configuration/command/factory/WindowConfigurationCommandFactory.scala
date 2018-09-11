@@ -9,7 +9,7 @@ import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 
 /**
   * a factory used to create command that modify window configuration
-  * @param viewEnv the view environment where command change window confiuration
+  * @param viewEnv the view environment where command change window configuration
   */
 class WindowConfigurationCommandFactory(viewEnv : ViewEnvironment[_]) extends CommandFactory{
   import CommandFactory._
@@ -20,12 +20,12 @@ class WindowConfigurationCommandFactory(viewEnv : ViewEnvironment[_]) extends Co
   override val name: String = "window-configuration"
 
   override def commandArgsDescription: Seq[CommandArgDescription] =
-    List(CommandArgDescription(Width,IntType,true,international(name,Width),defaultValue = Some(rect.w.toInt)),
-      (CommandArgDescription(Height,IntType,true,international(name,Height),defaultValue = Some(rect.h.toInt))),
-        (CommandArgDescription(FullScreen,BooleanType,true,international(name,FullScreen))))
+    List(CommandArgDescription(Width,IntType,optional = true,international(name,Width),defaultValue = Some(rect.w.toInt)),
+      CommandArgDescription(Height,IntType,optional = true,international(name,Height),defaultValue = Some(rect.h.toInt)),
+      CommandArgDescription(FullScreen,BooleanType,optional = true,international(name,FullScreen)))
 
   /**
-    * a strategy defined by command factory implementatoin
+    * a strategy defined by command factory implementation
     *
     * @param args the command args
     * @return (Success,Some(Command)) if the arguments are accepted (Fail,None) otherwise
@@ -55,7 +55,7 @@ class WindowConfigurationCommandFactory(viewEnv : ViewEnvironment[_]) extends Co
       case _ => false
     }
     if(fullscreen) {
-      easyResultCreation(() => viewEnv.windowConfiguration = WindowConfiguration.apply)
+      easyResultCreation(() => viewEnv.windowConfiguration = WindowConfiguration.apply())
     } else if(width.isDefined && height.isDefined) {
       easyResultCreation(() => viewEnv.windowConfiguration = WindowConfiguration(width.get,height.get))
     } else {

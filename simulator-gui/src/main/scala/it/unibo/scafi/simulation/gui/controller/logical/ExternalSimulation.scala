@@ -33,7 +33,7 @@ abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicNa
   /**
     * initialize the external simulation
     */
-  def init() = {
+  def init() : Unit = {
     //to initialize the simulation the prototype must be defined
     require(simulationPrototype.isDefined)
     //use contract to initialize the simulation
@@ -41,17 +41,17 @@ abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicNa
   }
 
   override def start(): Unit = {
-    //verify if the contract is defined, otherwhise the simulation can't start
+    //verify if the contract is defined, otherwise the simulation can't start
     require(contract.simulation.isDefined)
     super.start()
   }
   /**
     * restart the simulation with another seed
     */
-  def restart() = {
+  def restart() : Unit = {
     //verify if the contract and the prototype is defined, other the simulation can't restart
     require(contract.simulation.isDefined && simulationPrototype.isDefined)
-    //stop the current simulation (if isn't already stope
+    //stop the current simulation (if isn't already stopped
     if(!this.isStopped) {
       super.stop()
     }
@@ -65,7 +65,7 @@ abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicNa
     * restart a simulation stopped
     * @throws IllegalArgumentException if there isn't simulation stopped
     */
-  def continue() = {
+  def continue() : Unit = {
     require(isStopped && contract.simulation.isDefined)
     super.start()
   }
@@ -77,7 +77,7 @@ abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicNa
     /**
     * get the current external simulation
     *
-    * @return None if the simulation isn't initialize, Some otherwhise
+    * @return None if the simulation isn't initialize, Some otherwise
     */
     def simulation: Option[EXTERNAL_SIMULATION]
 

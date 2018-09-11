@@ -9,16 +9,16 @@ trait AbstractObservableWorld extends ObservableWorld {
 
   private var internalMap : Map[ID,self.MUTABLE_NODE] = Map[ID,MUTABLE_NODE]()
 
-  override def clear() = internalMap = internalMap.empty
+  override def clear() : Unit = internalMap = internalMap.empty
 
   override def apply(id: ID): Option[NODE] = {
     val node = internalMap.get(id)
     if(node.isDefined) Some(node.get.view) else None
   }
 
-  override def apply(ids: Set[ID]): Set[NODE] = internalMap filter{x => ids.contains(x._1)} map{_._2.view} toSet
+  override def apply(ids: Set[ID]): Set[NODE] = internalMap.filter{x => ids.contains(x._1)}.map{_._2.view}.toSet
 
-  override def nodes = internalMap.values.map{_.view}toSet
+  override def nodes : Set[NODE] = internalMap.values.map{_.view}.toSet
 
   override def insertNode(producer: NODE_PRODUCER): Boolean = {
     //create a new node by producer passed
