@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.controller.logger
 
 import java.util.Calendar
 
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, SimpleSource}
+import it.unibo.utils.observer.{Event, Observer, SimpleSource}
 
 import scala.util.Try
 

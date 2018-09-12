@@ -1,4 +1,4 @@
-package it.unibo.scafi.simulation.gui.pattern.observer
+package it.unibo.utils.observer
 //OBSERVER PATTERN
 /**
   * define a generic event source

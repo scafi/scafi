@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.model.common.world
 
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 import it.unibo.scafi.simulation.gui.model.core.World
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer}
+import it.unibo.utils.observer.{Event, Observer}
 
 /**
   * Some concept use in observable word

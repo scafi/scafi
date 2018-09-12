@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.platform.SimulationPlatform
+import it.unibo.utils.observer.{SimpleSource, Source}
 
 import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
@@ -187,10 +188,10 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                          val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
                          val simulationSeed: Long,
                          val randomSensorSeed: Long
-                         ) extends Network with SimulatorOps {
+                         ) extends Network with SimulatorOps with SimpleSource {
     self: NETWORK =>
+    override type O = SimulationObserver[ID]
     protected val eMap: MMap[ID,EXPORT] = MMap()
-    protected val eArray: MArray[EXPORT] = MArray()
     protected var lastRound: Map[ID,LocalDateTime] = Map()
 
     protected val simulationRandom = new Random(simulationSeed)

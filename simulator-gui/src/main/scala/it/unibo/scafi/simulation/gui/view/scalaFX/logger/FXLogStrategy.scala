@@ -154,18 +154,19 @@ object FXLogStrategy {
         case TreeLog(_,name,list) =>
           Platform.runLater {
             val logRoot = mappedTree.get(name) match {
-              case Some(tree : LogType) => tree
+              case Some(tree) => tree
               case _ => val tree = new TreeItem[String]
                 rootElem.children += tree
                 mappedTree += name -> tree
                 tree
+
             }
 
             logRoot.value = name + " " + list.head._2.toString + " "  + list.head._3.toString
             logRoot.children.clear()
             map += list.head._2 -> logRoot
             list.tail foreach { x => {
-              val elem = new TreeItem[String](x._2.toString.substring(x._1.get.toString.length) + " " + x._3.toString)
+              val elem = new TreeItem[String](x._2.toString.substring(x._1.get.toString.size) + " " + x._3.toString)
               map(x._1.get).children.add(elem)
               elem.expanded = true
               map += x._2 -> elem

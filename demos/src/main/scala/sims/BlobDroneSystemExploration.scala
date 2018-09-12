@@ -32,7 +32,8 @@ object BlobDroneSystemExploration extends App {
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
   ScafiProgramBuilder (
     Random(500,worldSize._1,worldSize._1),
-    SimulationInfo(program = classOf[SupplyRescueDemo], actuator = Actuator.movementActuator),
+    SimulationInfo(program = classOf[BlobDroneSystemExplorationDemo], actuators = List(Actuator.movementDtActuator),
+      exportValutations = List.empty),
     RadiusSimulation(radius),
     neighbourRender = true
   ).launch()

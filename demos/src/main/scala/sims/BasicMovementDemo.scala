@@ -31,8 +31,10 @@ object BasicMovementDemo extends App {
   val radius = 40
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * this.size._1, tuple._2 * this.size._2)
   ScafiProgramBuilder (
-    Random(500,size._1,size._1),
-    SimulationInfo(program = classOf[SupplyRescueDemo], actuator = Actuator.movementActuator),
+    Random(500,500,500),
+    SimulationInfo(program = classOf[BasicMovement],
+      actuators = List(Actuator.movementDtActuator),
+      exportValutations = List.empty),
     RadiusSimulation(radius),
     neighbourRender = true
   ).launch()
@@ -47,7 +49,7 @@ class BasicMovement extends AggregateProgram with SensorDefinitions with Flockin
   private val repulsionRange: Double = BasicMovementDemo.radius * 60.0 / 200
   private val obstacleForce: Double = 400.0
 
-  override def main:(Double, Double) = BasicMovementDemo.tupleToWorldSize(rep(randomMovement())(behaviour2))
+  override def main:(Double, Double) = BasicMovementDemo.tupleToWorldSize(rep(randomMovement())(behaviour1))
 
   private def behaviour1(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {

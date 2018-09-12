@@ -1,14 +1,10 @@
-package it.unibo.scafi.simulation.gui.pattern.observer
-
-import scala.collection.mutable
-
+package it.unibo.utils.observer
 
 /**
-  * the source preserve the order to observer insertion
+  * the order of notification to observer isn't preserved
   */
-trait PrioritySource extends Source{
-  //linked hash set preserve the insertion order
-  private val _observers = mutable.LinkedHashSet[O]()
+trait SimpleSource extends Source {
+  private var _observers = Set[O]()
   override def attach(observer : O): Boolean = {
     if (_observers contains observer) return false
     _observers += observer
@@ -24,5 +20,5 @@ trait PrioritySource extends Source{
     _observers -= observer
     true
   }
-  protected def observers: Iterable[O] = Set(_observers.toSeq:_*)
+  protected def observers: Iterable[O] = _observers
 }

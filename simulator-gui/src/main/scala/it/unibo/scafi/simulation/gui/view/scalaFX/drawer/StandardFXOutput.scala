@@ -23,7 +23,7 @@ case object StandardFXOutput extends FXOutputPolicy {
   //the type of output is Node because string device are showed like label
   override type OUTPUT_NODE = javafx.scene.Node
   //radius used to show boolean device
-  private val radius = 2
+  private val radius = 1
   //allow to show multiple label
   private var labelOut = Map.empty[OUTPUT_NODE, List[OUTPUT_NODE]]
   //label offset between two label

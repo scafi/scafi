@@ -28,11 +28,11 @@ import lib.{FlockingLib, Movement2DSupport}
 
 object SupportNetworkExploration extends App {
   val worldSize = (500,500)
-  val simRadius = 40
+  val simRadius = 20
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
   ScafiProgramBuilder (
-    Random(500,worldSize._1,worldSize._1),
-    SimulationInfo(program = classOf[SupplyRescueDemo], actuator = Actuator.movementActuator),
+    Random(1000,worldSize._1,worldSize._1),
+    SimulationInfo(program = classOf[SupportNetworkExplorationDemo], actuators = List(Actuator.movementDtActuator),exportValutations = List.empty),
     RadiusSimulation(simRadius),
     neighbourRender = true
   ).launch()
@@ -61,7 +61,7 @@ class SupportNetworkExplorationDemo extends AggregateProgram with SensorDefiniti
   private val neighboursThr: Int = 7
   private val SPACE_DIMENSION: Int = 100
 
-  override def main():(Double, Double) = rep(randomMovement(), (0.5, 0.5))(round)._1
+  override def main():(Double, Double) = SupportNetworkExploration.tupleToWorldSize(rep(randomMovement(), (0.5, 0.5))(round)._1)
 
   private def behaviourSense1(tuple: ((Double, Double), (Double, Double))) = {
     var gradient = Double.MaxValue

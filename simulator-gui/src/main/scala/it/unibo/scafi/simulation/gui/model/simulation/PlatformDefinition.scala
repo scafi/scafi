@@ -4,7 +4,7 @@ import it.unibo.scafi.simulation.gui.model.aggregate.{AbstractAggregateWorld, Ab
 import it.unibo.scafi.simulation.gui.model.common.network.ConnectedWorld
 import it.unibo.scafi.simulation.gui.model.common.{BoundaryDefinition, MetricDefinition}
 import it.unibo.scafi.simulation.gui.model.sensor.{SensorConcept, SensorNetwork, SensorWorld}
-import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
+import it.unibo.utils.observer.SimpleSource
 
 /**
   * describe a platform skeleton

@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
+import it.unibo.scafi.simulation.SimulationObserver
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
@@ -11,6 +12,7 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   override type SIMULATION_PROTOTYPE = () => EXTERNAL_SIMULATION
   override type SIMULATION_CONTRACT = ExternalSimulationContract
   protected var idsObserved : Set[world.ID] = Set.empty
+  protected var simulationObserver = new SimulationObserver[ID]
   val world : ScafiLikeWorld = scafiWorld
   /**
     * current simulation prototype, at begging no prototype defined
@@ -39,12 +41,12 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   /**
     * @return the current simulation seed
     */
-  def simulationSeed : Option[SimulationInfo] = simSeed
+  def simulationInfo : Option[SimulationInfo] = simSeed
 
   /**
     * @param simulationSeed the simulation seed used to initialize the simulation
     */
-  def simulationSeed_= (simulationSeed: SimulationInfo) : Unit = {
+  def simulationInfo_=(simulationSeed: SimulationInfo) : Unit = {
     require(simulationSeed != null)
     simSeed = Some(simulationSeed)
   }
@@ -56,21 +58,24 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
     override def initialize(prototype: SIMULATION_PROTOTYPE): Unit = {
 
       //to initialize the simulation, current simulation must be empty and program must be defined
-      require(currentSimulation.isEmpty && simulationSeed.isDefined)
+      require(currentSimulation.isEmpty && simulationInfo.isDefined)
 
       //create context by program passed
-      context = Some(simulationSeed.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
+      context = Some(simulationInfo.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
       //create new simulation
       this.currentSimulation = Some(prototype())
+      this.currentSimulation.get.attach(simulationObserver)
     }
 
     override def restart(prototype: SIMULATION_PROTOTYPE): Unit = {
       //to restart simulation current simulation must be defined
       require(currentSimulation.isDefined)
       //create the instance of program
-      context = Some(simulationSeed.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
+      context = Some(simulationInfo.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
       //set current simulation to another
       this.currentSimulation = Some(prototype())
+      simulationObserver.idMoved
+      this.currentSimulation.get.attach(simulationObserver)
     }
   }
 }

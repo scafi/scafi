@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.test.help
 
 import it.unibo.scafi.simulation.gui.model.aggregate.{AbstractAggregateWorld, AbstractNodeDefinition}
 import it.unibo.scafi.simulation.gui.model.core.Shape
-import it.unibo.scafi.simulation.gui.pattern.observer.SimpleSource
+import it.unibo.utils.observer.SimpleSource
 
 /**
   * a class used to test abstract aggregate world and aggregate node definition

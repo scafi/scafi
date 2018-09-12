@@ -27,9 +27,9 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializ
 
 object DISIDemo extends App {
   ScafiProgramBuilder (
-    Random(500,500,500),
+    Random(50,500,500),
     SimulationInfo(program = classOf[Main]),
-    RadiusSimulation(radius = 40),
+    RadiusSimulation(radius = 140),
     neighbourRender = true
   ).launch()
 }

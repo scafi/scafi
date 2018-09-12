@@ -19,10 +19,15 @@ trait SensorWorld extends AbstractAggregateWorld with SensorNetwork  {
     node.getMutableDevice(name) match {
       case None => false
       case Some(device) =>
-        device.value = value
-        notify(NodeEvent(id, NodeDeviceChanged))
-        notify(DeviceEvent(id, name, SensorChanged))
-        true
+        if(value != device.value) {
+          device.value = value
+          notify(NodeEvent(id, NodeDeviceChanged))
+          notify(DeviceEvent(id, name, SensorChanged))
+          true
+        } else {
+          false
+        }
+
     }
   }
 }

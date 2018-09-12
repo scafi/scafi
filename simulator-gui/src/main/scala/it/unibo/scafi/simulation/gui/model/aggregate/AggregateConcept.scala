@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.model.aggregate
 
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 import it.unibo.scafi.simulation.gui.model.common.world.ObservableWorld
-import it.unibo.scafi.simulation.gui.pattern.observer.Event
+import it.unibo.utils.observer.Event
 
 /**
   * describe a set of aggregate concept used to define an aggregate world

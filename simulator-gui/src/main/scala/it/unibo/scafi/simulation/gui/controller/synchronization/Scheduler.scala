@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.gui.controller.synchronization
 
-import it.unibo.scafi.simulation.gui.pattern.observer.{Event, Observer, PrioritySource, Source}
+import it.unibo.utils.observer.{Event, Observer, PrioritySource, Source}
 
 /**
   * Scheduler has internal frequency used to

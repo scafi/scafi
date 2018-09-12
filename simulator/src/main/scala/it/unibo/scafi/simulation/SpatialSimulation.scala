@@ -20,10 +20,10 @@ package it.unibo.scafi.simulation
 
 import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
 import it.unibo.scafi.platform.{SimulationPlatform, SpaceAwarePlatform}
+import it.unibo.scafi.simulation.SimulationObserver.MovementEvent
 import it.unibo.scafi.space._
 
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
-
 
 trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
   self: SimulationPlatform.PlatformDependency with BasicSpatialAbstraction =>
@@ -51,6 +51,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     def setPosition(id: ID, newPos: P): Unit = {
       devs(id).pos = newPos
       space.setLocation(id,newPos)
+      this.notify(MovementEvent(id))
     }
 
     def getAllNeighbours(): Map[ID, Iterable[ID]] =
@@ -61,12 +62,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       chgSensorValue(name, devs.keySet, value)
     }
 
-    override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = {
-      ids.foreach(id => {
-        val f = devs(id).lsns
-        devs(id).lsns += name -> value
-      })
-    }
+    override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = ids.foreach(devs(_).lsns += name -> value)
 
     class SpatialSimulatorContextImpl(id: ID) extends SimulatorContextImpl(id){
 

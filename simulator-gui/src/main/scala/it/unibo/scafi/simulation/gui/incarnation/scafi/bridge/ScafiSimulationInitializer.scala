@@ -49,7 +49,7 @@ object ScafiSimulationInitializer {
         res
       }
       bridge.simulationPrototype = Some(proto)
-      bridge.simulationSeed = scafiSimulationSeed
+      bridge.simulationInfo = scafiSimulationSeed
       bridge
     }
   }

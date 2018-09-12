@@ -28,11 +28,11 @@ import lib.{FlockingLib, Movement2DSupport}
 
 object SupplyRescue extends App {
   val worldSize = (500,500)
-  val simRadius = 40
+  val simRadius = 140
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
   ScafiProgramBuilder (
-    Random(500,worldSize._1,worldSize._1),
-    SimulationInfo(program = classOf[SupplyRescueDemo], actuator = Actuator.movementActuator),
+    Random(50,worldSize._1,worldSize._1),
+    SimulationInfo(program = classOf[SupplyRescueDemo], actuators = List(Actuator.movementDtActuator),exportValutations = List.empty),
     RadiusSimulation(simRadius),
     neighbourRender = true
   ).launch()
