@@ -18,15 +18,20 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ AggregateProgram, Builtins }
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, Builtins}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object DISIDemo extends Launcher {
-  Settings.Sim_ProgramClass = "sims.Main" + (if(args.length == 0) "" else args(0))
-  Settings.ShowConfigPanel = false
-  Settings.Sim_NbrRadius = 0.15
-  Settings.Sim_NumNodes = 100
-  launch()
+object DISIDemo extends App {
+  ScafiProgramBuilder (
+    Random(500,500,500),
+    SimulationInfo(program = classOf[Main]),
+    RadiusSimulation(radius = 40),
+    neighbourRender = true
+  ).launch()
 }
 
 abstract class DISIDemoAggregateProgram extends AggregateProgram {
@@ -37,75 +42,92 @@ abstract class DISIDemoAggregateProgram extends AggregateProgram {
   def nbrRange = nbrvar[Double]("nbrRange")*100
 }
 
+@Demo
 class Main extends DISIDemoAggregateProgram {
   def inc(x:Int):Int = x+1
   override def main() = rep(init = 0)(fun = inc)
 }
 
+@Demo
 class Main1 extends DISIDemoAggregateProgram {
   override def main() = 1
 }
 
+@Demo
 class Main2 extends DISIDemoAggregateProgram {
   override def main() = 2+3
 }
 
+@Demo
 class Main3 extends DISIDemoAggregateProgram {
   override def main() = (10,20)
 }
 
+@Demo
 class Main4 extends DISIDemoAggregateProgram {
   override def main() = Math.random()
 }
 
+@Demo
 class Main5 extends DISIDemoAggregateProgram {
   override def main() = sense1
 }
 
+@Demo
 class Main6 extends DISIDemoAggregateProgram {
   override def main() = if (sense1) 10 else 20
 }
 
+@Demo
 class Main7 extends DISIDemoAggregateProgram {
   override def main() = mid()
 }
 
+@Demo
 class Main8 extends DISIDemoAggregateProgram {
   override def main() = minHoodPlus(nbrRange)
 }
 
+@Demo
 class Main9 extends DISIDemoAggregateProgram {
   override def main() = rep(0){_+1}
 }
 
+@Demo
 class Main10 extends DISIDemoAggregateProgram {
   override def main() = rep(Math.random()){x=>x}
 }
 
+@Demo
 class Main11 extends DISIDemoAggregateProgram {
   override def main() = rep[Double](0.0){x => x + rep(Math.random()){y=>y}}
 }
 
+@Demo
 class Main12 extends DISIDemoAggregateProgram {
   import Builtins.Bounded.of_i
 
   override def main() = maxHoodPlus(boolToInt(nbr{sense1}))
 }
 
+@Demo
 class Main13 extends DISIDemoAggregateProgram {
   override def main() = foldhoodPlus(0)(_+_){nbr{1}}
 }
 
+@Demo
 class Main14 extends DISIDemoAggregateProgram {
   import Builtins.Bounded.of_i
 
   override def main() = rep(0){ x => boolToInt(sense1) max maxHoodPlus( nbr{x}) }
 }
 
+@Demo
 class Main15 extends DISIDemoAggregateProgram {
   override def main() = rep(Double.MaxValue){ d => mux[Double](sense1){0.0}{minHoodPlus(nbr{d}+1.0)} }
 }
 
+@Demo
 class Main16 extends DISIDemoAggregateProgram {
   override def main() = rep(Double.MaxValue){ d => mux[Double](sense1){0.0}{minHoodPlus(nbr{d}+nbrRange)} }
 }

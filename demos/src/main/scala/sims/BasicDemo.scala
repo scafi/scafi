@@ -19,17 +19,21 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object BasicDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.BasicProgram" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 100 // number of nodes
-  launch()
+object BasicDemo extends App {
+  ScafiProgramBuilder (
+    Random(50,500,500),
+    SimulationInfo(program = classOf[BasicProgram]),
+    RadiusSimulation(radius = 140),
+    neighbourRender = true
+  ).launch()
 }
-
+@Demo
 class BasicProgram extends AggregateProgram {
   override def main() = rep(0)(_ + 1) // the aggregate program to run
 }

@@ -19,23 +19,23 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import lib.{FlockingLib, Movement2DSupport}
 
-object BlobDroneSystemExploration extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.BlobDroneSystemExplorationDemo" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  //Settings.Sim_Topology = Topologies.Grid_LoVar
-  Settings.Sim_NbrRadius = 0.05 // neighbourhood radius
-  Settings.Sim_NumNodes = 100 // number of nodes
-  //Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
-  Settings.Movement_Activator = (b: Any) => b.asInstanceOf[(Double, Double)]
-  Settings.To_String = _ => ""
-  Settings.Sim_DrawConnections = true
-  Settings.Sim_realTimeMovementUpdate = false
-  //Settings.Sim_Draw_Sensor_Radius = true
-  launch()
+object BlobDroneSystemExploration extends App {
+  val worldSize = (500,500)
+  val radius = 40
+  def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
+  ScafiProgramBuilder (
+    Random(500,worldSize._1,worldSize._1),
+    SimulationInfo(program = classOf[SupplyRescueDemo], actuator = Actuator.movementActuator),
+    RadiusSimulation(radius),
+    neighbourRender = true
+  ).launch()
 }
 
 /**
@@ -46,19 +46,21 @@ object BlobDroneSystemExploration extends Launcher {
   *   - Sense2: obstacles
   *   - Sense3: base
   */
+
+@Demo(simulationType = SimulationType.MOVEMENT)
 class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
 
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0
   private val repulsionForce: Double = 80.0
-  private val repulsionRange: Double = Settings.Sim_NbrRadius * 60.0 / 100
+  private val repulsionRange: Double = BlobDroneSystemExploration.radius * 60.0 / 100
   private val obstacleForce: Double = 400.0
 
-  private val separationThr = Settings.Sim_NbrRadius * 80.0
+  private val separationThr = BlobDroneSystemExploration.radius * 80.0
   private val neighboursThr = 4
 
 
-  override def main(): (Double, Double) = rep(randomMovement(), (0.5,0.5))(behaviour)._1
+  override def main(): (Double, Double) = BlobDroneSystemExploration.tupleToWorldSize(rep(randomMovement(), (0.5,0.5))(behaviour)._1)
 
   private def flockWithBase(myTuple: ((Double, Double),(Double,Double))): ((Double, Double),(Double,Double)) = {
     val myPosition = currentPosition()

@@ -18,13 +18,28 @@
 
 package sims
 
-import it.unibo.scafi.simulation.gui._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.launcher.scafi.{ListDemo, Console => ScafiConsole, GraphicsLauncher => ScafiGraphicsLauncher}
 
-object DemoLauncher extends Launcher {
-  Settings.Sim_ProgramClass = "sims.Timer"
-  Settings.ShowConfigPanel = true
-  Settings.Sim_NbrRadius = 0.15
-  Settings.Sim_NumNodes = 100
-  parseCommandLine()
-  launch()
+
+object DemoLauncher extends App {
+  ScafiProgramBuilder (
+    Random(500,500,500),
+    SimulationInfo(program = classOf[Main]),
+    RadiusSimulation(radius = 40),
+    neighbourRender = true
+  ).launch()
+}
+
+object ConsoleLauncher extends App {
+  ListDemo.packageName = "sims"
+  ScafiConsole.main(args)
+}
+
+object GraphicsLauncher extends App {
+  ListDemo.packageName = "sims"
+  ScafiGraphicsLauncher.main(args)
 }

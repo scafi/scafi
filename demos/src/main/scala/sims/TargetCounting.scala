@@ -18,17 +18,20 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
-  {AggregateProgram, FieldUtils, ID, BlockG, BlockS, BlockC, BlocksWithGC}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockC, BlockG, BlockS, BlocksWithGC, FieldUtils, ID}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object TargetCounting extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.TargetCountingProgram" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.2 // neighbourhood radius
-  Settings.Sim_NumNodes = 50 // number of nodes
-  launch()
+object TargetCounting extends App {
+  ScafiProgramBuilder (
+    Random(1000,1920,1080),
+    SimulationInfo(program = classOf[TargetCountingProgram]),
+    RadiusSimulation(radius = 40),
+    neighbourRender = true
+  ).launch()
 }
 
 /**
@@ -36,6 +39,8 @@ object TargetCounting extends Launcher {
   *  'Self-stabilising target counting in wireless sensor networks using Euler integration'
   *  http://ieeexplore.ieee.org/abstract/document/8064025/
   */
+
+@Demo
 class TargetCountingProgram extends AggregateProgram with SensorDefinitions
   with FieldUtils with BlockG with BlockS with BlockC with BlocksWithGC {
 

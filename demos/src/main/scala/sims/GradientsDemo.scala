@@ -18,26 +18,29 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
 import scala.concurrent.duration.FiniteDuration
 
-object GradientsDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.GradientWithObstacle" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 40 // number of nodes
-  Settings.ConfigurationSeed = 0
-  launch()
+object GradientsDemo extends App {
+  ScafiProgramBuilder (
+    Random(50,500,500),
+    SimulationInfo(program = classOf[Gradient]),
+    RadiusSimulation(radius = 140),
+    neighbourRender = true
+  ).launch()
 }
-
+@Demo
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
   def main = g2(sense1, sense2)
 
@@ -53,7 +56,7 @@ class GradientWithObstacle extends AggregateProgram with SensorDefinitions with 
     classic(isSrc)
   }
 }
-
+@Demo
 class SteeringProgram extends AggregateProgram with SensorDefinitions {
   def main = steering(sense1)
 
@@ -81,7 +84,7 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
     override def compare(x: (A, B, C), y: (A, B, C)): Int = (x._1,x._2).compareTo((y._1,y._2))
   }
 }
-
+@Demo
 class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
   def main = {
     val g = classic(sense1)
@@ -89,6 +92,7 @@ class ShortestPathProgram extends AggregateProgram with Gradients with SensorDef
   }
 }
 
+@Demo
 class CheckSpeed extends AggregateProgram
     with Gradients with BlockG with SensorDefinitions with GenericUtils with StateManagement {
   implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
@@ -111,46 +115,57 @@ class CheckSpeed extends AggregateProgram
   }
 }
 
+@Demo
 class GradientComparison extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
 
+@Demo
 class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradientBIS(sense1)
 }
 
+@Demo
 class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradientSVD(sense1)
 }
 
+@Demo
 class FlexGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = flex(sense1)
 }
 
+@Demo
 class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = crf(sense1)
 }
 
+@Demo
 class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradient(sense1)
 }
 
+@Demo
 class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classic(sense1)
 }
 
+@Demo
 class ClassicGradientWithG extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithG(sense1)
 }
 
+@Demo
 class ClassicGradientWithGv2 extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithGv2(sense1)
 }
 
+@Demo
 class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithUnboundedG(sense1)
 }
 
+@Demo
 class DistanceBetween extends AggregateProgram with SensorDefinitions with BlockG {
   def isSource: Boolean = sense1
   def isTarget: Boolean = sense2
@@ -229,7 +244,7 @@ trait Gradients extends BlockG
     rep(Double.PositiveInfinity){ g =>
       def distance = Math.max(nbrRange(), delta * communicationRadius)
 
-      import BoundedTypeClasses._; import Builtins.Bounded._ // for min/maximizing over tuples
+      import Builtins.Bounded._ // for min/maximizing over tuples
       val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
       /*maxHood {
         ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
@@ -402,7 +417,7 @@ trait Gradients extends BlockG
     rep[(Double,Double,Int,Boolean)](loc) {
       case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
         // (1) Let's calculate new values for spaceDistEst and sourceId
-        import BoundedTypeClasses._; import Builtins.Bounded._
+        import Builtins.Bounded._
         val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
         /* minHood {
           mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })

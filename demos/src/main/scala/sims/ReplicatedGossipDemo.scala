@@ -19,20 +19,23 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
-object ReplicatedGossipDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.ReplicatedGossip" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.25 // neighbourhood radius
-  Settings.Sim_NumNodes = 100 // number of nodes
-  Settings.ConfigurationSeed = 0
-  launch()
+object ReplicatedGossipDemo extends App {
+  ScafiProgramBuilder (
+    Random(50,500,500),
+    SimulationInfo(program = classOf[ReplicatedGossip]),
+    RadiusSimulation(radius = 140),
+    neighbourRender = true
+  ).launch()
 }
-
+@Demo
 class ReplicatedGossip extends AggregateProgram with StateManagement with SensorDefinitions with Gradients with Processes with BlockT
   with Spawn {
   def main: String = {

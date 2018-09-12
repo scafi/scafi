@@ -19,34 +19,35 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import lib.{FlockingLib, Movement2DSupport}
 
-object BasicMovementDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.BasicMovement" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  //Settings.Sim_Topology = Topologies.Grid_LoVar
-  Settings.Sim_NbrRadius = 0.06 // neighbourhood radius
-  Settings.Sim_NumNodes = 300 // number of nodes
-  //Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
-  Settings.Movement_Activator = (b: Any) => b.asInstanceOf[(Double, Double)]
-  Settings.To_String = _ => ""
-  Settings.Sim_DrawConnections = true
-  Settings.Sim_realTimeMovementUpdate = false
-  //Settings.Sim_Draw_Sensor_Radius = true
-  launch()
+object BasicMovementDemo extends App {
+  lazy val size = (500,500)
+  val radius = 40
+  def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * this.size._1, tuple._2 * this.size._2)
+  ScafiProgramBuilder (
+    Random(500,size._1,size._1),
+    SimulationInfo(program = classOf[SupplyRescueDemo], actuator = Actuator.movementActuator),
+    RadiusSimulation(radius),
+    neighbourRender = true
+  ).launch()
 }
 
+@Demo(simulationType = SimulationType.MOVEMENT)
 class BasicMovement extends AggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
 
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0
   private val repulsionForce: Double = 80.0
-  private val repulsionRange: Double = Settings.Sim_NbrRadius * 60.0 / 200
+  private val repulsionRange: Double = BasicMovementDemo.radius * 60.0 / 200
   private val obstacleForce: Double = 400.0
 
-  override def main:(Double, Double) = rep(randomMovement())(behaviour2)
+  override def main:(Double, Double) = BasicMovementDemo.tupleToWorldSize(rep(randomMovement())(behaviour2))
 
   private def behaviour1(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {

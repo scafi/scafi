@@ -64,6 +64,7 @@ trait Semantics extends Core with Language {
   trait ExportOps { self: EXPORT =>
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
+    def paths : Map[Path,Any]
   }
 
   trait ContextOps { self: CONTEXT =>
@@ -134,10 +135,11 @@ trait Semantics extends Core with Language {
         }
       }
 
-    override def aggregate[T](f: => T): T =
+    override def aggregate[T](f: => T): T = {
       vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(true) {
         f
       }
+    }
 
     override def align[K,V](key: K)(proc: K => V): V =
       vm.nest[V](Scope[K](key))(true, inc = false){
@@ -255,8 +257,9 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag():Any =
-      Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    import sun.reflect.Reflection._
+    override def elicitAggregateFunctionTag():Any = getCallerClass(PlatformDependentConstants.StackTracePosition)
+
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated

@@ -19,17 +19,20 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Grid
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutput
 
-object ChannelDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.SelfContainedChannel" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.1 // neighbourhood radius
-  Settings.Sim_NumNodes = 200 // number of nodes
-  Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
-  Settings.To_String = (b: Any) => ""
-  launch()
+object ChannelDemo extends App {
+  ScafiProgramBuilder (
+    Grid(10,100,100),
+    SimulationInfo(program = classOf[Channel]),
+    RadiusSimulation(radius = 10),
+    outputPolicy = FastFXOutput
+  ).launch()
 }
 
 /**
@@ -38,6 +41,7 @@ object ChannelDemo extends Launcher {
   *   - Sense2: destination area
   *   - Sense3: obstacles
   */
+@Demo
 class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
 
   def channel(source: Boolean, target: Boolean, width: Double): Boolean =
@@ -45,7 +49,7 @@ class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
 
   override def main() = branch(sense3){false}{channel(sense1, sense2, 1)}
 }
-
+@Demo
 class SelfContainedChannel extends AggregateProgram with SensorDefinitions {
   override def main() = branch(sense3){false}{channel(sense1, sense2, 5)}
 

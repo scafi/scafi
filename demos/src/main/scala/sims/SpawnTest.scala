@@ -19,16 +19,21 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object SpawnTestRunner extends Launcher {
-  Settings.Sim_ProgramClass = "sims.SpawnTest"
-  Settings.ShowConfigPanel = false
-  Settings.Sim_NbrRadius = 0.25
-  Settings.Sim_NumNodes = 30
-  launch()
+object SpawnTestRunner extends App {
+  ScafiProgramBuilder (
+    Random(50,500,500),
+    SimulationInfo(program = classOf[SpawnTest]),
+    RadiusSimulation(radius = 140),
+    neighbourRender = true
+  ).launch()
 }
-
+@Demo
 class SpawnTest extends AggregateProgram with SensorDefinitions with FieldUtils with BlockG {
   case class SpawnDef[T](pid: Int,
                          comp: () => T,

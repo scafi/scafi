@@ -18,15 +18,19 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ExplicitFields, FieldUtils}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ExplicitFields}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object ExplicitFieldsRun extends Launcher {
-  Settings.Sim_ProgramClass = "sims.GradientWithExplicitFields"
-  Settings.ShowConfigPanel = false
-  Settings.Sim_NbrRadius = 0.15
-  Settings.Sim_NumNodes = 100
-  launch()
+object ExplicitFieldsRun extends App {
+  ScafiProgramBuilder (
+    Random(50,500,500),
+    SimulationInfo(program = classOf[GradientWithExplicitFields]),
+    RadiusSimulation(radius = 140),
+    neighbourRender = true
+  ).launch()
 }
 
 class GradientWithExplicitFields extends AggregateProgram with SensorDefinitions with ExplicitFields {

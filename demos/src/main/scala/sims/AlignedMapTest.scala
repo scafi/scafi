@@ -19,16 +19,21 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object AlignedMapRunner extends Launcher {
-  Settings.Sim_ProgramClass = "sims.AlignedMapTest"
-  Settings.ShowConfigPanel = false
-  Settings.Sim_NbrRadius = 0.25
-  Settings.Sim_NumNodes = 30
-  launch()
+object AlignedMapRunner extends App {
+  ScafiProgramBuilder (
+    Random(50,500,500),
+    SimulationInfo(program = classOf[AlignedMapTest]),
+    RadiusSimulation(radius = 140),
+    neighbourRender = true
+  ).launch()
 }
-
+@Demo
 class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldUtils with BlockG {
   override def main() = test1
 

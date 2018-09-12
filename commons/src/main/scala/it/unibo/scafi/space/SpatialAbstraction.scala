@@ -18,8 +18,13 @@
 
 package it.unibo.scafi.space
 
-import scala.language.higherKinds
 import it.unibo.utils.BiMap
+import it.unibo.scafi.space
+import it.unibo.scafi.space.optimization._
+import it.unibo.scafi.space.optimization.nn.NNIndex
+
+import scala.collection.concurrent.TrieMap
+import scala.language.higherKinds
 
 
 /**
@@ -126,7 +131,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
   override type P <: Point3D
   override type D = Double
 
-  override type SPACE[E] = Basic3DSpace[E]
+  override type SPACE[E] = Space3D[E]
 
   implicit val positionOrdering: Ordering[P] = new Ordering[P] {
     override def compare(a: P, b: P): Int = {
@@ -143,11 +148,20 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
   override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] =
     new Basic3DSpace(elems.toMap)
 
-  class Basic3DSpace[E](var elemPositions: Map[E,P],
-                        override val proximityThreshold: Double = EuclideanStrategy.DefaultProximityThreshold)
-    extends MutableMetricSpace[E]
+  abstract class Space3D[E](var elemPositions: Map[E,P],
+                    override val proximityThreshold: Double) extends MutableMetricSpace[E]
     with EuclideanStrategy
     with Serializable {
+    def add(e: E, p: P): Unit = elemPositions += (e -> p)
+    def getLocation(e: E): P = elemPositions(e)
+    def getAll(): Iterable[E] = elemPositions.keys
+    def remove(e: E): Unit = elemPositions -= e
+
+    override def contains(e: E): Boolean = elemPositions.contains(e)
+  }
+  class Basic3DSpace[E](pos: Map[E,P],
+                        proximityThreshold: Double = EuclideanStrategy.DefaultProximityThreshold)
+    extends Space3D[E](pos,proximityThreshold){
 
     var neighbourhoodMap: Map[E, Set[(E,D)]] = initNeighbours()
 
@@ -175,24 +189,17 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     }
 
     private def calculateNeighbours(e: E): Iterable[(E,D)] = {
+
       val p1 = getLocation(e)
       getAll()
         .filter(nbr => nbr != e && neighbouring(p1,getLocation(nbr)))
        .map(e2 => (e2, getDistance(getLocation(e), getLocation(e2))))
     }
 
-
-    def add(e: E, p: P): Unit = elemPositions += (e -> p)
-    def getLocation(e: E): P = elemPositions(e)
-    def getAll(): Iterable[E] = elemPositions.keys
-    def remove(e: E): Unit = elemPositions -= e
+    override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
 
     override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)
     override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = neighbourhoodMap(e)
-
-    override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
-
-    override def contains(e: E): Boolean = elemPositions.contains(e)
   }
 
   trait EuclideanStrategy extends DistanceStrategy
@@ -208,5 +215,65 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
 
   object EuclideanStrategy {
     val DefaultProximityThreshold: Double = 1
+  }
+
+  /**
+    * a space that used quad tree index to compute neighbour
+    * @param pos the position of noe
+    * @param radius radius of neighbour range
+    * @tparam E the type of node
+    */
+  class QuadTreeSpace[E](pos : Map[E,P],radius : Double) extends Space3D[E](pos,radius) {
+    private var nMap: TrieMap[E, Set[E]] = TrieMap.empty
+    //TODO CREATE AN INDEX THAT INCREASE HIS SIZE WITH NODE POSITIONING
+    private val neighbourIndex: NNIndex[E] = NNIndex(pos)
+    override def setLocation(e: E, p: P): Unit = {
+      resetNeighbours(e)
+      neighbourIndex -= (elemPositions(e))
+      neighbourIndex += (p -> e)
+      elemPositions += e -> p
+      calculateNeighbours(e)
+      addNeighbours(e)
+    }
+
+    private def resetNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) - e) }}}
+
+    private def addNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) + e) }}}
+    private def calculateNeighbours(e: E): Unit = {
+      val neigh: (E, Set[E]) = e -> (neighbourIndex neighbours (elemPositions(e), radius) map {
+        _._2
+      } toSet)
+      this.nMap += neigh
+    }
+
+
+    override def add(e: E, p: P): Unit = {
+      neighbourIndex += (p -> e)
+      super.add(e,p)
+    }
+    override def remove(e: E): Unit = {
+      neighbourIndex -= (elemPositions(e))
+      super.remove(e)
+    }
+    //TODO CHECK IF TWO ELEMENTS ARE IN THE SAME POSITION
+    override def getNeighbors(e: E): Iterable[E] = {
+      if(nMap.get(e).isEmpty) {
+        calculateNeighbours(e)
+      }
+      if(nMap.get(e).isDefined) {
+        nMap(e)
+      } else {
+        List()
+      }
+    }
+    override def getNeighborsWithDistance(e: E): Iterable[(E, D)] = {
+      val p = elemPositions(e)
+      getNeighbors(e) map {x => x -> elemPositions(x).distance(p)}
+    }
+
+    override def getAt(p: P): Option[E] = neighbourIndex.get(p)
+
+    override def contains(e: E): Boolean = elemPositions.contains(e)
+
   }
 }

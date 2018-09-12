@@ -18,18 +18,22 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ID
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import scala.collection.mutable.{ Map => MMap }
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ID}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 
-object MutableStateDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.MutableStateProgram"
-  Settings.ShowConfigPanel = false
-  Settings.Sim_NbrRadius = 0.45
-  Settings.Sim_NumNodes = 3
-  launch()
+import scala.collection.mutable.{Map => MMap}
+
+object MutableStateDemo extends App {
+  ScafiProgramBuilder (
+    Random(10,500,500),
+    SimulationInfo(program = classOf[MutableStateProgram]),
+    RadiusSimulation(radius = 200),
+    neighbourRender = true
+  ).launch()
 }
 
 /**
@@ -37,6 +41,7 @@ object MutableStateDemo extends Launcher {
   *  - the impact of using mutable fields within AggregatePrograms.
   *  - the use of REP to correctly keep track of state.
   */
+@Demo
 class MutableStateProgram extends AggregateProgram {
   var m1: Map[ID,Int] = Map()
 
