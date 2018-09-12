@@ -160,23 +160,6 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     def setLocation(e: E, p: P): Unit = {
       add(e, p)
       var newNeighbours: Set[(E,D)] = this.calculateNeighbours(e).toSet
-      var oldNeighbours: Set[(E,D)] = if (neighbourhoodMap.contains(e)) neighbourhoodMap(e) else Set()
-      if(oldNeighbours != newNeighbours){
-        var noMoreNeighbours: Set[(E,D)] = oldNeighbours.filter(el => !newNeighbours.exists(newNbr => newNbr._1==el._1))
-        var brandNewNeighbours: Set[(E,D)] = newNeighbours.filter(el => !oldNeighbours.exists(old => old._1==el))
-        for (elem <- noMoreNeighbours) {
-          neighbourhoodMap += (elem._1 -> this.calculateNeighbours(elem._1).toSet)
-        }
-        for (elem <- brandNewNeighbours) {
-          neighbourhoodMap += (elem._1 -> this.calculateNeighbours(elem._1).toSet)
-        }
-        neighbourhoodMap += (e -> newNeighbours)
-      }
-    }
-
-    /*def setLocation(e: E, p: P): Unit = {
-      add(e, p)
-      var newNeighbours: Set[(E,D)] = this.calculateNeighbours(e).toSet
       var oldNeighbours: Set[(E,D)] = neighbourhoodMap(e)
       if(oldNeighbours != newNeighbours){
         var noMoreNeighbours: Set[(E,D)] = oldNeighbours.filter(el => !newNeighbours.exists(newNbr => newNbr._1==el._1))
@@ -189,7 +172,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
         }
         neighbourhoodMap += (e -> newNeighbours)
       }
-    }*/
+    }
 
     private def calculateNeighbours(e: E): Iterable[(E,D)] = {
       val p1 = getLocation(e)
@@ -199,7 +182,10 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     }
 
 
-    def add(e: E, p: P): Unit = elemPositions += (e -> p)
+    def add(e: E, p: P): Unit = {
+      elemPositions += (e -> p)
+      if (!neighbourhoodMap.contains(e)) neighbourhoodMap += (e -> Set())
+    }
     def getLocation(e: E): P = elemPositions(e)
     def getAll(): Iterable[E] = elemPositions.keys
     def remove(e: E): Unit = elemPositions -= e
