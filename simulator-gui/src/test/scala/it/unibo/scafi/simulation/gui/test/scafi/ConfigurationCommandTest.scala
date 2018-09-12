@@ -2,10 +2,11 @@ package it.unibo.scafi.simulation.gui.test.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.parser.{ConfigurationMachine, VirtualMachine}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiParser._
+import it.unibo.scafi.simulation.gui.launcher.scafi.ListDemo
 import org.scalatest.{FunSpec, Matchers}
 
 class ConfigurationCommandTest extends FunSpec with Matchers {
-
+  ListDemo.packageName = "it.unibo.scafi.simulation.gui.test.help"
   val checkThat = new ItWord
 
   val configurationMachine = new ConfigurationMachine(UnixConfiguration)
@@ -32,7 +33,7 @@ class ConfigurationCommandTest extends FunSpec with Matchers {
   }
 
   checkThat("i can create a simulation initializer described in unix configuration") {
-    val simulationResult = configurationMachine.process("radius-simulation Simple 20")
+    val simulationResult = configurationMachine.process("radius-simulation ScafiSimpleDemo 20")
     assert(simulationResult == VirtualMachine.Ok)
     assert(scafiConfiguration.simulationInitializer.isDefined)
   }
@@ -40,13 +41,13 @@ class ConfigurationCommandTest extends FunSpec with Matchers {
   checkThat("i can't create a simulation initializer with wrong arg") {
     val simulationWrongDemoName = configurationMachine.process("radius-simulation class 10")
     assert(simulationWrongDemoName != VirtualMachine.Ok)
-    val simulationWrongArgNumber = configurationMachine.process("radius-simulation Simple 10 10")
+    val simulationWrongArgNumber = configurationMachine.process("radius-simulation ScafiSimpleDemo 10 10")
     assert(simulationWrongArgNumber != VirtualMachine.Ok)
   }
 
   checkThat("after set of command scafi configuration can built") {
     configurationMachine.process("random-world 1000 200 200")
-    configurationMachine.process("radius-simulation Simple 10")
+    configurationMachine.process("radius-simulation ScafiSimpleDemo 10")
     assert(scafiConfiguration.create().isDefined)
   }
 }

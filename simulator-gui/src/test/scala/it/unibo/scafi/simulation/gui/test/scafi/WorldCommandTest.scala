@@ -7,6 +7,7 @@ import it.unibo.scafi.simulation.gui.configuration.command.factory.{AbstractMove
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld.analyzer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiWorldInitializer, scafiWorld}
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
 import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 import org.scalatest.{FunSpec, Matchers}
@@ -26,6 +27,7 @@ class WorldCommandTest extends FunSpec with Matchers {
   ScafiWorldInitializer.Random(node,worldSize,worldSize).init(ScafiWorldInformation.standard)
 
   checkThat("i can move node with move command") {
+    world.insertNode(new scafiWorld.NodeBuilder(0,Point3D(0,0,0)))
     val newPoint = Point3D(1,1,1)
     val map : Map[Any,Point3D] = Map(0 -> newPoint)
     val command = moveCommandFactory.create(Map(AbstractMoveCommandFactory.MoveMap -> map))
@@ -44,6 +46,7 @@ class WorldCommandTest extends FunSpec with Matchers {
   }
 
   checkThat("with wrong id type command fail") {
+    world.insertNode(new scafiWorld.NodeBuilder(0,Point3D(0,0,0)))
     val newPoint = Point3D(1,1,1)
     val map : Map[Any,Point3D] = Map("__" -> newPoint)
     val command = moveCommandFactory.create(Map(AbstractMoveCommandFactory.MoveMap -> map))
@@ -53,6 +56,9 @@ class WorldCommandTest extends FunSpec with Matchers {
     }
   }
   checkThat("i can toggle a device") {
+    world.clear()
+    val deviceProducer = List(scafiWorld.LedProducer(SensorName.sensor1,stream = SensorConcept.sensorInput))
+    world.insertNode(new scafiWorld.NodeBuilder(0,Point3D(0,0,0),producer = deviceProducer))
     val dev = world(0).get.getDevice(SensorName.sensor1).get
     val oldValue = dev.value
     val command = toggleFactory.create(Map(AbstractToggleCommandFactory.Name -> SensorName.sensor1,

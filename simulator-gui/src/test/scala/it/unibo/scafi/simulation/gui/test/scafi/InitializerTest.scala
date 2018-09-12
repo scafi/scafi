@@ -26,7 +26,7 @@ class InitializerTest extends FunSpec with Matchers{
 
   checkThat("grid initializer create a grid like world") {
     world.clear()
-    ScafiWorldInitializer.Grid(width,height,space).init(ScafiWorldInformation.standard)
+    ScafiWorldInitializer.Grid(space,width,height).init(ScafiWorldInformation.standard)
     assert(world.nodes.nonEmpty)
     assert(world.nodes.size == width * height)
     assert(world(aNodeId).get.devices.nonEmpty)
