@@ -22,7 +22,10 @@ object ScafiDeviceProducers {
     scafiWorld.LedProducer(sensor2,value = false,sensorInput),
     scafiWorld.LedProducer(sensor3,value = false,sensorInput),
     scafiWorld.LedProducer(sensor4,value = false,sensorInput),
-    scafiWorld.GeneralSensorProducer(name = output1,stream = sensorOutput))
+    scafiWorld.GeneralSensorProducer(name = output1,stream = sensorOutput),
+    scafiWorld.GeneralSensorProducer(name = output2,stream = sensorOutput),
+    scafiWorld.GeneralSensorProducer(name = output3,stream = sensorOutput),
+    scafiWorld.GeneralSensorProducer(name = output4,stream = sensorOutput))
 
   /**
     * ad hoc device configuration, you can pass a set of name, value and sensor stream that
