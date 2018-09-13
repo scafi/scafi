@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.gui.controller.logical
 
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, IntLog}
@@ -47,20 +48,19 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W] {
     //set the name of thread with the logic name
     this.setName(asyncLogicName)
     override def run(): Unit = {
+      time = System.currentTimeMillis()
       while(!stopped) {
-        val before = System.nanoTime()
         //do logic execution
         AsyncLogicExecution()
         if(delta != 0) {
           TimeUnit.MILLISECONDS.sleep(delta)
         }
         tick += 1
-        time += System.nanoTime() - before
-        if(time > 1000000000L) {
+        if(System.currentTimeMillis() - time > 1000) {
           import it.unibo.scafi.simulation.gui.controller.logger.{LogManager => log}
           log.notify(IntLog(Channel.SimulationRound, "instant", tick))
           tick = 0
-          time = 0
+          time = System.currentTimeMillis()
         }
       }
     }

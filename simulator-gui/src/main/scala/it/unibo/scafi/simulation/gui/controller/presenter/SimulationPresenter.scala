@@ -42,26 +42,29 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
     var toAdd : Map[world.ID,Set[world.ID]] = Map()
     var toRemove : Map[world.ID,Set[world.ID]] = Map()
 
-    val neighbourChanged = networkChanged.nodeChanged()
-    neighbourChanged foreach ( x => {
-      //take old neighbour
-      val oldIds = this.prevNeighbour.get(x)
-      //take new neighbour
-      val newIds = world.network.neighbours(x)
-      val id: world.ID = world(x).get.id
-      //ids to remove
-      val ids: Set[world.ID] = oldIds.getOrElse(Set()) -- newIds
-      //neighbour to add
-      val add = newIds -- oldIds.getOrElse(Set())
-      if (ids.nonEmpty) {
-        toRemove += id -> ids
-      }
-      if (add.nonEmpty) {
-        toAdd += id -> add
-      }
-    })
-    //change the neighbour map with new neighbour map
-    this.prevNeighbour = world.network.neighbours()
+    if(neighbourRender) {
+      val neighbourChanged = networkChanged.nodeChanged()
+      neighbourChanged foreach ( x => {
+        //take old neighbour
+        val oldIds = this.prevNeighbour.get(x)
+        //take new neighbour
+        val newIds = world.network.neighbours(x)
+        val id: world.ID = world(x).get.id
+        //ids to remove
+        val ids: Set[world.ID] = oldIds.getOrElse(Set()) -- newIds
+        //neighbour to add
+        val add = newIds -- oldIds.getOrElse(Set())
+        if (ids.nonEmpty) {
+          toRemove += id -> ids
+        }
+        if (add.nonEmpty) {
+          toAdd += id -> add
+        }
+      })
+      //change the neighbour map with new neighbour map
+      this.prevNeighbour = world.network.neighbours()
+    }
+
     //put the node moved in out
     nodesMoved foreach {x => out.get.outNode(world(x).get)}
     //if neighbour render il enable, show the neighbour

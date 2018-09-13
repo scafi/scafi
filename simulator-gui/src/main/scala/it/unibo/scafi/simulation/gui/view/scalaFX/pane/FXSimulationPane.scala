@@ -40,17 +40,17 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     if(_nodes.contains(node.id)) {
       //if the node is already show, the view change the node position
       val n = _nodes(node.id)
-      //with bind propriety, i can moved the node
       val oldP = nodeToAbsolutePosition(n)
       val action : ACTION = () => {
         n.translateX = p.x - oldP.x
         n.translateY = p.y - oldP.y
+        //update each node line of neighbour to mantain correctness
         if(neighbours.get(node.id).isDefined) {
           val map = neighbours(node.id)
           map.foreach(_._2.update())
           neighbours(node.id) foreach {x => {
             neighbours.get(x._1) match {
-              case Some(map : mutable.Map[_,_]) => map.get(node.id) foreach {x => x.update()}
+              case Some(map : mutable.Map[_,_]) => map foreach {x => x._2.update()}
               case _ =>
             }
           }}

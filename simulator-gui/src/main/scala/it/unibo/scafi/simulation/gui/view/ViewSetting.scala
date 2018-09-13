@@ -15,7 +15,7 @@ object ViewSetting {
   /**
     * a circular list of color associated to device name
     */
-  var deviceColor : List[Color] = List(Color.Red, Color.Yellow, Color.Blue, Color.LimeGreen, Color.OrangeRed)
+  var deviceColor : List[Color] = List(Color.Red, Color.Yellow, Color.Blue, Color.LimeGreen, Color.MediumOrchid)
   /**
     * the node color
     */
