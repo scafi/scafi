@@ -13,6 +13,8 @@ import scalafx.scene.shape.Line
 private [scalaFX] class NodeLine(private val start : Node,
                private val end : Node,
                c : Color) extends Line{
+  private val ps = nodeToAbsolutePosition(start)
+  private val pend = nodeToAbsolutePosition(end)
   update()
   this.smooth = false
   stroke = c
@@ -21,11 +23,12 @@ private [scalaFX] class NodeLine(private val start : Node,
     * update the position of the line extreme
     */
   def update() : Unit = {
-    val ps = nodeToPosition(start)
-    val pend = nodeToPosition(end)
-    startX = ps.x
-    startY = ps.y
-    endX = pend.x
-    endY = pend.y
+    if(this.isVisible) {
+      startX = ps.x + start.translateX.value
+      startY = ps.y + start.translateY.value
+      endX = pend.x + end.translateX.value
+      endY = pend.y + end.translateY.value
+    }
+
   }
 }
