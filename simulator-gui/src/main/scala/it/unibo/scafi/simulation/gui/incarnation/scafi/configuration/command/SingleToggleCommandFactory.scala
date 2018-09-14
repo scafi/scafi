@@ -1,16 +1,14 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
 import it.unibo.scafi.simulation.gui.configuration.command._
-import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractToggleCommandFactory
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
 
 /**
   * a factory that create a command to toggle a single node
-  * @param world the world where command is executed
   */
-class SingleToggleCommandFactory(override val world : ScafiLikeWorld = scafiWorld) extends AbstractToggleCommandFactory(scafiWorld){
+class SingleToggleCommandFactory extends AbstractToggleCommandFactory {
   import CommandFactory._
   import SingleToggleCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._

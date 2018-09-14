@@ -5,7 +5,7 @@ import javafx.scene.layout.{StackPane => JFXStackPane}
 
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.gui.configuration.parser.VirtualMachine
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration
 import it.unibo.scafi.simulation.gui.view.scalaFX.LogoStage
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.Help

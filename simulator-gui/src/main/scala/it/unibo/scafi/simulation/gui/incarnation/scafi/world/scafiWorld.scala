@@ -1,4 +1,5 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.world
+import it.unibo.scafi.space.SpatialAbstraction
 
 /**
   * an implementation of scafi like world
@@ -7,8 +8,5 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.world
   * be update at runtime)
   */
 object scafiWorld extends ScafiLikeWorld {
-  override type B = Boundary
-  override type M = Metric
-  override val metric: M = this.cartesianMetric
-  var boundary: Option[B] = None
+ var boundary: Option[SpatialAbstraction.Bound] = None
 }

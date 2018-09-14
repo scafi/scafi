@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.configuration.command.factory
 
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.configuration.environment.ViewEnvironment
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration

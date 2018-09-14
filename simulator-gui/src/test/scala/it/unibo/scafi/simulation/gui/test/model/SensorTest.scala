@@ -2,16 +2,16 @@ package it.unibo.scafi.simulation.gui.test.model
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodeDeviceChanged
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{sensorInput, sensorOutput}
-import it.unibo.scafi.simulation.gui.model.space.Point
 import it.unibo.scafi.simulation.gui.test.help.SensorWorldImpl
+import it.unibo.scafi.space.Point3D
 import org.scalatest.{FunSpec, Matchers}
 
 //noinspection NameBooleanParameters,NameBooleanParameters,NameBooleanParameters
-class SensorTest extends FunSpec with Matchers{
+class SensorTest extends FunSpec with Matchers {
   private val checkThat = new ItWord
   //sensor world with any type of sensor,
   private  val world = new SensorWorldImpl
-  private val zero = Point.ZERO
+  private val zero = Point3D.Zero
   private val nodeNumber = 100
   private val defaultName = "input"
   private val ledSensor = "led"

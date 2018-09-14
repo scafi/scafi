@@ -1,26 +1,32 @@
-package it.unibo.scafi.simulation.gui.configuration.command.factory
+package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
+import it.unibo.scafi.simulation.MetaActionManager
+import it.unibo.scafi.simulation.MetaActionManager.MetaAction
 import it.unibo.scafi.simulation.gui.configuration.command.Command.reverseCommand
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.{Fail, Success}
 
 /**
   * abstract command factory used to create a toggle sensor value factory
-  * @param world the world where command is executed
   */
-abstract class AbstractToggleCommandFactory(val world : SensorPlatform) extends CommandFactory {
+abstract class AbstractToggleCommandFactory extends CommandFactory {
   /**
     * create a toggle command
     * @param name the sensor name
     * @param ids set of ids where the sensor value changed
     * @return the command created
     */
-  protected def toggle(name : world.NAME, ids : Iterable[world.ID]): Command = {
+  protected def toggle(name : scafiWorld.NAME, ids : Iterable[ID]): Command = {
     val action = () => {
+      var processAction = List.empty[MetaAction]
+      val bridge = scafiSimulationExecutor.contract.simulation.get
       for(id <- ids) {
-        val node = world(id)
+        val node = scafiWorld(id)
         //check if all id passed is in the world
         if(node.isDefined) {
           //check that the node has attached the device
@@ -28,12 +34,13 @@ abstract class AbstractToggleCommandFactory(val world : SensorPlatform) extends 
           if(sens.isDefined) {
             //if the device is a led sensor, i can change its value
             sens.get.value match {
-              case led : Boolean => world.changeSensorValue(id,name,!led)
+              case led : Boolean => processAction = bridge.NodeChangeSensor(id,name,!led) :: processAction
               case _ =>
             }
           }
         }
       }
+      bridge.add(MetaActionManager.MultiAction(processAction:_*))
       Success
     }
     reverseCommand(action)
@@ -42,8 +49,8 @@ abstract class AbstractToggleCommandFactory(val world : SensorPlatform) extends 
 object AbstractToggleCommandFactory {
   val Name = "name"
   val Ids = "ids"
-  class MultiToggleCommandFactory(override val world : SensorPlatform)(implicit val analyzer: WorldTypeAnalyzer)
-    extends AbstractToggleCommandFactory(world) {
+  class MultiToggleCommandFactory
+    extends AbstractToggleCommandFactory {
     import CommandFactory._
     override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
       Seq(CommandArgDescription(Name,AnyType),CommandArgDescription (Ids, MultiValue(AnyType)))
@@ -53,12 +60,12 @@ object AbstractToggleCommandFactory {
       var value : Option[Iterable[_]] = None
       //verify if the name argument is set and the name value is accepted
       args.get(Name) match {
-        case Some(name : String) => if(analyzer.acceptName(name)) sensorName = Some(name)
+        case Some(name : String) => if(name.isInstanceOf[scafiWorld.NAME]) sensorName = Some(name)
         case _ => return creationFailed(Fail(wrongTypeParameter(AnyType,Name)))
       }
       //verify if the ids argument is set and the ids value is accepted
       args.get(Ids) match {
-        case Some(ids : Iterable[_]) => if(ids.forall(analyzer.acceptId(_))) value = Some(ids)
+        case Some(ids : Iterable[_]) => if(ids.forall(_.isInstanceOf[scafiWorld.ID])) value = Some(ids)
         case _ => return creationFailed(Fail(wrongTypeParameter(MultiValue(AnyType),Ids)))
       }
       //if the argument passed has another name the creation of command if failed
@@ -66,8 +73,8 @@ object AbstractToggleCommandFactory {
         creationFailed(Fail(CommandFactory.wrongParameterName(Name, Ids)))
       } else {
         //otherwise i can create the new command used to toggle the id selected
-        val name = sensorName.get.asInstanceOf[world.NAME]
-        val ids = value.get.map{x => x.asInstanceOf[world.ID]}
+        val name = sensorName.get.asInstanceOf[scafiWorld.NAME]
+        val ids = value.get.map{x => x.asInstanceOf[scafiWorld.ID]}
         creationSuccessful(toggle(name,ids))
       }
 

@@ -2,8 +2,8 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.world
 
 import it.unibo.scafi.simulation.gui.configuration.information.WorldInitializer
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiWorldInformation
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
-import it.unibo.scafi.simulation.gui.model.space.Point3D
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.space.Point3D
 
 import scala.util.{Random => RandomGenerator}
 
@@ -29,8 +29,14 @@ object ScafiWorldInitializer {
       //all nodes on the same 2d planes
       val z = 0
       scafiWorld clear()
-      (0 until node) foreach {x => scafiWorld.insertNode(new scafiWorld.NodeBuilder(x,Point3D(r.nextInt(width),r.nextInt(height),z),worldInfo.shape,worldInfo.deviceProducers.toList))}
-
+      for(i <- 0 until node) {
+        val randomPoint = Point3D(r.nextInt(width),r.nextInt(height),z)
+        val addPoint = worldInfo.boundary match {
+          case Some(bound) => bound.accept(randomPoint)
+          case _ => true
+        }
+        if(addPoint) scafiWorld.insertNode(new scafiWorld.NodeBuilder(i,randomPoint,worldInfo.shape,worldInfo.deviceProducers.toList))
+      }
     }
   }
 
@@ -51,7 +57,12 @@ object ScafiWorldInitializer {
       for(i <- 1 to row) {
         for(j <- 1 to column) {
           nodes += 1
-          scafiWorld.insertNode(new scafiWorld.NodeBuilder(nodes,Point3D(i * space,j * space,z),worldInfo.shape,worldInfo.deviceProducers.toList))
+          val point = Point3D(i * space,j * space,z)
+          val addPoint = worldInfo.boundary match {
+            case Some(bound) => bound.accept(point)
+            case _ => true
+          }
+          if(addPoint) scafiWorld.insertNode(new scafiWorld.NodeBuilder(nodes,point,worldInfo.shape,worldInfo.deviceProducers.toList))
         }
       }
     }

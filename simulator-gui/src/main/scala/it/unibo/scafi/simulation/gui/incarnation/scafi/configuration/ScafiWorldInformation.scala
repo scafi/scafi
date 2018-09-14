@@ -2,17 +2,18 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration
 
 import it.unibo.scafi.simulation.gui.configuration.information.WorldInformation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiDeviceProducers, scafiWorld}
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.space.SpatialAbstraction.Bound
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
 
 /**
   * describe main world information in scafi context
   */
-trait ScafiWorldInformation extends WorldInformation[scafiWorld.DEVICE_PRODUCER,scafiWorld.B,scafiWorld.S]
+trait ScafiWorldInformation extends WorldInformation[scafiWorld.DEVICE_PRODUCER,scafiWorld.S]
 
 object ScafiWorldInformation {
   private val standardShape = Some(Rectangle(3,3))
   private class ScafiWorldInformationImpl(override val shape : Option[scafiWorld.S],
-                                          override val boundary : Option[scafiWorld.B],
+                                          override val boundary : Option[Bound],
                                           override val deviceProducers : Iterable[scafiWorld.DEVICE_PRODUCER]) extends ScafiWorldInformation
 
   /**
@@ -31,6 +32,6 @@ object ScafiWorldInformation {
     * @return scafi seed created
     */
   def apply(shape : Option[scafiWorld.S] = standard.shape,
-            boundary : Option[scafiWorld.B] = standard.boundary,
+            boundary : Option[Bound] = standard.boundary,
             deviceSeed: Iterable[scafiWorld.DEVICE_PRODUCER] =  standard.deviceProducers): ScafiWorldInformation = new ScafiWorldInformationImpl(shape,boundary,deviceSeed)
 }

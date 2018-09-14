@@ -21,7 +21,7 @@ package sims
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockC, BlockG, BlockS, BlocksWithGC, FieldUtils, ID}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 

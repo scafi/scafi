@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.aggregate
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent._
-import it.unibo.scafi.simulation.gui.model.common.world.AbstractObservableWorld
+import it.unibo.scafi.simulation.gui.model.common.world.{AbstractObservableWorld, CommonWorldEvent}
 import it.unibo.scafi.simulation.gui.model.common.world.CommonWorldEvent.EventType
 
 /**
@@ -16,19 +16,10 @@ trait AbstractAggregateWorld extends AggregateWorld with AbstractObservableWorld
 
   def moveNode(id : ID, position : P) : Boolean = {
     val node = getNodeOrThrows(id)
-    //get the old position, if the new position is outside the world boundary, the node return to initial position
-    val oldPosition = node.position
     //move the node in the new position
     node.position = position
-    //check if the position il allowed
-    if(nodeAllowed(node)) {
-      //notify all observer of world changes
-      notify(NodeEvent(node.id,NodesMoved))
-      true
-    } else {
-      node.position = oldPosition
-      false
-    }
+    this.notify(NodeEvent(node.id,NodesMoved))
+    true
   }
 
   def addDevice(id: ID,deviceProducer : DEVICE_PRODUCER): Boolean = {

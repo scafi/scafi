@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.view
 
 import java.awt.Toolkit
 
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.Rectangle
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
 import it.unibo.scafi.simulation.gui.view.WindowConfiguration.Size
 
 /**

@@ -6,7 +6,6 @@ import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.{SensorStream, s
 /**
   * describe a set of device producers in scafi context
   */
-//noinspection NameBooleanParameters
 object ScafiDeviceProducers {
 
   /**
@@ -16,7 +15,9 @@ object ScafiDeviceProducers {
     *   2 - sensor2 like a led device (true/false)
     *   3 - sensor3 like a led device (true/false)
     *   4 - sensor4 like a led device (true/false)
-    *   4 - output a sensor that show the actuation of scafi aggregate program, it is a generic sensor (could be also a led device)
+    *   5,6,7,8 - output a sensor that show the actuation of scafi aggregate program, it is a generic sensor
+    *             (could be also a led device), this sensor is not visible by scafi simulation, it is used
+    *             to graphics purpose only
     */
   val standardConfiguration : Iterable[scafiWorld.DEVICE_PRODUCER] = List(scafiWorld.LedProducer(sensor1,value = false,sensorInput),
     scafiWorld.LedProducer(sensor2,value = false,sensorInput),

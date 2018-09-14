@@ -6,12 +6,12 @@ package it.unibo.scafi.simulation.gui.configuration.information
   * to initialize the world with some seed passed, the world information describe a
   * part of world that is necessary to initialize it
   *
-  * @tparam S the seed of world
+  * @tparam I the information about world
   */
-trait WorldInitializer[S <: WorldInformation[_,_,_]] {
+trait WorldInitializer[I <: WorldInformation[_,_]] {
   /**
     * initialize the world with the seed passed
-    * @param seed the world seed
+    * @param worldInfo the world seed
     */
-  def init(seed : S)
+  def init(worldInfo : I)
 }

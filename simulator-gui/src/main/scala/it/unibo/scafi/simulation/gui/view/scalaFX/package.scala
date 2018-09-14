@@ -3,10 +3,8 @@ package it.unibo.scafi.simulation.gui.view
 
 
 import javafx.embed.swing.JFXPanel
-
-import it.unibo.scafi.simulation.gui.model.core.{Shape => InternalShape}
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
-import it.unibo.scafi.simulation.gui.model.space.{Point, Point2D, Point3D}
+import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
+import it.unibo.scafi.space.Point3D
 
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
@@ -16,10 +14,7 @@ package object scalaFX {
     * @param p the point
     * @return the fx point
     */
-  implicit def pointToScalaFXPoint(p : Point) : FXPoint = p match {
-    case p: Point3D => new FXPoint(p.x,p.y)
-    case p : Point2D => new FXPoint(p.x,p.y)
-  }
+  implicit def pointToScalaFXPoint(p : Point3D) : FXPoint = new FXPoint(p.x,p.y)
 
   /**
     * get the position of node

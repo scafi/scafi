@@ -20,10 +20,12 @@ package it.unibo.scafi.space
 
 import it.unibo.utils.BiMap
 import it.unibo.scafi.space
+import it.unibo.scafi.space.SpatialAbstraction.Bound
 import it.unibo.scafi.space.optimization._
 import it.unibo.scafi.space.optimization.nn.NNIndex
 
 import scala.collection.concurrent.TrieMap
+import scala.collection.immutable.Range.Inclusive
 import scala.language.higherKinds
 
 
@@ -60,6 +62,20 @@ trait SpatialAbstraction {
   }
 }
 
+object SpatialAbstraction {
+  case class Bound(inclusive: Shape, exclusive : List [(Shape,Point3D)] = List.empty) {
+    import optimization._
+    def accept(p: Point3D) : Boolean = {
+      val point = p.asInstanceOf[Point3D]
+      if(!inclusive.contains(point)) {
+        false
+      } else if (exclusive.forall(x => !x._1.contains(point - x._2)))
+        true
+      else
+        false
+    }
+  }
+}
 trait AdHocSpatialAbstraction extends SpatialAbstraction {
   type P
 
@@ -223,19 +239,22 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     * @param radius radius of neighbour range
     * @tparam E the type of node
     */
-  class QuadTreeSpace[E](pos : Map[E,P],radius : Double) extends Space3D[E](pos,radius) {
+  class QuadTreeSpace[E](pos : Map[E,P], radius : Double, bound : Option[Bound] = None) extends Space3D[E](pos,radius) {
     private var nMap: TrieMap[E, Set[E]] = TrieMap.empty
     //TODO CREATE AN INDEX THAT INCREASE HIS SIZE WITH NODE POSITIONING
     private val neighbourIndex: NNIndex[E] = NNIndex(pos)
     override def setLocation(e: E, p: P): Unit = {
-      synchronized {
-        resetNeighbours(e)
-        neighbourIndex -= (elemPositions(e))
-        neighbourIndex += (p -> e)
-        elemPositions += e -> p
-        calculateNeighbours(e)
-        addNeighbours(e)
+      bound match {
+        case Some(b) => if (!b.accept(p.asInstanceOf[Point3D])) return
+        case _ =>
       }
+      resetNeighbours(e)
+      neighbourIndex -= (elemPositions(e))
+      neighbourIndex += (p -> e)
+      elemPositions += e -> p
+      calculateNeighbours(e)
+      addNeighbours(e)
+
     }
 
     private def resetNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) - e) }}}

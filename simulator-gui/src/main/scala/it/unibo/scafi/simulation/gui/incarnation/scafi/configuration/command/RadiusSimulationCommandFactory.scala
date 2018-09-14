@@ -55,7 +55,7 @@ class RadiusSimulationCommandFactory(implicit val scafiConfiguration: ScafiConfi
         scafiConfiguration.commandMapping = profile.commandMapping
         scafiConfiguration.simulationInitializer = Some(RadiusSimulation(radius.get))
         scafiConfiguration.scafiSimulationInformation = Some(SimulationInfo(program = demoClass.get,
-          actuators = profile.actions,
+          metaActions = profile.actions,
           exportValutations = profile.valutations))
       })
     } else {

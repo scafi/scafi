@@ -1,9 +1,9 @@
 package it.unibo.scafi.simulation.gui.test.help
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AbstractNodeDefinition
-import it.unibo.scafi.simulation.gui.model.core.Shape
 import it.unibo.scafi.simulation.gui.model.sensor.SensorWorld
 import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.SensorDefinition
+import it.unibo.scafi.space.Shape
 import it.unibo.utils.observer.SimpleSource
 
 class SensorWorldImpl extends StandardWorldDefinition

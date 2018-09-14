@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.common.world
 
-import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
-import it.unibo.scafi.simulation.gui.model.space.{Point2D, Point3D}
+import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.space.Shape
 
 /**
   * a standard world definition
@@ -15,16 +15,6 @@ object WorldDefinition {
     */
   trait World3D {
     self : World =>
-    override type P = Point3D
-    override type S = Shape
-  }
-
-  /**
-    * describe a 2D world
-    */
-  trait World2D {
-    self : World =>
-    override type P = Point2D
     override type S = Shape
   }
 }

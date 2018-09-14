@@ -2,12 +2,12 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi
 
 import it.unibo.scafi.simulation.gui.configuration.SensorName
 import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
-import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory.MultiMoveCommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractToggleCommandFactory.MultiToggleCommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.factory.{AbstractToggleCommandFactory, SimulationCommandFactory}
+import it.unibo.scafi.simulation.gui.configuration.command.factory.SimulationCommandFactory
 import it.unibo.scafi.simulation.gui.controller.input.InputCommandController
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.AbstractMoveCommandFactory.MultiMoveCommandFactory
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.{AbstractMoveCommandFactory, AbstractToggleCommandFactory}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.AbstractToggleCommandFactory.MultiToggleCommandFactory
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager._
 import it.unibo.scafi.simulation.gui.view.{AbstractKeyboardManager, AbstractSelectionArea}
 
@@ -15,9 +15,8 @@ import it.unibo.scafi.simulation.gui.view.{AbstractKeyboardManager, AbstractSele
   * describe a set of command mapping in scafi context
   */
 object ScafiCommandBinding {
-  import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiLikeWorld.analyzer
-  private val moveFactory = new MultiMoveCommandFactory(scafiWorld)
-  private val toggleFactory = new MultiToggleCommandFactory(scafiWorld)
+  private val moveFactory  = new MultiMoveCommandFactory
+  private val toggleFactory = new MultiToggleCommandFactory
   private val simulationFactory = new SimulationCommandFactory(scafiSimulationExecutor)
   /**
     * base mapping, allow to modify the state of simulation (start, stop, reset simulation, increase or decrease simulation velocity),
@@ -32,7 +31,7 @@ object ScafiCommandBinding {
       keyboard.linkCommandCreation(Minus, Map(SimulationCommandFactory.Action -> SimulationCommandFactory.Slow),simulationFactory)
       keyboard.linkCommandCreation(Undo, Map(), InputCommandController.UndoCommandFactory)
       selection match {
-        case Some(selectionArea) => selectionArea.addMovementFactory(moveFactory,"map")
+        case Some(selectionArea) => selectionArea.addMovementFactory(moveFactory,AbstractMoveCommandFactory.MoveMap)
         case _ =>
       }
     }

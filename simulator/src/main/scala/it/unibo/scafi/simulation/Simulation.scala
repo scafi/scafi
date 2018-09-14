@@ -26,7 +26,7 @@ import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.platform.SimulationPlatform
 import it.unibo.utils.observer.{SimpleSource, Source}
 
-import scala.collection.immutable.{Map => IMap}
+import scala.collection.immutable.{Queue, Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Random
@@ -190,12 +190,12 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                          val randomSensorSeed: Long
                          ) extends Network with SimulatorOps with SimpleSource {
     self: NETWORK =>
-    override type O = SimulationObserver[ID]
+    override type O = SimulationObserver[ID,LSNS]
     protected val eMap: MMap[ID,EXPORT] = MMap()
     protected var lastRound: Map[ID,LocalDateTime] = Map()
-
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
+
     // *****************
     // Network interface
     // *****************
@@ -224,9 +224,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       lsnsMap += (name -> MMap(idArray.map((_: ID) -> value).toSeq: _*))
     }
 
-    def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A) {
-      ids.foreach { id => lsnsMap(name) += id -> value }
-    }
+    def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A) = ids.foreach { id => lsnsMap(name) += id -> value }
+
 
     override def clearExports(): Unit = eMap.clear()
 

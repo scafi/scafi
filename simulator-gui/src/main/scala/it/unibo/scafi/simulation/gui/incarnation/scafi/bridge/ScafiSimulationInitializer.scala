@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor.world
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
 
 import scala.util.Random
@@ -35,7 +36,7 @@ object ScafiSimulationInitializer {
       val proto = () => {
         val w = bridge.world
         val nodes: Map[ID, P] = w.nodes.map{n => n.id -> new P(n.position.x,n.position.y,n.position.z)}.toMap
-        val createdSpace  = new QuadTreeSpace(nodes,radius)
+        val createdSpace  = new QuadTreeSpace(nodes,radius,scafiWorld.boundary)
         val createdDevs =  nodes.map { case (d, p) => d -> new DevInfo(d, p,
           nsns = nsns => nbr => null)
         }

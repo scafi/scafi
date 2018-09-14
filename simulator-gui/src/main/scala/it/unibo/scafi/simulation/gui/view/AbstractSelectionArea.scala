@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view
 
 import it.unibo.scafi.simulation.gui.configuration.command.CommandFactory
-import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory.MultiMoveCommandFactory
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command.AbstractMoveCommandFactory.MultiMoveCommandFactory
 
 /**
   * define a trait used to select and clear item

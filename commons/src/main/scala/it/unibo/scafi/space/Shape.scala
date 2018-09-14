@@ -1,6 +1,4 @@
-package it.unibo.scafi.simulation.gui.model.core
-
-import it.unibo.scafi.simulation.gui.model.space.Point
+package it.unibo.scafi.space
 
 /**
   * define a generic shape
@@ -21,6 +19,6 @@ trait Shape {
     * @param p the point
     * @return true is if contained false otherwise
     */
-  def contains(p : Point) : Boolean
+  def contains(p : Point3D) : Boolean
 }
 

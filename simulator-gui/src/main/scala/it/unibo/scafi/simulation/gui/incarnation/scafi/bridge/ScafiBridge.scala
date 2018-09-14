@@ -4,6 +4,7 @@ import it.unibo.scafi.simulation.SimulationObserver
 import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
+import it.unibo.scafi.space.{Point3D => ScafiPoint}
 /**
   * define a generic bridge with scafi
   */
@@ -12,7 +13,7 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   override type SIMULATION_PROTOTYPE = () => EXTERNAL_SIMULATION
   override type SIMULATION_CONTRACT = ExternalSimulationContract
   protected var idsObserved : Set[world.ID] = Set.empty
-  protected var simulationObserver = new SimulationObserver[ID]
+  protected var simulationObserver = new SimulationObserver[ID,LSNS]
   val world : ScafiLikeWorld = scafiWorld
   /**
     * current simulation prototype, at begging no prototype defined

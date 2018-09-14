@@ -1,17 +1,14 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 
-import it.unibo.scafi.simulation.gui.configuration.command.factory.AbstractMoveCommandFactory
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
-import it.unibo.scafi.simulation.gui.model.space.Point3D
 import it.unibo.scafi.simulation.gui.util.Result
 import it.unibo.scafi.simulation.gui.util.Result.Fail
+import it.unibo.scafi.space.Point3D
 
 /**
   * a factory that allow to create a move command that move only a node
-  * @param world the world where command is executed
   */
-class SingleMoveCommandFactory(override val world : ScafiLikeWorld = scafiWorld) extends AbstractMoveCommandFactory(world) {
+class SingleMoveCommandFactory extends AbstractMoveCommandFactory {
   import CommandFactory._
   import SingleMoveCommandFactory._
   import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._

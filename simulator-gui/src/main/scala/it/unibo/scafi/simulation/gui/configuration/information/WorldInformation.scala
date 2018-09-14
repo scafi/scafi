@@ -1,16 +1,16 @@
 package it.unibo.scafi.simulation.gui.configuration.information
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AggregateConcept
-import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
+import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.space.Shape
+import it.unibo.scafi.space.SpatialAbstraction.Bound
 
 /**
   * world information used to initialize a world
   * @tparam D the type of device producer
-  * @tparam B the type of boundary
   * @tparam S the shape type
   */
 trait WorldInformation[D <: AggregateConcept#DeviceProducer,
-                B <: World#Boundary,
                 S <: Shape] {
   /**
     * @return the node shape
@@ -20,7 +20,7 @@ trait WorldInformation[D <: AggregateConcept#DeviceProducer,
   /**
     * @return world boundary
     */
-  def boundary : Option[B]
+  def boundary : Option[Bound]
 
   /**
     * @return device producers that describe device associated with node

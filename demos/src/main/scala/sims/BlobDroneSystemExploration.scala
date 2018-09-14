@@ -21,7 +21,7 @@ package sims
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import lib.{FlockingLib, Movement2DSupport}
@@ -32,7 +32,7 @@ object BlobDroneSystemExploration extends App {
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
   ScafiProgramBuilder (
     Random(500,worldSize._1,worldSize._1),
-    SimulationInfo(program = classOf[BlobDroneSystemExplorationDemo], actuators = List(Actuator.movementDtActuator),
+    SimulationInfo(program = classOf[BlobDroneSystemExplorationDemo], metaActions = List(MetaActionProducer.movementDtActionProducer),
       exportValutations = List.empty),
     RadiusSimulation(radius),
     neighbourRender = true

@@ -21,7 +21,7 @@ package sims
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import lib.{FlockingLib, Movement2DSupport}
@@ -31,9 +31,9 @@ object BasicMovementDemo extends App {
   val radius = 40
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * this.size._1, tuple._2 * this.size._2)
   ScafiProgramBuilder (
-    Random(500,500,500),
+    Random(1000,500,500),
     SimulationInfo(program = classOf[BasicMovement],
-      actuators = List(Actuator.movementDtActuator),
+      metaActions = List(MetaActionProducer.movementDtActionProducer),
       exportValutations = List.empty),
     RadiusSimulation(radius),
     neighbourRender = true

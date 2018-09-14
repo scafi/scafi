@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.gui.model.core
 
-import it.unibo.scafi.simulation.gui.model.space.Point
+import it.unibo.scafi.space.SpatialAbstraction.Bound
+import it.unibo.scafi.space.{Point3D, Shape}
 
 /**
   * describe a place where an immutable set of node are located
@@ -21,7 +22,7 @@ trait World {
   /**
     * define the type of position in this world
     */
-  type P <: Point
+  type P = Point3D
   /**
     * define the type of shape in this world
     */
@@ -32,22 +33,9 @@ trait World {
     */
   type NODE <: Node
   /**
-    * the type of boundary of the world
-    */
-  type B <: Boundary
-  /**
-    * the type of metric in this world
-    */
-  type M <: Metric
-
-  /**
-    * The metric of this world
-    */
-  def metric : M
-  /**
     * A boundary of the world (a world may has no boundary)
     */
-  def boundary : Option[B]
+  def boundary : Option[Bound]
   /**
     * get all nodes on this world
     */
@@ -68,20 +56,6 @@ trait World {
     * @return the set of the node
     */
   def apply(nodes : Set[ID]) : Set[NODE]
-  //STRATEGY
-  /**
-    * a generic boundary
-    */
-  trait Boundary {
-    def nodeAllowed(p : P, s : Option[S]) : Boolean
-  }
-  //STRATEGY
-  /**
-    * a generic metric
-    */
-  trait Metric {
-    def positionAllowed(p : P) : Boolean
-  }
   /**
     * Node describe an immutable object in a world
     */

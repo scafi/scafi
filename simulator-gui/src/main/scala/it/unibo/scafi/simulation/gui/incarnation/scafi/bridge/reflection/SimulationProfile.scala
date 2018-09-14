@@ -4,7 +4,7 @@ import it.unibo.scafi.simulation.gui.configuration.SensorName._
 import it.unibo.scafi.simulation.gui.configuration.command.CommandBinding
 import it.unibo.scafi.simulation.gui.incarnation.scafi.ScafiCommandBinding.{AdHocToggleBinding, BaseBinding, StandardBinding}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ExportValutation.EXPORT_VALUTATION
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, ExportValutation}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, ExportValutation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiDeviceProducers, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
 import it.unibo.scafi.simulation.gui.view.AbstractKeyboardManager.Code1
@@ -26,7 +26,7 @@ trait SimulationProfile {
   /**
     * @return a list of actuator uses into scafi world
     */
-  def actions : List[Actuator[_]]
+  def actions : List[MetaActionProducer[_]]
 
   /**
     * @return a list of export valutation uses to valutate and produce change in gui world
@@ -46,7 +46,7 @@ object SimulationProfile {
 
     override val sensorSeed: Iterable[scafiWorld.DEVICE_PRODUCER] = ScafiDeviceProducers.standardConfiguration
 
-    override val actions : List[Actuator[_]] = List.empty
+    override val actions : List[MetaActionProducer[_]] = List.empty
 
     override val valutations : List[EXPORT_VALUTATION[_]] = List(ExportValutation.standardValutation)
   }
@@ -62,7 +62,7 @@ object SimulationProfile {
     override val sensorSeed: Iterable[scafiWorld.DEVICE_PRODUCER] = ScafiDeviceProducers.ahHocDeviceConfiguration(List((sensor1,false,SensorConcept.sensorInput),
       (output1,"",SensorConcept.sensorOutput)))
 
-    override val actions : List[Actuator[_]] = List.empty
+    override val actions : List[MetaActionProducer[_]] = List.empty
 
     override val valutations : List[EXPORT_VALUTATION[_]] = List(ExportValutation.standardValutation)
   }
@@ -77,7 +77,7 @@ object SimulationProfile {
 
     override def sensorSeed: Iterable[scafiWorld.DEVICE_PRODUCER] = ScafiDeviceProducers.standardConfiguration
 
-    override val actions : List[Actuator[_]] = List(Actuator.movementDtActuator)
+    override val actions : List[MetaActionProducer[_]] = List(MetaActionProducer.movementDtActionProducer)
 
     override val valutations : List[EXPORT_VALUTATION[_]] = List.empty
   }

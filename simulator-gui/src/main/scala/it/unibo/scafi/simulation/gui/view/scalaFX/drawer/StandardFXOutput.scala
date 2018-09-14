@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.drawer
 
 import javafx.scene.control.Label
 
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
+import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept.SensorDevice
 import it.unibo.scafi.simulation.gui.view.ViewSetting._
 import it.unibo.scafi.simulation.gui.view.scalaFX._

@@ -24,7 +24,7 @@ trait AbstractObservableWorld extends ObservableWorld {
     //create a new node by producer passed
     val node = producer.build()
     //look if the node is legit
-    if(internalMap.contains(node.id) || !nodeAllowed(node)) {
+    if(internalMap.contains(node.id)) {
       false
     } else {
       //add node into node map
@@ -49,14 +49,6 @@ trait AbstractObservableWorld extends ObservableWorld {
       notify(NodeEvent(node.get.id,NodesRemoved))
       true
     }
-  }
-
-  override protected def nodeAllowed(n: MUTABLE_NODE): Boolean =  {
-
-    if(!this.metric.positionAllowed(n.position) ||
-      this.boundary.isDefined &&
-        !boundary.get.nodeAllowed(n.position,n.shape))  false
-    else true
   }
 
   /**

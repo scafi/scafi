@@ -29,12 +29,6 @@ trait ObservableWorld extends World with CommonConcept {
     * remove all node in the world
     */
   def clear()
-  /**
-    * use strategy val to verify if the node is allowed in the world or not
-    * @param n the node tested
-    * @return true if the node is allowed false otherwise
-    */
-  protected def nodeAllowed(n:MUTABLE_NODE) : Boolean
 
   //simple factory
   def createObserver(listenEvent : Set[EventType]) : O

@@ -95,7 +95,10 @@ class SimulationPresenter[W <: SensorPlatform](val world : W,
   override def output(view: SimulationView): Unit = {
     require(view != null)
     out = Some(view)
+    /*
+     * put bound in view and world wall
+     */
     world.worldBound.foreach(x => view.boundary_=(x))
-    view.walls_= (world.worldWalls:_*)
+    view.walls_= (world.worldWalls)
   }
 }

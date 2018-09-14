@@ -1,7 +1,7 @@
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.model.core.{Shape, World}
-import it.unibo.scafi.simulation.gui.model.space.Point
+import it.unibo.scafi.simulation.gui.model.core.World
+import it.unibo.scafi.space.{Point3D, Shape}
 
 /**
   * root trait of view concept
@@ -72,7 +72,7 @@ trait SimulationView extends View {
     * set wall inside map
     * @param walls the world walls
     */
-  def walls_=(walls : (Point, Shape) *)
+  def walls_=(walls : Seq[(Shape, Point3D)])
   /**
     * apply the changes declared
     */

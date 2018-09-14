@@ -20,7 +20,7 @@ package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{Actuator, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
@@ -28,11 +28,11 @@ import lib.{FlockingLib, Movement2DSupport}
 
 object SupplyRescue extends App {
   val worldSize = (500,500)
-  val simRadius = 140
+  val simRadius = 100
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
   ScafiProgramBuilder (
-    Random(50,worldSize._1,worldSize._1),
-    SimulationInfo(program = classOf[SupplyRescueDemo], actuators = List(Actuator.movementDtActuator),exportValutations = List.empty),
+    Random(100,worldSize._1,worldSize._1),
+    SimulationInfo(program = classOf[SupplyRescueDemo], metaActions = List(MetaActionProducer.movementDtActionProducer),exportValutations = List.empty),
     RadiusSimulation(simRadius),
     neighbourRender = true
   ).launch()

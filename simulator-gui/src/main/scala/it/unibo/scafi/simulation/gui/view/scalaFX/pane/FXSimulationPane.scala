@@ -2,14 +2,13 @@ package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
 import javafx.scene.paint.ImagePattern
 
-import it.unibo.scafi.simulation.gui.model.core.Shape
-import it.unibo.scafi.simulation.gui.model.graphics2D.BasicShape2D.{Circle, Rectangle}
-import it.unibo.scafi.simulation.gui.model.space.Point
+import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle, Rectangle}
 import it.unibo.scafi.simulation.gui.view.ViewSetting
 import it.unibo.scafi.simulation.gui.view.ViewSetting._
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{AbstractFXSimulationPane, FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXOutputPolicy
 import it.unibo.scafi.simulation.gui.view.scalaFX.{NodeLine, _}
+import it.unibo.scafi.space.{Point3D, Shape}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -183,7 +182,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
   }
 
   override def boundary_= (boundary: Shape): Unit = {
-    val shape = modelShapeToFXShape.apply(Some(boundary), Point.ZERO)
+    val shape = modelShapeToFXShape.apply(Some(boundary), Point3D.Zero)
     boundary match {
       case Rectangle(_,_,_) | Circle(_,_) => shape.relocate(0,0)
       case _ =>
@@ -198,10 +197,10 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     Platform.runLater { this.children.add(shape)}
   }
 
-  override def walls_= (walls: (Point, Shape)*): Unit = {
+  override def walls_=(walls : Seq[(Shape, Point3D)]) : Unit = {
     for(wall <- walls) {
-      val shape = modelShapeToFXShape(Some(wall._2),Point.ZERO)
-      val fxp : Point2D = wall._1
+      val shape = modelShapeToFXShape(Some(wall._1),Point3D.Zero)
+      val fxp : Point2D = wall._2
       shape.relocate(fxp.x,fxp.y)
 
       shape.strokeWidth = 1
