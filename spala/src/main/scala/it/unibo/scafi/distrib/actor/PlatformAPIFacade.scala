@@ -22,6 +22,7 @@ import it.unibo.scafi.distrib.CustomClassLoader
 import akka.actor.{ActorRef, ActorSystem, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import it.unibo.scafi.distrib.actor.extensions.CodeMobilityExtension
+import it.unibo.scafi.distrib.actor.view.{DevicesGUI, DevsGUIActor}
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -78,7 +79,9 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       devices += id -> dm
 
       if(deviceGui){
+        DevicesGUI.setupGui(actorSys)
         val devGuiActor = actorSys.actorOf(deviceGuiProps(dm.actorRef))
+        devGuiActor ! DevicesGUI.actor.get
         dm.actorRef ! MsgAddObserver(devGuiActor)
       }
 
