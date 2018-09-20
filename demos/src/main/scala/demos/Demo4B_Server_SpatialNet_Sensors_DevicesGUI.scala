@@ -38,7 +38,8 @@ object Demo4B_MainProgram extends Demo3_Platform.CmdLineMain {
   }
 
   override def onDeviceStarted(dm: Demo3_Platform.DeviceManager, sys: Demo3_Platform.SystemFacade): Unit = {
-    dm.addSensorValue(Demo3_Platform.LocationSensorName, Point2D(dm.selfId%5,(dm.selfId/5.0).floor))
+    val devInRow = DevViewActor.devicesInRow
+    dm.addSensorValue(Demo3_Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
     dm.addSensorValue("source", dm.selfId==4)
     dm.start
   }
