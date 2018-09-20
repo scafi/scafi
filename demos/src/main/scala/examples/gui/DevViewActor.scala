@@ -29,8 +29,12 @@ import it.unibo.scafi.distrib.actor.view.{DevComponent, MsgAddDevComponent, MsgD
 
 class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorRef) extends Actor {
   protected val Log = akka.event.Logging(context.system, this)
-  private val TextSize: Int = 11
-  private val CustomFont: Font = new Font("Arial", Font.BOLD, TextSize)
+  private val TextSize = 11
+  private val CustomFont = new Font("Arial", Font.BOLD, TextSize)
+  private val XTranslation = 75
+  private val YTranslation = 85
+  private val Width = 80
+  private val Height = 75
 
   private var devComponent: DevPanel = _
   private var componentSpot: JComponent = _
@@ -50,7 +54,7 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
   private def buildComponent(): Unit = {
     devComponent = new DevPanel with DraggableComponent {
       override protected def afterDragging(location: Point): Unit = {
-        val pos = Point2D((location.getX / 83).round, (location.getY / 100).round)
+        val pos = Point2D((location.getX / XTranslation).round, (location.getY / YTranslation).round)
         dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
       }
     }
@@ -90,7 +94,7 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
   private def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
     if (sensorName == "LOCATION_SENSOR") {
       val pos = sensorValue.asInstanceOf[Point2D]
-      this.devComponent.setBounds(pos.x.toInt * 83, pos.y.toInt * 100,80,75)
+      this.devComponent.setBounds(pos.x.toInt * XTranslation, pos.y.toInt * YTranslation, Width, Height)
     } else if (sensorName.toString == "source" && sensorValue == true) {
       componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
     }
