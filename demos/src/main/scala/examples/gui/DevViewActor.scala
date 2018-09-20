@@ -25,7 +25,7 @@ import it.unibo.scafi.space.Point2D
 import javax.swing._
 import java.awt._
 
-import it.unibo.scafi.distrib.actor.view.DevComponent
+import it.unibo.scafi.distrib.actor.view.{DevComponent, MsgAddDevComponent, MsgDevsGUIActor}
 
 class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorRef) extends Actor {
   protected val Log = akka.event.Logging(context.system, this)
@@ -40,7 +40,7 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
   buildComponent()
 
   override def receive: Receive = {
-    case gui: ActorRef => gui ! devComponent
+    case g: MsgDevsGUIActor => g.devsGuiActor ! MsgAddDevComponent(devComponent)
     case m: I.MyNameIs => updateId(m.id)
     case m: I.MsgLocalSensorValue[_] => updateSensor(m.name, m.value)
     case p: I.MsgExport => updateExport(p.export)

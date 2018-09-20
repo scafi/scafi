@@ -34,9 +34,9 @@ private class DevsGUIActor extends Actor {
   frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
 
   override def receive: Receive = {
-    case component: DevComponent =>
+    case m: MsgAddDevComponent =>
       if (!frame.isVisible) frame.setVisible(true)
-      frame.add(component)
+      frame.add(m.devComponent)
       frame.revalidate(); frame.repaint()
     case msg => Log.debug("[DevsGUIActor] Message unhandled: " + msg); unhandled(msg)
   }
