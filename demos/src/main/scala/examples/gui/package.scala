@@ -38,6 +38,7 @@ package object gui {
     protected def onDragging(location: Point): Unit = {
       val parentLocation = getParent.getLocationOnScreen
       setLocation(new Point(location.x - parentLocation.x - anchorPoint.x, location.y - parentLocation.y - anchorPoint.y))
+      getParent.setComponentZOrder(DraggableComponent.this, 0)
     }
     protected def afterDragging(location: Point): Unit = {}
   }
