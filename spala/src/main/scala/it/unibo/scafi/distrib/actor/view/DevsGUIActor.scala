@@ -34,7 +34,7 @@ private class DevsGUIActor extends Actor {
   frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
 
   override def receive: Receive = {
-    case component: JComponent =>
+    case component: DevComponent =>
       if (!frame.isVisible) frame.setVisible(true)
       frame.add(component)
       frame.revalidate(); frame.repaint()
@@ -46,4 +46,14 @@ object DevicesGUI {
   private var _actor: Option[ActorRef] = None
   def setupGui(actorSys: ActorSystem): Unit = if (_actor.isEmpty) _actor = Some(actorSys.actorOf(Props[DevsGUIActor]))
   def actor: Option[ActorRef] = _actor
+}
+
+trait DevComponent extends JComponent {
+  type ID
+  type EXPORT
+  type LSNS
+
+  var id: ID = _
+  var export: EXPORT = _
+  var sensors: Map[LSNS, Any] = _
 }

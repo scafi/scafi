@@ -25,12 +25,15 @@ import it.unibo.scafi.space.Point2D
 import javax.swing._
 import java.awt._
 
+import it.unibo.scafi.distrib.actor.view.DevComponent
+
 class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorRef) extends Actor {
   protected val Log = akka.event.Logging(context.system, this)
   private val TextSize: Int = 11
   private val CustomFont: Font = new Font("Arial", Font.BOLD, TextSize)
 
-  private var devComponent, componentSpot: JComponent = _
+  private var devComponent: DevPanel = _
+  private var componentSpot: JComponent = _
   private var lId, lExport: JLabel = _
 
   dev ! MsgAddObserver(self)
@@ -38,21 +41,14 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
 
   override def receive: Receive = {
     case gui: ActorRef => gui ! devComponent
-    case m: I.MyNameIs => invokeLater { lId.setText("id: " + m.id.toString) }
-    case m: I.MsgLocalSensorValue[_] => invokeLater {
-      if (m.name == "LOCATION_SENSOR") {
-        val pos = m.value.asInstanceOf[Point2D]
-        this.devComponent.setBounds(pos.x.toInt * 83, pos.y.toInt * 100,80,75)
-      } else if (m.name.toString == "source" && m.value == true) {
-        componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
-      }
-    }
-    case p: I.MsgExport => invokeLater { lExport.setText("ex: " + s"${p.export.root[Double]().toInt}") }
+    case m: I.MyNameIs => updateId(m.id)
+    case m: I.MsgLocalSensorValue[_] => updateSensor(m.name, m.value)
+    case p: I.MsgExport => updateExport(p.export)
     case msg => Log.debug("[DevGUIActor_id=+" + lId.getText + "] Message unhandled: " + msg); unhandled(msg)
   }
 
   private def buildComponent(): Unit = {
-    devComponent = new JPanel() with DraggableComponent {
+    devComponent = new DevPanel with DraggableComponent {
       override protected def afterDragging(location: Point): Unit = {
         val pos = Point2D((location.getX / 83).round, (location.getY / 100).round)
         dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
@@ -81,11 +77,37 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
     devComponent.add(componentSpot, cbc)
   }
 
+  private def updateId(id: I.ID): Unit = invokeLater {
+    lId.setText("id=" + id.toString)
+    devComponent.id = id
+  }
+
+  private def updateExport(export: I.EXPORT): Unit = invokeLater {
+    lExport.setText("ex: " + s"${export.root[Double]().toInt}")
+    devComponent.export = export
+  }
+
+  private def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
+    if (sensorName == "LOCATION_SENSOR") {
+      val pos = sensorValue.asInstanceOf[Point2D]
+      this.devComponent.setBounds(pos.x.toInt * 83, pos.y.toInt * 100,80,75)
+    } else if (sensorName.toString == "source" && sensorValue == true) {
+      componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
+    }
+    devComponent.sensors = devComponent.sensors + (sensorName -> sensorValue)
+  }
+
   private def invokeLater(body: =>Any): Unit = {
     SwingUtilities.invokeLater(() => {
       body
       devComponent.revalidate(); devComponent.repaint()
     })
+  }
+
+  private class DevPanel extends JPanel with DevComponent {
+    override type ID = I.ID
+    override type EXPORT = I.EXPORT
+    override type LSNS = I.LSNS
   }
 }
 
