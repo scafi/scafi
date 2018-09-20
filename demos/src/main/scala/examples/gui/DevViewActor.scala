@@ -29,12 +29,6 @@ import it.unibo.scafi.distrib.actor.view.{DevComponent, MsgAddDevComponent, MsgD
 
 class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorRef) extends Actor {
   protected val Log = akka.event.Logging(context.system, this)
-  private val TextSize = 11
-  private val CustomFont = new Font("Arial", Font.BOLD, TextSize)
-  private val XTranslation = 75
-  private val YTranslation = 85
-  private val Width = 80
-  private val Height = 75
 
   private var devComponent: DevPanel = _
   private var componentSpot: JComponent = _
@@ -54,22 +48,24 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
   private def buildComponent(): Unit = {
     devComponent = new DevPanel with DraggableComponent {
       override protected def afterDragging(location: Point): Unit = {
-        val pos = Point2D((location.getX / XTranslation).round, (location.getY / YTranslation).round)
+        val pos = Point2D((location.getX / DevViewActor.XTranslation).round, (location.getY / DevViewActor.YTranslation).round)
         dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
       }
     }
     devComponent.setLayout(new GridBagLayout())
     devComponent.setVisible(true)
 
+    val customFont: Font = new Font("Arial", Font.BOLD, DevViewActor.TextSize)
+
     val exportPanel = new JPanel()
     lExport = new JLabel("export")
-    lExport.setFont(CustomFont)
+    lExport.setFont(customFont)
     exportPanel.add(lExport)
 
     componentSpot = new CircularPanel(Color.ORANGE)
     componentSpot.setLayout(new GridBagLayout())
     lId = new JLabel("id")
-    lId.setFont(CustomFont)
+    lId.setFont(customFont)
     componentSpot.add(lId)
 
     val cbc = new GridBagConstraints()
@@ -87,14 +83,16 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
   }
 
   private def updateExport(export: I.EXPORT): Unit = invokeLater {
-    lExport.setText("ex: " + s"${export.root[Double]().toInt}")
+    lExport.setText("ex:" + s"${export.root[Double]().toInt}")
     devComponent.export = export
   }
 
   private def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
     if (sensorName == "LOCATION_SENSOR") {
       val pos = sensorValue.asInstanceOf[Point2D]
-      this.devComponent.setBounds(pos.x.toInt * XTranslation, pos.y.toInt * YTranslation, Width, Height)
+      componentSpot.setToolTipText("pos:(" + pos.x.toInt + "," + pos.y.toInt + ")")
+      devComponent.setBounds(pos.x.toInt * DevViewActor.XTranslation, pos.y.toInt * DevViewActor.YTranslation,
+        DevViewActor.Width, DevViewActor.Height)
     } else if (sensorName.toString == "source" && sensorValue == true) {
       componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
     }
@@ -116,5 +114,12 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
 }
 
 object DevViewActor {
+  val Width: Int = 80
+  val Height: Int = 75
+  val devicesInRow: Int = (Toolkit.getDefaultToolkit.getScreenSize.getWidth / 80).toInt
+  private val XTranslation: Int = 75
+  private val YTranslation: Int = 85
+  private val TextSize: Int = 11
+
   def props(inc: BasicAbstractActorIncarnation, devActorRef: ActorRef): Props = Props(classOf[DevViewActor], inc, devActorRef)
 }
