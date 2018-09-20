@@ -55,5 +55,5 @@ trait DevComponent extends JComponent {
 
   var id: ID = _
   var export: EXPORT = _
-  var sensors: Map[LSNS, Any] = _
+  var sensors: Map[LSNS, Any] = Map()
 }
