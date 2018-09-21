@@ -18,7 +18,8 @@
 
 package demos
 
-import examples.gui.DevViewActor
+import examples.gui.AbstractDevViewActor
+import examples.gui.server.DevViewActor
 import it.unibo.scafi.space.Point2D
 
 /**
@@ -38,7 +39,7 @@ object Demo4B_MainProgram extends Demo3_Platform.CmdLineMain {
   }
 
   override def onDeviceStarted(dm: Demo3_Platform.DeviceManager, sys: Demo3_Platform.SystemFacade): Unit = {
-    val devInRow = DevViewActor.devicesInRow
+    val devInRow = DevViewActor.DevicesInRow
     dm.addSensorValue(Demo3_Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
     dm.addSensorValue("source", dm.selfId==4)
     dm.start
