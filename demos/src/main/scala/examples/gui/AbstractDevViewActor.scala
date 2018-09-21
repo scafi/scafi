@@ -18,7 +18,7 @@
 
 package examples.gui
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorRef}
 import it.unibo.scafi.distrib.actor.MsgAddObserver
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.space.Point2D
@@ -27,12 +27,15 @@ import java.awt._
 
 import it.unibo.scafi.distrib.actor.view.{DevComponent, MsgAddDevComponent, MsgDevsGUIActor}
 
-class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorRef) extends Actor {
+trait AbstractDevViewActor extends Actor {
+  val I: BasicAbstractActorIncarnation
+  var dev: ActorRef
   protected val Log = akka.event.Logging(context.system, this)
-
-  private var devComponent: DevPanel = _
-  private var componentSpot: JComponent = _
-  private var lId, lExport: JLabel = _
+  protected var width: Int = AbstractDevViewActor.DefaultWidth
+  protected var height: Int = AbstractDevViewActor.DefaultHeight
+  protected var devComponent: DevPanel = _
+  protected var componentSpot: JComponent = _
+  protected var lId, lExport: JLabel = _
 
   dev ! MsgAddObserver(self)
   buildComponent()
@@ -45,17 +48,17 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
     case msg => Log.debug("[DevGUIActor_id=+" + lId.getText + "] Message unhandled: " + msg); unhandled(msg)
   }
 
-  private def buildComponent(): Unit = {
+  protected def buildComponent(): Unit = {
     devComponent = new DevPanel with DraggableComponent {
       override protected def afterDragging(location: Point): Unit = {
-        val pos = Point2D((location.getX / DevViewActor.XTranslation).round, (location.getY / DevViewActor.YTranslation).round)
+        val pos = Point2D((location.getX / AbstractDevViewActor.XTranslation).round, (location.getY / AbstractDevViewActor.YTranslation).round)
         dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
       }
     }
     devComponent.setLayout(new GridBagLayout())
     devComponent.setVisible(true)
 
-    val customFont: Font = new Font("Arial", Font.BOLD, DevViewActor.TextSize)
+    val customFont: Font = new Font("Arial", Font.BOLD, AbstractDevViewActor.TextSize)
 
     val exportPanel = new JPanel()
     lExport = new JLabel("export")
@@ -77,49 +80,47 @@ class DevViewActor(val I: BasicAbstractActorIncarnation, private var dev: ActorR
     devComponent.add(componentSpot, cbc)
   }
 
-  private def updateId(id: I.ID): Unit = invokeLater {
+  protected def updateId(id: I.ID): Unit = invokeLater {
     lId.setText("id=" + id.toString)
     devComponent.id = id
   }
 
-  private def updateExport(export: I.EXPORT): Unit = invokeLater {
+  protected def updateExport(export: I.EXPORT): Unit = invokeLater {
     lExport.setText("ex:" + s"${export.root[Double]().toInt}")
     devComponent.export = export
   }
 
-  private def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
+  protected def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
     if (sensorName == "LOCATION_SENSOR") {
       val pos = sensorValue.asInstanceOf[Point2D]
-      componentSpot.setToolTipText("pos:(" + pos.x.toInt + "," + pos.y.toInt + ")")
-      devComponent.setBounds(pos.x.toInt * DevViewActor.XTranslation, pos.y.toInt * DevViewActor.YTranslation,
-        DevViewActor.Width, DevViewActor.Height)
+      lExport.setToolTipText("pos:(" + pos.x.toInt + "," + pos.y.toInt + ")")
+      devComponent.setBounds(pos.x.toInt * AbstractDevViewActor.XTranslation, pos.y.toInt * AbstractDevViewActor.YTranslation,
+        AbstractDevViewActor.DefaultWidth, AbstractDevViewActor.DefaultHeight)
     } else if (sensorName.toString == "source" && sensorValue == true) {
       componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
     }
     devComponent.sensors = devComponent.sensors + (sensorName -> sensorValue)
   }
 
-  private def invokeLater(body: =>Any): Unit = {
+  protected def invokeLater(body: =>Any): Unit = {
     SwingUtilities.invokeLater(() => {
       body
       devComponent.revalidate(); devComponent.repaint()
     })
   }
 
-  private class DevPanel extends JPanel with DevComponent {
+  protected class DevPanel extends JPanel with DevComponent {
     override type ID = I.ID
     override type EXPORT = I.EXPORT
     override type LSNS = I.LSNS
   }
 }
 
-object DevViewActor {
-  val Width: Int = 80
-  val Height: Int = 75
-  val devicesInRow: Int = (Toolkit.getDefaultToolkit.getScreenSize.getWidth / 80).toInt
+object AbstractDevViewActor {
+  private val DefaultWidth: Int = 80
+  private val DefaultHeight: Int = 75
   private val XTranslation: Int = 75
   private val YTranslation: Int = 85
   private val TextSize: Int = 11
-
-  def props(inc: BasicAbstractActorIncarnation, devActorRef: ActorRef): Props = Props(classOf[DevViewActor], inc, devActorRef)
+  val DevicesInRow: Int = (Toolkit.getDefaultToolkit.getScreenSize.getWidth / DefaultWidth).toInt
 }
