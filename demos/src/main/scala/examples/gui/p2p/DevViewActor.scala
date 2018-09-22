@@ -18,8 +18,6 @@
 
 package examples.gui.p2p
 
-import java.awt.Point
-
 import akka.actor.{ActorRef, Props}
 import examples.gui.AbstractDevViewActor
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
@@ -29,19 +27,12 @@ import scala.language.postfixOps
 
 class DevViewActor(override val I: BasicAbstractActorIncarnation, override var dev: ActorRef) extends AbstractDevViewActor {
   import context.dispatcher
-  context.system.scheduler.scheduleOnce(1 seconds, self, "tick")
+  context.system.scheduler.schedule(1 seconds, 500 milliseconds, self, "tick")
 
   override def receive: Receive = ({
     case "tick" => devsGUIActor ! I.MsgGetNeighborhood(devComponent.id)
-    case n: I.MsgNeighborhoodUpdate =>
-      dev ! I.MsgNeighborhood(n.id, n.nbrs.keySet)
-      n.nbrs.foreach(d => dev ! I.NbrInfo(d._1, None, Some(d._2), None))
+    case n: I.MsgNeighborhoodUpdate => dev ! n
   }: Receive) orElse super.receive
-
-  override def componentMoved(location: Point): Unit = {
-    super.componentMoved(location)
-    context.system.scheduler.scheduleOnce(500 milliseconds, self, "tick")
-  }
 }
 
 object DevViewActor {
