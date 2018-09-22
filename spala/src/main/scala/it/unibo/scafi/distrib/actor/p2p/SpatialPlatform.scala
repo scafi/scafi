@@ -16,9 +16,10 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.distrib.actor.view
+package it.unibo.scafi.distrib.actor.p2p
 
-import akka.actor.ActorRef
+import it.unibo.scafi.distrib.actor.p2p.{Platform => BasePlatform}
 
-case class MsgDevsGUIActor(devsGuiActor: ActorRef)
-case class MsgAddDevComponent(devComponent: DevComponent)
+trait SpatialPlatform extends BasePlatform {
+  val LocationSensorName: LSensorName
+}
