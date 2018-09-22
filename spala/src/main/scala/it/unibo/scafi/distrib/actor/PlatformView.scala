@@ -38,6 +38,9 @@ trait PlatformView { self: Platform.Subcomponent =>
         components = components + m.devComponent
         frame.add(m.devComponent)
         frame.revalidate(); frame.repaint()
+      case n: MsgGetNeighborhood =>
+        val nbrs: Set[DevComponent] = computeNeighborhood(n.id)
+        sender ! MsgNeighborhoodUpdate(n.id, nbrs.map(d => d.id -> d.ref).toMap)
       case msg => Log.debug("[DevsGUIActor] Message unhandled: " + msg); unhandled(msg)
     }
 
@@ -49,6 +52,16 @@ trait PlatformView { self: Platform.Subcomponent =>
       frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
     }
 
+    private def computeNeighborhood(id: UID): Set[DevComponent] = {
+      def dist(p1: Point2D, p2: Point2D): Double =
+        if (p1 == null || p2 == null) Double.PositiveInfinity else p1.distance(p2)
+      val dev = components.find(_.id == id)
+      if (dev.isDefined) {
+        components.filter(d => dist(dev.get.position, d.position) <= 1 && dev.get.id != d.id)
+      } else {
+        Set()
+      }
+    }
   }
 
   object DevicesGUI {
