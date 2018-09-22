@@ -30,6 +30,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    */
   trait P2pNbrManagementBehavior extends BaseNbrManagementBehavior { selfActor: Actor =>
     def neighbourhoodManagementBehavior: Receive = {
+      case MsgNeighborhood(id, nbs) => updateNeighborhood(nbs, clear = true)
       case info @ NbrInfo(idn,_,_,_) => mergeNeighborInfo(idn,info)
       case MsgDeviceLocation(idn, ref) => mergeNeighborInfo(idn,NbrInfo(idn,None,Some(ref),None))
       case MsgExport(from, export) => {
