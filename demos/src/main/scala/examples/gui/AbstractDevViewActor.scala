@@ -25,15 +25,14 @@ import it.unibo.scafi.space.Point2D
 import javax.swing._
 import java.awt._
 
-import it.unibo.scafi.distrib.actor.view.{DevComponent, MsgAddDevComponent, MsgDevsGUIActor}
-
 trait AbstractDevViewActor extends Actor {
   val I: BasicAbstractActorIncarnation
   var dev: ActorRef
+  protected var devsGUIActor: ActorRef = _
   protected val Log = akka.event.Logging(context.system, this)
   protected var width: Int = AbstractDevViewActor.DefaultWidth
   protected var height: Int = AbstractDevViewActor.DefaultHeight
-  protected var devComponent: DevPanel = _
+  protected var devComponent: I.DevComponent = _
   protected var componentSpot: JComponent = _
   protected var lId, lExport: JLabel = _
 
@@ -41,20 +40,18 @@ trait AbstractDevViewActor extends Actor {
   buildComponent()
 
   override def receive: Receive = {
-    case g: MsgDevsGUIActor => g.devsGuiActor ! MsgAddDevComponent(devComponent)
+    case g: I.MsgDevsGUIActor => devsGUIActor = g.devsGuiActor; devsGUIActor ! I.MsgAddDevComponent(devComponent)
     case m: I.MyNameIs => updateId(m.id)
     case m: I.MsgLocalSensorValue[_] => updateSensor(m.name, m.value)
     case p: I.MsgExport => updateExport(p.export)
-    case msg => Log.debug("[DevGUIActor_id=+" + lId.getText + "] Message unhandled: " + msg); unhandled(msg)
+    case msg => Log.debug("[DevGUIActor_id=+" + devComponent.id + "] Message unhandled: " + msg); unhandled(msg)
   }
 
   protected def buildComponent(): Unit = {
-    devComponent = new DevPanel with DraggableComponent {
-      override protected def afterDragging(location: Point): Unit = {
-        val pos = Point2D((location.getX / AbstractDevViewActor.XTranslation).round, (location.getY / AbstractDevViewActor.YTranslation).round)
-        dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
-      }
+    devComponent = new JPanel with I.DevComponent with DraggableComponent {
+      override protected def afterDragging(location: Point): Unit = componentMoved(location)
     }
+    devComponent.ref = dev
     devComponent.setLayout(new GridBagLayout())
     devComponent.setVisible(true)
 
@@ -80,6 +77,12 @@ trait AbstractDevViewActor extends Actor {
     devComponent.add(componentSpot, cbc)
   }
 
+  protected def componentMoved(location: Point): Unit = {
+    val pos = Point2D((location.getX / AbstractDevViewActor.XTranslation).round,
+      (location.getY / AbstractDevViewActor.YTranslation).round)
+    dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
+  }
+
   protected def updateId(id: I.ID): Unit = invokeLater {
     lId.setText("id=" + id.toString)
     devComponent.id = id
@@ -87,19 +90,18 @@ trait AbstractDevViewActor extends Actor {
 
   protected def updateExport(export: I.EXPORT): Unit = invokeLater {
     lExport.setText("ex:" + s"${export.root[Double]().toInt}")
-    devComponent.export = export
   }
 
   protected def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
     if (sensorName == "LOCATION_SENSOR") {
       val pos = sensorValue.asInstanceOf[Point2D]
+      devComponent.position = pos
       lExport.setToolTipText("pos:(" + pos.x.toInt + "," + pos.y.toInt + ")")
       devComponent.setBounds(pos.x.toInt * AbstractDevViewActor.XTranslation, pos.y.toInt * AbstractDevViewActor.YTranslation,
         AbstractDevViewActor.DefaultWidth, AbstractDevViewActor.DefaultHeight)
     } else if (sensorName.toString == "source" && sensorValue == true) {
       componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
     }
-    devComponent.sensors = devComponent.sensors + (sensorName -> sensorValue)
   }
 
   protected def invokeLater(body: =>Any): Unit = {
@@ -107,12 +109,6 @@ trait AbstractDevViewActor extends Actor {
       body
       devComponent.revalidate(); devComponent.repaint()
     })
-  }
-
-  protected class DevPanel extends JPanel with DevComponent {
-    override type ID = I.ID
-    override type EXPORT = I.EXPORT
-    override type LSNS = I.LSNS
   }
 }
 
