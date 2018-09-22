@@ -49,7 +49,11 @@ trait AbstractDevViewActor extends Actor {
 
   protected def buildComponent(): Unit = {
     devComponent = new JPanel with I.DevComponent with DraggableComponent {
-      override protected def afterDragging(location: Point): Unit = componentMoved(location)
+      override protected def afterDragging(location: Point): Unit = {
+        val pos = Point2D((location.getX / AbstractDevViewActor.XTranslation).round,
+          (location.getY / AbstractDevViewActor.YTranslation).round)
+        dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
+      }
     }
     devComponent.ref = dev
     devComponent.setLayout(new GridBagLayout())
@@ -75,12 +79,6 @@ trait AbstractDevViewActor extends Actor {
     cbc.gridy = 1
     cbc.ipady = 30
     devComponent.add(componentSpot, cbc)
-  }
-
-  protected def componentMoved(location: Point): Unit = {
-    val pos = Point2D((location.getX / AbstractDevViewActor.XTranslation).round,
-      (location.getY / AbstractDevViewActor.YTranslation).round)
-    dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
   }
 
   protected def updateId(id: I.ID): Unit = invokeLater {
