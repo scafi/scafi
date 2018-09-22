@@ -48,7 +48,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
       this.nbrs.keySet.diff(neighbors.keySet).foreach(removeNeighbor)
       neighbors.keySet.diff(this.nbrs.keySet).foreach(
-        nbr => this.nbrs += nbr -> NbrInfo(nbr,None,neighbors.get(nbr)))
+        nbr => this.nbrs += nbr -> NbrInfo(nbr,None,Some(neighbors(nbr))))
     }
   }
 

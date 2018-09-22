@@ -24,23 +24,26 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import it.unibo.scafi.space.Point2D
 import javax.swing.{JComponent, JFrame, WindowConstants}
 
+import scala.annotation.tailrec
+
 trait PlatformView { self: Platform.Subcomponent =>
   class DevsGUIActor() extends Actor {
     val frame = new JFrame("Devices GUI")
     protected val Log = akka.event.Logging(context.system, this)
-    private var components: Set[DevComponent] = Set()
+    private var devActors: Map[ActorRef, DevInfo] = Map()
 
     buildFrame()
 
     override def receive: Receive = {
-      case m: MsgAddDevComponent =>
+      case MsgAddDevComponent(ref, comp) =>
         if (!frame.isVisible) frame.setVisible(true)
-        components = components + m.devComponent
-        frame.add(m.devComponent)
+        devActors += ref -> devActors.getOrElse(ref, DevInfo()).copy(comp = Some(comp))
+        frame.add(comp)
         frame.revalidate(); frame.repaint()
-      case n: MsgGetNeighborhood =>
-        val nbrs: Set[DevComponent] = computeNeighborhood(n.id)
-        sender ! MsgNeighborhoodUpdate(n.id, nbrs.map(d => d.id -> d.ref).toMap)
+      case MsgDevName(ref, id) => devActors += ref -> devActors.getOrElse(ref, DevInfo()).copy(id = Some(id))
+      case MsgDevPosition(ref, pos) => devActors += ref -> devActors.getOrElse(ref, DevInfo()).copy(pos = Some(pos))
+      case MsgGetNeighborhood(id) => val nbrs: Map[ActorRef, DevInfo] = computeNeighborhood(id)
+        sender ! MsgNeighborhoodUpdate(id, nbrs.map(d => d._2.id.get -> d._1))
       case msg => Log.debug("[DevsGUIActor] Message unhandled: " + msg); unhandled(msg)
     }
 
@@ -52,16 +55,30 @@ trait PlatformView { self: Platform.Subcomponent =>
       frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
     }
 
-    private def computeNeighborhood(id: UID): Set[DevComponent] = {
-      def dist(p1: Point2D, p2: Point2D): Double =
-        if (p1 == null || p2 == null) Double.PositiveInfinity else p1.distance(p2)
-      val dev = components.find(_.id == id)
+    private def computeNeighborhood(id: UID): Map[ActorRef, DevInfo] = {
+      def distance(p1: Option[Point2D], p2: Option[Point2D]): Double = {
+        if (p1.isEmpty || p2.isEmpty) Double.PositiveInfinity else p1.get.distance(p2.get)
+      }
+      @tailrec
+      def findNbrs(pos: Option[Point2D], devs: List[(ActorRef, DevInfo)], res: List[(ActorRef, DevInfo)]): List[(ActorRef, DevInfo)] =
+        devs match {
+          case h :: t if distance(pos, h._2.pos) <= 1  => findNbrs(pos, t, h::res)
+          case _ :: t => findNbrs(pos, t, res)
+          case Nil => res
+        }
+
+      val dev: Option[DevInfo] = devActors.values.toSet.find(_.id.contains(id))
       if (dev.isDefined) {
-        components.filter(d => dist(dev.get.position, d.position) <= 1 && dev.get.id != d.id)
+        val nbrsList = findNbrs(dev.get.pos, devActors.map(d => (d._1, d._2)).toList, List()).filterNot(_._2.id == dev.get.id)
+        nbrsList.map(d => d._1 -> d._2).toMap
       } else {
-        Set()
+        Map()
       }
     }
+
+    private case class DevInfo(var id: Option[UID] = None,
+                               var pos: Option[Point2D] = None,
+                               var comp: Option[JComponent] = None)
   }
 
   object DevicesGUI {
@@ -69,11 +86,5 @@ trait PlatformView { self: Platform.Subcomponent =>
     def setupGui(actorSys: ActorSystem): Unit = if (_actor.isEmpty) _actor =
       Some(actorSys.actorOf(Props(classOf[DevsGUIActor], self)))
     def actor: Option[ActorRef] = _actor
-  }
-
-  trait DevComponent extends JComponent {
-    var id: UID = _
-    var ref: ActorRef = _
-    var position: Point2D = _
   }
 }

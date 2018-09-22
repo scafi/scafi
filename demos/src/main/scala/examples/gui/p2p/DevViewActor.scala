@@ -26,11 +26,12 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 class DevViewActor(override val I: BasicAbstractActorIncarnation, override var dev: ActorRef) extends AbstractDevViewActor {
+  case class Tick()
   import context.dispatcher
-  context.system.scheduler.schedule(1 seconds, 500 milliseconds, self, "tick")
+  context.system.scheduler.schedule(1 seconds, 500 milliseconds, self, Tick())
 
   override def receive: Receive = ({
-    case "tick" => devsGUIActor ! I.MsgGetNeighborhood(devComponent.id)
+    case Tick() => devsGUIActor ! I.MsgGetNeighborhood(id)
     case n: I.MsgNeighborhoodUpdate => dev ! n
   }: Receive) orElse super.receive
 }
