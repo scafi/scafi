@@ -53,6 +53,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
                     override var execScope: ExecScope)
     extends DynamicComputationDeviceActor
     with MissingCodeManagementBehavior
+    with ObservableDeviceActor
     with P2pNbrManagementBehavior {
 
     def propagateExportToNeighbors(export: ComputationExport): Unit = {
