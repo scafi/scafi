@@ -67,4 +67,9 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   val MsgGetNeighbors = "msg_get_neighbors".hashCode
   case class Ack(id: UID)
 
+  // View messages
+  case class MsgDevsGUIActor(devsGuiActor: ActorRef)
+  case class MsgAddDevComponent(devComponent: DevComponent)
+  case class MsgNeighborhoodUpdate(id: UID, nbrs: Map[UID, ActorRef])
+
 }
