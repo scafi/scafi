@@ -92,7 +92,9 @@ trait AbstractDevViewActor extends Actor {
   }
 
   protected def updateExport(export: I.EXPORT): Unit = invokeLater {
-    lExport.setText("ex:" + s"${export.root[Double]().toInt}")
+    Option(export.root[Double]()).foreach(exp =>
+      lExport.setText("ex:" + (if (exp > Int.MaxValue) Double.PositiveInfinity else exp.toInt))
+    )
   }
 
   protected def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
