@@ -19,7 +19,7 @@ case object FastFXOutput extends FXOutputPolicy {
   override def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = {
     import scalafx.Includes._
     dev match {
-      case SensorDevice(sens) => sens.value match {
+      case SensorDevice(sens) => sens.value[Any] match {
         case led : Boolean =>
           val index = deviceName.indexOf(dev.name.toString)
           if (led) {

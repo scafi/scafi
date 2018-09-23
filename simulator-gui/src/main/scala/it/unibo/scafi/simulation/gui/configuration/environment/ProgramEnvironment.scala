@@ -39,12 +39,6 @@ trait ProgramEnvironment[W <: AggregateWorld, V <: View] {
   def policy : PerformancePolicy
 
   /**
-    * a set of other controller attached on the program
-    * @return the controller
-    */
-  def controller : Iterable[LogicController[W]]
-
-  /**
     * a configuration used to set up log
     * @return the log configuration
     */

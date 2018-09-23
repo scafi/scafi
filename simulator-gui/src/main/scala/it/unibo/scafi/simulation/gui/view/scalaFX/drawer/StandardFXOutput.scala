@@ -38,7 +38,7 @@ case object StandardFXOutput extends FXOutputPolicy {
     if(graphicsDevice.isEmpty) return
     val graphics = graphicsDevice.get
     dev match {
-      case SensorDevice(sens) => sens.value match {
+      case SensorDevice(sens) => sens.value[Any] match {
           //if device was a led sensor i can the state of visibility (true is visible false is hide)
         case led : Boolean => graphics.setVisible(led)
           //if it is numeric this strategy update the label text value
@@ -56,7 +56,7 @@ case object StandardFXOutput extends FXOutputPolicy {
     //take the absolute position of node (without node traslation)
     val point = nodeToAbsolutePosition(node)
     dev match {
-      case SensorDevice(sens) => sens.value match {
+      case SensorDevice(sens) => sens.value[Any] match {
           //if the device is a led i create a circle with the color selected into view setting
         case led : Boolean =>
           val index = deviceName.indexOf(dev.name.toString)

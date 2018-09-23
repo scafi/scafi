@@ -11,12 +11,11 @@ class SensorWorldImpl extends StandardWorldDefinition
                       with SensorDefinition
                       with SensorWorld
                       with SimpleSource {
-  override type SENSOR_VALUE = Any
   override type MUTABLE_NODE = AbstractMutableNode
   override type NODE_PRODUCER = AbstractNodeBuilder
-  override protected type MUTABLE_DEVICE = MutableSensor[SENSOR_VALUE]
+  override protected type MUTABLE_DEVICE = MutableSensor
   override type DEVICE_PRODUCER = DeviceProducer
-  override type DEVICE = Sensor[Any]
+  override type DEVICE = Sensor
   //a node implementation
   private class NodeImpl(id : ID, position : P, shape : Option[S]) extends AbstractMutableNode(id,position,shape) {
     override def view: NODE = this

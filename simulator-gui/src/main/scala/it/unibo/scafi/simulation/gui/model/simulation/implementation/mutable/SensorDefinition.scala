@@ -10,11 +10,9 @@ import it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable.Sen
 trait SensorDefinition extends SensorConcept {
   self : SensorDefinition.Dependency =>
 
-  override type SENSOR_VALUE = Any
+  override type DEVICE = Sensor
 
-  override type DEVICE = Sensor[SENSOR_VALUE]
-
-  override protected type MUTABLE_DEVICE = MutableSensor[SENSOR_VALUE]
+  override protected type MUTABLE_DEVICE = MutableSensor
 
   override type DEVICE_PRODUCER = DeviceProducer
 
@@ -26,20 +24,20 @@ trait SensorDefinition extends SensorConcept {
     * @param stream the stream of sensor
     */
   protected class MutableSensorImpl(val name: NAME,
-                                    sensorValue : SENSOR_VALUE,
+                                    sensorValue : Any,
                                     val sensorType: SensorType,
-                                    val stream : SensorStream) extends MutableSensor[SENSOR_VALUE] {
+                                    val stream : SensorStream) extends MutableSensor {
     private var _val = sensorValue
     require(name != null && sensorValue != null && sensorType != null)
     override def view: DEVICE = this
 
 
-    def value_=(newValue: SENSOR_VALUE) : Unit = {
+    def value_=(newValue: Any) : Unit = {
       require(newValue != null && sensorType.accept(newValue))
       _val = newValue
     }
 
-    def value : SENSOR_VALUE = _val
+    override def value[V] : V = _val.asInstanceOf[V]
 
     def canEqual(other: Any): Boolean = other.isInstanceOf[MutableSensorImpl]
 
@@ -90,7 +88,6 @@ object SensorDefinition {
   /**
     * a set of sensor type
     */
-
   //strategy to verify if the value is correct
   object Led extends SensorType {
     override def accept[E](arg: E): Boolean = arg.isInstanceOf[Boolean]

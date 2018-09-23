@@ -18,14 +18,11 @@
 
 package it.unibo.scafi.space
 
-import it.unibo.utils.BiMap
-import it.unibo.scafi.space
 import it.unibo.scafi.space.SpatialAbstraction.Bound
-import it.unibo.scafi.space.optimization._
 import it.unibo.scafi.space.optimization.nn.NNIndex
+import it.unibo.utils.BiMap
 
 import scala.collection.concurrent.TrieMap
-import scala.collection.immutable.Range.Inclusive
 import scala.language.higherKinds
 
 

@@ -5,8 +5,6 @@ import it.unibo.scafi.space.{Point3D, Shape}
 
 /**
   * definition of standard boundary
-  * used by world to verify the correctness
-  * of node position with their shape
   */
 trait BoundaryDefinition {
   self: World =>

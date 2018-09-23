@@ -55,19 +55,15 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   override val contract : ExternalSimulationContract = new ExternalSimulationContract {
     private var currentSimulation : Option[EXTERNAL_SIMULATION] = None
     override def simulation: Option[SpaceAwareSimulator] = this.currentSimulation
-
     override def initialize(prototype: SIMULATION_PROTOTYPE): Unit = {
-
       //to initialize the simulation, current simulation must be empty and program must be defined
       require(currentSimulation.isEmpty && simulationInfo.isDefined)
-
       //create context by program passed
       context = Some(simulationInfo.get.program.newInstance().asInstanceOf[CONTEXT=>EXPORT])
       //create new simulation
       this.currentSimulation = Some(prototype())
       this.currentSimulation.get.attach(simulationObserver)
     }
-
     override def restart(prototype: SIMULATION_PROTOTYPE): Unit = {
       //to restart simulation current simulation must be defined
       require(currentSimulation.isDefined)

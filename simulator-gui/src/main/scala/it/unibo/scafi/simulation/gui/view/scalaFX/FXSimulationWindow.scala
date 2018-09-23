@@ -7,6 +7,7 @@ import javafx.stage.WindowEvent
 import it.unibo.scafi.simulation.gui.configuration.launguage.ResourceBundleManager._
 import it.unibo.scafi.simulation.gui.view._
 import it.unibo.scafi.simulation.gui.view.scalaFX.FXSimulationWindow._
+import it.unibo.scafi.simulation.gui.view.scalaFX.common.AbstractFXSimulationPane
 import it.unibo.scafi.simulation.gui.view.scalaFX.logger.FXLogger
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.PaneDecoration._
 import it.unibo.scafi.simulation.gui.view.scalaFX.pane.PaneExtension._
@@ -34,7 +35,7 @@ import scalafx.util.Duration
   * @param debug if you want to show fps or not
   * @param windowConfiguration the window configuration
   */
-private [scalaFX] class FXSimulationWindow(private val simulationPane : FXSimulationPane,
+private [scalaFX] class FXSimulationWindow(private val simulationPane : AbstractFXSimulationPane with AbstractSelectionArea with AbstractKeyboardManager,
                                            private val debug: Boolean = false,
                                            override val windowConfiguration : WindowConfiguration)
                                             extends LogoStage(windowConfiguration) with Window[SimulationView] {

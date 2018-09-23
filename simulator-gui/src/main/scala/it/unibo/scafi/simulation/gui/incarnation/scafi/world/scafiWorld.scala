@@ -3,7 +3,6 @@ import it.unibo.scafi.space.SpatialAbstraction
 
 /**
   * an implementation of scafi like world
-  * with cartesian metric and
   * with no boundary (the boundary can
   * be update at runtime)
   */

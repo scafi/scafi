@@ -14,7 +14,7 @@ object scafiSimulationExecutor extends ScafiBridge {
   private val indexToName = (i : Int) => "output"+(i+1)
   override protected val maxDelta: Option[Int] = None
 
-  override protected def AsyncLogicExecution(): Unit = {
+  override protected def asyncLogicExecution(): Unit = {
     if(contract.simulation.isDefined) {
       val net = contract.simulation.get
       val result = net.exec(runningContext)
@@ -33,7 +33,7 @@ object scafiSimulationExecutor extends ScafiBridge {
       }
       //an the meta actions associated to this simulation
       val metaActions = this.simulationInfo.get.metaActions
-      metaActions.filter(x => x.valueParser(result._2.root()).isDefined).foreach(x => net.add(x(result._1,result._2,this.contract.simulation.get)))
+      metaActions.filter(x => x.valueParser(result._2.root()).isDefined).foreach(x => net.add(x(result._1,result._2)))
       net.process()
     }
   }

@@ -40,7 +40,7 @@ object ScafiSimulationInitializer {
         val createdDevs =  nodes.map { case (d, p) => d -> new DevInfo(d, p,
           nsns = nsns => nbr => null)
         }
-        val res : SpaceAwareSimulator = new SpaceAwareSimulator(simulationSeed = rand.nextInt(),randomSensorSeed = rand.nextInt(),
+        val res : SpaceAwareSimulator = new SpaceAwareSimulator(simulationSeed = System.nanoTime(),randomSensorSeed = System.nanoTime(),
           space = createdSpace,
           devs = createdDevs)
         w.nodes  foreach { x =>

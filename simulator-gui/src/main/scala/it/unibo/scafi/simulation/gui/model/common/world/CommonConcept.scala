@@ -21,8 +21,6 @@ trait CommonConcept {
     */
 
   protected type MUTABLE_NODE <: RootMutableNode
-
-  override type NODE <: Node
   /**
     * the type of node producer uses by client to give a skeleton of node representation
     *

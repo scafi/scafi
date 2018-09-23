@@ -169,7 +169,6 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     val changeToApply = changes
     changes = List.empty
     val removing = neighbourToRemove
-
     Platform.runLater {
       changeToApply foreach {_()}
       if(removing.nonEmpty) {

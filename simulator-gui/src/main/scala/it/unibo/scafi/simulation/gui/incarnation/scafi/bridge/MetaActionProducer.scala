@@ -7,33 +7,34 @@ import it.unibo.scafi.space.{Point2D, Point3D}
 /**
   * describe a meta action producer used to create a meta action
   * by some value
-  * @tparam A the type of value used to create meta action
+  * @tparam O the type of value used to create meta action
   */
-trait MetaActionProducer[A] {
+trait MetaActionProducer[O] {
   /**
-    * convert any val in the output value
+    * convert any val into output value
     * @return none if the actuator can convert a specific value some of option otherwise
     */
-  def valueParser : (Any) => (Option[A])
+  def valueParser : (Any) => (Option[O])
 
   /**
     * put the action used to parse any val
     * @param function the function used to parse any vale
     */
-  def valueParser_= (function : (Any) => (Option[A]))
+  def valueParser_= (function : (Any) => (Option[O]))
 
-  def apply(id : ID, export : EXPORT, net : SpaceAwareSimulator) : MetaAction = if(valueParser(export.root()).isDefined) {
-    this.apply(id,valueParser(export.root()).get,net)
+  def apply(id : ID, export : EXPORT) : MetaAction = if(valueParser(export.root()).isDefined) {
+    this.apply(id,valueParser(export.root()).get)
   } else {
     MetaActionManager.EmptyAction
   }
 
-  def apply(id : ID, argument : A, net : SpaceAwareSimulator) : MetaAction
+  def apply(id : ID, argument : O) : MetaAction
 }
 /**
   * describe action to actuate to the world, by export produced
   */
 object MetaActionProducer {
+  private implicit def bridgeToSimulator(bridge: ScafiBridge) : SpaceAwareSimulator = bridge.contract.simulation.get
   /**
     * a meta action producer that create an action used to move node by a delta movement
     */
@@ -42,8 +43,8 @@ object MetaActionProducer {
     override def valueParser_=(function: Any => Option[(Double, Double)]): Unit = this.action = action
     override def valueParser: Any => Option[(Double, Double)] = action
 
-    override def apply(id: Int, dt: (Double, Double), net: ScafiWorldIncarnation.SpaceAwareSimulator): MetaAction = if (dt != (0.0, 0.0)) {
-      net.NodeDtMovement(id,dt)
+    override def apply(id: Int, dt: (Double, Double)): MetaAction = if (dt != (0.0, 0.0)) {
+      scafiSimulationExecutor.NodeDtMovement(id,dt)
     } else {
       MetaActionManager.EmptyAction
     }

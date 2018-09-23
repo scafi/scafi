@@ -37,7 +37,7 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W] {
   /**
     * describe internal async logic
     */
-  protected def AsyncLogicExecution() : Unit
+  protected def asyncLogicExecution() : Unit
 
   /**
     * internal class used to describe a text that run async logic execution
@@ -51,7 +51,7 @@ trait AsyncLogicController[W <: AggregateWorld] extends LogicController[W] {
       time = System.currentTimeMillis()
       while(!stopped) {
         //do logic execution
-        AsyncLogicExecution()
+        asyncLogicExecution()
         if(delta != 0) {
           TimeUnit.MILLISECONDS.sleep(delta)
         }

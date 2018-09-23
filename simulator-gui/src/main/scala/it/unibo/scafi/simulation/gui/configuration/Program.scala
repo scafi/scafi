@@ -21,17 +21,14 @@ class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,
   private var _launched : Boolean = false
   def launched : Boolean = _launched
   def launch(): Unit = {
-    //initialize the view
-    viewEnv.foreach {_.init()}
-    //map command
+    //initialize view, map keyboard with command and render application
     viewEnv match {
-      case Some(view) => commandBinding(view.keyboard, view.selection)
+      case Some(view) =>
+        view.init()
+        commandBinding(view.keyboard, view.selection)
+        view.container.render()
       case _ =>
     }
-    //render the output
-    viewEnv.foreach {_.container.render()}
-    //start all logic controller
-    programEnv.controller.foreach( _.start())
     //init log
     programEnv.logConfiguration()
     //initialized the simulation
@@ -40,7 +37,6 @@ class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,
     programEnv.simulation.start()
     //init scheduler
     scheduler.attach(programEnv.input)
-    programEnv.controller.foreach{scheduler.attach(_)}
     scheduler.attach(programEnv.simulation)
     //put output into the presenter
     viewEnv match {
@@ -50,9 +46,7 @@ class Program[W <: AggregateWorld, V <: View](programEnv : ProgramEnvironment[W,
       case _ =>
     }
     scheduler.delta = programEnv.policy.tick
-    scheduler.start(
-
-    )
+    scheduler.start()
     _launched = true
   }
 }

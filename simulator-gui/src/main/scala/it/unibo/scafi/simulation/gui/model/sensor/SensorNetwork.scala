@@ -9,8 +9,6 @@ import it.unibo.scafi.simulation.gui.model.aggregate.AggregateWorld
   */
 trait SensorNetwork extends SensorConcept {
   self : SensorNetwork.Dependency =>
-  //the sensor value on this network
-  type SENSOR_VALUE
   /**
     * change the value of sensor attach on a node
     * @param id the node id
@@ -19,9 +17,9 @@ trait SensorNetwork extends SensorConcept {
     * @return true if the device is attached on node false otherwise
     * @throws IllegalArgumentException if the type sensor is not the same of parameter
     */
-  def changeSensorValue(id : ID, name : NAME,value : SENSOR_VALUE) : Boolean
+  def changeSensorValue[V](id : ID, name : NAME,value : V) : Boolean
 }
 
 object SensorNetwork {
-  type Dependency = AggregateWorld
+  type Dependency = AggregateWorld with SensorConcept
 }

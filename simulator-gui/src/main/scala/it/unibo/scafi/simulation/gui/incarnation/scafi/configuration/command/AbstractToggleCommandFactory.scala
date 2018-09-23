@@ -33,7 +33,7 @@ abstract class AbstractToggleCommandFactory extends CommandFactory {
           val sens = node.get.getDevice(name)
           if(sens.isDefined) {
             //if the device is a led sensor, i can change its value
-            sens.get.value match {
+            sens.get.value[Any] match {
               case led : Boolean => processAction = bridge.NodeChangeSensor(id,name,!led) :: processAction
               case _ =>
             }

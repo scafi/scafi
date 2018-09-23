@@ -32,9 +32,6 @@ object PlatformDefinition {
     *     val platform = new SensorPlatform with World3D with StandardNodeDefinition with SensorDefinition with StandardNetwork {
     *       override type ID = String
     *        override type NAME = String
-    *        override type B = Boundary
-    *        override type M = Metric
-    *        override val metric = this.cartesianMetric
     *        override val boundary = None
     *     }
     *     platform.insertNode(new platform.NodeBuilder("node",Point3D(10,10,10)))
@@ -52,6 +49,5 @@ object PlatformDefinition {
     with AbstractNodeDefinition
     with SimpleSource
     with BoundaryDefinition {
-    override type SENSOR_VALUE = Any
   }
 }

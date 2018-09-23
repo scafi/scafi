@@ -23,7 +23,7 @@ object ViewSetting {
   /**
     * a image path of node
     */
-  var nodeImagePath : String = "drone.gif"
+  var nodeImagePath : String = "icon.png"
   /**
     * color of neighbour line
    */

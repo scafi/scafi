@@ -150,8 +150,10 @@ object QuadTree {
     * @return the index created
     */
   def apply[A](elems : Iterable[(A,Point3D)]) : NNIndex[A] = {
+    //a max threshold to create a larger space
+    val maxThr = 20000
     //a big threshold used to create nnindex, allow to create a fake unlimited space
-    val thr = Point3D(20000,20000,0)
+    val thr = Point3D(maxThr,maxThr,maxThr)
     /**
       * used to compute the lowest point and the highest
       */
@@ -164,12 +166,16 @@ object QuadTree {
    * a constant used to normalize the function computeElemsForBox
    */
   private val normalizeConstantBox = 10
+  /**
+    * minimum number of node in a box
+    */
+  private val minNode = 10
   /*
     * a function used to compute the number of elements in box (empirical value)
     * @param elems the number of elements
     * @return the max number of elements in a box
     */
-  private def computeElemsForBox(elems : Int) = normalizeConstantBox * math.log10(elems).toInt
+  private def computeElemsForBox(elems : Int) = if(elems > minNode ) normalizeConstantBox * math.log10(elems).toInt else minNode
 
   /**
     * create a neighbour index with bound specified

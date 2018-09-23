@@ -12,6 +12,7 @@ import scalafx.scene.Node
 import scalafx.scene.input.{MouseButton, MouseEvent}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Circle
+import scalafx.Includes._
 
 /**
   * the logic of selection a set of node
@@ -24,7 +25,6 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
   private val radiusProperty : DoubleProperty = DoubleProperty(0)
   private var circle : Option[Circle] = None
   private var startDragging = false
-  import scalafx.Includes._
   this.handleEvent(MouseEvent.Any){
   me : MouseEvent =>
     if(me.button == MouseButton.Primary) {
@@ -34,7 +34,6 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
         case MouseEvent.MousePressed =>
           if(this.circle.isDefined) {
             if(!this.circle.get.contains(pointClick)) {
-              clearSelected()
               startPoint = pointClick
               startDragging = false
             } else {
@@ -74,13 +73,14 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
               x._2.opacity = FXSelectionArea.ClonedOpacity
             })
             this.moved.values foreach {x => this.children += x}
-
             this._selected = this.moved.keySet
-          } else if(this.moved.nonEmpty) {
+          } else if(this.moved.nonEmpty && (this.circle.get.translateX.value != 0 || this.circle.get.translateY.value != 0)) {
             val toMove = moved.map {x => x._1 -> view.scalaFX.nodeToPosition(x._2)} map {x => x._1 -> pointToWorldPosition(x._2)}
             if(argumentName.isDefined && factory.isDefined) {
               InputCommandController.virtualMachine.process((factory.get,Map(argumentName.get -> toMove)))
             }
+            clearSelected()
+          } else {
             clearSelected()
           }
         case _ =>
@@ -93,8 +93,9 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
         this._selected = Set.empty
         this.children.remove(c)
         this.circle = None
+        val nodeToRemove = this.moved.values.map{x => x.delegate}.toSeq
         Platform.runLater {
-          this.moved.values.foreach { x => this.children -= x}
+          this.children.removeAll(nodeToRemove:_*)
           this.moved = Map.empty
         }
       case _ =>

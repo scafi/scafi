@@ -10,10 +10,10 @@ import it.unibo.scafi.simulation.gui.model.sensor.SensorEvent.SensorChanged
 trait SensorWorld extends AbstractAggregateWorld with SensorNetwork  {
   self: SensorWorld.Dependency =>
 
-  override protected type MUTABLE_DEVICE <: MutableSensor[SENSOR_VALUE]
-  override type DEVICE <: Sensor[SENSOR_VALUE]
+  override protected type MUTABLE_DEVICE <: MutableSensor
+  override type DEVICE <: Sensor
 
-  def changeSensorValue(id : ID, name : NAME,value : SENSOR_VALUE) : Boolean = {
+  def changeSensorValue[V](id : ID, name : NAME,value : V) : Boolean = {
     val node = getNodeOrThrows(id)
     //find the dev with name passed
     node.getMutableDevice(name) match {

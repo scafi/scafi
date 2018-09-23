@@ -32,11 +32,7 @@ class SensorTest extends FunSpec with Matchers {
     assert(dev.nonEmpty)
 
     val sensor = dev.get
-    sensor.value match {
-      case led : Boolean => assert(!led)
-
-      case _ => fail("the sensor is a led")
-    }
+    assert(!sensor.value[Boolean])
 
     //noinspection DangerousCatchAll
     try {

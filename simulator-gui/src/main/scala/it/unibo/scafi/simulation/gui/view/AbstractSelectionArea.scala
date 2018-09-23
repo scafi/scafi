@@ -17,7 +17,7 @@ trait AbstractSelectionArea {
   /**
     * @return get the ids of nodes selected
     */
-  def selected : Set[Any]
+  def selected : Set[ID]
   /**
     * used to add movement factory, it create a move command
     * when the selection area is moved through simulation view

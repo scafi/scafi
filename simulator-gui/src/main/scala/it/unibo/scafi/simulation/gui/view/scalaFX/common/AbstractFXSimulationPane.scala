@@ -18,5 +18,4 @@ private [scalaFX] trait AbstractFXSimulationPane extends Pane with SimulationVie
     * @return the nodes drawed
     */
   def nodes : Map[ID,drawer.OUTPUT_NODE]
-
 }

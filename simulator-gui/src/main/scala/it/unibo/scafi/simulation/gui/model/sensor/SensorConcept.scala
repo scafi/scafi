@@ -9,13 +9,12 @@ trait SensorConcept {
   self : SensorConcept.Dependency =>
   /**
     * sensor is a device that wrap a value
-    * @tparam V the type of value
     */
-  trait Sensor[V] <: self.Device {
+  trait Sensor <: self.Device {
     /**
       * @return the value of sensor
       */
-    def value : V
+    def value[V] : V
 
     /**
       * @return the stream of sensor
@@ -28,14 +27,13 @@ trait SensorConcept {
   /**
     * a mutable sensor, used inside the world to change his state
  *
-    * @tparam V the type of value
     */
   //noinspection AbstractValueInTrait
-  protected trait MutableSensor[V] <: Sensor[V] with RootMutableDevice {
+  protected trait MutableSensor <: Sensor with RootMutableDevice {
     /**
       * the value of sensor can change at run time
       */
-    var value : V
+    def value_=(sens : Any) : Any
 
     /**
       * a marked of sensor type
@@ -47,7 +45,7 @@ trait SensorConcept {
 }
 object SensorConcept {
   type Dependency = AggregateWorld
-  private type MutableSensor = SensorConcept#MutableSensor[Any]
+  private type MutableSensor = SensorConcept#MutableSensor
 
   /**
     * it used to typify a sensor
@@ -65,8 +63,8 @@ object SensorConcept {
     * pattern matching used to verify if an object is a sensor device
     */
   object SensorDevice {
-    def unapply(arg: Any): Option[SensorConcept#Sensor[_ <: Any]] = arg match {
-      case sens : SensorConcept#Sensor[Any] => Some(sens)
+    def unapply(arg: Any): Option[MutableSensor] = arg match {
+      case sens : MutableSensor => Some(sens)
       case _ => None
     }
   }

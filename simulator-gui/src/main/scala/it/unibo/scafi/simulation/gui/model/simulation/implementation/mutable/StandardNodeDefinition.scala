@@ -1,12 +1,13 @@
 package it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable
 
-import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
+import it.unibo.scafi.simulation.gui.model.aggregate.AbstractNodeDefinition
+import it.unibo.scafi.simulation.gui.model.sensor.SensorWorld
 
 /**
   * standard implementation of node
   */
-trait StandardNodeDefinition extends SensorDefinition {
-  self: SensorPlatform =>
+trait StandardNodeDefinition extends SensorDefinition with AbstractNodeDefinition {
+  self: SensorWorld  =>
   override type NODE = Node
 
   override type MUTABLE_NODE = AbstractMutableNode
