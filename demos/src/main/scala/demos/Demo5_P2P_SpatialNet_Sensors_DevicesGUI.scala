@@ -27,10 +27,11 @@ package demos
   * - Command-line configuration
   */
 
-import examples.gui.p2p.DevViewActor
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
-import it.unibo.scafi.distrib.actor.p2p.{SpatialPlatform => SpatialP2PActorPlatform}
 import it.unibo.scafi.space.Point2D
+
+import examples.gui.p2p.{DevViewActor => P2PDevViewActor}
+import it.unibo.scafi.distrib.actor.p2p.{SpatialPlatform => SpatialP2PActorPlatform}
 
 object Demo5_Platform extends BasicAbstractActorIncarnation with SpatialP2PActorPlatform {
   override val LocationSensorName: String = "LOCATION_SENSOR"
@@ -48,11 +49,11 @@ class Demo5_AggregateProgram extends Demo5_Platform.AggregateProgram {
 object Demo5_MainProgram extends Demo5_Platform.CmdLineMain {
   override def refineSettings(s: Demo5_Platform.Settings): Demo5_Platform.Settings = {
     s.copy(profile = s.profile.copy(
-      devGuiActorProps = ref => Some(DevViewActor.props(Demo5_Platform, ref))
+      devGuiActorProps = ref => Some(P2PDevViewActor.props(Demo5_Platform, ref))
     ))
   }
   override def onDeviceStarted(dm: Demo5_Platform.DeviceManager, sys: Demo5_Platform.SystemFacade): Unit = {
-    val devInRow = DevViewActor.DevicesInRow
+    val devInRow = P2PDevViewActor.DevicesInRow
     dm.addSensorValue(Demo5_Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
     dm.addSensorValue("source", dm.selfId==4)
     dm.start

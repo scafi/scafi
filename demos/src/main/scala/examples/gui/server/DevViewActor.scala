@@ -19,7 +19,7 @@
 package examples.gui.server
 
 import akka.actor.{ActorRef, Props}
-import examples.gui.AbstractDevViewActor
+import examples.gui.{DevViewActor => AbstractDevViewActor}
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 
 class DevViewActor(override val I: BasicAbstractActorIncarnation, override var dev: ActorRef)

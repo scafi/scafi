@@ -19,7 +19,7 @@
 package examples.gui.p2p
 
 import akka.actor.{ActorRef, Props}
-import examples.gui.AbstractDevViewActor
+import examples.gui.{DevViewActor => AbstractDevViewActor}
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 
 import scala.concurrent.duration._

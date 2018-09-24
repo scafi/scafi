@@ -18,8 +18,6 @@
 
 package demos
 
-import examples.gui.AbstractDevViewActor
-import examples.gui.server.DevViewActor
 import it.unibo.scafi.space.Point2D
 
 /**
@@ -31,15 +29,17 @@ import it.unibo.scafi.space.Point2D
   * - Command-line configuration
   */
 
+import examples.gui.server.{DevViewActor => ServerBasedDevViewActor}
+
 object Demo4B_MainProgram extends Demo3_Platform.CmdLineMain {
   override def refineSettings(s: Demo3_Platform.Settings): Demo3_Platform.Settings = {
     s.copy(profile = s.profile.copy(
-      devGuiActorProps = ref => Some(DevViewActor.props(Demo3_Platform, ref))
+      devGuiActorProps = ref => Some(ServerBasedDevViewActor.props(Demo3_Platform, ref))
     ))
   }
 
   override def onDeviceStarted(dm: Demo3_Platform.DeviceManager, sys: Demo3_Platform.SystemFacade): Unit = {
-    val devInRow = DevViewActor.DevicesInRow
+    val devInRow = ServerBasedDevViewActor.DevicesInRow
     dm.addSensorValue(Demo3_Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
     dm.addSensorValue("source", dm.selfId==4)
     dm.start

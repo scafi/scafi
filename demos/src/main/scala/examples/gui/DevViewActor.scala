@@ -25,14 +25,14 @@ import it.unibo.scafi.space.Point2D
 import javax.swing._
 import java.awt._
 
-trait AbstractDevViewActor extends Actor {
+trait DevViewActor extends Actor {
   val I: BasicAbstractActorIncarnation
   var dev: ActorRef
   protected var id: I.UID = _
   protected var devsGUIActor: ActorRef = _
   protected val Log = akka.event.Logging(context.system, this)
-  protected var width: Int = AbstractDevViewActor.DefaultWidth
-  protected var height: Int = AbstractDevViewActor.DefaultHeight
+  protected var width: Int = DevViewActor.DefaultWidth
+  protected var height: Int = DevViewActor.DefaultHeight
   protected var devComponent, componentSpot: JComponent = _
   protected var lId, lExport: JLabel = _
 
@@ -50,15 +50,15 @@ trait AbstractDevViewActor extends Actor {
   protected def buildComponent(): Unit = {
     devComponent = new JPanel with DraggableComponent {
       override protected def afterDragging(location: Point): Unit = {
-        val pos = Point2D((location.getX / AbstractDevViewActor.XTranslation).round,
-          (location.getY / AbstractDevViewActor.YTranslation).round)
+        val pos = Point2D((location.getX / DevViewActor.XTranslation).round,
+          (location.getY / DevViewActor.YTranslation).round)
         dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
       }
     }
     devComponent.setLayout(new GridBagLayout())
     devComponent.setVisible(true)
 
-    val customFont: Font = new Font("Arial", Font.BOLD, AbstractDevViewActor.TextSize)
+    val customFont: Font = new Font("Arial", Font.BOLD, DevViewActor.TextSize)
 
     val exportPanel = new JPanel()
     lExport = new JLabel("export")
@@ -101,8 +101,8 @@ trait AbstractDevViewActor extends Actor {
     if (sensorName == "LOCATION_SENSOR") {
       val pos = sensorValue.asInstanceOf[Point2D]
       lExport.setToolTipText("pos:(" + pos.x.toInt + "," + pos.y.toInt + ")")
-      devComponent.setBounds(pos.x.toInt * AbstractDevViewActor.XTranslation, pos.y.toInt * AbstractDevViewActor.YTranslation,
-        AbstractDevViewActor.DefaultWidth, AbstractDevViewActor.DefaultHeight)
+      devComponent.setBounds(pos.x.toInt * DevViewActor.XTranslation, pos.y.toInt * DevViewActor.YTranslation,
+        DevViewActor.DefaultWidth, DevViewActor.DefaultHeight)
       devsGUIActor ! I.MsgDevPosition(dev, pos)
     } else if (sensorName.toString == "source" && sensorValue == true) {
       componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
@@ -117,7 +117,7 @@ trait AbstractDevViewActor extends Actor {
   }
 }
 
-object AbstractDevViewActor {
+object DevViewActor {
   private val DefaultWidth: Int = 80
   private val DefaultHeight: Int = 75
   private val XTranslation: Int = 75
