@@ -12,6 +12,11 @@ import scalafx.scene.paint.Color
   * of computation
   */
 case object GradientFXOutput extends FXOutputPolicy {
+  import WindowConfiguration._
+  private lazy val maxValue = ScalaFXEnvironment.windowConfiguration.w
+  private val maxColor = 360
+  private val saturation = 1
+  private val light = 1
   override type OUTPUT_NODE = javafx.scene.shape.Shape
 
   override def deviceToGraphicsNode(node: OUTPUT_NODE, dev: DEVICE): Option[OUTPUT_NODE] = None
@@ -27,7 +32,7 @@ case object GradientFXOutput extends FXOutputPolicy {
   }
   private implicit def numberToColor(v : Number) : Color  = {
     val doubleValue : Double = v.doubleValue()
-    Color.hsb(doubleValue,1,1)
+    Color.hsb((doubleValue / maxValue) * maxColor,saturation,light)
   }
   override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
 }

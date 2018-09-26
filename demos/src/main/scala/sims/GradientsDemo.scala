@@ -22,11 +22,14 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.FastPolicy
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
+import it.unibo.scafi.simulation.gui.view.OutputPolicy.NoOutput
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutput
 import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
@@ -34,10 +37,12 @@ import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends App {
   ScafiProgramBuilder (
-    Random(50,500,500),
+    Grid(5,400,300),
     SimulationInfo(program = classOf[Gradient]),
-    RadiusSimulation(radius = 140),
-    neighbourRender = true
+    RadiusSimulation(radius = 5),
+    neighbourRender = false,
+    outputPolicy = GradientFXOutput,
+    performance = FastPolicy
   ).launch()
 }
 @Demo

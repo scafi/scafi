@@ -1,13 +1,15 @@
 package it.unibo.scafi.simulation.gui.view.scalaFX.pane
 
+import java.util.function.Predicate
+import javafx.scene.Node
 import javafx.scene.paint.ImagePattern
 
-import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle, Rectangle}
 import it.unibo.scafi.simulation.gui.view.ViewSetting
 import it.unibo.scafi.simulation.gui.view.ViewSetting._
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{AbstractFXSimulationPane, FXSelectionArea, KeyboardManager}
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FXOutputPolicy
 import it.unibo.scafi.simulation.gui.view.scalaFX.{NodeLine, _}
+import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle, Rectangle}
 import it.unibo.scafi.space.{Point3D, Shape}
 
 import scala.collection.mutable
@@ -16,9 +18,11 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Point2D
 import scalafx.scene.image.Image
+import scalafx.scene.layout.Pane
 import scalafx.scene.paint.{Color, Paint}
 
-private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) extends AbstractFXSimulationPane  with FXSelectionArea with KeyboardManager{
+private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
+  extends AbstractFXSimulationPane with FXSelectionArea with KeyboardManager{
   //internal representation of node
   private val _nodes : mutable.Map[ID,drawer.OUTPUT_NODE] = mutable.Map()
   //internal representation of neighbour
@@ -29,6 +33,9 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
   type ACTION = () => Unit
   //a list of changes that are show only when a presenter call flush
   private var changes : List[ACTION] = List.empty
+  //pane used to show network
+  private val network = new Pane
+  this.children.add(network)
 
   private var neighbourToRemove : mutable.ListBuffer[javafx.scene.Node] = ListBuffer()
   def nodes : Map[ID,drawer.OUTPUT_NODE] =_nodes.toMap
@@ -40,21 +47,10 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
       //if the node is already show, the view change the node position
       val n = _nodes(node.id)
       val oldP = nodeToAbsolutePosition(n)
+      val translation = (p.x - oldP.x, p.y - oldP.y)
       val action : ACTION = () => {
-        n.translateX = p.x - oldP.x
-        n.translateY = p.y - oldP.y
-        //update each node line of neighbour to mantain correctness
-        if(neighbours.get(node.id).isDefined) {
-          val map = neighbours(node.id)
-          map.foreach(_._2.update())
-          neighbours(node.id) foreach {x => {
-            neighbours.get(x._1) match {
-              case Some(map : mutable.Map[_,_]) => map foreach {x => x._2.update()}
-              case _ =>
-            }
-          }}
-        }
-
+        n.translateX = translation._1
+        n.translateY = translation._2
       }
       changes = action :: changes
     } else {
@@ -85,17 +81,20 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
       val endGnode = this._nodes(x)
       val link : NodeLine = new NodeLine(gnode,endGnode,lineColor)
       val add = () => {
-        val action : ACTION = () => this.children.add(link)
+        val action : ACTION = () => network.children.add(link)
         changes = action :: changes
       }
       this.neighbours.get(x) match {
         case Some(_) => if(!this.neighbours(x).contains(node._1)) {
           add()
+          //add each new link
+          map.put(x,link)
         }
-        case _ => add()
+        case _ =>
+          add()
+          //add each new link
+          map.put(x,link)
       }
-      //add each new link
-      map.put(x,link)
     }}
   }
 
@@ -155,7 +154,6 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     if(devices.get(node).isDefined && devices(node).get(devName).isDefined) {
       val guiNode = devices(node)(devName)
       devices(node) -= devName
-
       val action : ACTION = () => {
         guiNode.visible = false
         this.children -= guiNode
@@ -172,10 +170,16 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy) 
     Platform.runLater {
       changeToApply foreach {_()}
       if(removing.nonEmpty) {
-        this.children.removeAll(removing:_*)
-        removing.foreach(_.visible = false)
+        //this.network.children.removeAll(removing:_*)
+        removing.foreach(x => {
+          x.visible = false
+          x.managed = false
+        })
+        this.network.children.removeIf(new Predicate[Node] {
+          override def test(t: Node): Boolean = !t.visibleProperty().get()
+        })
+
       }
-      //removing.foreach(_.finalize())
       neighbourToRemove.clear()
     }
   }

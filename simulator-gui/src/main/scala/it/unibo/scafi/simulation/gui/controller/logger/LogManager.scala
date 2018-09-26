@@ -35,7 +35,7 @@ object LogManager extends SimpleSource {
     def acceptChannel(channel : ChannelList) : Unit = this.channelAccepted = channel
 
     override final def update(event: Event): Unit = event match {
-    //verify if the log received can be showed
+      //verify if the log received can be showed
       case log : Log[_] => channelAccepted match {
         case `acceptAll` => processLog(log)
         case acceptThese(set) if set.contains(log.channel) => processLog(log)

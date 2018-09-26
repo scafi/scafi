@@ -23,16 +23,16 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationIni
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutput, StandardFXOutput}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutput
 
 object ChannelDemo extends App {
   ScafiProgramBuilder (
-    Random(1000,500,500),
+    Random(1000,1000,1000),
     SimulationInfo(program = classOf[Channel]),
-    RadiusSimulation(radius = 20),
-    outputPolicy = StandardFXOutput,
-    neighbourRender = true
+    RadiusSimulation(radius = 40),
+    neighbourRender = true,
+    outputPolicy = FastFXOutput
   ).launch()
 }
 

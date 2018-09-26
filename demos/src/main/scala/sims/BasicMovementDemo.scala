@@ -19,30 +19,33 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
-import it.unibo.scafi.simulation.gui.view.WindowConfiguration
-import it.unibo.scafi.simulation.gui.view.scalaFX.ScalaFXEnvironment
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutput
 import lib.{FlockingLib, Movement2DSupport}
 //use -Djavafx.animation.fullspeed=true to increase perfomance
 object BasicMovementDemo extends App {
-
-  ScalaFXEnvironment.windowConfiguration = WindowConfiguration.apply()
-  lazy val size = (1920,1080)
-  val radius = 0
+  import scafiWorld._
+  lazy val size = (1000,1000)
+  val radius = 40
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * this.size._1, tuple._2 * this.size._2)
   ScafiProgramBuilder (
-    Random(20000,1920,1080),
+    Random(1000,500,500),
     SimulationInfo(program = classOf[BasicMovement],
       metaActions = List(MetaActionProducer.movementDtActionProducer),
       exportValutations = List.empty),
     RadiusSimulation(radius),
-    neighbourRender = false,
-    outputPolicy = FastFXOutput
+    neighbourRender = true,
+    outputPolicy = FastFXOutput,
+    scafiWorldInfo = ScafiWorldInformation(deviceSeed = List(LedProducer("sens1",false,SensorConcept.sensorInput),
+      LedProducer("sens3",false,SensorConcept.sensorInput))),
+    performance = NearRealTimePolicy
   ).launch()
 }
 

@@ -19,14 +19,17 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.simulation.gui.configuration.SensorName
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.SenseImageFXOutput
 import lib.{FlockingLib, Movement2DSupport}
 
 object SupplyRescue extends App {
+  SenseImageFXOutput.addRepresentation(SensorName.sensor1, "icon.png")
   val worldSize = (500,500)
   val simRadius = 100
   def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
@@ -34,7 +37,8 @@ object SupplyRescue extends App {
     Random(100,worldSize._1,worldSize._1),
     SimulationInfo(program = classOf[SupplyRescueDemo], metaActions = List(MetaActionProducer.movementDtActionProducer),exportValutations = List.empty),
     RadiusSimulation(simRadius),
-    neighbourRender = true
+    neighbourRender = true,
+    outputPolicy = SenseImageFXOutput
   ).launch()
 }
 
@@ -49,17 +53,15 @@ object SupplyRescue extends App {
 
 @Demo(simulationType = SimulationType.MOVEMENT)
 class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
-
-  override def main():(Double, Double) = SupplyRescue.tupleToWorldSize(rep({
-    (0.0, 0.0)
-  }, true)(behavior)._1)
+  private val base = (250.0,250.0)
+  override def main():(Double, Double) = SupplyRescue.tupleToWorldSize(rep({(0.0, 0.0)}, true)(behavior)._1)
 
   private def behavior(tuple: ((Double,Double), Boolean)): ((Double,Double), Boolean) = {
     mux(sense1){
       mux(tuple._2){
         var grad = distanceTo(sense3)
         mux(distanceTo(sense4) < 9){
-          (goToPoint(0.5,0.5), false)
+          (goToPoint(base), false)
         } {
           mux(grad > 100) {
             ((0.0,0.0), tuple._2)
@@ -72,14 +74,14 @@ class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with Floc
           }
         }
       }{
-        (goToPoint(0.5,0.5), tuple._2)
+        (goToPoint(base), tuple._2)
       }
     }{
       mux(sense3){
         branch(distanceTo(sense4) > 5){
           mux(timer(600.0))
           {
-            (goToPointWithSeparation((0.5,0.5), 0.02), tuple._2)
+            (goToPointWithSeparation((base), 0.02), tuple._2)
           } {
             (movement(tuple._1), tuple._2)
           }
@@ -90,7 +92,7 @@ class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with Floc
       {
         mux(sense4)
         {
-          (goToPoint(0.5,0.5), tuple._2)
+          (goToPoint(base), tuple._2)
         } {
           (flock(tuple._1, Seq(sense1), Seq(sense2), 0.01, 0.0, 0.0, 3.0, 0.0), tuple._2)
         }

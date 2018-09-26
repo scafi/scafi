@@ -3,7 +3,6 @@ package it.unibo.scafi.simulation.gui.view
 import it.unibo.scafi.simulation.gui.configuration.SensorName
 
 import scalafx.scene.paint.Color
-
 /**
   * a setting using to display nodes
   */

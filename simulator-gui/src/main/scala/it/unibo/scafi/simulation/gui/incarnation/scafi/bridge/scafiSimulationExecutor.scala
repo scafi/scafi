@@ -77,5 +77,3 @@ object scafiSimulationExecutor extends ScafiBridge {
     }
   }
 }
-
-
