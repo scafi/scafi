@@ -302,6 +302,22 @@ trait PlatformSettings { self: Platform.Subcomponent =>
           }))
       } } text ("Neighbors")
 
+      opt[String]('r', "elements-range") valueName
+        ("<ID1>to<IDn>") action { (x, c) => {
+        var parsedIds = Set[String]()
+        val edges: Array[String] = x.split("to")
+        val start: Int = edges(0).toInt
+        val end: Int = edges(1).toInt
+
+        for (i <- start to end) {
+          parsedIds = parsedIds + i.toString
+        }
+
+        c.copy(deviceConfig = c.deviceConfig.copy(
+          ids = parsedIds.map(interopUID.fromString(_))
+        ))
+      } } text ("Elements range")
+
       //note("some notes.\n")
       help("help") text ("prints this usage text")
     }

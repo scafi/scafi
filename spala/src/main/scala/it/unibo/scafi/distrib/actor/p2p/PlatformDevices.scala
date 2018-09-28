@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.distrib.actor.p2p
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 
 import scala.util.{Failure, Success}
 import scala.concurrent.duration._
@@ -30,6 +30,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    */
   trait P2pNbrManagementBehavior extends BaseNbrManagementBehavior { selfActor: Actor =>
     def neighbourhoodManagementBehavior: Receive = {
+      case MsgNeighborhoodUpdate(_, nbs) => replaceNeighborhood(nbs)
       case info @ NbrInfo(idn,_,_,_) => mergeNeighborInfo(idn,info)
       case MsgDeviceLocation(idn, ref) => mergeNeighborInfo(idn,NbrInfo(idn,None,Some(ref),None))
       case MsgExport(from, export) => {
@@ -41,6 +42,14 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     override def inputManagementBehavior: Receive =
       super.inputManagementBehavior.orElse(neighbourhoodManagementBehavior)
+
+    def replaceNeighborhood(neighbors: Map[UID, ActorRef]): Unit = {
+      logger.debug(s"\nUpdating neighborhood with neighbors $neighbors")
+
+      this.nbrs.keySet.diff(neighbors.keySet).foreach(removeNeighbor)
+      neighbors.keySet.diff(this.nbrs.keySet).foreach(
+        nbr => this.nbrs += nbr -> NbrInfo(nbr,None,Some(neighbors(nbr))))
+    }
   }
 
   /**
@@ -53,6 +62,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
                     override var execScope: ExecScope)
     extends DynamicComputationDeviceActor
     with MissingCodeManagementBehavior
+    with ObservableDeviceActor
     with P2pNbrManagementBehavior {
 
     def propagateExportToNeighbors(export: ComputationExport): Unit = {

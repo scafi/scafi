@@ -78,7 +78,9 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
       devices += id -> dm
 
       if(deviceGui){
+        DevicesGUI.setupGui(actorSys)
         val devGuiActor = actorSys.actorOf(deviceGuiProps(dm.actorRef))
+        devGuiActor ! MsgDevsGUIActor(DevicesGUI.actor.get)
         dm.actorRef ! MsgAddObserver(devGuiActor)
       }
 

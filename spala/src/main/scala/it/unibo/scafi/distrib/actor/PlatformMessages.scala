@@ -20,7 +20,9 @@ package it.unibo.scafi.distrib.actor
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.{Props, ActorRef}
+import akka.actor.{ActorRef, Props}
+import it.unibo.scafi.space.Point2D
+import javax.swing.JComponent
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -66,5 +68,12 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   val MsgGetExport = "msg_get_export".hashCode
   val MsgGetNeighbors = "msg_get_neighbors".hashCode
   case class Ack(id: UID)
+
+  // View messages
+  case class MsgDevsGUIActor(devsGuiActor: ActorRef)
+  case class MsgAddDevComponent(ref: ActorRef, devComponent: JComponent)
+  case class MsgDevName(ref: ActorRef, id: UID)
+  case class MsgDevPosition(ref: ActorRef, pos: Point2D)
+  case class MsgNeighborhoodUpdate(id: UID, nbrs: Map[UID, ActorRef])
 
 }
