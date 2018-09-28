@@ -31,8 +31,6 @@ trait DevViewActor extends Actor {
   protected var id: I.UID = _
   protected var devsGUIActor: ActorRef = _
   protected val Log = akka.event.Logging(context.system, this)
-  protected var width: Int = DevViewActor.DefaultWidth
-  protected var height: Int = DevViewActor.DefaultHeight
   protected var devComponent, componentSpot: JComponent = _
   protected var lId, lExport: JLabel = _
 
@@ -50,8 +48,8 @@ trait DevViewActor extends Actor {
   protected def buildComponent(): Unit = {
     devComponent = new JPanel with DraggableComponent {
       override protected def afterDragging(location: Point): Unit = {
-        val pos = Point2D((location.getX / DevViewActor.XTranslation).round,
-          (location.getY / DevViewActor.YTranslation).round)
+        val pos = Point2D((location.getX / DevViewActor.Width).round,
+          (location.getY / DevViewActor.Height).round)
         dev ! I.MsgLocalSensorValue("LOCATION_SENSOR", pos)
       }
     }
@@ -76,7 +74,7 @@ trait DevViewActor extends Actor {
     cbc.fill = GridBagConstraints.HORIZONTAL
     devComponent.add(exportPanel, cbc)
     cbc.gridy = 1
-    cbc.ipady = 30
+    cbc.ipady = DevViewActor.Width / 3
     devComponent.add(componentSpot, cbc)
   }
 
@@ -101,8 +99,8 @@ trait DevViewActor extends Actor {
     if (sensorName == "LOCATION_SENSOR") {
       val pos = sensorValue.asInstanceOf[Point2D]
       lExport.setToolTipText("pos:(" + pos.x.toInt + "," + pos.y.toInt + ")")
-      devComponent.setBounds(pos.x.toInt * DevViewActor.XTranslation, pos.y.toInt * DevViewActor.YTranslation,
-        DevViewActor.DefaultWidth, DevViewActor.DefaultHeight)
+      devComponent.setBounds(pos.x.toInt * DevViewActor.Width, pos.y.toInt * DevViewActor.Height,
+        DevViewActor.Width, DevViewActor.Height)
       devsGUIActor ! I.MsgDevPosition(dev, pos)
     } else if (sensorName.toString == "source" && sensorValue == true) {
       componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
@@ -118,10 +116,8 @@ trait DevViewActor extends Actor {
 }
 
 object DevViewActor {
-  private val DefaultWidth: Int = 80
-  private val DefaultHeight: Int = 75
-  private val XTranslation: Int = 75
-  private val YTranslation: Int = 85
+  val Width: Int = 70
+  val Height: Int = 70
   private val TextSize: Int = 11
-  val DevicesInRow: Int = (Toolkit.getDefaultToolkit.getScreenSize.getWidth / DefaultWidth).toInt
+  val DevicesInRow: Int = (Toolkit.getDefaultToolkit.getScreenSize.getWidth / Width).toInt
 }
