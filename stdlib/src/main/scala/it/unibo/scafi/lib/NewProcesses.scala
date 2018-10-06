@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_NewProcesses {
+trait StdLib_NewProcesses {
   self: StandardLibrary.Subcomponent =>
 
   trait Spawn {

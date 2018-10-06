@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_Processes {
+trait StdLib_Processes {
   self: StandardLibrary.Subcomponent =>
 
   /**

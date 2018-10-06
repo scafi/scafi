@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_BuildingBlocks {
+trait StdLib_BuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
   trait BuildingBlocks extends BlockG with BlockC with BlockS with BlockT with BlocksWithGC {

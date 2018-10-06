@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_TypeClasses {
+trait StdLib_TypeClasses {
   self: StandardLibrary.Subcomponent =>
 
   object BoundedTypeClasses {

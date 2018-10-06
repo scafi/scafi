@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_BlocksWithGC {
+trait StdLib_BlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
   trait BlocksWithGC {

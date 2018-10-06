@@ -21,19 +21,19 @@ package it.unibo.scafi.lib
 import it.unibo.scafi.incarnations.Incarnation
 
 trait StandardLibrary extends
-         Stdlib_BlockG
-    with Stdlib_BlockC
-    with Stdlib_BlockS
-    with Stdlib_BlocksWithGC
-    with Stdlib_BuildingBlocks
+         StdLib_BlockG
+    with StdLib_BlockC
+    with StdLib_BlockS
+    with StdLib_BlocksWithGC
+    with StdLib_BuildingBlocks
     with StdLib_ExplicitFields
     with StdLib_FieldUtils
     with StdLib_TimeUtils
     with StdLib_StateManagement
     with StdLib_GenericUtils
-    with Stdlib_TypeClasses
-    with Stdlib_Processes
-    with Stdlib_NewProcesses { self: Incarnation => }
+    with StdLib_TypeClasses
+    with StdLib_Processes
+    with StdLib_NewProcesses { self: Incarnation => }
 
 object StandardLibrary {
   type Subcomponent = StandardLibrary with Incarnation

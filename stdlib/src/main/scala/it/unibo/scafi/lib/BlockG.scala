@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_BlockG {
+trait StdLib_BlockG {
   self: StandardLibrary.Subcomponent =>
 
   // scalastyle:off method.name
