@@ -20,25 +20,40 @@ package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.configuration.SensorName
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.view.ViewSetting
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.SenseImageFXOutput
+import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle, Polygon}
+import it.unibo.scafi.space.{Point2D, SpatialAbstraction}
 import lib.{FlockingLib, Movement2DSupport}
 
+import scalafx.scene.paint.Color
+
 object SupplyRescue extends App {
-  SenseImageFXOutput.addRepresentation(SensorName.sensor1, "icon.png")
-  val worldSize = (500,500)
-  val simRadius = 100
-  def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
+  ViewSetting.backgroundColor = Color.Beige
+  SenseImageFXOutput.addRepresentation(SensorName.sensor1, "file:///C:/Users/paggi/Desktop/human.png")
+  SenseImageFXOutput.addRepresentation(SensorName.sensor3, "file:///C:/Users/paggi/Desktop/robot.png")
+  SenseImageFXOutput.addRepresentation(SensorName.sensor4, "file:///C:/Users/paggi/Desktop/safe.png")
+  import SizeConversion._
+  val externalBound = Polygon(orientation = 0, Point2D(0,0), Point2D(400,0),Point2D(400,200),Point2D(700,200),Point2D(700,0),
+    Point2D(1400,0),Point2D(1400,1100),Point2D(400,1100), Point2D(400,900),Point2D(0,900))
+  val worldBound = SpatialAbstraction.Bound(externalBound)
+  worldSize = (2000,2000)
+  val simRadius = 500
   ScafiProgramBuilder (
-    Random(100,worldSize._1,worldSize._1),
+    Random(50,worldSize._1.toInt,worldSize._1.toInt),
     SimulationInfo(program = classOf[SupplyRescueDemo], metaActions = List(MetaActionProducer.movementDtActionProducer),exportValutations = List.empty),
     RadiusSimulation(simRadius),
     neighbourRender = true,
-    outputPolicy = SenseImageFXOutput
+    scafiWorldInfo = ScafiWorldInformation(boundary = Some(worldBound),
+      shape = Some(Circle(20))),
+    outputPolicy = SenseImageFXOutput,
+    performance = NearRealTimePolicy
   ).launch()
 }
 
@@ -53,17 +68,17 @@ object SupplyRescue extends App {
 
 @Demo(simulationType = SimulationType.MOVEMENT)
 class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
-  private val base = (250.0,250.0)
-  override def main():(Double, Double) = SupplyRescue.tupleToWorldSize(rep({(0.0, 0.0)}, true)(behavior)._1)
+  private val base = (1300.0,400.0)
+  override def main():(Double, Double) = SizeConversion.normalSizeToWorldSize(rep({(0.0, 0.0)}, true)(behavior)._1)
 
   private def behavior(tuple: ((Double,Double), Boolean)): ((Double,Double), Boolean) = {
     mux(sense1){
       mux(tuple._2){
         var grad = distanceTo(sense3)
-        mux(distanceTo(sense4) < 9){
+        mux(distanceTo(sense4) < 25){
           (goToPoint(base), false)
         } {
-          mux(grad > 100) {
+          mux(grad > 400) {
             ((0.0,0.0), tuple._2)
           } {
             mux(grad > 9){
@@ -81,7 +96,7 @@ class SupplyRescueDemo extends AggregateProgram with SensorDefinitions with Floc
         branch(distanceTo(sense4) > 5){
           mux(timer(600.0))
           {
-            (goToPointWithSeparation((base), 0.02), tuple._2)
+            (goToPointWithSeparation((base), 0.1), tuple._2)
           } {
             (movement(tuple._1), tuple._2)
           }

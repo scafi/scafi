@@ -1,13 +1,15 @@
 package it.unibo.scafi.simulation.gui.model.simulation.implementation.mutable
 
 import it.unibo.scafi.simulation.gui.model.aggregate.AbstractNodeDefinition
+import it.unibo.scafi.simulation.gui.model.aggregate.AggregateEvent.NodeDeviceAdded
 import it.unibo.scafi.simulation.gui.model.sensor.SensorWorld
+import it.unibo.utils.observer.Source
 
 /**
   * standard implementation of node
   */
 trait StandardNodeDefinition extends SensorDefinition with AbstractNodeDefinition {
-  self: SensorWorld  =>
+  self: SensorWorld with Source =>
   override type NODE = Node
 
   override type MUTABLE_NODE = AbstractMutableNode
@@ -59,7 +61,14 @@ trait StandardNodeDefinition extends SensorDefinition with AbstractNodeDefinitio
 
     override def build(): AbstractMutableNode = {
       val node = new StandardNode(id,position,shape)
-      producer map {_.build} foreach {node.addDevice(_)}
+      producer map {_.build} foreach {x =>
+        node.addDevice(x)
+        /*x.value[Any] match {
+          case true =>  self.notify(DeviceEvent(node.id,x.name,NodeDeviceAdded))
+          case "" => self.notify(DeviceEvent(node.id,x.name,NodeDeviceAdded))
+          case _ => self.notify(DeviceEvent(node.id,x.name,NodeDeviceAdded))
+        }*/
+      }
       node
     }
   }

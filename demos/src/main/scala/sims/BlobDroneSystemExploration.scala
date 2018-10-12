@@ -19,23 +19,38 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.simulation.gui.configuration.SensorName
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.view.ViewSetting
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutput, SenseImageFXOutput}
+import it.unibo.scafi.space.SpatialAbstraction
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
 import lib.{FlockingLib, Movement2DSupport}
 
 object BlobDroneSystemExploration extends App {
-  val worldSize = (500,500)
-  val radius = 40
-  def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * worldSize._1, tuple._2 * worldSize._2)
+  import SizeConversion._
+  ViewSetting.backgroundImage = Some("file:///C:/Users/paggi/Desktop/background.PNG")
+  SenseImageFXOutput.addRepresentation(SensorName.sensor1, "drone.gif")
+  SenseImageFXOutput.addRepresentation(SensorName.sensor3, "file:///C:/Users/paggi/Desktop/antenna.png")
+  worldSize = (1120,780)
+  val radius = 100
   ScafiProgramBuilder (
-    Random(500,worldSize._1,worldSize._1),
-    SimulationInfo(program = classOf[BlobDroneSystemExplorationDemo], metaActions = List(MetaActionProducer.movementDtActionProducer),
+    Random(100,worldSize._1.toInt,worldSize._2.toInt),
+    SimulationInfo(program = classOf[BlobDroneSystemExplorationDemo],
+      metaActions = List(MetaActionProducer.movementDtActionProducer),
       exportValutations = List.empty),
     RadiusSimulation(radius),
-    neighbourRender = true
+    scafiWorldInfo = ScafiWorldInformation(
+      boundary = Some(SpatialAbstraction.Bound(Rectangle(worldSize._1.toFloat,worldSize._2.toFloat))),
+      shape = Some(Rectangle(20,20))),
+    neighbourRender = true,
+    performance = NearRealTimePolicy,
+    outputPolicy = SenseImageFXOutput
   ).launch()
 }
 
@@ -50,7 +65,7 @@ object BlobDroneSystemExploration extends App {
 
 @Demo(simulationType = SimulationType.MOVEMENT)
 class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
-
+  import SizeConversion._
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0
   private val repulsionForce: Double = 80.0
@@ -61,7 +76,7 @@ class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinit
   private val neighboursThr = 4
 
 
-  override def main(): (Double, Double) = BlobDroneSystemExploration.tupleToWorldSize(rep(randomMovement(), (0.5,0.5))(behaviour)._1)
+  override def main(): (Double, Double) = SizeConversion.normalSizeToWorldSize(rep(randomMovement(), (0.5,0.5))(behaviour)._1)
 
   private def flockWithBase(myTuple: ((Double, Double),(Double,Double))): ((Double, Double),(Double,Double)) = {
     val myPosition = currentPosition()
@@ -75,7 +90,7 @@ class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinit
     } {
       val flockVector = flock(myTuple._1, Seq(sense1), Seq(sense2), repulsionRange, attractionForce, alignmentForce, repulsionForce, obstacleForce)
 
-      mux(basePosition._1 > 1.0 | basePosition._2 > 1.0 | (basePosition._1 == 0.0 & basePosition._2 == 0.0)) {
+      mux(basePosition._1 > worldSize._1 | basePosition._2 > worldSize._2 | (basePosition._1 == 0.0 & basePosition._2 == 0.0)) {
         ((flockVector._1, flockVector._2), myTuple._2)
       } {
         ((flockVector._1, flockVector._2), basePosition)
@@ -95,7 +110,7 @@ class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinit
       }
       {
         val fv = flock(tuple._1, Seq(sense1), Seq(sense2), repulsionRange, 0.0, 0.0, repulsionForce, 0.0)
-        (fv, (0.5,0.5))
+        (fv, (250,250))
       }
     }
   }

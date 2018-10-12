@@ -20,17 +20,21 @@ package sims
 
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.simulation.gui.launcher.scafi.{ListDemo, Console => ScafiConsole, GraphicsLauncher => ScafiGraphicsLauncher}
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutput
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Circle
 
 
 object DemoLauncher extends App {
   ScafiProgramBuilder (
-    Random(500,500,500),
+    Random(5000,1920,1080),
     SimulationInfo(program = classOf[Main]),
     RadiusSimulation(radius = 40),
-    neighbourRender = true
+    neighbourRender = true,
+    scafiWorldInfo = ScafiWorldInformation(shape = Some(Circle(4))),
+    outputPolicy = FastFXOutput
   ).launch()
 }
 

@@ -21,7 +21,6 @@ package sims
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
 trait SensorDefinitions extends StandardSensors { self: AggregateProgram =>
-
   import it.unibo.scafi.simulation.gui.configuration.SensorName._
   def sense1 = sense[Boolean](sensor1)
   def sense2 = sense[Boolean](sensor2)

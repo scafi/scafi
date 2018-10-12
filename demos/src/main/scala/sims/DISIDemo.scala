@@ -23,13 +23,13 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationIni
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 
 object DISIDemo extends App {
   ScafiProgramBuilder (
-    Random(50,500,500),
-    SimulationInfo(program = classOf[Main]),
-    RadiusSimulation(radius = 140),
+    Grid(50,10,10),
+    SimulationInfo(program = classOf[Main6]),
+    RadiusSimulation(radius = 50),
     neighbourRender = true
   ).launch()
 }

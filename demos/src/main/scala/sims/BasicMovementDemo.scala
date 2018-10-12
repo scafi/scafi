@@ -31,20 +31,17 @@ import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutput
 import lib.{FlockingLib, Movement2DSupport}
 //use -Djavafx.animation.fullspeed=true to increase perfomance
 object BasicMovementDemo extends App {
-  import scafiWorld._
-  lazy val size = (1000,1000)
+  import SizeConversion._
+  worldSize = (1000,1000)
   val radius = 40
-  def tupleToWorldSize(tuple : (Double,Double)) = (tuple._1 * this.size._1, tuple._2 * this.size._2)
   ScafiProgramBuilder (
-    Random(1000,500,500),
+    Random(1000,worldSize._1.toInt,worldSize._2.toInt),
     SimulationInfo(program = classOf[BasicMovement],
       metaActions = List(MetaActionProducer.movementDtActionProducer),
       exportValutations = List.empty),
     RadiusSimulation(radius),
     neighbourRender = true,
     outputPolicy = FastFXOutput,
-    scafiWorldInfo = ScafiWorldInformation(deviceSeed = List(LedProducer("sens1",false,SensorConcept.sensorInput),
-      LedProducer("sens3",false,SensorConcept.sensorInput))),
     performance = NearRealTimePolicy
   ).launch()
 }
@@ -58,7 +55,7 @@ class BasicMovement extends AggregateProgram with SensorDefinitions with Flockin
   private val repulsionRange: Double = BasicMovementDemo.radius * 60.0 / 200
   private val obstacleForce: Double = 400.0
 
-  override def main:(Double, Double) = BasicMovementDemo.tupleToWorldSize(rep(randomMovement())(behaviour1))
+  override def main:(Double, Double) = SizeConversion.normalSizeToWorldSize(rep(randomMovement())(behaviour1))
 
   private def behaviour1(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {

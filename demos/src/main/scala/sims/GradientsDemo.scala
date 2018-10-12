@@ -22,27 +22,29 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.FastPolicy
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.{FastPolicy, NearRealTimePolicy}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.{Grid, Random}
 import it.unibo.scafi.simulation.gui.view.OutputPolicy.NoOutput
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutput
 import it.unibo.scafi.space.Point3D
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Circle
 import sims.DoubleUtils.Precision
 
 import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends App {
   ScafiProgramBuilder (
-    Grid(5,400,300),
+    Grid(10,100,100),
     SimulationInfo(program = classOf[Gradient]),
-    RadiusSimulation(radius = 5),
+    RadiusSimulation(radius = 17),
     neighbourRender = false,
     outputPolicy = GradientFXOutput,
-    performance = FastPolicy
+    performance = NearRealTimePolicy,
+    scafiWorldInfo = ScafiWorldInformation(shape = Some(Circle(5)))
   ).launch()
 }
 @Demo

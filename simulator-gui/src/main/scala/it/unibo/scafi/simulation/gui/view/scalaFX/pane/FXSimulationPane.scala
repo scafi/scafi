@@ -4,6 +4,7 @@ import java.util.function.Predicate
 import javafx.scene.Node
 import javafx.scene.paint.ImagePattern
 
+import com.sun.javafx.binding.ExpressionHelper
 import it.unibo.scafi.simulation.gui.view.ViewSetting
 import it.unibo.scafi.simulation.gui.view.ViewSetting._
 import it.unibo.scafi.simulation.gui.view.scalaFX.common.{AbstractFXSimulationPane, FXSelectionArea, KeyboardManager}
@@ -22,7 +23,9 @@ import scalafx.scene.layout.Pane
 import scalafx.scene.paint.{Color, Paint}
 
 private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
-  extends AbstractFXSimulationPane with FXSelectionArea with KeyboardManager{
+  extends AbstractFXSimulationPane with FXSelectionArea with KeyboardManager {
+  //layer used to put background
+  private val zeroLayer = 0
   //internal representation of node
   private val _nodes : mutable.Map[ID,drawer.OUTPUT_NODE] = mutable.Map()
   //internal representation of neighbour
@@ -37,7 +40,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
   private val network = new Pane
   this.children.add(network)
 
-  private var neighbourToRemove : mutable.ListBuffer[javafx.scene.Node] = ListBuffer()
+  private var neighbourToRemove : mutable.ListBuffer[NodeLine] = ListBuffer()
   def nodes : Map[ID,drawer.OUTPUT_NODE] =_nodes.toMap
 
   override def outNode(node: NODE): Unit = {
@@ -99,7 +102,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
   }
 
   def removeNeighbour(nodes : (ID,Set[_ <: ID])) : Unit = {
-    var nodeToRemove : List[javafx.scene.Node] = List()
+    var nodeToRemove : List[NodeLine] = List()
     //utility method used to remove a neigbour
     def erase(start: ID, end: ID): Unit = {
       //take the neighbour of current node
@@ -171,10 +174,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
       changeToApply foreach {_()}
       if(removing.nonEmpty) {
         //this.network.children.removeAll(removing:_*)
-        removing.foreach(x => {
-          x.visible = false
-          x.managed = false
-        })
+        removing.foreach(_.unbind())
         this.network.children.removeIf(new Predicate[Node] {
           override def test(t: Node): Boolean = !t.visibleProperty().get()
         })
@@ -197,7 +197,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
       case _ => ViewSetting.backgroundColor
     }
     shape.fill = fill
-    Platform.runLater { this.children.add(shape)}
+    Platform.runLater { this.children.add(zeroLayer,shape)}
   }
 
   override def walls_=(walls : Seq[(Shape, Point3D)]) : Unit = {

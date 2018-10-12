@@ -19,20 +19,24 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins}
+import it.unibo.scafi.simulation.gui.configuration.environment.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutput
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.{FastFXOutput, StandardFXOutput}
+import it.unibo.scafi.space.graphics2D.BasicShape2D.Circle
 
 object ChannelDemo extends App {
   ScafiProgramBuilder (
-    Random(1000,1000,1000),
+    Random(500,1920,1080),
     SimulationInfo(program = classOf[Channel]),
-    RadiusSimulation(radius = 40),
+    RadiusSimulation(radius = 140),
     neighbourRender = true,
-    outputPolicy = FastFXOutput
+    outputPolicy = FastFXOutput,
+    scafiWorldInfo =
+      ScafiWorldInformation(shape = Some(Circle(5)))
   ).launch()
 }
 
@@ -50,6 +54,8 @@ class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
 
   override def main() = branch(sense3){false}{channel(sense1, sense2, 1)}
 }
+
+
 @Demo
 class SelfContainedChannel extends AggregateProgram with SensorDefinitions {
   override def main() = branch(sense3){false}{channel(sense1, sense2, 5)}

@@ -13,6 +13,7 @@ import scalafx.scene.input.{MouseButton, MouseEvent}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Circle
 import scalafx.Includes._
+import scalafx.scene.layout.Pane
 
 /**
   * the logic of selection a set of node
@@ -25,6 +26,8 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
   private val radiusProperty : DoubleProperty = DoubleProperty(0)
   private var circle : Option[Circle] = None
   private var startDragging = false
+  private val selectionPane = new Pane
+  self.children.add(selectionPane)
   this.handleEvent(MouseEvent.Any){
   me : MouseEvent =>
     if(me.button == MouseButton.Primary) {
@@ -54,7 +57,7 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
               this.fill = FXSelectionArea.CircleColor
               this.stroke = Color.Black
             })
-            this.children.add(circle.get)
+            selectionPane.children.add(circle.get)
           }
           if(!startDragging) {
             radiusProperty.value = startPoint.distance(pointClick)
@@ -72,7 +75,7 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
               x._2.translateY.bind(circle.get.translateY)
               x._2.opacity = FXSelectionArea.ClonedOpacity
             })
-            this.moved.values foreach {x => this.children += x}
+            this.moved.values foreach {x => selectionPane.children += x}
             this._selected = this.moved.keySet
           } else if(this.moved.nonEmpty && (this.circle.get.translateX.value != 0 || this.circle.get.translateY.value != 0)) {
             val toMove = moved.map {x => x._1 -> view.scalaFX.nodeToPosition(x._2)} map {x => x._1 -> pointToWorldPosition(x._2)}
@@ -91,11 +94,10 @@ private [scalaFX] trait FXSelectionArea extends AbstractSelectionArea {
     this.circle match {
       case Some(c) =>
         this._selected = Set.empty
-        this.children.remove(c)
+        selectionPane.children.remove(c)
         this.circle = None
-        val nodeToRemove = this.moved.values.map{x => x.delegate}.toSeq
         Platform.runLater {
-          this.children.removeAll(nodeToRemove:_*)
+          selectionPane.children.clear()
           this.moved = Map.empty
         }
       case _ =>
