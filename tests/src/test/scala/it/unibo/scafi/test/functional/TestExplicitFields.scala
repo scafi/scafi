@@ -42,8 +42,8 @@ class TestExplicitFields extends FlatSpec with Matchers {
   private[this] trait TestLib { self: AggregateProgram with ExplicitFields with StandardSensors =>
     import scala.math.Numeric._
 
-    def gradient(source: Boolean): Double =
-      rep(Double.MaxValue){
+    def gradient(source: Field[Boolean]): Field[Double] =
+      rep(Double.MaxValue){ // automatic local-to-field conversion
         d => mux(source) { 0.0 } {
           (fnbr(d) + fsns(nbrRange)).minHoodPlus
         }
@@ -63,7 +63,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
   ExplicitFields should "support construction of gradients" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
-      override def main() = gradient(sense[Boolean](SRC)) + 1
+      override def main(): Double = gradient(sense[Boolean](SRC)) + 1
     }, ntimes = fewRounds)(net)
 
     // ASSERT
