@@ -126,7 +126,7 @@ trait RichLanguage extends Language { self: Core =>
         override def lteq(x: T, y: T): Boolean = b.compare(x,y) <= 0
       }
 
-      val pogldouble: PartialOrderingWithGLB[Double] =
+      implicit val pogldouble: PartialOrderingWithGLB[Double] =
         new PartialOrderingWithGLB[Double] {
           override def gle(x: Double, y: Double): Double = Math.min(x,y)
           override def tryCompare(x: Double, y: Double): Option[Int] = None
