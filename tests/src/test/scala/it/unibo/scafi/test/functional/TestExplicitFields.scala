@@ -50,50 +50,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
       }
   }
 
-  private[this] class GradientProgram extends AggregateProgram with ExplicitFields with StandardSensors with TestLib {
-    override def main() = gradient(sense[Boolean](SRC)) + 1
-  }
-
-  private[this] class PartitionProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override def main() = branch(sense[Boolean](FLAG)){
-      fnbr(1.0).withoutSelf
-    }{
-      fnbr(-1.0)
-    }.fold(0.0)(_ + _)
-  }
-
-  private[this] class DomainMismatchProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override def main(): Double = {
-      val f1 = branch(sense[Boolean](FLAG)){ fnbr(1.0).withoutSelf }{ fnbr(-1.0) }
-      val f2 = branch(sense[Boolean](SRC)){ fnbr(10.0) }{ fnbr(0.0) }
-      (f1.map2(f2)(_ + _)).fold(0.0)(_ + _)
-    }
-  }
-
-  private[this] class DomainWithDefaultsProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override def main(): Map[ID,String] = {
-      val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
-      val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
-      (f1.map2d(f2)("x")(_ + _)).toMap
-    }
-  }
-
-  private[this] class DomainUnionProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override def main(): Map[ID,String] = {
-      val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
-      val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
-      (f1.map2u(f2)("x","w")(_ + _)).toMap
-    }
-  }
-
-  private[this] class DomainRestrictionProgram extends AggregateProgram with ExplicitFields with StandardSensors {
-    override def main(): String = {
-      val phi: Field[String] = fnbr(if(sense[Boolean](FLAG)) "a" else "b")
-      val f1 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted }
-      val f2 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted.toUpperCase }
-      (mux(mid%3==0){ f1 }{ f2 })(phi)
-    }
-  }
+  private[this] trait TestProgram extends AggregateProgram with ExplicitFields with StandardSensors with TestLib
 
   def SetupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(SRC, false)
@@ -105,7 +62,9 @@ class TestExplicitFields extends FlatSpec with Matchers {
 
   ExplicitFields should "support construction of gradients" in new SimulationContextFixture {
     // ACT
-    exec(new GradientProgram, ntimes = fewRounds)(net)
+    exec(new TestProgram {
+      override def main() = gradient(sense[Boolean](SRC)) + 1
+    }, ntimes = fewRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -117,7 +76,13 @@ class TestExplicitFields extends FlatSpec with Matchers {
 
   ExplicitFields should "allow going from smaller to larger domains" in new SimulationContextFixture {
     // ACT
-    exec(new PartitionProgram, ntimes = fewRounds)(net)
+    exec(new TestProgram {
+      override def main() = branch(sense[Boolean](FLAG)){
+        fnbr(1.0).withoutSelf
+      }{
+        fnbr(-1.0)
+      }.fold(0.0)(_ + _)
+    }, ntimes = fewRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -128,12 +93,24 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   ExplicitFields should "deal with domain mismatches" in new SimulationContextFixture {
-    an [Exception] should be thrownBy exec(new DomainMismatchProgram, ntimes = fewRounds)(net)
+    an [Exception] should be thrownBy exec(new TestProgram {
+      override def main(): Double = {
+        val f1 = branch(sense[Boolean](FLAG)){ fnbr(1.0).withoutSelf }{ fnbr(-1.0) }
+        val f2 = branch(sense[Boolean](SRC)){ fnbr(10.0) }{ fnbr(0.0) }
+        (f1.map2(f2)(_ + _)).fold(0.0)(_ + _)
+      }
+    }, ntimes = fewRounds)(net)
   }
 
   ExplicitFields should "support defaults to deal with domain mismatches" in new SimulationContextFixture {
     // ACT
-    exec(new DomainWithDefaultsProgram, ntimes = fewRounds)(net)
+    exec(new TestProgram {
+      override def main(): Map[ID,String] = {
+        val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
+        val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
+        (f1.map2d(f2)("x")(_ + _)).toMap
+      }
+    }, ntimes = fewRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -145,7 +122,13 @@ class TestExplicitFields extends FlatSpec with Matchers {
 
   ExplicitFields should "support defaults on both sides to deal with domain mismatches" in new SimulationContextFixture {
     // ACT
-    exec(new DomainUnionProgram, ntimes = fewRounds)(net)
+    exec(new TestProgram {
+      override def main(): Map[ID,String] = {
+        val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
+        val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
+        (f1.map2u(f2)("x","w")(_ + _)).toMap
+      }
+    }, ntimes = fewRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -157,13 +140,32 @@ class TestExplicitFields extends FlatSpec with Matchers {
 
   ExplicitFields should "support restriction by going from larger to smaller domains" in new SimulationContextFixture {
     // ACT
-    exec(new DomainRestrictionProgram, ntimes = fewRounds)(net)
+    exec(new TestProgram {
+      override def main(): Any = {
+        val phi: Field[String] = fnbr(if(sense[Boolean](FLAG)) "a" else "b")
+        val f1 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted }
+        val f2 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted.toUpperCase }
+
+        val numphi: Field[Int] = fnbr(if(sense[Boolean](FLAG)) 1 else 2)
+        val phi2: Field[String] = branch(mid<=3){ numphi+0 }{ numphi+5 }.map(_.toString)
+
+        // 1+0  |  1+0    1+0
+        //      |------------
+        // 1+0  |  1+5    2+5
+        // -----|
+        // 2+5  |  2+5    2+5
+
+
+        ((mux(mid%3==0){ f1 }{ f2 })(phi),
+          (mux(mid%3==0){ f1 }{ f2 })(phi2))
+      }
+    }, ntimes = fewRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
-      "aa",  "AAA",  "AAB",
-      "aab", "AABB", "AABB",
-      "ab",  "ABB",  "BBB"
+      ("aa", "11"), ("AAA",   "11"),  ("AAB",   "11"),
+      ("aab","11"), ("AABB", "677") , ("AABB", "677"),
+      ("ab",  "7"), ("ABB",  "677"),  ("BBB",  "777")
     )).toMap)(net)
   }
 }

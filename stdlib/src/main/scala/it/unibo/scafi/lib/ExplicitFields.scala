@@ -48,6 +48,9 @@ trait StdLib_ExplicitFields {
       def map2[R,S](f: Field[R])(o: (T,R)=>S): Field[S] =
         Field(m.map { case (i,v) => i -> o(v,f.m(i)) })
 
+      def map2i[R,S](f: Field[R])(o: (T,R)=>S): Field[S] =
+        Field(restricted.m.collect { case (i,v) if f.m.contains(i) => i -> o(v,f.m(i)) })
+
       def map2d[R,S](f: Field[R])(default: R)(o: (T,R)=>S): Field[S] =
         Field(m.map { case (i,v) => i -> o(v,f.m.getOrElse(i,default)) })
 
@@ -89,10 +92,10 @@ trait StdLib_ExplicitFields {
     implicit class NumericField[T:Numeric](f: Field[T]){
       private val ev = implicitly[Numeric[T]]
 
-      def +(f2: Field[T]): Field[T] = f.map2(f2)(ev.plus(_,_))
-      def -(f2: Field[T]): Field[T] = f.map2(f2)(ev.minus(_,_))
-      def *(f2: Field[T]): Field[T] = f.map2(f2)(ev.times(_,_))
-      def +[U](lv: U)(implicit uev: Numeric[U]): Field[Double] = f.map[Double](ev.toDouble(_) + uev.toDouble(lv))
+      def +(f2: Field[T]): Field[T] = f.map2i(f2)(ev.plus(_,_))
+      def -(f2: Field[T]): Field[T] = f.map2i(f2)(ev.minus(_,_))
+      def *(f2: Field[T]): Field[T] = f.map2i(f2)(ev.times(_,_))
+      def +/[U](lv: U)(implicit uev: Numeric[U]): Field[Double] = f.map[Double](ev.toDouble(_) + uev.toDouble(lv))
     }
   }
 
