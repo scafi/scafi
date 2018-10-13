@@ -86,6 +86,15 @@ class TestExplicitFields extends FlatSpec with Matchers {
     }
   }
 
+  private[this] class DomainRestrictionProgram extends AggregateProgram with ExplicitFields with StandardSensors {
+    override def main(): String = {
+      val phi: Field[String] = fnbr(if(sense[Boolean](FLAG)) "a" else "b")
+      val f1 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted }
+      val f2 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted.toUpperCase }
+      (mux(mid%3==0){ f1 }{ f2 })(phi)
+    }
+  }
+
   def SetupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(SRC, false)
     n.chgSensorValue(SRC, ids = Set(8), value = true)
@@ -106,7 +115,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-  ExplicitFields should "support partitioning" in new SimulationContextFixture {
+  ExplicitFields should "allow going from smaller to larger domains" in new SimulationContextFixture {
     // ACT
     exec(new PartitionProgram, ntimes = fewRounds)(net)
 
@@ -143,6 +152,18 @@ class TestExplicitFields extends FlatSpec with Matchers {
       M(0->"xc",1->"ac",3->"ac"),         M(0->"ac",1->"xc",2->"ac",4->"ac"),         M(1->"ac",2->"xc",5->"xc"),
       M(0->"ac",3->"xc",4->"ac",6->"xc"), M(1->"ac",3->"ac",4->"xc",5->"xc",7->"xc"), M(2->"xc",4->"xc",5->"bc",8->"bw"),
       M(3->"xc",6->"bc",7->"bc"),         M(4->"xc",6->"bc",7->"bc",8->"bw"),         M(5->"bw",7->"bw",8->"bd")
+    )).toMap)(net)
+  }
+
+  ExplicitFields should "support restriction by going from larger to smaller domains" in new SimulationContextFixture {
+    // ACT
+    exec(new DomainRestrictionProgram, ntimes = fewRounds)(net)
+
+    // ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      "aa",  "AAA",  "AAB",
+      "aab", "AABB", "AABB",
+      "ab",  "ABB",  "BBB"
     )).toMap)(net)
   }
 }
