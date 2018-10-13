@@ -67,3 +67,11 @@ trait JsonCollectionsSerialization extends JsonPrimitivesSerialization {
       (jsToAny((m \ "keys").get).asInstanceOf[List[Any]] zip jsToAny((m \ "values").get).asInstanceOf[List[Any]]).toMap
   }
 }
+
+trait JsonCommonLambdaSerialization {
+  def lambdaToJs(lambda: Any): JsValue = Json.obj("fun" -> lambda.getClass.getSimpleName.split("/")(0))
+  def jsToLambda(js: JsValue): Option[Any] = {
+    val fields = this.getClass.getDeclaredFields.map(f => { f.setAccessible(true); f.get(this) }).filterNot(_ == null)
+    fields.find(_.getClass.getSimpleName.split("/")(0) == (js \ "fun").get.as[String])
+  }
+}
