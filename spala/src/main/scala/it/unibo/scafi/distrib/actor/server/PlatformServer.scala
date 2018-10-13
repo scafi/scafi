@@ -96,6 +96,9 @@ trait PlatformServer { self: Platform.Subcomponent =>
       case MsgSensorValue(id, name, value) => {
         setSensorValue(id, name, value)
       }
+      case MsgLambdaTest(fun) => {
+        println("LAMBDA: " + fun(5))
+      }
     }
 
     override def commandManagementBehavior: Receive = super.commandManagementBehavior.orElse {

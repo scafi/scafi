@@ -76,4 +76,7 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   case class MsgDevPosition(ref: ActorRef, pos: Point2D)
   case class MsgNeighborhoodUpdate(id: UID, nbrs: Map[UID, ActorRef])
 
+  // Lambda serialization messages (TEST)
+  val TestLambda: Int => Int = (x: Int) => x + 1
+  case class MsgLambdaTest(fun: Int => Int)
 }

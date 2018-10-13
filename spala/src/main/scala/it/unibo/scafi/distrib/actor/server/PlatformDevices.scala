@@ -59,6 +59,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     override def afterJob(): Unit = {
       super.afterJob()
       lastExport.foreach(server ! MsgExport(selfId, _))
+      server ! MsgLambdaTest(TestLambda)
     }
 
     override def preStart(): Unit = {
