@@ -25,7 +25,10 @@ trait StdLib_FieldUtils {
     self: FieldCalculusSyntax =>
 
     trait FieldOps {
-      def foldhoodTemplate[T]: T => ((T,T) => T) => ( => T ) => T
+      type M[T]
+      def wrap[T](t: Option[T]): M[T]
+
+      def foldhoodTemplate[T](init: T)(acc: (T,T) => T)(expr: => T ): T
 
       def mapNbrs[T](expr: => T): Map[ID, T] = reifyField(expr)
 
@@ -58,18 +61,27 @@ trait StdLib_FieldUtils {
       def anyHood(expr: => Boolean): Boolean =
         foldhoodTemplate[Boolean](false)(_||_)(expr)
 
-      def minHoodSelector[T: Builtins.Bounded, V](toMinimize: => T)(data: => V): Option[V] = {
-        val ord = implicitly[Builtins.Bounded[T]]
-        foldhoodTemplate[(T,Option[V])]((ord.top, None))( (x,y) => if(ord.compare(x._1,y._1) <= 0) x else y )((toMinimize, Some(data)))._2
+      def minHoodSelector[T, V](toMinimize: => T)(data: => V)
+                               (implicit ord1: Builtins.Bounded[T], ord2: Builtins.Bounded[ID]): M[V] = wrap[V]{
+        foldhoodTemplate[(T,ID,Option[V])]((ord1.top, ord2.top, None))( (x,y) =>
+          if(ord1.compare(x._1,y._1) < 0) x else if(ord1.compare(x._1,y._1)==0 && ord2.compare(x._2,y._2) <=0) x else y)((toMinimize, ord2.top, Some(data)))._3
       }
     }
 
     object includingSelf extends FieldOps {
-      override def foldhoodTemplate[T]: (T) => ((T, T) => T) => ( => T ) => T = foldhood[T](_)
+      override type M[T] = T
+
+      override def foldhoodTemplate[T](init: T)(acc: (T,T) => T)(expr: => T ): T = foldhood[T](init)(acc)(expr)
+
+      override def wrap[T](t: Option[T]): M[T] = t.get
     }
 
     object excludingSelf extends FieldOps {
-      override def foldhoodTemplate[T]: (T) => ((T, T) => T) => ( => T ) => T = foldhoodPlus[T](_)
+      override type M[T] = Option[T]
+
+      override def foldhoodTemplate[T](init: T)(acc: (T,T) => T)(expr: => T ): T = foldhoodPlus[T](init)(acc)(expr)
+
+      override def wrap[T](t: Option[T]): M[T] = t
     }
   }
 
