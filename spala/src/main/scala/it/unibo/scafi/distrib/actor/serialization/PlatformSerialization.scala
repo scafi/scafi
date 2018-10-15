@@ -90,9 +90,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
   }
 }
 
-trait JsonMessagesSerialization extends JsonOptionSerialization with JsonCollectionsSerialization
-  with JsonCommonLambdaSerialization { self: Platform =>
-
+trait JsonMessagesSerialization extends JsonBaseSerialization { self: Platform =>
   implicit val msgExportWrites: Writes[MsgExport] = msg => Json.obj("from" -> anyToJs(msg.from), "export" -> anyToJs(msg.export))
   implicit val msgExportReads: Reads[MsgExport] = js =>
     JsSuccess { MsgExport(jsToAny((js \ "from").get).asInstanceOf[UID], jsToAny((js \ "export").get).asInstanceOf[ComputationExport]) }
@@ -118,11 +116,9 @@ trait JsonMessagesSerialization extends JsonOptionSerialization with JsonCollect
   implicit val msgGetNeighborhoodExportsReads: Reads[MsgGetNeighborhoodExports] = js =>
     JsSuccess { MsgGetNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID]) }
 
-  implicit val msgLambdaTestWrites: Writes[MsgLambdaTest] = msg => lambdaToJs(msg.fun)
-  implicit val msgLambdaTestReads: Reads[MsgLambdaTest] = js => jsToLambda(js) match {
+  implicit val msgLambdaTestWrites: Writes[MsgLambdaTest] = msg => anyToJs(msg.fun)
+  implicit val msgLambdaTestReads: Reads[MsgLambdaTest] = js => jsToAny(js) match {
     case Some(l) => JsSuccess { MsgLambdaTest(l.asInstanceOf[Int => Int]) }
     case None => JsError()
   }
-
-  override def anyToJs: PartialFunction[Any, JsValue] = super[JsonOptionSerialization].anyToJs orElse super[JsonCollectionsSerialization].anyToJs
 }
