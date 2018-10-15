@@ -90,9 +90,12 @@ trait DevViewActor extends Actor {
   }
 
   protected def updateExport(export: I.EXPORT): Unit = invokeLater {
-    Option(export.root[Double]()).foreach(exp =>
+    if (export.root().isInstanceOf[Double]) {
+      val exp = export.root().asInstanceOf[Double]
       lExport.setText("ex:" + (if (exp > Int.MaxValue) Double.PositiveInfinity else exp.toInt))
-    )
+    } else {
+      lExport.setText("ex:" + export.root().toString)
+    }
   }
 
   protected def updateSensor(sensorName: I.LSensorName, sensorValue: Any): Unit = invokeLater {
