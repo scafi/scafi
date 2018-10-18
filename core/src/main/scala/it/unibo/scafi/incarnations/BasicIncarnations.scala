@@ -42,7 +42,7 @@ trait BasicAbstractIncarnation extends Incarnation {
   override val LSNS_TIMESTAMP: String = "timestamp"
   override val LSNS_DELTA_TIME: String = "deltaTime"
   override val LSNS_RANDOM: String = "randomGenerator"
-  override val NBR_RANGE_NAME: String = "nbrRange"
+  override val NBR_RANGE: String = "nbrRange"
   override val NBR_DELAY: String = "nbrDelay"
   override val NBR_LAG: String = "nbrLag"
   override val NBR_VECTOR: String = "nbrVector"

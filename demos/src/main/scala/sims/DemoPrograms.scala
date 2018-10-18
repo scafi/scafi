@@ -20,7 +20,7 @@ package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE
 
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
@@ -59,7 +59,7 @@ class MaxId extends AggregateProgram {
 class Gradient extends AggregateProgram {
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
   def isObstacle = sense[Boolean](SensorEnum.SENS2.name)
-  def nbrRange = nbrvar[Double](NBR_RANGE_NAME)
+  def nbrRange = nbrvar[Double](NBR_RANGE)
 
   override def main(): Double =
     branch (isObstacle) { Double.MaxValue } {

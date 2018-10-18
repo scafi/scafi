@@ -81,7 +81,7 @@ trait Incarnation extends Core
     /**
       * Get the distance between the current device and its neighbors.
       */
-    def nbrRange(): D = nbrvar[D](NBR_RANGE_NAME)
+    def nbrRange(): D = nbrvar[D](NBR_RANGE)
 
     /**
       * Get the direction vectors towards neighbours.

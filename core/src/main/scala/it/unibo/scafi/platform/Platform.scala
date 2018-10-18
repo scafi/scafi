@@ -71,7 +71,7 @@ trait SpaceAwarePlatform extends Platform {
 
   val LSNS_POSITION: LSNS
   val NBR_VECTOR: NSNS
-  val NBR_RANGE_NAME: NSNS
+  val NBR_RANGE: NSNS
 }
 
 trait SpaceTimeAwarePlatform extends SpaceAwarePlatform with TimeAwarePlatform {
