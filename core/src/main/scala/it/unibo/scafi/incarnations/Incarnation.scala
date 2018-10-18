@@ -24,6 +24,7 @@ import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
 
 import scala.concurrent.duration.FiniteDuration
+import scala.util.Random
 
 trait Incarnation extends Core
   with Engine
@@ -111,6 +112,11 @@ trait Incarnation extends Core
     /**
       * @return a random double from 0 to 1
       */
-    def nextRandom(): Double = sense[Double](LSNS_RANDOM)
+    def randomGenerator(): Random = sense[Random](LSNS_RANDOM)
+
+    /**
+      * @return a random double from 0 to 1
+      */
+    def nextRandom(): Double = randomGenerator().nextDouble()
   }
 }
