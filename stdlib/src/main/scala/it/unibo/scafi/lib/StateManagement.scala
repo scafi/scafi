@@ -37,6 +37,11 @@ trait StdLib_StateManagement{
       (Some(x), value.map(_ != x).getOrElse(initially))
     }._2
 
+    def countChanges[T](x: T, initially: Boolean = true): (Long,Boolean) = {
+      val changed = captureChange(x, initially)
+      (rep(0L)(k => if(changed) k+1 else k), changed)
+    }
+
     /**
       * @return true when the given parameter goes from false to true (starting from false); false otherwise
       */
