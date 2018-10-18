@@ -64,7 +64,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
     // ACT
     exec(new TestProgram {
       override def main(): Double = gradient(sense[Boolean](SRC)) + 1
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(

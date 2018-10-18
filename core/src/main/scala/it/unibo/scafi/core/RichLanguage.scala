@@ -78,8 +78,8 @@ trait RichLanguage extends Language { self: Core =>
       }
 
       @transient implicit val of_d = new Bounded[Double] {
-        def top: Double = Double.MaxValue
-        def bottom: Double = Double.MinValue
+        def top: Double = Double.PositiveInfinity
+        def bottom: Double = Double.NegativeInfinity
         def compare(a: Double, b: Double): Int = (a-b).signum
       }
 

@@ -30,12 +30,23 @@ import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.GradientWithObstacle" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.GGradientComparison" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 40 // number of nodes
+  Settings.Sim_NumNodes = 100 // number of nodes
   Settings.ConfigurationSeed = 0
   launch()
+}
+
+class GGradientComparison extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
+  def main =
+    f"${classicGradient(sense1)}%3.2f,${dist1(sense1)}%3.2f,${dist2(sense1)}%3.2f"
+
+  def dist1(source: Boolean, metric: Metric = nbrRange): Double =
+    G2(source)(0.0)(_ + metric())()
+
+  def dist2(source: Boolean, metric: Metric = nbrRange): Double =
+    G2(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
 }
 
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with GradientAlgorithms {

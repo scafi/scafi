@@ -48,7 +48,7 @@ trait StdLib_BlockG {
       G(source, field, acc, metric)
 
     def distanceTo(source: Boolean, metric: Metric = nbrRange): Double =
-      G2(source)(0.0)(_ + metric())()
+      G2(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
 
     def broadcast[V: Bounded](source: Boolean, field: V): V =
       G2(source)(field)(v => v)()

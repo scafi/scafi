@@ -207,9 +207,9 @@ class TestNewProcesses extends FlatSpec with Matchers {
   Processes should "not conflict when generated from the same node" in new SimulationContextFixture {
     // ARRANGE+ACT: generate process 1 twice from node 0
     setSensor(Gen2, true).inDevices(7)
-    exec(program, ntimes = fewRounds)(net)
+    exec(program, ntimes = someRounds)(net)
     setSensor(Gen2, false).inDevices(7)
-    exec(program, ntimes = fewRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ASSERT: result from running process 1
     val p1 = Pid(7,1)
@@ -227,7 +227,7 @@ class TestNewProcesses extends FlatSpec with Matchers {
     setSensor(Gen1, true).inDevices(0)
 
     // ACT: run program
-    exec(program, ntimes = fewRounds)(net)
+    exec(program, ntimes = someRounds)(net)
 
     // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
     val nodeNbrhoodToRestore = detachNode(8, net) // detach node
