@@ -20,7 +20,7 @@ package it.unibo.scafi.lib
 
 import it.unibo.scafi.incarnations.BasicAbstractIncarnation
 
-class StdLib_TypeClasses(val incarnation: BasicAbstractIncarnation) {
+class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
   import incarnation._
 
   object BoundedTypeClasses {

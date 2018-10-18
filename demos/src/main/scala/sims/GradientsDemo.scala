@@ -23,6 +23,7 @@ import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 
+import it.unibo.scafi.lib.LibExtTypeClasses
 import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
@@ -183,6 +184,8 @@ trait GradientAlgorithms extends Gradients
   with StateManagement
   with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
 
+  val typeclasses = new LibExtTypeClasses(it.unibo.scafi.incarnations.BasicSimulationIncarnation).BoundedTypeClasses
+  import typeclasses._
 
   def ShortestPath(source: Boolean, gradient: Double): Boolean =
     rep(false)(
@@ -241,7 +244,7 @@ trait GradientAlgorithms extends Gradients
     rep(Double.PositiveInfinity){ g =>
       def distance = Math.max(nbrRange(), delta * communicationRadius)
 
-      import BoundedTypeClasses._; import Builtins.Bounded._ // for min/maximizing over tuples
+      import Builtins.Bounded._ // for min/maximizing over tuples
       val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
       /*maxHood {
         ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
@@ -414,7 +417,7 @@ trait GradientAlgorithms extends Gradients
     rep[(Double,Double,Int,Boolean)](loc) {
       case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
         // (1) Let's calculate new values for spaceDistEst and sourceId
-        import BoundedTypeClasses._; import Builtins.Bounded._
+        import Builtins.Bounded._
         val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
         /* minHood {
           mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
