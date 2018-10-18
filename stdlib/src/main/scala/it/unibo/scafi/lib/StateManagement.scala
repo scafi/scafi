@@ -30,8 +30,11 @@ trait StdLib_StateManagement{
     def remember[T](value: T): T =
       rep(value)(identity)
 
-    def captureChange[T](x: T): Boolean = rep((x,false)) { case (value, _) =>
-      (x, value != x)
+    /**
+      * @return true only when a discontinuity (i.e., a change) is observed on `x` (you may choose how to handle the first observation)
+      */
+    def captureChange[T](x: T, initially: Boolean = true): Boolean = rep((Option.empty[T],false)) { case (value, _) =>
+      (Some(x), value.map(_ != x).getOrElse(initially))
     }._2
 
     /**
