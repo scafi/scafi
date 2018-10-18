@@ -58,6 +58,18 @@ class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC 
   import PartialOrderingWithGLB.pogldouble
   def distanceTo3(src: Boolean) = G3[Double](src, 0.0, _ + nbrRange, nbrRange)(pogldouble)
 
+  def G3[V: PartialOrderingWithGLB](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+    rep((Double.MaxValue, field)) { case (dist, value) =>
+      mux(source) {
+        (0.0, field)
+      } {
+        import PartialOrderingWithGLB._
+        minHoodPlusLoc[(Double,V)]((Double.PositiveInfinity, field)) {
+          (nbr { dist } + metric, acc(nbr { value }))
+        } (poglbTuple(pogldouble, implicitly[PartialOrderingWithGLB[V]]))
+      }
+    }._2
+
   implicit val ofset = new Builtins.Bounded[Set[ID]] {
     override def top: Set[ID] = Set()
 

@@ -51,7 +51,7 @@ class TestGradient extends FlatSpec with Matchers {
     def gradient(source: Boolean): Double =
       rep(Double.MaxValue){
         distance => mux(source) { 0.0 } {
-          foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE_NAME))
+          foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE))
         }
       }
   }

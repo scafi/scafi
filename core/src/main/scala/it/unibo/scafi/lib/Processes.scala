@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_Processes {
+trait StdLib_Processes {
   self: StandardLibrary.Subcomponent =>
 
   /**
@@ -37,8 +37,8 @@ trait Stdlib_Processes {
     override def toString: String = s"puid$puid"
   }
 
-  trait Spawn {
-    self: FieldCalculusSyntax with FieldUtils =>
+  trait HFCSpawn extends FieldUtils {
+    self: FieldCalculusSyntax =>
 
     trait Status
     case object External extends Status // External to the bubble

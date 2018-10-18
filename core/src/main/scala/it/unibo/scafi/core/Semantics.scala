@@ -136,7 +136,7 @@ trait Semantics extends Core with Language {
       }
 
     override def aggregate[T](f: => T): T =
-      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(true) {
+      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(!vm.neighbour.isDefined) {
         f
       }
 

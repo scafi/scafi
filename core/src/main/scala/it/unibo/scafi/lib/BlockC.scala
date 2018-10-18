@@ -18,13 +18,12 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_BlockC {
+trait StdLib_BlockC {
   selfcomp: StandardLibrary.Subcomponent =>
 
   // scalastyle:off method.name
 
   import Builtins.Bounded
-  import Bounded._
 
   implicit val idBounded: Bounded[ID]
 
