@@ -21,7 +21,8 @@ package it.unibo.scafi.lib
 trait StdLib_BuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
-  trait BuildingBlocks extends BlockG with BlockC with BlockS with BlockT with BlocksWithGC {
+  trait BuildingBlocks extends Gradients with FieldUtils
+    with BlockG with BlockC with BlockS with BlockT with BlocksWithGC {
     self: FieldCalculusSyntax with StandardSensors =>
   }
 

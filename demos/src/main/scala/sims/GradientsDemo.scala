@@ -38,7 +38,7 @@ object GradientsDemo extends Launcher {
   launch()
 }
 
-class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
+class GradientWithObstacle extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
   def main = g2(sense1, sense2)
 
   def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
@@ -82,7 +82,7 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
   }
 }
 
-class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
+class ShortestPathProgram extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   def main = {
     val g = classic(sense1)
     ShortestPath(sense2, g)
@@ -90,7 +90,7 @@ class ShortestPathProgram extends AggregateProgram with Gradients with SensorDef
 }
 
 class CheckSpeed extends AggregateProgram
-    with Gradients with BlockG with SensorDefinitions with GenericUtils with StateManagement {
+    with GradientAlgorithms with BlockG with SensorDefinitions with GenericUtils with StateManagement {
   implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
     override def default: LocalDateTime = LocalDateTime.now()
   }
@@ -102,7 +102,7 @@ class CheckSpeed extends AggregateProgram
     val meanTimeToReach = meanCounter(
       ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
       frequency).toLong
-    val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange())
+    val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange)
     val speed = distance / meanTimeToReach
     val meanFireInterval = meanCounter(deltaTime().toMillis, frequency)
     val expectedSpeed = communicationRadius / meanFireInterval
@@ -111,47 +111,47 @@ class CheckSpeed extends AggregateProgram
   }
 }
 
-class GradientComparison extends AggregateProgram with Gradients with SensorDefinitions {
+class GradientComparison extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
 
-class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class BISGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = gradientBIS(sense1)
 }
 
-class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class SVDGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = gradientSVD(sense1)
 }
 
-class FlexGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class FlexGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = flex(sense1)
 }
 
-class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class CrfGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = crf(sense1)
 }
 
-class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class BasicGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = gradient(sense1)
 }
 
-class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classic(sense1)
 }
 
-class ClassicGradientWithG extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithG extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classicWithG(sense1)
 }
 
-class ClassicGradientWithGv2 extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithGv2 extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classicWithGv2(sense1)
 }
 
-class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithUnboundedG extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classicWithUnboundedG(sense1)
 }
 
-class DistanceBetween extends AggregateProgram with SensorDefinitions with BlockG {
+class DistanceBetween extends AggregateProgram with SensorDefinitions with Gradients with BlockG {
   def isSource: Boolean = sense1
   def isTarget: Boolean = sense2
 
@@ -165,7 +165,8 @@ object DoubleUtils {
   }
 }
 
-trait Gradients extends BlockG
+trait GradientAlgorithms extends Gradients
+  with BlockG
   with FieldUtils
   with TimeUtils
   with StateManagement

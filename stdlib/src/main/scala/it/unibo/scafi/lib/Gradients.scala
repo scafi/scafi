@@ -18,25 +18,25 @@
 
 package it.unibo.scafi.lib
 
-import it.unibo.scafi.incarnations.Incarnation
+trait StdLib_Gradients {
+  self: StandardLibrary.Subcomponent =>
 
-trait StandardLibrary extends
-         StdLib_BlockG
-    with StdLib_Gradients
-    with StdLib_BlockC
-    with StdLib_BlockS
-    with StdLib_BlocksWithGC
-    with StdLib_BuildingBlocks
-    with StdLib_ExplicitFields
-    with StdLib_FieldUtils
-    with StdLib_TimeUtils
-    with StdLib_StateManagement
-    with StdLib_GenericUtils
-    with StdLib_TypeClasses
-    with StdLib_Processes
-    with StdLib_NewProcesses
-    with StdLib_DynamicCode { self: Incarnation => }
+  type Metric = ()=>Double
 
-object StandardLibrary {
-  type Subcomponent = StandardLibrary with Incarnation
+  trait Gradients {
+    self: FieldCalculusSyntax with StandardSensors =>
+
+    case class Gradient(algorithm: (Boolean,()=>Double)=>Double, source: Boolean=false, metric: Metric = nbrRange) {
+      def from(s: Boolean) = this.copy(source = s)
+      def withMetric(m: Metric) = this.copy(metric = m)
+      def run(): Double = algorithm(source, metric)
+    }
+
+    val ClassicGradient = Gradient(classicGradient(_,_), false, nbrRange)
+
+    def classicGradient(source: Boolean, metric: () => Double = nbrRange) = rep(Double.PositiveInfinity){ case d =>
+      mux(source){ 0.0 }{ minHoodPlus(nbr(d)+metric()) }
+    }
+  }
+
 }

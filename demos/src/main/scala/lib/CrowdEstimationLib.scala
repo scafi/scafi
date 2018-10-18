@@ -27,7 +27,7 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
   /***********************************/
 
   val (high,low,none) = (2,1,0) // crowd level
-  def managementRegions(grain: Double, metric: => Double): Boolean =
+  def managementRegions(grain: Double, metric: Metric): Boolean =
     S(grain, metric) /*{
     breakUsingUids(randomUid, grain, metric)
   }*/

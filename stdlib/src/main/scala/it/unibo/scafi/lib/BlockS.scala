@@ -25,10 +25,10 @@ trait StdLib_BlockS {
 
   import Builtins._
 
-  trait BlockS {
-    self: FieldCalculusSyntax with StandardSensors with BlockG =>
+  trait BlockS extends BlockG {
+    self: FieldCalculusSyntax with StandardSensors =>
 
-    def S(grain: Double, metric: => Double): Boolean =
+    def S(grain: Double, metric: Metric): Boolean =
       breakUsingUids(randomUid, grain, metric)
 
     def S2(grain: Double): Boolean =
@@ -62,11 +62,11 @@ trait StdLib_BlockS {
       */
     def breakUsingUids(uid: (Double, ID),
                        grain: Double,
-                       metric: => Double): Boolean =
+                       metric: Metric): Boolean =
     // Initially, each device is a candidate leader, competing for leadership.
       uid == rep(uid) { lead: (Double, ID) =>
         // Distance from current device (uid) to the current leader (lead).
-        val dist = G[Double](uid == lead, 0, (_: Double) + metric, metric)
+        val dist = G[Double](uid == lead, 0, (_: Double) + metric(), metric)
 
         // Initially, current device is candidate, so the distance ('dist')
         // will be 0; the same will be for other devices.
@@ -84,7 +84,7 @@ trait StdLib_BlockS {
                             lead: (Double, ID),
                             uid: (Double, ID),
                             grain: Double,
-                            metric: => Double): (Double, ID) = {
+                            metric: Metric): (Double, ID) = {
       val inf: (Double, ID) = (Double.PositiveInfinity, uid._2)
       mux(d > grain) {
         // If the current device has a distance to the current candidate leader
@@ -104,7 +104,7 @@ trait StdLib_BlockS {
           //   according to the 2nd elem in case of breakeven on the first one.
           //   (minHood uses min to select the candidate leader tuple)
           minHood {
-            mux(nbr { d } + metric >= 0.5 * grain) {
+            mux(nbr { d } + metric() >= 0.5 * grain) {
               nbr { inf }
             } {
               nbr { lead }

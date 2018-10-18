@@ -25,37 +25,29 @@ trait StdLib_BlockG {
 
   import Builtins._
 
-  trait BlockG {
+  trait BlockG extends Gradients with FieldUtils {
     self: FieldCalculusSyntax with StandardSensors =>
 
-    // TODO: flawed!!! must minimise only on the distance but use 'field' as default
-    def G[V: Bounded](source: Boolean, field: V, acc: V => V, metric: => Double): V =
-      rep((Double.MaxValue, field)) { case (dist, value) =>
-        mux(source) {
-          (0.0, field)
-        } {
-          minHoodPlus {
-            (nbr { dist } + metric, acc(nbr { value }))
-          }
-        }
-      }._2
+    def Gg[V](gradient: Gradient, field: V, acc: V => V): V = {
+      val g = gradient.run()
+      rep(field) { case (value) =>
+        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g}+gradient.metric())(acc(nbr{value})).getOrElse(field) }
+      }
+    }
 
-    def G3[V: PartialOrderingWithGLB](source: Boolean, field: V, acc: V => V, metric: => Double): V =
-      rep((Double.MaxValue, field)) { case (dist, value) =>
-        mux(source) {
-          (0.0, field)
-        } {
-          import PartialOrderingWithGLB._
-          minHoodPlusLoc[(Double,V)]((Double.PositiveInfinity, field)) {
-            (nbr { dist } + metric, acc(nbr { value }))
-          } (poglbTuple(pogldouble, implicitly[PartialOrderingWithGLB[V]]))
-        }
-      }._2
+    def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V = {
+      rep(field) { case (value) =>
+        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g}+metric())(acc(nbr{value})).getOrElse(field) }
+      }
+    }
 
-    def G2[V: Bounded](source: Boolean)(field: V)(acc: V => V)(metric: => Double = nbrRange): V =
+    def G[V](source: Boolean, field: V, acc: V => V, metric: Metric): V =
+      Gg[V](ClassicGradient.from(source).withMetric(metric), field, acc)
+
+    def G2[V: Bounded](source: Boolean)(field: V)(acc: V => V)(metric: Metric = nbrRange): V =
       G(source, field, acc, metric)
 
-    def distanceTo(source: Boolean, metric: () => Double = nbrRange): Double =
+    def distanceTo(source: Boolean, metric: Metric = nbrRange): Double =
       G2(source)(0.0)(_ + metric())()
 
     def broadcast[V: Bounded](source: Boolean, field: V): V =

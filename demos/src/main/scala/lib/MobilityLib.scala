@@ -41,7 +41,7 @@ class MobilityLib extends BuildingBlocks { self: AggregateProgram with SensorDef
   //;; Evaluate a function field, running ’f’ from ’source’ within ’range’ meters, and ’no-op’ elsewhere
   def deploy[T: Bounded](range:Double, source:Boolean, g: ()=>T, noOp: ()=>T): T = {
     val f: ()=>T = if (distanceTo(source) < range) {
-      G(source, g, identity[()=>T], nbrRange())
+      G(source, g, identity[()=>T], nbrRange)
     } else {
       noOp
     }

@@ -39,12 +39,10 @@ trait StdLib_NewProcesses {
     val Terminated: Status = TerminatedStatus
   }
 
-  trait CustomSpawn extends Spawn {
-    self: AggregateProgram with FieldUtils =>
+  trait CustomSpawn extends Spawn with FieldUtils{
+    self: AggregateProgram =>
 
     import Spawn._
-
-    val SIM_METRIC_N_PROCS_RUN = "n_procs_run"
 
     case class ProcInstance[A, B, C](params: A)(val proc: A => B => C, val value: Option[C] = None)
     {

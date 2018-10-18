@@ -65,7 +65,7 @@ class TargetCountingProgram extends AggregateProgram with SensorDefinitions
     slices(targets).values.fold[Int](0)(_ + _)
 
   def isLeader: Boolean =
-    S(grain = Double.PositiveInfinity, metric = nbr{ 1 })
+    S(grain = Double.PositiveInfinity, metric = () => nbr{ 1 })
 
   override def main(): Any =
     summarize(isLeader, _ + _, localContribute(senseTargets), 0)

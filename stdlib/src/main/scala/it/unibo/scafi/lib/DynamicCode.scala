@@ -21,8 +21,8 @@ package it.unibo.scafi.lib
 trait StdLib_DynamicCode {
   self: StandardLibrary.Subcomponent =>
 
-  trait DynamicCode {
-    self: FieldCalculusSyntax with FieldUtils =>
+  trait DynamicCode extends FieldUtils {
+    self: FieldCalculusSyntax =>
 
     /**
       * Mobile functions `fun` should be transferable (i.e., no closures etc), aggregate functions.

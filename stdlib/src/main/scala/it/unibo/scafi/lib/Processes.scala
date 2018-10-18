@@ -37,8 +37,8 @@ trait StdLib_Processes {
     override def toString: String = s"puid$puid"
   }
 
-  trait HFCSpawn {
-    self: FieldCalculusSyntax with FieldUtils =>
+  trait HFCSpawn extends FieldUtils {
+    self: FieldCalculusSyntax =>
 
     trait Status
     case object External extends Status // External to the bubble

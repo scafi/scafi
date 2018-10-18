@@ -21,8 +21,8 @@ package it.unibo.scafi.lib
 trait StdLib_BlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
-  trait BlocksWithGC {
-    self: BlockC with BlockG =>
+  trait BlocksWithGC extends BlockG with BlockC {
+    self: FieldCalculusSyntax with StandardSensors =>
 
     def summarize(sink: Boolean, acc: (Double, Double) => Double, local: Double, Null: Double): Double =
       broadcast(sink, C(distanceTo(sink), acc, local, Null))
