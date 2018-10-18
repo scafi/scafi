@@ -242,7 +242,7 @@ trait Stdlib_NewProcesses {
     self: AggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
 
     def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
-      val lastPid = sharedTimerWithDecay(period, deltaTime().length)
+      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
       val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
       sspawn[Long,T,R]((pid: Long) => (arg) => {
         (proc(arg), if(lastPid - pid < numReplicates){ Spawn.Output } else { Spawn.External })
