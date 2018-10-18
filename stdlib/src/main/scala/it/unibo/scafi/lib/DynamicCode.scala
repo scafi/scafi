@@ -38,7 +38,7 @@ trait StdLib_DynamicCode {
       * NOTE: different functions running in different parts of the system means that
       * the system is partitioned (by the function identity).
       */
-    def up[T,R](injecter: Injecter[T,R]): Fun[T,R] = rep(injecter()){ case f =>
+    def up[T,R](injecter: Injecter[T,R]): Fun[T,R] = rep(Fun[T,R](Int.MinValue, _ => ???)){ case f =>
       foldhood(injecter())((f1,f2) => if(f1.ver>=f2.ver) f1 else f2)(nbr{f})
     }
   }
