@@ -37,7 +37,7 @@ trait Stdlib_Processes {
     override def toString: String = s"puid$puid"
   }
 
-  trait Spawn {
+  trait HFCSpawn {
     self: FieldCalculusSyntax with FieldUtils =>
 
     trait Status

@@ -99,7 +99,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
         val f2 = branch(sense[Boolean](SRC)){ fnbr(10.0) }{ fnbr(0.0) }
         (f1.map2(f2)(_ + _)).fold(0.0)(_ + _)
       }
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
   }
 
   ExplicitFields should "support defaults to deal with domain mismatches" in new SimulationContextFixture {

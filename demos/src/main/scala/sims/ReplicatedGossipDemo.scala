@@ -34,7 +34,7 @@ object ReplicatedGossipDemo extends Launcher {
 }
 
 class ReplicatedGossip extends AggregateProgram with StateManagement with SensorDefinitions with Gradients with Processes with BlockT
-  with Spawn {
+  with HFCSpawn {
   def main: String = {
     val g = classic(sense1)
     val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 2 second, considerAfter = 2 second)

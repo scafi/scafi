@@ -32,7 +32,8 @@ trait StandardLibrary extends
     with StdLib_StateManagement
     with StdLib_GenericUtils
     with Stdlib_TypeClasses
-    with Stdlib_Processes { self: Incarnation => }
+    with Stdlib_Processes
+    with Stdlib_NewProcesses { self: Incarnation => }
 
 object StandardLibrary {
   type Subcomponent = StandardLibrary with Incarnation
