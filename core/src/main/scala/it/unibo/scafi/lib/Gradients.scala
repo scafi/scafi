@@ -18,11 +18,25 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_BuildingBlocks {
+trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
 
-  trait BuildingBlocks extends BlockG with BlockC with BlockS with BlockT with BlocksWithGC {
+  type Metric = ()=>Double
+
+  trait Gradients {
     self: FieldCalculusSyntax with StandardSensors =>
+
+    case class Gradient(algorithm: (Boolean,()=>Double)=>Double, source: Boolean=false, metric: Metric = nbrRange) {
+      def from(s: Boolean) = this.copy(source = s)
+      def withMetric(m: Metric) = this.copy(metric = m)
+      def run(): Double = algorithm(source, metric)
+    }
+
+    val ClassicGradient = Gradient(classicGradient(_,_), false, nbrRange)
+
+    def classicGradient(source: Boolean, metric: () => Double = nbrRange) = rep(Double.PositiveInfinity){ case d =>
+      mux(source){ 0.0 }{ minHoodPlus(nbr(d)+metric()) }
+    }
   }
 
 }

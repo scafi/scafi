@@ -62,7 +62,7 @@ lazy val noPublishSettings =
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
+  aggregate(core, commons, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
@@ -83,16 +83,16 @@ lazy val core = project.
     libraryDependencies += scalatest
   )
 
-lazy val stdlib = project.
+lazy val `stdlib-ext` = project.
   dependsOn(core).
   settings(commonSettings: _*).
   settings(
-    name := "scafi-lib",
+    name := "scafi-lib-ext",
     libraryDependencies ++= Seq(scalatest, shapeless)
   )
 
 lazy val simulator = project.
-  dependsOn(core, stdlib).
+  dependsOn(core).
   settings(commonSettings: _*).
   settings(
     name := "scafi-simulator"
@@ -132,7 +132,7 @@ lazy val tests = project.
 
 // 'demos' project definition
 lazy val demos = project.
-  dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
+  dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(

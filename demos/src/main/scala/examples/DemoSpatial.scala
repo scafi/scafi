@@ -41,7 +41,7 @@ object DemoSpatialLauncher extends App {
     def mySensor():Int = sense[Int]("sensor")
     def gradient(source: Boolean): Double = rep(Double.MaxValue){
       distance => mux(source) { 0.0 } {
-        minHoodPlus { nbr{distance}+nbrvar[Double](NBR_RANGE_NAME) }
+        minHoodPlus { nbr{distance}+nbrvar[Double](NBR_RANGE) }
       }
     }
     def main() = foldhood(0)(_+_){1} //gradient(mySensor()==1)

@@ -29,7 +29,7 @@ object AlignedMapRunner extends Launcher {
   launch()
 }
 
-class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldUtils with BlockG {
+class AlignedMapTest extends AggregateProgram with SensorDefinitions with GradientAlgorithms with BlockG {
   override def main() = test1
 
   def test1 = {

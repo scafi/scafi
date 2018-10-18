@@ -16,13 +16,14 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.test
+package it.unibo.scafi.lib
 
-import it.unibo.scafi.incarnations.AbstractTestIncarnation
-import it.unibo.scafi.lib.StandardLibrary
-import it.unibo.scafi.simulation.Simulation
+trait StdLib_BuildingBlocks {
+  self: StandardLibrary.Subcomponent =>
 
-object FunctionalTestIncarnation extends AbstractTestIncarnation with Simulation with StandardLibrary {
-  import Builtins.Bounded
-  override implicit val idBounded: Bounded[ID] = Builtins.Bounded.of_i
+  trait BuildingBlocks extends Gradients with FieldUtils
+    with BlockG with BlockC with BlockS with BlockT with BlocksWithGC {
+    self: FieldCalculusSyntax with StandardSensors =>
+  }
+
 }

@@ -127,7 +127,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       def nbsExportsInGridFor(i: ID) = MMap[ID, Any]((nbrMap(i) + i).toList.map(
         j => (j -> dist(grid(lId.toNum(i).toInt % rows)(lId.toNum(i) / rows), grid(lId.toNum(j) % rows)(lId.toNum(j) / rows)))
       ): _*)
-      nsnsMap += (NBR_RANGE_NAME -> MMap(idArray.toList.map(i => i -> nbsExportsInGridFor(i)): _*))
+      nsnsMap += (NBR_RANGE -> MMap(idArray.toList.map(i => i -> nbsExportsInGridFor(i)): _*))
 
       new NetworkSimulator(
         idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.gridRepr(rows),

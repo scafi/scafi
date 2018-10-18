@@ -18,18 +18,24 @@
 
 package it.unibo.scafi.lib
 
-trait Stdlib_BlocksWithGC {
-  self: StandardLibrary.Subcomponent =>
+import it.unibo.scafi.incarnations.Incarnation
 
-  trait BlocksWithGC {
-    self: BlockC with BlockG =>
+trait StandardLibrary extends
+         StdLib_BlockG
+    with StdLib_Gradients
+    with StdLib_BlockC
+    with StdLib_BlockS
+    with StdLib_BlocksWithGC
+    with StdLib_BuildingBlocks
+    with StdLib_ExplicitFields
+    with StdLib_FieldUtils
+    with StdLib_TimeUtils
+    with StdLib_StateManagement
+    with StdLib_GenericUtils
+    with StdLib_Processes
+    with StdLib_NewProcesses
+    with StdLib_DynamicCode { self: Incarnation => }
 
-    def summarize(sink: Boolean, acc: (Double, Double) => Double, local: Double, Null: Double): Double =
-      broadcast(sink, C(distanceTo(sink), acc, local, Null))
-
-    def average(sink: Boolean, value: Double): Double =
-      summarize(sink, (a, b) => {
-        a + b
-      }, value, 0.0) / summarize(sink, (a, b) => a + b, 1, 0.0)
-  }
+object StandardLibrary {
+  type Subcomponent = StandardLibrary with Incarnation
 }
