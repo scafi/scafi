@@ -118,6 +118,14 @@ trait RichLanguage extends Language { self: Core =>
     }
 
     object PartialOrderingWithGLB {
+      implicit def fromBounded[T](implicit b: Bounded[T]): PartialOrderingWithGLB[T] = new PartialOrderingWithGLB[T] {
+        override def gle(x: T, y: T): T = b.min(x,y)
+
+        override def tryCompare(x: T, y: T): Option[Int] = Some(b.compare(x,y))
+
+        override def lteq(x: T, y: T): Boolean = b.compare(x,y) <= 0
+      }
+
       val pogldouble: PartialOrderingWithGLB[Double] =
         new PartialOrderingWithGLB[Double] {
           override def gle(x: Double, y: Double): Double = Math.min(x,y)

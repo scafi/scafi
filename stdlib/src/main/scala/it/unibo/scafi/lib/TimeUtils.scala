@@ -84,6 +84,12 @@ trait StdLib_TimeUtils {
         }
       } == length
 
+    def clock[T](length: T, decay: T)
+                (implicit ev: Numeric[T]): Long =
+      rep((0L,length)){ case (k,left) =>
+        branch (left == ev.zero){ (k+1,length) }{ (k,T(length, decay)) }
+      }._1
+
     def impulsesEvery[T : Numeric](d: T): Boolean =
       rep(false){ impulse =>
         branch(impulse) { false } { timer(d)==0 }

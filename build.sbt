@@ -71,7 +71,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val scafi = project.in(file(".")).
-  aggregate(core, distributed, simulator, `simulator-gui`, `stdlib`).
+  aggregate(core, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
   settings(commonSettings:_*).
   settings(sharedPublishSettings:_*).
   settings(
@@ -79,7 +79,13 @@ lazy val scafi = project.in(file(".")).
     packagedArtifacts in file(".") := Map.empty
   )
 
+lazy val commons = project.
+  settings(commonSettings: _*).
+  settings(sharedPublishSettings: _*).
+  settings(name := "commons")
+
 lazy val core = project.
+  dependsOn(commons).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
@@ -113,15 +119,21 @@ lazy val `simulator-gui` = project.
     libraryDependencies ++= Seq(scopt)
   )
 
-// 'distributed' project definition
-lazy val distributed = project.
-  dependsOn(core).
+lazy val spala = project.
+  dependsOn(commons).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
-    name := "scafi-distributed",
+    name := "spala",
     libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt)
   )
+
+// 'distributed' project definition
+lazy val distributed = project.
+  dependsOn(core, spala).
+  settings(commonSettings: _*).
+  settings(sharedPublishSettings: _*).
+  settings(name := "scafi-distributed")
 
 // 'tests' project definition
 lazy val tests = project.
@@ -129,8 +141,7 @@ lazy val tests = project.
   settings(commonSettings: _*).
   settings(
     name := "scafi-tests",
-    libraryDependencies += scalatest,
-    packagedArtifacts := Map.empty
+    libraryDependencies += scalatest
   )
 
 // 'demos' project definition
@@ -138,6 +149,5 @@ lazy val demos = project.
   dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(
-    name := "scafi-demos",
-    packagedArtifacts := Map.empty
+    name := "scafi-demos"
   )

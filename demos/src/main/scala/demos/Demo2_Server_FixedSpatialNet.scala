@@ -18,8 +18,8 @@
 
 package demos
 
-import it.unibo.scafi.incarnations.BasicAbstractDistributedIncarnation
-import it.unibo.scafi.space.{Point2D, BasicSpatialAbstraction}
+import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
+import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 
 /**
  * Demo 2
@@ -30,7 +30,7 @@ import it.unibo.scafi.space.{Point2D, BasicSpatialAbstraction}
 
 import it.unibo.scafi.distrib.actor.server.{SpatialPlatform => SpatialServerBasedActorPlatform}
 
-object Demo2_Platform extends BasicAbstractDistributedIncarnation
+object Demo2_Platform extends BasicAbstractActorIncarnation
   with SpatialServerBasedActorPlatform
   with BasicSpatialAbstraction with Serializable {
   override val LocationSensorName: String = "LOCATION_SENSOR"
