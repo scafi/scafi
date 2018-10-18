@@ -32,7 +32,6 @@ trait StandardLibrary extends
     with StdLib_TimeUtils
     with StdLib_StateManagement
     with StdLib_GenericUtils
-    with StdLib_TypeClasses
     with StdLib_Processes
     with StdLib_NewProcesses
     with StdLib_DynamicCode { self: Incarnation => }

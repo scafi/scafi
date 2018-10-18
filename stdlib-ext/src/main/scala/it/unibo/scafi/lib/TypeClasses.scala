@@ -18,12 +18,14 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_TypeClasses {
-  self: StandardLibrary.Subcomponent =>
+import it.unibo.scafi.incarnations.BasicAbstractIncarnation
+
+class StdLib_TypeClasses(val incarnation: BasicAbstractIncarnation) {
+  import incarnation._
 
   object BoundedTypeClasses {
     import shapeless.{::, Generic, HList, HNil}
-    import Builtins.Bounded
+    import incarnation.Builtins._
 
     implicit val hnilBounded: Bounded[HNil] = new Bounded[HNil] {
       override def top: HNil = HNil
