@@ -107,5 +107,10 @@ trait Incarnation extends Core
       * @return the duration since the last round of execution
       */
     def deltaTime(): FiniteDuration = sense[FiniteDuration](LSNS_DELTA_TIME)
+
+    /**
+      * @return a random double from 0 to 1
+      */
+    def nextRandom(): Double = sense[Double](LSNS_RANDOM)
   }
 }

@@ -30,6 +30,8 @@ import scala.concurrent.duration.FiniteDuration
  */
 trait Platform {
   self: Platform.PlatformDependency =>
+
+  val LSNS_RANDOM: LSNS
 }
 
 object Platform {
@@ -86,8 +88,6 @@ object SpaceTimeAwarePlatform {
 
 trait SimulationPlatform extends SpaceTimeAwarePlatform {
   self: SpaceTimeAwarePlatform.PlatformDependency =>
-
-  val LSNS_RANDOM: LSNS
 
   type NETWORK <: Network
 
