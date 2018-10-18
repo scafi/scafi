@@ -59,7 +59,7 @@ trait StdLib_DynamicCode {
 
     def safeUp[T,R:Bounded](injecter: Injecter[T,R], arg: T, Null: R): R =
       rep((List[Fun[T,R]](), -1, -1, Null)) { case (procs, maxVer, curVer, field) =>
-        val (newMaxVer, nProcs) = maxHood(nbr{(maxVer, procs)})
+        val (newMaxVer, nProcs) = includingSelf.maxHoodSelector(nbr{maxVer})(nbr{(maxVer, procs)})
         val (nnewMaxVer, nnProcs) = branch(injecter().ver > newMaxVer){
           (injecter().ver, nProcs++List(injecter()))
         }{
