@@ -18,8 +18,9 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.lib.Bounded
 
 object ChannelDemo extends Launcher {
   // Configuring simulation
@@ -49,7 +50,7 @@ class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
 class SelfContainedChannel extends AggregateProgram with SensorDefinitions {
   override def main() = branch(sense3){false}{channel(sense1, sense2, 5)}
 
-  type OB[T] = Builtins.Bounded[T]
+  type OB[T] = Bounded[T]
   def G[V:OB](src: Boolean, field: V, acc: V=>V, metric: =>Double): V =
     rep( (Double.MaxValue, field) ){ dv =>
       mux(src) { (0.0, field) } {

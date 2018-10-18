@@ -20,7 +20,6 @@ package it.unibo.scafi.lib
 
 trait StdLib_ExplicitFields {
   self: StandardLibrary.Subcomponent =>
-  import Builtins.Bounded
 
   trait ExplicitFields extends FieldUtils {
     self: FieldCalculusSyntax =>

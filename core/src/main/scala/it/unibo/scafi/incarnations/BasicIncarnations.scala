@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.incarnations
 
+import it.unibo.scafi.lib.Bounded
 import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.BasicTimeAbstraction
 import it.unibo.utils.{Interop, Linearizable}
@@ -63,6 +64,8 @@ trait BasicAbstractIncarnation extends Incarnation {
     def toString(nsns: NSNS): String = nsns.toString
     def fromString(str: String): NSNS = str
   }
+
+  implicit val idBounded: Bounded[ID] = Bounded.of_i
 }
 
 class AbstractTestIncarnation

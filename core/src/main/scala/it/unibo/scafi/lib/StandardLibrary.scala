@@ -20,8 +20,8 @@ package it.unibo.scafi.lib
 
 import it.unibo.scafi.incarnations.Incarnation
 
-trait StandardLibrary extends
-         StdLib_BlockG
+trait StandardLibrary extends StdLib_Builtins
+    with StdLib_BlockG
     with StdLib_Gradients
     with StdLib_BlockC
     with StdLib_BlockS

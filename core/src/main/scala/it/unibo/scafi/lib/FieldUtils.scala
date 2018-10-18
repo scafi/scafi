@@ -21,8 +21,6 @@ package it.unibo.scafi.lib
 trait StdLib_FieldUtils {
   self: StandardLibrary.Subcomponent =>
 
-  import Builtins.Bounded
-
   trait FieldUtils {
     self: FieldCalculusSyntax =>
 
@@ -67,13 +65,13 @@ trait StdLib_FieldUtils {
         foldhoodTemplate(true)(_&&_)(nbr{p})
 
       def minHoodSelector[T, V](toMinimize: => T)(data: => V)
-                               (implicit ord1: Builtins.Bounded[T], ord2: Builtins.Bounded[ID]): M[V] = wrap[V]{
+                               (implicit ord1: Bounded[T], ord2: Bounded[ID]): M[V] = wrap[V]{
         foldhoodTemplate[(T,ID,Option[V])]((ord1.top, ord2.top, None))( (x,y) =>
           if(ord1.compare(x._1,y._1) < 0) x else if(ord1.compare(x._1,y._1)==0 && ord2.compare(x._2,y._2) <=0) x else y)((toMinimize, ord2.top, Some(data)))._3
       }
 
       def maxHoodSelector[T, V](toMaximize: => T)(data: => V)
-                               (implicit ord1: Builtins.Bounded[T], ord2: Builtins.Bounded[ID]): M[V] = wrap[V]{
+                               (implicit ord1: Bounded[T], ord2: Bounded[ID]): M[V] = wrap[V]{
         foldhoodTemplate[(T,ID,Option[V])]((ord1.bottom, ord2.bottom, None))( (x,y) =>
           if(ord1.compare(x._1,y._1) > 0) x else if(ord1.compare(x._1,y._1)==0 && ord2.compare(x._2,y._2) >= 0) x else y)((toMaximize, ord2.bottom, Some(data)))._3
       }

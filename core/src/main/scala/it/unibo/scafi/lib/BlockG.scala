@@ -23,8 +23,6 @@ trait StdLib_BlockG {
 
   // scalastyle:off method.name
 
-  import Builtins._
-
   trait BlockG extends Gradients with FieldUtils {
     self: FieldCalculusSyntax with StandardSensors =>
 

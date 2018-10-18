@@ -18,8 +18,8 @@
 
 package lib
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.Builtins._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.lib.{Bounded, Builtins}
 
 trait MyLib { self: Constructs with Builtins =>
   def nbrRange():Double = nbrvar[Double](NBR_RANGE)

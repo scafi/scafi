@@ -23,7 +23,7 @@ import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 
-import it.unibo.scafi.lib.LibExtTypeClasses
+import it.unibo.scafi.lib.{Defaultable, LibExtTypeClasses, Bounded}
 import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
@@ -103,7 +103,7 @@ class ShortestPathProgram extends AggregateProgram with GradientAlgorithms with 
 
 class CheckSpeed extends AggregateProgram
     with GradientAlgorithms with BlockG with SensorDefinitions with GenericUtils with StateManagement {
-  implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
+  implicit val deftime = new Defaultable[LocalDateTime] {
     override def default: LocalDateTime = LocalDateTime.now()
   }
 
@@ -244,7 +244,7 @@ trait GradientAlgorithms extends Gradients
     rep(Double.PositiveInfinity){ g =>
       def distance = Math.max(nbrRange(), delta * communicationRadius)
 
-      import Builtins.Bounded._ // for min/maximizing over tuples
+      import Bounded._ // for min/maximizing over tuples
       val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
       /*maxHood {
         ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
@@ -305,7 +305,7 @@ trait GradientAlgorithms extends Gradients
   def classicWithG(source: Boolean): Double = G(source, if(source) 0.0 else Double.PositiveInfinity, (_:Double) + nbrRange, nbrRange)
 
   def classicWithGv2(source: Boolean): Double = {
-    implicit val defValue = Builtins.Defaultable.apply(Double.PositiveInfinity)
+    implicit val defValue = Defaultable.apply(Double.PositiveInfinity)
     G_v2(source, 0.0, (_:Double) + nbrRange, nbrRange)
   }
 
@@ -315,12 +315,12 @@ trait GradientAlgorithms extends Gradients
   def classicWithUnboundedG2(source: Boolean): Double =
     unboundedG[Double](source, if(source) 0.0 else Double.PositiveInfinity, (_:Double) + nbrRange, nbrRange, Math.min(_:Double, _:Double))
 
-  def G_v2[V : Builtins.Defaultable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+  def G_v2[V : Defaultable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
     rep((Double.MaxValue, field)) { case (dist, value) =>
       mux(source) {
         (0.0, field)
       } {
-        import Builtins.Bounded.tupleOnFirstBounded
+        import Bounded.tupleOnFirstBounded
         minHoodPlus { (nbr {dist} + metric, acc(nbr {value})) }
       }
     }._2
@@ -417,7 +417,7 @@ trait GradientAlgorithms extends Gradients
     rep[(Double,Double,Int,Boolean)](loc) {
       case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
         // (1) Let's calculate new values for spaceDistEst and sourceId
-        import Builtins.Bounded._
+        import Bounded._
         val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
         /* minHood {
           mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })

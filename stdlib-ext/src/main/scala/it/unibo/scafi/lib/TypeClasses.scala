@@ -25,7 +25,6 @@ class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
 
   object BoundedTypeClasses {
     import shapeless.{::, Generic, HList, HNil}
-    import incarnation.Builtins._
 
     implicit val hnilBounded: Bounded[HNil] = new Bounded[HNil] {
       override def top: HNil = HNil

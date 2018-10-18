@@ -23,8 +23,6 @@ trait StdLib_BlockS {
 
   // scalastyle:off method.name
 
-  import Builtins._
-
   trait BlockS extends BlockG {
     self: FieldCalculusSyntax with StandardSensors =>
 

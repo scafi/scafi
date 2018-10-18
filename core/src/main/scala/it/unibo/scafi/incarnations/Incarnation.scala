@@ -18,7 +18,8 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.core.{Core, Engine, RichLanguage}
+import it.unibo.scafi.core.{Core, Engine}
+import it.unibo.scafi.lib.{Builtins, StandardLibrary}
 import it.unibo.scafi.platform.SpaceTimeAwarePlatform
 import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
@@ -26,9 +27,16 @@ import it.unibo.scafi.time.TimeAbstraction
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Random
 
-trait Incarnation extends Core
+abstract class ACProgram[T](val interpreter: Incarnation#AggregateInterpreter) {
+  self: interpreter.type =>
+
+  def main: T
+}
+
+trait Incarnation
+  extends Core
   with Engine
-  with RichLanguage
+  with StandardLibrary
   with SpaceTimeAwarePlatform
   with BasicSpatialAbstraction
   with TimeAbstraction {

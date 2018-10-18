@@ -19,7 +19,7 @@
 package lib
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import Builtins.Bounded
+import it.unibo.scafi.lib.Bounded
 import sims.SensorDefinitions
 
 class MobilityLib extends BuildingBlocks { self: AggregateProgram with SensorDefinitions =>

@@ -23,8 +23,6 @@ trait StdLib_BlockC {
 
   // scalastyle:off method.name
 
-  import Builtins.Bounded
-
   implicit val idBounded: Bounded[ID]
 
   trait BlockC {

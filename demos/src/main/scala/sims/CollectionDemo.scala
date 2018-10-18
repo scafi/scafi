@@ -19,7 +19,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import Builtins._
+import it.unibo.scafi.lib.{PartialOrderingWithGLB, Bounded}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings, SettingsSpace}
 
 object CollectionDemo extends Launcher {
@@ -70,7 +70,7 @@ class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC 
       }
     }._2
 
-  implicit val ofset = new Builtins.Bounded[Set[ID]] {
+  implicit val ofset = new Bounded[Set[ID]] {
     override def top: Set[ID] = Set()
 
     override def bottom: Set[ID] = Set()
