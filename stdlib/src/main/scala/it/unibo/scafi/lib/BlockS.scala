@@ -52,7 +52,7 @@ trait Stdlib_BlockS {
       *         end the second element is the device identifier to
       *         ensure uniqueness of the field elements.
       */
-    def randomUid: (Double, ID) = rep((Math.random()), mid()) { v =>
+    def randomUid: (Double, ID) = rep((nextRandom(), mid())) { v =>
       (v._1, mid())
     }
 
