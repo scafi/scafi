@@ -21,6 +21,8 @@ package it.unibo.scafi.lib
 trait StdLib_FieldUtils {
   self: StandardLibrary.Subcomponent =>
 
+  import Builtins.Bounded
+
   trait FieldUtils {
     self: FieldCalculusSyntax =>
 
@@ -61,11 +63,17 @@ trait StdLib_FieldUtils {
       def anyHood(expr: => Boolean): Boolean =
         foldhoodTemplate[Boolean](false)(_||_)(expr)
 
+      def everyHood(p: => Boolean): Boolean =
+        foldhoodTemplate(true)(_&&_)(nbr{p})
+
       def minHoodSelector[T, V](toMinimize: => T)(data: => V)
                                (implicit ord1: Builtins.Bounded[T], ord2: Builtins.Bounded[ID]): M[V] = wrap[V]{
         foldhoodTemplate[(T,ID,Option[V])]((ord1.top, ord2.top, None))( (x,y) =>
           if(ord1.compare(x._1,y._1) < 0) x else if(ord1.compare(x._1,y._1)==0 && ord2.compare(x._2,y._2) <=0) x else y)((toMinimize, ord2.top, Some(data)))._3
       }
+
+      def minHoodLoc[T: Bounded](default: T)(expr: => T): T =
+        foldhoodTemplate[T](default)(implicitly[Bounded[T]].min)(expr)
     }
 
     object includingSelf extends FieldOps {
