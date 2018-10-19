@@ -24,6 +24,7 @@ import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
 
 import scala.concurrent.duration.FiniteDuration
+import scala.util.Random
 
 trait Incarnation extends Core
   with Engine
@@ -34,7 +35,13 @@ trait Incarnation extends Core
 
   trait FieldCalculusSyntax extends Constructs with Builtins
 
-  trait AggregateInterpreter extends ExecutionTemplate with FieldCalculusSyntax with Serializable
+  trait AggregateComputation[T] extends ExecutionTemplate with FieldCalculusSyntax with Serializable {
+    type MainResult = T
+  }
+
+  trait AggregateInterpreter extends ExecutionTemplate with FieldCalculusSyntax with Serializable {
+    type MainResult = Any
+  }
 
   trait AggregateProgram extends AggregateInterpreter
 
@@ -74,7 +81,7 @@ trait Incarnation extends Core
     /**
       * Get the distance between the current device and its neighbors.
       */
-    def nbrRange(): D = nbrvar[D](NBR_RANGE_NAME)
+    def nbrRange(): D = nbrvar[D](NBR_RANGE)
 
     /**
       * Get the direction vectors towards neighbours.
@@ -101,5 +108,15 @@ trait Incarnation extends Core
       * @return the duration since the last round of execution
       */
     def deltaTime(): FiniteDuration = sense[FiniteDuration](LSNS_DELTA_TIME)
+
+    /**
+      * @return a random double from 0 to 1
+      */
+    def randomGenerator(): Random = sense[Random](LSNS_RANDOM)
+
+    /**
+      * @return a random double from 0 to 1
+      */
+    def nextRandom(): Double = randomGenerator().nextDouble()
   }
 }

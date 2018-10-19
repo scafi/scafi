@@ -84,7 +84,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       }
 
       override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
-        case NBR_RANGE_NAME =>
+        case NBR_RANGE =>
           space.getDistance(space.getLocation(selfId), space.getLocation(nbr)).some[T]
         case NBR_VECTOR => {
           val (mypos, npos) = (space.getLocation(selfId), space.getLocation(nbr))

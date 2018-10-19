@@ -18,10 +18,9 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
-  {AggregateProgram, BlockG, BlockS, BlockT, Builtins, FieldUtils, GenericUtils, StandardSensors, LSNS_RANDOM}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE_NAME
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE
 
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
@@ -60,7 +59,7 @@ class MaxId extends AggregateProgram {
 class Gradient extends AggregateProgram {
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
   def isObstacle = sense[Boolean](SensorEnum.SENS2.name)
-  def nbrRange = nbrvar[Double](NBR_RANGE_NAME)
+  def nbrRange = nbrvar[Double](NBR_RANGE)
 
   override def main(): Double =
     branch (isObstacle) { Double.MaxValue } {
@@ -72,11 +71,10 @@ class Gradient extends AggregateProgram {
     }
 }
 
-class GradientHop extends AggregateProgram with SensorDefinitions with BlockG {
+class GradientHop extends AggregateProgram with SensorDefinitions with BlockG  {
   def isSource = sense[Boolean](SensorEnum.SENS1.name)
 
-  import Builtins.Bounded.of_i
-  def hopGradientByG(src: Boolean): Double = G2(src)(0)(_ + 1)(1)
+  def hopGradientByG(src: Boolean): Double = G2(src)(0)(_ + 1)(() =>1)
 
   override def main(): Int = hopGradientByG(isSource).toInt
 }
@@ -91,9 +89,9 @@ class RouteChannel extends AggregateProgram with SensorDefinitions with BlockG {
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 }
 
-class Timer extends AggregateProgram with BlockT {
+class Timer extends AggregateProgram with StandardSensors with TimeUtils {
   override def main() = Duration(
-    branch(!sense[Boolean](SensorEnum.SENS1.name)){ timer(Duration(30, TimeUnit.SECONDS)) } { 0 },
+    branch(!sense[Boolean](SensorEnum.SENS1.name)){ timerLocalTime(Duration(30, TimeUnit.SECONDS)) } { 0 },
     TimeUnit.NANOSECONDS
   ).toMillis + "ms"
 }

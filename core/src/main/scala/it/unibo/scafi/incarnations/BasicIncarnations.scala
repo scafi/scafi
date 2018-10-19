@@ -18,8 +18,9 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.space.{BasicSpatialAbstraction}
+import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.BasicTimeAbstraction
+import it.unibo.utils.{Interop, Linearizable}
 
 /**
  * An aggregate-programming system is ultimately created
@@ -40,7 +41,8 @@ trait BasicAbstractIncarnation extends Incarnation {
   override val LSNS_TIME: String = "currentTime"
   override val LSNS_TIMESTAMP: String = "timestamp"
   override val LSNS_DELTA_TIME: String = "deltaTime"
-  override val NBR_RANGE_NAME: String = "nbrRange"
+  override val LSNS_RANDOM: String = "randomGenerator"
+  override val NBR_RANGE: String = "nbrRange"
   override val NBR_DELAY: String = "nbrDelay"
   override val NBR_LAG: String = "nbrLag"
   override val NBR_VECTOR: String = "nbrVector"

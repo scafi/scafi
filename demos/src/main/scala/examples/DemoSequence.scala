@@ -34,14 +34,14 @@ object DemoSequence extends AggregateProgram with MyLib {
   def gradient(source: Boolean): Double =
     rep(Double.MaxValue){
       distance => mux(source) { 0.0 } {
-        foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE_NAME))
+        foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE))
       }
     }
 
   def gradient2(source: Boolean): Double =
     rep(Double.MaxValue){
       distance => mux(source) { 0.0 } {
-        minHood{ nbr{distance}+nbrvar[Double](NBR_RANGE_NAME) }
+        minHood{ nbr{distance}+nbrvar[Double](NBR_RANGE) }
       }
     }
 

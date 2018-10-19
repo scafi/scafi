@@ -18,11 +18,12 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, BoundedTypeClasses, Builtins, FieldUtils, GenericUtils, ID, TimeUtils, StandardSensors}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 
+import it.unibo.scafi.lib.LibExtTypeClasses
 import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
@@ -30,15 +31,26 @@ import scala.concurrent.duration.FiniteDuration
 
 object GradientsDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.GradientWithObstacle" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.GGradientComparison" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 40 // number of nodes
+  Settings.Sim_NumNodes = 100 // number of nodes
   Settings.ConfigurationSeed = 0
   launch()
 }
 
-class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
+class GGradientComparison extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
+  def main =
+    f"${classicGradient(sense1)}%3.2f,${dist1(sense1)}%3.2f,${dist2(sense1)}%3.2f"
+
+  def dist1(source: Boolean, metric: Metric = nbrRange): Double =
+    G2(source)(0.0)(_ + metric())()
+
+  def dist2(source: Boolean, metric: Metric = nbrRange): Double =
+    G2(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
+}
+
+class GradientWithObstacle extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
   def main = g2(sense1, sense2)
 
   def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
@@ -82,14 +94,15 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
   }
 }
 
-class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
+class ShortestPathProgram extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   def main = {
     val g = classic(sense1)
     ShortestPath(sense2, g)
   }
 }
 
-class CheckSpeed extends AggregateProgram with Gradients with BlockG with SensorDefinitions with GenericUtils {
+class CheckSpeed extends AggregateProgram
+    with GradientAlgorithms with BlockG with SensorDefinitions with GenericUtils with StateManagement {
   implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
     override def default: LocalDateTime = LocalDateTime.now()
   }
@@ -101,7 +114,7 @@ class CheckSpeed extends AggregateProgram with Gradients with BlockG with Sensor
     val meanTimeToReach = meanCounter(
       ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
       frequency).toLong
-    val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange())
+    val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange)
     val speed = distance / meanTimeToReach
     val meanFireInterval = meanCounter(deltaTime().toMillis, frequency)
     val expectedSpeed = communicationRadius / meanFireInterval
@@ -110,47 +123,47 @@ class CheckSpeed extends AggregateProgram with Gradients with BlockG with Sensor
   }
 }
 
-class GradientComparison extends AggregateProgram with Gradients with SensorDefinitions {
+class GradientComparison extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
 
-class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class BISGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = gradientBIS(sense1)
 }
 
-class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class SVDGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = gradientSVD(sense1)
 }
 
-class FlexGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class FlexGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = flex(sense1)
 }
 
-class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class CrfGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = crf(sense1)
 }
 
-class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class BasicGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = gradient(sense1)
 }
 
-class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classic(sense1)
 }
 
-class ClassicGradientWithG extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithG extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classicWithG(sense1)
 }
 
-class ClassicGradientWithGv2 extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithGv2 extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classicWithGv2(sense1)
 }
 
-class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithUnboundedG extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
   override def main() = classicWithUnboundedG(sense1)
 }
 
-class DistanceBetween extends AggregateProgram with SensorDefinitions with BlockG {
+class DistanceBetween extends AggregateProgram with SensorDefinitions with Gradients with BlockG {
   def isSource: Boolean = sense1
   def isTarget: Boolean = sense2
 
@@ -164,11 +177,15 @@ object DoubleUtils {
   }
 }
 
-trait Gradients extends BlockG
+trait GradientAlgorithms extends Gradients
+  with BlockG
   with FieldUtils
   with TimeUtils
+  with StateManagement
   with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
 
+  val typeclasses = new LibExtTypeClasses(it.unibo.scafi.incarnations.BasicSimulationIncarnation).BoundedTypeClasses
+  import typeclasses._
 
   def ShortestPath(source: Boolean, gradient: Double): Boolean =
     rep(false)(
@@ -227,10 +244,11 @@ trait Gradients extends BlockG
     rep(Double.PositiveInfinity){ g =>
       def distance = Math.max(nbrRange(), delta * communicationRadius)
 
-      import BoundedTypeClasses._; import Builtins.Bounded._ // for min/maximizing over tuples
-      val maxLocalSlope = maxHood {
+      import Builtins.Bounded._ // for min/maximizing over tuples
+      val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
+      /*maxHood {
         ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
-      }
+      }*/
       val constraint = minHoodPlus{ (nbr{g} + distance) }
 
       mux(source){ 0.0 }{
@@ -399,8 +417,9 @@ trait Gradients extends BlockG
     rep[(Double,Double,Int,Boolean)](loc) {
       case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
         // (1) Let's calculate new values for spaceDistEst and sourceId
-        import BoundedTypeClasses._; import Builtins.Bounded._
-        val (newSpaceDistEst, newSourceId) = minHood {
+        import Builtins.Bounded._
+        val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
+        /* minHood {
           mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
           { // let's discard neighbours where 'obsolete' flag is true
             // (unless 'obsolete' flag is true for all the neighbours)
@@ -410,7 +429,7 @@ trait Gradients extends BlockG
             // let's use classic gradient calculation
             (nbr{spaceDistEst} + metric, nbr{sourceId})
           }
-        }
+        }*/
 
         // (2) The most recent timeDistEst for the newSourceId is retrieved
         // by minimising nbrs' values for timeDistEst + their relative time distance

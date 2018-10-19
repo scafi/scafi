@@ -78,8 +78,8 @@ trait RichLanguage extends Language { self: Core =>
       }
 
       @transient implicit val of_d = new Bounded[Double] {
-        def top: Double = Double.MaxValue
-        def bottom: Double = Double.MinValue
+        def top: Double = Double.PositiveInfinity
+        def bottom: Double = Double.NegativeInfinity
         def compare(a: Double, b: Double): Int = (a-b).signum
       }
 
@@ -111,6 +111,17 @@ trait RichLanguage extends Language { self: Core =>
           def bottom: (T1, T2) = (of1.bottom, of2.default)
           def compare(a: (T1, T2), b: (T1, T2)): Int = of1.compare(a._1, b._1)
         }
+
+      implicit def listBounded[T](implicit ev: Bounded[T]): Bounded[List[T]] =
+        new Bounded[List[T]] {
+          override def bottom: List[T] = List()
+          override def top: List[T] = List()
+          override def compare(a: List[T] , b: List[T] ): Int =
+            a.zip(b)
+              .dropWhile { case (x,y) => ev.compare(x,y)==0 }
+              .headOption.map { case (x,y) => ev.compare(x,y) }
+              .getOrElse(-1)
+        }
     }
 
     trait PartialOrderingWithGLB[T] extends PartialOrdering[T] {
@@ -118,7 +129,15 @@ trait RichLanguage extends Language { self: Core =>
     }
 
     object PartialOrderingWithGLB {
-      val pogldouble: PartialOrderingWithGLB[Double] =
+      implicit def fromBounded[T](implicit b: Bounded[T]): PartialOrderingWithGLB[T] = new PartialOrderingWithGLB[T] {
+        override def gle(x: T, y: T): T = b.min(x,y)
+
+        override def tryCompare(x: T, y: T): Option[Int] = Some(b.compare(x,y))
+
+        override def lteq(x: T, y: T): Boolean = b.compare(x,y) <= 0
+      }
+
+      implicit val pogldouble: PartialOrderingWithGLB[Double] =
         new PartialOrderingWithGLB[Double] {
           override def gle(x: Double, y: Double): Double = Math.min(x,y)
           override def tryCompare(x: Double, y: Double): Option[Int] = None
