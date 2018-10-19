@@ -13,7 +13,8 @@ val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
 
-inThisBuild(List(  sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
+inThisBuild(List(
+  sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
@@ -30,15 +31,15 @@ inThisBuild(List(  sonatypeProfileName := "it.unibo.apice.scafiteam", // Your pr
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
   releaseEarlyWith := SonatypePublisher,
-  // Add sonatype repository settings
+  releaseEarlyEnableLocalReleases := true,
   publishTo := Some(
     if (isSnapshot.value)
       Opts.resolver.sonatypeSnapshots
     else
       Opts.resolver.sonatypeStaging
   ),
-  pgpPublicRing := file("./.travis/local.pubring.gpg"),
-  pgpSecretRing := file("./.travis/local.secring.gpg")
+  pgpPublicRing := file("./.travis/local.pubring.asc"),
+  pgpSecretRing := file("./.travis/local.secring.asc")
 ))
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
