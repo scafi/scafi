@@ -1,0 +1,3 @@
+rootProject.name = 'scafi'
+include("core", "commons", "spala", "distributed", "simulator", "simulator-gui", "stdlib-ext", "tests", "demos")
+

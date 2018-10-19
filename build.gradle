@@ -1,0 +1,33 @@
+plugins {
+    id "scala"
+    id "com.adtran.scala-multiversion-plugin" version "1.0.32"
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+subprojects {
+    version = '1.0'
+}
+
+dependencies {
+    // Use Scala 2.11 in our library project
+    compile "org.scala-lang:scala-library:%scala-version%"
+
+    // Use Scalatest for testing our library
+    testCompile 'junit:junit:4.12'
+    testCompile "org.scalatest:scalatest_%%:3.0.1"
+}
+
+
+
+allprojects {
+    task hello {
+        doLast { task ->
+            println "I'm $task.project.name"
+        }
+    }
+}
