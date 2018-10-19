@@ -63,7 +63,7 @@ lazy val noPublishSettings =
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
