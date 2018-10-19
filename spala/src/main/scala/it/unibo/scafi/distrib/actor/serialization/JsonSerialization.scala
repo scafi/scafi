@@ -112,11 +112,20 @@ trait JsonTupleSerialization extends JsonSerialization {
 
 trait JsonCommonFunctionSerialization extends JsonSerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
-    case f: Function[_,_] => Json.obj("type" -> "Function", "name" -> f.getClass.getSimpleName.split("/")(0))
+    case f if isFunction(f) =>
+      Json.obj("type" -> "Function", "name" -> anyToJs(f.getClass.getSimpleName.split("/")(0)))
   }
   override def jsToAny: PartialFunction[JsValue, Any] = {
     case f if (f \ "type").as[String] == "Function" =>
+      val fun = jsToAny((f \ "name").get).asInstanceOf[String]
       val fields = getClass.getDeclaredFields.map(fl => { fl.setAccessible(true); fl.get(this) }).filterNot(_ == null)
-      fields.find(_.getClass.getSimpleName.split("/")(0) == (f \ "name").as[String])
+      fields.find(_.getClass.getSimpleName.split("/")(0) == fun).get
+  }
+
+  private def isFunction(obj: Any): Boolean = obj match {
+    case _:Function0[_] | _:Function1[_,_] | _:Function2[_,_,_] | _:Function3[_,_,_,_] | _:Function4[_,_,_,_,_] |
+              _:Function5[_,_,_,_,_,_] | _:Function6[_,_,_,_,_,_,_] | _:Function7[_,_,_,_,_,_,_,_] |
+              _:Function8[_,_,_,_,_,_,_,_,_] | _:Function9[_,_,_,_,_,_,_,_,_,_] => true
+    case _ => false
   }
 }

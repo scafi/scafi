@@ -116,9 +116,7 @@ trait JsonMessagesSerialization extends JsonBaseSerialization { self: Platform =
   implicit val msgGetNeighborhoodExportsReads: Reads[MsgGetNeighborhoodExports] = js =>
     JsSuccess { MsgGetNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID]) }
 
-  implicit val msgLambdaTestWrites: Writes[MsgLambdaTest] = msg => anyToJs(msg.fun)
-  implicit val msgLambdaTestReads: Reads[MsgLambdaTest] = js => jsToAny(js) match {
-    case Some(l) => JsSuccess { MsgLambdaTest(l.asInstanceOf[Int => Int]) }
-    case None => JsError()
-  }
+  implicit val msgLambdaTestWrites: Writes[MsgLambdaTest] = msg => Json.obj("fun" -> anyToJs(msg.fun))
+  implicit val msgLambdaTestReads: Reads[MsgLambdaTest] = js =>
+    JsSuccess { MsgLambdaTest(jsToAny((js \ "fun").get).asInstanceOf[Int => Int]) }
 }
