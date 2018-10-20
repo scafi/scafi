@@ -18,7 +18,8 @@
 
 package it.unibo.scafi.distrib.actor.server
 
-import akka.actor.{Actor, Props, ActorRef}
+import akka.actor.{Actor, ActorRef, Props}
+
 import scala.concurrent.duration.DurationInt
 
 trait PlatformDevices { self: Platform.Subcomponent =>
@@ -59,7 +60,6 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     override def afterJob(): Unit = {
       super.afterJob()
       lastExport.foreach(server ! MsgExport(selfId, _))
-      server ! MsgLambdaTest(TestLambda)
     }
 
     override def preStart(): Unit = {
@@ -89,6 +89,9 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     override def propagateExportToNeighbors(export: ComputationExport): Unit =
       server ! MsgExport(selfId, export)
+
+    override def propagateLambdaToNeighbors(lambda: ()=>Any): Unit =
+      server ! MsgShipLambda(selfId, lambda)
   }
 
   object DeviceActor extends Serializable {

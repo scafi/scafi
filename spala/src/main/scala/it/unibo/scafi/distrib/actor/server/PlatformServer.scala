@@ -58,6 +58,10 @@ trait PlatformServer { self: Platform.Subcomponent =>
       exports ++= exps
     }
 
+    def handleLambda(id: UID, lambda: ()=>Any): Unit = {
+      neighborhood(id).foreach(nbr => map(nbr) ! MsgShipLambda(id, lambda))
+    }
+
     def registerDevice(devId: UID, ref: ActorRef): Unit = {
       map += (devId -> sender)
       scheduler.foreach(_ ! MsgWithDevices(Map(devId -> sender)))
@@ -90,14 +94,14 @@ trait PlatformServer { self: Platform.Subcomponent =>
         //logger.debug(s"\nGot from id $id export $export")
         addExports(Map(id -> export))
       }
+      case MsgShipLambda(id, lambda) => {
+        handleLambda(id, lambda)
+      }
       case MsgExports(exps) => {
         addExports(exps)
       }
       case MsgSensorValue(id, name, value) => {
         setSensorValue(id, name, value)
-      }
-      case MsgLambdaTest(fun) => {
-        println("LAMBDA: " + fun(5))
       }
     }
 
@@ -127,6 +131,11 @@ trait PlatformServer { self: Platform.Subcomponent =>
     override def addExports(exps: Map[UID, ComputationExport]): Unit = {
       super.addExports(exps)
       notifyObservers(MsgExports(exps))
+    }
+
+    override def handleLambda(id: UID, lambda: ()=>Any): Unit = {
+      super.handleLambda(id, lambda)
+      notifyObservers(MsgShipLambda(id, lambda))
     }
 
     override def setSensorValue(id: UID, name: LSensorName, value: Any): Unit = {
