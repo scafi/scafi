@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':scafi-commons')
+    compile "com.github.scopt:scopt_%%:${scoptVersion}"
+    compile "com.typesafe.akka:akka-actor_%%:${akkaVersion}"
+    compile "com.typesafe.akka:akka-actor_%%:${akkaVersion}"
+    compile "org.apache.bcel:bcel:${bcelVersion}"
+}

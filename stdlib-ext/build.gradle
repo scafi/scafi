@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':scafi-core')
+    compile "com.chuusai:shapeless_%%:${shapelessVersion}"
+}

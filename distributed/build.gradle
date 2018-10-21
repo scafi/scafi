@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':scafi-core')
+    compile project(':spala')
+}

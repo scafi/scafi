@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':scafi-simulator')
+    compile "com.github.scopt:scopt_%%:${scoptVersion}"
+}

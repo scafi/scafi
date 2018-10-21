@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':scafi-simulator-gui')
+    compile project(':scafi-distributed')
+    compile project(':scafi-lib-ext')
+}
