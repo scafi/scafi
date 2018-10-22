@@ -71,7 +71,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val scafi = project.in(file(".")).
-  aggregate(core, distributed, simulator, `simulator-gui`, `stdlib`, `tests`, `demos`).
+  aggregate(core, distributed, simulator, `new-simulator-gui`, `stdlib`, `tests`, `new-demos`).
   settings(commonSettings:_*).
   settings(sharedPublishSettings:_*).
   settings(
@@ -110,12 +110,12 @@ lazy val simulator = project.
     name := "scafi-simulator"
   )
 
-lazy val `simulator-gui` = project.
+lazy val `new-simulator-gui` = project.
   dependsOn(core,simulator).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
-    name := "scafi-simulator-gui",
+    name := "new-simulator-gui",
     libraryDependencies ++= Seq(scopt,scalatest,scalafx)
   )
 
@@ -145,9 +145,9 @@ lazy val tests = project.
   )
 
 // 'demos' project definition
-lazy val demos = project.
-  dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
+lazy val `new-demos` = project.
+  dependsOn(core, stdlib, distributed, simulator, `new-simulator-gui`).
   settings(commonSettings: _*).
   settings(
-    name := "scafi-demos"
+    name := "new-scafi-demos"
   )
