@@ -16,26 +16,21 @@
  * limitations under the License.
 */
 
-package sims
+package old.sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import Builtins._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.old.gui.{Launcher, Settings}
 
-object CollectionDemo extends App {
-  ScafiProgramBuilder (
-    Random(50,500,500),
-    SimulationInfo(program = classOf[CollectionIds]),
-    RadiusSimulation(radius = 140),
-    neighbourRender = true
-  ).launch()
+object CollectionDemo extends Launcher {
+  // Configuring simulation
+  Settings.Sim_ProgramClass = "old.sims.CollectionIds" // starting class, via Reflection
+  Settings.ShowConfigPanel = false // show a configuration panel at startup
+  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
+  Settings.Sim_NumNodes = 100 // number of nodes
+  launch()
 }
 
-@Demo
 class Collection extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
@@ -43,7 +38,16 @@ class Collection extends AggregateProgram with SensorDefinitions with BlockC wit
 
   override def main() = summarize(sense1, _ + _, if (sense2) 1.0 else 0.0, 0.0)
 }
-@Demo
+
+class CExample extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
+
+  def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
+    broadcast(sink, C(distanceTo(sink), acc, local, Null))
+
+  def p = distanceTo(sense1)
+  override def main() = s"${p}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
+}
+
 class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize[V](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
@@ -51,6 +55,18 @@ class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC 
 
   import PartialOrderingWithGLB.pogldouble
   def distanceTo3(src: Boolean) = G3[Double](src, 0.0, _ + nbrRange, nbrRange)(pogldouble)
+
+  override def G3[V: PartialOrderingWithGLB](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+    rep((Double.MaxValue, field)) { case (dist, value) =>
+      mux(source) {
+        (0.0, field)
+      } {
+        import PartialOrderingWithGLB._
+        minHoodPlusLoc[(Double,V)]((Double.PositiveInfinity, field)) {
+          (nbr { dist } + metric, acc(nbr { value }))
+        } (poglbTuple(pogldouble, implicitly[PartialOrderingWithGLB[V]]))
+      }
+    }._2
 
   implicit val ofset = new Builtins.Bounded[Set[ID]] {
     override def top: Set[ID] = Set()

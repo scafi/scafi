@@ -27,14 +27,15 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiInfor
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.FastFXOutput
 import lib.{FlockingLib, Movement2DSupport}
+
 //use -Djavafx.animation.fullspeed=true to increase perfomance
 object BasicMovementDemo extends App {
   ScafiProgramBuilder (
-    Random(500,1000,1000),
+    Random(1000,1000,1000),
     SimulationInfo(program = classOf[BasicMovement],
       metaActions = List(MetaActionProducer.movementDtActionProducer),
       exportValutations = List.empty),
-    RadiusSimulation(80),
+    RadiusSimulation(40),
     neighbourRender = true,
     outputPolicy = FastFXOutput,
     performance = NearRealTimePolicy
@@ -51,9 +52,11 @@ class BasicMovement extends AggregateProgram with SensorDefinitions with Flockin
     case RadiusSimulation(radius) => radius * 60.0 / 200
     case _ => 60.0 / 200
   }
+  lazy val centerX = ScafiInformation.configuration.worldInitializer.size._1 / 2
+  lazy val centerY = ScafiInformation.configuration.worldInitializer.size._2 / 2
   private val obstacleForce: Double = 400.0
 
-  override def main:(Double, Double) = SizeConversion.normalSizeToWorldSize(rep(randomMovement())(behaviour1))
+  override def main:(Double, Double) = SizeConversion.normalSizeToWorldSize(rep(randomMovement())(behaviour2))
 
   private def behaviour1(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {
@@ -64,14 +67,15 @@ class BasicMovement extends AggregateProgram with SensorDefinitions with Flockin
 
   private def behaviour2(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {
-      clockwiseRotation(.5, .5)
+      val m = clockwiseRotation(centerX, centerY)
+      normalizeToScale(m._1,m._2)
     } {
       (.0, .0)
     }
 
   private def behaviour3(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {
-      val m = clockwiseRotation(.5, .5)
+      val m = clockwiseRotation(centerX, centerY)
       val f = flock(tuple, Seq(sense1), Seq(sense3), repulsionRange, attractionForce, alignmentForce, repulsionForce, obstacleForce)
       normalizeToScale(m._1 + f._1, m._2 + f._2)
     } {

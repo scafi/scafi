@@ -60,6 +60,12 @@ lazy val sharedPublishSettings = Seq(
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
+lazy val noPublishSettings =
+  Seq(
+    publishArtifact := false,
+    publish := (),
+    publishLocal := ()
+  )
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
   scalaVersion := "2.11.8",
@@ -71,7 +77,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val scafi = project.in(file(".")).
-  aggregate(core, distributed, simulator, `new-simulator-gui`, `stdlib`, `tests`, `new-demos`).
+  aggregate(core, distributed, simulator, `simulator-gui-new`, `simulator-gui`, `stdlib`, `tests`, `demos-new`,demos).
   settings(commonSettings:_*).
   settings(sharedPublishSettings:_*).
   settings(
@@ -110,12 +116,12 @@ lazy val simulator = project.
     name := "scafi-simulator"
   )
 
-lazy val `new-simulator-gui` = project.
+lazy val `simulator-gui-new` = project.
   dependsOn(core,simulator).
   settings(commonSettings: _*).
   settings(sharedPublishSettings: _*).
   settings(
-    name := "new-simulator-gui",
+    name := "simulator-gui-new",
     libraryDependencies ++= Seq(scopt,scalatest,scalafx)
   )
 
@@ -145,9 +151,26 @@ lazy val tests = project.
   )
 
 // 'demos' project definition
-lazy val `new-demos` = project.
-  dependsOn(core, stdlib, distributed, simulator, `new-simulator-gui`).
+lazy val `demos-new` = project.
+  dependsOn(core, stdlib, distributed, simulator, `simulator-gui-new`).
+  settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
+  settings(
+    name := "scafi-demos-new"
+  )
+lazy val `simulator-gui` = project.
+  dependsOn(core,simulator).
   settings(commonSettings: _*).
   settings(
-    name := "new-scafi-demos"
+    name := "scafi-simulator-gui",
+    libraryDependencies ++= Seq(scopt)
+  )
+
+// 'demos' project definition
+lazy val demos = project.
+  dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
+  settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
+  settings(
+    name := "scafi-demos"
   )
