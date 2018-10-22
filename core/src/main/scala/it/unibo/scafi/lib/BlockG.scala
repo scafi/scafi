@@ -44,13 +44,13 @@ trait StdLib_BlockG {
     def G[V](source: Boolean, field: V, acc: V => V, metric: Metric): V =
       Gg[V](ClassicGradient.from(source).withMetric(metric), field, acc)
 
-    def G2[V: Bounded](source: Boolean)(field: V)(acc: V => V)(metric: Metric = nbrRange): V =
+    def G2[V](source: Boolean)(field: V)(acc: V => V)(metric: Metric = nbrRange): V =
       G(source, field, acc, metric)
 
     def distanceTo(source: Boolean, metric: Metric = nbrRange): Double =
       G2(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
 
-    def broadcast[V: Bounded](source: Boolean, field: V): V =
+    def broadcast[V](source: Boolean, field: V): V =
       G2(source)(field)(v => v)()
 
     def distanceBetween(source: Boolean, target: Boolean): Double =
