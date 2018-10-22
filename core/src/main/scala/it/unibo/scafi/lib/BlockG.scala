@@ -50,11 +50,11 @@ trait StdLib_BlockG {
     def distanceTo(source: Boolean, metric: Metric = nbrRange): Double =
       G2(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
 
-    def broadcast[V](source: Boolean, field: V): V =
-      G2(source)(field)(v => v)()
+    def broadcast[V](source: Boolean, field: V, metric: Metric = nbrRange): V =
+      G2(source)(field)(v => v)(metric)
 
-    def distanceBetween(source: Boolean, target: Boolean): Double =
-      broadcast(source, distanceTo(target))
+    def distanceBetween(source: Boolean, target: Boolean, metric: Metric = nbrRange): Double =
+      broadcast(source, distanceTo(target, metric), metric)
   }
 
 }
