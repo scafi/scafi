@@ -34,7 +34,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
   val MsgSensorValueManifest = "MsgSensorValue"
   val MsgNeighborManifest = "MsgNeighbor"
   val MsgGetNeighborhoodExportsManifest = "MsgGetNeighborhoodExports"
-  val MsgShipLambdaManifest = "MsgShipLambda"
+  val MsgUpdateProgramManifest = "MsgUpdateProgram"
 
   override def manifest(obj: AnyRef): Option[String] = obj match {
     case _: MsgExport => Some(MsgExportManifest)
@@ -43,7 +43,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     case _: MsgSensorValue => Some(MsgSensorValueManifest)
     case _: MsgNeighbor => Some(MsgNeighborManifest)
     case _: MsgGetNeighborhoodExports => Some(MsgGetNeighborhoodExportsManifest)
-    case _: MsgShipLambda => Some(MsgShipLambdaManifest)
+    case _: MsgUpdateProgram => Some(MsgUpdateProgramManifest)
     case _ => None
   }
 
@@ -54,7 +54,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     case msv: MsgSensorValue => Some(Json.toJson(msv.asInstanceOf[MsgSensorValue]).toString.getBytes)
     case mn: MsgNeighbor => Some(Json.toJson(mn.asInstanceOf[MsgNeighbor]).toString.getBytes)
     case mn: MsgGetNeighborhoodExports => Some(Json.toJson(mn.asInstanceOf[MsgGetNeighborhoodExports]).toString.getBytes)
-    case ml: MsgShipLambda => Some(Json.toJson(ml.asInstanceOf[MsgShipLambda]).toString.getBytes)
+    case mp: MsgUpdateProgram => Some(Json.toJson(mp.asInstanceOf[MsgUpdateProgram]).toString.getBytes())
     case _ => None
   }
 
@@ -83,8 +83,8 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
       case s: JsSuccess[MsgGetNeighborhoodExports] => Some(s.value)
       case _ => None
     }
-    case MsgShipLambdaManifest => Json.parse(bytes).validate[MsgShipLambda] match {
-      case s: JsSuccess[MsgShipLambda] => Some(s.value)
+    case MsgUpdateProgramManifest => Json.parse(bytes).validate[MsgUpdateProgram] match {
+      case s: JsSuccess[MsgUpdateProgram] => Some(s.value)
       case _ => None
     }
   }
@@ -127,9 +127,9 @@ trait JsonMessagesSerialization extends JsonBaseSerialization { self: Platform =
     MsgGetNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID])
   }
 
-  implicit val msgLambdaTestWrites: Writes[MsgShipLambda] = msg =>
-    Json.obj("id" -> anyToJs(msg.id), "lambda" -> anyToJs(msg.lambda))
-  implicit val msgLambdaTestReads: Reads[MsgShipLambda] = js => JsSuccess {
-    MsgShipLambda(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "lambda").get).asInstanceOf[()=>Any])
+  implicit val msgUpdateProgramWrites: Writes[MsgUpdateProgram] = msg =>
+    Json.obj("id" -> anyToJs(msg.id), "program" -> anyToJs(msg.program))
+  implicit val msgUpdateProgramReads: Reads[MsgUpdateProgram] = js => JsSuccess {
+    MsgUpdateProgram(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "program").get).asInstanceOf[()=>Any])
   }
 }
