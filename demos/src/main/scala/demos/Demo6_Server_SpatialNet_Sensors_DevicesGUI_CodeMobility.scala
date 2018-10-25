@@ -28,35 +28,69 @@ package demos
   * - Code mobility
   */
 
-import examples.gui.ServerGUIActor
-import it.unibo.scafi.distrib.actor.server.{SpatialPlatform => SpatialServerBasedActorPlatform}
-import examples.gui.server.{DevViewActor => ServerBasedDevViewActor}
+import akka.actor.{ActorRef, Props}
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
+import it.unibo.scafi.distrib.actor.server.{SpatialPlatform => SpatialServerBasedActorPlatform}
+import examples.gui.server.{DevViewActor => ServerBasedDevViewActor}
 
 object Demo6_Platform extends BasicAbstractActorIncarnation with SpatialServerBasedActorPlatform with BasicSpatialAbstraction {
   override val LocationSensorName: String = "LOCATION_SENSOR"
+  val SourceSensorName: String = "source"
   override type P = Point2D
   override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] = new Basic3DSpace(elems.toMap) {
     override val proximityThreshold = 1.1
   }
 
-  val SourceSensorName: String = "source"
-  val program1: () => String = () => "idle"
-  val program2: () => String = () => "working"
+  class CodeMobilityDeviceActor(override val selfId: UID,
+                                _aggregateExecutor: Option[ProgramContract],
+                                _execScope: ExecScope,
+                                override val server: ActorRef)
+    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with WeakCodeMobilitySupportBehavior {
+
+    override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
+      case ap: AggregateProgram => aggregateExecutor = Some(ap)
+    }
+    override def propagateProgramToNeighbors(program: () => Any): Unit = server ! MsgUpdateProgram(selfId, program)
+  }
+  object CodeMobilityDeviceActor {
+    def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope, serverActor: ActorRef): Props =
+      Props(classOf[CodeMobilityDeviceActor], selfId, program, execStrategy, serverActor)
+  }
+
+  val idleAggregateProgram = () => new AggregateProgram {
+    override def main(): String = "IDLE"
+  }
+  val stillValueAggregateProgram = (value: Any) => new AggregateProgram {
+    override def main(): Any = value
+  }
+  val hopGradientAggregateProgram = () => new AggregateProgram {
+    override def main(): Double = rep(Double.PositiveInfinity) {
+      hops => {
+        mux(sense(SourceSensorName)) { 0.0 } { 1 + minHood(nbr { hops }) }
+      }
+    }
+  }
+  val increasingAggregateProgram = () => new AggregateProgram {
+    override def main(): Int = rep(0)(_ + 1)
+  }
+  val neighborsCountAggregateProgram = () => new AggregateProgram {
+    override def main(): Int = foldhood(0)(_ + _)(1)
+  }
 }
 
 import demos.{Demo6_Platform => Platform}
 
 // STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
 class Demo6_AggregateProgram extends Platform.AggregateProgram {
-  override def main(): String = Platform.program1()
+  override def main(): String = "loading"
 }
 
 // STEP 3: DEFINE MAIN PROGRAMS
 object Demo6_MainProgram extends Platform.CmdLineMain {
   override def refineSettings(s: Platform.Settings): Platform.Settings = {
     s.copy(profile = s.profile.copy(
+      devActorProps = (id, program, scope, server) => Some(Platform.CodeMobilityDeviceActor.props(id, program, scope, server)),
       devGuiActorProps = ref => Some(ServerBasedDevViewActor.props(Platform, ref))
     ))
   }
@@ -65,7 +99,7 @@ object Demo6_MainProgram extends Platform.CmdLineMain {
     dm.addSensorValue(Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
     if (dm.selfId == 4) {
       dm.addSensorValue(Platform.SourceSensorName, true)
-      dm.actorRef ! Platform.MsgShipLambda(dm.selfId, Platform.program2)
+      dm.actorRef ! Platform.MsgUpdateProgram(dm.selfId, Platform.hopGradientAggregateProgram)
     } else {
       dm.addSensorValue(Platform.SourceSensorName, false)
     }
@@ -73,10 +107,4 @@ object Demo6_MainProgram extends Platform.CmdLineMain {
   }
 }
 
-object Demo6_ServerMain extends Platform.ServerCmdLineMain {
-  override def refineSettings(s: Platform.Settings): Platform.Settings = {
-    s.copy(profile = s.profile.copy(
-      serverGuiActorProps = tm => Some(ServerGUIActor.props(Platform, tm))
-    ))
-  }
-}
+object Demo6_ServerMain extends Platform.ServerCmdLineMain
