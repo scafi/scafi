@@ -19,8 +19,8 @@
 package demos
 
 /**
-  * Demo 6
-  * - Client/server system
+  * Demo 7
+  * - Peer-to-peer system
   * - (Dynamic) "Spatial" network
   * - Sensors are attached to devices
   * - A common GUI for all devices
@@ -28,34 +28,33 @@ package demos
   * - Code mobility
   */
 
-import akka.actor.{ActorRef, Props}
+import akka.actor.Props
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
-import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
-import it.unibo.scafi.distrib.actor.server.{SpatialPlatform => SpatialServerBasedActorPlatform}
-import examples.gui.server.{DevViewActor => ServerBasedDevViewActor}
+import it.unibo.scafi.space.Point2D
+import examples.gui.p2p.{DevViewActor => P2PDevViewActor}
+import it.unibo.scafi.distrib.actor.p2p.{SpatialPlatform => SpatialP2PActorPlatform}
 
-object Demo6_Platform extends BasicAbstractActorIncarnation with SpatialServerBasedActorPlatform with BasicSpatialAbstraction {
+object Demo7_Platform extends BasicAbstractActorIncarnation with SpatialP2PActorPlatform {
   override val LocationSensorName: String = "LOCATION_SENSOR"
   val SourceSensorName: String = "source"
-  override type P = Point2D
-  override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] = new Basic3DSpace(elems.toMap) {
-    override val proximityThreshold = 1.1
-  }
 
   class CodeMobilityDeviceActor(override val selfId: UID,
                                 _aggregateExecutor: Option[ProgramContract],
-                                _execScope: ExecScope,
-                                override val server: ActorRef)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with WeakCodeMobilitySupportBehavior {
+                                _execScope: ExecScope)
+    extends DeviceActor(selfId, _aggregateExecutor, _execScope) with WeakCodeMobilitySupportBehavior {
 
     override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
       case ap: AggregateProgram => aggregateExecutor = Some(ap)
     }
-    override def propagateProgramToNeighbors(program: () => Any): Unit = server ! MsgUpdateProgram(selfId, program)
+    override def propagateProgramToNeighbors(program: () => Any): Unit = {
+      nbrs.foreach { case (_, NbrInfo(_, _, mailboxOpt, _)) =>
+        mailboxOpt.foreach(ref => ref ! MsgUpdateProgram(selfId, program))
+      }
+    }
   }
   object CodeMobilityDeviceActor {
-    def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope, serverActor: ActorRef): Props =
-      Props(classOf[CodeMobilityDeviceActor], selfId, program, execStrategy, serverActor)
+    def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope): Props =
+      Props(classOf[CodeMobilityDeviceActor], selfId, program, execStrategy)
   }
 
   val idleAggregateProgram = () => new AggregateProgram {
@@ -79,27 +78,25 @@ object Demo6_Platform extends BasicAbstractActorIncarnation with SpatialServerBa
   }
 }
 
-import demos.{Demo6_Platform => Platform}
+import demos.{Demo7_Platform => Platform}
 
 // STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-class Demo6_AggregateProgram extends Platform.AggregateProgram {
+class Demo7_AggregateProgram extends Platform.AggregateProgram {
   override def main(): String = "ready"
 }
 
 // STEP 3: DEFINE MAIN PROGRAMS
-object Demo6_MainProgram extends Platform.CmdLineMain {
+object Demo7_MainProgram extends Platform.CmdLineMain {
   override def refineSettings(s: Platform.Settings): Platform.Settings = {
     s.copy(profile = s.profile.copy(
-      devActorProps = (id, program, scope, server) => Some(Platform.CodeMobilityDeviceActor.props(id, program, scope, server)),
-      devGuiActorProps = ref => Some(ServerBasedDevViewActor.props(Platform, ref))
+      devActorProps = (id, program, scope) => Some(Platform.CodeMobilityDeviceActor.props(id, program, scope)),
+      devGuiActorProps = ref => Some(P2PDevViewActor.props(Platform, ref))
     ))
   }
   override def onDeviceStarted(dm: Platform.DeviceManager, sys: Platform.SystemFacade): Unit = {
-    val devInRow = ServerBasedDevViewActor.DevicesInRow
+    val devInRow = P2PDevViewActor.DevicesInRow
     dm.addSensorValue(Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
     dm.addSensorValue(Platform.SourceSensorName, false)
     dm.start
   }
 }
-
-object Demo6_ServerMain extends Platform.ServerCmdLineMain
