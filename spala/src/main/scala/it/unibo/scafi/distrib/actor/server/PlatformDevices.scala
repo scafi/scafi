@@ -89,9 +89,6 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     override def propagateExportToNeighbors(export: ComputationExport): Unit =
       server ! MsgExport(selfId, export)
-
-    override def propagateLambdaToNeighbors(lambda: ()=>Any): Unit =
-      server ! MsgShipLambda(selfId, lambda)
   }
 
   object DeviceActor extends Serializable {

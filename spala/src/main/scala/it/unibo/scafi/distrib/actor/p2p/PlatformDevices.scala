@@ -89,31 +89,6 @@ trait PlatformDevices { self: Platform.Subcomponent =>
         }
       }
     }
-
-    override def propagateLambdaToNeighbors(lambda: () => Any): Unit = {
-      import context.dispatcher
-
-      val NBR_LOOKUP_TIMEOUT = 2.seconds
-
-      nbrs.foreach { case (idn, NbrInfo(_, expOpt, mailboxOpt, pathOpt)) =>
-        mailboxOpt match {
-          // If we have a mailbox reference, we can use it directly
-          case Some(ref) => {
-            ref ! MsgShipLambda(selfId, lambda)
-          }
-          // If we have a path, we can try to lookup the mailbox reference
-          case None => pathOpt.foreach { path =>
-            this.context.system.actorSelection(path).resolveOne(NBR_LOOKUP_TIMEOUT).onComplete {
-              // Lookup success: we can use the reference
-              case Success(nref) => self ! MsgDeviceLocation(idn, nref)
-              // Lookup failure: what should we do?
-              // Should we remove the neighbor after some tries?
-              case Failure(e) => //self ! MsgRemoveNeighbor(idn)
-            }
-          }
-        }
-      }
-    }
   }
 
   object DeviceActor extends Serializable {
