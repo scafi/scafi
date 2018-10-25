@@ -34,6 +34,13 @@ trait DevViewActor extends Actor {
   protected var devComponent, componentSpot: JComponent = _
   protected var lId, lExport: JLabel = _
 
+  val programs: Map[String, () => I.AggregateProgram] = I.getClass
+    .getDeclaredFields
+    .map(f => { f.setAccessible(true); f.getName -> f.get(I) })
+    .filter(f => f._2.isInstanceOf[() => I.AggregateProgram])
+    .map(f => f._1 -> f._2.asInstanceOf[() => I.AggregateProgram])
+    .toMap
+
   dev ! MsgAddObserver(self)
   buildComponent()
 
@@ -46,7 +53,7 @@ trait DevViewActor extends Actor {
   }
 
   protected def buildComponent(): Unit = {
-    devComponent = new JPanel with DraggableComponent {
+    devComponent = new JPanel with DraggableComponent with RightClickMenuComponent {
       override protected def afterDragging(location: Point): Unit = {
         val pos = Point2D((location.getX / DevViewActor.Width).round,
           (location.getY / DevViewActor.Height).round)
@@ -63,7 +70,7 @@ trait DevViewActor extends Actor {
     lExport.setFont(customFont)
     exportPanel.add(lExport)
 
-    componentSpot = new CircularPanel(Color.ORANGE)
+    componentSpot = new CircularPanel()
     componentSpot.setLayout(new GridBagLayout())
     lId = new JLabel("id")
     lId.setFont(customFont)
@@ -76,6 +83,13 @@ trait DevViewActor extends Actor {
     cbc.gridy = 1
     cbc.ipady = DevViewActor.Width / 3
     devComponent.add(componentSpot, cbc)
+
+    devComponent.asInstanceOf[RightClickMenuComponent].addTwoLevelItems("programs", programs.map(p => {
+      p._1 -> (() => dev ! I.MsgUpdateProgram(id, p._2))
+    }))
+    devComponent.asInstanceOf[RightClickMenuComponent].addTwoLevelItems("source", Map(
+      "true" -> (() => dev ! I.MsgLocalSensorValue("source", true)),
+      "false" -> (() => dev ! I.MsgLocalSensorValue("source", false))))
   }
 
   protected def updateGuiRef(ref: ActorRef): Unit = {
@@ -105,8 +119,9 @@ trait DevViewActor extends Actor {
       devComponent.setBounds(pos.x.toInt * DevViewActor.Width, pos.y.toInt * DevViewActor.Height,
         DevViewActor.Width, DevViewActor.Height)
       devsGUIActor ! I.MsgDevPosition(dev, pos)
-    } else if (sensorName.toString == "source" && sensorValue == true) {
-      componentSpot.asInstanceOf[CircularPanel].circleColor = Color.RED
+    } else if (sensorName.toString == "source") {
+      componentSpot.asInstanceOf[CircularPanel].circleColor =
+        if (sensorValue.asInstanceOf[Boolean]) { Color.RED } else { Color.ORANGE }
     }
   }
 
