@@ -36,16 +36,11 @@ trait BasicAbstractActorIncarnation
   override val interopUID = interopID
   override val linearUID = linearID
 
-  override implicit def adaptProgram[P](program: P): AggregateProgram with ProgramContract = program match {
-    case p: AggregateProgram => p
-  }
-  implicit def adaptAggregateProgram(program: AggregateProgram): AggregateProgram with ProgramContract =
+  type ProgramType = AggregateProgram
+  override implicit def adaptAggregateProgram(program: ProgramType): ProgramContract =
     new AggregateProgram with ProgramContract {
-      override def round(ctx: ComputationContext): ComputationExport =
-        program.round(ctx)
-
-      override def main(): Any =
-        program.main()
+      override def round(ctx: ComputationContext): ComputationExport = program.round(ctx)
+      override def main(): Any = program.main()
     }
 
   implicit def adaptExport(export: EXPORT): ComputationExport =

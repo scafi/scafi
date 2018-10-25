@@ -113,14 +113,17 @@ trait PlatformSettings { self: Platform.Subcomponent =>
       s
     }
   }
-  implicit def adaptProgram[P](program: P): ProgramContract
+
+  type ProgramType
+  implicit def adaptAggregateProgram(program: ProgramType): ProgramContract
+
   object AggregateApplicationSettings {
     def fromConfig(c: Config, base: AggregateApplicationSettings = AggregateApplicationSettings()): AggregateApplicationSettings = {
       val programClass = if(c.hasPath("program-class")) Some(c.getString("program-class")) else None
       var aas = base.copy(name = c.getString("name"))
       programClass.foreach { programClassName =>
         val klass = Class.forName(programClassName)
-        aas = base.copy(program = () => Some(klass.newInstance()))
+        aas = base.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramType]))
       }
       aas
     }
@@ -214,7 +217,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
 
       opt[String]("program") valueName ("<FULLY QUALIFIED CLASS NAME>") action { (x, c) =>
         val klass = Class.forName(x)
-        c.copy(aggregate = c.aggregate.copy(program = () => Some(klass.newInstance())))
+        c.copy(aggregate = c.aggregate.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramType])))
       } text ("Aggregate program")
 
       opt[String]('h', "host") valueName ("<HOST>") action { (x, c) =>
