@@ -218,27 +218,26 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     }
   }
 
-  trait LambdaManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
-    // FIELDS
-    var lastLambda: Option[()=>Any] = None
+  trait WeakCodeMobilitySupportBehavior extends BasicActorBehavior { selfActor: Actor =>
+    //FIELDS
+    var lastProgram: Option[()=>Any] = None
 
     // REACTIVE BEHAVIOR
-    def funManagementBehavior: Receive = {
-      case MsgShipLambda(id, lambda) => handleLambda(id, lambda)
+    def programManagementBehavior: Receive = {
+      case MsgUpdateProgram(nid, program) => handleProgram(nid, program)
     }
-    override def inputManagementBehavior: Receive =
-      super.inputManagementBehavior.orElse(funManagementBehavior)
+    override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse(programManagementBehavior)
 
     // BEHAVIOR METHODS
-    def handleLambda(id: UID, lambda: ()=>Any): Unit = {
-      if (lastLambda.isEmpty || lastLambda.get != lambda) {
-        lastLambda = Some(lambda)
-        updateProgram(lambda)
-        propagateLambdaToNeighbors(lambda)
+    def handleProgram(nid: UID, program: ()=>Any): Unit = {
+      if (lastProgram.isEmpty || lastProgram.get != program) {
+        lastProgram = Some(program)
+        updateProgram(nid, program)
+        propagateProgramToNeighbors(program)
       }
     }
-    def updateProgram(lambda: ()=>Any): Unit
-    def propagateLambdaToNeighbors(lambda: ()=>Any): Unit
+    def updateProgram(nid: UID, program: ()=>Any): Unit
+    def propagateProgramToNeighbors(program: () => Any): Unit
   }
 
   /**
@@ -257,8 +256,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   with SensingBehavior
   with SensorManagementBehavior
   with ActuatorManagementBehavior
-  with BaseNbrManagementBehavior
-  with LambdaManagementBehavior {
+  with BaseNbrManagementBehavior {
 
     // ABSTRACT MEMBERS
 
@@ -328,8 +326,6 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     def updateSensorValues(): Unit = localSensors.foreach { case (name,provider) =>
       setLocalSensorValue(name, provider())
     }
-
-    override def updateProgram(lambda: () => Any): Unit = println("[" + selfId +"] UPDATE LAMBDA: " + lambda())
   }
 
   /**
