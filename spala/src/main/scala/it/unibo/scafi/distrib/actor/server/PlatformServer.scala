@@ -58,9 +58,8 @@ trait PlatformServer { self: Platform.Subcomponent =>
       exports ++= exps
     }
 
-    def handleLambda(id: UID, lambda: ()=>Any): Unit = {
-      neighborhood(id).foreach(nbr => map(nbr) ! MsgShipLambda(id, lambda))
-    }
+    def handleProgram(id: UID, program: () => Any): Unit =
+      neighborhood(id).foreach(nbr => map(nbr) ! MsgUpdateProgram(id, program))
 
     def registerDevice(devId: UID, ref: ActorRef): Unit = {
       map += (devId -> sender)
@@ -94,8 +93,8 @@ trait PlatformServer { self: Platform.Subcomponent =>
         //logger.debug(s"\nGot from id $id export $export")
         addExports(Map(id -> export))
       }
-      case MsgShipLambda(id, lambda) => {
-        handleLambda(id, lambda)
+      case MsgUpdateProgram(id, program) => {
+        handleProgram(id, program)
       }
       case MsgExports(exps) => {
         addExports(exps)
@@ -133,9 +132,9 @@ trait PlatformServer { self: Platform.Subcomponent =>
       notifyObservers(MsgExports(exps))
     }
 
-    override def handleLambda(id: UID, lambda: ()=>Any): Unit = {
-      super.handleLambda(id, lambda)
-      notifyObservers(MsgShipLambda(id, lambda))
+    override def handleProgram(id: UID, program: () => Any): Unit = {
+      super.handleProgram(id, program)
+      notifyObservers(MsgUpdateProgram(id, program))
     }
 
     override def setSensorValue(id: UID, name: LSensorName, value: Any): Unit = {
