@@ -44,11 +44,20 @@ object Demo7_Platform extends BasicAbstractActorIncarnation with SpatialP2PActor
     extends DeviceActor(selfId, _aggregateExecutor, _execScope) with WeakCodeMobilitySupportBehavior {
 
     override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
-      case ap: AggregateProgram => aggregateExecutor = Some(ap)
+      case ap: AggregateProgram => aggregateExecutor = Some(ap); lastExport = None
     }
     override def propagateProgramToNeighbors(program: () => Any): Unit = {
       nbrs.foreach { case (_, NbrInfo(_, _, mailboxOpt, _)) =>
         mailboxOpt.foreach(ref => ref ! MsgUpdateProgram(selfId, program))
+      }
+    }
+
+    override def beforeJob(): Unit = {
+      super.beforeJob()
+      if (reliableNbrs.isDefined) {
+        nbrs = nbrs ++ nbrs.filterNot(n => reliableNbrs.get.contains(n._1)).map {
+          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
+        }
       }
     }
   }
@@ -74,7 +83,7 @@ object Demo7_Platform extends BasicAbstractActorIncarnation with SpatialP2PActor
     override def main(): Int = rep(0)(_ + 1)
   }
   val neighborsCountAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = foldhood(0)(_ + _)(1)
+    override def main(): Int = foldhoodPlus(0)(_ + _)(1)
   }
 }
 

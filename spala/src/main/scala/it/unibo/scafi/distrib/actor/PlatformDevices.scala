@@ -18,11 +18,10 @@
 
 package it.unibo.scafi.distrib.actor
 
-import it.unibo.scafi.distrib.actor.patterns.{ObservableActorBehavior, BasicActorBehavior, PeriodicBehavior, LifecycleBehavior}
+import it.unibo.scafi.distrib.actor.patterns.{BasicActorBehavior, LifecycleBehavior, ObservableActorBehavior, PeriodicBehavior}
+import akka.actor.{Actor, ActorRef, Cancellable}
 
-import akka.actor.{ActorRef, Cancellable, Actor}
-
-import scala.collection.mutable.{ Map => MMap }
+import scala.collection.mutable.{Map => MMap}
 import scala.concurrent.duration._
 
 trait PlatformDevices { self: Platform.Subcomponent =>
@@ -221,6 +220,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait WeakCodeMobilitySupportBehavior extends BasicActorBehavior { selfActor: Actor =>
     //FIELDS
     var lastProgram: Option[()=>Any] = None
+    var reliableNbrs: Option[Set[UID]] = None
 
     // REACTIVE BEHAVIOR
     def programManagementBehavior: Receive = {
@@ -232,9 +232,11 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     def handleProgram(nid: UID, program: ()=>Any): Unit = {
       if (lastProgram.isEmpty || lastProgram.get != program) {
         lastProgram = Some(program)
+        reliableNbrs = Some(Set())
         updateProgram(nid, program)
         propagateProgramToNeighbors(program)
       }
+      reliableNbrs = Some(reliableNbrs.getOrElse(Set()) + nid)
     }
     def updateProgram(nid: UID, program: ()=>Any): Unit
     def propagateProgramToNeighbors(program: () => Any): Unit

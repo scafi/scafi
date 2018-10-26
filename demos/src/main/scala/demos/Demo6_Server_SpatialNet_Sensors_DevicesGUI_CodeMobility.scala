@@ -49,9 +49,18 @@ object Demo6_Platform extends BasicAbstractActorIncarnation with SpatialServerBa
     extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with WeakCodeMobilitySupportBehavior {
 
     override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
-      case ap: AggregateProgram => aggregateExecutor = Some(ap)
+      case ap: AggregateProgram => aggregateExecutor = Some(ap); lastExport = None
     }
     override def propagateProgramToNeighbors(program: () => Any): Unit = server ! MsgUpdateProgram(selfId, program)
+
+    override def beforeJob(): Unit = {
+      super.beforeJob()
+      if (reliableNbrs.isDefined) {
+        nbrs = nbrs ++ nbrs.filterNot(n => reliableNbrs.get.contains(n._1)).map {
+          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
+        }
+      }
+    }
   }
   object CodeMobilityDeviceActor {
     def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope, serverActor: ActorRef): Props =
@@ -75,7 +84,7 @@ object Demo6_Platform extends BasicAbstractActorIncarnation with SpatialServerBa
     override def main(): Int = rep(0)(_ + 1)
   }
   val neighborsCountAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = foldhood(0)(_ + _)(1)
+    override def main(): Int = foldhoodPlus(0)(_ + _)(1)
   }
 }
 
