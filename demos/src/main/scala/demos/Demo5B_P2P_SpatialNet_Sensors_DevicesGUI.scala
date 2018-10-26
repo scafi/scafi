@@ -19,7 +19,7 @@
 package demos
 
 /**
-  * Demo 5
+  * Demo 5-B
   * - Peer-to-peer system
   * - (Dynamic) "Spatial" network
   * - Sensors are attached to devices
@@ -27,17 +27,19 @@ package demos
   * - Command-line configuration
   */
 
-import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.space.Point2D
-
 import examples.gui.p2p.{DevViewActor => P2PDevViewActor}
 import it.unibo.scafi.distrib.actor.p2p.{SpatialPlatform => SpatialP2PActorPlatform}
+import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 
-object Demo5_Platform extends BasicAbstractActorIncarnation with SpatialP2PActorPlatform {
+object Demo5B_Platform extends SpatialP2PActorPlatform with BasicAbstractActorIncarnation {
   override val LocationSensorName: String = "LOCATION_SENSOR"
+  val SourceSensorName: String = "source"
 }
 
-class Demo5_AggregateProgram extends Demo5_Platform.AggregateProgram {
+import demos.{Demo5B_Platform => Platform}
+
+class Demo5B_AggregateProgram extends Platform.AggregateProgram {
   def hopGradient(source: Boolean): Double = {
     rep(Double.PositiveInfinity){
       hops => { mux(source) { 0.0 } { 1 + minHood(nbr { hops }) } }
@@ -46,16 +48,16 @@ class Demo5_AggregateProgram extends Demo5_Platform.AggregateProgram {
   def main(): Double = hopGradient(sense("source"))
 }
 
-object Demo5_MainProgram extends Demo5_Platform.CmdLineMain {
-  override def refineSettings(s: Demo5_Platform.Settings): Demo5_Platform.Settings = {
+object Demo5B_MainProgram extends Platform.CmdLineMain {
+  override def refineSettings(s: Platform.Settings): Platform.Settings = {
     s.copy(profile = s.profile.copy(
-      devGuiActorProps = ref => Some(P2PDevViewActor.props(Demo5_Platform, ref))
+      devGuiActorProps = ref => Some(P2PDevViewActor.props(Platform, ref))
     ))
   }
-  override def onDeviceStarted(dm: Demo5_Platform.DeviceManager, sys: Demo5_Platform.SystemFacade): Unit = {
+  override def onDeviceStarted(dm: Platform.DeviceManager, sys: Platform.SystemFacade): Unit = {
     val devInRow = P2PDevViewActor.DevicesInRow
-    dm.addSensorValue(Demo5_Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
-    dm.addSensorValue("source", dm.selfId==4)
+    dm.addSensorValue(Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
+    dm.addSensorValue(Platform.SourceSensorName, dm.selfId==4)
     dm.start
   }
 }

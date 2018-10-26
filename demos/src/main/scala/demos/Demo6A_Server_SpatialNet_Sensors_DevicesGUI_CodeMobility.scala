@@ -29,74 +29,38 @@ package demos
   */
 
 import akka.actor.{ActorRef, Props}
-import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 import it.unibo.scafi.distrib.actor.server.{SpatialPlatform => SpatialServerBasedActorPlatform}
 import examples.gui.server.{DevViewActor => ServerBasedDevViewActor}
 
-object Demo6_Platform extends BasicAbstractActorIncarnation with SpatialServerBasedActorPlatform with BasicSpatialAbstraction {
+object Demo6A_Platform extends Demo6_Platform with SpatialServerBasedActorPlatform with BasicSpatialAbstraction {
   override val LocationSensorName: String = "LOCATION_SENSOR"
-  val SourceSensorName: String = "source"
   override type P = Point2D
   override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] = new Basic3DSpace(elems.toMap) {
     override val proximityThreshold = 1.1
   }
 
-  class CodeMobilityDeviceActor(override val selfId: UID,
-                                _aggregateExecutor: Option[ProgramContract],
-                                _execScope: ExecScope,
-                                override val server: ActorRef)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with WeakCodeMobilitySupportBehavior {
+  class ServerBasedCodeMobilityDeviceActor(override val selfId: UID,
+                                           _aggregateExecutor: Option[ProgramContract],
+                                           _execScope: ExecScope,
+                                           override val server: ActorRef)
+    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with CodeMobilityDeviceActor {
 
-    override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
-      case ap: AggregateProgram => aggregateExecutor = Some(ap); lastExport = None
-    }
     override def propagateProgramToNeighbors(program: () => Any): Unit = server ! MsgUpdateProgram(selfId, program)
-
-    override def beforeJob(): Unit = {
-      super.beforeJob()
-      if (reliableNbrs.isDefined) {
-        nbrs = nbrs ++ nbrs.filterNot(n => reliableNbrs.get.contains(n._1)).map {
-          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
-        }
-      }
-    }
   }
   object CodeMobilityDeviceActor {
     def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope, serverActor: ActorRef): Props =
-      Props(classOf[CodeMobilityDeviceActor], selfId, program, execStrategy, serverActor)
-  }
-
-  val idleAggregateProgram = () => new AggregateProgram {
-    override def main(): String = "IDLE"
-  }
-  val stillValueAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = 1
-  }
-  val hopGradientAggregateProgram = () => new AggregateProgram {
-    override def main(): Double = rep(Double.PositiveInfinity) {
-      hops => {
-        mux(sense(SourceSensorName)) { 0.0 } { 1 + minHood(nbr { hops }) }
-      }
-    }
-  }
-  val increasingAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = rep(0)(_ + 1)
-  }
-  val neighborsCountAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = foldhoodPlus(0)(_ + _)(1)
+      Props(classOf[ServerBasedCodeMobilityDeviceActor], selfId, program, execStrategy, serverActor)
   }
 }
 
-import demos.{Demo6_Platform => Platform}
+import demos.{Demo6A_Platform => Platform}
 
-// STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-class Demo6_AggregateProgram extends Platform.AggregateProgram {
+class Demo6A_AggregateProgram extends Platform.AggregateProgram {
   override def main(): String = "ready"
 }
 
-// STEP 3: DEFINE MAIN PROGRAMS
-object Demo6_MainProgram extends Platform.CmdLineMain {
+object Demo6A_MainProgram extends Platform.CmdLineMain {
   override def refineSettings(s: Platform.Settings): Platform.Settings = {
     s.copy(profile = s.profile.copy(
       devActorProps = (id, program, scope, server) => Some(Platform.CodeMobilityDeviceActor.props(id, program, scope, server)),
@@ -111,4 +75,4 @@ object Demo6_MainProgram extends Platform.CmdLineMain {
   }
 }
 
-object Demo6_ServerMain extends Platform.ServerCmdLineMain
+object Demo6A_ServerMain extends Platform.ServerCmdLineMain

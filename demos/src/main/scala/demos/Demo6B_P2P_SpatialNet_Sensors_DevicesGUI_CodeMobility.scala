@@ -19,7 +19,7 @@
 package demos
 
 /**
-  * Demo 7
+  * Demo 6-B
   * - Peer-to-peer system
   * - (Dynamic) "Spatial" network
   * - Sensors are attached to devices
@@ -29,73 +29,37 @@ package demos
   */
 
 import akka.actor.Props
-import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.space.Point2D
 import examples.gui.p2p.{DevViewActor => P2PDevViewActor}
 import it.unibo.scafi.distrib.actor.p2p.{SpatialPlatform => SpatialP2PActorPlatform}
 
-object Demo7_Platform extends BasicAbstractActorIncarnation with SpatialP2PActorPlatform {
+object Demo6B_Platform extends Demo6_Platform with SpatialP2PActorPlatform {
   override val LocationSensorName: String = "LOCATION_SENSOR"
-  val SourceSensorName: String = "source"
 
-  class CodeMobilityDeviceActor(override val selfId: UID,
+  class P2PCodeMobilityDeviceActor(override val selfId: UID,
                                 _aggregateExecutor: Option[ProgramContract],
                                 _execScope: ExecScope)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope) with WeakCodeMobilitySupportBehavior {
+    extends DeviceActor(selfId, _aggregateExecutor, _execScope) with CodeMobilityDeviceActor {
 
-    override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
-      case ap: AggregateProgram => aggregateExecutor = Some(ap); lastExport = None
-    }
     override def propagateProgramToNeighbors(program: () => Any): Unit = {
       nbrs.foreach { case (_, NbrInfo(_, _, mailboxOpt, _)) =>
         mailboxOpt.foreach(ref => ref ! MsgUpdateProgram(selfId, program))
       }
     }
-
-    override def beforeJob(): Unit = {
-      super.beforeJob()
-      if (reliableNbrs.isDefined) {
-        nbrs = nbrs ++ nbrs.filterNot(n => reliableNbrs.get.contains(n._1)).map {
-          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
-        }
-      }
-    }
   }
   object CodeMobilityDeviceActor {
     def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope): Props =
-      Props(classOf[CodeMobilityDeviceActor], selfId, program, execStrategy)
-  }
-
-  val idleAggregateProgram = () => new AggregateProgram {
-    override def main(): String = "IDLE"
-  }
-  val stillValueAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = 1
-  }
-  val hopGradientAggregateProgram = () => new AggregateProgram {
-    override def main(): Double = rep(Double.PositiveInfinity) {
-      hops => {
-        mux(sense(SourceSensorName)) { 0.0 } { 1 + minHood(nbr { hops }) }
-      }
-    }
-  }
-  val increasingAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = rep(0)(_ + 1)
-  }
-  val neighborsCountAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = foldhoodPlus(0)(_ + _)(1)
+      Props(classOf[P2PCodeMobilityDeviceActor], selfId, program, execStrategy)
   }
 }
 
-import demos.{Demo7_Platform => Platform}
+import demos.{Demo6B_Platform => Platform}
 
-// STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-class Demo7_AggregateProgram extends Platform.AggregateProgram {
+class Demo6B_AggregateProgram extends Platform.AggregateProgram {
   override def main(): String = "ready"
 }
 
-// STEP 3: DEFINE MAIN PROGRAMS
-object Demo7_MainProgram extends Platform.CmdLineMain {
+object Demo6B_MainProgram extends Platform.CmdLineMain {
   override def refineSettings(s: Platform.Settings): Platform.Settings = {
     s.copy(profile = s.profile.copy(
       devActorProps = (id, program, scope) => Some(Platform.CodeMobilityDeviceActor.props(id, program, scope)),
