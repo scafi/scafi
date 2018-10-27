@@ -106,7 +106,12 @@ trait DevViewActor extends Actor {
   protected def updateExport(export: I.EXPORT): Unit = invokeLater {
     if (export.root().isInstanceOf[Double]) {
       val exp = export.root().asInstanceOf[Double]
-      lExport.setText("ex:" + (if (exp > Int.MaxValue) Double.PositiveInfinity else exp.toInt))
+      lExport.setText("ex:" + (
+        if (exp > Int.MaxValue) {
+          Double.PositiveInfinity
+        } else {
+          BigDecimal(exp).setScale(2, BigDecimal.RoundingMode.HALF_EVEN).toDouble
+        }))
     } else {
       lExport.setText("ex:" + export.root().toString)
     }
