@@ -38,23 +38,41 @@ trait Demo6_Platform extends ActorPlatform with BasicAbstractActorIncarnation {
     }
   }
 
-  val idleAggregateProgram = () => new AggregateProgram {
+  import java.lang.Math
+
+  val IdleAggregateProgram = () => new AggregateProgram {
     override def main(): String = "IDLE"
   }
-  val stillValueAggregateProgram = () => new AggregateProgram {
+  val StillFieldAggregateProgram = () => new AggregateProgram {
     override def main(): Int = 1
   }
-  val hopGradientAggregateProgram = () => new AggregateProgram {
+  val SourceDetectorAggregateProgram = () => new AggregateProgram {
+    override def main(): Boolean = sense(SourceSensorName)
+  }
+  val RandomFieldAggregateProgram = () => new AggregateProgram {
+    override def main(): Double = Math.random()
+  }
+  val ConstantRandomFieldAggregateProgram = () => new AggregateProgram {
+    override def main(): Double = rep(Math.random()){x => x}
+  }
+  val RoundCounterAggregateProgram = () => new AggregateProgram {
+    override def main(): Int = rep(0) { _ + 1 }
+  }
+  val RandomIncreasingFieldAggregateProgram = () => new AggregateProgram {
+    override def main(): Double = rep(0.0){x => x + rep(Math.random()){y=>y} }
+  }
+  val NeighborsCountAggregateProgram = () => new AggregateProgram {
+    override def main(): Int = foldhoodPlus(0)(_ + _)(1)
+  }
+  val BooleanGossipAggregateProgram = () => new AggregateProgram {
+    override def main(): Boolean = rep(false)(x =>
+      sense[Boolean](SourceSensorName) | foldhoodPlus(false)(_|_)(nbr(x)))
+  }
+  val HopGradientAggregateProgram = () => new AggregateProgram {
     override def main(): Double = rep(Double.PositiveInfinity) {
       hops => {
         mux(sense(SourceSensorName)) { 0.0 } { 1 + minHood(nbr { hops }) }
       }
     }
-  }
-  val increasingAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = rep(0)(_ + 1)
-  }
-  val neighborsCountAggregateProgram = () => new AggregateProgram {
-    override def main(): Int = foldhoodPlus(0)(_ + _)(1)
   }
 }
