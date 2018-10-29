@@ -18,11 +18,12 @@
 
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.Settings
-import javax.swing._
-import javax.swing.border.LineBorder
 import java.awt._
 import java.awt.event.MouseEvent
+import javax.swing._
+import javax.swing.border.LineBorder
+
+import it.unibo.scafi.simulation.gui.Settings
 
 /**
   * This is the most important panel in which the simulation will be executed.

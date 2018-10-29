@@ -18,7 +18,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ExplicitFields, FieldUtils}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ExplicitFields}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object ExplicitFieldsRun extends Launcher {

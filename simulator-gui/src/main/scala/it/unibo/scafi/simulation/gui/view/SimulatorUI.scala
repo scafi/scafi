@@ -18,13 +18,13 @@
 
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.utility.Utils
-import javax.swing._
 import java.awt._
 import java.awt.event.{ActionEvent, ComponentAdapter, ComponentEvent}
+import javax.swing._
 
 import it.unibo.scafi.simulation.gui.controller.Controller
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.gui.utility.Utils
 
 /**
   * This is the general frame that contains all panel

@@ -17,7 +17,6 @@
 */
 
 package sims
-
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 

@@ -28,6 +28,7 @@ import sims.DoubleUtils.Precision
 
 import scala.concurrent.duration.FiniteDuration
 
+
 object ExperimentsDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.ExperimentsProgram" // starting class, via Reflection

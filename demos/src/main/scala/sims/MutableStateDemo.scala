@@ -18,10 +18,10 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ID
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ID}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import scala.collection.mutable.{ Map => MMap }
+
+import scala.collection.mutable.{Map => MMap}
 
 object MutableStateDemo extends Launcher {
   // Configuring simulation

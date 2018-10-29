@@ -18,13 +18,12 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BuildingBlocks, TimeUtils }
-import it.unibo.scafi.simulation.gui.Settings
-import sims.BasicDemo.launch
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BuildingBlocks, TimeUtils}
+import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 import scala.concurrent.duration._
 
-object AgereDemoMain extends App {
+object AgereDemoMain extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.AgereDemo" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup

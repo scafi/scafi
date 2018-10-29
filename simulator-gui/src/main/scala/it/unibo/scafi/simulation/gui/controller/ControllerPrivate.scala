@@ -18,17 +18,14 @@
 
 package it.unibo.scafi.simulation.gui.controller
 
-import scala.language.implicitConversions
-
 import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing.JOptionPane
 
 import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.view.GuiNode
-import it.unibo.scafi.simulation.gui.view.NodeInfoPanel
-import it.unibo.scafi.simulation.gui.view.SensorOptionPane
-import it.unibo.scafi.simulation.gui.view.SimulatorUI
+import it.unibo.scafi.simulation.gui.view.{GuiNode, NodeInfoPanel, SensorOptionPane, SimulatorUI}
+
+import scala.language.implicitConversions
 
 /**
   * This class is a wrapper for all private Controller methods.

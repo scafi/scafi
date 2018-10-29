@@ -22,13 +22,14 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram,
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
+
 object BasicMovementDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_ProgramClass = "sims.BasicMovement" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   //Settings.Sim_Topology = Topologies.Grid_LoVar
-  Settings.Sim_NbrRadius = 0.06 // neighbourhood radius
-  Settings.Sim_NumNodes = 300 // number of nodes
+  Settings.Sim_NbrRadius = 0.03 // neighbourhood radius
+  Settings.Sim_NumNodes = 1000 // number of nodes
   //Settings.Led_Activator = (b: Any) => b.asInstanceOf[Boolean]
   Settings.Movement_Activator = (b: Any) => b.asInstanceOf[(Double, Double)]
   Settings.To_String = _ => ""
@@ -39,7 +40,6 @@ object BasicMovementDemo extends Launcher {
 }
 
 class BasicMovement extends AggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
-
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0
   private val repulsionForce: Double = 80.0

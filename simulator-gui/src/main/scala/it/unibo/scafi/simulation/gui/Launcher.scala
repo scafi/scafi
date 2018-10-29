@@ -17,6 +17,7 @@
 */
 
 package it.unibo.scafi.simulation.gui
+
 import it.unibo.scafi.simulation.gui.controller.Controller
 
 class Launcher extends App {

@@ -18,9 +18,9 @@
 
 package it.unibo.scafi.simulation.gui
 
-import scala.language.implicitConversions
-
 import java.awt.event.{ActionEvent, ActionListener}
+
+import scala.language.implicitConversions
 
 package object view {
   implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {

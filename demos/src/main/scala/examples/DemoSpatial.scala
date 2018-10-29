@@ -55,7 +55,7 @@ object DemoSpatialLauncher extends App {
   val net = new SpaceAwareSimulator(
     space = new Basic3DSpace(devsToPos, proximityThreshold = 1.8),
     devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
-      lsns => if (lsns == "sensor" && d == 3) 1 else 0,
+      lsns = Map.empty,
       nsns => nbr => null)
       },
     simulationSeed = System.currentTimeMillis(),

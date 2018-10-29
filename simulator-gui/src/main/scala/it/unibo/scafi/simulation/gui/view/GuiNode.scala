@@ -18,12 +18,12 @@
 
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.model.Node
-import it.unibo.scafi.simulation.gui.utility.Utils
-import javax.swing._
 import java.awt._
 import java.beans.PropertyVetoException
-import java.nio.file.Paths
+import javax.swing._
+
+import it.unibo.scafi.simulation.gui.model.Node
+import it.unibo.scafi.simulation.gui.utility.Utils
 
 /**
   * This class represents a graphics representation of Node

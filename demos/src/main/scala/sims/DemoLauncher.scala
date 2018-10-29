@@ -18,7 +18,7 @@
 
 package sims
 
-import it.unibo.scafi.simulation.gui._
+import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object DemoLauncher extends Launcher {
   Settings.Sim_ProgramClass = "sims.Timer"

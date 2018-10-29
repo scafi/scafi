@@ -18,8 +18,8 @@
 
 package it.unibo.scafi.simulation.gui.utility
 
-import javax.swing.filechooser.FileFilter
 import java.io.File
+import javax.swing.filechooser.FileFilter
 
 /* ImageFilter.java is used by FileChooserDemo2.java. */
 class ImageFilter extends FileFilter {

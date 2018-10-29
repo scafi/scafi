@@ -18,16 +18,15 @@
 
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.controller.Controller
-import it.unibo.scafi.simulation.gui.utility.Utils
-import javax.swing._
 import java.awt._
 import java.awt.event.ActionEvent
-import java.beans.PropertyChangeEvent
-import java.beans.PropertyChangeListener
+import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.text.NumberFormat
+import javax.swing._
 
-import it.unibo.scafi.simulation.gui.{Settings,SettingsSpace}
+import it.unibo.scafi.simulation.gui.Settings
+import it.unibo.scafi.simulation.gui.controller.Controller
+import it.unibo.scafi.simulation.gui.utility.Utils
 
 /**
   * This class represent the panel where the user can configure a new simulation.
@@ -59,8 +58,7 @@ class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeLi
   nodeNumberField.setValue(Settings.Sim_NumNodes)
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)
-
-  import SettingsSpace.Topologies._
+  import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies._
   var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
 
   topologyField = new JComboBox[String](vtop.toArray)

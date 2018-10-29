@@ -21,10 +21,10 @@ package it.unibo.scafi.simulation.gui.view
 import java.awt._
 import javax.swing._
 
-import it.unibo.scafi.simulation.gui.controller.Controller
-import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.Settings
+import it.unibo.scafi.simulation.gui.controller.Controller
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.gui.utility.Utils
 
 import scala.util.Try
 

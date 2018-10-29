@@ -20,7 +20,7 @@ package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import Builtins._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings, SettingsSpace}
+import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object CollectionDemo extends Launcher {
   // Configuring simulation
@@ -45,9 +45,7 @@ class CExample extends AggregateProgram with SensorDefinitions with BlockC with 
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
   def p = distanceTo(sense1)
-
-  import SettingsSpace.ToStrings.Default_Double
-  override def main() = s"${Default_Double(p)}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
+  override def main() = s"${p}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
 }
 
 class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {

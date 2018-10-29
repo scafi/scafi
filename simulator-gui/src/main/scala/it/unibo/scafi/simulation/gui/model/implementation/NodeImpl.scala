@@ -18,8 +18,7 @@
 
 package it.unibo.scafi.simulation.gui.model.implementation
 
-
-import it.unibo.scafi.simulation.gui.model.{Action, Node, Sensor}
+import it.unibo.scafi.simulation.gui.model.{Node, Sensor}
 import it.unibo.scafi.space.Point2D
 
 import scala.util.Random

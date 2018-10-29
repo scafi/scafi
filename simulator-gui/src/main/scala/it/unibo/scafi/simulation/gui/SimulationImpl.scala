@@ -16,19 +16,21 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.model.implementation
+package it.unibo.scafi.simulation.gui
 
-import it.unibo.scafi.simulation.gui.Simulation
-import it.unibo.scafi.simulation.gui.controller.Controller
-import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, Network, Node, Sensor}
-import it.unibo.scafi.space.Point2D
 import it.unibo.scafi.simulation.gui.BasicSpatialIncarnation._
+import it.unibo.scafi.simulation.gui.controller.Controller
+import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, Node}
+import it.unibo.scafi.space.Point2D
+
 
 class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
                      val simulationSeed: Long = System.nanoTime()) extends Simulation {
   //private Thread runProgram;  //should implements runnable
+
   private var net: SpaceAwareSimulator = null
-  var network: Network = null
+  var network: model.Network = null
   var runProgram: Function0[(Int,Export)] = null
   var deltaRound: Double = .0
   var strategy: Any = null
@@ -46,7 +48,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
           case EuclideanDistanceNbr(radius) => radius
         }),
         devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
-          lsns => if (lsns == "sensor" && d == 3) 1 else 0,
+          Map.empty,
           nsns => nbr => null)
         },
       simulationSeed = simulationSeed,

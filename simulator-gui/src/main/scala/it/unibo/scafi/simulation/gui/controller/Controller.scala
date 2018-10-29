@@ -19,21 +19,18 @@
 package it.unibo.scafi.simulation.gui.controller
 
 import java.awt.{Image, Point, Rectangle}
-
-import it.unibo.scafi.config.GridSettings
-import it.unibo.scafi.config.SimpleRandomSettings
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
-import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies._
-import it.unibo.scafi.simulation.gui.model._
-import it.unibo.scafi.simulation.gui.model.implementation._
-import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
-import it.unibo.scafi.space.{Point2D, SpaceHelper}
-import scala.collection.immutable.List
 import javax.swing.SwingUtilities
 
+import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
+import it.unibo.scafi.simulation.gui.model._
+import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationManagerImpl}
+import it.unibo.scafi.simulation.gui.utility.Utils
+import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
+import it.unibo.scafi.simulation.gui.{Settings, Simulation, SimulationImpl}
+import it.unibo.scafi.space.{Point2D, SpaceHelper}
 
+import scala.collection.immutable.List
 import scala.util.Try
 
 object Controller {
@@ -164,6 +161,7 @@ class Controller () {
 
     val ncols: Long = Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
+    import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies._
     if (List(Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar) contains topology) {
       val nPerSide = Math.sqrt(numNodes)
       val tolerance = topology match {

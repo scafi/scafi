@@ -18,12 +18,10 @@
 
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.controller.Controller
-import javax.swing._
 import java.awt._
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import java.beans.PropertyVetoException
+import java.awt.event.{MouseAdapter, MouseEvent}
+
+import it.unibo.scafi.simulation.gui.controller.Controller
 
 /**
   * This is the SimulationPanel's mouse listener

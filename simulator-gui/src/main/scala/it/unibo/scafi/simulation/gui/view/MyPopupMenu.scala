@@ -18,10 +18,10 @@
 
 package it.unibo.scafi.simulation.gui.view
 
-import it.unibo.scafi.simulation.gui.controller.Controller
+import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing._
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
+
+import it.unibo.scafi.simulation.gui.controller.Controller
 
 /**
   * This class represent the SoimulationPanel pop menu

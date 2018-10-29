@@ -18,12 +18,13 @@
 
 package it.unibo.scafi.simulation.gui.utility
 
-import javax.swing._
 import java.awt._
 import java.awt.image.BufferedImage
 import java.io.File
 import java.net.URL
 import java.nio.file.Paths
+import javax.swing._
+
 import it.unibo.scafi.space.Point2D
 /**
   * This class handles the images update, the component dimension and the component position.

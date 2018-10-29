@@ -18,7 +18,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ AggregateProgram, Builtins }
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, Builtins}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object DISIDemo extends Launcher {

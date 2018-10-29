@@ -12,7 +12,7 @@ val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
 val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
-
+val scalafx = "org.scalafx" %% "scalafx" % "8.0.144-R12"
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
@@ -63,7 +63,7 @@ lazy val noPublishSettings =
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`,`simulator-gui-new`,  `demos-new`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
@@ -138,4 +138,18 @@ lazy val demos = project.
   settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos"
+  )
+lazy val `simulator-gui-new` = project.
+  dependsOn(core,simulator).
+  settings(commonSettings: _*).
+  settings(
+    name := "simulator-gui-new",
+    libraryDependencies ++= Seq(scopt,scalatest,scalafx)
+  )
+lazy val `demos-new` = project.
+  dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui-new`).
+  settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
+  settings(
+    name := "scafi-demos-new"
   )

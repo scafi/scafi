@@ -18,8 +18,8 @@
 
 package it.unibo.scafi.simulation.gui
 
-import SettingsSpace.Topologies._
-import Settings._
+import it.unibo.scafi.simulation.gui.Settings._
+import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies._
 
 object SimulationCmdLine extends scopt.OptionParser[Settings.type]("<scafi graphical simulator>") {
 

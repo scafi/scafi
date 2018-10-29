@@ -18,14 +18,13 @@
 
 package it.unibo.scafi.simulation.gui.view
 
+import java.awt.event.ActionEvent
 import java.awt.{Color, GridBagConstraints, GridBagLayout, Insets}
+import java.text.NumberFormat
+import javax.swing._
 
 import it.unibo.scafi.simulation.gui.controller.Controller
-import it.unibo.scafi.simulation.gui.utility.ImageFilter
-import it.unibo.scafi.simulation.gui.utility.Utils
-import javax.swing._
-import java.awt.event.{ActionEvent}
-import java.text.NumberFormat
+import it.unibo.scafi.simulation.gui.utility.{ImageFilter, Utils}
 
 /**
   * This class represent the Application menu
