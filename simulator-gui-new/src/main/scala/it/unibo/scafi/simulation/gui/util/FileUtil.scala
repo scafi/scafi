@@ -9,7 +9,8 @@ import scala.reflect.io.Directory
   */
 object FileUtil {
   lazy val homeDirectory : String = System.getProperty("user.home")
-  lazy val outputDirectory : Directory = Directory(homeDirectory + "\\" + ".scafi-output")
+  lazy val separator : String = System.getProperty("file.separator")
+  lazy val outputDirectory : Directory = Directory(homeDirectory + separator + ".scafi-output")
 
   /**
     * create a path start to home
@@ -17,7 +18,7 @@ object FileUtil {
     * @param home the home file
     * @return the string form of path created
     */
-  def path (file : String)(implicit home : String) : String = home + "\\" + file
+  def path (file : String)(implicit home : String) : String = home + separator + file
 
   /**
     * append a value in file passed
