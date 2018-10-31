@@ -40,17 +40,17 @@ object Demo6A_Platform extends Demo6_Platform with SpatialServerBasedActorPlatfo
     override val proximityThreshold = 1.1
   }
 
-  class ServerBasedCodeMobilityDeviceActor(override val selfId: UID,
-                                           _aggregateExecutor: Option[ProgramContract],
-                                           _execScope: ExecScope,
-                                           override val server: ActorRef)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with CodeMobilityDeviceActor {
+  class ServerBasedDemo6DeviceActor(override val selfId: UID,
+                                    _aggregateExecutor: Option[ProgramContract],
+                                    _execScope: ExecScope,
+                                    override val server: ActorRef)
+    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with Demo6DeviceActor {
 
     override def propagateProgramToNeighbors(program: () => Any): Unit = server ! MsgUpdateProgram(selfId, program)
   }
   object CodeMobilityDeviceActor {
     def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope, serverActor: ActorRef): Props =
-      Props(classOf[ServerBasedCodeMobilityDeviceActor], selfId, program, execStrategy, serverActor)
+      Props(classOf[ServerBasedDemo6DeviceActor], selfId, program, execStrategy, serverActor)
   }
 }
 

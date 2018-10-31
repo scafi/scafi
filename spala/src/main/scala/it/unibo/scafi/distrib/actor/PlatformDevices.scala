@@ -410,4 +410,15 @@ trait PlatformDevices { self: Platform.Subcomponent =>
         mapValues(_.export.get).map(identity)))
     }
   }
+
+  trait CodeMobilityDeviceActor extends ComputationDeviceActor with WeakCodeMobilitySupportBehavior {
+    override def beforeJob(): Unit = {
+      super.beforeJob()
+      if (reliableNbrs.isDefined) {
+        nbrs = nbrs ++ nbrs.filterNot(n => reliableNbrs.get.contains(n._1)).map {
+          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
+        }
+      }
+    }
+  }
 }

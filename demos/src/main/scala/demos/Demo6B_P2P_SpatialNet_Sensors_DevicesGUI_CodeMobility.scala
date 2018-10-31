@@ -36,10 +36,10 @@ import it.unibo.scafi.distrib.actor.p2p.{SpatialPlatform => SpatialP2PActorPlatf
 object Demo6B_Platform extends Demo6_Platform with SpatialP2PActorPlatform {
   override val LocationSensorName: String = "LOCATION_SENSOR"
 
-  class P2PCodeMobilityDeviceActor(override val selfId: UID,
-                                _aggregateExecutor: Option[ProgramContract],
-                                _execScope: ExecScope)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope) with CodeMobilityDeviceActor {
+  class P2PDemo6DeviceActor(override val selfId: UID,
+                            _aggregateExecutor: Option[ProgramContract],
+                            _execScope: ExecScope)
+    extends DeviceActor(selfId, _aggregateExecutor, _execScope) with Demo6DeviceActor {
 
     override def propagateProgramToNeighbors(program: () => Any): Unit = {
       nbrs.foreach { case (_, NbrInfo(_, _, mailboxOpt, _)) =>
@@ -49,7 +49,7 @@ object Demo6B_Platform extends Demo6_Platform with SpatialP2PActorPlatform {
   }
   object CodeMobilityDeviceActor {
     def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope): Props =
-      Props(classOf[P2PCodeMobilityDeviceActor], selfId, program, execStrategy)
+      Props(classOf[P2PDemo6DeviceActor], selfId, program, execStrategy)
   }
 }
 

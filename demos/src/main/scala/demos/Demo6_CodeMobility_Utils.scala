@@ -24,21 +24,11 @@ import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 trait Demo6_Platform extends ActorPlatform with BasicAbstractActorIncarnation {
   val SourceSensorName: String = "source"
 
-  trait CodeMobilityDeviceActor extends ComputationDeviceActor with WeakCodeMobilitySupportBehavior {
+  trait Demo6DeviceActor extends CodeMobilityDeviceActor {
     override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
       case ap: AggregateProgram => aggregateExecutor = Some(ap); lastExport = None
     }
-    override def beforeJob(): Unit = {
-      super.beforeJob()
-      if (reliableNbrs.isDefined) {
-        nbrs = nbrs ++ nbrs.filterNot(n => reliableNbrs.get.contains(n._1)).map {
-          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
-        }
-      }
-    }
   }
-
-  import java.lang.Math
 
   val IdleAggregateProgram = () => new AggregateProgram {
     override def main(): String = "IDLE"
