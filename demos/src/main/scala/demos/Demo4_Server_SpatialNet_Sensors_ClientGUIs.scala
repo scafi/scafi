@@ -22,7 +22,7 @@ import examples.gui.DevGUIActor
 import it.unibo.scafi.space.Point2D
 
 /**
- * Demo 4-A
+ * Demo 4
  * - Client/server system
  * - (Dynamic) "Spatial" network
  * - Sensors are attached to devices
@@ -30,7 +30,7 @@ import it.unibo.scafi.space.Point2D
  * - Command-line configuration
  */
 
-object Demo4A_MainProgram extends Demo3_Platform.CmdLineMain {
+object Demo4_MainProgram extends Demo3_Platform.CmdLineMain {
   override def refineSettings(s: Demo3_Platform.Settings): Demo3_Platform.Settings = {
     s.copy(profile = s.profile.copy(
       devGuiActorProps = ref => Some(DevGUIActor.props(Demo3_Platform, ref))

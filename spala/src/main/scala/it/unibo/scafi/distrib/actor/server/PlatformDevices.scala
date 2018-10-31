@@ -18,7 +18,8 @@
 
 package it.unibo.scafi.distrib.actor.server
 
-import akka.actor.{Actor, Props, ActorRef}
+import akka.actor.{Actor, ActorRef, Props}
+
 import scala.concurrent.duration.DurationInt
 
 trait PlatformDevices { self: Platform.Subcomponent =>

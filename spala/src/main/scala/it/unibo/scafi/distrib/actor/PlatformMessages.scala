@@ -46,6 +46,7 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   case class MsgAddPushSensor(ref: ActorRef)
   case class MsgAddActuator(name: LSensorName, consumer: Any=>Unit)
   case class DevInfo(nid: UID, ref: ActorRef)
+  case class MsgUpdateProgram(id: UID, program: () => Any)
 
   // Invitation messages (please do "that" for me; the sender expects no reply)
   case class MsgRegistration(id: UID)
@@ -75,5 +76,4 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   case class MsgDevName(ref: ActorRef, id: UID)
   case class MsgDevPosition(ref: ActorRef, pos: Point2D)
   case class MsgNeighborhoodUpdate(id: UID, nbrs: Map[UID, ActorRef])
-
 }

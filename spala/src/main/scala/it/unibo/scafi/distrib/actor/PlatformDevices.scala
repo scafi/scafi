@@ -18,11 +18,10 @@
 
 package it.unibo.scafi.distrib.actor
 
-import it.unibo.scafi.distrib.actor.patterns.{ObservableActorBehavior, BasicActorBehavior, PeriodicBehavior, LifecycleBehavior}
+import it.unibo.scafi.distrib.actor.patterns.{BasicActorBehavior, LifecycleBehavior, ObservableActorBehavior, PeriodicBehavior}
+import akka.actor.{Actor, ActorRef, Cancellable}
 
-import akka.actor.{ActorRef, Cancellable, Actor}
-
-import scala.collection.mutable.{ Map => MMap }
+import scala.collection.mutable.{Map => MMap}
 import scala.concurrent.duration._
 
 trait PlatformDevices { self: Platform.Subcomponent =>
@@ -218,6 +217,31 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     }
   }
 
+  trait WeakCodeMobilitySupportBehavior extends BasicActorBehavior { selfActor: Actor =>
+    //FIELDS
+    var lastProgram: Option[()=>Any] = None
+    var reliableNbrs: Option[Set[UID]] = None
+
+    // REACTIVE BEHAVIOR
+    def programManagementBehavior: Receive = {
+      case MsgUpdateProgram(nid, program) => handleProgram(nid, program)
+    }
+    override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse(programManagementBehavior)
+
+    // BEHAVIOR METHODS
+    def handleProgram(nid: UID, program: ()=>Any): Unit = {
+      if (lastProgram.isEmpty || lastProgram.get != program) {
+        lastProgram = Some(program)
+        reliableNbrs = Some(Set())
+        updateProgram(nid, program)
+        propagateProgramToNeighbors(program)
+      }
+      reliableNbrs = Some(reliableNbrs.getOrElse(Set()) + nid)
+    }
+    def updateProgram(nid: UID, program: ()=>Any): Unit
+    def propagateProgramToNeighbors(program: () => Any): Unit
+  }
+
   /**
    * Base trait for all device actors.
    */
@@ -384,6 +408,17 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       // See: http://stackoverflow.com/questions/17709995/notserializableexception-for-mapstring-string-alias
       notifyObservers(MsgExports(this.nbrs.filter(_._2.export.isDefined).
         mapValues(_.export.get).map(identity)))
+    }
+  }
+
+  trait CodeMobilityDeviceActor extends ComputationDeviceActor with WeakCodeMobilitySupportBehavior {
+    override def beforeJob(): Unit = {
+      super.beforeJob()
+      if (reliableNbrs.isDefined) {
+        nbrs = nbrs ++ nbrs.filterNot(n => reliableNbrs.get.contains(n._1)).map {
+          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
+        }
+      }
     }
   }
 }

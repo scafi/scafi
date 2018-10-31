@@ -34,6 +34,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
   val MsgSensorValueManifest = "MsgSensorValue"
   val MsgNeighborManifest = "MsgNeighbor"
   val MsgGetNeighborhoodExportsManifest = "MsgGetNeighborhoodExports"
+  val MsgUpdateProgramManifest = "MsgUpdateProgram"
 
   override def manifest(obj: AnyRef): Option[String] = obj match {
     case _: MsgExport => Some(MsgExportManifest)
@@ -42,6 +43,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     case _: MsgSensorValue => Some(MsgSensorValueManifest)
     case _: MsgNeighbor => Some(MsgNeighborManifest)
     case _: MsgGetNeighborhoodExports => Some(MsgGetNeighborhoodExportsManifest)
+    case _: MsgUpdateProgram => Some(MsgUpdateProgramManifest)
     case _ => None
   }
 
@@ -52,6 +54,7 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     case msv: MsgSensorValue => Some(Json.toJson(msv.asInstanceOf[MsgSensorValue]).toString.getBytes)
     case mn: MsgNeighbor => Some(Json.toJson(mn.asInstanceOf[MsgNeighbor]).toString.getBytes)
     case mn: MsgGetNeighborhoodExports => Some(Json.toJson(mn.asInstanceOf[MsgGetNeighborhoodExports]).toString.getBytes)
+    case mp: MsgUpdateProgram => Some(Json.toJson(mp.asInstanceOf[MsgUpdateProgram]).toString.getBytes())
     case _ => None
   }
 
@@ -80,34 +83,53 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
       case s: JsSuccess[MsgGetNeighborhoodExports] => Some(s.value)
       case _ => None
     }
+    case MsgUpdateProgramManifest => Json.parse(bytes).validate[MsgUpdateProgram] match {
+      case s: JsSuccess[MsgUpdateProgram] => Some(s.value)
+      case _ => None
+    }
   }
 }
 
-trait JsonMessagesSerialization extends JsonOptionSerialization with JsonCollectionsSerialization { self: Platform =>
-  implicit val msgExportWrites: Writes[MsgExport] = msg => Json.obj("from" -> anyToJs(msg.from), "export" -> anyToJs(msg.export))
-  implicit val msgExportReads: Reads[MsgExport] = js =>
-    JsSuccess { MsgExport(jsToAny((js \ "from").get).asInstanceOf[UID], jsToAny((js \ "export").get).asInstanceOf[ComputationExport]) }
+trait JsonMessagesSerialization extends JsonBaseSerialization { self: Platform =>
+  implicit val msgExportWrites: Writes[MsgExport] = msg =>
+    Json.obj("from" -> anyToJs(msg.from), "export" -> anyToJs(msg.export))
+  implicit val msgExportReads: Reads[MsgExport] = js => JsSuccess {
+    MsgExport(jsToAny((js \ "from").get).asInstanceOf[UID], jsToAny((js \ "export").get).asInstanceOf[ComputationExport])
+  }
 
   implicit val msgNeighborhoodExportsWrites: Writes[MsgNeighborhoodExports] = msg =>
     Json.obj("id" -> anyToJs(msg.id), "nbrs" -> anyToJs(msg.nbrs))
-  implicit val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = js => JsSuccess { MsgNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID],
-    jsToAny((js \ "nbrs").get).asInstanceOf[Map[UID, Option[ComputationExport]]]) }
+  implicit val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = js => JsSuccess {
+    MsgNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "nbrs").get).asInstanceOf[Map[UID, Option[ComputationExport]]])
+  }
 
-  implicit val msgRegistrationWrites: Writes[MsgRegistration] = msg => Json.obj("id" -> anyToJs(msg.id))
-  implicit val msgRegistrationReads: Reads[MsgRegistration] = js => JsSuccess { MsgRegistration(jsToAny((js \ "id").get).asInstanceOf[UID]) }
+  implicit val msgRegistrationWrites: Writes[MsgRegistration] = msg =>
+    Json.obj("id" -> anyToJs(msg.id))
+  implicit val msgRegistrationReads: Reads[MsgRegistration] = js => JsSuccess {
+    MsgRegistration(jsToAny((js \ "id").get).asInstanceOf[UID])
+  }
 
   implicit val msgSensorValueWrites: Writes[MsgSensorValue] = msg =>
     Json.obj("id" -> anyToJs(msg.id), "name" -> anyToJs(msg.name), "value" -> anyToJs(msg.value))
-  implicit val msgSensorValueReads: Reads[MsgSensorValue] = js => JsSuccess { MsgSensorValue(jsToAny((js \ "id").get).asInstanceOf[UID],
-    jsToAny((js \ "name").get).asInstanceOf[LSensorName], jsToAny((js \ "value").get)) }
+  implicit val msgSensorValueReads: Reads[MsgSensorValue] = js => JsSuccess {
+    MsgSensorValue(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "name").get).asInstanceOf[LSensorName], jsToAny((js \ "value").get))
+  }
 
-  implicit val msgNeighborWrites: Writes[MsgNeighbor] = msg => Json.obj("id" -> anyToJs(msg.id), "idn" -> anyToJs(msg.idn))
-  implicit val msgNeighborReads: Reads[MsgNeighbor] = js =>
-    JsSuccess { MsgNeighbor(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "idn").get).asInstanceOf[UID]) }
+  implicit val msgNeighborWrites: Writes[MsgNeighbor] = msg =>
+    Json.obj("id" -> anyToJs(msg.id), "idn" -> anyToJs(msg.idn))
+  implicit val msgNeighborReads: Reads[MsgNeighbor] = js => JsSuccess {
+    MsgNeighbor(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "idn").get).asInstanceOf[UID])
+  }
 
-  implicit val msgGetNeighborhoodExportsWrites: Writes[MsgGetNeighborhoodExports] = msg => Json.obj("id" -> anyToJs(msg.id))
-  implicit val msgGetNeighborhoodExportsReads: Reads[MsgGetNeighborhoodExports] = js =>
-    JsSuccess { MsgGetNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID]) }
+  implicit val msgGetNeighborhoodExportsWrites: Writes[MsgGetNeighborhoodExports] = msg =>
+    Json.obj("id" -> anyToJs(msg.id))
+  implicit val msgGetNeighborhoodExportsReads: Reads[MsgGetNeighborhoodExports] = js => JsSuccess {
+    MsgGetNeighborhoodExports(jsToAny((js \ "id").get).asInstanceOf[UID])
+  }
 
-  override def anyToJs: PartialFunction[Any, JsValue] = super[JsonOptionSerialization].anyToJs orElse super[JsonCollectionsSerialization].anyToJs
+  implicit val msgUpdateProgramWrites: Writes[MsgUpdateProgram] = msg =>
+    Json.obj("id" -> anyToJs(msg.id), "program" -> anyToJs(msg.program))
+  implicit val msgUpdateProgramReads: Reads[MsgUpdateProgram] = js => JsSuccess {
+    MsgUpdateProgram(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "program").get).asInstanceOf[()=>Any])
+  }
 }
