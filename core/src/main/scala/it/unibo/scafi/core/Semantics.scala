@@ -23,15 +23,15 @@ import it.unibo.scafi.PlatformDependentConstants
 import scala.util.control.Exception._
 
 /**
- * This trait defines a component that extends Core and Language
- * It starts concretising the framework by implementing the key element of field-calculus semantics, namely:
- * - An export is a map from paths to values, and a value is a list of slots
- * - An Execution template implementing the whole operational semantics
- * - A basic Factory
- * - Additional ops to Context and Export, realised by family polymorphism
- *
- * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
- */
+  * This trait defines a component that extends Core and Language
+  * It starts concretising the framework by implementing the key element of field-calculus semantics, namely:
+  * - An export is a map from paths to values, and a value is a list of slots
+  * - An Execution template implementing the whole operational semantics
+  * - A basic Factory
+  * - Additional ops to Context and Export, realised by family polymorphism
+  *
+  * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
+  */
 
 trait Semantics extends Core with Language {
 
@@ -88,8 +88,8 @@ trait Semantics extends Core with Language {
   }
 
   /**
-   * It implements the whole operational semantics.
-   */
+    * It implements the whole operational semantics.
+    */
   trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with ProgramSchema {
 
     var vm: RoundVM = _
