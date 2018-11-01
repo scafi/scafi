@@ -162,4 +162,20 @@ class TestByEquivalence extends FunSpec with Matchers with TimeLimitedTests {
       foldhood(0)(aggregate { nbr{mid()} + _ + _ }){1}
     }
   }
+
+  checkThat("fold.nbr(f)() is to be ignored") {
+    val fixture = new Fixture
+
+    assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
+      foldhood("")(_+_){
+        nbr(mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          nbr(mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+      }
+    }{
+      foldhood("")(_+_){
+        (mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          (mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+      }
+    }
+  }
 }

@@ -137,7 +137,11 @@ trait Semantics extends Core with Language {
 
     override def aggregate[T](f: => T): T =
       vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(write = vm.unlessFoldingOnOthers) {
-        f
+        vm.neighbour match {
+          case Some(nbr) if nbr != vm.self => vm.loadFunction()()
+          case Some(nbr) if nbr==vm.self => vm.saveFunction(f); f
+          case _ => f
+        }
       }
 
     override def align[K,V](key: K)(proc: K => V): V =
@@ -187,12 +191,17 @@ trait Semantics extends Core with Language {
     def discardExport: Any
     def mergeExport: Any
 
+    def saveFunction[T](f: => T): Unit
+    def loadFunction[T](): ()=>T
+
     def unlessFoldingOnOthers = neighbour.map(_==self).getOrElse(true)
     def onlyWhenFoldingOnSelf = neighbour.map(_==self).getOrElse(false)
   }
 
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
     import RoundVMImpl.{ensure, Status, StatusImpl}
+
+    var aggregateFunctions: Map[Path,()=>Any] = Map.empty
 
     var exportStack: List[EXPORT] = List(factory.emptyExport)
     def export = exportStack.head
@@ -277,6 +286,14 @@ trait Semantics extends Core with Language {
         this.isolated = wasIsolated
       }
     }
+
+    override def saveFunction[T](f: => T): Unit =
+      aggregateFunctions += status.path.pull().push(FunCall[T](index,FunctionIdPlaceholder)) -> (() => f )
+
+    override def loadFunction[T](): () => T =
+      () => aggregateFunctions(status.path.pull().push(FunCall[T](index,FunctionIdPlaceholder)))().asInstanceOf[T]
+
+    private val FunctionIdPlaceholder = "f"
 
     override def newExportStack: Any = exportStack = factory.emptyExport() :: exportStack
     override def discardExport: Any = exportStack = exportStack.tail
