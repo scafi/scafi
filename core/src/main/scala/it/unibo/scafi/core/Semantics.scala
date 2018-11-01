@@ -112,7 +112,7 @@ trait Semantics extends Core with Language {
     override def mid(): ID = vm.self
 
     override def rep[A](init: =>A)(fun: (A) => A): A = {
-      vm.nest(Rep[A](vm.index))(true) {
+      vm.nest(Rep[A](vm.index))(write = vm.unlessFoldingOnOthers) {
         vm.locally {
           fun(vm.previousRoundVal.getOrElse(init))
         }
@@ -120,7 +120,7 @@ trait Semantics extends Core with Language {
     }
 
     override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      vm.nest(FoldHood[A](vm.index))(true) {
+      vm.nest(FoldHood[A](vm.index))(write = true) { // write export always for performance reason on nesting
         val nbrField = vm.alignedNeighbours
           .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
         vm.isolate { nbrField.fold(vm.locally { init })((x,y) => aggr(x,y) ) }
@@ -128,7 +128,7 @@ trait Semantics extends Core with Language {
     }
 
     override def nbr[A](expr: => A): A =
-      vm.nest(Nbr[A](vm.index))(vm.neighbour.map(_==vm.self).getOrElse(false)) {
+      vm.nest(Nbr[A](vm.index))(write = vm.onlyWhenFoldingOnSelf) {
         vm.neighbour match {
           case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
           case _  => expr
@@ -136,19 +136,18 @@ trait Semantics extends Core with Language {
       }
 
     override def aggregate[T](f: => T): T =
-      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(!vm.neighbour.isDefined) {
+      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(write = vm.unlessFoldingOnOthers) {
         f
       }
 
     override def align[K,V](key: K)(proc: K => V): V =
-      vm.nest[V](Scope[K](key))(true, inc = false){
+      vm.nest[V](Scope[K](key))(write = vm.unlessFoldingOnOthers, inc = false){
         proc(key)
       }
 
     def sense[A](name: LSNS): A = vm.localSense(name)
 
     def nbrvar[A](name: NSNS): A = vm.neighbourSense(name)
-
   }
 
   trait RoundVM {
@@ -187,6 +186,9 @@ trait Semantics extends Core with Language {
     def newExportStack: Any
     def discardExport: Any
     def mergeExport: Any
+
+    def unlessFoldingOnOthers = neighbour.map(_==self).getOrElse(true)
+    def onlyWhenFoldingOnSelf = neighbour.map(_==self).getOrElse(false)
   }
 
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
