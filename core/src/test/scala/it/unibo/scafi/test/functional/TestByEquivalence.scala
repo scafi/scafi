@@ -21,16 +21,10 @@ package it.unibo.scafi.test.functional
 import it.unibo.scafi.test.CoreTestIncarnation._
 import it.unibo.scafi.test.CoreTestUtils
 import org.scalatest._
-import org.scalatest.concurrent._
-import org.scalatest.time.Span
 
 import scala.util.Random
 
-class TestByEquivalence extends FunSpec with Matchers with TimeLimitedTests {
-  // The following timeout/signaler are to ensure the test with nested foldhoods does not get stuck
-  import org.scalatest.time.SpanSugar._
-  override def timeLimit: Span = 3 seconds
-  override val defaultTestSignaler = (testThread: Thread) => testThread.stop() // TODO: stop() is deprecated
+class TestByEquivalence extends FunSpec with Matchers {
 
   val checkThat = new ItWord
 
