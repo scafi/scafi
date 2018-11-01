@@ -55,6 +55,13 @@ trait StdLib_BlockG {
 
     def distanceBetween(source: Boolean, target: Boolean, metric: Metric = nbrRange): Double =
       broadcast(source, distanceTo(target, metric), metric)
+
+    def channel(source: Boolean, target: Boolean, width: Double): Boolean = {
+      val ds = distanceTo(source)
+      val dt = distanceTo(target)
+      val db = distanceBetween(source, target)
+      !(ds+dt==Double.PositiveInfinity && db==Double.PositiveInfinity) && ds + dt <= db + width
+    }
   }
 
 }

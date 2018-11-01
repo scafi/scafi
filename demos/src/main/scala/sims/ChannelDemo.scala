@@ -40,10 +40,10 @@ object ChannelDemo extends Launcher {
   */
 class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
 
-  def channel(source: Boolean, target: Boolean, width: Double): Boolean =
+  def myChannel(source: Boolean, target: Boolean, width: Double): Boolean =
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 
-  override def main() = branch(sense3){false}{channel(sense1, sense2, 1)}
+  override def main() = branch(sense3){false}{myChannel(sense1, sense2, 1)}
 }
 
 class SelfContainedChannel extends AggregateProgram with SensorDefinitions {
