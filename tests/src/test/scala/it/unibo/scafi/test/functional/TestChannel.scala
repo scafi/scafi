@@ -94,7 +94,7 @@ class TestChannel extends FlatSpec with Matchers {
       true,  true,  true,  true,
       true, false, false, true,
       true, false,  true, true,
-      true,  true,  true, true,
+      true,  true,  true, true
     )).toMap)(n1)
 
     exec(new TestProgram {
@@ -106,7 +106,7 @@ class TestChannel extends FlatSpec with Matchers {
       true,  true,  true,  true,
       true, false, false, true,
       true, false, false, true,
-      true,  true,  true, true,
+      true,  true,  true, true
     )).toMap)(n2)
 
     exec(new TestProgram {
@@ -118,7 +118,7 @@ class TestChannel extends FlatSpec with Matchers {
       true,  true,  true,  true,
       true, false, false, true,
       true, false, false, true,
-      true,  true,  true, true,
+      true,  true,  true, true
     )).toMap)(n3)
   }
 }
