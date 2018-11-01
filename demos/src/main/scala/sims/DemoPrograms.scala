@@ -84,9 +84,6 @@ class RouteChannel extends AggregateProgram with SensorDefinitions with BlockG {
 
   def channel2(source: Boolean, target: Boolean, width: Double): (String, String, String) =
     (distanceTo(source).formatted("%.2f"), distanceTo(target).formatted("%.2f"), distanceBetween(source, target).formatted("%.2f"))
-
-  def channel(source: Boolean, target: Boolean, width: Double): Boolean =
-    distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 }
 
 class Timer extends AggregateProgram with StandardSensors with TimeUtils {
