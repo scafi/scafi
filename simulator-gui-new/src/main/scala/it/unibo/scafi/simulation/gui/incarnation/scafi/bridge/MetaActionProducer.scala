@@ -40,7 +40,7 @@ object MetaActionProducer {
     */
   val movementDtActionProducer : MetaActionProducer[(Double,Double)] = new MetaActionProducer[(Double, Double)] {
     private var action : (Any) => (Option[(Double,Double)]) = v => Some(v.asInstanceOf[(Double,Double)])
-    override def valueParser_=(function: Any => Option[(Double, Double)]): Unit = this.action = action
+    override def valueParser_=(action: Any => Option[(Double, Double)]): Unit = this.action = action
     override def valueParser: Any => Option[(Double, Double)] = action
 
     override def apply(id: Int, dt: (Double, Double)): MetaAction = if (dt != (0.0, 0.0)) {
