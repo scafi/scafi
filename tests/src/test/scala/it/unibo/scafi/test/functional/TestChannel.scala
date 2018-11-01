@@ -111,7 +111,7 @@ class TestChannel extends FlatSpec with Matchers {
 
     exec(new TestProgram {
       override def main(): Any = branch(obstacle){ false }{ channel(src, dest, 0) }
-    }, ntimes = manyRounds)(n2)
+    }, ntimes = manyRounds)(n3)
 
     // ASSERT
     assertNetworkValues((0 to 15).zip(List(
@@ -119,6 +119,6 @@ class TestChannel extends FlatSpec with Matchers {
       true, false, false, true,
       true, false, false, true,
       true,  true,  true, true,
-    )).toMap)(n2)
+    )).toMap)(n3)
   }
 }
