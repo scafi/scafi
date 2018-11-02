@@ -18,7 +18,8 @@
 
 package it.unibo.scafi.distrib.actor.serialization
 
-import it.unibo.scafi.distrib.actor.Platform
+import akka.actor.ActorRef
+import it.unibo.scafi.distrib.actor.{Platform, PlatformMessages}
 import play.api.libs.json._
 
 trait BaseSerializer {
@@ -34,7 +35,10 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
   val MsgSensorValueManifest = "MsgSensorValue"
   val MsgNeighborManifest = "MsgNeighbor"
   val MsgGetNeighborhoodExportsManifest = "MsgGetNeighborhoodExports"
+  val MsgGetNeighborhoodLocationsManifest = "MsgGetNeighborhoodLocations"
+  val MsgNeighborhoodLocationsManifest = "MsgNeighborhoodLocations"
   val MsgUpdateProgramManifest = "MsgUpdateProgram"
+  val MsgPositionManifest = "MsgPosition"
 
   override def manifest(obj: AnyRef): Option[String] = obj match {
     case _: MsgExport => Some(MsgExportManifest)
@@ -44,6 +48,9 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     case _: MsgNeighbor => Some(MsgNeighborManifest)
     case _: MsgGetNeighborhoodExports => Some(MsgGetNeighborhoodExportsManifest)
     case _: MsgUpdateProgram => Some(MsgUpdateProgramManifest)
+    case _: MsgPosition => Some(MsgPositionManifest)
+    case _: MsgGetNeighborhoodLocations => Some(MsgGetNeighborhoodLocationsManifest)
+    case _: MsgNeighborhoodLocations => Some(MsgNeighborhoodLocationsManifest)
     case _ => None
   }
 
@@ -54,7 +61,10 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     case msv: MsgSensorValue => Some(Json.toJson(msv.asInstanceOf[MsgSensorValue]).toString.getBytes)
     case mn: MsgNeighbor => Some(Json.toJson(mn.asInstanceOf[MsgNeighbor]).toString.getBytes)
     case mn: MsgGetNeighborhoodExports => Some(Json.toJson(mn.asInstanceOf[MsgGetNeighborhoodExports]).toString.getBytes)
-    case mp: MsgUpdateProgram => Some(Json.toJson(mp.asInstanceOf[MsgUpdateProgram]).toString.getBytes())
+    case mp: MsgUpdateProgram => Some(Json.toJson(mp.asInstanceOf[MsgUpdateProgram]).toString.getBytes)
+    case mp: MsgPosition => Some(Json.toJson(mp.asInstanceOf[MsgPosition]).toString.getBytes)
+    case mgl: MsgGetNeighborhoodLocations => Some(Json.toJson(mgl.asInstanceOf[MsgGetNeighborhoodLocations]).toString.getBytes)
+    case ml: MsgNeighborhoodLocations => Some(Json.toJson(ml.asInstanceOf[MsgNeighborhoodLocations]).toString.getBytes)
     case _ => None
   }
 
@@ -85,6 +95,18 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
     }
     case MsgUpdateProgramManifest => Json.parse(bytes).validate[MsgUpdateProgram] match {
       case s: JsSuccess[MsgUpdateProgram] => Some(s.value)
+      case _ => None
+    }
+    case MsgPositionManifest => Json.parse(bytes).validate[MsgPosition] match {
+      case s: JsSuccess[MsgPosition] => Some(s.value)
+      case _ => None
+    }
+    case MsgGetNeighborhoodLocationsManifest => Json.parse(bytes).validate[MsgGetNeighborhoodLocations] match {
+      case s: JsSuccess[MsgGetNeighborhoodLocations] => Some(s.value)
+      case _ => None
+    }
+    case MsgNeighborhoodLocationsManifest => Json.parse(bytes).validate[MsgNeighborhoodLocations] match {
+      case s: JsSuccess[MsgNeighborhoodLocations] => Some(s.value)
       case _ => None
     }
   }
@@ -131,5 +153,23 @@ trait JsonMessagesSerialization extends JsonBaseSerialization { self: Platform =
     Json.obj("id" -> anyToJs(msg.id), "program" -> anyToJs(msg.program))
   implicit val msgUpdateProgramReads: Reads[MsgUpdateProgram] = js => JsSuccess {
     MsgUpdateProgram(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "program").get).asInstanceOf[()=>Any])
+  }
+
+  implicit val msgPositionWrites: Writes[MsgPosition] = msg =>
+    Json.obj("id" -> anyToJs(msg.id), "position" -> anyToJs(msg.position))
+  implicit val msgPositionReads: Reads[MsgPosition] = js => JsSuccess {
+    MsgPosition(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "position").get))
+  }
+
+  implicit val msgGetNeighborhoodLocationsWrites: Writes[MsgGetNeighborhoodLocations] = msg =>
+    Json.obj("id" -> anyToJs(msg.id))
+  implicit val msgGetNeighborhoodLocationsReads: Reads[MsgGetNeighborhoodLocations] = js => JsSuccess {
+    MsgGetNeighborhoodLocations(jsToAny((js \ "id").get).asInstanceOf[UID])
+  }
+
+  implicit val msgNeighborhoodLocationsWrites: Writes[MsgNeighborhoodLocations] = msg =>
+    Json.obj("id" -> anyToJs(msg.id), "nbrs" -> anyToJs(msg.nbrs))
+  implicit val msgNeighborhoodLocationsReads: Reads[MsgNeighborhoodLocations] = js => JsSuccess {
+    MsgNeighborhoodLocations(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "nbrs").get).asInstanceOf[Map[UID, String]])
   }
 }

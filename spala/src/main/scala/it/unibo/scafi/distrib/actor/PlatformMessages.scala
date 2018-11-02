@@ -21,6 +21,7 @@ package it.unibo.scafi.distrib.actor
 import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorRef, Props}
+import akka.remote.ContainerFormats
 import it.unibo.scafi.space.Point2D
 import javax.swing.JComponent
 
@@ -47,6 +48,7 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   case class MsgAddActuator(name: LSensorName, consumer: Any=>Unit)
   case class DevInfo(nid: UID, ref: ActorRef)
   case class MsgUpdateProgram(id: UID, program: () => Any)
+  case class MsgPosition(id: UID, position: Any)
 
   // Invitation messages (please do "that" for me; the sender expects no reply)
   case class MsgRegistration(id: UID)
@@ -63,6 +65,8 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   case class MsgGetSensorValue(sns: LSensorName)
   case class MsgLookup(id: UID)
   case class MsgGetNeighborhood(id: UID)
+  case class MsgGetNeighborhoodLocations(id: UID)
+  case class MsgNeighborhoodLocations(id: UID, nbrs: Map[UID, String])
   case class MsgGetNeighborhoodExports(id: UID)
   case class MsgNeighborhoodExports(id: UID, nbrs: Map[UID,Option[ComputationExport]]) extends ScafiMessage
   val MsgGetIds = "msg_get_ids".hashCode
