@@ -20,6 +20,8 @@ package it.unibo.scafi.distrib.actor.hybrid
 
 import akka.actor.{ActorRef, Props}
 import it.unibo.scafi.distrib.actor.p2p.PlatformBehaviors
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 trait PlatformDevices extends PlatformBehaviors { self: Platform.Subcomponent =>
   /**
@@ -34,6 +36,13 @@ trait PlatformDevices extends PlatformBehaviors { self: Platform.Subcomponent =>
     extends P2pBaseDeviceActor
     with MissingCodeManagementBehavior
     with ObservableDeviceActor {
+
+    import context.dispatcher
+    context.system.scheduler.schedule(
+      initialDelay = 0 seconds,
+      interval = 1 second,
+      receiver = server,
+      message = MsgGetNeighborhoodLocations(selfId))
 
     override def preStart(): Unit = {
       super.preStart()

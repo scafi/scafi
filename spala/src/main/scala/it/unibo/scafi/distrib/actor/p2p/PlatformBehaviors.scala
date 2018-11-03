@@ -55,11 +55,7 @@ trait PlatformBehaviors { self: ActorPlatform =>
     extends DynamicComputationDeviceActor
     with P2pNbrManagementBehavior {
 
-    override def propagateExportToNeighbors(export: ComputationExport): Unit = {
-      propagateMsgToNeighbors(MsgExport(selfId, export))
-    }
-
-    def propagateMsgToNeighbors(msg: Any): Unit = {
+    override def propagateMsgToNeighbors(msg: Any): Unit = {
       import context.dispatcher
       val NBR_LOOKUP_TIMEOUT = 2.seconds
 

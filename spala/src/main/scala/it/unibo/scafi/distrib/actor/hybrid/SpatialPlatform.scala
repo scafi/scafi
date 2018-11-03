@@ -19,14 +19,8 @@
 package it.unibo.scafi.distrib.actor.hybrid
 
 import akka.actor.{ActorRef, Props}
-import akka.util.Timeout
-import akka.pattern.ask
 import it.unibo.scafi.distrib.actor.hybrid.{Platform => BasePlatform}
 import it.unibo.scafi.space.MetricSpatialAbstraction
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.language.postfixOps
 
 /**
   * Specializes an [[it.unibo.scafi.distrib.actor.Platform]] into a "centralized platform" where
@@ -55,13 +49,6 @@ trait SpatialPlatform extends BasePlatform {
                            override val server: ActorRef)
     extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) {
 
-    import context.dispatcher
-    context.system.scheduler.schedule(
-      initialDelay = 0 seconds,
-      interval = 1 second,
-      receiver = server,
-      message = MsgGetNeighborhoodLocations(selfId))
-
     override def setLocalSensorValue(name: LSensorName, value: Any): Unit = {
       super.setLocalSensorValue(name, value)
       if (name == LocationSensorName) {
@@ -75,8 +62,7 @@ trait SpatialPlatform extends BasePlatform {
       Props(classOf[SpatialDeviceActor], thisVery, selfId, program, execStrategy, serverActor)
   }
 
-  class SpatialServerActor(val space: MutableMetricSpace[UID]) extends ServerBaseServerActor with ObservableServerActor {
-
+  class SpatialServerActor(val space: MutableMetricSpace[UID]) extends ServerActor {
     override def neighborhood(id: UID): Set[UID] = {
       if(space.contains(id)) space.getNeighbors(id).toSet else Set()
     }
@@ -88,15 +74,6 @@ trait SpatialPlatform extends BasePlatform {
           val nbs = this.space.getNeighbors(id)
           notifyObservers(MsgNeighborhood(id,nbs.toSet))
         })
-    }
-
-    override def queryManagementBehavior: Receive = super.queryManagementBehavior.orElse {
-      case MsgGetNeighborhoodLocations(id) =>
-        val locs = neighborhood(id)
-          .filter(idn => lookupActor(idn).isDefined)
-          .map(idn => idn -> lookupActor(idn).get.path.toString)
-          .toMap
-        sender ! MsgNeighborhoodLocations(id, locs)
     }
   }
 

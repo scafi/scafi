@@ -43,6 +43,15 @@ trait PlatformServer extends PlatformBehaviors { self: Platform.Subcomponent =>
 
     override def neighborhood(id: UID): Set[UID] = neighborhoods.getOrElse(id, Set())
 
+    override def queryManagementBehavior: Receive = super.queryManagementBehavior.orElse {
+      case MsgGetNeighborhoodLocations(id) =>
+        val locs = neighborhood(id)
+          .filter(idn => lookupActor(idn).isDefined)
+          .map(idn => idn -> lookupActor(idn).get.path.toString)
+          .toMap
+        sender ! MsgNeighborhoodLocations(id, locs)
+    }
+
     override def inputManagementBehavior: Receive = super.inputManagementBehavior orElse {
       case MsgNeighbor(id, idn) => addNbrsTo(id, Set(idn))
       case MsgNeighborhood(id, nbrs) => addNbrsTo(id, nbrs)

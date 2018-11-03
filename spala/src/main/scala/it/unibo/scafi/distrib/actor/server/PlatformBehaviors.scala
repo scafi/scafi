@@ -49,11 +49,7 @@ trait PlatformBehaviors { self: ActorPlatform =>
       server ! MsgRegistration(selfId)
     }
 
-    override def propagateExportToNeighbors(export: ComputationExport): Unit = {
-      propagateMsgToNeighbors(MsgExport(selfId, export))
-    }
-
-    def propagateMsgToNeighbors(msg: Any): Unit = {
+    override def propagateMsgToNeighbors(msg: Any): Unit = {
       server ! msg
     }
   }
