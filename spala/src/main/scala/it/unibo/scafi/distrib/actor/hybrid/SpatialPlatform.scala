@@ -75,7 +75,7 @@ trait SpatialPlatform extends BasePlatform {
       Props(classOf[SpatialDeviceActor], thisVery, selfId, program, execStrategy, serverActor)
   }
 
-  class SpatialServerActor(val space: MutableMetricSpace[UID]) extends AbstractServerActor with ObservableServerActor {
+  class SpatialServerActor(val space: MutableMetricSpace[UID]) extends ServerBaseServerActor with ObservableServerActor {
 
     override def neighborhood(id: UID): Set[UID] = {
       if(space.contains(id)) space.getNeighbors(id).toSet else Set()

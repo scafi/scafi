@@ -18,60 +18,15 @@
 
 package it.unibo.scafi.distrib.actor.hybrid
 
-import akka.actor.{Actor, ActorRef, Props}
-import it.unibo.scafi.distrib.actor.{GoOn, MsgStart}
-import it.unibo.scafi.distrib.actor.patterns.{BasicActorBehavior, ObservableActorBehavior}
+import akka.actor.{ActorRef, Props}
+import it.unibo.scafi.distrib.actor.patterns.ObservableActorBehavior
+import it.unibo.scafi.distrib.actor.server.PlatformBehaviors
 
 import scala.collection.mutable.{Map => MMap}
 
-trait PlatformServer { self: Platform.Subcomponent =>
-
-  /**
-    * This actor represents the singleton, central server of a
-    *  distributed aggregate system of devices.
-    * Responsibilities
-    *   - Handles request ([[MsgRegistration]]) for entering the system
-    *   - Keeps track of the neighborhoods
-    *   - Receives and propagates the states of the devices
-    *   - Provides a white-pages service: looks up the location of a given device ID
-    *   - Represents an access point for information about the network
-    */
-  trait AbstractServerActor extends Actor with BasicActorBehavior {
-    // ABSTRACT MEMBERS
-
-    def neighborhood(id: UID): Set[UID]
-
-    // CONCRETE MEMBERS
-
-    val map: MMap[UID, ActorRef] = MMap()
-
-    def lookupActor(id: UID): Option[ActorRef] = map.get(id)
-
-    def registerDevice(devId: UID, ref: ActorRef): Unit = {
-      map += (devId -> sender)
-    }
-
-    // REACTIVE BEHAVIOR
-
-    override def receive: Receive = super.receive.orElse(setupBehavior)
-
-    override def queryManagementBehavior: Receive = {
-      case MsgGetNeighborhood(devId) => sender ! MsgNeighborhood(devId, neighborhood(devId))
-      case MsgLookup(id) => lookupActor(id).foreach(ref => sender ! MsgDeviceLocation(id, ref))
-    }
-
-    def setupBehavior: Receive = {
-      case MsgRegistration(devId) =>
-        logger.info(s"\nDevice $devId has registered itself (ref: $sender)")
-        registerDevice(devId, sender)
-    }
-  }
-
-  trait ObservableServerActor extends AbstractServerActor
-    with ObservableActorBehavior {
-
-    override def receive: Receive = super.receive
-      .orElse(observersManagementBehavior)
+trait PlatformServer extends PlatformBehaviors { self: Platform.Subcomponent =>
+  trait ObservableServerActor extends ServerBaseServerActor with ObservableActorBehavior {
+    override def receive: Receive = super.receive.orElse(observersManagementBehavior)
 
     override def registerDevice(id: UID, ref: ActorRef): Unit = {
       super.registerDevice(id, ref)
@@ -80,13 +35,13 @@ trait PlatformServer { self: Platform.Subcomponent =>
   }
 
   class ServerActor()
-    extends AbstractServerActor
+    extends ServerBaseServerActor
     with ObservableServerActor
     with MissingCodeManagementBehavior {
 
     val neighborhoods: MMap[UID, Set[UID]] = MMap()
 
-    def neighborhood(id: UID): Set[UID] = neighborhoods.getOrElse(id, Set())
+    override def neighborhood(id: UID): Set[UID] = neighborhoods.getOrElse(id, Set())
 
     override def inputManagementBehavior: Receive = super.inputManagementBehavior orElse {
       case MsgNeighbor(id, idn) => addNbrsTo(id, Set(idn))

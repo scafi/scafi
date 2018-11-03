@@ -126,14 +126,6 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
     override def start(): Unit = appRef ! MsgPropagate(GoOn)
 
-    /*override def start(): Unit = {
-      execScope match {
-        case DeviceDelegated(DelayedDeviceExecStrategy(None,_)) | DeviceDelegated(PeriodicDeviceExecStrategy(None,_)) =>
-          appRef ! MsgPropagate(GoOn)
-        case _ => // Do nothing
-      }
-    }*/
-
     override def addNeighbor(id: UID, idn: UID): Unit = server ! MsgNeighbor(id, idn)
   }
 
