@@ -44,14 +44,8 @@ object Demo6C_Platform extends Demo6_Platform with SpatialHybridActorPlatform wi
                                     _aggregateExecutor: Option[ProgramContract],
                                     _execScope: ExecScope,
                                     override val server: ActorRef)
-    extends SpatialDeviceActor(selfId, _aggregateExecutor, _execScope, server) with Demo6DeviceActor {
+    extends SpatialDeviceActor(selfId, _aggregateExecutor, _execScope, server) with Demo6DeviceActor
 
-    override def propagateProgramToNeighbors(program: () => Any): Unit = {
-      nbrs.foreach { case (_, NbrInfo(_, _, mailboxOpt, _)) =>
-        mailboxOpt.foreach(ref => ref ! MsgUpdateProgram(selfId, program))
-      }
-    }
-  }
   object HybridDemo6DeviceActor {
     def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope, serverActor: ActorRef): Props =
       Props(classOf[HybridDemo6DeviceActor], selfId, program, execStrategy, serverActor)

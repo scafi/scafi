@@ -24,9 +24,9 @@ import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 trait Demo6_Platform extends ActorPlatform with BasicAbstractActorIncarnation {
   val SourceSensorName: String = "source"
 
-  trait Demo6DeviceActor extends CodeMobilityDeviceActor {
-    override def updateProgram(nid: UID, program: ()=>Any): Unit = program() match {
-      case ap: AggregateProgram => aggregateExecutor = Some(ap); lastExport = None
+  trait Demo6DeviceActor extends WeakCodeMobilityDeviceActor {
+    override def updateProgram(program: () => Any): Unit = program() match {
+      case ap: AggregateProgram => super.updateProgram(() => ap: ProgramContract)
     }
   }
 

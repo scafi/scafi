@@ -19,7 +19,7 @@
 package demos
 
 /**
-  * Demo 6
+  * Demo 6-A
   * - Client/server system
   * - (Dynamic) "Spatial" network
   * - Sensors are attached to devices
@@ -44,10 +44,8 @@ object Demo6A_Platform extends Demo6_Platform with SpatialServerBasedActorPlatfo
                                     _aggregateExecutor: Option[ProgramContract],
                                     _execScope: ExecScope,
                                     override val server: ActorRef)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with Demo6DeviceActor {
+    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) with Demo6DeviceActor
 
-    override def propagateProgramToNeighbors(program: () => Any): Unit = server ! MsgUpdateProgram(selfId, program)
-  }
   object CodeMobilityDeviceActor {
     def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope, serverActor: ActorRef): Props =
       Props(classOf[ServerBasedDemo6DeviceActor], selfId, program, execStrategy, serverActor)
