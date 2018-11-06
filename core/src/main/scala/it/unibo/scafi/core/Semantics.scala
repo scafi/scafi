@@ -57,6 +57,7 @@ trait Semantics extends Core with Language {
     def pull(): Path
     def matches(path: Path): Boolean
     def isRoot: Boolean
+    def head: Slot
 
     def /(slot: Slot): Path = push(slot)
   }
@@ -288,11 +289,12 @@ trait Semantics extends Core with Language {
     }
 
     override def saveFunction[T](f: => T): Unit =
-      aggregateFunctions += status.path.pull().push(FunCall[T](index,FunctionIdPlaceholder)) -> (() => f )
+      aggregateFunctions += localFunctionSlot -> (() => f )
 
     override def loadFunction[T](): () => T =
-      () => aggregateFunctions(status.path.pull().push(FunCall[T](index,FunctionIdPlaceholder)))().asInstanceOf[T]
+      () => aggregateFunctions(localFunctionSlot)().asInstanceOf[T]
 
+    private def localFunctionSlot [T] = status.path.pull().push(FunCall[T](status.path.head.asInstanceOf[FunCall[_]].index, FunctionIdPlaceholder))
     private val FunctionIdPlaceholder = "f"
 
     override def newExportStack: Any = exportStack = factory.emptyExport() :: exportStack
