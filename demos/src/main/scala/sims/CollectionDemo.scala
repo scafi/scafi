@@ -24,11 +24,29 @@ import it.unibo.scafi.simulation.gui.{Launcher, Settings, SettingsSpace}
 
 object CollectionDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.CollectionIds" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.CollectAndBranch" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
   launch()
+}
+
+/**
+  * Collection using an 'information propagation subnetwork'
+  * Only devices with sense2 active will
+  */
+class CollectAndBranch extends AggregateProgram with SensorDefinitions with BlockC with BlockS with BlockG {
+  override def main() = {
+    val leader = sense1 // S(10, nbrRange)
+    val potential = branch(sense2){ distanceTo(leader) }{ Double.PositiveInfinity }
+    val coll = C[Double,Set[ID]](potential, _++_, Set(mid), Set()).toList.sorted
+    val bcoll = broadcast(leader, coll)
+    (mid, coll, bcoll)
+  }
+
+  def broadcastAlong[V](potential: Double, field: V, metric: Metric = nbrRange): V =
+    G_along(potential, metric, field, (v: V) => v)
+
 }
 
 class Collection extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
