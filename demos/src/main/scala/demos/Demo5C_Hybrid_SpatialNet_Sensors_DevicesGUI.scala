@@ -19,51 +19,52 @@
 package demos
 
 /**
-  * Demo 6-B
-  * - Peer-to-peer system
+  * Demo 5-C
+  * - Hybrid system
   * - (Dynamic) "Spatial" network
   * - Sensors are attached to devices
   * - A common GUI for all devices
   * - Command-line configuration
-  * - Code mobility
   */
 
-import akka.actor.Props
-import it.unibo.scafi.space.Point2D
-import examples.gui.p2p.{DevViewActor => P2PDevViewActor}
-import it.unibo.scafi.distrib.actor.p2p.{SpatialPlatform => SpatialP2PActorPlatform}
+import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
+import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
+import it.unibo.scafi.distrib.actor.hybrid.{SpatialPlatform => SpatialHybridActorPlatform}
+import examples.gui.hybrid.{DevViewActor => HybridDevViewActor}
 
-object Demo6B_Platform extends Demo6_Platform with SpatialP2PActorPlatform {
+object Demo5C_Platform extends SpatialHybridActorPlatform with BasicSpatialAbstraction with BasicAbstractActorIncarnation {
   override val LocationSensorName: String = "LOCATION_SENSOR"
+  val SourceSensorName: String = "source"
+  override type P = Point2D
 
-  class P2PDemo6DeviceActor(override val selfId: UID,
-                            _aggregateExecutor: Option[ProgramContract],
-                            _execScope: ExecScope)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope) with Demo6DeviceActor
-
-  object CodeMobilityDeviceActor {
-    def props(selfId: UID, program: Option[ProgramContract], execStrategy: ExecScope): Props =
-      Props(classOf[P2PDemo6DeviceActor], selfId, program, execStrategy)
+  override def buildNewSpace[E](elems: Iterable[(E, P)]): SPACE[E] = new Basic3DSpace(elems.toMap) {
+    override val proximityThreshold = 1.1
   }
 }
 
-import demos.{Demo6B_Platform => Platform}
+import demos.{Demo5C_Platform => Platform}
 
-class Demo6B_AggregateProgram extends Platform.AggregateProgram {
-  override def main(): String = "ready"
+class Demo5C_AggregateProgram extends Platform.AggregateProgram {
+  def hopGradient(source: Boolean): Double = {
+    rep(Double.PositiveInfinity){
+      hops => { mux(source) { 0.0 } { 1 + minHood(nbr { hops }) } }
+    }
+  }
+  def main(): Double = hopGradient(sense("source"))
 }
 
-object Demo6B_MainProgram extends Platform.CmdLineMain {
+object Demo5C_MainProgram extends Platform.CmdLineMain {
   override def refineSettings(s: Platform.Settings): Platform.Settings = {
     s.copy(profile = s.profile.copy(
-      devActorProps = (id, program, scope) => Some(Platform.CodeMobilityDeviceActor.props(id, program, scope)),
-      devGuiActorProps = ref => Some(P2PDevViewActor.props(Platform, ref))
+      devGuiActorProps = ref => Some(HybridDevViewActor.props(Platform, ref))
     ))
   }
   override def onDeviceStarted(dm: Platform.DeviceManager, sys: Platform.SystemFacade): Unit = {
-    val devInRow = P2PDevViewActor.DevicesInRow
+    val devInRow = HybridDevViewActor.DevicesInRow
     dm.addSensorValue(Platform.LocationSensorName, Point2D(dm.selfId%devInRow,(dm.selfId/devInRow).floor))
-    dm.addSensorValue(Platform.SourceSensorName, false)
+    dm.addSensorValue(Platform.SourceSensorName, dm.selfId==4)
     dm.start
   }
 }
+
+object Demo5C_ServerMain extends Platform.ServerCmdLineMain

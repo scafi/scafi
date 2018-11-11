@@ -172,6 +172,21 @@ You can interact with the devices GUI to:
   You can do this from the menu that appears after a right click on a device.
 
 
+### DEMO 5C: Hybrid, Spatial Network, Sensors, Common Devices GUI
+
+Run configurations:
+1) Demo5C_ServerMain -h 127.0.0.1 -p 9000
+2) Demo5C_MainProgram --program "demos.Demo5C_AggregateProgram" -P 9000 -p 9001 -r 0to99 --gui
+
+You should expect the system to execute a simple hop-gradient program, showing the output of every device in the common
+devices GUI.
+
+You can interact with the devices GUI to:
+- Move the devices across the net and see how the system reacts.
+- Select (or deselect) a device as a source for the gradient program and see how the system reacts.
+  You can do this from the menu that appears after a right click on a device.
+
+
 ### DEMO 6A: Server, Spatial Network, Sensors, Common Devices GUI, Code Mobility
 
 Run configurations:
@@ -205,3 +220,19 @@ You can interact with the devices GUI to:
 - Select (or deselect) a device as a source for the gradient program and see how the system reacts.
   You can do this from the menu that appears after a right click on a device.
 
+
+### DEMO 6C: Hybrid, Spatial Network, Sensors, Common Devices GUI, Code Mobility
+
+Run configurations:
+1) Demo6C_ServerMain -h 127.0.0.1 -p 9000
+2) Demo6C_MainProgram --program "demos.Demo6C_AggregateProgram" -P 9000 -p 9001 -r 0to99 --gui
+
+You should expect the system to execute a simple program, showing the output of every device (just "ready") in the
+common devices GUI.
+
+You can interact with the devices GUI to:
+- Move the devices across the net and see how the system reacts.
+- Change the program executed by a device. The program will be propagate until it will be running on all devices.
+  You can do this by choosing one of the preselected programs from the menu that appears after a right click on a device.
+- Select (or deselect) a device as a source for the gradient program and see how the system reacts.
+  You can do this from the menu that appears after a right click on a device.

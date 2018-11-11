@@ -16,27 +16,46 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.distrib.actor.p2p
+package it.unibo.scafi.distrib.actor.hybrid
 
-import akka.actor.Props
+import akka.actor.{ActorRef, Props}
+import it.unibo.scafi.distrib.actor.p2p.PlatformBehaviors
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 trait PlatformDevices extends PlatformBehaviors { self: Platform.Subcomponent =>
   /**
-   * Specializes a [[ComputationDeviceActor]] to work in a decentralized,
-   *  peer-to-peer manner.
-   * In particular, it needs to propagate each computed state to its neighbors.
-   */
+    * Specializes a [[ComputationDeviceActor]] to work both in a decentralized,
+    *  peer-to-peer manner and as a part of a client/server system.
+    * In particular, it needs to propagate each computed state to its neighbors.
+    */
   class DeviceActor(override val selfId: UID,
                     override var aggregateExecutor: Option[ProgramContract],
-                    override var execScope: ExecScope)
+                    override var execScope: ExecScope,
+                    val server: ActorRef)
     extends P2pBaseDeviceActor
     with MissingCodeManagementBehavior
-    with ObservableDeviceActor
+    with ObservableDeviceActor {
+
+    import context.dispatcher
+    context.system.scheduler.schedule(
+      initialDelay = 0 seconds,
+      interval = 1 second,
+      receiver = server,
+      message = MsgGetNeighborhoodLocations(selfId))
+
+    override def preStart(): Unit = {
+      super.preStart()
+      server ! MsgRegistration(selfId)
+    }
+  }
 
   object DeviceActor extends Serializable {
     def props(selfId: UID,
               program: Option[ProgramContract],
-              execStrategy: ExecScope): Props =
-      Props(classOf[DeviceActor], self, selfId, program, execStrategy)
+              execStrategy: ExecScope,
+              server: ActorRef): Props =
+      Props(classOf[DeviceActor], self, selfId, program, execStrategy, server)
   }
 }
+
