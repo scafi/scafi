@@ -16,20 +16,22 @@
  * limitations under the License.
 */
 
-package old.sims
+package demos
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import it.unibo.scafi.simulation.old.gui.{Launcher, Settings}
+/**
+ * Demo 0-C
+ * - Peer-to-peer system
+ * - Ad-hoc network
+ * - Command-line configuration
+ */
 
-object BasicDemo extends Launcher {
-  // Configuring simulation
-  Settings.Sim_ProgramClass = "old.sims.BasicProgram" // starting class, via Reflection
-  Settings.ShowConfigPanel = false // show a configuration panel at startup
-  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
-  Settings.Sim_NumNodes = 100 // number of nodes
-  launch()
+// STEP 1: CHOOSE INCARNATION
+import it.unibo.scafi.incarnations.{ BasicActorP2P => Platform }
+
+// STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
+class Demo0C_AggregateProgram extends Platform.AggregateProgram {
+  override def main(): Any = foldhood(0){_ + _}(1)
 }
 
-class BasicProgram extends AggregateProgram {
-  override def main() = rep(0)(_ + 1) // the aggregate program to run
-}
+// STEP 3: DEFINE MAIN PROGRAM
+object Demo0C_MainProgram extends Platform.CmdLineMain

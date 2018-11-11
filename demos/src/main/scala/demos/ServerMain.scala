@@ -16,15 +16,15 @@
  * limitations under the License.
 */
 
-package old.sims
+package demos
 
-import it.unibo.scafi.simulation.old.gui.{Launcher, Settings}
+import examples.gui.ServerGUIActor
+import it.unibo.scafi.incarnations.{ BasicActorServerBased => Platform }
 
-object DemoLauncher extends Launcher {
-  Settings.Sim_ProgramClass = "old.sims.Timer"
-  Settings.ShowConfigPanel = true
-  Settings.Sim_NbrRadius = 0.15
-  Settings.Sim_NumNodes = 100
-  parseCommandLine()
-  launch()
+object Server_MainProgram extends Platform.ServerCmdLineMain {
+  override def refineSettings(s: Platform.Settings) = {
+    s.copy(profile = s.profile.copy(
+      serverGuiActorProps = tm => Some(ServerGUIActor.props(Platform, tm))
+    ))
+  }
 }
