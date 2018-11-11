@@ -1,0 +1,11 @@
+.root * {
+    -fx-background-color: #000000;
+    -fx-control-inner-background:#000000;
+    -fx-font-family: Consolas;
+    -fx-highlight-fill: #ffffff;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-text-fill: #ffffff;
+}
+.menu-bar .menu-item:hover, .menu-bar .menu-item:hover *{
+   -fx-background-color: #a0a0a0;
+}
