@@ -1,7 +1,8 @@
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
 
+import it.unibo.scafi.simulation.gui.controller.logical.ExternalSimulation
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor.world
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
+import it.unibo.scafi.simulation.gui.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
 
 import scala.util.Random
@@ -18,7 +19,7 @@ trait ScafiSimulationInitializer {
     * create the simulation
     * @return
     */
-  def create(scafiSimulationSeed: SimulationInfo) : ScafiBridge
+  def create(scafiSimulationSeed: SimulationInfo) : ExternalSimulation[ScafiLikeWorld]
 }
 
 object ScafiSimulationInitializer {
