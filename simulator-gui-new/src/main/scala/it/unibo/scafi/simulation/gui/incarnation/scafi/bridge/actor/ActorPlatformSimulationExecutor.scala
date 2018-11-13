@@ -20,18 +20,11 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, TreeLog}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiBridge
-
-import scala.language.postfixOps
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiBridge, SimulationExecutor}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import ScafiBridge._
 
-object ActorPlatformSimulationExecutor extends ScafiBridge {
-  import ScafiBridge._
-
-  private var exportProduced : Map[ID,EXPORT] = Map.empty
-  private val indexToName = (i : Int) => "output" + (i + 1)
-  override protected val maxDelta: Option[Int] = None
-
+object ActorPlatformSimulationExecutor extends SimulationExecutor {
   override protected def asyncLogicExecution(): Unit = {
     if(contract.simulation.isDefined) {
       val net = contract.simulation.get
@@ -55,38 +48,4 @@ object ActorPlatformSimulationExecutor extends ScafiBridge {
       }
     }
   }
-  override def onTick(float: Float): Unit = {()
-    val simulationMoved = simulationObserver.idMoved
-    if(contract.simulation.isDefined) {
-      val bridge = contract.simulation.get
-      val exportValutations = simulationInfo.get.exportValutations
-      if(exportValutations.nonEmpty) {
-        var exportToUpdate = Map.empty[ID,EXPORT]
-        exportToUpdate = exportProduced
-        exportProduced = Map.empty
-        for(export <- exportToUpdate) {
-          for(i <- exportValutations.indices) {
-            world.changeSensorValue(export._1,indexToName(i),exportValutations(i)(export._2))
-          }
-        }
-      }
-      var idsNetworkUpdate = Set.empty[Int]
-      simulationMoved foreach {id =>
-        val p = contract.simulation.get.space.getLocation(id)
-        world.moveNode(id,p)
-        idsNetworkUpdate ++= world.network.neighbours(id)
-        idsNetworkUpdate ++= contract.simulation.get.neighbourhood(id)
-        idsNetworkUpdate += id
-      }
-      idsNetworkUpdate foreach {x => {world.network.setNeighbours(x,contract.simulation.get.neighbourhood(x))}}
-
-      val simulationSensor = simulationObserver.idSensorChanged
-      simulationSensor.foreach(nodeChanged =>
-        nodeChanged._2.foreach(name =>
-          world.changeSensorValue(nodeChanged._1, name, bridge.localSensor(name)(nodeChanged._1))
-        )
-      )
-    }
-  }
 }
-
