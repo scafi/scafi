@@ -30,28 +30,25 @@ class ActorSpaceAwareSimulator(override val space: SPACE[ID],
   extends SpaceAwareSimulator(space = space, devs = devs, simulationSeed = 0, randomSensorSeed = 0) {
 
   var I: Option[SimulationActorPlatform] = None
-
   def startPlatform(): Unit = {
+    val nbrSns: Map[ID, Map[NSNS, Map[ID, Any]]] =
+      devs.keySet.map { id =>
+        id -> Set(NBR_RANGE_NAME).map { nsnsName =>
+          nsnsName -> neighbourhood(id).map { nid =>
+            nid -> space.getDistance(space.getLocation(id), space.getLocation(nid))
+          }.toMap
+        }.toMap
+      }.toMap
+
     I = Some(SimulationActorPlatform(
       devIds = devs.keySet,
       nbrs = devs.keySet.map(id => id -> neighbourhood(id)).toMap,
       sensors = devs.keySet.map(id => id -> devs(id).lsns).toMap,
+      nbrSensors = nbrSns,
       programClass = programClass
     ))
     I.get.start()
     ActorSystem().actorOf(Props(classOf[PlatformObserverActor], this, I.get))
-  }
-
-  class PlatformObserverActor(platform: SimulationActorPlatform) extends Actor {
-    override def preStart(): Unit = {
-      super.preStart()
-      platform.devices.values.foreach(dev => dev ! MsgAddObserver(self))
-    }
-
-    override def receive: Receive = {
-      case platform.MsgExport(id, export) => setExport(id, export.asInstanceOf[EXPORT])
-      case _ =>
-    }
   }
 
   private def setExport(id: ID, export: EXPORT): Unit = {
@@ -64,6 +61,7 @@ class ActorSpaceAwareSimulator(override val space: SPACE[ID],
     space.setLocation(id,newPos)
     val nextNbrs = neighbourhood(id)
     updateNbrs(previousNbrs + id ++ nextNbrs)
+    updateNbrSensors(previousNbrs + id ++ nextNbrs)
     this.notify(MovementEvent(id))
   }
 
@@ -82,6 +80,25 @@ class ActorSpaceAwareSimulator(override val space: SPACE[ID],
       I.get.devices(id) ! I.get.MsgNeighborhoodUpdate(id, neighbourhood(id).map(nbr => nbr -> I.get.devices(nbr)).toMap)
     }
   }
+
+  private def updateNbrSensors(ids: Set[ID]): Unit = {
+    ids.foreach { id =>
+      I.get.devices(id) ! I.get.MsgNbrSensorValue(NBR_RANGE_NAME,
+        neighbourhood(id).map(nid => nid -> space.getDistance(space.getLocation(id), space.getLocation(nid))).toMap)
+    }
+  }
+
+  class PlatformObserverActor(platform: SimulationActorPlatform) extends Actor {
+    override def preStart(): Unit = {
+      super.preStart()
+      platform.devices.values.foreach(dev => dev ! MsgAddObserver(self))
+    }
+
+    override def receive: Receive = {
+      case platform.MsgExport(id, export) => setExport(id, export.asInstanceOf[EXPORT])
+      case _ =>
+    }
+  }
 }
 
 import it.unibo.scafi.distrib.actor.p2p.{Platform => P2PActorPlatform}
@@ -96,6 +113,7 @@ object SimulationActorPlatform {
   def apply(devIds: Set[ID],
             nbrs: Map[ID, Set[ID]],
             sensors: Map[ID, Map[LSNS, Any]],
+            nbrSensors: Map[ID, Map[NSNS, Map[ID, Any]]],
             programClass: Class[_]): SimulationActorPlatform =
 
     new SimulationActorPlatform() {
@@ -112,6 +130,7 @@ object SimulationActorPlatform {
         override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = {
           devices += dm.selfId -> dm.actorRef
           sensors(dm.selfId).foreach { sns => dm.addSensorValue(sns._1, sns._2) }
+          nbrSensors(dm.selfId).foreach(sns => dm.actorRef ! MsgNbrSensorValue(sns._1, sns._2))
           dm.start
         }
       }.main(Array())
