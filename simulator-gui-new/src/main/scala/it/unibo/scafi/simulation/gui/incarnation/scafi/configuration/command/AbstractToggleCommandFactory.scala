@@ -5,7 +5,8 @@ import it.unibo.scafi.simulation.MetaActionManager.MetaAction
 import it.unibo.scafi.simulation.gui.configuration.command.Command.reverseCommand
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor.ActorPlatformSimulationExecutor
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{SimulationExecutor, scafiSimulationExecutor}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.gui.model.simulation.PlatformDefinition.SensorPlatform
 import it.unibo.scafi.simulation.gui.util.Result
@@ -24,7 +25,7 @@ abstract class AbstractToggleCommandFactory extends CommandFactory {
   protected def toggle(name : scafiWorld.NAME, ids : Iterable[ID]): Command = {
     val action = () => {
       var processAction = List.empty[MetaAction]
-      val bridge = scafiSimulationExecutor.contract.simulation.get
+      val bridge = SimulationExecutor.Instance.get.contract.simulation.get
       for(id <- ids) {
         val node = scafiWorld(id)
         //check if all id passed is in the world
