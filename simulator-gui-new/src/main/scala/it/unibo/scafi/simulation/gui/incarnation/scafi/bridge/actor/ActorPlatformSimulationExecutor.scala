@@ -20,82 +20,72 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, TreeLog}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation.{EXPORT, ID}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.scafiSimulationExecutor.{contract, indexToName, simulationInfo, simulationObserver, world, _}
-
-import scala.concurrent.duration._
-import akka.util.Timeout
-import akka.pattern.ask
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor.PlatformSimulatorActor.{MsgExports, MsgGetExports, MsgNeighborhood}
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiBridge
 
 import scala.language.postfixOps
-import scala.concurrent.Await
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 
-object ActorPlatformSimulationExecutor extends ActorPlatformBridge {
-  import ActorPlatformBridge._
-  private var exports: Map[ID, EXPORT] = Map()
+object ActorPlatformSimulationExecutor extends ScafiBridge {
+  import ScafiBridge._
+
+  private var exportProduced : Map[ID,EXPORT] = Map.empty
   private val indexToName = (i : Int) => "output" + (i + 1)
-  //override val minDelta: Int = 1000
   override protected val maxDelta: Option[Int] = None
 
-  import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
-  var space: Option[QuadTreeSpace[ID]] = None
-
-  override def asyncLogicExecution(): Unit = {
-    contract.simulation.foreach { sim =>
-      implicit val timeout: Timeout = Timeout(1 seconds)
-      Await.result(sim ? MsgGetExports(), timeout.duration).asInstanceOf[MsgExports] match {
-        case MsgExports(exps) =>
-          exports = exps
-          exports.foreach { node =>
-            if (idsObserved.contains(node._1)) {
-              val mapped = node._2.paths.toSeq.map { x => {
-                if (x._1.isRoot) {
-                  (None, x._1,x._2)
-                } else {
-                  (Some(x._1.pull()), x._1, x._2)
-                }
-              }}.sortWith((x,y) => x._2.level < y._2.level)
-              LogManager.notify(TreeLog[Path](Channel.Export, node._1.toString, mapped))
+  override protected def asyncLogicExecution(): Unit = {
+    if(contract.simulation.isDefined) {
+      val net = contract.simulation.get
+      net.exports().filter(_._2.isDefined).map(n => n._1 -> n._2.get).foreach { node =>
+        exportProduced += node._1 -> node._2
+        if (idsObserved.contains(node._1)) {
+          val mapped = node._2.paths.toSeq.map { x => {
+            if (x._1.isRoot) {
+              (None, x._1, x._2)
+            } else {
+              (Some(x._1.pull()), x._1, x._2)
             }
-            /*val metaActions = this.simulationInfo.get.metaActions
-            metaActions.filter(x => x.valueParser(node._2.root()).isDefined).foreach(x => net.add(x(node._1, node._2)))
-            net.process()*/
-          }
-        case _ =>
+          }}.sortWith((x, y) => x._2.level < y._2.level)
+          LogManager.notify(TreeLog[Path](Channel.Export, node._1.toString, mapped))
+        }
+        val metaActions = this.simulationInfo.get.metaActions
+        metaActions
+          .filter(x => x.valueParser(node._2.root()).isDefined)
+          .foreach(x => net.add(x(node._1, node._2)))
+        net.process()
       }
-      //world.nodes.foreach(n => sim ! MsgNeighborhood(n.id, space.get.getNeighbors(n.id).toSet))
     }
   }
-
   override def onTick(float: Float): Unit = {()
     val simulationMoved = simulationObserver.idMoved
     if(contract.simulation.isDefined) {
       val bridge = contract.simulation.get
-      val exportEvaluations = simulationInfo.get.exportValutations
-      if(exportEvaluations.nonEmpty) {
-        var exportToUpdate: Map[ID, EXPORT] = Map()
-        exportToUpdate = exports
-        exports = Map()
-        for (export <- exportToUpdate) {
-          for (i <- exportEvaluations.indices) {
-            world.changeSensorValue(export._1, indexToName(i), exportEvaluations(i)(export._2))
+      val exportValutations = simulationInfo.get.exportValutations
+      if(exportValutations.nonEmpty) {
+        var exportToUpdate = Map.empty[ID,EXPORT]
+        exportToUpdate = exportProduced
+        exportProduced = Map.empty
+        for(export <- exportToUpdate) {
+          for(i <- exportValutations.indices) {
+            world.changeSensorValue(export._1,indexToName(i),exportValutations(i)(export._2))
           }
         }
       }
-      var idsNetworkUpdate: Set[ID] = Set()
+      var idsNetworkUpdate = Set.empty[Int]
       simulationMoved foreach {id =>
-        world.moveNode(id, space.get.getLocation(id))
+        val p = contract.simulation.get.space.getLocation(id)
+        world.moveNode(id,p)
         idsNetworkUpdate ++= world.network.neighbours(id)
-        idsNetworkUpdate ++= space.get.getNeighbors(id)
+        idsNetworkUpdate ++= contract.simulation.get.neighbourhood(id)
         idsNetworkUpdate += id
       }
-      idsNetworkUpdate foreach { x => { world.network.setNeighbours(x, space.get.getNeighbors(x).toSet) } }
+      idsNetworkUpdate foreach {x => {world.network.setNeighbours(x,contract.simulation.get.neighbourhood(x))}}
 
-      /*val simulationSensor = simulationObserver.idSensorChanged
-      simulationSensor.foreach(nodeChanged => nodeChanged._2.foreach(name =>
-        world.changeSensorValue(nodeChanged._1, name, bridge.localSensor(name)(nodeChanged._1))))*/
-
+      val simulationSensor = simulationObserver.idSensorChanged
+      simulationSensor.foreach(nodeChanged =>
+        nodeChanged._2.foreach(name =>
+          world.changeSensorValue(nodeChanged._1, name, bridge.localSensor(name)(nodeChanged._1))
+        )
+      )
     }
   }
 }

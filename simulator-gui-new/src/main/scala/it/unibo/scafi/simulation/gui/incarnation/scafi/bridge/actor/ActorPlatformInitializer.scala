@@ -18,66 +18,35 @@
 
 package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor
 
-import akka.actor.{ActorRef, ActorSystem}
-import it.unibo.scafi.distrib.actor.p2p.{Platform => P2PActorPlatform}
-import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiBridge, ScafiSimulationInitializer, SimulationInfo}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor.PlatformSimulatorActor.{MsgNeighborhood, MsgObserveDevices}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
-
-trait SimulationActorPlatform extends P2PActorPlatform with BasicAbstractActorIncarnation {
-  var devices: Map[ID, ActorRef] = Map()
-  def start(): Unit
-}
-
-object SimulationActorPlatform {
-  def apply(devIds: Set[ID],
-            nbrs: Map[ID, Set[ID]],
-            sensors: Map[String, Boolean],
-            programClass: Class[_]): SimulationActorPlatform =
-
-    new SimulationActorPlatform() {
-      val aggregateAppSettings = AggregateApplicationSettings(
-        name = "AggregateSimulation",
-        program = () => Some(programClass.newInstance().asInstanceOf[AggregateProgram])
-      )
-      val settings: Settings = settingsFactory.defaultSettings().copy(
-        aggregate = aggregateAppSettings,
-        platform = PlatformSettings(subsystemDeployment = DeploymentSettings()),
-        deviceConfig = DeviceConfigurationSettings(ids = devIds, nbs = nbrs)
-      )
-      override def start(): Unit = new BasicMain(settings) {
-        override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = {
-          devices += dm.selfId -> dm.actorRef
-          sensors.foreach { sns => dm.addSensorValue(sns._1, false) }
-          if (dm.selfId == 965) {
-            dm.addSensorValue("sens1", true)
-          }
-          dm.start
-        }
-      }.main(Array())
-    }
-}
+import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
+import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor.ActorPlatformSimulationExecutor.world
 
 object ActorPlatformInitializer {
   case class RadiusSimulation(radius: Double = 0.0) extends ScafiSimulationInitializer {
-    val actorSystem = ActorSystem()
-    def create(scafiSimulationSeed: SimulationInfo): ActorPlatformBridge = {
+    override def create(scafiSimulationSeed : SimulationInfo): ScafiBridge = {
       val bridge = ActorPlatformSimulationExecutor
-      val nodes: Map[ID, P] = bridge.world.nodes.map { n => n.id -> new P(n.position.x, n.position.y, n.position.z) }.toMap
-      bridge.space = Some(new QuadTreeSpace(nodes, radius, scafiWorld.boundary))
-      val sensors = bridge.world.nodes.head.devices.filter(_.name.contains("sens")).map(s => s.name -> s.value).toMap
-      val platform = SimulationActorPlatform(
-        devIds = bridge.world.nodes.map(_.id),
-        nbrs = bridge.world.nodes.map(n => n.id -> bridge.space.get.getNeighbors(n.id).toSet).toMap,
-        sensors = sensors,
-        programClass = scafiSimulationSeed.program
-      )
-      platform.start()
-      val platformActor = actorSystem.actorOf(PlatformSimulatorActor.props(platform))
-      platformActor ! MsgObserveDevices()
-      bridge.simulationPrototype = Some(() => platformActor)
+      val proto = () => {
+        val w = bridge.world
+        val nodes: Map[ID, P] = w.nodes.map { n => n.id -> new P(n.position.x, n.position.y, n.position.z) }.toMap
+        val createdSpace = new QuadTreeSpace(nodes, radius, scafiWorld.boundary)
+        val createdDevs = nodes.map { case (d, p) => d -> new DevInfo(d, p, nsns = _ => _) }
+
+        val res: ActorSpaceAwareSimulator = new ActorSpaceAwareSimulator(createdSpace, createdDevs, scafiSimulationSeed.program)
+        w.nodes foreach { x =>
+          x.devices filter { device =>
+            device.stream == SensorConcept.sensorInput
+          } foreach { y =>
+            res.chgSensorValue(y.name, Set(x.id), y.value)
+          }
+        }
+        res.getAllNeighbours().foreach { x => world.network.setNeighbours(x._1, x._2.toSet)}
+        res.startPlatform()
+        res
+      }
+      bridge.simulationPrototype = Some(proto)
       bridge.simulationInfo = scafiSimulationSeed
       bridge
     }
