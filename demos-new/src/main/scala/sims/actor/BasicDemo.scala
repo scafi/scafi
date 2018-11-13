@@ -24,11 +24,14 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.reflection.Demo
 import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Grid
 import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.GradientFXOutput
+import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutput
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor.ActorPlatformInitializer.RadiusSimulation
+//import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import sims.SensorDefinitions
 
 object BasicDemo extends App {
   ScafiProgramBuilder (
-    Grid(4,50,50),
+    Grid(4,100,100),
     SimulationInfo(program = classOf[BasicProgram]),
     RadiusSimulation(radius = 4),
     neighbourRender = false,
@@ -36,7 +39,10 @@ object BasicDemo extends App {
   ).launch()
 }
 @Demo
-class BasicProgram extends AggregateProgram {
-  override def main() = rep(0)(_ + 1) // the aggregate program to run
+class BasicProgram extends AggregateProgram with SensorDefinitions {
+  //override def main(): Boolean = rep(false)(x => sense[Boolean]("sens1") | foldhoodPlus(false)(_|_)(nbr(x)))
+  //override def main(): Int = foldhoodPlus(0)(_ + _)(50)
+  //override def main() = rep(0)(_ + 1) // the aggregate program to run
+  override def main() = branch(sense1) {1} {150}
 }
 
