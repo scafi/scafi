@@ -36,10 +36,9 @@ trait PlatformBehaviors { self: ActorPlatform =>
       case MsgDeviceLocation(idn, ref) => mergeNeighborInfo(idn,NbrInfo(idn,None,Some(ref),None))
       case MsgNeighborhoodUpdate(_, nbs) => replaceNeighborhood(nbs.map(n => n._1 -> (Some(n._2), None)))
       case MsgNeighborhoodLocations(_, nbs) => replaceNeighborhood(nbs.map(n => n._1 -> (None, Some(n._2))))
-      case MsgExport(from, export) => if (nbrs.contains(from)) {
+      case MsgExport(from, export) =>
         mergeNeighborInfo(from, NbrInfo(from, None, Some(sender), Some(sender.path.toString)))
         updateNeighborsState(Map(from -> Some(export)))
-      }
       case MsgRemoveNeighbor(idn) => removeNeighbor(idn)
     }
 
