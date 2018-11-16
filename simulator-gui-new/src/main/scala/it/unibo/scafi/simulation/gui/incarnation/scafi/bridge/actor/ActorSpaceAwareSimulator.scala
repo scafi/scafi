@@ -40,14 +40,19 @@ class ActorSpaceAwareSimulator(override val space: SPACE[ID],
         }.toMap
       }.toMap
 
-    I = Some(SimulationActorPlatform(
+    I = Some(LocalSimulationActorPlatform(
       devIds = devs.keySet,
-      nbrs = devs.keySet.map(id => id -> neighbourhood(id)).toMap,
+      nbrs = devs.keySet.map(id => id -> (neighbourhood(id) - id)).toMap,
       sensors = devs.keySet.map(id => id -> devs(id).lsns).toMap,
       nbrSensors = nbrSns,
       programClass = programClass
     ))
-    I.get.start()
+    val hosts: Set[(String, Int)] = devs.map(d => d._1 -> ("127.0.0.1", 9000 + d._1)).values.toSet
+    I.get.start(hosts)
+
+    Thread.sleep(1000)
+    devs.foreach(dev => setPosition(dev._1, dev._2.pos))
+
     ActorSystem().actorOf(Props(classOf[PlatformObserverActor], this, I.get))
   }
 
@@ -56,10 +61,10 @@ class ActorSpaceAwareSimulator(override val space: SPACE[ID],
   }
 
   override def setPosition(id: ID, newPos: P): Unit = {
-    val previousNbrs = neighbourhood(id)
+    val previousNbrs = neighbourhood(id) - id
     devs(id).pos = newPos
     space.setLocation(id,newPos)
-    val nextNbrs = neighbourhood(id)
+    val nextNbrs = neighbourhood(id) - id
     updateNbrs(previousNbrs + id ++ nextNbrs)
     updateNbrSensors(previousNbrs + id ++ nextNbrs)
     this.notify(MovementEvent(id))
@@ -106,33 +111,90 @@ import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 
 trait SimulationActorPlatform extends P2PActorPlatform with BasicAbstractActorIncarnation {
   var devices: Map[ID, ActorRef] = Map()
-  def start(): Unit
+  def start(hosts: Set[(String, Int)])
 }
 
-object SimulationActorPlatform {
-  def apply(devIds: Set[ID],
-            nbrs: Map[ID, Set[ID]],
-            sensors: Map[ID, Map[LSNS, Any]],
-            nbrSensors: Map[ID, Map[NSNS, Map[ID, Any]]],
-            programClass: Class[_]): SimulationActorPlatform =
+case class LocalSimulationActorPlatform(devIds: Set[ID],
+                                        nbrs: Map[ID, Set[ID]],
+                                        sensors: Map[ID, Map[LSNS, Any]],
+                                        nbrSensors: Map[ID, Map[NSNS, Map[ID, Any]]],
+                                        programClass: Class[_]) extends SimulationActorPlatform {
 
-    new SimulationActorPlatform() {
-      val aggregateAppSettings = AggregateApplicationSettings(
-        name = "AggregateSimulation",
-        program = () => Some(programClass.newInstance().asInstanceOf[AggregateProgram])
-      )
-      val settings: Settings = settingsFactory.defaultSettings().copy(
-        aggregate = aggregateAppSettings,
-        platform = PlatformSettings(subsystemDeployment = DeploymentSettings()),
-        deviceConfig = DeviceConfigurationSettings(ids = devIds, nbs = nbrs)
-      )
-      override def start(): Unit = new BasicMain(settings) {
-        override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = {
-          devices += dm.selfId -> dm.actorRef
-          sensors(dm.selfId).foreach { sns => dm.addSensorValue(sns._1, sns._2) }
-          nbrSensors(dm.selfId).foreach(sns => dm.actorRef ! MsgNbrSensorValue(sns._1, sns._2))
-          dm.start
-        }
-      }.main(Array())
+  val aggregateAppSettings = AggregateApplicationSettings(
+    name = "LocalAggregateSimulation",
+    program = () => Some(programClass.newInstance().asInstanceOf[AggregateProgram])
+  )
+
+  override def start(hosts: Set[(String, Int)]): Unit = {
+    val host: (String, Int) = hosts.head
+    val settings: Settings = settingsFactory.defaultSettings().copy(
+      aggregate = aggregateAppSettings,
+      platform = PlatformSettings(subsystemDeployment = DeploymentSettings(host._1, host._2)),
+      deviceConfig = DeviceConfigurationSettings(ids = devIds, nbs = nbrs)
+    )
+    new BasicMain(settings) {
+      override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = {
+        devices += dm.selfId -> dm.actorRef
+        sensors(dm.selfId).foreach { sns => dm.addSensorValue(sns._1, sns._2) }
+        nbrSensors(dm.selfId).foreach(sns => dm.actorRef ! MsgNbrSensorValue(sns._1, sns._2))
+        dm.start
+      }
+    }.main(Array())
+  }
+}
+
+case class DistributedSimulationActorPlatform(devIds: Set[ID],
+                                              nbrs: Map[ID, Set[ID]],
+                                              sensors: Map[ID, Map[LSNS, Any]],
+                                              nbrSensors: Map[ID, Map[NSNS, Map[ID, Any]]],
+                                              programClass: Class[_]) extends SimulationActorPlatform {
+
+  val aggregateAppSettings = AggregateApplicationSettings(
+    name = "DistributedAggregateSimulation",
+    program = () => Some(programClass.newInstance().asInstanceOf[AggregateProgram])
+  )
+
+  override def start(hosts: Set[(String, Int)]): Unit = {
+    val distributedDevices: Map[ID, (String, Int)] = (devIds zip hosts).toMap
+    val distributedSettings: Set[Settings] = buildDistributedSettings(distributedDevices)
+
+    distributedSettings.foreach(ds => new BasicMain(ds) {
+      override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = {
+        devices += dm.selfId -> dm.actorRef
+        sensors(dm.selfId).foreach { sns => dm.addSensorValue(sns._1, sns._2) }
+        nbrSensors(dm.selfId).foreach(sns => dm.actorRef ! MsgNbrSensorValue(sns._1, sns._2))
+        dm.start
+      }
+    }.main(Array()))
+  }
+
+  private def buildDistributedSettings(distributedDevs: Map[ID, (String, Int)]): Set[Settings] = {
+    def recBuildDistributedSettings(devs: List[(ID, String, Int)], result: Set[Settings]): Set[Settings] = devs match {
+      case h::t => recBuildDistributedSettings(t, result + buildSettings(h, t))
+      case _ => result
     }
+    recBuildDistributedSettings(distributedDevs.map(dd => (dd._1, dd._2._1, dd._2._2)).toList, Set())
+  }
+
+  private def buildSettings(dev: (ID, String, Int), subsys: List[(ID, String, Int)]): Settings = {
+    settingsFactory.defaultSettings().copy(
+      aggregate = aggregateAppSettings,
+      platform = PlatformSettings(
+        subsystemDeployment = DeploymentSettings(dev._2, dev._3),
+        otherSubsystems = subsys.map(other => {
+          SubsystemSettings(
+            subsystemDeployment = DeploymentSettings(other._2, other._3),
+            ids = Set(other._1)
+          )
+        }).toSet
+      ),
+      deviceConfig = DeviceConfigurationSettings(
+        ids = Set(dev._1),
+        nbs = nbrs.map {
+          case (i, s) if i == dev._1 => dev._1 -> s
+          case (i, _) => i -> Set[ID]()
+        }
+      )
+    )
+  }
 }
