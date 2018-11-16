@@ -31,13 +31,18 @@ trait AbstractJsonIncarnationSerializer extends AbstractJsonPlatformSerializer {
     case u:UID => Json.obj("type" -> "UID", "val" -> u.asInstanceOf[Int])
     case e:ComputationExport => Json.obj("type" -> "ComputationExport", "val" -> anyToJs(e.getMap))
     case p:Point2D => Json.obj("type" -> "Point2D", "x" -> anyToJs(p.x), "y" -> anyToJs(p.y))
-    case p:Path => Json.obj("type" -> "Path", "list" -> anyToJs(p.asInstanceOf[PathImpl].path))
-    case s:Slot => s match {
-      case Nbr(index) => Json.obj("type" -> "Slot", "slotType" -> "Nbr", "index" -> index)
-      case Rep(index) => Json.obj("type" -> "Slot", "slotType" -> "Rep", "index" -> index)
-      case FoldHood(index) => Json.obj("type" -> "Slot", "slotType" -> "FoldHood", "index" -> index)
-      case FunCall(index, funId) => Json.obj("type" -> "Slot", "slotType" -> "FunCall", "index" -> index, "funId" -> anyToJs(funId))
-      case Scope(key) => Json.obj("type" -> "Slot", "slotType" -> "Scope", "key" -> anyToJs(key))
+    case p if p.isInstanceOf[Path] => Json.obj("type" -> "Path", "list" -> anyToJs(p.asInstanceOf[PathImpl].path))
+    case s if s.isInstanceOf[Slot] => s match {
+      case n if n.isInstanceOf[Nbr[Any]] =>
+        Json.obj("type" -> "Slot", "slotType" -> "Nbr", "index" -> n.asInstanceOf[Nbr[Any]].index)
+      case r if r.isInstanceOf[Rep[Any]] =>
+        Json.obj("type" -> "Slot", "slotType" -> "Rep", "index" -> r.asInstanceOf[Rep[Any]].index)
+      case f if f.isInstanceOf[FoldHood[Any]] =>
+        Json.obj("type" -> "Slot", "slotType" -> "FoldHood", "index" -> f.asInstanceOf[FoldHood[Any]].index)
+      case f if f.isInstanceOf[FunCall[Any]] => val fun = f.asInstanceOf[FunCall[Any]]
+        Json.obj("type" -> "Slot", "slotType" -> "FunCall", "index" -> fun.index, "funId" -> anyToJs(fun.funId))
+      case s if s.isInstanceOf[Scope[Any]] =>
+        Json.obj("type" -> "Slot", "slotType" -> "Scope", "key" -> anyToJs(s.asInstanceOf[Scope[Any]].key))
     }
   }
   override def jsToAny: PartialFunction[JsValue, Any] = super.jsToAny orElse {
@@ -57,5 +62,6 @@ trait AbstractJsonIncarnationSerializer extends AbstractJsonPlatformSerializer {
       case "FunCall" => FunCall((s \ "index").as[Int], jsToAny((s \ "funId").get))
       case "Scope" => Scope(jsToAny((s \ "key").get))
     }
+    case c if (c \ "type").as[String] == "Class" => Class.forName(jsToAny((c \ "name").get).asInstanceOf[String])
   }
 }
