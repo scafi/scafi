@@ -58,6 +58,7 @@ trait JsonPrimitiveSerialization extends JsonSerialization {
     case d:Double => Json.obj("type" -> "Double", "val" -> d)
     case c:Char => Json.obj("type" -> "Char", "val" -> c.toString)
     case s:String => Json.obj("type" -> "String", "val" -> s)
+    case c: Class[Any] => Json.obj("type" -> "Class", "name" -> c.getName)
   }
   override def jsToAny: PartialFunction[JsValue, Any] = {
     case b if (b \ "type").as[String] == "Boolean" => (b \ "val").as[Boolean]
@@ -69,6 +70,7 @@ trait JsonPrimitiveSerialization extends JsonSerialization {
     case d if (d \ "type").as[String] == "Double" => (d \ "val").as[Double]
     case c if (c \ "type").as[String] == "Char" => (c \ "val").as[String].head
     case s if (s \ "type").as[String] == "String" => (s \ "val").as[String]
+    case c if (c \ "type").as[String] == "Class" => Class.forName((c \ "name").as[String])
   }
 }
 
