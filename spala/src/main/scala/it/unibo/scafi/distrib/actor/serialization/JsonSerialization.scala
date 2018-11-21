@@ -88,10 +88,12 @@ trait JsonOptionSerialization extends JsonSerialization {
 trait JsonCollectionSerialization extends JsonSerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
     case l:List[Any] => Json.obj("type" -> "List", "list" -> JsArray(l.map(anyToJs)))
+    case s:Set[Any] => Json.obj("type" -> "Set", "set" -> JsArray(s.toList.map(anyToJs)))
     case m: Map[Any,Any] => Json.obj("type" -> "Map", "keys" -> anyToJs(m.keys.toList), "values" -> anyToJs(m.values.toList))
   }
   override def jsToAny: PartialFunction[JsValue, Any] = {
     case l if (l \ "type").as[String] == "List" => (l \ "list").as[JsArray].value.map(jsToAny).toList
+    case s if (s \ "type").as[String] == "Set" => (s \ "set").as[JsArray].value.map(jsToAny).toSet
     case m if (m \ "type").as[String] == "Map" =>
       (jsToAny((m \ "keys").get).asInstanceOf[List[Any]] zip jsToAny((m \ "values").get).asInstanceOf[List[Any]]).toMap
   }
