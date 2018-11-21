@@ -47,11 +47,7 @@ class ActorSpaceAwareSimulator(override val space: SPACE[ID],
       nbrSensors = nbrSns,
       programClass = programClass
     ))
-    val hosts: Set[(String, Int)] = devs.map(d => d._1 -> ("127.0.0.1", 9000 + d._1)).values.toSet
-    I.get.start(hosts)
-
-    Thread.sleep(1000)
-    devs.foreach(dev => setPosition(dev._1, dev._2.pos))
+    I.get.start(Set(("127.0.0.1", 9000)))
 
     ActorSystem().actorOf(Props(classOf[PlatformObserverActor], this, I.get))
   }
@@ -143,7 +139,7 @@ case class LocalSimulationActorPlatform(devIds: Set[ID],
   }
 }
 
-case class DistributedSimulationActorPlatform(devIds: Set[ID],
+/*case class DistributedSimulationActorPlatform(devIds: Set[ID],
                                               nbrs: Map[ID, Set[ID]],
                                               sensors: Map[ID, Map[LSNS, Any]],
                                               nbrSensors: Map[ID, Map[NSNS, Map[ID, Any]]],
@@ -197,4 +193,4 @@ case class DistributedSimulationActorPlatform(devIds: Set[ID],
       )
     )
   }
-}
+}*/
