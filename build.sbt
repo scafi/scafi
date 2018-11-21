@@ -124,7 +124,7 @@ lazy val `simulator-gui-new` = project.
   settings(sharedPublishSettings: _*).
   settings(
     name := "simulator-gui-new",
-    libraryDependencies ++= Seq(scopt,scalatest,scalafx)
+    libraryDependencies ++= Seq(akkaActor, akkaRemote, scopt,scalatest,scalafx)
   )
 
 lazy val spala = project.
