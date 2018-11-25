@@ -19,7 +19,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockC, BlockG, BlockS, BlocksWithGC, FieldUtils, ID}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object TargetCounting extends Launcher {
   // Configuring simulation

@@ -27,6 +27,7 @@ object ScalaFXEnvironment extends ViewEnvironment[SimulationView] {
   override def container: Container[SimulationView] = cont
   //initialize fx environment
   override def init(): Unit = {
+    windowConfiguration = ViewSetting.windowConfiguration
     initializeScalaFXPlatform()
     Platform.runLater {
       cont

@@ -12,7 +12,7 @@ import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.{ScafiSimulat
 import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
 import it.unibo.scafi.simulation.frontend.view.scalaFX.ScalaFXEnvironment
 import it.unibo.scafi.simulation.frontend.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutput}
-import it.unibo.scafi.simulation.frontend.view.{OutputPolicy, SimulationView}
+import it.unibo.scafi.simulation.frontend.view.{OutputPolicy, SimulationView, ViewSetting}
 
 /*
  * scafi program builder used to create scafi program
@@ -21,18 +21,10 @@ import it.unibo.scafi.simulation.frontend.view.{OutputPolicy, SimulationView}
 private class ScafiProgramBuilder(override val configuration: ScafiConfiguration) extends ProgramBuilder[ScafiConfiguration] {
   override def create: Program[_,_] = {
     val presenter = new SimulationPresenter[ScafiLikeWorld](scafiWorld,configuration.neighbourRender)
-    //check if output policy is supported
-    val viewEnv : Option[ViewEnvironment[SimulationView]] = configuration.outputPolicy match {
-      case policy : FXOutputPolicy =>
-        ScalaFXEnvironment.drawer = policy
-        Some(ScalaFXEnvironment)
-      case OutputPolicy.NoOutput => None
-      case _ => throw new IllegalArgumentException("output policy don't supported")
-    }
-    //set name, logo and icon to view environment
-    if(viewEnv.isDefined) {
-      viewEnv.get.windowConfiguration = ScafiWindowInfo(viewEnv.get.windowConfiguration)
-    }
+    //get the current view environment, attach the drawer passed to configuration
+    val viewEnv : Option[ViewEnvironment[SimulationView]] = configuration.outputPolicy.getViewEnvAndAttach()
+    //set name, logo and icon
+    ViewSetting.windowConfiguration = ScafiWindowInfo(ViewSetting.windowConfiguration)
     //init the world
     configuration.worldInitializer.init(configuration.scafiWorldInfo)
     val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationInformation)

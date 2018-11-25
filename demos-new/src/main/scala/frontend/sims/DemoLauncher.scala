@@ -18,6 +18,7 @@
 
 package frontend.sims
 
+import frontend.sims.standard.Main
 import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
@@ -28,6 +29,12 @@ import it.unibo.scafi.space.graphics2D.BasicShape2D.Circle
 
 
 object DemoLauncher extends App {
+  /**
+    * Full screen simulation
+    * ViewSetting.windowConfiguration = WindowConfiguration()
+    * Windowed simulation
+    * ViewSetting.windowConfiguration = WindowConfiguration(1200,700) // standard value 800 x 600
+    */
   ScafiProgramBuilder (
     Random(5000,1920,1080),
     SimulationInfo(program = classOf[Main]),

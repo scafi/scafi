@@ -26,7 +26,7 @@ object GraphicsLauncher extends App {
   val radiusFactory = new RadiusSimulationCommandFactory
   val outputFactory = new OutputCommandFactory(FastFXOutput,StandardFXOutput,ImageFXOutput)
   val performanceFactory = new PerformanceCommandFactory
-  val windowConfigurationFactory = new WindowConfigurationCommandFactory(ScalaFXEnvironment)
+  val windowConfigurationFactory = new WindowConfigurationCommandFactory
   val logConfiguration = new LogCommandFactory(NoLog,StandardLog,GraphicsLog)
   val renderConfiguration = new RenderCommandFactory
   val factories = List(radiusFactory,gridFactory,randomFactory,

@@ -39,7 +39,10 @@ object MetaActionProducer {
     * a meta action producer that create an action used to move node by a delta movement
     */
   val movementDtActionProducer : MetaActionProducer[(Double,Double)] = new MetaActionProducer[(Double, Double)] {
-    private var action : (Any) => (Option[(Double,Double)]) = v => Some(v.asInstanceOf[(Double,Double)])
+    private var action : (Any) => (Option[(Double,Double)]) = v => v match {
+      case v : (Double,Double) => Some(v)
+      case _ => None
+    }
     override def valueParser_=(action: Any => Option[(Double, Double)]): Unit = this.action = action
     override def valueParser: Any => Option[(Double, Double)] = action
 

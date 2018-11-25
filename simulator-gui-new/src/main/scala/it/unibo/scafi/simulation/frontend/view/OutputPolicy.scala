@@ -1,5 +1,6 @@
 package it.unibo.scafi.simulation.frontend.view
 
+import it.unibo.scafi.simulation.frontend.configuration.environment.ViewEnvironment
 import it.unibo.scafi.simulation.frontend.model.core.World
 
 /**
@@ -39,6 +40,12 @@ trait OutputPolicy {
     * @param graphicsDevice graphics device representation
     */
   def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice : Option[OUTPUT_NODE])
+
+  /**
+    * get the view environment (if present) associated to this output policy and attach it to the view environment
+    * @return the the view environment
+    */
+  def getViewEnvAndAttach() : Option[ViewEnvironment[SimulationView]]
 }
 
 object OutputPolicy {
@@ -51,5 +58,6 @@ object OutputPolicy {
     override def nodeGraphicsNode(node: World#Node): OUTPUT_NODE = ???
     override def deviceToGraphicsNode(node: OUTPUT_NODE, dev: NoOutput.DEVICE): Option[OUTPUT_NODE] = None
     override def updateDevice(node: OUTPUT_NODE, dev: NoOutput.DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = {}
+    override def getViewEnvAndAttach(): Option[ViewEnvironment[SimulationView]] = None
   }
 }

@@ -96,7 +96,6 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       while(actionQueue.nonEmpty) {
         toProcess = actionQueue.dequeue() :: toProcess
       }
-      actionQueue.clear()
       toProcess.foreach {_ match {
         case MetaActionManager.MultiAction(actions @ _*) => actions.foreach(computeAction(_))
         case action => computeAction(action)

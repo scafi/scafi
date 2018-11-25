@@ -88,7 +88,7 @@ trait FlockingLib extends FieldUtils with StandardSensors {
     })
     val separationVector = closestNeighbours.values.fold(new Point3D(0.0,0.0,0.0))((a,b) => new Point3D(a.x + b.x, a.y + b.y, 0.0))
     val normSeparation = normalize(separationVector.x, separationVector.y)
-    (-normSeparation._1, -normSeparation._2)
+    (-normSeparation._1 * SCALE, -normSeparation._2 * SCALE)
   }
 
   def normalize(x: Double, y: Double): (Double, Double) = {

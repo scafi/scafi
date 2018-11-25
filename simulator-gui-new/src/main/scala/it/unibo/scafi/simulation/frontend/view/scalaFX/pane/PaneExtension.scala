@@ -162,4 +162,28 @@ private [scalaFX] object PaneExtension {
       }
     }
   }
+  def fitIn(pane : Pane, internalSize : (Double,Double), screenSize : it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle): Unit = {
+    //normalize factor
+    val offsetScale = 0.15
+    val offsetY = 10
+    //compute componet used to fit pane
+    val middleInternalW = internalSize._1 / 2
+    val middleInternalH = internalSize._2 / 2
+    val middleScreenW = screenSize.w / 2
+    val middleScreenH = screenSize.h / 2
+    //x and y ration is used to verify the correct zoom factor
+    val yRatio = middleScreenH / middleInternalH
+    val xRatio =  middleScreenW / middleInternalW
+    val scaleF = if(xRatio > yRatio) yRatio - (yRatio * offsetScale) else xRatio - (xRatio * offsetScale)
+    pane.scaleX = scaleF
+    pane.scaleY = scaleF
+    //move the pane into right position
+    //translateF is the factor that normalize the zoom
+    val translateF = scaleF - 1
+    val dx = middleScreenW - middleInternalW
+    val dy = middleScreenH - middleInternalH - offsetY
+    pane.translateX = dx + translateF * dx
+    pane.translateY = dy + translateF * (dy + offsetY)
+
+  }
 }

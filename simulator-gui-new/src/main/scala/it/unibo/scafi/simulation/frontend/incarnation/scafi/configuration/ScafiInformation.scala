@@ -32,7 +32,7 @@ object ScafiInformation {
     new PerformanceCommandFactory,
     new GraphicsLogCommandFactory,
     new OutputCommandFactory(FastFXOutput,StandardFXOutput,NoOutput),
-    new WindowConfigurationCommandFactory(ScalaFXEnvironment),
+    new WindowConfigurationCommandFactory,
     new LogCommandFactory(NoLog,StandardLog,GraphicsLog),
     new RenderCommandFactory)
   /**

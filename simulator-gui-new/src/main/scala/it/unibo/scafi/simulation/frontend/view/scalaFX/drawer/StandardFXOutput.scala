@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.frontend.view.scalaFX.drawer
 
 import javafx.scene.control.Label
+import javafx.scene.text.Font
 
 import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.frontend.model.sensor.SensorConcept.SensorDevice
@@ -83,9 +84,10 @@ case object StandardFXOutput extends FXOutputPolicy {
             case Some(list : List[OUTPUT_NODE]) => list.filter(x => x != null).filter(x => x.isVisible)
           }
           val label = new Label(v.toString)
-          label.setMaxWidth(maxTextLength)
+          val labelOffset = node.getBoundsInLocal.getWidth / 2 + labelFontSize / 2
+          label.font = new Font(labelFont,labelFontSize)
           label.layoutX.bind(node.translateX + point.x)
-          label.layoutY.bind(node.translateY + point.y + list.size * labelOffset)
+          label.layoutY.bind(node.translateY + point.y + labelOffset / 4 +  (list.size) * labelOffset)
           labelOut += node -> (label :: list)
           Some(label)
       }

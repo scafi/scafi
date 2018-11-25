@@ -42,16 +42,16 @@ object scafiSimulationExecutor extends ScafiBridge {
     val simulationMoved = simulationObserver.idMoved
     if(contract.simulation.isDefined) {
       val bridge = contract.simulation.get
-      //for each export produced the bridge valutate export value and produced output associated
-      val exportValutations = simulationInfo.get.exportValutations
-      if(exportValutations.nonEmpty) {
+      //for each export produced the bridge evaluate export value and produced output associated
+      val exportEvaluations = simulationInfo.get.exportEvaluations
+      if(exportEvaluations.nonEmpty) {
         var exportToUpdate = Map.empty[ID,EXPORT]
         exportToUpdate = exportProduced
         exportProduced = Map.empty
         //for each export the bridge valutate it and put value in the sensor associated
         for(export <- exportToUpdate) {
-          for(i <- exportValutations.indices) {
-            world.changeSensorValue(export._1,indexToName(i),exportValutations(i)(export._2))
+          for(i <- exportEvaluations.indices) {
+            world.changeSensorValue(export._1,indexToName(i),exportEvaluations(i)(export._2))
           }
         }
       }

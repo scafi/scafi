@@ -5,6 +5,7 @@ import javafx.scene.input.{KeyCodeCombination, KeyCombination}
 import javafx.stage.WindowEvent
 
 import it.unibo.scafi.simulation.frontend.configuration.launguage.ResourceBundleManager._
+import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.ScafiInformation
 import it.unibo.scafi.simulation.frontend.view._
 import it.unibo.scafi.simulation.frontend.view.scalaFX.FXSimulationWindow._
 import it.unibo.scafi.simulation.frontend.view.scalaFX.common.AbstractFXSimulationPane
@@ -12,6 +13,7 @@ import it.unibo.scafi.simulation.frontend.view.scalaFX.logger.FXLogger
 import it.unibo.scafi.simulation.frontend.view.scalaFX.pane.PaneDecoration._
 import it.unibo.scafi.simulation.frontend.view.scalaFX.pane.PaneExtension._
 import it.unibo.scafi.simulation.frontend.view.scalaFX.pane._
+import it.unibo.scafi.simulation.frontend.view.ViewSetting
 
 import scalafx.Includes._
 import scalafx.animation.FadeTransition
@@ -101,6 +103,13 @@ private [scalaFX] class FXSimulationWindow(private val simulationPane : Abstract
       //at the end of transition simulation pane in render
       fade.onFinished = (_ :ActionEvent) => {
         this.mainPane.children = List(menuBar,pane,console)
+        //start code to fit simulation pane
+        if(ViewSetting.fitting) {
+          val paneSize = ScafiInformation.configuration.worldInitializer.size
+          import it.unibo.scafi.space.graphics2D.BasicShape2D.{Rectangle => SRect}
+          fitIn(simulationPane,paneSize,SRect(anchorPane.minWidth().toFloat,anchorPane.minHeight().toFloat))
+        }
+        //end code to fit simulation pane
         showHidePanel(pane, console, 0, -outOfBoundScreen(ConsoleHeight), new KeyCodeCombination(KeyCode.K, KeyCombination.CONTROL_DOWN))
         showHidePanel(pane, FXLogger,outOfBoundScreen(LogWidth), 0, new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN))
       }

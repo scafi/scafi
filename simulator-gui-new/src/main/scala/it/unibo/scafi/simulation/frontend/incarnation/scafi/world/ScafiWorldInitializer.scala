@@ -64,7 +64,8 @@ object ScafiWorldInitializer {
       for (i <- 1 to row) {
         for (j <- 1 to column) {
           nodes += 1
-          val point = Point3D(i * space, j * space, z)
+          // - space is used because i and j start with 1 and not with 0
+          val point = Point3D((i * space) - space, (j * space) - space, z)
           val addPoint = worldInfo.boundary match {
             case Some(bound) => bound.accept(point)
             case _ => true
@@ -74,6 +75,6 @@ object ScafiWorldInitializer {
       }
     }
 
-    override def size: (Double, Double) = (row * space, column * space)
+    override def size: (Double, Double) = (row * space - space, column * space - space)
   }
 }

@@ -2,9 +2,9 @@ package it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.reflection
 
 import it.unibo.scafi.simulation.frontend.configuration.SensorName._
 import it.unibo.scafi.simulation.frontend.configuration.command.CommandBinding
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.ScafiCommandBinding.{AdHocToggleBinding, BaseBinding, StandardBinding}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ExportValutation.EXPORT_VALUTATION
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.{MetaActionProducer, ExportValutation}
+import it.unibo.scafi.simulation.frontend.incarnation.scafi.ScafiCommandBinding.{AdHocToggleBinding, StandardBinding}
+import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ExportEvaluation.EXPORT_EVALUATION
+import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.{ExportEvaluation, MetaActionProducer}
 import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.{ScafiDeviceProducers, scafiWorld}
 import it.unibo.scafi.simulation.frontend.model.sensor.SensorConcept
 import it.unibo.scafi.simulation.frontend.view.AbstractKeyboardManager.Code1
@@ -29,9 +29,9 @@ trait SimulationProfile {
   def actions : List[MetaActionProducer[_]]
 
   /**
-    * @return a list of export valutation uses to valutate and produce change in gui world
+    * @return a list of export evaluation uses to valutate and produce change in gui world
     */
-  def valutations : List[EXPORT_VALUTATION[_]]
+  def evaluations : List[EXPORT_EVALUATION[_]]
 }
 
 object SimulationProfile {
@@ -48,7 +48,7 @@ object SimulationProfile {
 
     override val actions : List[MetaActionProducer[_]] = List.empty
 
-    override val valutations : List[EXPORT_VALUTATION[_]] = List(ExportValutation.standardValutation)
+    override val evaluations : List[EXPORT_EVALUATION[_]] = List(ExportEvaluation.standardEvaluation)
   }
 
   /**
@@ -64,7 +64,7 @@ object SimulationProfile {
 
     override val actions : List[MetaActionProducer[_]] = List.empty
 
-    override val valutations : List[EXPORT_VALUTATION[_]] = List(ExportValutation.standardValutation)
+    override val evaluations : List[EXPORT_EVALUATION[_]] = List(ExportEvaluation.standardEvaluation)
   }
 
   /**
@@ -79,7 +79,6 @@ object SimulationProfile {
 
     override val actions : List[MetaActionProducer[_]] = List(MetaActionProducer.movementDtActionProducer)
 
-    override val valutations : List[EXPORT_VALUTATION[_]] = List.empty
+    override val evaluations : List[EXPORT_EVALUATION[_]] = List.empty
   }
 }
-
