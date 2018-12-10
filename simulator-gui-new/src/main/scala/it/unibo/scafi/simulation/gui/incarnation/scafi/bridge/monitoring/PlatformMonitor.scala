@@ -81,12 +81,12 @@ class PlatformMonitor(override val space: SPACE[ID],
       super.preStart()
 
       val LOOKUP_TIMEOUT = 2.seconds
-      devs.foreach(dev => {
+      platformNodes.foreach(dev => {
         val path = self.path.address.copy(
           protocol = "akka.tcp",
           system = "scafi",
-          host = Some(platformNodes(dev._1)._1),
-          port = Some(platformNodes(dev._1)._2)
+          host = Some(dev._2._1),
+          port = Some(dev._2._2)
         ).toString + "/user/" + platformName + "/dev-" + dev._1
         context.system.actorSelection(path).resolveOne(LOOKUP_TIMEOUT).onComplete {
           case Success(ref) => devicesLocation += dev._1 -> Some(ref); ref ! MsgAddObserver(self)
