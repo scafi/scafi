@@ -103,7 +103,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                  lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                  nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
-      val GridSettings(rows, cols, stepx, stepy, tolerance, offsx, offsy) = gsettings
+      val GridSettings(rows, cols, stepx, stepy, tolerance, offsx, offsy, mapPos) = gsettings
       val configRandom = new Random(seeds.configSeed)
 
       def rnd(): Double = configRandom.nextDouble() * 2 * tolerance - tolerance
@@ -115,7 +115,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val grid = ofDim[(Double, Double)](rows, cols)
       for (i <- 0 until rows;
            j <- 0 until cols) {
-        grid(i)(j) = (offsx + i.toDouble * stepx + rnd(), offsy + j.toDouble * stepy + rnd())
+        grid(i)(j) = mapPos(i, j, offsx + i.toDouble * stepx + rnd(), offsy + j.toDouble * stepy + rnd())
       }
       val idArray = MArray() ++= (0 until rows * cols) map lId.fromNum
 
