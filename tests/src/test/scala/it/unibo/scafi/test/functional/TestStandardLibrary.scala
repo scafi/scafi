@@ -50,7 +50,7 @@ class TestStandardLibrary extends FlatSpec with Matchers {
         excludingSelf.minHoodSelector(nbr(mid))(nbr(mid)),
         includingSelf.minHoodSelector(nbr(mid))(nbr(mid)),
         excludingSelf.maxHoodSelector(nbr(mid))(nbr(mid)),
-        includingSelf.maxHoodSelector(nbr(mid))(nbr(mid)),
+        includingSelf.maxHoodSelector(nbr(mid))(nbr(mid))
       )
     }, ntimes = fewRounds)(net)
 
@@ -67,7 +67,7 @@ class TestStandardLibrary extends FlatSpec with Matchers {
         excludingSelf.minHoodSelector(Double.PositiveInfinity)(1),
         includingSelf.minHoodSelector(Int.MaxValue)(1),
         excludingSelf.maxHoodSelector(Double.NegativeInfinity)(1),
-        includingSelf.maxHoodSelector(Int.MinValue)(1),
+        includingSelf.maxHoodSelector(Int.MinValue)(1)
       )
     }, ntimes = fewRounds)(net)
   }
