@@ -40,14 +40,14 @@ case class Node(host: String, port: Int, devices: Map[Platform.ID, (Point2D, Set
 
 object MonitoringDemo_Inputs {
   val nodes: List[Node] = List(
-    Node("192.168.1.8", 9000, Map(
+    Node("127.0.0.1", 9000, Map(
       1 -> (Point2D(250, 120), Set(2)),
       2 -> (Point2D(260, 180), Set(3, 4)),
       3 -> (Point2D(290, 260), Set(2, 5, 6)),
       4 -> (Point2D(350, 160), Set(2, 6, 7)),
       5 -> (Point2D(340, 330), Set(3, 8, 9))
     )),
-    Node("192.168.1.6", 9100, Map(
+    Node("127.0.0.1", 9100, Map(
       6 -> (Point2D(375, 200), Set(7, 9, 10)),
       7 -> (Point2D(440, 170), Set(10)),
       8 -> (Point2D(420, 370), Set(9)),
@@ -56,10 +56,6 @@ object MonitoringDemo_Inputs {
     ))
   )
   val platformName: String = "MonitoringDemo"
-
-  /*class MonitoringDemoProgram extends Platform.AggregateProgram {
-    override def main() = foldhoodPlus(0){_ + _}(150)
-  }*/
 
   trait MonitoringSensorDefinitions extends Platform.StandardSensors { self: Platform.AggregateProgram =>
     def sense1: Boolean = sense[Boolean](SensorName.sensor1)
