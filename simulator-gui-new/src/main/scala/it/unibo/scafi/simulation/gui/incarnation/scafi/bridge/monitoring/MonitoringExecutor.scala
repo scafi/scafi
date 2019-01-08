@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor
+package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.monitoring
 
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager
 import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, TreeLog}
@@ -24,7 +24,7 @@ import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiBridge, Simu
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import ScafiBridge._
 
-object ActorPlatformSimulationExecutor extends SimulationExecutor {
+object MonitoringExecutor extends SimulationExecutor {
   override protected def asyncLogicExecution(): Unit = {
     if(contract.simulation.isDefined) {
       val net = contract.simulation.get
