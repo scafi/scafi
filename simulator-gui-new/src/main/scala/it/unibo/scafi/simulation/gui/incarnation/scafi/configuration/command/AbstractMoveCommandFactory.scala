@@ -3,7 +3,6 @@ package it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.command
 import it.unibo.scafi.simulation.gui.configuration.command.Command.command
 import it.unibo.scafi.simulation.gui.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.actor.ActorPlatformSimulationExecutor
 import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{SimulationExecutor, scafiSimulationExecutor}
 import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.gui.util.Result

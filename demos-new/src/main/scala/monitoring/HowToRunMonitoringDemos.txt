@@ -1,0 +1,16 @@
+### DEMO MonitoringDemo: p2p, Spatial Network, Sensors, Monitoring GUI
+
+To execute the system, simply run (in any order):
+- MonitoringDemoMain1
+- MonitoringDemoMain2
+Each main program will start a subsystem according to configuration.
+
+To observe and control the system, simply run:
+- MonitoringDemoMonitor
+
+You should expect the system to execute a channel program, showing the output of every device in the monitoring GUI.
+You can interact with the GUI to:
+- Change the values of each sensor of the devices. In this way, a device can be set as source, destination or obstacle
+  for the channel program. Once set source and destination, you should expect the system to stabilize, showing the
+  shortest path from source to destination.
+- Move the devices across the net and see how the system reacts.
