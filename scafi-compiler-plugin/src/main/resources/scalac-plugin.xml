@@ -1,0 +1,5 @@
+
+<plugin>
+    <name>scafi</name>
+    <classname>it.unibo.scafi.plugin.ScafiPlugin</classname>
+</plugin>

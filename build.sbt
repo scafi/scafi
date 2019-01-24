@@ -51,7 +51,8 @@ lazy val commonSettings = Seq(
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
   // Cross-Building
-  crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
+  crossScalaVersions := Seq("2.11.8","2.12.2"), // "2.13.0-M1",
+  autoCompilerPlugins := true
 )
 
 lazy val noPublishSettings =
@@ -63,13 +64,25 @@ lazy val noPublishSettings =
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`, `scafi-compiler-plugin`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
     // Prevents aggregated project (root) to be published
     packagedArtifacts := Map.empty,
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos)
+  )
+
+lazy val `scafi-compiler-plugin` = project
+  .settings(commonSettings: _*)
+  .settings(name := "scafi-compiler-plugin")
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang"                  %     "scala-reflect"         % scalaVersion.value,
+      "org.scala-lang"                  %     "scala-compiler"        % scalaVersion.value      % "provided",
+      "org.scala-lang.modules"          %%    "scala-xml"             % "1.0.6",
+    ),
+    assemblyJarName in assembly := "scafi-compiler-plugin.jar"
   )
 
 lazy val commons = project.
@@ -137,5 +150,6 @@ lazy val demos = project.
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
-    name := "scafi-demos"
+    name := "scafi-demos",
+    scalacOptions += "-Xplugin:scafi-compiler-plugin/target/scala-2.12/scafi-compiler-plugin.jar"
   )
