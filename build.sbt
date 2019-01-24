@@ -1,6 +1,3 @@
-import ReleaseTransformations._
-import sbtrelease.ReleasePlugin.autoImport.releaseProcess
-
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -18,7 +15,8 @@ val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
 val playJson   = "com.typesafe.play" %% "play-json"   % "2.6.9"
 val scalafx = "org.scalafx" %% "scalafx" % "8.0.144-R12"
 
-lazy val sharedPublishSettings = Seq(
+
+inThisBuild(List(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
   publishArtifact in Test := false,
@@ -35,32 +33,29 @@ lazy val sharedPublishSettings = Seq(
     Developer(id="metaphori", name="Roberto Casadei", email="roby.casadei@unibo.it", url=url("http://robertocasadei.apice.unibo.it")),
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
-  // Add sonatype repository settings
+  releaseEarlyWith := SonatypePublisher,
+  releaseEarlyEnableLocalReleases := true,
   publishTo := Some(
     if (isSnapshot.value)
       Opts.resolver.sonatypeSnapshots
     else
       Opts.resolver.sonatypeStaging
   ),
-  // Enable cross release
-  releaseCrossBuild := true,
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    runTest,
-    setReleaseVersion,
-    //commitReleaseVersion,
-    //tagRelease,
-    ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true)
-    //setNextVersion,
-    //commitNextVersion,
-    //ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
-    //pushChanges
-  )
-)
+  pgpPublicRing := file("./.travis/local.pubring.asc"),
+  pgpSecretRing := file("./.travis/local.secring.asc")
+))
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
+
+lazy val commonSettings = Seq(
+  organization := "it.unibo.apice.scafiteam",
+  scalaVersion := "2.12.2",
+  compileScalastyle := scalastyle.in(Compile).toTask("").value,
+  (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
+  (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
+  // Cross-Building
+  crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
+)
 
 lazy val noPublishSettings =
   Seq(
@@ -68,69 +63,56 @@ lazy val noPublishSettings =
     publish := (),
     publishLocal := ()
   )
-lazy val commonSettings = Seq(
-  organization := "it.unibo.apice.scafiteam",
-  scalaVersion := "2.12.2",
-  version := "0.3.0",
-  compileScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
-  (compile in Compile) <<= (compile in Compile) dependsOn compileScalastyle,
-  // Cross-Building
-  crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
-)
 
 lazy val scafi = project.in(file(".")).
-  aggregate(core, distributed, simulator, `simulator-gui-new`, `simulator-gui`, `stdlib`, `tests`, `demos-new`,demos).
+  enablePlugins(ScalaUnidocPlugin).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`,`simulator-gui-new`,  `demos-new`).
   settings(commonSettings:_*).
-  settings(sharedPublishSettings:_*).
+  settings(noPublishSettings:_*).
   settings(
     // Prevents aggregated project (root) to be published
-    packagedArtifacts in file(".") := Map.empty
+    packagedArtifacts := Map.empty,
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos)
   )
 
 lazy val commons = project.
   settings(commonSettings: _*).
-  settings(sharedPublishSettings: _*).
-  settings(name := "commons")
+  settings(name := "scafi-commons")
 
 lazy val core = project.
   dependsOn(commons).
   settings(commonSettings: _*).
-  settings(sharedPublishSettings: _*).
   settings(
     name := "scafi-core",
     libraryDependencies += scalatest
   )
 
-lazy val stdlib = project.
+lazy val `stdlib-ext` = project.
   dependsOn(core).
   settings(commonSettings: _*).
-  settings(sharedPublishSettings: _*).
   settings(
-    name := "scafi-lib",
+    name := "scafi-lib-ext",
     libraryDependencies ++= Seq(scalatest, shapeless)
   )
 
 lazy val simulator = project.
-  dependsOn(core, stdlib).
+  dependsOn(core).
   settings(commonSettings: _*).
-  settings(sharedPublishSettings: _*).
   settings(
     name := "scafi-simulator"
   )
 
-lazy val `simulator-gui-new` = project.
-  dependsOn(core,simulator,distributed).
+lazy val `simulator-gui` = project.
+  dependsOn(core,simulator).
   settings(commonSettings: _*).
-  settings(sharedPublishSettings: _*).
   settings(
-    name := "simulator-gui-new",
-    libraryDependencies ++= Seq(akkaActor, akkaRemote, scopt,scalatest,scalafx)
+    name := "scafi-simulator-gui",
+    libraryDependencies ++= Seq(scopt)
   )
 
 lazy val spala = project.
   dependsOn(commons).
   settings(commonSettings: _*).
-  settings(sharedPublishSettings: _*).
   settings(
     name := "spala",
     libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt, playJson)
@@ -140,39 +122,37 @@ lazy val spala = project.
 lazy val distributed = project.
   dependsOn(core, spala).
   settings(commonSettings: _*).
-  settings(sharedPublishSettings: _*).
   settings(name := "scafi-distributed")
 
 // 'tests' project definition
 lazy val tests = project.
   dependsOn(core, simulator).
   settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
   settings(
     name := "scafi-tests",
     libraryDependencies += scalatest
   )
 
 // 'demos' project definition
-lazy val `demos-new` = project.
-  dependsOn(core, stdlib, distributed, simulator, `simulator-gui-new`).
-  settings(commonSettings: _*).
-  settings(noPublishSettings: _*).
-  settings(
-    name := "scafi-demos-new"
-  )
-lazy val `simulator-gui` = project.
-  dependsOn(core,simulator).
-  settings(commonSettings: _*).
-  settings(
-    name := "scafi-simulator-gui",
-    libraryDependencies ++= Seq(scopt)
-  )
-
-// 'demos' project definition
 lazy val demos = project.
-  dependsOn(core, stdlib, distributed, simulator, `simulator-gui`).
+  dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos"
+  )
+lazy val `simulator-gui-new` = project.
+  dependsOn(core,simulator).
+  settings(commonSettings: _*).
+  settings(
+    name := "simulator-gui-new",
+    libraryDependencies ++= Seq(scopt,scalatest,scalafx)
+  )
+lazy val `demos-new` = project.
+  dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui-new`).
+  settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
+  settings(
+    name := "scafi-demos-new"
   )

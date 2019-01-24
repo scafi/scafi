@@ -23,8 +23,6 @@ import it.unibo.scafi.lib.StandardLibrary
 import it.unibo.scafi.simulation.Simulation
 
 object FunctionalTestIncarnation extends AbstractTestIncarnation with Simulation with StandardLibrary {
-  override val LSNS_RANDOM: String = "randomGenerator"
-
   import Builtins.Bounded
   override implicit val idBounded: Bounded[ID] = Builtins.Bounded.of_i
 }

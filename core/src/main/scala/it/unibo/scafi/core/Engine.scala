@@ -47,6 +47,8 @@ trait Engine extends Semantics {
     def paths : Map[Path,Any] = Map(map.toSeq:_*)
 
     override def toString: String = map.toString
+
+    override def getAll: scala.collection.Map[Path, Any] = map
   }
 
   class PathImpl(val path: List[Slot]) extends Path with Equals with Serializable {

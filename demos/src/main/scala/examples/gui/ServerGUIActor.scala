@@ -31,7 +31,7 @@ import scala.collection.mutable.{ Map => MMap }
 import it.unibo.scafi.distrib.actor._
 
 class ServerGUIActor(val I: BasicAbstractActorIncarnation,
-                     private var tm: ActorRef) extends Actor with ActionListener {
+                              private var tm: ActorRef) extends Actor with ActionListener {
   val width = 750
   val height = 400
 
