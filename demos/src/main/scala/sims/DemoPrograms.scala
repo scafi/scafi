@@ -19,11 +19,13 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.NBR_RANGE
 
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
+
+import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 
 import scala.util.Random
 

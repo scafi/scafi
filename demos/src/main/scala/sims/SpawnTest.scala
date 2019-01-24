@@ -19,7 +19,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object SpawnTestRunner extends Launcher {
   Settings.Sim_ProgramClass = "sims.SpawnTest"

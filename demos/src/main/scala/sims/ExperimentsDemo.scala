@@ -19,7 +19,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 
@@ -27,6 +27,7 @@ import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
 import scala.concurrent.duration.FiniteDuration
+
 
 object ExperimentsDemo extends Launcher {
   // Configuring simulation

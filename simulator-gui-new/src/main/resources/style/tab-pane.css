@@ -1,0 +1,38 @@
+@import "scroll-bar.css"
+.root * {
+    -fx-font-family: Consolas;
+    -fx-font-size: 14px;
+}
+.tab-header-background {
+    -fx-opacity: 0;
+}
+.tab-down-button
+{
+    -fx-background-color: #d0d0d0;
+}
+.context-menu {
+    -fx-background-color: #d0d0d0;
+}
+
+.context-menu * * *:hover {
+    -fx-background-color: #202020;
+}
+
+.context-menu * * *:focused {
+    -fx-background-color: #202020;
+}
+.tab {
+    -fx-background-color: #d0d0d0;
+    -fx-background-radius: 0;
+    -fx-padding: 5 10 10 10;
+}
+
+.tab:selected {
+    -fx-background-color: #202020;
+    -fx-focus-color: transparent;
+}
+
+.tab-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+}

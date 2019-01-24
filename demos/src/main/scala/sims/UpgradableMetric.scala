@@ -19,7 +19,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.Settings
+import it.unibo.scafi.simulation.frontend.Settings
 import sims.BasicDemo.launch
 
 object UpgradableMetricDemo extends App {

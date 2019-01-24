@@ -19,7 +19,6 @@
 package lib
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-
 import it.unibo.scafi.space.Point2D
 
 import scala.util.Random

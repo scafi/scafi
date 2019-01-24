@@ -65,6 +65,7 @@ trait Semantics extends Core with Language {
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
     def getAll: scala.collection.Map[Path,Any]
+    def paths : Map[Path,Any]
   }
 
   trait ContextOps { self: CONTEXT =>
@@ -263,8 +264,8 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag():Any =
-      Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    override def elicitAggregateFunctionTag(): Any = sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition)
+    //Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated
