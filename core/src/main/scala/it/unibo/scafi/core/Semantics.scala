@@ -136,11 +136,10 @@ trait Semantics extends Core with Language {
         }
       }
 
-    override def aggregate[T](f: => T): T = {
+    override def aggregate[T](f: => T): T =
       vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(!vm.neighbour.isDefined) {
         f
       }
-    }
 
     override def align[K,V](key: K)(proc: K => V): V =
       vm.nest[V](Scope[K](key))(true, inc = false){
@@ -265,9 +264,8 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    import sun.reflect.Reflection._
-    override def elicitAggregateFunctionTag():Any = getCallerClass(PlatformDependentConstants.StackTracePosition)
-
+    override def elicitAggregateFunctionTag(): Any = sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition)
+    //Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated
