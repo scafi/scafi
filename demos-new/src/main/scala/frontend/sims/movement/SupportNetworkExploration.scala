@@ -21,11 +21,11 @@ package frontend.sims.movement
 import frontend.lib.{FlockingLib, Movement2DSupport}
 import frontend.sims.{SensorDefinitions, SizeConversion}
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.{ScafiInformation, ScafiProgramBuilder}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.{ScafiInformation, ScafiProgramBuilder}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
 
 object SupportNetworkExploration extends App {
   ScafiProgramBuilder (

@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit
 
 import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{NBR_RANGE, _}
-import it.unibo.scafi.simulation.frontend.configuration.SensorName
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
 
 import scala.concurrent.duration.Duration
 import scala.util.Random

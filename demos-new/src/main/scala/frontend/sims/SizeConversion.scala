@@ -1,5 +1,5 @@
 package frontend.sims
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.ScafiInformation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiInformation
 
 object SizeConversion {
   def normalSizeToWorldSize(size : (Double,Double)) : (Double,Double) =

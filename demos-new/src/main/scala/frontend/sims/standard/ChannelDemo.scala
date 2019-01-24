@@ -20,12 +20,12 @@ package frontend.sims.standard
 
 import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.SimulationInfo
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.reflection.Demo
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
-import it.unibo.scafi.simulation.frontend.view.scalaFX.drawer.StandardFXOutput
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.StandardFXOutput
 import it.unibo.scafi.space.graphics2D.BasicShape2D.Circle
 
 object ChannelDemo extends App {

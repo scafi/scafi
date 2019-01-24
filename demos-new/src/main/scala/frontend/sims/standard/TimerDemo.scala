@@ -20,10 +20,10 @@ package frontend.sims.standard
 
 import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.SimulationInfo
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.ScafiProgramBuilder
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
 
 object TimerDemo extends App {
   ScafiProgramBuilder (

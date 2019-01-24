@@ -6,19 +6,19 @@ import frontend.lib.{FlockingLib, Movement2DSupport}
 import frontend.sims.{SensorDefinitions, SizeConversion}
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.MetaActionManager
-import it.unibo.scafi.simulation.frontend.configuration.SensorName
-import it.unibo.scafi.simulation.frontend.configuration.command.{Command, CommandBinding, CommandFactory}
-import it.unibo.scafi.simulation.frontend.controller.logger.LogManager
-import it.unibo.scafi.simulation.frontend.controller.logger.LogManager.IntLog
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo, scafiSimulationExecutor}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.scafiWorld
-import it.unibo.scafi.simulation.frontend.model.sensor.SensorConcept.{SensorDevice, sensorInput}
-import it.unibo.scafi.simulation.frontend.util.Result
-import it.unibo.scafi.simulation.frontend.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutput}
-import it.unibo.scafi.simulation.frontend.view.{AbstractKeyboardManager, AbstractSelectionArea, GraphicsLogger}
+import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
+import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, CommandBinding, CommandFactory}
+import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager
+import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager.IntLog
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo, scafiSimulationExecutor}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.scafiWorld
+import it.unibo.scafi.simulation.s2.frontend.model.sensor.SensorConcept.{SensorDevice, sensorInput}
+import it.unibo.scafi.simulation.s2.frontend.util.Result
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutput}
+import it.unibo.scafi.simulation.s2.frontend.view.{AbstractKeyboardManager, AbstractSelectionArea, GraphicsLogger}
 import it.unibo.scafi.space.SpatialAbstraction.Bound
 import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
 

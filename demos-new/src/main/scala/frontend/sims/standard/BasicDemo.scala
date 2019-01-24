@@ -19,12 +19,12 @@
 package frontend.sims.standard
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.SimulationInfo
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.bridge.reflection.Demo
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.configuration.ScafiProgramBuilder
-import it.unibo.scafi.simulation.frontend.incarnation.scafi.world.ScafiWorldInitializer.Grid
-import it.unibo.scafi.simulation.frontend.view.scalaFX.drawer.GradientFXOutput
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiProgramBuilder
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Grid
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.GradientFXOutput
 
 object BasicDemo extends App {
   ScafiProgramBuilder (
