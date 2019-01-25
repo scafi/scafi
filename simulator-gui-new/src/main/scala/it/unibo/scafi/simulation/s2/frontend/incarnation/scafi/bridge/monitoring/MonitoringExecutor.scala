@@ -16,13 +16,13 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.monitoring
+package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.monitoring
 
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager
-import it.unibo.scafi.simulation.gui.controller.logger.LogManager.{Channel, TreeLog}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiBridge, SimulationExecutor}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
-import ScafiBridge._
+import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager
+import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager.{Channel, TreeLog}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiBridge._
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationExecutor
 
 object MonitoringExecutor extends SimulationExecutor {
   override protected def asyncLogicExecution(): Unit = {

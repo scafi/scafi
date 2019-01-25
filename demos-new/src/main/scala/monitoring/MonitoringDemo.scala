@@ -21,14 +21,14 @@ package monitoring
 import it.unibo.scafi.distrib.actor.p2p.SpatialPlatform
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.lib.StandardLibrary
+import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.monitoring.MonitoringInitializer.RadiusSimulation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.StandardFXOutput
 import it.unibo.scafi.space.Point2D
-import it.unibo.scafi.simulation.gui.configuration.SensorName
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.SimulationInfo
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.monitoring.MonitoringInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.gui.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.ScafiWorldInitializer.Fixed
-import it.unibo.scafi.simulation.gui.view.scalaFX.drawer.StandardFXOutput
 import it.unibo.scafi.space.graphics2D.BasicShape2D.Circle
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer._
 
 object MonitoringDemoPlatform extends SpatialPlatform with BasicAbstractActorIncarnation with StandardLibrary {
   override val LocationSensorName: LSensorName = "LocationSensor"
@@ -108,14 +108,14 @@ object MonitoringDemo_Inputs {
       dm.addSensorValue(SensorName.sensor3, false)
       val devPosition = nodes.filter(n => n.devices.contains(dm.selfId)).head.devices(dm.selfId)._1
       dm.addSensorValue(Platform.LocationSensorName, devPosition)
-      dm.actorRef ! Platform.MsgNbrSensorValue(Platform.NBR_RANGE_NAME,
+      dm.actorRef ! Platform.MsgNbrSensorValue(Platform.NBR_RANGE,
         nodes.flatMap(n => n.devices).map(n => n._1 -> devPosition.distance(n._2._1)).toMap)
       dm.start
     }
   }
 }
 
-import MonitoringDemo_Inputs._
+import monitoring.MonitoringDemo_Inputs._
 object MonitoringDemoMain1 extends MonitoringDemoMain(settings1)
 object MonitoringDemoMain2 extends MonitoringDemoMain(settings2)
 

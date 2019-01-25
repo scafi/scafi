@@ -143,7 +143,7 @@ lazy val demos = project.
     name := "scafi-demos"
   )
 lazy val `simulator-gui-new` = project.
-  dependsOn(core,simulator).
+  dependsOn(core,simulator,distributed).
   settings(commonSettings: _*).
   settings(
     name := "simulator-gui-new",

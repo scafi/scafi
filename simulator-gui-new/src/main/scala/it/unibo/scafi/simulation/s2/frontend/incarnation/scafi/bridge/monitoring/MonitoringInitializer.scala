@@ -16,13 +16,13 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.monitoring
+package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.monitoring
 
 import it.unibo.scafi.incarnations.{ BasicAbstractActorIncarnation => Platform }
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.{ScafiBridge, ScafiSimulationInitializer, SimulationInfo}
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.gui.incarnation.scafi.world.scafiWorld
-import it.unibo.scafi.simulation.gui.model.sensor.SensorConcept
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{ScafiBridge, ScafiSimulationInitializer, SimulationInfo}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.scafiWorld
+import it.unibo.scafi.simulation.s2.frontend.model.sensor.SensorConcept
 import MonitoringExecutor.world
 
 object MonitoringInitializer {

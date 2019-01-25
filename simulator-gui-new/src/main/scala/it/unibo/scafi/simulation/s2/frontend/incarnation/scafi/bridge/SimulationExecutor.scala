@@ -16,9 +16,9 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge
+package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
 
 trait SimulationExecutor extends ScafiBridge {
   protected var exportProduced: Map[ID,EXPORT] = Map()
@@ -33,7 +33,7 @@ trait SimulationExecutor extends ScafiBridge {
     if(contract.simulation.isDefined) {
       val bridge = contract.simulation.get
       //for each export produced the bridge valutate export value and produced output associated
-      val exportValutations = simulationInfo.get.exportValutations
+      val exportValutations = simulationInfo.get.exportEvaluations
       if(exportValutations.nonEmpty) {
         var exportToUpdate = Map.empty[ID,EXPORT]
         exportToUpdate = exportProduced

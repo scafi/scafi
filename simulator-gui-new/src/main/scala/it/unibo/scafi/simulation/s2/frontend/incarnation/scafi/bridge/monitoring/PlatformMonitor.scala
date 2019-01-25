@@ -16,12 +16,12 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.monitoring
+package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.monitoring
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import it.unibo.scafi.distrib.actor.MsgAddObserver
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation
-import it.unibo.scafi.simulation.gui.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.incarnations.{BasicAbstractActorIncarnation => Platform}
 import it.unibo.scafi.simulation.SimulationObserver.{MovementEvent, SensorChangedEvent}
 
@@ -67,7 +67,7 @@ class PlatformMonitor(override val space: SPACE[ID],
 
   private def updateNbrSensors(ids: Set[ID]): Unit = ids.foreach { id =>
     devicesLocation(id).foreach(ref => {
-      ref ! I.MsgNbrSensorValue(NBR_RANGE_NAME,
+      ref ! I.MsgNbrSensorValue(NBR_RANGE,
         neighbourhood(id).map(nid => nid -> space.getDistance(space.getLocation(id), space.getLocation(nid))).toMap)
     })
   }
