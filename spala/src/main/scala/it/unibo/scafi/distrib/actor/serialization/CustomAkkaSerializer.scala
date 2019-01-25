@@ -22,8 +22,8 @@ import akka.actor.ExtendedActorSystem
 import akka.serialization.SerializerWithStringManifest
 import it.unibo.scafi.distrib.actor.SystemMsgClassNotFound
 
-class CustomSerializer(ext: ExtendedActorSystem) extends SerializerWithStringManifest {
-  private def incarnationSerializer = CustomSerializer.incarnationSerializer
+class CustomAkkaSerializer(ext: ExtendedActorSystem) extends SerializerWithStringManifest {
+  private def incarnationSerializer = CustomAkkaSerializer.incarnationSerializer
 
   override def identifier: Int = 4096
 
@@ -40,6 +40,6 @@ class CustomSerializer(ext: ExtendedActorSystem) extends SerializerWithStringMan
   }).getOrElse(None)
 }
 
-object CustomSerializer {
+object CustomAkkaSerializer {
   var incarnationSerializer: Option[BaseSerializer] = None
 }

@@ -18,14 +18,14 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.distrib.actor.serialization.{AbstractJsonPlatformSerializer, CustomSerializer}
+import it.unibo.scafi.distrib.actor.serialization.{AbstractJsonPlatformSerializer, CustomAkkaSerializer}
 import it.unibo.scafi.space.{Point3D, Point2D, Point1D}
 import play.api.libs.json._
 
 import scala.collection.mutable.{Map => MMap}
 
 trait AbstractJsonIncarnationSerializer extends AbstractJsonPlatformSerializer { self: BasicAbstractActorIncarnation =>
-  CustomSerializer.incarnationSerializer = Some(this)
+  CustomAkkaSerializer.incarnationSerializer = Some(this)
 
   override def anyToJs: PartialFunction[Any, JsValue] = super.anyToJs orElse {
     case u:UID => Json.obj("type" -> "UID", "val" -> u.asInstanceOf[Int])
