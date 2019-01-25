@@ -25,7 +25,7 @@ import play.api.libs.json._
 import scala.collection.mutable.{Map => MMap}
 
 trait AbstractJsonIncarnationSerializer extends AbstractJsonPlatformSerializer { self: BasicAbstractActorIncarnation =>
-  CustomSerializer.incarnation = Some(this)
+  CustomSerializer.incarnationSerializer = Some(this)
 
   override def anyToJs: PartialFunction[Any, JsValue] = super.anyToJs orElse {
     case u:UID => Json.obj("type" -> "UID", "val" -> u.asInstanceOf[Int])

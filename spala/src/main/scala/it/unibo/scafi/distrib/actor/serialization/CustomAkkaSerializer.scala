@@ -23,26 +23,23 @@ import akka.serialization.SerializerWithStringManifest
 import it.unibo.scafi.distrib.actor.SystemMsgClassNotFound
 
 class CustomSerializer(ext: ExtendedActorSystem) extends SerializerWithStringManifest {
-  private def incarnation = CustomSerializer.incarnation
+  private def incarnationSerializer = CustomSerializer.incarnationSerializer
 
   override def identifier: Int = 4096
 
-  override def manifest(obj: AnyRef): String = incarnation.map(_.manifest(obj) match {
-    case Some(m) => m
-    case _ => obj.getClass.getName
-  }).getOrElse("")
+  override def manifest(obj: AnyRef): String = incarnationSerializer.flatMap(_.manifest(obj)).getOrElse(obj.getClass.getName)
 
-  override def toBinary(obj: AnyRef): Array[Byte] = incarnation.map(_.toBinary(obj) match {
+  override def toBinary(obj: AnyRef): Array[Byte] = incarnationSerializer.map(_.toBinary(obj) match {
     case Some(tb) => tb
     case _ => ext.log.debug(s"\nCannot serialize: " + obj); Array[Byte]()
   }).getOrElse(Array[Byte]())
 
-  override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = incarnation.map(_.fromBinary(bytes, manifest) match {
+  override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = incarnationSerializer.map(_.fromBinary(bytes, manifest) match {
     case Some(fb) => fb
     case _ => ext.log.debug(s"\nCannot deserialize: " + manifest); SystemMsgClassNotFound(manifest)
   }).getOrElse(None)
 }
 
 object CustomSerializer {
-  var incarnation: Option[BaseSerializer] = None
+  var incarnationSerializer: Option[BaseSerializer] = None
 }

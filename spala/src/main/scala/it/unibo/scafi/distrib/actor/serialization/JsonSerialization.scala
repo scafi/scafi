@@ -117,7 +117,7 @@ trait JsonTupleSerialization extends JsonSerialization {
 trait JsonCommonFunctionSerialization extends JsonSerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
     case f if isFunction(f) =>
-      Json.obj("type" -> "Function", "name" -> anyToJs(f.getClass.getSimpleName.split("/")(0)))
+      Json.obj("type" -> "Function", "name" -> anyToJs(f.getClass.getSimpleName.split("/")(0))) // TODO: verify if fragile
   }
   override def jsToAny: PartialFunction[JsValue, Any] = {
     case f if (f \ "type").as[String] == "Function" =>
