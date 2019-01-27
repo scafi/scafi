@@ -74,8 +74,8 @@ trait StdLib_NewProcesses {
       }
     }
 
-    def spawn[A, B, C](process: A => B => (C, Boolean), params: Set[A], args: B): Map[A,C] = {
-      share(Map[A, C]()) { case (_, nbrProcesses) => {
+    def spawn[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] = {
+      share(Map[K, R]()) { case (_, nbrProcesses) => {
         // 1. Take active process instances from my neighbours
         val nbrProcs = includingSelf.unionHoodSet(nbrProcesses().keySet)
 
@@ -94,9 +94,9 @@ trait StdLib_NewProcesses {
       } }
     }
 
-    def sspawn[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
-      spawn[A,B,Option[C]]((p: A) => (a: B) => {
-        val (finished, result, status) = rep((false, none[C], false)) { case (finished, _, _) => {
+    def sspawn[K, A, R](process: K => A => (R, Status), params: Set[K], args: A): Map[K,R] = {
+      spawn[K,A,Option[R]]((p: K) => (a: A) => {
+        val (finished, result, status) = rep((false, none[R], false)) { case (finished, _, _) => {
           val (result, status) = process(p)(a)
           val newFinished = status == Terminated | includingSelf.anyHood(nbr{finished})
           val terminated = includingSelf.everyHood(nbr{newFinished})
