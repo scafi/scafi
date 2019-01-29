@@ -74,6 +74,13 @@ trait StdLib_NewProcesses {
       }
     }
 
+    def exportConditionally[R](f: => (R, Boolean)): (R, Boolean) = {
+      vm.newExportStack
+      val result = f
+      if(result._2) vm.mergeExport else vm.discardExport
+      result
+    }
+
     def spawn[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] = {
       share(Map[K, R]()) { case (_, nbrProcesses) => {
         // 1. Take active process instances from my neighbours
@@ -84,14 +91,13 @@ trait StdLib_NewProcesses {
 
         // 3. Collect all process instances to be executed, execute them and update their state
         (nbrProcs ++ newProcs)
-          .map { case arg =>
-            val p = ProcInstance(arg)(a => { process(a) })
-            vm.newExportStack
-            val result = p.run(args)
-            if(result.value.get._2) vm.mergeExport else vm.discardExport
-            arg -> result
-          }.collect { case(p,pi) if pi.value.get._2 => p -> pi.value.get._1 }.toMap
+          .mapToValues { align(_)(process(_)(args)) }.collect { case(pid,res) if res._2 => pid -> res._1 }.toMap
       } }
+    }
+
+    implicit class RichSet[K](val set: Set[K]){
+      def mapToValues[V](f: K => V) : Map[K,V] =
+        set.map(k => k -> f(k)).toMap
     }
 
     def sspawn[K, A, R](process: K => A => (R, Status), params: Set[K], args: A): Map[K,R] = {
