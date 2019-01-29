@@ -63,8 +63,8 @@ trait StdLib_FieldUtils {
       def anyHood(expr: => Boolean): Boolean =
         foldhoodTemplate[Boolean](false)(_||_)(expr)
 
-      def everyHood(p: => Boolean): Boolean =
-        foldhoodTemplate(true)(_&&_)(nbr{p})
+      def everyHood(expr: => Boolean): Boolean =
+        foldhoodTemplate(true)(_&&_)(expr)
 
       def minHoodSelector[T, V](toMinimize: => T)(data: => V)
                                (implicit ord1: Builtins.Bounded[T], ord2: Builtins.Bounded[ID]): M[V] = wrap[V]{
