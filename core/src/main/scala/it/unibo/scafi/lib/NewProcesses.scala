@@ -82,9 +82,9 @@ trait StdLib_NewProcesses {
     }
 
     def spawn[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] = {
-      share(Map[K, R]()) { case (_, nbrProcesses) => {
+      rep(Map[K, R]()) { case map => {
         // 1. Take active process instances from my neighbours
-        val nbrProcs = includingSelf.unionHoodSet(nbrProcesses().keySet)
+        val nbrProcs = includingSelf.unionHoodSet(nbr{map}.keySet)
 
         // 2. New processes to be spawn, based on a generation condition
         val newProcs = params
