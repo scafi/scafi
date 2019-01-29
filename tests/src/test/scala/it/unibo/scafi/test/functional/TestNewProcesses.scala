@@ -36,11 +36,13 @@ class TestNewProcesses extends FlatSpec with Matchers {
   // Network constants
   val (stepx, stepy) = (1.0, 1.0)
   // Simulation constants
-  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
+  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 20000)
 
   private[this] trait SimulationContextFixture {
     implicit val net: NetworkSimulator =
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
+    val largeNet: NetworkSimulator =
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(20, 20, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
     val program = new Program
   }
 
@@ -137,22 +139,24 @@ class TestNewProcesses extends FlatSpec with Matchers {
   }
 
   Processes can "be extinguished when stopped being generated" in new SimulationContextFixture {
+    implicit val network = largeNet
+
     // ARRANGE: activate process 1 from node 0
     setSensor(Gen1, true).inDevices(0)
 
     // ACT (process activation)
-    exec(program, ntimes = someRounds)(net)
+    exec(program, ntimes = manyManyRounds)(largeNet)
 
     // ASSERT
     val p011 = Pid(0,1)
-    assertForAllNodes[ProcsMap]{ (_,m) => m.contains(p011) && m.size==1}(net)
+    assertForAllNodes[ProcsMap]{ (_,m) => m.contains(p011) && m.size==1}(largeNet)
 
     // ACT (process deactivation and garbage collection)
     setSensor(STOP, true).inDevices(0)
-    exec(program, ntimes = manyRounds)(net)
+    exec(program, ntimes = manyManyRounds)(largeNet)
 
     // ASSERT
-    assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
+    assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(largeNet)
   }
 
   ManyProcesses must "coexist without interference" in new SimulationContextFixture {

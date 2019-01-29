@@ -107,11 +107,11 @@ trait StdLib_NewProcesses {
     }
 
     def handleTermination[T](out: POut[T]): POut[T] = {
-      rep[(Boolean,Boolean,POut[T])]((false,true,out)){
-        case (finished,first,_) =>
-          val newFinished = out.status==Terminated | includingSelf.anyHood(nbr{finished})
-          val terminated = includingSelf.everyHood(newFinished) // | (includingSelf.anyHood(nbr{newFinished}) && first)
-          (newFinished, false, if(terminated) POut(out.result, External) else out)
+      share[(Boolean,Int,POut[T])]((false,0,out)){
+        case (loc,nbrd) =>
+          val mustTerminate = out.status==Terminated | includingSelf.anyHood(nbrd()._1)
+          val mustExit = includingSelf.everyHood(nbr{mustTerminate})
+          (mustTerminate, 1, if(mustExit || (mustTerminate && loc._2==0)) POut(out.result, External) else out)
       }._3
     }
 
