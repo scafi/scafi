@@ -115,8 +115,14 @@ trait StdLib_NewProcesses {
       }._3
     }
 
-    def sspawn[K, A, R](process: K => A => (R, Status), params: Set[K], args: A): Map[K,R] = {
-      spawn[K,A,R](k => a => handleTermination(process(k)(a)), params, args)
+    def handleOutput[T](out: POut[T]): POut[Option[T]] = out match {
+      case POut(res, Output) => POut(Some(res), Output)
+      case POut(_, s) => POut(None, s)
+    }
+
+    def sspawn[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] = {
+      spawn[K,A,Option[R]](k => a => handleOutput(handleTermination(process(k)(a))), params, args)
+        .collect { case (k, Some(p)) => k -> p }
     }
 
     def sspawnOld[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
