@@ -100,9 +100,28 @@ trait StdLib_NewProcesses {
         set.map(k => k -> f(k)).toMap
     }
 
+    case class POut[T](result: T, status: Status)
+    object POut {
+      implicit def fromTuple[T](tp: (T,Status)) = POut(tp._1, tp._2)
+      implicit def toTuple[T](pout: POut[T]): (T,Boolean) = (pout.result, pout.status!=External)
+    }
+
+    def handleTermination[T](out: POut[T]): POut[T] = {
+      rep[(Boolean,Boolean,POut[T])]((false,true,out)){
+        case (finished,first,_) =>
+          val newFinished = out.status==Terminated | includingSelf.anyHood(nbr{finished})
+          val terminated = includingSelf.everyHood(newFinished) // | (includingSelf.anyHood(nbr{newFinished}) && first)
+          (newFinished, false, if(terminated) POut(out.result, External) else out)
+      }._3
+    }
+
     def sspawn[K, A, R](process: K => A => (R, Status), params: Set[K], args: A): Map[K,R] = {
-      spawn[K,A,Option[R]]((p: K) => (a: A) => {
-        val (finished, result, status) = rep((false, none[R], false)) { case (finished, _, _) => {
+      spawn[K,A,R](k => a => handleTermination(process(k)(a)), params, args)
+    }
+
+    def sspawnOld[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
+      spawn[A,B,Option[C]]((p: A) => (a: B) => {
+        val (finished, result, status) = rep((false, none[C], false)) { case (finished, _, _) => {
           val (result, status) = process(p)(a)
           val newFinished = status == Terminated | includingSelf.anyHood(nbr{finished})
           val terminated = includingSelf.everyHood(nbr{newFinished})
