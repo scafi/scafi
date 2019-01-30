@@ -81,6 +81,16 @@ trait StdLib_NewProcesses {
       result
     }
 
+    def runOnSharedKeys[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
+      rep(Map[K, R]()) { case map => {
+        (includingSelf.unionHoodSet(nbr{map}.keySet ++ params))
+          .mapToValues(process.apply(_))
+          .collect { case (pid,(r,true)) => (pid,r) }
+      } }
+
+    def spawn2[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] =
+      runOnSharedKeys(align(_){process(_)(args)}, params)
+
     def spawn[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] = {
       rep(Map[K, R]()) { case map => {
         // 1. Take active process instances from my neighbours
@@ -121,7 +131,7 @@ trait StdLib_NewProcesses {
     }
 
     def sspawn[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] = {
-      spawn[K,A,Option[R]](k => a => handleOutput(handleTermination(process(k)(a))), params, args)
+      spawn2[K,A,Option[R]](k => a => handleOutput(handleTermination(process(k)(a))), params, args)
         .collect { case (k, Some(p)) => k -> p }
     }
 
