@@ -81,15 +81,22 @@ trait StdLib_NewProcesses {
       result
     }
 
+    def runOnSharedKeysWithShare[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
+      share(Map[K, R]())((loc,nbr) => {
+        (includingSelf.unionHoodSet(nbr().keySet ++ params))
+          .mapToValues(process.apply(_))
+          .collectValues[R] { case (r,true) => r }
+      })
+
     def runOnSharedKeys[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
-      rep(Map[K, R]()) { case map => {
+      rep(Map[K, R]())(map => {
         (includingSelf.unionHoodSet(nbr{map}.keySet ++ params))
           .mapToValues(process.apply(_))
-          .collect { case (pid,(r,true)) => (pid,r) }
-      } }
+          .collectValues[R] { case (r,true) => r }
+      })
 
     def spawn2[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] =
-      runOnSharedKeys(align(_){process(_)(args)}, params)
+      runOnSharedKeysWithShare(align(_){process(_)(args)}, params)
 
     def spawn[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] = {
       rep(Map[K, R]()) { case map => {
@@ -108,12 +115,37 @@ trait StdLib_NewProcesses {
     implicit class RichSet[K](val set: Set[K]){
       def mapToValues[V](f: K => V) : Map[K,V] =
         set.map(k => k -> f(k)).toMap
+
+      def mapAndFilter[V](f: K => Option[V]): Map[K,V] =
+        set.foldLeft(Map.empty[K,V]) { (m,key) =>
+          f(key).map(v => m + (key -> v)).getOrElse(m)
+        }
+    }
+
+    implicit class RichMap[K,V](val map: Map[K,V]){
+      def collectValues[T](pf: PartialFunction[V,T]): Map[K,T] =
+        map.collect { case (k,v) if pf.isDefinedAt(v) => (k,pf(v)) }
+
+      def filterValues(pred: V => Boolean): Map[K,V] =
+        map.filter { case (k,v) => pred(v) }
+
+      def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
+        map.map { case (k,v) => k -> mapLogic(v) }
     }
 
     case class POut[T](result: T, status: Status)
     object POut {
       implicit def fromTuple[T](tp: (T,Status)) = POut(tp._1, tp._2)
-      implicit def toTuple[T](pout: POut[T]): (T,Boolean) = (pout.result, pout.status!=External)
+      implicit def toBasicSpawnTuple[T](pout: POut[T]): (T,Boolean) = (pout.result, pout.status!=External)
+    }
+
+    def handleTerminationWithRep[T](out: POut[T]): POut[T] = {
+      rep[(Boolean,Int,POut[T])]((false,0,out)){
+        case (terminated,k,res) =>
+          val mustTerminate = out.status==Terminated | includingSelf.anyHood(nbr{terminated})
+          val mustExit = includingSelf.everyHood(nbr{mustTerminate})
+          (mustTerminate, 1, if(mustExit || (mustTerminate && k==0)) POut(out.result, External) else out)
+      }._3
     }
 
     def handleTermination[T](out: POut[T]): POut[T] = {
@@ -130,10 +162,9 @@ trait StdLib_NewProcesses {
       case POut(_, s) => POut(None, s)
     }
 
-    def sspawn[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] = {
-      spawn2[K,A,Option[R]](k => a => handleOutput(handleTermination(process(k)(a))), params, args)
+    def sspawn[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] =
+      spawn2[K,A,Option[R]](k => a => handleOutput(handleTerminationWithRep(process(k)(a))), params, args)
         .collect { case (k, Some(p)) => k -> p }
-    }
 
     def sspawnOld[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
       spawn[A,B,Option[C]]((p: A) => (a: B) => {
@@ -195,13 +226,6 @@ trait StdLib_NewProcesses {
         }
       }
 
-    implicit class MyRichSet[K](val set: Set[K]) {
-      def mapAndFilter[V](f: K => Option[V]): Map[K,V] =
-        set.foldLeft(Map.empty[K,V]) { (m,key) =>
-          f(key).map(v => m + (key -> v)).getOrElse(m)
-        }
-    }
-
     def alignedExecution[K,V](p: K => V)(key: K): V =
       align(s"${p.getClass.getName}_${key.hashCode}"){ _ => p(key) }
 
@@ -255,14 +279,6 @@ trait StdLib_NewProcesses {
     /**********************************************
       ******************* UTILS *******************
       *********************************************/
-
-    implicit class RichMap[K,V](val m: Map[K,V]){
-      def filterValues(pred: V => Boolean): Map[K,V] =
-        m.filter { case (k,v) => pred(v) }
-
-      def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
-        m.map { case (k,v) => k -> mapLogic(v) }
-    }
 
     private def none[T]: Option[T] = None
   }
