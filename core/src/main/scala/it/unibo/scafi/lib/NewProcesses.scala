@@ -137,6 +137,7 @@ trait StdLib_NewProcesses {
     object POut {
       implicit def fromTuple[T](tp: (T,Status)) = POut(tp._1, tp._2)
       implicit def toBasicSpawnTuple[T](pout: POut[T]): (T,Boolean) = (pout.result, pout.status!=External)
+      implicit def toBasicSpawnLogic[K,A,R](proc: K => A => POut[R]): K => A => (R, Boolean) = k => a => toBasicSpawnTuple(proc(k)(a))
     }
 
     def handleTerminationWithRep[T](out: POut[T]): POut[T] = {
@@ -144,7 +145,7 @@ trait StdLib_NewProcesses {
         case (terminated,k,res) =>
           val mustTerminate = out.status==Terminated | includingSelf.anyHood(nbr{terminated})
           val mustExit = includingSelf.everyHood(nbr{mustTerminate})
-          (mustTerminate, 1, if(mustExit || (mustTerminate && k==0)) POut(out.result, External) else out)
+          (mustTerminate, 1, if(mustExit || (mustTerminate && k==0)) (out.result, External) else out)
       }._3
     }
 
@@ -162,9 +163,17 @@ trait StdLib_NewProcesses {
       case POut(_, s) => POut(None, s)
     }
 
+    implicit class ProcessLogic[K,A,R](proc: (K => A => POut[R])) {
+      def map[T](f: POut[R] => POut[T]): (K => A => POut[T]) = k => a => f(proc(k)(a))
+    }
+
     def sspawn[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] =
       spawn2[K,A,Option[R]](k => a => handleOutput(handleTerminationWithRep(process(k)(a))), params, args)
-        .collect { case (k, Some(p)) => k -> p }
+        .collectValues { case Some(p) => p }
+
+    def sspawn2[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] =
+      spawn2[K,A,Option[R]](process.map(handleTerminationWithRep).map(handleOutput), params, args)
+        .collectValues { case Some(p) => p }
 
     def sspawnOld[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
       spawn[A,B,Option[C]]((p: A) => (a: B) => {

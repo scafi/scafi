@@ -36,7 +36,7 @@ class TestNewProcesses extends FlatSpec with Matchers {
   // Network constants
   val (stepx, stepy) = (1.0, 1.0)
   // Simulation constants
-  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 20000)
+  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 25000)
 
   private[this] trait SimulationContextFixture {
     implicit val net: NetworkSimulator =
