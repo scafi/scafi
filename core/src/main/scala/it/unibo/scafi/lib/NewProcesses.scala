@@ -322,6 +322,26 @@ trait StdLib_NewProcesses {
     private def none[T]: Option[T] = None
   }
 
+  trait ReplicatedGossip extends CustomSpawn with FieldCalculusSyntax with StandardSensors with TimeUtils with StateManagement {
+    self: AggregateProgram =>
+
+    def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
+      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      processManager[Long, T, R]((pid: Long) => proc(_),
+        generation = () => if (captureChange(lastPid)) Set(lastPid) else Set[Long](),
+        termination = (pid, arg, res) => pid < lastPid - numReplicates
+      )(argument)
+    }
+
+    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
+      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
+      sspawn[Long,T,R]((pid: Long) => (arg) => {
+        (proc(arg), if(lastPid - pid < numReplicates){ SpawnInterface.Output } else { SpawnInterface.External })
+      }, newProcs, argument)
+    }
+  }
+
   /**
     * Example:
     * spawn
@@ -334,14 +354,6 @@ trait StdLib_NewProcesses {
     */
   trait ProcessDSL {
     self: AggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
-
-    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
-      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
-      val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
-      sspawn[Long,T,R]((pid: Long) => (arg) => {
-        (proc(arg), if(lastPid - pid < numReplicates){ SpawnInterface.Output } else { SpawnInterface.External })
-      }, newProcs, argument)
-    }
 
     trait GenerationInSpace {
       def where(pred: Boolean): GenerationInSpaceContinuation
