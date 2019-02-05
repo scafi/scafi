@@ -129,8 +129,8 @@ trait StdLib_NewProcesses {
     }
     trait WithGeneration[K,A,R] { self: Spawn[K,A,R] =>
       override def apply(): Map[K,R] = rep(Set.empty[K], Map.empty[K,R]) { case (keys, res) =>
-        val out = self.map[(R,Set[K])] {
-          case POut(v:R, s@GeneratorStatus(ks:Set[K])) => POut((v,ks),s)
+        val out = self.map {
+          case POut(v:R, s@GeneratorStatus(ks)) => POut((v,ks.asInstanceOf[Set[K]]),s)
           case POut(v:R,s) => POut((v,Set.empty[K]),s)
         }.apply()
         (out.flatMap(_._2._2).toSet, out.mapValues(_._1))
@@ -218,6 +218,11 @@ trait StdLib_NewProcesses {
         (result, status)
       }, params, args).collect { case (k, Some(p)) => k -> p }
     }
+
+    def processManager[K,A,R](process: K => A => R,
+                              generation: () => Set[K],
+                              termination: (K,A,R) => Boolean): A => Map[K,R] =
+      spawn((k:K) => (a:A) => { val r = process(k)(a); (r,!termination(k,a,r)) }, generation(), _)
 
     object on {
       def apply[K](set: Set[K]) = new SpawnKeys(set)
