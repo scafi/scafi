@@ -38,6 +38,8 @@ class TestNewProcesses extends FlatSpec with Matchers {
   // Simulation constants
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 25000)
 
+  import SpawnInterface._
+
   private[this] trait SimulationContextFixture {
     implicit val net: NetworkSimulator =
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
@@ -58,14 +60,14 @@ class TestNewProcesses extends FlatSpec with Matchers {
     override def main(): Any = {
       val k = countChanges(gen1, gen1 || false)
       val procs1 = sspawn[Pid,Unit,String](pid => args => {
-        (""+distanceTo(gen1), if(stop) Spawn.Terminated else Spawn.Output)
+        (""+distanceTo(gen1), if(stop) Terminated else Output)
       }, if(k._2) Set(Pid(mid,k._1)) else Set.empty, ())
 
       val j = countChanges(gen2, gen2 || false)
       val procs2 = sspawn[Pid,Boolean,String](pid => args => {
         val maxExpansion = distanceTo(pid.dev==mid)
         val g = distanceTo(args)
-        (""+g, if(maxExpansion>2.5) Spawn.External else Spawn.Output)
+        (""+g, if(maxExpansion>2.5) External else Output)
       }, if(j._2) Set(Pid(mid,j._1)) else Set.empty, src)
 
       (procs1 ++ procs2)

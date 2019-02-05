@@ -21,11 +21,11 @@ package it.unibo.scafi.lib
 trait StdLib_NewProcesses {
   self: StandardLibrary.Subcomponent =>
 
-  trait Spawn {
+  trait SpawnInterface {
     def spawn[A, B, C](process: A => B => (C, Boolean), params: Set[A], args: B): Map[A,C]
   }
 
-  object Spawn {
+  object SpawnInterface {
     trait Status
 
     case object ExternalStatus extends Status   // External to the bubble
@@ -39,10 +39,10 @@ trait StdLib_NewProcesses {
     val Terminated: Status = TerminatedStatus
   }
 
-  trait CustomSpawn extends Spawn with FieldUtils{
+  trait CustomSpawn extends SpawnInterface with FieldUtils {
     self: AggregateProgram =>
 
-    import Spawn._
+    import SpawnInterface._
 
     case class ProcInstance[A, B, C](params: A)(val proc: A => B => C, val value: Option[C] = None)
     {
@@ -309,7 +309,7 @@ trait StdLib_NewProcesses {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
       val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
       sspawn[Long,T,R]((pid: Long) => (arg) => {
-        (proc(arg), if(lastPid - pid < numReplicates){ Spawn.Output } else { Spawn.External })
+        (proc(arg), if(lastPid - pid < numReplicates){ SpawnInterface.Output } else { SpawnInterface.External })
       }, newProcs, argument)
     }
 
