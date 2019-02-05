@@ -32,6 +32,7 @@ trait StdLib_NewProcesses {
     case object BubbleStatus extends Status     // Within the bubble
     case object OutputStatus extends Status     // Within the bubble and bubble output producer
     case object TerminatedStatus extends Status // Notifies the willingness to terminate the bubble
+    case class GeneratorStatus[K](newProcs: Set[K]) extends Status
 
     val External: Status = ExternalStatus
     val Bubble: Status = BubbleStatus
@@ -110,6 +111,30 @@ trait StdLib_NewProcesses {
         (nbrProcs ++ newProcs)
           .mapToValues { align(_)(process(_)(args)) }.collect { case(pid,res) if res._2 => pid -> res._1 }.toMap
       } }
+    }
+
+    class Spawn[K,A,R](process: K => A => POut[R], generation: => Set[K], regulation: => A){
+      def apply(): Map[K,R] = spawn(process, generation, regulation)
+      def map[T](fm: POut[R] => POut[T]): Spawn[K,A,T] = new Spawn[K,A,T](k => a => fm(process(k)(a)), generation, regulation)
+    }
+    object Spawn {
+      def apply[K,A,R](process: K => A => POut[R], generation: => Set[K], regulation: => A) =
+        new Spawn[K,A,R](process, generation, regulation).apply()
+    }
+    trait SpawnFilter[K,A,R] { self: Spawn[K,A,R] =>
+      override def apply(): Map[K,R] = self.map(handleOutput).apply().collectValues { case Some(p) => p }
+    }
+    trait WithTermination[K,A,R] { self: Spawn[K,A,R] =>
+      override def apply(): Map[K,R] = self.map(handleTermination).apply()
+    }
+    trait WithGeneration[K,A,R] { self: Spawn[K,A,R] =>
+      override def apply(): Map[K,R] = rep(Set.empty[K], Map.empty[K,R]) { case (keys, res) =>
+        val out = self.map[(R,Set[K])] {
+          case POut(v:R, s@GeneratorStatus(ks:Set[K])) => POut((v,ks),s)
+          case POut(v:R,s) => POut((v,Set.empty[K]),s)
+        }.apply()
+        (out.flatMap(_._2._2).toSet, out.mapValues(_._1))
+      }._2
     }
 
     implicit class RichSet[K](val set: Set[K]){
