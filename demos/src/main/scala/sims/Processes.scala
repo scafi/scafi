@@ -37,20 +37,20 @@ object ProcessesMain extends Launcher {
   * The second gradient also restricts the shape so as not to superimpose with the first one.
   * Notes:
   * - The process lifecycle is managed through a branch
-  * - The processes do not re-start once they close.
   * - The second process doesn't even start if launched from the domain of the first process.
   * - There are no 'fence nodes': the separation between internal and external nodes is sharp
   */
-class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients with TimeUtils {
+class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients
+  with TimeUtils with StateManagement {
 
   override def main() = {
     val inf = Double.PositiveInfinity
     val in = "in"
     val out = "out"
 
-    def limitedGradient(src: Boolean, size: Double, time: Int, iff: => Boolean = true) =
+    def limitedGradient(src: Boolean, size: Double, time: Int, start: => Boolean = false, iff: => Boolean = true) =
       rep((out,inf,time,true)){ case (status,g,t,notYetStarted) => {
-      branch((src | excludingSelf.anyHood(nbr{status}==in
+      branch(start | (src | excludingSelf.anyHood(nbr{status}==in
         & nbr{g}+nbrRange<size))
         & iff
         && (t>0 || notYetStarted)){
@@ -58,9 +58,9 @@ class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn wit
       }{ (out, Double.PositiveInfinity, 0, notYetStarted) }
     }}
 
-    val g1 = limitedGradient(sense1, 20, 500)
+    val g1 = limitedGradient(sense1, 20, 500, start = captureChange(sense1) && sense1)
 
-    val g2 = limitedGradient(sense2, 30, 500, iff = g1._1!=in)
+    val g2 = limitedGradient(sense2, 30, 500, start = captureChange(sense2) && sense2, iff = g1._1!=in)
 
     (g1._1,g2._1)
   }
