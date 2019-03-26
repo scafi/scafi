@@ -55,13 +55,58 @@ class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn wit
         & iff
         && (t>0 || notYetStarted)){
         (in,classicGradient(src),T(time),false)
-      }{ (out, Double.PositiveInfinity, 0, notYetStarted) }
+      }{ (out, Double.PositiveInfinity, time, notYetStarted) }
     }}
 
     val g1 = limitedGradient(sense1, 20, 500, start = captureChange(sense1) && sense1)
 
-    val g2 = limitedGradient(sense2, 30, 500, start = captureChange(sense2) && sense2, iff = g1._1!=in)
+    val g2 = limitedGradient(sense2, 30, 500, start = captureChange(sense2) && sense2, iff = g1._2!=0)
 
     (g1._1,g2._1)
+  }
+}
+
+class MultiGradient extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients
+  with TimeUtils with StateManagement {
+
+  def isSrc = sense1 || sense2 || sense3 || sense4
+
+  import SpawnInterface._
+
+  override def main() = {
+    /*
+    def h(src: ID, limit: Double, g: Double): (Double,Status) =
+      (g, if(src==mid && !isSrc) Terminated else if(g>limit) External else Bubble)
+
+    spawn[ID,Double,Double](srcId => limit => handleTermination(h(srcId,limit,classicGradient(srcId==mid))),
+      params = if(isSrc) Set(mid) else Set.empty,
+      args = 20.0)
+      */
+    val maxExtension = 20.0
+
+    sspawn[ID,Double,Double](srcId => limit => classicGradient(srcId==mid) match {
+      case g if srcId==mid && !isSrc => (g, Terminated)
+      case g if g>limit => (g, External)
+      case g => (g, Output)
+    },
+      params = if(isSrc) Set(mid) else Set.empty,
+      args = maxExtension)
+  }
+
+  implicit class RichType[T](value: T){
+    def map[V](f: T=>V): V = f(value)
+  }
+}
+
+class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip
+with Gradients {
+
+  def isSrc = sense1 || sense2 || sense3 || sense4
+
+  import SpawnInterface._
+  import scala.concurrent.duration._
+
+  override def main() = {
+    replicated[Boolean,Double](classicGradient(_))(isSrc, (5 seconds).toNanos, 3)
   }
 }

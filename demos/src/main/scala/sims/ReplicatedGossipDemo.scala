@@ -25,7 +25,7 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 object ReplicatedGossipDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.ReplicatedGossip" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.ReplicatedGossipProgram" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.25 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
@@ -33,7 +33,7 @@ object ReplicatedGossipDemo extends Launcher {
   launch()
 }
 
-class ReplicatedGossip extends AggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
+class ReplicatedGossipProgram extends AggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
   with HFCSpawn {
   def main: String = {
     val g = classic(sense1)
