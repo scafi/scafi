@@ -335,9 +335,9 @@ trait StdLib_NewProcesses {
 
     def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
-      val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
+      val newProcs = Set(lastPid) // if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
       sspawn[Long,T,R]((pid: Long) => (arg) => {
-        (proc(arg), if(lastPid - pid < numReplicates){ SpawnInterface.Output } else { SpawnInterface.External })
+        (proc(arg), if(pid > lastPid - numReplicates){ SpawnInterface.Output } else { SpawnInterface.External })
       }, newProcs, argument)
     }
   }
