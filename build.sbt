@@ -25,7 +25,8 @@ lazy val osName = System.getProperty("os.name") match {
 // JavaFX dependencies (Java 11)
 lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "web")
 
-lazy val jdkVersion = System.getProperty("java.version").split(".").headOption.getOrElse("11")
+lazy val javaVersion = System.getProperty("java.version")
+lazy val jdkVersion = javaVersion.split(".").headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
 
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account

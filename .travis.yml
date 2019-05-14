@@ -19,6 +19,7 @@ scala:
 - 2.11.8
 - "${RELEASE_SCALA_VERSION}"
 script:
+- echo "java.version='TRAVIS_JDK_VERSION'" >> project/build.properties
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
   ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi
 before_install:
