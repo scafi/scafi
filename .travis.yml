@@ -1,4 +1,5 @@
 language: scala
+dist: trusty
 env:
   global:
   - RELEASE_SCALA_VERSION=2.12.2
@@ -20,6 +21,7 @@ scala:
 - "${RELEASE_SCALA_VERSION}"
 script:
 - echo "java.version='$TRAVIS_JDK_VERSION'" >> project/build.properties
+- cat project/build.properties
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
   ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi
 before_install:
