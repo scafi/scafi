@@ -8,9 +8,9 @@ env:
   - secure: r/z5CfZWrqx9lkh/ZShyc8v3z6JcvvMO0fU638melr57rx86BTLI0Au1/bjTFFUG+H5P2mh9u4YMJhcVOq68owxNHgAUx4DFmmpiNYe9va8gRE5lG8u6VSpabnFK/vPW1DJE8JqLvdLzgak/bdSIS8qx1vDbNd3nEeoJvjlYWq02yG1Q1W973cczgBoDa800HDToi2vAVj+KgD8Fn4bSuvZZZEBB35FFSdBOGyDgpaP90IcrRAYoscyLBn9XalmLpK2cVzeCgTAP02DPjyNpv0Bsc5nfySSc3jkYSayzi047MOJKKlFreUq/JM+vWAexBd5kH/WDSqLThzNd/TOTq5/ph3VR87PMVm6o5Vp0Vpa51GDnMGZSV2wHniFemSDgmWgtHNtmNnMtuh9SqF/KDG04ExVWYG7F0EPkbGPx2GU3E0RoVMTDDF/TbVcWiwSCJ0e0ZNqthNrPEpdfq6kQoC9IoCnchVRhwBXu/DTknPxp7t+LQKgpmbz2Fv5H3pTzhQO2O3u0B4pFU6q96aYZ+7qjQiR2LahZc6B1SXj+Nbtku6mgCD4EQUe69C30BPO7rS4c36Pt9fCwd9Shyj0RK3tJs6fQuqSGFdeLLG+To7yytXQDxwCrUPNgj9ny2Rpw3YxNfJGCHFH1FJJPDP3I1ysVFGK6aRRnIWb2JifVdXE=
   - secure: ugl+SmQcJnUyluku2imgCD2SQ8meGKvP5fWwDo22VUXjLwZvMGELBKEl7xMjMyKLHnjmtTWtHYHuNPXnUA1gEgmVgIvKSzOTaCWTJg+h+HVhA7YAZpR4D3BJjyE3aaFxy0vCzOngOmjf++PbShZ+iavcoc+Dh8o8aZD+E8l1JeKB/GXpYy+i9nwX+xhzbSsZ7x30VW1C1Sq2wDttfDuXBH6sCD3KDR7cS1Kw66zoDagqb+aimKh3bKcrgM9bK77uUuouQJE6hbWVXAE9E/KKd4dzRnT2oU7jxSHNYJXnFfEfq7pll3pZPgiFNkCtK8wWsz9MHeS68JgH7bH3rxTCvlkZEF38vn9hLhgvanrRy4e9an0DMT5kZ8uQHeFlQJ1GMmGmLfpsz+u+HIQ+AefIYincXb0BGrM6GXw+SDjWXzWZvkHskoxoom7aNzqVzl1V+ySSAvEjnGVqk+ZseAtKs5AwiqhjIEEaVEHq+B/vN4Gjsx5IW/GkvQxSk0fBC2HSMcGkenOqz/OHOKbmt18i2dOAGKCsAWs/M9PFBzskuDmsXalNCnWBQNNPZRnHkOU+jiMDid8GZZt55E473RZfJD3UHtENfWNYMHLElFwSNd1qOdOyHiLedVoIDW3gDqldhLJolv7mqUUTRqLQi8EF34Qdtip9PFOPgLCkP4KrKPM=
 jdk:
-- openjdk7
+#- openjdk7 # Expected feature release number in range of 9 to 13, but got: 7
 - openjdk8
-- oraclejdk8
+#- oraclejdk8 # Expected feature release number in range of 9 to 13, but got: 8
 - openjdk9
 - openjdk10
 - openjdk11
@@ -19,7 +19,7 @@ scala:
 - 2.11.8
 - "${RELEASE_SCALA_VERSION}"
 script:
-- echo "java.version='TRAVIS_JDK_VERSION'" >> project/build.properties
+- echo "java.version='$TRAVIS_JDK_VERSION'" >> project/build.properties
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
   ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi
 before_install:
