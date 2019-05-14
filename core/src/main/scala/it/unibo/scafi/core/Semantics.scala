@@ -264,8 +264,10 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag(): Any = sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition)
-    //Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    override def elicitAggregateFunctionTag(): Any = Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    // Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition) // Bad performance
+    // sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition) // Better performance but not available in Java 11
+    // Since Java 9, use StackWalker
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated
