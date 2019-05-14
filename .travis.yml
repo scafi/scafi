@@ -22,7 +22,7 @@ scala:
 script:
 - echo "java.version='$TRAVIS_JDK_VERSION'" >> project/build.properties
 - cat project/build.properties
-- ls -R $JAVA_HOME/ && sudo add-apt-repository ppa:webupd8team/java && sudo apt-get -y update && sudo apt-get -y install openjfx && ls -R $JAVA_HOME/
+- ls -R $JAVA_HOME/ && sudo add-apt-repository -y ppa:webupd8team/java && sudo apt-get -y update && sudo apt-get -y install openjfx && ls -R $JAVA_HOME/
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
   ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi
 before_install:
