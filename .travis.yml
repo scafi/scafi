@@ -9,12 +9,12 @@ env:
   - secure: ugl+SmQcJnUyluku2imgCD2SQ8meGKvP5fWwDo22VUXjLwZvMGELBKEl7xMjMyKLHnjmtTWtHYHuNPXnUA1gEgmVgIvKSzOTaCWTJg+h+HVhA7YAZpR4D3BJjyE3aaFxy0vCzOngOmjf++PbShZ+iavcoc+Dh8o8aZD+E8l1JeKB/GXpYy+i9nwX+xhzbSsZ7x30VW1C1Sq2wDttfDuXBH6sCD3KDR7cS1Kw66zoDagqb+aimKh3bKcrgM9bK77uUuouQJE6hbWVXAE9E/KKd4dzRnT2oU7jxSHNYJXnFfEfq7pll3pZPgiFNkCtK8wWsz9MHeS68JgH7bH3rxTCvlkZEF38vn9hLhgvanrRy4e9an0DMT5kZ8uQHeFlQJ1GMmGmLfpsz+u+HIQ+AefIYincXb0BGrM6GXw+SDjWXzWZvkHskoxoom7aNzqVzl1V+ySSAvEjnGVqk+ZseAtKs5AwiqhjIEEaVEHq+B/vN4Gjsx5IW/GkvQxSk0fBC2HSMcGkenOqz/OHOKbmt18i2dOAGKCsAWs/M9PFBzskuDmsXalNCnWBQNNPZRnHkOU+jiMDid8GZZt55E473RZfJD3UHtENfWNYMHLElFwSNd1qOdOyHiLedVoIDW3gDqldhLJolv7mqUUTRqLQi8EF34Qdtip9PFOPgLCkP4KrKPM=
 jdk:
 - openjdk7
-- oraclejdk7
 - openjdk8
 - oraclejdk8
 - openjdk9
 - openjdk10
 - openjdk11
+- openjdk12
 scala:
 - 2.11.8
 - "${RELEASE_SCALA_VERSION}"
