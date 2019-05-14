@@ -34,4 +34,3 @@ object BasicShape2D {
   }
 
 }
-
