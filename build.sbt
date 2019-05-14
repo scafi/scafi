@@ -76,7 +76,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`,`simulator-gui-new`,  `demos-new`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(

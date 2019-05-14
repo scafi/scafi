@@ -1,5 +1,6 @@
-language: scala
+sudo: required
 dist: trusty
+language: scala
 env:
   global:
   - RELEASE_SCALA_VERSION=2.12.2
@@ -22,10 +23,14 @@ scala:
 script:
 - echo "java.version='$TRAVIS_JDK_VERSION'" >> project/build.properties
 - cat project/build.properties
-- ls -R $JAVA_HOME/ && sudo add-apt-repository -y universe && sudo apt-get -y update && sudo apt-get -y install openjfx && ls -R $JAVA_HOME/
+- sudo add-apt-repository -y universe
+- sudo apt-get -y update
+- sudo apt-get -y install openjfx
+- ls -R $JAVA_HOME/
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
   ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi
 before_install:
+- sudo apt-get -qq update
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_356ce062086e_key
   -iv $encrypted_356ce062086e_iv -in .travis/secrets.tar.enc -out .travis/local.secrets.tar
   -d; tar xv -C .travis -f .travis/local.secrets.tar; fi
