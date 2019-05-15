@@ -27,7 +27,7 @@ lazy val osName = System.getProperty("os.name") match {
 lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "web")
 
 lazy val javaVersion = System.getProperty("java.version").stripPrefix("openjdk")
-lazy val jdkVersion = javaVersion.split(".").headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
+lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
 
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
