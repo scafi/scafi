@@ -66,7 +66,7 @@ lazy val commonSettings = Seq(
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
-  crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
+  crossScalaVersions := Seq("2.11.12","2.12.2") // "2.13.0-M1"
 )
 
 lazy val noPublishSettings = Seq(
