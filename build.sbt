@@ -1,3 +1,4 @@
+
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -159,8 +160,8 @@ lazy val `simulator-gui-new` = project.
     if(jdkVersion=="11")
       libraryDependencies ++= javaFXModules.map( m =>
         "org.openjfx" % s"javafx-$m" % "11" classifier osName
-      )
-    else (unmanagedJars in Compile) += Attributed.blank(file(scala.util.Properties.javaHome) / "/lib/jfxrt.jar")
+      ) else libraryDependencies ++= Seq()
+    // else (unmanagedJars in Compile) += Attributed.blank(file(scala.util.Properties.javaHome) / "/lib/jfxrt.jar")
   )
 
 lazy val `demos-new` = project.

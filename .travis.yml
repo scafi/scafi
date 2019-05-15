@@ -12,9 +12,9 @@ env:
 jdk:
 #- openjdk7 # Expected feature release number in range of 9 to 13, but got: 7
 - openjdk8
-#- oraclejdk8 # Expected feature release number in range of 9 to 13, but got: 8
-- openjdk9
-- openjdk10
+- oraclejdk8 # Expected feature release number in range of 9 to 13, but got: 8
+#- openjdk9
+#- openjdk10
 - openjdk11
 - openjdk12
 scala:
