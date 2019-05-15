@@ -157,9 +157,9 @@ lazy val `simulator-gui-new` = project.
   settings(
     name := "simulator-gui-new",
     libraryDependencies ++= Seq(scopt,scalatest,scalafx),
-    if(jdkVersion=="11")
+    if(jdkVersion.toInt >= 11)
       libraryDependencies ++= javaFXModules.map( m =>
-        "org.openjfx" % s"javafx-$m" % "11" classifier osName
+        "org.openjfx" % s"javafx-$m" % jdkVersion classifier osName
       ) else libraryDependencies ++= Seq()
     // else (unmanagedJars in Compile) += Attributed.blank(file(scala.util.Properties.javaHome) / "/lib/jfxrt.jar")
   )
