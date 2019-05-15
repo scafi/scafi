@@ -1,3 +1,4 @@
+
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -26,7 +27,8 @@ lazy val osName = System.getProperty("os.name") match {
 // JavaFX dependencies (Java 11)
 lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "web")
 
-lazy val jdkVersion = System.getProperty("java.version").split(".").headOption.getOrElse("11")
+lazy val javaVersion = System.getProperty("java.version").stripPrefix("openjdk")
+lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
 
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
@@ -65,7 +67,7 @@ lazy val commonSettings = Seq(
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
-  crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
+  crossScalaVersions := Seq("2.11.12","2.12.2") // "2.13.0-M1"
 )
 
 lazy val noPublishSettings = Seq(
@@ -76,7 +78,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`,`simulator-gui-new`,  `demos-new`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
@@ -147,7 +149,8 @@ lazy val demos = project.
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
-    name := "scafi-demos"
+    name := "scafi-demos",
+    compileScalastyle := ()
   )
 
 lazy val `simulator-gui-new` = project.
@@ -156,11 +159,11 @@ lazy val `simulator-gui-new` = project.
   settings(
     name := "simulator-gui-new",
     libraryDependencies ++= Seq(scopt,scalatest,scalafx),
-    if(jdkVersion=="11")
+    if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11)
       libraryDependencies ++= javaFXModules.map( m =>
-        "org.openjfx" % s"javafx-$m" % "11" classifier osName
-      )
-    else (unmanagedJars in Compile) += Attributed.blank(file(scala.util.Properties.javaHome) / "/lib/jfxrt.jar")
+        "org.openjfx" % s"javafx-$m" % jdkVersion classifier osName
+      ) else libraryDependencies ++= Seq(),
+    compileScalastyle := ()
   )
 
 lazy val `demos-new` = project.
@@ -168,5 +171,6 @@ lazy val `demos-new` = project.
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
-    name := "scafi-demos-new"
+    name := "scafi-demos-new",
+    compileScalastyle := ()
   )

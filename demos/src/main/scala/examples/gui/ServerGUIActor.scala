@@ -132,7 +132,7 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
   def BuildFrame(): Unit = {
     frame = new javax.swing.JFrame("TOPOLOGY MANAGER @ " + this.tm.path)
     frame.setSize(width, height)
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
 
     val panel = new JPanel()
     frame.setContentPane(panel)
