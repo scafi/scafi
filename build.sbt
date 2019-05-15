@@ -157,7 +157,7 @@ lazy val `simulator-gui-new` = project.
   settings(
     name := "simulator-gui-new",
     libraryDependencies ++= Seq(scopt,scalatest,scalafx),
-    if(jdkVersion.toInt >= 11)
+    if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11)
       libraryDependencies ++= javaFXModules.map( m =>
         "org.openjfx" % s"javafx-$m" % jdkVersion classifier osName
       ) else libraryDependencies ++= Seq()
