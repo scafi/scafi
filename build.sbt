@@ -148,7 +148,8 @@ lazy val demos = project.
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
-    name := "scafi-demos"
+    name := "scafi-demos",
+    compileScalastyle := ()
   )
 
 lazy val `simulator-gui-new` = project.
@@ -160,8 +161,8 @@ lazy val `simulator-gui-new` = project.
     if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11)
       libraryDependencies ++= javaFXModules.map( m =>
         "org.openjfx" % s"javafx-$m" % jdkVersion classifier osName
-      ) else libraryDependencies ++= Seq()
-    // else (unmanagedJars in Compile) += Attributed.blank(file(scala.util.Properties.javaHome) / "/lib/jfxrt.jar")
+      ) else libraryDependencies ++= Seq(),
+    compileScalastyle := ()
   )
 
 lazy val `demos-new` = project.
@@ -169,5 +170,6 @@ lazy val `demos-new` = project.
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
-    name := "scafi-demos-new"
+    name := "scafi-demos-new",
+    compileScalastyle := ()
   )
