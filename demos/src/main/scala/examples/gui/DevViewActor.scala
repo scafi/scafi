@@ -131,9 +131,12 @@ trait DevViewActor extends Actor {
   }
 
   protected def invokeLater(body: =>Any): Unit = {
-    SwingUtilities.invokeLater(() => {
-      body
-      devComponent.revalidate(); devComponent.repaint()
+    SwingUtilities.invokeLater(new Runnable {
+      override def run(): Unit = {
+        body
+        devComponent.revalidate()
+        devComponent.repaint()
+      }
     })
   }
 }
