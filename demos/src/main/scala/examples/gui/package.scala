@@ -55,7 +55,9 @@ package object gui {
     def addItems(entries: Map[String, ()=>Unit]): Unit = {
       entries.foreach(entry => {
         val mItem = new JMenuItem(entry._1)
-        mItem.addActionListener((e: ActionEvent) => entries(e.getActionCommand)())
+        mItem.addActionListener(new ActionListener {
+          override def actionPerformed(e: ActionEvent): Unit = entries(e.getActionCommand)()
+        })
         menu.add(mItem)
       })
     }
@@ -64,7 +66,9 @@ package object gui {
       val mainItem = new JMenu(commonLabel)
       entries.foreach(entry => {
         val subItem = new JMenuItem(entry._1)
-        subItem.addActionListener((e: ActionEvent) => entries(e.getActionCommand)())
+        subItem.addActionListener(new ActionListener {
+          override def actionPerformed(e: ActionEvent): Unit = entries(e.getActionCommand)()
+        })
         mainItem.add(subItem)
       })
       menu.add(mainItem)
