@@ -36,7 +36,7 @@ object ChannelMovementDemo extends App {
   */
 class ChannelMovement  extends AggregateProgram with SensorDefinitions with BlockG with FlockingLib with Movement2DSupport  {
   private val scale = 5
-  def channel(source: Boolean, target: Boolean, width: Double): Boolean =
+  def customChannel(source: Boolean, target: Boolean, width: Double): Boolean =
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 
   override def main(): ((Boolean),(Double,Double)) = branch(sense3) {
@@ -44,9 +44,9 @@ class ChannelMovement  extends AggregateProgram with SensorDefinitions with Bloc
   } {
     (mux(sense4) {
       val m = randomMovement()
-      (channel(sense1, sense2, 1), SizeConversion.normalSizeToWorldSize((scale * m._1, scale * m._2)))
+      (customChannel(sense1, sense2, 1), SizeConversion.normalSizeToWorldSize((scale * m._1, scale * m._2)))
     }{
-      (channel(sense1, sense2, 1),(.0,.0))
+      (customChannel(sense1, sense2, 1),(.0,.0))
     })
   }
 

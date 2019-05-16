@@ -118,7 +118,7 @@ trait StdLib_NewProcesses {
       def map[T](fm: POut[R] => POut[T]): Spawn[K,A,T] = new Spawn[K,A,T](k => a => fm(process(k)(a)), generation, regulation)
     }
     object Spawn {
-      def apply[K,A,R](process: K => A => POut[R], generation: => Set[K], regulation: => A) =
+      def apply[K,A,R](process: K => A => POut[R], generation: => Set[K], regulation: => A): Map[K,R] =
         new Spawn[K,A,R](process, generation, regulation).apply()
     }
     trait SpawnFilter[K,A,R] { self: Spawn[K,A,R] =>
@@ -130,8 +130,8 @@ trait StdLib_NewProcesses {
     trait WithGeneration[K,A,R] { self: Spawn[K,A,R] =>
       override def apply(): Map[K,R] = rep(Set.empty[K], Map.empty[K,R]) { case (keys, res) =>
         val out = self.map {
-          case POut(v:R, s@GeneratorStatus(ks)) => POut((v,ks.asInstanceOf[Set[K]]),s)
-          case POut(v:R,s) => POut((v,Set.empty[K]),s)
+          case POut(v, s@GeneratorStatus(ks)) => POut((v,ks.asInstanceOf[Set[K]]),s)
+          case POut(v,s) => POut((v,Set.empty[K]),s)
         }.apply()
         (out.flatMap(_._2._2).toSet, out.mapValues(_._1))
       }._2
@@ -160,7 +160,7 @@ trait StdLib_NewProcesses {
 
     case class POut[T](result: T, status: Status)
     object POut {
-      implicit def fromTuple[T](tp: (T,Status)) = POut(tp._1, tp._2)
+      implicit def fromTuple[T](tp: (T,Status)): POut[T] = POut(tp._1, tp._2)
       implicit def toBasicSpawnTuple[T](pout: POut[T]): (T,Boolean) = (pout.result, pout.status!=External)
       implicit def toBasicSpawnLogic[K,A,R](proc: K => A => POut[R]): K => A => (R, Boolean) = k => a => toBasicSpawnTuple(proc(k)(a))
     }
@@ -325,7 +325,7 @@ trait StdLib_NewProcesses {
   trait ReplicatedGossip extends CustomSpawn with FieldCalculusSyntax with StandardSensors with TimeUtils with StateManagement {
     self: AggregateProgram =>
 
-    def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
+    def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
       processManager[Long, T, R]((pid: Long) => proc(_),
         generation = () => if (captureChange(lastPid)) Set(lastPid) else Set[Long](),
@@ -333,7 +333,7 @@ trait StdLib_NewProcesses {
       )(argument)
     }
 
-    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
+    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
       val newProcs = Set(lastPid) // if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
       sspawn[Long,T,R]((pid: Long) => (arg) => {
@@ -355,11 +355,13 @@ trait StdLib_NewProcesses {
   trait ProcessDSL {
     self: AggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
 
+    import SpawnInterface._
+
     def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
       val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
       sspawn[Long,T,R]((pid: Long) => (arg) => {
-        (proc(arg), if(lastPid - pid < numReplicates){ Spawn.Output } else { Spawn.External })
+        (proc(arg), if(lastPid - pid < numReplicates){ Output } else { External })
       }, newProcs, argument)
     }
 

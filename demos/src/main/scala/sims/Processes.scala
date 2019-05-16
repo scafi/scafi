@@ -19,7 +19,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object ProcessesMain extends Launcher {
   Settings.Sim_ProgramClass = "sims.Proc1"
@@ -98,8 +98,7 @@ class MultiGradient extends AggregateProgram with SensorDefinitions with CustomS
   }
 }
 
-class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip
-with Gradients {
+class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip with Gradients {
 
   def isSrc = sense1 || sense2 || sense3 || sense4
 
