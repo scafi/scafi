@@ -19,6 +19,7 @@
 package it.unibo.scafi.distrib
 
 import it.unibo.utils.{Interop, Linearizable}
+import play.api.libs.json.{Reads, Writes}
 
 trait BasePlatform {
   type UID
@@ -33,6 +34,19 @@ trait BasePlatform {
 
   implicit val linearUID: Linearizable[UID]
   implicit val interopUID: Interop[UID]
+
+  val platformSerializer: PlatformSerializer
+
+  trait PlatformSerializer {
+    implicit val readsUid: Reads[UID]
+    implicit val writesUid: Writes[UID]
+    implicit val readsLsns: Reads[LSensorName]
+    implicit val writesLsns: Writes[LSensorName]
+    implicit val readsNsns: Reads[NSensorName]
+    implicit val writesNsns: Writes[NSensorName]
+    implicit val readsExp: Reads[ComputationExport]
+    implicit val writesExp: Writes[ComputationExport]
+  }
 
   trait ComputationContextContract {
     /*

@@ -22,6 +22,8 @@ import it.unibo.scafi.distrib.actor.p2p.{Platform => P2pActorPlatform}
 import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform, SpatialPlatform => SpatialServerBasedActorPlatform}
 import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
 import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 trait BasicAbstractActorIncarnation
   extends BasicAbstractDistributedIncarnation with AbstractJsonIncarnationSerializer
@@ -35,6 +37,36 @@ trait BasicAbstractActorIncarnation
   override type Program = AggregateProgram with ProgramContract
   override val interopUID = interopID
   override val linearUID = linearID
+
+  trait CustomType
+
+  override val platformSerializer = new PlatformSerializer {
+    import it.unibo.scafi.distrib.actor.serialization.BasicSerializers._
+
+    implicit val readsUid: Reads[UID] = (JsPath \ "device-uid").read[String](Reads.StringReads).map(str => interopUID.fromString(str))
+    implicit val writesUid: Writes[UID] = (JsPath \ "device-uid").write[String](Writes.StringWrites).contramap(uid => uid.toString)
+    implicit val readsLsns: Reads[LSensorName] = (JsPath \ "lsns").read[String](Reads.StringReads)
+    implicit val writesLsns: Writes[LSensorName] = (JsPath \ "lsns").write[String](Writes.StringWrites)
+    implicit val readsNsns: Reads[NSensorName] = (JsPath \ "nsns").read[String](Reads.StringReads)
+    implicit val writesNsns: Writes[NSensorName] = (JsPath \ "lsns").write[String](Writes.StringWrites)
+    implicit val readsExp: Reads[ComputationExport] = new Reads[ComputationExport] {
+      override def reads(json: JsValue): JsResult[ComputationExport] = JsSuccess(
+        adaptExport(factory.export(
+          ??? // json.validate[Map[Path, Any]].get.toList: _*
+        ))
+      )
+    }
+    implicit val writesExp: Writes[ComputationExport] = new Writes[ComputationExport] {
+      override def writes(o: ComputationExport): JsValue = JsObject(
+        o.getAll.map { case (k, v) => k.toString() -> JsString(v.toString) }.toSeq
+      )
+    }
+
+    implicit val readsPath: Format[Path] = new Format[Path] {
+      override def reads(json: JsValue): JsResult[Path] = ???
+      override def writes(o: Path): JsValue = ???
+    }
+  }
 
   type ProgramType = AggregateProgram
   override implicit def adaptAggregateProgram(program: ProgramType): ProgramContract =

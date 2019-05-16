@@ -20,12 +20,12 @@ package it.unibo.scafi.distrib.actor.serialization
 
 import play.api.libs.json.{JsArray, JsValue, Json}
 
-trait JsonSerialization {
+trait JsonAnySerialization {
   def anyToJs: PartialFunction[Any, JsValue]
   def jsToAny: PartialFunction[JsValue, Any]
 }
 
-trait JsonBaseSerialization extends JsonSerialization
+trait BasicJsonAnySerialization extends JsonAnySerialization
   with JsonPrimitiveSerialization
   with JsonOptionSerialization
   with JsonCollectionSerialization
@@ -47,7 +47,7 @@ trait JsonBaseSerialization extends JsonSerialization
     super[JsonCommonFunctionSerialization].jsToAny
 }
 
-trait JsonPrimitiveSerialization extends JsonSerialization {
+trait JsonPrimitiveSerialization extends JsonAnySerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
     case b:Boolean => Json.obj("type" -> "Boolean", "val" -> b)
     case b:Byte => Json.obj("type" -> "Byte", "val" -> b)
@@ -74,7 +74,7 @@ trait JsonPrimitiveSerialization extends JsonSerialization {
   }
 }
 
-trait JsonOptionSerialization extends JsonSerialization {
+trait JsonOptionSerialization extends JsonAnySerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
     case Some(o) => Json.obj("type" -> "Option", "isDefined" -> true, "val" -> anyToJs(o))
     case None => Json.obj("type" -> "Option", "isDefined" -> false)
@@ -85,7 +85,7 @@ trait JsonOptionSerialization extends JsonSerialization {
   }
 }
 
-trait JsonCollectionSerialization extends JsonSerialization {
+trait JsonCollectionSerialization extends JsonAnySerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
     case l:List[Any] => Json.obj("type" -> "List", "list" -> JsArray(l.map(anyToJs)))
     case s:Set[Any] => Json.obj("type" -> "Set", "set" -> JsArray(s.toList.map(anyToJs)))
@@ -99,7 +99,7 @@ trait JsonCollectionSerialization extends JsonSerialization {
   }
 }
 
-trait JsonTupleSerialization extends JsonSerialization {
+trait JsonTupleSerialization extends JsonAnySerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
     case t if isTuple(t) => Json.obj("type" -> "Tuple", "values" -> anyToJs(t.asInstanceOf[Product].productIterator.toList))
   }
@@ -114,7 +114,7 @@ trait JsonTupleSerialization extends JsonSerialization {
   }
 }
 
-trait JsonCommonFunctionSerialization extends JsonSerialization {
+trait JsonCommonFunctionSerialization extends JsonAnySerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
     case f if isFunction(f) =>
       Json.obj("type" -> "Function", "name" -> anyToJs(f.getClass.getSimpleName.split("/")(0))) // TODO: verify if fragile
