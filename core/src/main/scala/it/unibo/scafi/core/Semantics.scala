@@ -194,7 +194,7 @@ trait Semantics extends Core with Language {
     import RoundVMImpl.{ensure, Status, StatusImpl}
 
     var exportStack: List[EXPORT] = List(factory.emptyExport)
-    def export = exportStack.head
+    def export: EXPORT = exportStack.head
 
     var status: Status = Status()
     var isolated = false // When true, neighbours are scoped out

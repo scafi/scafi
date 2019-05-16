@@ -25,7 +25,7 @@ trait StdLib_StateManagement{
     self: FieldCalculusSyntax with StandardSensors =>
 
     def roundCounter(): Long =
-      rep(0L)(_+1)
+      rep(0L)(_ + 1)
 
     def remember[T](value: T): T =
       rep(value)(identity)
@@ -39,7 +39,7 @@ trait StdLib_StateManagement{
 
     def countChanges[T](x: T, initially: Boolean = true): (Long,Boolean) = {
       val changed = captureChange(x, initially)
-      (rep(0L)(k => if(changed) k+1 else k), changed)
+      (rep(0L)(k => if(changed) k + 1 else k), changed)
     }
 
     /**

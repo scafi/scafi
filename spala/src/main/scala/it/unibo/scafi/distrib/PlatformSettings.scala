@@ -105,10 +105,9 @@ trait PlatformSettings { self: Platform.Subcomponent =>
         platform = PlatformSettings.fromConfig(c.getObject("aggregate").toConfig, s.platform),
         deviceConfig = DeviceConfigurationSettings.fromConfig(c.getObject("aggregate.devices").toConfig, s.deviceConfig),
         profile =
-          if(c.hasPath("aggregate.profile"))
+          if(c.hasPath("aggregate.profile")) {
             settingsFactory.defaultProfileSettings().fromConfig(c.getObject("aggregate.profile").toConfig)
-          else
-            s.profile
+          } else s.profile
       )
       s
     }

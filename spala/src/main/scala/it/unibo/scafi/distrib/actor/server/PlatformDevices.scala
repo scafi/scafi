@@ -94,7 +94,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     def props(selfId: UID,
               program: Option[ProgramContract],
               execStrategy: ExecScope,
-              serverActor: ActorRef) =
+              serverActor: ActorRef): Props =
       Props(classOf[DeviceActor], self, selfId, program, execStrategy, serverActor)
   }
 }

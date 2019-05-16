@@ -31,13 +31,13 @@ trait StdLib_BlockG {
     def Gg[V](gradient: Gradient, field: V, acc: V => V): V = {
       val g = gradient.run()
       rep(field) { case (value) =>
-        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g}+gradient.metric())(acc(nbr{value})).getOrElse(field) }
+        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g} + gradient.metric())(acc(nbr{value})).getOrElse(field) }
       }
     }
 
     def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V = {
       rep(field) { case (value) =>
-        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g}+metric())(acc(nbr{value})).getOrElse(field) }
+        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g} + metric())(acc(nbr{value})).getOrElse(field) }
       }
     }
 
