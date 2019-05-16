@@ -66,6 +66,7 @@ trait Semantics extends Core with Language {
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
     def getAll: scala.collection.Map[Path,Any]
+    def paths : Map[Path,Any]
   }
 
   trait ContextOps { self: CONTEXT =>
@@ -205,7 +206,7 @@ trait Semantics extends Core with Language {
     var aggregateFunctions: Map[Path,()=>Any] = Map.empty
 
     var exportStack: List[EXPORT] = List(factory.emptyExport)
-    def export = exportStack.head
+    def export: EXPORT = exportStack.head
 
     var status: Status = Status()
     var isolated = false // When true, neighbours are scoped out
@@ -275,8 +276,10 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag():Any =
-      Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    override def elicitAggregateFunctionTag(): Any = Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    // Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition) // Bad performance
+    // sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition) // Better performance but not available in Java 11
+    // Since Java 9, use StackWalker
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated

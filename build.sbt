@@ -1,3 +1,4 @@
+
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -12,6 +13,21 @@ val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
 val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
+val scalafx = "org.scalafx" %% "scalafx" % "8.0.144-R12"
+
+// Determine OS version of JavaFX binaries
+lazy val osName = System.getProperty("os.name") match {
+  case n if n.startsWith("Linux") => "linux"
+  case n if n.startsWith("Mac") => "mac"
+  case n if n.startsWith("Windows") => "win"
+  case _ => throw new Exception("Unknown platform!")
+}
+
+// JavaFX dependencies (Java 11)
+lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "web")
+
+lazy val javaVersion = System.getProperty("java.version").stripPrefix("openjdk")
+lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
 
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
@@ -50,12 +66,10 @@ lazy val commonSettings = Seq(
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
-  // Cross-Building
-  crossScalaVersions := Seq("2.11.8","2.12.2") // "2.13.0-M1"
+  crossScalaVersions := Seq("2.11.12","2.12.2") // "2.13.0-M1"
 )
 
-lazy val noPublishSettings =
-  Seq(
+lazy val noPublishSettings = Seq(
     publishArtifact := false,
     publish := (),
     publishLocal := ()
@@ -63,7 +77,7 @@ lazy val noPublishSettings =
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
@@ -104,7 +118,8 @@ lazy val `simulator-gui` = project.
   settings(commonSettings: _*).
   settings(
     name := "scafi-simulator-gui",
-    libraryDependencies ++= Seq(scopt)
+    libraryDependencies ++= Seq(scopt),
+    compileScalastyle := ()
   )
 
 lazy val spala = project.
@@ -115,13 +130,11 @@ lazy val spala = project.
     libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt)
   )
 
-// 'distributed' project definition
 lazy val distributed = project.
   dependsOn(core, spala).
   settings(commonSettings: _*).
   settings(name := "scafi-distributed")
 
-// 'tests' project definition
 lazy val tests = project.
   dependsOn(core, simulator).
   settings(commonSettings: _*).
@@ -131,11 +144,33 @@ lazy val tests = project.
     libraryDependencies += scalatest
   )
 
-// 'demos' project definition
 lazy val demos = project.
   dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
-    name := "scafi-demos"
+    name := "scafi-demos",
+    compileScalastyle := ()
+  )
+
+lazy val `simulator-gui-new` = project.
+  dependsOn(core,simulator).
+  settings(commonSettings: _*).
+  settings(
+    name := "simulator-gui-new",
+    libraryDependencies ++= Seq(scopt,scalatest,scalafx),
+    if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11)
+      libraryDependencies ++= javaFXModules.map( m =>
+        "org.openjfx" % s"javafx-$m" % jdkVersion classifier osName
+      ) else libraryDependencies ++= Seq(),
+    compileScalastyle := ()
+  )
+
+lazy val `demos-new` = project.
+  dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui-new`).
+  settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
+  settings(
+    name := "scafi-demos-new",
+    compileScalastyle := ()
   )

@@ -167,7 +167,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
   def BuildFrame(): Unit = {
     frame = new javax.swing.JFrame("GUI: " + self.path.name)
     frame.setSize(width, height)
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
 
     val panel = new JPanel()
     frame.setContentPane(panel)

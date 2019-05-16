@@ -34,13 +34,12 @@ trait StdLib_FieldUtils {
 
       def mapNbrs[T](expr: => T): Map[ID, T] = reifyField(expr)
 
-      def reifyField[T](expr: => T): Map[ID, T] = {
+      def reifyField[T](expr: => T): Map[ID, T] =
         foldhoodTemplate[Map[ID,T]](Map[ID, T]())(_ ++ _) {
           Map(nbr { mid() } -> expr)
         }
-      }
 
-      def sumHood[T](expr: => T)(implicit numEv: Numeric[T]) =
+      def sumHood[T](expr: => T)(implicit numEv: Numeric[T]): T =
         foldhoodTemplate[T](numEv.zero)(numEv.plus(_,_))(nbr(expr))
 
       def unionHood[T](expr: => T): Set[T] =
@@ -69,14 +68,14 @@ trait StdLib_FieldUtils {
       def minHoodSelector[T, V](toMinimize: => T)(data: => V)
                                (implicit ord1: Builtins.Bounded[T], ord2: Builtins.Bounded[ID]): M[V] = wrap[V]{
         foldhoodTemplate[(T,ID,Option[V])]((ord1.top, ord2.top, None))( (x,y) =>
-          if(x._3.isDefined && (ord1.compare(x._1,y._1) < 0 || ord1.compare(x._1,y._1) == 0 && ord2.compare(x._2,y._2) <= 0)) x else y
+          if(x._3.isDefined && (ord1.compare(x._1,y._1) < 0 || ord1.compare(x._1,y._1) == 0 && ord2.compare(x._2,y._2) <= 0)){ x } else y
         )((toMinimize, ord2.top, Some(data)))._3
       }
 
       def maxHoodSelector[T, V](toMaximize: => T)(data: => V)
                                (implicit ord1: Builtins.Bounded[T], ord2: Builtins.Bounded[ID]): M[V] = wrap[V]{
         foldhoodTemplate[(T,ID,Option[V])]((ord1.bottom, ord2.bottom, None))( (x,y) =>
-          if(x._3.isDefined && (ord1.compare(x._1,y._1) > 0 || ord1.compare(x._1,y._1) == 0 && ord2.compare(x._2,y._2) >= 0)) x else y
+          if(x._3.isDefined && (ord1.compare(x._1,y._1) > 0 || ord1.compare(x._1,y._1) == 0 && ord2.compare(x._2,y._2) >= 0)){ x } else y
         )((toMaximize, ord2.bottom, Some(data)))._3
       }
 

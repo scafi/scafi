@@ -41,6 +41,8 @@ object Point3D {
 
   def apply(x: Double, y: Double, z: Double): Point3D = new Point3D(x,y,z)
 
+  val Zero = Point3D(0,0,0)
+
   implicit def toPoint2D(p: Point3D): Point2D = Point2D(p.x, p.y)
   implicit def toPoint1D(p: Point3D): Point1D = Point1D(p.x)
 }

@@ -18,9 +18,8 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.
-  {AggregateProgram, FieldUtils, ID, BlockG, BlockS, BlockC, BlocksWithGC}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockC, BlockG, BlockS, BlocksWithGC, FieldUtils, ID}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object TargetCounting extends Launcher {
   // Configuring simulation
@@ -30,7 +29,8 @@ object TargetCounting extends Launcher {
   Settings.Sim_NumNodes = 50 // number of nodes
   launch()
 }
-
+/*
+FIX AFTER MERGE
 /**
   * (Incomplete) Draft of target counting as per paper
   *  'Self-stabilising target counting in wireless sensor networks using Euler integration'
@@ -70,3 +70,4 @@ class TargetCountingProgram extends AggregateProgram with SensorDefinitions
   override def main(): Any =
     summarize(isLeader, _ + _, localContribute(senseTargets), 0)
 }
+*/

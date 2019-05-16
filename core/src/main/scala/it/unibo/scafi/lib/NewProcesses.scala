@@ -47,7 +47,7 @@ trait StdLib_NewProcesses {
 
     case class ProcInstance[A, B, C](params: A)(val proc: A => B => C, val value: Option[C] = None)
     {
-      def run(args: B) =
+      def run(args: B): ProcInstance[A,B,C] =
         ProcInstance(params)(proc, { align(puid) { _ => Some(proc.apply(params)(args)) } })
 
       override def toString: String =
@@ -225,10 +225,10 @@ trait StdLib_NewProcesses {
       spawn((k:K) => (a:A) => { val r = process(k)(a); (r,!termination(k,a,r)) }, generation(), _)
 
     object on {
-      def apply[K](set: Set[K]) = new SpawnKeys(set)
+      def apply[K](set: Set[K]): SpawnKeys[K] = new SpawnKeys(set)
     }
     class SpawnKeys[K](val keys: Set[K]) {
-      def withArgs[Args](args: Args) = new SpawnContinuation(keys, args)
+      def withArgs[Args](args: Args): SpawnContinuation[K,Args] = new SpawnContinuation(keys, args)
     }
     class SpawnContinuation[K,Args](val keys: Set[K], val args: Args){
       def spawn[R](proc: K => Args => (R,Status)): Map[K,R] =
@@ -244,7 +244,7 @@ trait StdLib_NewProcesses {
       def filter: Boolean
     }
     case class SpawnReturn[C](value: C, status: Boolean) extends MapFilter[C] {
-      override def filter = status
+      override def filter: Boolean = status
     }
 
     // "Compact" spawn
@@ -274,7 +274,7 @@ trait StdLib_NewProcesses {
     class IffContinuation[T](expr: => T){
       var filterExport: Boolean = false
 
-      def filteringExport =
+      def filteringExport: IffContinuation[T] =
         new IffContinuation[T](expr){
           filterExport = true
         }
@@ -292,7 +292,7 @@ trait StdLib_NewProcesses {
       }
     }
 
-    def simplyReturn[T](expr: => T) = new IffContinuation[T](expr)
+    def simplyReturn[T](expr: => T): IffContinuation[T] = new IffContinuation[T](expr)
 
     // "Compact" "status" spawn
     def csspawn[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
@@ -355,6 +355,14 @@ trait StdLib_NewProcesses {
   trait ProcessDSL {
     self: AggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
 
+    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
+      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
+      sspawn[Long,T,R]((pid: Long) => (arg) => {
+        (proc(arg), if(lastPid - pid < numReplicates){ Spawn.Output } else { Spawn.External })
+      }, newProcs, argument)
+    }
+
     trait GenerationInSpace {
       def where(pred: Boolean): GenerationInSpaceContinuation
 
@@ -376,12 +384,12 @@ trait StdLib_NewProcesses {
     }
 
     class GenerationInSpaceContinuation(val inSpace: Boolean) extends GenerationInTime {
-      override def when(pred: Boolean) = new GenerationInTimeContinuation(inSpace & pred)
+      override def when(pred: Boolean): GenerationInTimeContinuation = new GenerationInTimeContinuation(inSpace & pred)
     }
 
     class GenerationInTimeContinuation(val inSpaceTime: Boolean) extends KeyGenerator {
       override def generateKeys[K](kgen: Long => List[K]): KeyGeneratorContinuation[K] =
-        new KeyGeneratorContinuation[K](inSpaceTime, kgen(rep(0L){ k => if(inSpaceTime) k+1 else k }))
+        new KeyGeneratorContinuation[K](inSpaceTime, kgen(rep(0L){ k => if(inSpaceTime) k + 1 else k }))
     }
 
     trait ProcGenerator[K] {
@@ -394,11 +402,11 @@ trait StdLib_NewProcesses {
     }
 
     object spawn extends GenerationInSpace {
-      override def where(pred: Boolean) = new GenerationInSpaceContinuation(pred)
+      override def where(pred: Boolean): GenerationInSpaceContinuation = new GenerationInSpaceContinuation(pred)
     }
 
     class ProcContinuation[K,A,R](keys: Set[K], proc: A => R) {
-      def withArgs(args: A) = spawn[K,A,R](k => a => (proc(a),true), keys, args)
+      def withArgs(args: A): Map[K,R] = spawn[K,A,R](k => a => (proc(a),true), keys, args)
     }
   }
 }

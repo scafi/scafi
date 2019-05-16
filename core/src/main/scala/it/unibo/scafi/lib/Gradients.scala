@@ -27,16 +27,17 @@ trait StdLib_Gradients {
     self: FieldCalculusSyntax with StandardSensors =>
 
     case class Gradient(algorithm: (Boolean,()=>Double)=>Double, source: Boolean=false, metric: Metric = nbrRange) {
-      def from(s: Boolean) = this.copy(source = s)
-      def withMetric(m: Metric) = this.copy(metric = m)
+      def from(s: Boolean): Gradient = this.copy(source = s)
+      def withMetric(m: Metric): Gradient = this.copy(metric = m)
       def run(): Double = algorithm(source, metric)
     }
 
     val ClassicGradient = Gradient(classicGradient(_,_), false, nbrRange)
 
-    def classicGradient(source: Boolean, metric: () => Double = nbrRange) = rep(Double.PositiveInfinity){ case d =>
-      mux(source){ 0.0 }{ minHoodPlus(nbr(d)+metric()) }
-    }
+    def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
+      rep(Double.PositiveInfinity){ case d =>
+        mux(source){ 0.0 }{ minHoodPlus(nbr(d) + metric()) }
+      }
   }
 
 }

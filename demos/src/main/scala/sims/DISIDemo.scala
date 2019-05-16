@@ -18,8 +18,8 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ AggregateProgram, Builtins }
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, Builtins}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object DISIDemo extends Launcher {
   Settings.Sim_ProgramClass = "sims.Main" + (if(args.length == 0) "" else args(0))

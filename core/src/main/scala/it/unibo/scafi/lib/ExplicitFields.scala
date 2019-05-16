@@ -64,20 +64,20 @@ trait StdLib_ExplicitFields {
         restricted.m.values.reduce(o)
 
       def minHood[V>:T](implicit ev: Bounded[V]): V  =
-        fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
+        fold[V](ev.top) { case (a, b) => ev.min(a, b) }
 
       def minHoodPlus[V>:T](implicit ev: Bounded[V]): V =
         withoutSelf.minHood(ev)
 
       def withoutSelf: Field[T] = Field[T](m - mid)
 
-      def toMap = m
+      def toMap: Map[ID,T] = m
 
       override def toString: String = s"Field[$m]"
     }
 
     object Field {
-      def apply[T](m: Map[ID,T]) = new Field(m)
+      def apply[T](m: Map[ID,T]): Field[T] = new Field(m)
 
       implicit def localToField[T](lv: T): Field[T] =
         fnbr(mid).map(_ => lv)
