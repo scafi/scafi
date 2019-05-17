@@ -119,7 +119,8 @@ lazy val `simulator-gui` = project.
   settings(commonSettings: _*).
   settings(
     name := "scafi-simulator-gui",
-    libraryDependencies ++= Seq(scopt)
+    libraryDependencies ++= Seq(scopt),
+    compileScalastyle := ()
   )
 
 lazy val spala = project.

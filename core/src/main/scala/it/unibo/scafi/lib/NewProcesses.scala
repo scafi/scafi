@@ -21,17 +21,18 @@ package it.unibo.scafi.lib
 trait StdLib_NewProcesses {
   self: StandardLibrary.Subcomponent =>
 
-  trait Spawn {
+  trait SpawnInterface {
     def spawn[A, B, C](process: A => B => (C, Boolean), params: Set[A], args: B): Map[A,C]
   }
 
-  object Spawn {
+  object SpawnInterface {
     trait Status
 
     case object ExternalStatus extends Status   // External to the bubble
     case object BubbleStatus extends Status     // Within the bubble
     case object OutputStatus extends Status     // Within the bubble and bubble output producer
     case object TerminatedStatus extends Status // Notifies the willingness to terminate the bubble
+    case class GeneratorStatus[K](newProcs: Set[K]) extends Status
 
     val External: Status = ExternalStatus
     val Bubble: Status = BubbleStatus
@@ -39,14 +40,14 @@ trait StdLib_NewProcesses {
     val Terminated: Status = TerminatedStatus
   }
 
-  trait CustomSpawn extends Spawn with FieldUtils{
+  trait CustomSpawn extends SpawnInterface with FieldUtils {
     self: AggregateProgram =>
 
-    import Spawn._
+    import SpawnInterface._
 
     case class ProcInstance[A, B, C](params: A)(val proc: A => B => C, val value: Option[C] = None)
     {
-      def run(args: B) =
+      def run(args: B): ProcInstance[A,B,C] =
         ProcInstance(params)(proc, { align(puid) { _ => Some(proc.apply(params)(args)) } })
 
       override def toString: String =
@@ -74,27 +75,132 @@ trait StdLib_NewProcesses {
       }
     }
 
-    def spawn[A, B, C](process: A => B => (C, Boolean), params: Set[A], args: B): Map[A,C] = {
-      share(Map[A, C]()) { case (_, nbrProcesses) => {
+    def exportConditionally[R](f: => (R, Boolean)): (R, Boolean) = {
+      vm.newExportStack
+      val result = f
+      if(result._2) vm.mergeExport else vm.discardExport
+      result
+    }
+
+    def runOnSharedKeysWithShare[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
+      share(Map[K, R]())((loc,nbr) => {
+        (includingSelf.unionHoodSet(nbr().keySet ++ params))
+          .mapToValues(process.apply(_))
+          .collectValues[R] { case (r,true) => r }
+      })
+
+    def runOnSharedKeys[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
+      rep(Map[K, R]())(map => {
+        (includingSelf.unionHoodSet(nbr{map}.keySet ++ params))
+          .mapToValues(process.apply(_))
+          .collectValues[R] { case (r,true) => r }
+      })
+
+    def spawn2[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] =
+      runOnSharedKeysWithShare(align(_){process(_)(args)}, params)
+
+    def spawn[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] = {
+      rep(Map[K, R]()) { case map => {
         // 1. Take active process instances from my neighbours
-        val nbrProcs = includingSelf.unionHoodSet(nbrProcesses().keySet)
+        val nbrProcs = includingSelf.unionHoodSet(nbr{map}.keySet)
 
         // 2. New processes to be spawn, based on a generation condition
         val newProcs = params
 
         // 3. Collect all process instances to be executed, execute them and update their state
         (nbrProcs ++ newProcs)
-          .map { case arg =>
-            val p = ProcInstance(arg)(a => { process(a) })
-            vm.newExportStack
-            val result = p.run(args)
-            if(result.value.get._2) vm.mergeExport else vm.discardExport
-            arg -> result
-          }.collect { case(p,pi) if pi.value.get._2 => p -> pi.value.get._1 }.toMap
+          .mapToValues { align(_)(process(_)(args)) }.collect { case(pid,res) if res._2 => pid -> res._1 }.toMap
       } }
     }
 
-    def sspawn[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
+    class Spawn[K,A,R](process: K => A => POut[R], generation: => Set[K], regulation: => A){
+      def apply(): Map[K,R] = spawn(process, generation, regulation)
+      def map[T](fm: POut[R] => POut[T]): Spawn[K,A,T] = new Spawn[K,A,T](k => a => fm(process(k)(a)), generation, regulation)
+    }
+    object Spawn {
+      def apply[K,A,R](process: K => A => POut[R], generation: => Set[K], regulation: => A): Map[K,R] =
+        new Spawn[K,A,R](process, generation, regulation).apply()
+    }
+    trait SpawnFilter[K,A,R] { self: Spawn[K,A,R] =>
+      override def apply(): Map[K,R] = self.map(handleOutput).apply().collectValues { case Some(p) => p }
+    }
+    trait WithTermination[K,A,R] { self: Spawn[K,A,R] =>
+      override def apply(): Map[K,R] = self.map(handleTermination).apply()
+    }
+    trait WithGeneration[K,A,R] { self: Spawn[K,A,R] =>
+      override def apply(): Map[K,R] = rep(Set.empty[K], Map.empty[K,R]) { case (keys, res) =>
+        val out = self.map {
+          case POut(v, s@GeneratorStatus(ks)) => POut((v,ks.asInstanceOf[Set[K]]),s)
+          case POut(v,s) => POut((v,Set.empty[K]),s)
+        }.apply()
+        (out.flatMap(_._2._2).toSet, out.mapValues(_._1))
+      }._2
+    }
+
+    implicit class RichSet[K](val set: Set[K]){
+      def mapToValues[V](f: K => V) : Map[K,V] =
+        set.map(k => k -> f(k)).toMap
+
+      def mapAndFilter[V](f: K => Option[V]): Map[K,V] =
+        set.foldLeft(Map.empty[K,V]) { (m,key) =>
+          f(key).map(v => m + (key -> v)).getOrElse(m)
+        }
+    }
+
+    implicit class RichMap[K,V](val map: Map[K,V]){
+      def collectValues[T](pf: PartialFunction[V,T]): Map[K,T] =
+        map.collect { case (k,v) if pf.isDefinedAt(v) => (k,pf(v)) }
+
+      def filterValues(pred: V => Boolean): Map[K,V] =
+        map.filter { case (k,v) => pred(v) }
+
+      def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
+        map.map { case (k,v) => k -> mapLogic(v) }
+    }
+
+    case class POut[T](result: T, status: Status)
+    object POut {
+      implicit def fromTuple[T](tp: (T,Status)): POut[T] = POut(tp._1, tp._2)
+      implicit def toBasicSpawnTuple[T](pout: POut[T]): (T,Boolean) = (pout.result, pout.status!=External)
+      implicit def toBasicSpawnLogic[K,A,R](proc: K => A => POut[R]): K => A => (R, Boolean) = k => a => toBasicSpawnTuple(proc(k)(a))
+    }
+
+    def handleTerminationWithRep[T](out: POut[T]): POut[T] = {
+      rep[(Boolean,Int,POut[T])]((false,0,out)){
+        case (terminated,k,res) =>
+          val mustTerminate = out.status==Terminated | includingSelf.anyHood(nbr{terminated})
+          val mustExit = includingSelf.everyHood(nbr{mustTerminate})
+          (mustTerminate, 1, if(mustExit || (mustTerminate && k==0)) (out.result, External) else out)
+      }._3
+    }
+
+    def handleTermination[T](out: POut[T]): POut[T] = {
+      share[(Boolean,Int,POut[T])]((false,0,out)){
+        case (loc,nbrd) =>
+          val mustTerminate = out.status==Terminated | includingSelf.anyHood(nbrd()._1)
+          val mustExit = includingSelf.everyHood(nbr{mustTerminate})
+          (mustTerminate, 1, if(mustExit || (mustTerminate && loc._2==0)) POut(out.result, External) else out)
+      }._3
+    }
+
+    def handleOutput[T](out: POut[T]): POut[Option[T]] = out match {
+      case POut(res, Output) => POut(Some(res), Output)
+      case POut(_, s) => POut(None, s)
+    }
+
+    implicit class ProcessLogic[K,A,R](proc: (K => A => POut[R])) {
+      def map[T](f: POut[R] => POut[T]): (K => A => POut[T]) = k => a => f(proc(k)(a))
+    }
+
+    def sspawn[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] =
+      spawn2[K,A,Option[R]](k => a => handleOutput(handleTerminationWithRep(process(k)(a))), params, args)
+        .collectValues { case Some(p) => p }
+
+    def sspawn2[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] =
+      spawn2[K,A,Option[R]](process.map(handleTerminationWithRep).map(handleOutput), params, args)
+        .collectValues { case Some(p) => p }
+
+    def sspawnOld[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
       spawn[A,B,Option[C]]((p: A) => (a: B) => {
         val (finished, result, status) = rep((false, none[C], false)) { case (finished, _, _) => {
           val (result, status) = process(p)(a)
@@ -113,11 +219,16 @@ trait StdLib_NewProcesses {
       }, params, args).collect { case (k, Some(p)) => k -> p }
     }
 
+    def processManager[K,A,R](process: K => A => R,
+                              generation: () => Set[K],
+                              termination: (K,A,R) => Boolean): A => Map[K,R] =
+      spawn((k:K) => (a:A) => { val r = process(k)(a); (r,!termination(k,a,r)) }, generation(), _)
+
     object on {
-      def apply[K](set: Set[K]) = new SpawnKeys(set)
+      def apply[K](set: Set[K]): SpawnKeys[K] = new SpawnKeys(set)
     }
     class SpawnKeys[K](val keys: Set[K]) {
-      def withArgs[Args](args: Args) = new SpawnContinuation(keys, args)
+      def withArgs[Args](args: Args): SpawnContinuation[K,Args] = new SpawnContinuation(keys, args)
     }
     class SpawnContinuation[K,Args](val keys: Set[K], val args: Args){
       def spawn[R](proc: K => Args => (R,Status)): Map[K,R] =
@@ -133,7 +244,7 @@ trait StdLib_NewProcesses {
       def filter: Boolean
     }
     case class SpawnReturn[C](value: C, status: Boolean) extends MapFilter[C] {
-      override def filter = status
+      override def filter: Boolean = status
     }
 
     // "Compact" spawn
@@ -154,13 +265,6 @@ trait StdLib_NewProcesses {
         }
       }
 
-    implicit class MyRichSet[K](val set: Set[K]) {
-      def mapAndFilter[V](f: K => Option[V]): Map[K,V] =
-        set.foldLeft(Map.empty[K,V]) { (m,key) =>
-          f(key).map(v => m + (key -> v)).getOrElse(m)
-        }
-    }
-
     def alignedExecution[K,V](p: K => V)(key: K): V =
       align(s"${p.getClass.getName}_${key.hashCode}"){ _ => p(key) }
 
@@ -170,7 +274,7 @@ trait StdLib_NewProcesses {
     class IffContinuation[T](expr: => T){
       var filterExport: Boolean = false
 
-      def filteringExport =
+      def filteringExport: IffContinuation[T] =
         new IffContinuation[T](expr){
           filterExport = true
         }
@@ -188,7 +292,7 @@ trait StdLib_NewProcesses {
       }
     }
 
-    def simplyReturn[T](expr: => T) = new IffContinuation[T](expr)
+    def simplyReturn[T](expr: => T): IffContinuation[T] = new IffContinuation[T](expr)
 
     // "Compact" "status" spawn
     def csspawn[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
@@ -215,15 +319,27 @@ trait StdLib_NewProcesses {
       ******************* UTILS *******************
       *********************************************/
 
-    implicit class RichMap[K,V](val m: Map[K,V]){
-      def filterValues(pred: V => Boolean): Map[K,V] =
-        m.filter { case (k,v) => pred(v) }
+    private def none[T]: Option[T] = None
+  }
 
-      def mapValuesStrict[U](mapLogic: V => U): Map[K,U] =
-        m.map { case (k,v) => k -> mapLogic(v) }
+  trait ReplicatedGossip extends CustomSpawn with FieldCalculusSyntax with StandardSensors with TimeUtils with StateManagement {
+    self: AggregateProgram =>
+
+    def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
+      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      processManager[Long, T, R]((pid: Long) => proc(_),
+        generation = () => if (captureChange(lastPid)) Set(lastPid) else Set[Long](),
+        termination = (pid, arg, res) => pid < lastPid - numReplicates
+      )(argument)
     }
 
-    private def none[T]: Option[T] = None
+    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
+      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      val newProcs = Set(lastPid) // if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
+      sspawn[Long,T,R]((pid: Long) => (arg) => {
+        (proc(arg), if(pid > lastPid - numReplicates){ SpawnInterface.Output } else { SpawnInterface.External })
+      }, newProcs, argument)
+    }
   }
 
   /**
@@ -239,11 +355,13 @@ trait StdLib_NewProcesses {
   trait ProcessDSL {
     self: AggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
 
-    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int) = {
+    import SpawnInterface._
+
+    def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
       val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
       sspawn[Long,T,R]((pid: Long) => (arg) => {
-        (proc(arg), if(lastPid - pid < numReplicates){ Spawn.Output } else { Spawn.External })
+        (proc(arg), if(lastPid - pid < numReplicates){ Output } else { External })
       }, newProcs, argument)
     }
 
@@ -268,12 +386,12 @@ trait StdLib_NewProcesses {
     }
 
     class GenerationInSpaceContinuation(val inSpace: Boolean) extends GenerationInTime {
-      override def when(pred: Boolean) = new GenerationInTimeContinuation(inSpace & pred)
+      override def when(pred: Boolean): GenerationInTimeContinuation = new GenerationInTimeContinuation(inSpace & pred)
     }
 
     class GenerationInTimeContinuation(val inSpaceTime: Boolean) extends KeyGenerator {
       override def generateKeys[K](kgen: Long => List[K]): KeyGeneratorContinuation[K] =
-        new KeyGeneratorContinuation[K](inSpaceTime, kgen(rep(0L){ k => if(inSpaceTime) k+1 else k }))
+        new KeyGeneratorContinuation[K](inSpaceTime, kgen(rep(0L){ k => if(inSpaceTime) k + 1 else k }))
     }
 
     trait ProcGenerator[K] {
@@ -286,11 +404,11 @@ trait StdLib_NewProcesses {
     }
 
     object spawn extends GenerationInSpace {
-      override def where(pred: Boolean) = new GenerationInSpaceContinuation(pred)
+      override def where(pred: Boolean): GenerationInSpaceContinuation = new GenerationInSpaceContinuation(pred)
     }
 
     class ProcContinuation[K,A,R](keys: Set[K], proc: A => R) {
-      def withArgs(args: A) = spawn[K,A,R](k => a => (proc(a),true), keys, args)
+      def withArgs(args: A): Map[K,R] = spawn[K,A,R](k => a => (proc(a),true), keys, args)
     }
   }
 }

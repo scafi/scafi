@@ -76,6 +76,8 @@ trait Engine extends Semantics {
     }
 
     override def hashCode(): Int = path.hashCode
+
+    override def head: Slot = path.head
   }
 
   abstract class BaseContextImpl(val selfId: ID,

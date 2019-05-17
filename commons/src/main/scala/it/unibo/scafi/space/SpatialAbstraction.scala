@@ -60,7 +60,7 @@ trait SpatialAbstraction {
 }
 
 object SpatialAbstraction {
-  case class Bound(inclusive: Shape, exclusive : List [(Shape,Point3D)] = List.empty) {
+  case class Bound(inclusive: Shape, exclusive: List[(Shape,Point3D)] = List.empty) {
     import optimization._
     def accept(p: Point3D) : Boolean = {
       val point = p.asInstanceOf[Point3D]

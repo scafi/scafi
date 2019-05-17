@@ -90,12 +90,12 @@ class GradientHop extends AggregateProgram with SensorDefinitions with BlockG  {
 
 @Demo
 class RouteChannel extends AggregateProgram with SensorDefinitions with BlockG {
-  override def main() = channel(sense1, sense2, 0.05)
+  override def main() = channel1(sense1, sense2, 0.05)
 
   def channel2(source: Boolean, target: Boolean, width: Double): (String, String, String) =
     (distanceTo(source).formatted("%.2f"), distanceTo(target).formatted("%.2f"), distanceBetween(source, target).formatted("%.2f"))
 
-  def channel(source: Boolean, target: Boolean, width: Double): Boolean =
+  def channel1(source: Boolean, target: Boolean, width: Double): Boolean =
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 }
 

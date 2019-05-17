@@ -129,7 +129,7 @@ private[nn] class QuadTree[A] private (
   private def elems : mutable.Iterable[(Point3D,A)] = {
     def elemsRec(node : QuadNode[A]) : mutable.Iterable[(Point3D,A)] = {
       if(node.children.isEmpty) {
-        return node.nodeElements
+        node.nodeElements
       } else {
         var elems = mutable.ListBuffer.empty[(Point3D,A)]
         for(child <- node.children) {
