@@ -16,23 +16,16 @@
  * limitations under the License.
 */
 
-package demos
+package examples.gui.hybrid
 
-/**
- * Demo 1
- * - Client/server system
- * - Ad-hoc network
- * - Command-line configuration
- */
+import akka.actor.{ActorRef, Props}
+import examples.gui.{DevViewActor => AbstractDevViewActor}
+import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 
+class DevViewActor(override val I: BasicAbstractActorIncarnation, override var dev: ActorRef)
+  extends AbstractDevViewActor
 
-// STEP 1: CHOOSE INCARNATION
-import it.unibo.scafi.incarnations.{ BasicActorServerBased => Platform }
-
-// STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-class Demo1_AggregateProgram extends Platform.AggregateProgram {
-  override def main(): Any = foldhood(0){_ + _}(1)
+object DevViewActor {
+  val DevicesInRow: Int = AbstractDevViewActor.DevicesInRow
+  def props(inc: BasicAbstractActorIncarnation, dev: ActorRef): Props = Props(classOf[DevViewActor], inc, dev)
 }
-
-// STEP 3: DEFINE MAIN PROGRAM
-object Demo1_MainProgram extends Platform.CmdLineMain

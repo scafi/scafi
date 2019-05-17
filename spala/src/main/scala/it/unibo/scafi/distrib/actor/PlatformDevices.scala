@@ -18,11 +18,10 @@
 
 package it.unibo.scafi.distrib.actor
 
-import it.unibo.scafi.distrib.actor.patterns.{ObservableActorBehavior, BasicActorBehavior, PeriodicBehavior, LifecycleBehavior}
+import it.unibo.scafi.distrib.actor.patterns.{BasicActorBehavior, LifecycleBehavior, ObservableActorBehavior, PeriodicBehavior}
+import akka.actor.{Actor, ActorRef, Cancellable}
 
-import akka.actor.{ActorRef, Cancellable, Actor}
-
-import scala.collection.mutable.{ Map => MMap }
+import scala.collection.mutable.{Map => MMap}
 import scala.concurrent.duration._
 
 trait PlatformDevices { self: Platform.Subcomponent =>
@@ -238,7 +237,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // ABSTRACT MEMBERS
 
-    def propagateExportToNeighbors(export: ComputationExport)
+    def propagateMsgToNeighbors(msg: Any)
     var aggregateExecutor: Option[ProgramContract]
 
     // CONCRETE FIELDS
@@ -301,6 +300,9 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       exp
     }
 
+    def propagateExportToNeighbors(export: ComputationExport): Unit =
+      propagateMsgToNeighbors(MsgExport(selfId, export))
+
     def updateSensorValues(): Unit = localSensors.foreach { case (name,provider) =>
       setLocalSensorValue(name, provider())
     }
@@ -322,6 +324,57 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       super.afterJob()
       handleLifecycle()
     }
+  }
+
+  trait WeakCodeMobilityDeviceActor extends ComputationDeviceActor {
+    //FIELDS
+    var lastProgram: Option[()=>Any] = None
+    var unreliableNbrs: Set[UID] = Set()
+
+    // REACTIVE BEHAVIOR
+    override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse {
+      case MsgUpdateProgram(nid, program) => handleProgram(nid, program)
+    }
+
+    override def beforeJob(): Unit = {
+      super.beforeJob()
+      if (lastExport.isDefined) {
+        // remove neighbors' exports that cannot be merged with the last export
+        nbrs = nbrs ++ nbrs
+          .filter(_._2.export.isDefined)
+          .filterNot(n => n._2.export.get.root().getClass == lastExport.get.root().getClass)
+          .map { case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path) }
+        // remove exports that come from unreliable neighbors
+        nbrs = nbrs ++ nbrs.filter(n => unreliableNbrs.contains(n._1)).map {
+          case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path)
+        }
+      } else {
+        // remove all exports
+        nbrs = nbrs ++ nbrs.map { case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path) }
+      }
+    }
+
+    // BEHAVIOR METHODS
+    def handleProgram(nid: UID, program: () => Any): Unit = {
+      if (lastProgram.isEmpty || lastProgram.get != program) {
+        logger.debug(s"\nProgram updated => $program")
+        lastProgram = Some(program)
+        unreliableNbrs = nbrs.keySet
+        resetComputationState()
+        updateProgram(program)
+        propagateProgramToNeighbors(program)
+      }
+      unreliableNbrs = unreliableNbrs - nid
+    }
+    def resetComputationState(): Unit = {
+      lastExport = None
+      nbrs = nbrs.map { case (id, NbrInfo(idn, _, mailbox, path)) => id -> NbrInfo(idn, None, mailbox, path) }
+    }
+    def updateProgram(program: () => Any): Unit = program() match {
+      case pc: ProgramContract => aggregateExecutor = Some(pc)
+    }
+    def propagateProgramToNeighbors(program: () => Any): Unit =
+      propagateMsgToNeighbors(MsgUpdateProgram(selfId, program))
   }
 
   /**

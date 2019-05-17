@@ -20,10 +20,10 @@ package it.unibo.scafi.distrib.actor
 
 import it.unibo.scafi.distrib.actor.extensions.CodeMobilityExtension
 import it.unibo.scafi.distrib.{CustomClassLoader, CustomClassLoaderRegistry, LoadClassBytes}
-
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Actor, ActorRef}
 import akka.util.Timeout
 import it.unibo.scafi.distrib.actor.patterns.BasicActorBehavior
+import it.unibo.scafi.distrib.actor.serialization.CustomAkkaSerializer
 
 import scala.concurrent.duration._
 
@@ -32,7 +32,7 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
   /**
    * Behavior that should support the retrieval of missing class dependencies.
    * - Missing classes are identified through a [[SystemMsgClassNotFound]] msg
-   *   which is produced by the [[CustomSerializer]] when deserialization
+   *   which is produced by the [[CustomAkkaSerializer]] when deserialization
    *   fails due to ClassNotFoundException, and replaces the original message
    * - Then, requests for dependencies are carried out via [[MsgRequestClass]] messages
    * - Finally, responses for dependency requests consist in [[MsgWithClass]]

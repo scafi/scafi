@@ -78,10 +78,7 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
 
   def inputManagementBehavior: Receive = {
     case I.MsgNeighbor(id,idn) => neighborhoods += id -> (neighborhood(id) + idn)
-    case I.MsgNeighborhood(id,nbrs) => {
-      neighborhoods.clear()
-      neighborhoods += id -> (neighborhood(id) ++ nbrs)
-    }
+    case I.MsgNeighborhood(id,nbrs) => neighborhoods += id -> nbrs
     case I.MsgExport(id,export) => {
       exports += id -> export
       nrounds += id -> (nrounds.getOrElse(id,0)+1)

@@ -30,7 +30,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
   type ProfileSettings = P2PActorSystemSettings
   case class P2PActorSystemSettings(deviceGui: Boolean = false,
-                                    devActorProps: UID => Option[Props] = _ => None,
+                                    devActorProps: (UID, Option[ProgramContract], ExecScope) => Option[Props] = (_,_,_) => None,
                                     devGuiActorProps: ActorRef => Option[Props] = _ => None,
                                     tmGuiActorProps: ActorRef => Option[Props] = _ => None)
     extends ConfigurableSettings[P2PActorSystemSettings] {
@@ -58,7 +58,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
     override def deviceGuiProps(dev: ActorRef): Props = profSettings.devGuiActorProps(dev).get
 
     override def deviceProps(id: UID, program: Option[ProgramContract]): Props =
-      DeviceActor.props(id, program, execScope)
+      profSettings.devActorProps(id, program, execScope).getOrElse(DeviceActor.props(id, program, execScope))
 
     override def start(): Unit = {
       execScope match {

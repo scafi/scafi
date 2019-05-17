@@ -3,7 +3,7 @@ package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world
 import it.unibo.scafi.simulation.s2.frontend.configuration.information.WorldInitializer
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.space.graphics2D.BasicShape2D.Rectangle
-import it.unibo.scafi.space.Point3D
+import it.unibo.scafi.space.{Point2D, Point3D}
 
 import scala.util.{Random => RandomGenerator}
 
@@ -76,5 +76,21 @@ object ScafiWorldInitializer {
     }
 
     override def size: (Double, Double) = (row * space - space, column * space - space)
+  }
+
+  import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
+  case class Fixed(nodes: Set[(ID, Point2D)]) extends ScafiWorldInitializer {
+    override def init(worldInfo: INFO): Unit = {
+      scafiWorld.boundary = worldInfo.boundary
+      scafiWorld.clear()
+      nodes.foreach(node =>
+        scafiWorld.insertNode(new scafiWorld.NodeBuilder(node._1, node._2, worldInfo.shape, worldInfo.deviceProducers.toList))
+      )
+    }
+
+    override def size: (Double, Double) = (
+      nodes.map(_._2.x).max - nodes.map(_._2.x).min + 10,
+      nodes.map(_._2.y).max - nodes.map(_._2.y).min + 10
+    )
   }
 }

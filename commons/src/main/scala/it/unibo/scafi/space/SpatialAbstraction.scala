@@ -209,6 +209,10 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
        .map(e2 => (e2, getDistance(getLocation(e), getLocation(e2))))
     }
 
+    override def add(e: E, p: P): Unit = {
+      elemPositions += (e -> p)
+      if (!neighbourhoodMap.contains(e)) neighbourhoodMap += (e -> Set())
+    }
     override def getAt(p: P): Option[E] = elemPositions.find(_._2 == p).map(_._1)
 
     override def getNeighbors(e: E): Iterable[E] = getNeighborsWithDistance(e) map (_._1)

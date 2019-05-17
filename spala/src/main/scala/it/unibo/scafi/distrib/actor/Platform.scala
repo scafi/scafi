@@ -29,6 +29,7 @@ trait Platform extends DistributedPlatform
   with PlatformDevices
   with PlatformSensors
   with PlatformAPIFacade
+  with PlatformView
   with PlatformCodeMobilitySupport {
   /**
    * This structure packages together info about a neighbor.

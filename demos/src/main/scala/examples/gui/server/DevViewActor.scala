@@ -16,22 +16,16 @@
  * limitations under the License.
 */
 
-package demos
+package examples.gui.server
 
-/**
- * Demo 0-C
- * - Peer-to-peer system
- * - Ad-hoc network
- * - Command-line configuration
- */
+import akka.actor.{ActorRef, Props}
+import examples.gui.{DevViewActor => AbstractDevViewActor}
+import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 
-// STEP 1: CHOOSE INCARNATION
-import it.unibo.scafi.incarnations.{ BasicActorP2P => Platform }
+class DevViewActor(override val I: BasicAbstractActorIncarnation, override var dev: ActorRef)
+  extends AbstractDevViewActor
 
-// STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-class Demo0C_AggregateProgram extends Platform.AggregateProgram {
-  override def main(): Any = foldhood(0){_ + _}(1)
+object DevViewActor {
+  val DevicesInRow: Int = AbstractDevViewActor.DevicesInRow
+  def props(inc: BasicAbstractActorIncarnation, dev: ActorRef): Props = Props(classOf[DevViewActor], inc, dev)
 }
-
-// STEP 3: DEFINE MAIN PROGRAM
-object Demo0C_MainProgram extends Platform.CmdLineMain

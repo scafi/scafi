@@ -43,10 +43,8 @@ trait SpatialPlatform extends BasePlatform {
 
   @transient override val settingsFactory = new SettingsFactorySpatial
 
-  class SpatialServerActor(val space: MutableMetricSpace[UID],
-                           val scheduler: Option[ActorRef])
-    extends AbstractServerActor
-    with ObservableServerActor {
+  class SpatialServerActor(val space: MutableMetricSpace[UID], override val scheduler: Option[ActorRef])
+    extends ServerActor(scheduler) {
 
     override def neighborhood(id: UID): Set[UID] = {
       if(space.contains(id)) space.getNeighbors(id).toSet else Set()
