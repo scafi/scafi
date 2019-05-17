@@ -15,6 +15,8 @@ val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
 val playJson   = "com.typesafe.play" %% "play-json"   % "2.6.9"
 val scalafx = "org.scalafx" %% "scalafx" % "8.0.144-R12"
+val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.26"
+val log4 = "log4j" % "log4j" % "1.2.17"
 
 // Determine OS version of JavaFX binaries
 lazy val osName = System.getProperty("os.name") match {
@@ -128,7 +130,7 @@ lazy val spala = project.
   settings(commonSettings: _*).
   settings(
     name := "spala",
-    libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt, playJson)
+    libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt, playJson, slf4jlog4, log4)
   )
 
 lazy val distributed = project.

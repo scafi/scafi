@@ -51,7 +51,10 @@ trait CoreTestUtils {
   }
 
   implicit val exportEquality = new Equality[EXPORT] {
-    override def areEqual(e: EXPORT, b: Any): Boolean = e.toString == b.toString
+    override def areEqual(e: EXPORT, b: Any): Boolean = e.paths == (b match {
+      case exp: ExportOps => exp.paths
+      case _ => b.toString
+    })
   }
 
   def fullyConnectedTopologyMap(elems: Iterable[ID]): Map[ID,List[ID]] = elems.map(elem => elem -> elems.toList).toMap

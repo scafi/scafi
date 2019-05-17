@@ -105,7 +105,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
       }
 
     }
-    case m:I.MsgNbrSensorValue =>
+    case m:I.MsgNbrSensorValue[_] => { } // TODO
     case m:I.MsgExports => invokeLater {
       exps.removeAllElements()
       m.exports.keySet.foreach {

@@ -31,8 +31,8 @@ trait PlatformMessages { self: Platform.Subcomponent =>
 
   // Input/information messages (which provides data to the recipient actor)
   case class MsgLocalSensorValue[T](name: LSensorName, value: T)
-  case class MsgSensorValue(id: UID, name: LSensorName, value: Any)
-  case class MsgNbrSensorValue(name: NSensorName, values: Map[UID, Any])
+  case class MsgSensorValue[T](id: UID, name: LSensorName, value: T)
+  case class MsgNbrSensorValue[T](name: NSensorName, values: Map[UID,T])
   case class MsgExport(from: UID, export: ComputationExport) extends ScafiMessage
   case class MsgExports(exports: Map[UID, ComputationExport])
   case class MsgDeviceLocation(id: UID, ref: ActorRef)
