@@ -64,10 +64,10 @@ object MonitoringDemo_Inputs {
   }
 
   class MonitoringDemoProgram extends Platform.AggregateProgram with Platform.BlockG with MonitoringSensorDefinitions {
-    def channel(source: Boolean, target: Boolean, width: Double): Boolean =
+    def channel1(source: Boolean, target: Boolean, width: Double): Boolean =
       distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 
-    override def main(): Boolean = branch(sense3){false}{channel(sense1, sense2, 1)}
+    override def main(): Boolean = branch(sense3){false}{channel1(sense1, sense2, 1)}
   }
 
   val aggregateAppSettings = Platform.AggregateApplicationSettings(

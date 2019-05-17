@@ -31,13 +31,13 @@ import scala.collection.mutable.{Map => MMap}
 
 trait Engine extends Semantics {
 
-  override type EXPORT = Export with ExportOps with Serializable
+  override type EXPORT = Export with ExportOps
   override type CONTEXT = Context with ContextOps
   override type FACTORY = Factory
 
   override implicit val factory = new EngineFactory
 
-  class ExportImpl() extends Export with ExportOps with Serializable { self: EXPORT =>
+  class ExportImpl() extends Export with ExportOps with Equals { self: EXPORT =>
     private var map = Map[Path,Any]()
 
     override def put[A](path: Path, value: A) : A = { map += (path -> value); value }
@@ -45,10 +45,19 @@ trait Engine extends Semantics {
     override def root[A](): A = get[A](factory.emptyPath()).get
     override def paths : Map[Path,Any] = map
 
+    override def equals(o: Any): Boolean = o match {
+      case x: ExportOps => x.paths == map
+      case _ => false
+    }
+
+    override def canEqual(that: Any): Boolean = that.isInstanceOf[Export]
+
+    override def hashCode(): Int = map.hashCode()
+
     override def toString: String = map.toString
   }
 
-  class PathImpl(val path: List[Slot]) extends Path with Equals with Serializable {
+  class PathImpl(val path: List[Slot]) extends Path with Equals {
     def push(s: Slot): Path = new PathImpl(s :: path)
     def pull(): Path = path match {
       case s :: p => new PathImpl(p)
@@ -61,13 +70,11 @@ trait Engine extends Semantics {
 
     def matches(p: Path): Boolean = this == p
 
-    def canEqual(other: Any): Boolean = {
-      other.isInstanceOf[Engine.this.PathImpl]
-    }
+    def canEqual(other: Any): Boolean = other.isInstanceOf[Path]
 
     override def equals(other: Any): Boolean = {
       other match {
-        case that: Engine.this.PathImpl => that.canEqual(PathImpl.this) && path == that.path
+        case that: Path => path == that.path
         case _ => false
       }
     }
@@ -79,7 +86,7 @@ trait Engine extends Semantics {
 
   abstract class BaseContextImpl(val selfId: ID,
                                  _exports: Iterable[(ID, EXPORT)])
-    extends Context with ContextOps with Serializable { self: CONTEXT =>
+    extends Context with ContextOps { self: CONTEXT =>
 
     private var exportsMap : Map[ID,EXPORT] = _exports.toMap
     def updateExport(id: ID, export:EXPORT): Unit = exportsMap += id -> export
@@ -105,7 +112,7 @@ trait Engine extends Semantics {
     override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nbrSensor.get(nsns).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
   }
 
-  class EngineFactory extends Factory with Serializable { self: FACTORY =>
+  class EngineFactory extends Factory { self: FACTORY =>
     def /(): Path = emptyPath()
     def /(s: Slot): Path = path(s)
     def emptyPath(): Path = new PathImpl(List())
