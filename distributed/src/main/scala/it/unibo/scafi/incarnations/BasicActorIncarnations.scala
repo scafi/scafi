@@ -43,16 +43,48 @@ trait BasicAbstractActorIncarnation
   override val platformSerializer = new PlatformSerializer {
     import it.unibo.scafi.distrib.actor.serialization.BasicSerializers._
 
-    implicit val readsUid: Reads[UID] = (JsPath \ "device-uid").read[String](Reads.StringReads).map(str => interopUID.fromString(str))
-    implicit val writesUid: Writes[UID] = (JsPath \ "device-uid").write[String](Writes.StringWrites).contramap(uid => uid.toString)
-    implicit val readsLsns: Reads[LSensorName] = (JsPath \ "lsns").read[String](Reads.StringReads)
-    implicit val writesLsns: Writes[LSensorName] = (JsPath \ "lsns").write[String](Writes.StringWrites)
-    implicit val readsNsns: Reads[NSensorName] = (JsPath \ "nsns").read[String](Reads.StringReads)
-    implicit val writesNsns: Writes[NSensorName] = (JsPath \ "lsns").write[String](Writes.StringWrites)
-    implicit val readsExp: Reads[ComputationExport] = new Reads[ComputationExport] {
+    override implicit val readsUid: Reads[UID] = (JsPath \ "device-uid").read[String](Reads.StringReads).map(str => interopUID.fromString(str))
+    override implicit val writesUid: Writes[UID] = (JsPath \ "device-uid").write[String](Writes.StringWrites).contramap(uid => uid.toString)
+    override val readsLsns: Reads[LSensorName] = (JsPath \ "lsns").read[String](Reads.StringReads)
+    override val writesLsns: Writes[LSensorName] = (JsPath \ "lsns").write[String](Writes.StringWrites)
+    override val readsNsns: Reads[NSensorName] = (JsPath \ "nsns").read[String](Reads.StringReads)
+    override val writesNsns: Writes[NSensorName] = (JsPath \ "lsns").write[String](Writes.StringWrites)
+
+    implicit val formatSlot: Format[Slot] = new Format[Slot] {
+      override def writes(o: Slot): JsValue = o match {
+        case Nbr(i) => JsObject(Map("type" -> JsString("nbr"), "index" -> JsNumber(i)))
+        case Rep(i) => JsObject(Map("type" -> JsString("rep"), "index" -> JsNumber(i)))
+        case FunCall(i, funId) => JsObject(Map("type" -> JsString("funcall"), "index" -> JsNumber(i), "funId" -> anyToJs(funId)))
+        case FoldHood(i) => JsObject(Map("type" -> JsString("foldhood"), "index" -> JsNumber(i)))
+        case Scope(key) => JsObject(Map("type" -> JsString("scope"), "key" -> anyToJs(key)))
+      }
+
+      override def reads(json: JsValue): JsResult[Slot] = JsSuccess(json match {
+        case jo@JsObject(underlying) if underlying.contains("_type") => jo.value("_type") match {
+          case JsString("nbr") => Nbr(jo.value("index").as[Int])
+          case JsString("rep") => Rep(jo.value("index").as[Int])
+          case JsString("funcall") => FunCall(jo.value("index").as[Int], jo.value("funId").as[String])
+          case JsString("foldhood") => FoldHood(jo.value("index").as[Int])
+          case JsString("scope") => Scope(jo.value("key").as[String])
+        }
+      })
+    }
+
+    implicit val formatPath: Format[Path] = new Format[Path] {
+      override def writes(p: Path): JsValue = JsArray(p.path.map(s => formatSlot.writes(s)))
+      override def reads(json: JsValue): JsResult[Path] = {
+        val path = JsSuccess(factory.path(json.validate[List[Slot]].get:_*))
+        println(path)
+        path
+      }
+    }
+    import it.unibo.scafi.distrib.actor.serialization.BasicSerializers._
+    implicit val formatExportMap: Format[Map[Path,Any]] = mapAnyFormat[Path]
+
+    override implicit val readsExp: Reads[ComputationExport] = new Reads[ComputationExport] {
       override def reads(json: JsValue): JsResult[ComputationExport] = JsSuccess(
         adaptExport(factory.export(
-          ??? // json.validate[Map[Path, Any]].get.toList: _*
+          json.as[Map[Path,Any]].toSeq:_*
         ))
       )
     }
@@ -62,10 +94,6 @@ trait BasicAbstractActorIncarnation
       )
     }
 
-    implicit val readsPath: Format[Path] = new Format[Path] {
-      override def reads(json: JsValue): JsResult[Path] = ???
-      override def writes(o: Path): JsValue = ???
-    }
   }
 
   type ProgramType = AggregateProgram

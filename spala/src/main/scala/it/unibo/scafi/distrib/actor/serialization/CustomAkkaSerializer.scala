@@ -35,7 +35,7 @@ class CustomAkkaSerializer(ext: ExtendedActorSystem) extends SerializerWithStrin
   }).getOrElse(Array[Byte]())
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = incarnationSerializer.map(_.fromBinary(bytes, manifest) match {
-    case Some(fb) => fb
+    case Some(fb) => ext.log.debug("Deserialized into: "+fb); fb
     case _ => ext.log.debug(s"\nCannot deserialize: " + manifest); SystemMsgClassNotFound(manifest)
   }).getOrElse(None)
 }

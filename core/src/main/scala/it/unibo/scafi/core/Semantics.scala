@@ -42,15 +42,15 @@ trait Semantics extends Core with Language {
 
   implicit val factory: Factory
 
-  trait Slot extends Serializable{
+  sealed trait Slot {
     def ->(v: Any): (Path,Any) = (factory.path(this), v)
     def /(s: Slot): Path = factory.path(this, s)
   }
-  sealed case class Nbr[A](index: Int) extends Slot
-  sealed case class Rep[A](index: Int) extends Slot
-  sealed case class FunCall[A](index: Int, funId: Any) extends Slot
-  sealed case class FoldHood[A](index: Int) extends Slot
-  sealed case class Scope[K](key: K) extends Slot
+  final case class Nbr[A](index: Int) extends Slot
+  final case class Rep[A](index: Int) extends Slot
+  final case class FunCall[A](index: Int, funId: Any) extends Slot
+  final case class FoldHood[A](index: Int) extends Slot
+  final case class Scope[K](key: K) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
@@ -58,6 +58,7 @@ trait Semantics extends Core with Language {
     def matches(path: Path): Boolean
     def isRoot: Boolean
     def head: Slot
+    def path: List[Slot]
 
     def /(slot: Slot): Path = push(slot)
   }
@@ -318,7 +319,7 @@ trait Semantics extends Core with Language {
       }
     }
 
-    trait Status extends Serializable {
+    trait Status {
       val path: Path
       val index: Int
       val neighbour: Option[ID]

@@ -137,6 +137,15 @@ object AbstractJsonPlatformSerializer {
 }
 
 object BasicSerializers {
+  val anySerialization = new BasicJsonAnySerialization {}
+
+  /*
+  implicit val anyFormat: Format[Any] = new Format[Any] {
+    override def writes(o: Any): JsValue = anySerialization .anyToJs(o)
+    override def reads(json: JsValue): JsResult[Any] = JsSuccess(anySerialization.jsToAny(json))
+  }
+  */
+
   implicit def optionFormat[T: Format]: Format[Option[T]] = new Format[Option[T]]{
     override def reads(json: JsValue): JsResult[Option[T]] = json.validateOpt[T]
 
@@ -146,11 +155,53 @@ object BasicSerializers {
     }
   }
 
-  implicit def mapFormat[K:Reads:Writes, V: Reads:Writes]: Format[Map[K,V]] = new Format[Map[K,V]] {
-    override def writes(m: Map[K, V]): JsValue = ???
-
-    override def reads(json: JsValue): JsResult[Map[K, V]] = ???
+  implicit def mapReads[K:Reads, V: Reads]: Reads[Map[K,V]] = new Reads[Map[K,V]] {
+    override def reads(json: JsValue): JsResult[Map[K,V]] = JsSuccess(json match {
+      case JsObject(entries) => Map[K,V](entries.values.map {
+        case JsObject(entry) =>
+          val k = entry("key").as[String]
+          val jsval = entry("value")
+          Tuple2[K,V](implicitly[Reads[K]].reads(Json.parse(k)).get, implicitly[Reads[V]].reads(jsval).get)
+      }.toSeq:_*)
+    })
   }
+
+  implicit def mapWrites[K:Writes, V: Writes]: Writes[Map[K,V]] = new Writes[Map[K,V]] {
+    override def writes(m: Map[K, V]): JsValue = JsObject(
+      m.map {
+        case (k, v) => k.toString -> JsObject(Seq(
+          "key" -> implicitly[Writes[K]].writes(k),
+          "value" -> implicitly[Writes[V]].writes(v)
+        ))
+      }
+    )
+  }
+
+  implicit def mapFormat[K:Reads:Writes, V: Reads:Writes]: Format[Map[K,V]] = Format[Map[K,V]](mapReads, mapWrites)
+
+  implicit def mapAnyWrites[K:Writes]: Writes[Map[K,Any]] = new Writes[Map[K,Any]] {
+    override def writes(m: Map[K, Any]): JsValue = JsObject(
+      m.map {
+        case(k,v) => k.toString -> JsObject(Seq(
+          "key" -> implicitly[Writes[K]].writes(k),
+          "value" -> anySerialization.anyToJs(v)
+        ))
+      }
+    )
+  }
+
+  implicit def mapAnyReads[K:Reads]: Reads[Map[K,Any]] = new Reads[Map[K,Any]] {
+    override def reads(json: JsValue): JsResult[Map[K,Any]] = JsSuccess(json match {
+      case JsObject(entries) => Map[K,Any](entries.values.map {
+        case JsObject(entry) =>
+          val k = entry("key").as[String]
+          val jsval = entry("value")
+          Tuple2[K,Any](implicitly[Reads[K]].reads(Json.parse(k)).get, anySerialization.jsToAny(jsval))
+      }.toSeq:_*)
+    })
+  }
+
+  implicit def mapAnyFormat[K:Reads:Writes]: Format[Map[K,Any]] = Format[Map[K,Any]](mapAnyReads, mapAnyWrites)
 }
 
 trait JsonMessagesSerialization extends BasicJsonAnySerialization { self: Platform =>
@@ -191,117 +242,117 @@ trait JsonMessagesSerialization extends BasicJsonAnySerialization { self: Platfo
       (JsPath \ "values").read[Map[UID,T]]
     )(MsgNbrSensorValue.apply[T] _)
 
-  implicit val msgExportWrites: Writes[MsgExport] = (
+  implicit lazy val msgExportWrites: Writes[MsgExport] = (
     (JsPath \ "from").write[UID] and
       (JsPath \ "export").write[ComputationExport]
     )(unlift(MsgExport.unapply))
 
-  implicit val msgExportReads: Reads[MsgExport] = (
+  implicit lazy val msgExportReads: Reads[MsgExport] = (
     (JsPath \ "from").read[UID] and
       (JsPath \ "export").read[ComputationExport]
     )(MsgExport.apply _)
 
-  implicit val msgExportsWrites: Writes[MsgExports] =
+  implicit lazy val msgExportsWrites: Writes[MsgExports] =
     (JsPath \ "exports").write[Map[UID, ComputationExport]].contramap(msg => msg.exports)
 
-  implicit val msgExportsReads: Reads[MsgExports] =
+  implicit lazy val msgExportsReads: Reads[MsgExports] =
     (JsPath \ "exports").read[Map[UID, ComputationExport]].map(exports => MsgExports(exports))
 
-  implicit val msgNeighborhoodExportsWrites: Writes[MsgNeighborhoodExports] = (
+  implicit lazy val msgNeighborhoodExportsWrites: Writes[MsgNeighborhoodExports] = (
     (JsPath \ "id").write[UID] and
       (JsPath \ "nbrs").write[Map[UID, Option[ComputationExport]]]
     )(unlift(MsgNeighborhoodExports.unapply))
 
-  implicit val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = (
+  implicit lazy val msgNeighborhoodExportsReads: Reads[MsgNeighborhoodExports] = (
     (JsPath \ "id").read[UID] and
       (JsPath \ "nbrs").read[Map[UID, Option[ComputationExport]]]
     )(MsgNeighborhoodExports.apply _)
 
-  implicit val msgRegistrationWrites: Writes[MsgRegistration] =
+  implicit lazy val msgRegistrationWrites: Writes[MsgRegistration] =
       (JsPath \ "id").write[UID].contramap(msg => msg.id)
 
-  implicit val msgRegistrationReads: Reads[MsgRegistration] =
+  implicit lazy val msgRegistrationReads: Reads[MsgRegistration] =
       (JsPath \ "id").read[UID].map(uid => MsgRegistration(uid))
 
-  implicit val msgNeighborWrites: Writes[MsgNeighbor] = (
+  implicit lazy val msgNeighborWrites: Writes[MsgNeighbor] = (
     (JsPath \ "id").write[UID] and
       (JsPath \ "idm").write[UID]
     )(unlift(MsgNeighbor.unapply))
 
-  implicit val msgNeighborReads: Reads[MsgNeighbor] = (
+  implicit lazy val msgNeighborReads: Reads[MsgNeighbor] = (
     (JsPath \ "id").read[UID] and
       (JsPath \ "idn").read[UID]
     )(MsgNeighbor.apply _)
 
-  implicit val msgNeighborhoodWrites: Writes[MsgNeighborhood] = (
+  implicit lazy val msgNeighborhoodWrites: Writes[MsgNeighborhood] = (
     (JsPath \ "id").write[UID] and
       (JsPath \ "nbrs").write[Set[UID]]
     )(unlift(MsgNeighborhood.unapply))
 
-  implicit val msgNeighborhoodReads: Reads[MsgNeighborhood] = (
+  implicit lazy val msgNeighborhoodReads: Reads[MsgNeighborhood] = (
     (JsPath \ "id").read[UID] and
       (JsPath \ "nbrs").read[Set[UID]]
     )(MsgNeighborhood.apply _)
 
-  implicit val myNameIsWrites: Writes[MyNameIs] =
+  implicit lazy val myNameIsWrites: Writes[MyNameIs] =
     (JsPath \ "id").write[UID].contramap(msg => msg.id)
 
-  implicit val myNameIsReads: Reads[MyNameIs] =
+  implicit lazy val myNameIsReads: Reads[MyNameIs] =
     (JsPath \ "id").read[UID].map(uid => MyNameIs(uid))
 
-  implicit val msgRoundWrites: Writes[MsgRound] = (
+  implicit lazy val msgRoundWrites: Writes[MsgRound] = (
     (JsPath \ "id").write[UID] and
       (JsPath \ "n").write[Long]
     )(unlift(MsgRound.unapply))
 
-  implicit val msgRoundReads: Reads[MsgRound] = (
+  implicit lazy val msgRoundReads: Reads[MsgRound] = (
     (JsPath \ "id").read[UID] and
       (JsPath \ "n").read[Long]
     )(MsgRound.apply _)
 
-  implicit val msgGetNeighborhoodExportsWrites: Writes[MsgGetNeighborhoodExports] =
+  implicit lazy val msgGetNeighborhoodExportsWrites: Writes[MsgGetNeighborhoodExports] =
     (JsPath \ "id").write[UID].contramap(msg => msg.id)
 
-  implicit val msgGetNeighborhoodExportsReads: Reads[MsgGetNeighborhoodExports] =
+  implicit lazy val msgGetNeighborhoodExportsReads: Reads[MsgGetNeighborhoodExports] =
     (JsPath \ "id").read[UID].map(uid => MsgGetNeighborhoodExports(uid))
 
-  implicit val msgUpdateProgramWrites: Writes[MsgUpdateProgram] = new Writes[MsgUpdateProgram] {
+  implicit lazy val msgUpdateProgramWrites: Writes[MsgUpdateProgram] = new Writes[MsgUpdateProgram] {
     override def writes(msg: MsgUpdateProgram): JsValue = Json.obj("id" -> anyToJs(msg.id), "program" -> anyToJs(msg.program))
   }
 
-  implicit val msgUpdateProgramReads: Reads[MsgUpdateProgram] = new Reads[MsgUpdateProgram] {
+  implicit lazy val msgUpdateProgramReads: Reads[MsgUpdateProgram] = new Reads[MsgUpdateProgram] {
     override def reads(js: JsValue) = JsSuccess(MsgUpdateProgram(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "program").get).asInstanceOf[()=>Any]))
   }
 
-//  implicit val msgPositionWrites: Writes[MsgPosition] = (
+//  implicit lazy val msgPositionWrites: Writes[MsgPosition] = (
 //    (JsPath \ "id").write[UID] and
 //      (JsPath \ "position").write[???]
 //    )(unlift(MsgPosition.unapply))
 //
-//  implicit val msgPositionReads: Reads[MsgPosition] = (
+//  implicit lazy val msgPositionReads: Reads[MsgPosition] = (
 //    (JsPath \ "id").read[UID] and
 //      (JsPath \ "position").read[???]
 //    )(MsgPosition.apply _)
 
-  implicit val msgPositionWrites: Writes[MsgPosition] = new Writes[MsgPosition] {
+  implicit lazy val msgPositionWrites: Writes[MsgPosition] = new Writes[MsgPosition] {
     override def writes(msg: MsgPosition): JsValue = Json.obj("id" -> anyToJs(msg.id), "position" -> anyToJs(msg.position))
   }
-  implicit val msgPositionReads: Reads[MsgPosition] = new Reads[MsgPosition] {
+  implicit lazy val msgPositionReads: Reads[MsgPosition] = new Reads[MsgPosition] {
     override def reads(js: JsValue) = JsSuccess(MsgPosition(jsToAny((js \ "id").get).asInstanceOf[UID], jsToAny((js \ "position").get)))
   }
 
-  implicit val msgGetNeighborhoodLocationsWrites: Writes[MsgGetNeighborhoodLocations] =
+  implicit lazy val msgGetNeighborhoodLocationsWrites: Writes[MsgGetNeighborhoodLocations] =
     (JsPath \ "id").write[UID].contramap(msg => msg.id)
 
-  implicit val msgGetNeighborhoodLocationsReads: Reads[MsgGetNeighborhoodLocations] =
+  implicit lazy val msgGetNeighborhoodLocationsReads: Reads[MsgGetNeighborhoodLocations] =
     (JsPath \ "id").read[UID].map(uid => MsgGetNeighborhoodLocations(uid))
 
-  implicit val msgNeighborhoodLocationsWrites: Writes[MsgNeighborhoodLocations] = (
+  implicit lazy val msgNeighborhoodLocationsWrites: Writes[MsgNeighborhoodLocations] = (
     (JsPath \ "id").write[UID] and
       (JsPath \ "nbrs").write[Map[UID, String]]
     )(unlift(MsgNeighborhoodLocations.unapply))
 
-  implicit val msgNeighborhoodLocationsReads: Reads[MsgNeighborhoodLocations] = (
+  implicit lazy val msgNeighborhoodLocationsReads: Reads[MsgNeighborhoodLocations] = (
     (JsPath \ "id").read[UID] and
       (JsPath \ "nbrs").read[Map[UID, String]]
     )(MsgNeighborhoodLocations.apply _)
