@@ -19,6 +19,7 @@
 package it.unibo.scafi.distrib.actor.serialization
 
 import it.unibo.scafi.distrib.actor.Platform
+import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json._
 
 trait BaseSerializer {
@@ -138,6 +139,7 @@ object AbstractJsonPlatformSerializer {
 
 object BasicSerializers {
   val anySerialization = new BasicJsonAnySerialization {}
+  val log = LoggerFactory.getLogger("BasicSerializers")
 
   /*
   implicit val anyFormat: Format[Any] = new Format[Any] {
@@ -180,19 +182,21 @@ object BasicSerializers {
   implicit def mapFormat[K:Reads:Writes, V: Reads:Writes]: Format[Map[K,V]] = Format[Map[K,V]](mapReads, mapWrites)
 
   implicit def mapAnyWrites[K:Writes]: Writes[Map[K,Any]] = new Writes[Map[K,Any]] {
-    override def writes(m: Map[K, Any]): JsValue = JsObject(
+    override def writes(m: Map[K, Any]): JsValue = JsObject {
       m.map {
-        case(k,v) => k.toString -> JsObject(Seq(
-          "key" -> implicitly[Writes[K]].writes(k),
-          "value" -> anySerialization.anyToJs(v)
-        ))
+        case (k, v) =>
+          k.toString -> JsObject(Seq(
+            "key" -> JsString(Json.stringify(implicitly[Writes[K]].writes(k))),
+            "value" -> anySerialization.anyToJs(v)
+          ))
       }
-    )
+    }
   }
 
   implicit def mapAnyReads[K:Reads]: Reads[Map[K,Any]] = new Reads[Map[K,Any]] {
     override def reads(json: JsValue): JsResult[Map[K,Any]] = JsSuccess(json match {
-      case JsObject(entries) => Map[K,Any](entries.values.map {
+      case JsObject(entries) =>
+        Map[K,Any](entries.values.map {
         case JsObject(entry) =>
           val k = entry("key").as[String]
           val jsval = entry("value")

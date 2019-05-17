@@ -59,24 +59,23 @@ trait BasicAbstractActorIncarnation
         case Scope(key) => JsObject(Map("type" -> JsString("scope"), "key" -> anyToJs(key)))
       }
 
-      override def reads(json: JsValue): JsResult[Slot] = JsSuccess(json match {
-        case jo@JsObject(underlying) if underlying.contains("_type") => jo.value("_type") match {
-          case JsString("nbr") => Nbr(jo.value("index").as[Int])
-          case JsString("rep") => Rep(jo.value("index").as[Int])
-          case JsString("funcall") => FunCall(jo.value("index").as[Int], jo.value("funId").as[String])
-          case JsString("foldhood") => FoldHood(jo.value("index").as[Int])
-          case JsString("scope") => Scope(jo.value("key").as[String])
+      override def reads(json: JsValue): JsResult[Slot] = JsSuccess {
+        json match {
+          case jo@JsObject(underlying) if underlying.contains("type") => jo.value("type") match {
+            case JsString("nbr") => Nbr(jo.value("index").as[Int])
+            case JsString("rep") => Rep(jo.value("index").as[Int])
+            case JsString("funcall") => FunCall(jo.value("index").as[Int], jo.value("funId").as[String])
+            case JsString("foldhood") => FoldHood(jo.value("index").as[BigDecimal].toInt)
+            case JsString("scope") => Scope(jo.value("key").as[String])
+          }
         }
-      })
+      }
     }
 
     implicit val formatPath: Format[Path] = new Format[Path] {
       override def writes(p: Path): JsValue = JsArray(p.path.map(s => formatSlot.writes(s)))
-      override def reads(json: JsValue): JsResult[Path] = {
-        val path = JsSuccess(factory.path(json.validate[List[Slot]].get:_*))
-        println(path)
-        path
-      }
+      override def reads(json: JsValue): JsResult[Path] =
+        JsSuccess(factory.path(json.validate[List[Slot]].get:_*))
     }
     import it.unibo.scafi.distrib.actor.serialization.BasicSerializers._
     implicit val formatExportMap: Format[Map[Path,Any]] = mapAnyFormat[Path]
@@ -89,9 +88,7 @@ trait BasicAbstractActorIncarnation
       )
     }
     implicit val writesExp: Writes[ComputationExport] = new Writes[ComputationExport] {
-      override def writes(o: ComputationExport): JsValue = JsObject(
-        o.getAll.map { case (k, v) => k.toString() -> JsString(v.toString) }.toSeq
-      )
+      override def writes(o: ComputationExport): JsValue = mapAnyWrites[Path].writes(o.paths)
     }
 
   }
