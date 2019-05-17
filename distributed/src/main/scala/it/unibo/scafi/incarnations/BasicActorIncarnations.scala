@@ -105,11 +105,10 @@ trait BasicAbstractActorIncarnation
 
   implicit def adaptExport(export: EXPORT): ComputationExport =
     new ExportImpl with ComputationExportContract {
-      override def getMap[A]: Map[Path, A] = export.getMap
       override def get[A](path: Path): Option[A] = export.get(path)
       override def put[A](path: Path, value: A): A = export.put(path, value)
       override def root[A](): A = export.root()
-
+      override def paths: Map[Path, Any] = export.paths
       override def toString: String = export.toString
     }
 

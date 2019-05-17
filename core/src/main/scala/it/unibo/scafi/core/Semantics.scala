@@ -64,11 +64,10 @@ trait Semantics extends Core with Language {
   }
 
   trait ExportOps { self: EXPORT =>
-    def getMap[A]: Map[Path, A]
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
-    def getAll: scala.collection.Map[Path,Any]
-    def paths : Map[Path,Any]
+    def paths: Map[Path,Any]
+    def getMap[A]: Map[Path, A] = paths.mapValues(_.asInstanceOf[A])
   }
 
   trait ContextOps { self: CONTEXT =>
@@ -307,7 +306,7 @@ trait Semantics extends Core with Language {
     override def mergeExport: Any = {
       val toMerge = export
       exportStack = exportStack.tail
-      toMerge.getAll.foreach(tp => export.put(tp._1, tp._2))
+      toMerge.paths.foreach(tp => export.put(tp._1, tp._2))
     }
   }
 
