@@ -50,7 +50,7 @@ class TestDomainAlignment extends FlatSpec with Matchers {
     n
   }
 
-  Domains should "align properly" in new SimulationContextFixture {
+  Domains should "align properly when mixing branches and nbrs" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       override def main(): Any = (
@@ -66,8 +66,28 @@ class TestDomainAlignment extends FlatSpec with Matchers {
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (3,5,Set("a1d1","a4d4")), (5,6,Set("a0d0","a2d2","a4d4")), (1,2,Set("a1d1","a4d4")),
-      (4,6,Set("a6c6")),        (7,7,Set("a0d0","a1d1","a2d2")), (2,2,Set("b8c8","b7c7")),
-      (2,3,Set("a3c3")),        (3,3,Set("b5c5","b8c8")),        (0,0,Set("b5c5","b7c7"))
+      (4,6,Set("a6c6")       ), (7,7,Set("a0d0","a1d1","a2d2")), (2,2,Set("b8c8","b7c7")),
+      (2,3,Set("a3c3")       ), (3,3,Set("b5c5","b8c8")       ), (0,0,Set("b5c5","b7c7"))
+    )).toMap)(net)
+  }
+
+  Domains should "align properly when mixing branches and aggregate calls" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      override def main(): Any = (
+        foldhood(0)(_+_){
+          (branch(mid() % 2 == 1){ () => aggregate{ 1 } }{ () => aggregate{ 0 } })()
+        },
+        foldhood(0)(_+_){ branch (mid % 2 == 1) { 1 } { 0 } },
+        foldhood(0)(_+_){ branch( (() => aggregate { mid })() % 2 == 1){ 1 } { 0 } }
+        )
+    }, ntimes = fewRounds)(net)
+
+    // ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      (0,0,0), (6,6,6), (0,0,0),
+      (6,6,6), (0,0,0), (6,6,6),
+      (0,0,0), (6,6,6), (0,0,0)
     )).toMap)(net)
   }
 }
