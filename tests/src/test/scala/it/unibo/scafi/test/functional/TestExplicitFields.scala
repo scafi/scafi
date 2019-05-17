@@ -82,7 +82,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
       }{
         fnbr(-1.0)
       }.fold(0.0)(_ + _)
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -110,7 +110,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
         val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
         (f1.map2d(f2)("x")(_ + _)).toMap
       }
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -128,7 +128,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
         val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
         (f1.map2u(f2)("x","w")(_ + _)).toMap
       }
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -159,7 +159,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
         ((mux(mid%3==0){ f1 }{ f2 })(phi),
           (mux(mid%3==0){ f1 }{ f2 })(phi2))
       }
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(

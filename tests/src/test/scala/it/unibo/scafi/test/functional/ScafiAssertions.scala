@@ -19,6 +19,7 @@
 package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import it.unibo.scafi.test.functional.ScafiTestUtils.exec
 import org.scalatest.Matchers
 
 object ScafiAssertions extends Matchers {
@@ -80,6 +81,15 @@ object ScafiAssertions extends Matchers {
           case None => passNotComputed
         }
       }) shouldBe true
+    }
+  }
+
+  def assertAlways[T](ap: AggregateProgram, ntimes: Int)
+                     (pred: (ID,T)=>Boolean)
+                     (net: Network with SimulatorOps) = {
+    for(i <- 1 to ntimes){
+      exec(ap, ntimes=1)(net)
+      assertNetworkValuesWithPredicate[T](pred)(true)(net)
     }
   }
 }

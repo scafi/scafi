@@ -38,7 +38,7 @@ trait StdLib_GenericUtils {
           (Math.floor(time/frequency) > Math.floor(t._2/frequency), time)
         }._1
         // Reset value and time on restart
-        val old = if (restart) (0.0,0.0)  else x
+        val old = if (restart){ (0.0,0.0) }  else x
         // Filters infinite values out
         if (Double.NegativeInfinity < value && value < Double.PositiveInfinity) {
           // Sums value weighed by time

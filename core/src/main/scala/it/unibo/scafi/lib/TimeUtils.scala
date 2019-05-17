@@ -23,6 +23,8 @@ import scala.concurrent.duration._
 trait StdLib_TimeUtils {
   self: StandardLibrary.Subcomponent =>
 
+  // scalastyle:off method.name
+
   trait BlockT {
     self: FieldCalculusSyntax =>
 
@@ -87,7 +89,7 @@ trait StdLib_TimeUtils {
     def clock[T](length: T, decay: T)
                 (implicit ev: Numeric[T]): Long =
       rep((0L,length)){ case (k,left) =>
-        branch (left == ev.zero){ (k+1,length) }{ (k,T(length, decay)) }
+        branch (left == ev.zero){ (k + 1,length) }{ (k,T(length, decay)) }
       }._1
 
     def impulsesEvery[T : Numeric](d: T): Boolean =

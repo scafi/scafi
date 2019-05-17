@@ -48,7 +48,7 @@ trait StdLib_Processes {
     type Proc[A,B,C] = A => B => (C,Status)
 
     case class ProcInstance[A,B,C](puid: PUID)(val params: A, val proc: Proc[A,B,C], val value: Option[(C,Status)] = None){
-      def run(args: B) = ProcInstance(puid)(params, proc, align(puid){ _ => Some(proc.apply(params)(args)) })
+      def run(args: B): ProcInstance[A,B,C] = ProcInstance(puid)(params, proc, align(puid){ _ => Some(proc.apply(params)(args)) })
     }
 
     def spawn[A,B,C](process: Proc[A,B,C], params: List[A], args: B): Iterable[C] = {

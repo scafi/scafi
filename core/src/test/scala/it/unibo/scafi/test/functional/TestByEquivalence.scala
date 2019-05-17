@@ -22,7 +22,6 @@ import it.unibo.scafi.test.CoreTestIncarnation._
 import it.unibo.scafi.test.CoreTestUtils
 import org.scalatest._
 
-import scala.collection.Map
 import scala.util.Random
 
 class TestByEquivalence extends FunSpec with Matchers {
@@ -30,9 +29,8 @@ class TestByEquivalence extends FunSpec with Matchers {
   val checkThat = new ItWord
 
   implicit val node = new BasicAggregateInterpreter
-  import factory._
-  import node._
   import CoreTestUtils._
+  import node._
 
   class Fixture {
     val random = new Random(0)
@@ -159,4 +157,19 @@ class TestByEquivalence extends FunSpec with Matchers {
     }
   }
 
+  checkThat("fold.nbr(f)() is to be ignored") {
+    val fixture = new Fixture
+
+    assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
+      foldhood("")(_+_){
+        nbr(mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          nbr(mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+      }
+    }{
+      foldhood("")(_+_){
+        (mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          (mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+      }
+    }
+  }
 }

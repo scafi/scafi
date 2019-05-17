@@ -28,7 +28,8 @@ case class GridSettings(nrows: Int = 10,
                         stepy: Double = 80,
                         tolerance: Double = 0,
                         offsetx: Double = 0,
-                        offsety: Double = 0) extends ShapeSettings
+                        offsety: Double = 0,
+                        mapPos: (Int, Int, Double,Double) => (Double,Double) = (_,_,x,y) => (x,y)) extends ShapeSettings
 
 case class SimpleRandomSettings(min: Double = 0,
                                 max: Double = 1000) extends ShapeSettings
