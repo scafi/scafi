@@ -141,12 +141,20 @@ object BasicSerializers {
   val anySerialization = new BasicJsonAnySerialization {}
   val log = LoggerFactory.getLogger("BasicSerializers")
 
-  /*
-  implicit val anyFormat: Format[Any] = new Format[Any] {
-    override def writes(o: Any): JsValue = anySerialization .anyToJs(o)
+
+  val anyWrites: Writes[Any] = new Writes[Any] {
+    override def writes(o: Any): JsValue = anySerialization.anyToJs(o)
+  }
+  val anyReads: Reads[Any] = new Reads[Any] {
     override def reads(json: JsValue): JsResult[Any] = JsSuccess(anySerialization.jsToAny(json))
   }
-  */
+
+  def anyWritesT[T]: Writes[T] = new Writes[T] {
+    override def writes(o: T): JsValue = anySerialization.anyToJs(o)
+  }
+  def anyReadsT[T]: Reads[T] = new Reads[T] {
+    override def reads(json: JsValue): JsResult[T] = JsSuccess(anySerialization.jsToAny(json).asInstanceOf[T])
+  }
 
   implicit def optionFormat[T: Format]: Format[Option[T]] = new Format[Option[T]]{
     override def reads(json: JsValue): JsResult[Option[T]] = json.validateOpt[T]
@@ -227,13 +235,13 @@ trait JsonMessagesSerialization extends BasicJsonAnySerialization { self: Platfo
   implicit def msgSensorValueWrites[T:Writes]: Writes[MsgSensorValue[T]] = (
     (JsPath \ "id").write[UID] and
       (JsPath \ "name").write[LSensorName] and
-      (JsPath \ "value").write[T]
+      (JsPath \ "value").write[T](anyWritesT[T])
   )(unlift(MsgSensorValue.unapply[T]))
 
   implicit def msgSensorValueReads[T:Reads]: Reads[MsgSensorValue[T]] = (
     (JsPath \ "id").read[UID] and
       (JsPath \ "name").read[LSensorName] and
-      (JsPath \ "value").read[T]
+      (JsPath \ "value").read[T](anyReadsT[T])
     )(MsgSensorValue.apply[T] _)
 
   implicit def msgNbrSensorValueWrites[T:Writes]: Writes[MsgNbrSensorValue[T]] = (

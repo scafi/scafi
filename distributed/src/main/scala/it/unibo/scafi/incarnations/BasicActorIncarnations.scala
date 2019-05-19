@@ -62,9 +62,9 @@ trait BasicAbstractActorIncarnation
       override def reads(json: JsValue): JsResult[Slot] = JsSuccess {
         json match {
           case jo@JsObject(underlying) if underlying.contains("type") => jo.value("type") match {
-            case JsString("nbr") => Nbr(jo.value("index").as[Int])
-            case JsString("rep") => Rep(jo.value("index").as[Int])
-            case JsString("funcall") => FunCall(jo.value("index").as[Int], jo.value("funId").as[String])
+            case JsString("nbr") => Nbr(jo.value("index").as[BigDecimal].toInt)
+            case JsString("rep") => Rep(jo.value("index").as[BigDecimal].toInt)
+            case JsString("funcall") => FunCall(jo.value("index").as[BigDecimal].toInt, jo.value("funId").as[String])
             case JsString("foldhood") => FoldHood(jo.value("index").as[BigDecimal].toInt)
             case JsString("scope") => Scope(jo.value("key").as[String])
           }

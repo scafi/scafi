@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.distrib.actor.serialization
 
+import it.unibo.scafi.space.{Point2D, Point3D}
 import play.api.libs.json.{JsArray, JsValue, Json}
 
 trait JsonAnySerialization {
@@ -59,6 +60,8 @@ trait JsonPrimitiveSerialization extends JsonAnySerialization {
     case c:Char => Json.obj("type" -> "Char", "val" -> c.toString)
     case s:String => Json.obj("type" -> "String", "val" -> s)
     case c: Class[Any] => Json.obj("type" -> "Class", "name" -> c.getName)
+    case pt:Point2D => Json.obj("type" -> "Point2D", "x" -> pt.x, "y" -> pt.y)
+    case pt:Point3D => Json.obj("type" -> "Point3D", "x" -> pt.x, "y" -> pt.y, "z" -> pt.z)
   }
   override def jsToAny: PartialFunction[JsValue, Any] = {
     case b if (b \ "type").as[String] == "Boolean" => (b \ "val").as[Boolean]
@@ -71,6 +74,8 @@ trait JsonPrimitiveSerialization extends JsonAnySerialization {
     case c if (c \ "type").as[String] == "Char" => (c \ "val").as[String].head
     case s if (s \ "type").as[String] == "String" => (s \ "val").as[String]
     case c if (c \ "type").as[String] == "Class" => Class.forName((c \ "name").as[String])
+    case p if (p \ "type").as[String] == "Point2D" => Point2D((p \ "x").as[Double], (p \ "y").as[Double])
+    case p if (p \ "type").as[String] == "Point3D" => Point3D((p \ "x").as[Double], (p \ "y").as[Double], (p \ "z").as[Double])
   }
 }
 
@@ -87,8 +92,8 @@ trait JsonOptionSerialization extends JsonAnySerialization {
 
 trait JsonCollectionSerialization extends JsonAnySerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
-    case l:List[Any] => Json.obj("type" -> "List", "list" -> JsArray(l.map(anyToJs)))
-    case s:Set[Any] => Json.obj("type" -> "Set", "set" -> JsArray(s.toList.map(anyToJs)))
+    case l: List[Any] => Json.obj("type" -> "List", "list" -> JsArray(l.map(anyToJs)))
+    case s: Set[Any] => Json.obj("type" -> "Set", "set" -> JsArray(s.toList.map(anyToJs)))
     case m: Map[Any,Any] => Json.obj("type" -> "Map", "keys" -> anyToJs(m.keys.toList), "values" -> anyToJs(m.values.toList))
   }
   override def jsToAny: PartialFunction[JsValue, Any] = {
