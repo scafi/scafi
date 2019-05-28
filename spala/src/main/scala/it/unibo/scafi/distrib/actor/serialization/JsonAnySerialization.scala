@@ -18,7 +18,9 @@
 
 package it.unibo.scafi.distrib.actor.serialization
 
+import it.unibo.scafi.distrib.Platform
 import it.unibo.scafi.space.{Point2D, Point3D}
+import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsArray, JsValue, Json}
 
 trait JsonAnySerialization {

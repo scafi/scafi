@@ -78,7 +78,7 @@ trait BasicAbstractActorIncarnation
         JsSuccess(factory.path(json.validate[List[Slot]].get:_*))
     }
     import it.unibo.scafi.distrib.actor.serialization.BasicSerializers._
-    implicit val formatExportMap: Format[Map[Path,Any]] = mapAnyFormat[Path]
+    implicit def formatExportMap[T:Format]: Format[Map[Path,T]] = mapFormat[Path,T]
 
     override implicit val readsExp: Reads[ComputationExport] = new Reads[ComputationExport] {
       override def reads(json: JsValue): JsResult[ComputationExport] = JsSuccess(

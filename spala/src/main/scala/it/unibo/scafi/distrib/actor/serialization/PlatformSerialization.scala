@@ -169,27 +169,25 @@ object BasicSerializers {
     override def reads(json: JsValue): JsResult[Map[K,V]] = JsSuccess(json match {
       case JsObject(entries) => Map[K,V](entries.values.map {
         case JsObject(entry) =>
-          val k = entry("key").as[String]
-          val jsval = entry("value")
-          Tuple2[K,V](implicitly[Reads[K]].reads(Json.parse(k)).get, implicitly[Reads[V]].reads(jsval).get)
+          Tuple2[K,V](entry("key").as[K], entry("value").as[V])
       }.toSeq:_*)
     })
   }
 
   implicit def mapWrites[K:Writes, V: Writes]: Writes[Map[K,V]] = new Writes[Map[K,V]] {
-    override def writes(m: Map[K, V]): JsValue = JsObject(
+    override def writes(m: Map[K, V]): JsValue = JsObject {
       m.map {
         case (k, v) => k.toString -> JsObject(Seq(
           "key" -> implicitly[Writes[K]].writes(k),
           "value" -> implicitly[Writes[V]].writes(v)
         ))
       }
-    )
+    }
   }
 
   implicit def mapFormat[K:Reads:Writes, V: Reads:Writes]: Format[Map[K,V]] = Format[Map[K,V]](mapReads, mapWrites)
 
-  implicit def mapAnyWrites[K:Writes]: Writes[Map[K,Any]] = new Writes[Map[K,Any]] {
+  def mapAnyWrites[K:Writes]: Writes[Map[K,Any]] = new Writes[Map[K,Any]] {
     override def writes(m: Map[K, Any]): JsValue = JsObject {
       m.map {
         case (k, v) =>
@@ -201,7 +199,7 @@ object BasicSerializers {
     }
   }
 
-  implicit def mapAnyReads[K:Reads]: Reads[Map[K,Any]] = new Reads[Map[K,Any]] {
+  def mapAnyReads[K:Reads]: Reads[Map[K,Any]] = new Reads[Map[K,Any]] {
     override def reads(json: JsValue): JsResult[Map[K,Any]] = JsSuccess(json match {
       case JsObject(entries) =>
         Map[K,Any](entries.values.map {
@@ -213,7 +211,7 @@ object BasicSerializers {
     })
   }
 
-  implicit def mapAnyFormat[K:Reads:Writes]: Format[Map[K,Any]] = Format[Map[K,Any]](mapAnyReads, mapAnyWrites)
+  def mapAnyFormat[K:Reads:Writes]: Format[Map[K,Any]] = Format[Map[K,Any]](mapAnyReads, mapAnyWrites)
 }
 
 trait JsonMessagesSerialization extends BasicJsonAnySerialization { self: Platform =>
