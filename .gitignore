@@ -36,3 +36,6 @@ org.scala-ide.sdt.update-site/site.xml*fuse*
 .cache-tests
 
 local.*
+
+# For Gradle
+.gradle/
