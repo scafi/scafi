@@ -12,6 +12,20 @@ buildscript {
     }
 }
 
+/*
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+ */
+
+tasks.withType<ScalaCompile>().configureEach {
+    options.apply {
+        targetCompatibility = JavaVersion.VERSION_1_8.toString()
+        sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+    }
+}
+
 val scalaSuffix: String by project
 
 val bcelVersion: String by project
@@ -36,16 +50,6 @@ val slf4jlog4  = "org.slf4j:slf4j-log4j12:$slf4jlog4Version"
 val log4 = "log4j:log4j:$log4Version"
 
 val javaFXModules = listOf("base", "controls", "graphics", "media", "swing", "web")
-
-val javaVersion = System.getProperty("java.version").removePrefix("openjdk")
-val jdkVersion = javaVersion.split('.').stream().findFirst().orElse(if(javaVersion.isEmpty()) "11" else javaVersion)
-val os = System.getProperty("os.name")
-val osName = when {
-    os.startsWith("Linux") -> "linux"
-    os.startsWith("Mac") -> "mac"
-    os.startsWith("Windows") -> "win"
-    else -> throw Exception("Unknown platform!")
-}
 
 allprojects {
     apply(plugin = "scala")
@@ -121,15 +125,6 @@ project(":scafi-simulator-gui-new") {
         "api"(project(":scafi-simulator"))
         "api"(project(":scafi-distributed"))
         "api"(scalafx)
-
-        /*
-        "implementation"(scalafx)
-        if(Integer.parseInt(jdkVersion).getOrElse(0) >= 11) {
-            javaFXModules.forEach { m ->
-                "implementation"("org.openjfx:javafx-$m:$jdkVersion$classifier$osName")
-            }
-        }
-         */
     }
 }
 
@@ -167,3 +162,15 @@ project(":scafi-demos-new") {
         "implementation"(project(":scafi-distributed"))
     }
 }
+
+fun makeMain(name: String, projectName: String, klass: String) {
+    project(projectName) {
+        task<JavaExec>("$name") {
+            classpath = sourceSets["main"].runtimeClasspath
+            main = "$klass"
+        }
+    }
+}
+
+makeMain("demos", ":scafi-demos", "sims.DemoLauncher")
+makeMain("newdemos", ":scafi-demos-new", "frontend.sims.standard.DISIDemo")
