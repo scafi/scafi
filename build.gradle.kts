@@ -49,6 +49,7 @@ val osName = when {
 
 allprojects {
     apply(plugin = "scala")
+    apply(plugin = "java-library")
     apply(plugin = "com.adtran.scala-multiversion-plugin")
     group = "it.unibo.apice.scafiteam"
     version = ""
@@ -78,7 +79,7 @@ project(":scafi-commons") {
 
 project(":scafi-core") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
+        "api"(project(":scafi-commons"))
     }
 
     project.the<SourceSetContainer>()["main"].withConvention(ScalaSourceSet::class) {
@@ -90,46 +91,36 @@ project(":scafi-core") {
 
 project(":scafi-stdlib-ext") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"( project(":scafi-core"))
-        "implementation"(shapeless)
+        "api"( project(":scafi-core"))
+        "api"(shapeless)
     }
 }
 
 project(":scafi-simulator") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"( project(":scafi-core"))
+        //"implementation"(project(":scafi-commons"))
+        "api"( project(":scafi-core"))
     }
 }
 
 project(":scafi-simulator-gui") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"(project(":scafi-core"))
-        "implementation"(project(":scafi-simulator"))
-        "implementation"(scopt)
+        "api"(project(":scafi-simulator"))
+        "api"(scopt)
     }
 }
 
 project(":scafi-tests") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"(project(":scafi-core"))
-        "implementation"(project(":scafi-simulator"))
+        "api"(project(":scafi-simulator"))
     }
 }
 
 project(":scafi-simulator-gui-new") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"(project(":scafi-core"))
-        "implementation"(project(":scafi-simulator"))
-        "implementation"(project(":spala"))
-        "implementation"(project(":scafi-distributed"))
-        "implementation"(akkaActor)
-        "implementation"(scalafx)
-        "implementation"(playJson)
+        "api"(project(":scafi-simulator"))
+        "api"(project(":scafi-distributed"))
+        "api"(scalafx)
 
         /*
         "implementation"(scalafx)
@@ -144,56 +135,35 @@ project(":scafi-simulator-gui-new") {
 
 project(":spala") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"(project(":scafi-core"))
-        "implementation"(akkaActor)
-        "implementation"(akkaRemote)
-        "implementation"(bcel)
-        "implementation"(scopt)
-        "implementation"(playJson)
-        "implementation"(slf4jlog4)
-        "implementation"(log4)
+        "api"(project(":scafi-core"))
+        "api"(akkaActor)
+        "api"(akkaRemote)
+        "api"(bcel)
+        "api"(scopt)
+        "api"(playJson)
+        "api"(slf4jlog4)
+        "api"(log4)
     }
 }
 
 project(":scafi-distributed") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"(project(":scafi-core"))
-        "implementation"(project(":spala"))
-        "implementation"(akkaActor)
-        "implementation"(playJson)
-        "implementation"(scopt)
+        "api"(project(":spala"))
     }
 }
 
 project(":scafi-demos") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"(project(":scafi-core"))
         "implementation"(project(":scafi-stdlib-ext"))
-        "implementation"(project(":spala"))
-        "implementation"(project(":scafi-distributed"))
-        "implementation"(project(":scafi-simulator"))
         "implementation"(project(":scafi-simulator-gui"))
-        "implementation"(akkaActor)
-        "implementation"(scopt)
-        "implementation"(playJson)
+        "implementation"(project(":scafi-distributed"))
     }
 }
 
 project(":scafi-demos-new") {
     dependencies {
-        "implementation"(project(":scafi-commons"))
-        "implementation"(project(":scafi-core"))
         "implementation"(project(":scafi-stdlib-ext"))
-        "implementation"(project(":spala"))
-        "implementation"(project(":scafi-distributed"))
-        "implementation"(project(":scafi-simulator"))
         "implementation"(project(":scafi-simulator-gui-new"))
-        "implementation"(akkaActor)
-        "implementation"(scopt)
-        "implementation"(playJson)
-        "implementation"(scalafx)
+        "implementation"(project(":scafi-distributed"))
     }
 }
