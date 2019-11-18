@@ -1,3 +1,5 @@
+import org.openjfx.gradle.JavaFXOptions
+
 plugins {
     idea
     scala
@@ -9,6 +11,7 @@ buildscript {
     }
     dependencies {
         classpath("com.adtran:scala-multiversion-plugin:1.+")
+        classpath("org.openjfx:javafx-plugin:0.0.8")
     }
 }
 
@@ -49,7 +52,19 @@ val scalafx = "org.scalafx:scalafx_%%:$scalafxVersion"
 val slf4jlog4  = "org.slf4j:slf4j-log4j12:$slf4jlog4Version"
 val log4 = "log4j:log4j:$log4Version"
 
-val javaFXModules = listOf("base", "controls", "graphics", "media", "swing", "web")
+val javaFXModules = kotlin.collections.listOf("base", "controls", "graphics", "media", "swing", "web")
+
+val javafxVersion: kotlin.String by project
+
+val javaVersion = System.getProperty("java.version").removePrefix("openjdk")
+val jdkVersion = javaVersion.split('.').stream().findFirst().orElse(if(javaVersion.isEmpty()) "11" else javaVersion)
+val os = System.getProperty("os.name")
+val osName = when {
+    os.startsWith("Linux") -> "linux"
+    os.startsWith("Mac") -> "mac"
+    os.startsWith("Windows") -> "win"
+    else -> throw Exception("Unknown platform!")
+}
 
 allprojects {
     apply(plugin = "scala")
@@ -163,6 +178,23 @@ project(":scafi-demos-new") {
     }
 }
 
+configure(subprojects.filter { listOf("scafi-simulator-gui-new", "scafi-demos-new").contains(it.name) }) {
+    apply(plugin = "org.openjfx.javafxplugin")
+
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url = uri("http://mvnrepository.com") }
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
+        maven { url = uri("https://oss.sonatype.org/content/repositories/releases") }
+    }
+
+    /*javafx*/
+    configure<JavaFXOptions> {
+        version = jdkVersion
+        modules = listOf("javafx.base", "javafx.controls", "javafx.graphics", "javafx.media", "javafx.swing", "javafx.web")
+    }
+}
 fun makeMain(name: String, projectName: String, klass: String) {
     project(projectName) {
         task<JavaExec>("$name") {
