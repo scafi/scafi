@@ -3,10 +3,12 @@ import org.openjfx.gradle.JavaFXOptions
 plugins {
     idea
     scala
+    id("com.github.alisiikh.scalastyle") version "3.1.0"
 }
 
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -70,6 +72,8 @@ allprojects {
     apply(plugin = "scala")
     apply(plugin = "java-library")
     apply(plugin = "com.adtran.scala-multiversion-plugin")
+    apply(plugin = "com.github.alisiikh.scalastyle")
+
     group = "it.unibo.apice.scafiteam"
     version = ""
 
@@ -80,6 +84,15 @@ allprojects {
     dependencies {
         "implementation"("org.scala-lang:scala-library:%scala-version%")
         "testImplementation"("org.scalatest:scalatest_%%:${scalaTestVersion}")
+    }
+
+    if(!listOf("demos","demos-new").contains(project.name)) {
+        scalastyle {
+            setConfig(File(project.rootDir.absolutePath + "/scalastyle-config.xml"))
+            //includeTestSourceDirectory = true
+            //source = "src/main/scala"
+            //testSource = "src/test/scala"
+        }
     }
 
     tasks.register<JavaExec>("scalaTest"){

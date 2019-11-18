@@ -184,8 +184,8 @@ trait Semantics extends Core with Language {
     def saveFunction[T](f: => T): Unit
     def loadFunction[T](): ()=>T
 
-    def unlessFoldingOnOthers = neighbour.map(_==self).getOrElse(true)
-    def onlyWhenFoldingOnSelf = neighbour.map(_==self).getOrElse(false)
+    def unlessFoldingOnOthers: Boolean = neighbour.map(_==self).getOrElse(true)
+    def onlyWhenFoldingOnSelf: Boolean = neighbour.map(_==self).getOrElse(false)
   }
 
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
@@ -285,7 +285,7 @@ trait Semantics extends Core with Language {
     override def loadFunction[T](): () => T =
       () => aggregateFunctions(localFunctionSlot)().asInstanceOf[T]
 
-    private def localFunctionSlot [T] = status.path.pull().push(FunCall[T](status.path.head.asInstanceOf[FunCall[_]].index, FunctionIdPlaceholder))
+    private def localFunctionSlot[T] = status.path.pull().push(FunCall[T](status.path.head.asInstanceOf[FunCall[_]].index, FunctionIdPlaceholder))
     private val FunctionIdPlaceholder = "f"
 
     override def newExportStack: Any = exportStack = factory.emptyExport() :: exportStack
