@@ -300,6 +300,32 @@ configure(subprojects.filter { listOf("scafi-simulator-gui-new", "scafi-demos-ne
         modules = listOf("javafx.base", "javafx.controls", "javafx.graphics", "javafx.media", "javafx.swing", "javafx.web")
     }
 }
+
+tasks.register<Jar>("fatJar") {
+    dependsOn(subprojects.map { it.tasks.withType<Jar>() })
+    manifest {
+        attributes(mapOf(
+                "Implementation-Title" to "${project.name}",
+                "Implementation-Version" to project.version
+                // "Main-Class" to "it.unibo.alchemist.Alchemist",
+                // "Automatic-Module-Name" to "it.unibo.scafi"
+        ))
+    }
+    archiveBaseName.set("${rootProject.name}-redist")
+    isZip64 = true
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+        // remove all signature files
+        exclude("META-INF/")
+        exclude("build")
+        exclude(".gradle")
+        exclude("build.gradle")
+        exclude("gradle")
+        exclude("gradlew")
+        exclude("gradlew.bat")
+    }
+    with(tasks.jar.get() as CopySpec)
+}
+
 fun makeMain(name: String, projectName: String, klass: String) {
     project(projectName) {
         task<JavaExec>("$name") {
