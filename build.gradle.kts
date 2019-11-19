@@ -71,8 +71,22 @@ val javaFXModules = kotlin.collections.listOf("base", "controls", "graphics", "m
 
 val javafxVersion: kotlin.String by project
 
-val javaVersion = System.getProperty("java.version").removePrefix("openjdk")
-val jdkVersion = javaVersion.split('.').stream().findFirst().orElse(if(javaVersion.isEmpty()) "11" else javaVersion)
+fun javaVersion(): Int {
+    var version = System.getProperty("java.version")
+    val orig = version
+    if (version.startsWith("1.")) {
+        version = version.substring(2, 3)
+    } else {
+        val dot = version.indexOf(".")
+        if (dot != -1) {
+            version = version.substring(0, dot)
+        }
+    }
+    println("Java version: extracted $version from $orig")
+    return Integer.parseInt(version)
+}
+
+val jdkVersion = javaVersion()
 val os = System.getProperty("os.name")
 val osName = when {
     os.startsWith("Linux") -> "linux"
@@ -290,20 +304,23 @@ project(":scafi-demos-new") {
 }
 
 configure(subprojects.filter { listOf("scafi-simulator-gui-new", "scafi-demos-new").contains(it.name) }) {
-    apply(plugin = "org.openjfx.javafxplugin")
+    if(jdkVersion>8) {
+        apply(plugin = "org.openjfx.javafxplugin")
 
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven { url = uri("http://mvnrepository.com") }
-        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
-        maven { url = uri("https://oss.sonatype.org/content/repositories/releases") }
-    }
+        repositories {
+            jcenter()
+            mavenCentral()
+            maven { url = uri("http://mvnrepository.com") }
+            maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
+            maven { url = uri("https://oss.sonatype.org/content/repositories/releases") }
+        }
 
-    /*javafx*/
-    configure<JavaFXOptions> {
-        version = jdkVersion
-        modules = listOf("javafx.base", "javafx.controls", "javafx.graphics", "javafx.media", "javafx.swing", "javafx.web")
+        /*javafx*/
+        configure<JavaFXOptions> {
+            println("Configure JavaFX with JDK version $jdkVersion")
+            version = "$jdkVersion"
+            modules = listOf("javafx.base", "javafx.controls", "javafx.graphics", "javafx.media", "javafx.swing", "javafx.web")
+        }
     }
 }
 
