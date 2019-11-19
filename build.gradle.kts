@@ -13,8 +13,8 @@ plugins {
 
 configure<ReckonExtension> {
     scopeFromProp()
-    snapshotFromProp()
-    // stageFromProp("rc", "final")
+    // snapshotFromProp()
+    stageFromProp("rc", "final")
 }
 
 tasks { "reckonTagCreate" { dependsOn("check") } }
