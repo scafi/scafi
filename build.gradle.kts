@@ -202,14 +202,20 @@ project(":scafi-commons") {
 }
 
 project(":scafi-core") {
-    dependencies {
-        "api"(project(":scafi-commons"))
+    sourceSets {
+        main {
+            withConvention(ScalaSourceSet::class) {
+                scala {
+                    srcDirs(listOf(
+                            "${project.projectDir}/src/main/scala",
+                            "${project.projectDir}/src/main/scala" + scalaSuffix.replace("_", "-")))
+                }
+            }
+        }
     }
 
-    project.the<SourceSetContainer>()["main"].withConvention(ScalaSourceSet::class) {
-        scala {
-            srcDirs(listOf("src/main/scala", "src/main/scala" + scalaSuffix.replace("_", "-")))
-        }
+    dependencies {
+        "api"(project(":scafi-commons"))
     }
 }
 
