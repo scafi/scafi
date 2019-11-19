@@ -29,7 +29,7 @@ before_install:
 script:
 - echo "java.version='$TRAVIS_JDK_VERSION'" >> project/build.properties
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
-  ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi
+  ]; then bash .travis/travis_sbt_build.sh; else bash .travis/travis_sbt_build_pullrequest.sh; fi
 before_deploy:
 - echo Preparing for deploy
 deploy:
@@ -37,7 +37,7 @@ deploy:
 #   and a secret pubring to sign artifacts
 - provider: script
   skip_cleanup: true
-  script: bash travis_deploy.sh
+  script: bash .travis/travis_sbt_deploy.sh
   on:
     all_branches: true
     tags: true # runs iff tagged build
