@@ -33,13 +33,16 @@ script:
 before_deploy:
 - echo Preparing for deploy
 deploy:
+# DEPLOYMENT SCRIPT: uses SONATYPE_USERNAME, SONATYPE_PASSWORD
+#   and a secret pubring to sign artifacts
 - provider: script
   skip_cleanup: true
   script: bash travis_deploy.sh
   on:
     all_branches: true
-    tags: true
+    tags: true # runs iff tagged build
     condition: "$TRAVIS_PULL_REQUEST = false"
+# GITHUB RELEASES: uses a "github oauth token" to upload "file" on tagged builds
 - provider: releases
   skip_cleanup: true
   api_key:
@@ -49,6 +52,7 @@ deploy:
   on:
     branch: master
     tags: true
+# SURGE: env vars SURGE_LOGIN (email) and SURGE_TOKEN
 - provider: surge
   skip_cleanup: true
   project: "./target/scala-2.12/unidoc/"

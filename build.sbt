@@ -32,6 +32,10 @@ lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "
 lazy val javaVersion = System.getProperty("java.version").stripPrefix("openjdk")
 lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
 
+/*
+ * - Leverage SONATYPE_USERNAME and SONATYPE_PASSWORD for authentication in Sonatype
+ * - Through sbt-dynver (via sbt-release-early), project version is dynamically set based on commit
+ */
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed

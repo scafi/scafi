@@ -1,10 +1,23 @@
 import org.openjfx.gradle.JavaFXOptions
+import de.marcphilipp.gradle.nexus.NexusPublishExtension
+import org.ajoberstar.reckon.gradle.ReckonExtension
 
 plugins {
     idea
     scala
     id("com.github.alisiikh.scalastyle") version "3.1.0"
+    id("de.marcphilipp.nexus-publish") version "0.3.0"
+    signing
+    id("org.ajoberstar.reckon") version "0.11.0"
 }
+
+configure<ReckonExtension> {
+    scopeFromProp()
+    snapshotFromProp()
+    // stageFromProp("rc", "final")
+}
+
+tasks { "reckonTagCreate" { dependsOn("check") } }
 
 buildscript {
     repositories {
@@ -72,10 +85,8 @@ allprojects {
     apply(plugin = "scala")
     apply(plugin = "java-library")
     apply(plugin = "com.adtran.scala-multiversion-plugin")
-    apply(plugin = "com.github.alisiikh.scalastyle")
 
     group = "it.unibo.apice.scafiteam"
-    version = ""
 
     repositories {
         jcenter()
@@ -86,9 +97,11 @@ allprojects {
         "testImplementation"("org.scalatest:scalatest_%%:${scalaTestVersion}")
     }
 
-    if(!listOf("demos","demos-new").contains(project.name)) {
+    if(!listOf("scafi-demos","scafi-demos-new").contains(project.name)) {
+        apply(plugin = "com.github.alisiikh.scalastyle")
+
         scalastyle {
-            setConfig(File(project.rootDir.absolutePath + "/scalastyle-config.xml"))
+            setConfig(File("${project.rootProject.rootDir}/scalastyle-config.xml"))
             //includeTestSourceDirectory = true
             //source = "src/main/scala"
             //testSource = "src/test/scala"
@@ -103,6 +116,85 @@ allprojects {
 
     tasks {
         "test" { dependsOn("scalaTest") }
+    }
+}
+
+/*
+nexusStaging {
+    packageGroup = "no.nav"
+    username = System.getenv("SONATYPE_USERNAME")
+    password = System.getenv("SONATYPE_PASSWORD")
+}
+*/
+
+subprojects {
+    apply(plugin = "de.marcphilipp.nexus-publish")
+    apply(plugin = "signing")
+
+    /*
+    configure<NexusPublishExtension> {
+        username.set(System.getenv("SONATYPE_USERNAME"))
+        password.set(System.getenv("SONATYPE_PASSWORD"))
+    }
+     */
+
+    if(!listOf("scafi-demos","scafi-demos-new","scafi-tests").contains(project.name)){
+        extra["signing.keyId"] = "boh"
+        extra["signing.secretKeyRingFile"] = File("./.travis/local.secring.asc")
+        extra["signing.password"] = ""
+
+        publishing {
+            publications {
+                create<MavenPublication>("scafi") {
+                    groupId = "${project.group}"
+                    artifactId = "${project.name}"
+                    version = "${project.version}"
+                    from(components["java"])
+
+                    pom {
+                        name.set("ScaFi")
+                        description.set("An aggregate programming toolkit on the JVM")
+                        url.set("https://scafi.github.io")
+                        licenses {
+                            license {
+                                name.set("The Apache License, Version 2.0")
+                                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            }
+                        }
+                        developers {
+                            developer {
+                                id.set("metaphori")
+                                name.set("Roberto Casadei")
+                                email.set("roby.casadei@unibo.it")
+                                url.set("https://metaphori.github.io")
+                            }
+                            developer {
+                                id.set("mviroli")
+                                name.set("Mirko Viroli")
+                                email.set("mirko.viroli@unibo.it")
+                                url.set("http://mirkoviroli.apice.unibo.it")
+                            }
+                        }
+                        scm {
+                            connection.set("scm:git:git@github.org:scafi/scafi.git")
+                            developerConnection.set("scm:git:ssh@github.org:scafi/scafi.git")
+                            url.set("https://github.com/scafi/scafi")
+                        }
+                    }
+                }
+            }
+        }
+        nexusPublishing {
+            repositories {
+                sonatype {
+                    username.set(System.getenv("SONATYPE_USERNAME"))
+                    password.set(System.getenv("SONATYPE_PASSWORD"))
+                }
+            }
+        }
+        signing {
+            sign(publishing.publications["scafi"])
+        }
     }
 }
 
