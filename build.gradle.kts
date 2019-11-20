@@ -1,6 +1,5 @@
 import org.openjfx.gradle.JavaFXOptions
 import de.marcphilipp.gradle.nexus.NexusPublishExtension
-import org.ajoberstar.reckon.gradle.ReckonExtension
 
 plugins {
     idea
@@ -8,16 +7,16 @@ plugins {
     id("com.github.alisiikh.scalastyle") version "3.1.0"
     id("de.marcphilipp.nexus-publish") version "0.3.0"
     signing
-    id("org.ajoberstar.reckon") version "0.11.0"
+    id("com.palantir.git-version") version "0.12.2"
 }
 
-configure<ReckonExtension> {
-    scopeFromProp()
-    // snapshotFromProp()
-    stageFromProp("rc", "final")
-}
+val gitVersion : groovy.lang.Closure<Any> by extra
+val versionDetails : groovy.lang.Closure<Any> by extra
 
-tasks { "reckonTagCreate" { dependsOn("check") } }
+
+version = gitVersion()
+
+val versionDetails = versionDetails()
 
 buildscript {
     repositories {
