@@ -152,7 +152,7 @@ subprojects {
 
     if(!listOf("scafi-demos","scafi-demos-new","scafi-tests").contains(project.name)){
         extra["signing.keyId"] = "boh"
-        extra["signing.secretKeyRingFile"] = File("./.travis/local.secring.asc")
+        extra["signing.secretKeyRingFile"] = File("${project.rootProject.rootDir}/.travis/local.secring.asc")
         extra["signing.password"] = ""
 
         publishing {
