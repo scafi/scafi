@@ -12,11 +12,10 @@ plugins {
 
 val gitVersion : groovy.lang.Closure<Any> by extra
 val versionDetails : groovy.lang.Closure<Any> by extra
+val verDetails = versionDetails()
 
-
+// Set project version
 version = gitVersion()
-
-val versionDetails = versionDetails()
 
 buildscript {
     repositories {
@@ -135,7 +134,7 @@ allprojects {
 /*
 nexusStaging {
     packageGroup = "no.nav"
-    username = System.getenv("SONATYPE_USERNAME")
+    username = System.getenv("SONATYPE_USER")
     password = System.getenv("SONATYPE_PASSWORD")
 }
 */
@@ -146,7 +145,7 @@ subprojects {
 
     /*
     configure<NexusPublishExtension> {
-        username.set(System.getenv("SONATYPE_USERNAME"))
+        username.set(System.getenv("SONATYPE_USER"))
         password.set(System.getenv("SONATYPE_PASSWORD"))
     }
      */
@@ -200,7 +199,7 @@ subprojects {
         nexusPublishing {
             repositories {
                 sonatype {
-                    username.set(System.getenv("SONATYPE_USERNAME"))
+                    username.set(System.getenv("SONATYPE_USER"))
                     password.set(System.getenv("SONATYPE_PASSWORD"))
                 }
             }
