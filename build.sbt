@@ -7,14 +7,16 @@ resolvers += Resolver.typesafeRepo("releases")
 val akkaVersion = "2.5.0" // NOTE: Akka 2.4.0 REQUIRES Java 8!
 
 // Managed dependencies
-val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
-val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
-val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
-val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
-val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
-val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
-val playJson   = "com.typesafe.play" %% "play-json"   % "2.6.9"
-val scalafx = "org.scalafx" %% "scalafx" % "8.0.144-R12"
+val akkaActor     = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
+val akkaRemote    = "com.typesafe.akka" %% "akka-remote" % akkaVersion
+val bcel          = "org.apache.bcel"   % "bcel"         % "5.2"
+val scalatest     = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
+val scopt         = "com.github.scopt"  %% "scopt"       % "3.5.0"
+val shapeless     = "com.chuusai"       %% "shapeless"   % "2.3.2"
+val playJson      = "com.typesafe.play" %% "play-json"   % "2.6.9"
+val scalafx       = "org.scalafx"       %% "scalafx"     % "8.0.144-R12"
+val scalafx12     = "org.scalafx"       %% "scalafx"     % "12.0.2-R18"
+val scalafxExtras = "org.scalafx"       %% "scalafx-extras" % "0.3.2"
 val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.26"
 val log4 = "log4j" % "log4j" % "1.2.17"
 
@@ -80,7 +82,8 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
+   `simulator-gui-new`, `demos-new`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
@@ -117,12 +120,21 @@ lazy val simulator = project.
   )
 
 lazy val `simulator-gui` = project.
-  dependsOn(core,simulator).
+  dependsOn(core,simulator, `renderer-3d`).
   settings(commonSettings: _*).
   settings(
     name := "scafi-simulator-gui",
     libraryDependencies ++= Seq(scopt),
     compileScalastyle := ()
+  )
+
+lazy val `renderer-3d` = project.
+  dependsOn().
+  settings(commonSettings: _*).
+  settings(
+    name := "scafi-3d-renderer",
+    libraryDependencies ++= Seq(scalafx12, scalafxExtras) ++ javaFXModules.map( m =>
+                     "org.openjfx"       %  s"javafx-$m"     % "12.0.2" classifier osName)
   )
 
 lazy val spala = project.
