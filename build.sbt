@@ -1,3 +1,4 @@
+scalacOptions += "-target:jvm-1.11"
 
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")

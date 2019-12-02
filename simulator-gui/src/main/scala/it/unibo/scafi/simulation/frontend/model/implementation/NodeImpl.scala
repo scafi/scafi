@@ -6,11 +6,11 @@
 package it.unibo.scafi.simulation.frontend.model.implementation
 
 import it.unibo.scafi.simulation.frontend.model.{Node, Sensor}
-import it.unibo.scafi.space.Point2D
+import it.unibo.scafi.space.{Point2D, Point3D}
 
 import scala.util.Random
 
-class NodeImpl(val id: Int, var position: Point2D) extends Node {
+class NodeImpl(val id: Int, var position: Point3D) extends Node {
   var export: Any = ""
   var neighbours = Set[Node]()
   var sensors = Map[Sensor, Any](
@@ -22,6 +22,8 @@ class NodeImpl(val id: Int, var position: Point2D) extends Node {
     SensorEnum.SENS3 -> false,
     SensorEnum.SENS4 -> false
   )
+
+  def this(id: Int, position: Point2D) = this(id, new Point3D(position.x, position.y, 0))
 
   def this(id: Int) {
     this(id, new Point2D(new Random().nextDouble, new Random().nextDouble))
@@ -59,4 +61,6 @@ class NodeImpl(val id: Int, var position: Point2D) extends Node {
 
   def setSensor(sensorName: String, value: Any) =
     this.sensors += new Sensor(sensorName, value) -> value
+
+  override def position2d: Point2D = new Point2D(position.x, position.y)
 }

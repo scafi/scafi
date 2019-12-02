@@ -34,6 +34,10 @@ trait NetworkNode extends Node{
 
   def deselect(): Unit
 
+  def increaseFontSize(): Unit
+
+  def decreaseFontSize(): Unit
+
   def getNodePosition: Point3D
 
   val UID: String

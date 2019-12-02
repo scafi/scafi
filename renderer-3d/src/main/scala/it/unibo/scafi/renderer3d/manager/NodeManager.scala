@@ -68,4 +68,8 @@ private[manager] trait NodeManager {
     onFXAndWait(findNodeAndExecuteAction(nodeUID, _.setColor(color)))
 
   protected final def getAllNetworkNodes: List[NetworkNode] = networkNodesCache.values.toList
+
+  final def increaseFontSize(): Unit = networkNodesCache.values.foreach(_.increaseFontSize())
+
+  final def decreaseFontSize(): Unit = networkNodesCache.values.foreach(_.decreaseFontSize())
 }

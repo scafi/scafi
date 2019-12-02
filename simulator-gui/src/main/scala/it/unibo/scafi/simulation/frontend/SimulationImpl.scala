@@ -9,8 +9,7 @@ import it.unibo.scafi.simulation.frontend.BasicSpatialIncarnation._
 import it.unibo.scafi.simulation.frontend.controller.Controller
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node}
-import it.unibo.scafi.space.Point2D
-
+import it.unibo.scafi.space.{Point2D, Point3D}
 
 class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
                      val simulationSeed: Long = System.nanoTime()) extends Simulation {
@@ -28,7 +27,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   def setRunProgram(program: Any): Unit = {
 
-    val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D(n.position.x, n.position.y)) // Map id->position
+    val devsToPos: Map[Int, Point3D] = network.nodes.mapValues(_.position) // Map id->position
     net = new SpaceAwareSimulator(
       space = new Basic3DSpace(devsToPos,
         proximityThreshold = this.network.neighbourhoodPolicy match {

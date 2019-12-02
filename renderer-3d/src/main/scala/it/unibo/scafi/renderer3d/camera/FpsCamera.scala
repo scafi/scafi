@@ -53,7 +53,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   }
 
   private def rotateCamera(xDegrees: Double): Unit = {
-    val xDegreesSign = if(xDegrees >= 0) 1 else -1
+    val xDegreesSign = if(xDegrees >= 0) 1 else -1 //use xDegrees.sign when upgrading to scala 2.13
     this.rotateOnSelf(adjustedSensitivity * xDegreesSign, Rotate.YAxis)
   }
 

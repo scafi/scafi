@@ -61,7 +61,7 @@ class Controller () {
     this.nodes.foreach(x => {
       val (node,guiNode) = x._2
       val dim = Utils.getSizeGuiNode()
-      val pos = Utils.calculatedGuiNodePosition(node.position)
+      val pos = Utils.calculatedGuiNodePosition(node.position2d)
       guiNode.setNodeLocation(pos.x,pos.y)
       guiNode.setSize(dim)
     })
@@ -167,7 +167,7 @@ class Controller () {
     positions.foreach(p =>  {
       val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
-      val pt = Utils.calculatedGuiNodePosition(node.position)
+      val pt = Utils.calculatedGuiNodePosition(node.position2d)
       guiNode.setNodeLocation(pt.x, pt.y)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
@@ -309,8 +309,8 @@ class Controller () {
       valueShowed match {
         case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
         case NodeValue.EXPORT => guiNode.setValueToShow(formatExport(node.export))
-        case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position))
-        case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position)))
+        case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position2d))
+        case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position2d)))
         case NodeValue.SENSOR(name) => guiNode.setValueToShow(node.getSensorValue(name).toString)
         case _ => guiNode.setValueToShow("")
       }
@@ -330,9 +330,9 @@ class Controller () {
       case NodeValue.EXPORT =>
         nodes.values.foreach { case (n, g) => g.setValueToShow(formatExport(n.export)) }
       case NodeValue.POSITION =>
-        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(n.position)) }
+        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(n.position2d)) }
       case NodeValue.POSITION_IN_GUI =>
-        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(n.position))) }
+        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(n.position2d))) }
       case NodeValue.SENSOR(name) =>
         nodes.values.foreach { case (n, g) => g.setValueToShow(n.getSensorValue(name).toString) }
       case _ => nodes.values.foreach{ case (n, g) => g.setValueToShow("") }

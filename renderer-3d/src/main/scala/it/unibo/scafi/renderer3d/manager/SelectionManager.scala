@@ -92,6 +92,7 @@ private[manager] trait SelectionManager {
     }
   }
 
+  //remove Try and use toIntOption when upgrading to scala 2.13
   protected final def actOnSelectionByKeyboardEvent(event: KeyEvent, action: (Int, List[String]) => Unit): Unit =
     Try(event.getCode.getName.toInt).fold(_ => (), handleSelectionAction(_, action))
 

@@ -18,10 +18,11 @@
 
 package it.unibo.scafi.renderer3d.util
 
-import javafx.concurrent.Task
-import java.util.concurrent.Executors
+import it.unibo.scafi.incarnations.BasicAbstractSpatialSimulationIncarnation
+import it.unibo.scafi.space.Point3D
 
-object RunOnExecutor {
+object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation {
+  override type P = Point3D
 
   private val threadPool = Executors.newCachedThreadPool()
 

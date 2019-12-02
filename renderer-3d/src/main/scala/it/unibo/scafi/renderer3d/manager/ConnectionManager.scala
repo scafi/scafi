@@ -25,7 +25,6 @@ import javafx.scene.Node
 import org.scalafx.extras._
 import scalafx.scene.Scene
 import scalafx.scene.shape.Cylinder
-
 import scala.collection.mutable.{Map => MutableMap}
 
 private[manager] trait ConnectionManager {
@@ -45,7 +44,7 @@ private[manager] trait ConnectionManager {
       case _ => None
     }
 
-  private final def connectNodes(node1: Node, node2: Node): Boolean = { //TODO: fa pooling dei cilindri
+  private final def connectNodes(node1: Node, node2: Node): Boolean = {
     if(connections.contains(node1) && connections(node1).contains(node2)){
       false
     } else {
@@ -108,4 +107,7 @@ private[manager] trait ConnectionManager {
           Rendering3DUtils.createLine(origin.getNodePosition, target.getNodePosition, 2)
       }
     }
+
+  final def setConnectionsVisible(visible: Boolean): Unit =
+    onFX(connections.flatMap(entry => entry._2.values).foreach(_.setVisible(visible))) //TODO: ottimizza
 }

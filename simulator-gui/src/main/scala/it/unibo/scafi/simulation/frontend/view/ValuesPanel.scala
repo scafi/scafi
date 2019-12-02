@@ -34,7 +34,7 @@ class ValuesPanel private[view]() extends JPanel {
 
     controller.getNodes.foreach(ng => {
       val (n,gn) = ng
-      val p1 = Utils.calculatedGuiNodePosition(n.position)
+      val p1 = Utils.calculatedGuiNodePosition(n.position2d)
       val (dx,dy) = (Utils.getSizeGuiNode().getWidth() / 2, Utils.getSizeGuiNode().getHeight() / 160 * 71)
       val p1x = (p1.x + dx)
       val p1y = (p1.y + dy)

@@ -67,6 +67,16 @@ final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: St
       node.setMaterial(DEFAULT_MATERIAL)
     }
   }
+
+  override def increaseFontSize(): Unit = addLabelSize(0.1)
+
+  override def decreaseFontSize(): Unit = addLabelSize(-0.1)
+
+  private def addLabelSize(sizeDifference: Double): Unit = {
+    val MIN_SCALE = 0.1
+    val MAX_SCALE = 5
+    label.setScale(RichMath.clamp(label.getScaleX + sizeDifference, MIN_SCALE, MAX_SCALE))
+  }
 }
 
 object SimpleNetworkNode {

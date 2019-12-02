@@ -18,14 +18,15 @@
 
 package it.unibo.scafi.renderer3d.camera
 
-import javafx.scene.input.{KeyEvent, MouseEvent}
-import scalafx.scene.Camera
+import it.unibo.scafi.space.{Point2D, Point3D}
 
 trait SimulationCamera extends Camera{
 
   def rotateByMouseEvent(mouseEvent: MouseEvent): Unit
 
-  def moveByKeyboardEvent(event: KeyEvent): Unit
+  var position: Point3D
+
+  def position2d: Point2D
 
   def zoomByKeyboardEvent(keyEvent: KeyEvent): Unit
 
