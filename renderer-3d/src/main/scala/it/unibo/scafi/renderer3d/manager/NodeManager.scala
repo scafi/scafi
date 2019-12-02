@@ -30,6 +30,7 @@ private[manager] trait NodeManager {
   this: ConnectionManager => //ConnectionManager has to also be mixed in with NodeManager
 
   private[this] final val networkNodesCache = MutableMap[String, NetworkNode]()
+  private[this] var nodeLabelsScale = 1d
   protected val mainScene: Scene
 
   protected final def rotateAllNodeLabels(camera: Camera): Unit = onFX {
@@ -37,7 +38,7 @@ private[manager] trait NodeManager {
   }
 
   final def addNode(position: Product3[Double, Double, Double], labelText: String, UID: String): Unit = onFX {
-    val networkNode = SimpleNetworkNode(product3ToPoint3D(position), labelText, UID)
+    val networkNode = SimpleNetworkNode(product3ToPoint3D(position), labelText, UID, nodeLabelsScale)
     networkNodesCache(UID) = networkNode
     mainScene.getChildren.add(networkNode)
   }
@@ -69,7 +70,14 @@ private[manager] trait NodeManager {
 
   protected final def getAllNetworkNodes: List[NetworkNode] = networkNodesCache.values.toList
 
-  final def increaseFontSize(): Unit = networkNodesCache.values.foreach(_.increaseFontSize())
+  final def increaseFontSize(): Unit = updateLabelSize(0.1)
 
-  final def decreaseFontSize(): Unit = networkNodesCache.values.foreach(_.decreaseFontSize())
+  final def decreaseFontSize(): Unit = updateLabelSize(-0.1)
+
+  private final def updateLabelSize(sizeDifference: Double): Unit = onFX {
+    val MIN_SCALE = 0.1
+    val MAX_SCALE = 2
+    nodeLabelsScale = RichMath.clamp(nodeLabelsScale + sizeDifference, MIN_SCALE, MAX_SCALE)
+    networkNodesCache.values.foreach(_.setLabelScale(nodeLabelsScale))
+  }
 }

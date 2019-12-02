@@ -16,27 +16,8 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.node
+package it.unibo.scafi.simulation.gui.controller
 
-import javafx.scene.Node
-import scalafx.geometry.Point3D
-import scalafx.scene.Camera
+class Controller3D { //TODO
 
-trait NetworkNode extends Node{
-
-  def updateText(text: String): Unit
-
-  def rotateTextToCamera(camera: Camera): Unit
-
-  def setColor(color: java.awt.Color): Unit
-
-  def select(): Unit
-
-  def deselect(): Unit
-
-  def setLabelScale(scale: Double): Unit
-
-  def getNodePosition: Point3D
-
-  val UID: String
 }

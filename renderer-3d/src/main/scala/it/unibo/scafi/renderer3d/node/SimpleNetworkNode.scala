@@ -26,7 +26,8 @@ import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
 import scalafx.scene.{CacheHint, Camera}
 
-final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: String) extends Group with NetworkNode {
+final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: String, labelScale: Double)
+  extends Group with NetworkNode {
 
   private[this] val NODE_SIZE = 60
   private[this] val DEFAULT_COLOR = Color.color(0.2, 0.2, 0.2)
@@ -37,6 +38,7 @@ final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: St
   private[this] val labelPosition = new Point3D(position.x, position.y - (NODE_SIZE + 190), position.z)
   private[this] val label = createLabel(labelText, LABEL_FONT_SIZE, labelPosition)
 
+  setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
   this.getChildren.addAll(node, label)
@@ -68,18 +70,10 @@ final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: St
     }
   }
 
-  override def increaseFontSize(): Unit = addLabelSize(0.1)
-
-  override def decreaseFontSize(): Unit = addLabelSize(-0.1)
-
-  private def addLabelSize(sizeDifference: Double): Unit = {
-    val MIN_SCALE = 0.1
-    val MAX_SCALE = 5
-    label.setScale(RichMath.clamp(label.getScaleX + sizeDifference, MIN_SCALE, MAX_SCALE))
-  }
+  override def setLabelScale(scale: Double): Unit = label.setScale(scale)
 }
 
 object SimpleNetworkNode {
-  def apply(position: Point3D, labelText: String, UID: String): SimpleNetworkNode =
-    new SimpleNetworkNode(position, labelText, UID)
+  def apply(position: Point3D, labelText: String, UID: String, labelScale: Double): SimpleNetworkNode =
+    new SimpleNetworkNode(position, labelText, UID, labelScale)
 }
