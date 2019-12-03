@@ -19,9 +19,9 @@
 package it.unibo.scafi.simulation.gui.view.ui3d
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
-import javax.swing.JMenuBar
+import javax.swing.{JFrame, JMenuBar}
 
-trait SimulatorUI3D {
+trait SimulatorUI3D extends JFrame{
 
   def getSimulationPanel: NetworkRenderingPanel
 

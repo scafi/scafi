@@ -24,9 +24,9 @@ trait SimulationCamera extends Camera{
 
   def rotateByMouseEvent(mouseEvent: MouseEvent): Unit
 
-  var position: Point3D
+  def setUpdateNodeFunction(updateNodeValue: Int => Unit): Unit
 
-  def position2d: Point2D
+  def start()
 
   def zoomByKeyboardEvent(keyEvent: KeyEvent): Unit
 

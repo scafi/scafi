@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.space
 
-import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
+import it.unibo.scafi.config.{Grid3DSettings, GridSettings, SimpleRandomSettings}
 
 import scala.language.postfixOps
 import scala.util.Random
@@ -15,28 +15,43 @@ object SpaceHelper {
   def randomLocations(rs: SimpleRandomSettings,
                       n: Int,
                       seed: Long = System.currentTimeMillis()): List[Point2D] = {
-    val rand = new Random(seed)
-    (1 to n) map { i => Point2D(rs.min + rand.nextDouble() * (rs.max - rs.min),
-      rs.min + rand.nextDouble() * (rs.max - rs.min)) } toList
+    val random = new Random(seed)
+    (1 to n) map (_ => Point2D(randomLocation(rs, random), randomLocation(rs, random))) toList
   }
 
-  def gridLocations(gs: GridSettings,
-                    seed: Long = System.currentTimeMillis()): List[Point2D] = {
-    val rand = new Random(seed)
-    val tolerance = gs.tolerance * 2 // doubled because can be positive or negative
+  private def randomLocation(rs: SimpleRandomSettings, random: Random): Double =
+    rs.min + random.nextDouble() * (rs.max - rs.min)
 
-    val positions = for(
-      ncols <- 0 to (gs.ncols - 1);
-      nrows <- 0 to (gs.nrows - 1);
-      idealx = ncols * gs.stepx + gs.offsetx;
-      idealy = nrows * gs.stepy + gs.offsety;
-      rx = rand.nextDouble();
-      ry = rand.nextDouble();
-      x = idealx + (rx*tolerance - tolerance/2);
-      y = idealy + (ry*tolerance - tolerance/2)
-    )
-      yield Point2D(x,y)
-
-    positions.toList
+  def random3DLocations(settings: SimpleRandomSettings, locationCount: Int,
+                        seed: Long = System.currentTimeMillis()): List[Point3D] = {
+    val random = new Random(seed)
+    (1 to locationCount).map(_ => Point3D(randomLocation(settings, random),
+                              randomLocation(settings, random),
+                              randomLocation(settings, random))).toList
   }
+
+  def gridLocations(gs: GridSettings, seed: Long = System.currentTimeMillis()): List[Point2D] =
+    grid3DLocations(gs.to3D, seed).map(point => new Point2D(point.x, point.y))
+
+  // the tolerance is doubled because it can be positive or negative
+  def grid3DLocations(settings: Grid3DSettings, seed: Long = System.currentTimeMillis()): List[Point3D] =
+    get3DPositions(new Random(seed), settings.tolerance*2, settings, seed).toList
+
+  private def get3DPositions(random: Random, variance: Double, settings: Grid3DSettings, seed: Long): Seq[Point3D] =
+    for(columnIndex <- 0 until settings.nColumns;
+        rowIndex <- 0 until settings.nRows;
+        sliceIndex <- 0 until settings.nSlices;
+        idealX = getIdealCoordinate(columnIndex, settings.stepX, settings.offsetX);
+        idealY = getIdealCoordinate(rowIndex, settings.stepY, settings.offsetY);
+        idealZ = getIdealCoordinate(sliceIndex, settings.stepZ, settings.offsetZ);
+        randomPoint = new Point3D(random.nextDouble(), random.nextDouble(), random.nextDouble());
+        x = getCoordinate(idealX, randomPoint.x, variance);
+        y = getCoordinate(idealY, randomPoint.y, variance);
+        z = getCoordinate(idealZ, randomPoint.z, variance)
+        ) yield Point3D(x, y, z)
+
+  private def getIdealCoordinate(index: Int, step: Double, offset: Double): Double = index * step + offset
+
+  private def getCoordinate(idealCoordinate: Double, randomComponent: Double, variance: Double): Double =
+    idealCoordinate + (randomComponent*variance - variance/2)
 }

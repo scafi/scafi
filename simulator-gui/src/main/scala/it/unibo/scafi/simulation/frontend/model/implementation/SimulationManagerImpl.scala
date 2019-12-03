@@ -9,8 +9,9 @@ import it.unibo.scafi.simulation.frontend.Simulation
 import it.unibo.scafi.simulation.frontend.controller.Controller
 import it.unibo.scafi.simulation.frontend.model.SimulationManager
 
-class SimulationManagerImpl extends SimulationManager { self =>
+class SimulationManagerImpl() extends SimulationManager { self =>
   var simulation: Simulation = null
+  private var updateNodeValue = (_: Int) => ()
   private var step_num: Int = Integer.MAX_VALUE
   private var i: Int = 0
   private var isStopped: Boolean = false
@@ -49,8 +50,10 @@ class SimulationManagerImpl extends SimulationManager { self =>
     simulationThread.start()
   }
 
+  def setUpdateNodeFunction(updateNodeValue: Int => Unit): Unit = {this.updateNodeValue = updateNodeValue}
+
   private def getMyThread: Thread = {
-    return new Thread() {
+    new Thread() {
       // Each iteration runs the round for a single node
       override def run() {
         while (i < step_num && !self.isStopped) {{
@@ -75,6 +78,6 @@ class SimulationManagerImpl extends SimulationManager { self =>
   private def runSingleSimulationStep() {
     val exp = simulation.getRunProgram.apply
     simulation.network.nodes(exp._1).export = exp._2.root()
-    Controller.getInstance.updateNodeValue(exp._1)
+    updateNodeValue(exp._1)
   }
 }

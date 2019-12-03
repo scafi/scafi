@@ -32,13 +32,13 @@ object Controller {
   def getUI: SimulatorUI = gui
 
   def startup: Unit = {
-    SwingUtilities.invokeLater(new Runnable() {
-      def run() {
-        Controller.getInstance.setGui(gui)
-        Controller.getInstance.setSimManager(new SimulationManagerImpl)
-        if(Settings.ShowConfigPanel) new ConfigurationPanel
-        else Controller.getInstance.startSimulation()
-      }
+    SwingUtilities.invokeLater(() => {
+      Controller.getInstance.setGui(gui)
+      val simulationManagerImpl = new SimulationManagerImpl()
+      simulationManagerImpl.setUpdateNodeFunction(Controller.getInstance.updateNodeValue)
+      Controller.getInstance.setSimManager(simulationManagerImpl)
+      if (Settings.ShowConfigPanel) new ConfigurationPanel
+      else Controller.getInstance.startSimulation()
     })
   }
 }

@@ -29,27 +29,24 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
   private var simulationPanel: NetworkRenderingPanel = NetworkRenderingPanel()
   final private val northMenuBar: JMenuBar = MenuBarNorth3D(controller)
 
-  setupButtonActions(setupPanelAndMenu())
+  setupPanelAndMenu()
+  setupButtonActions()
   setVisible(true)
 
-  private def setupPanelAndMenu(): JPanel = {
+  private def setupPanelAndMenu(): Unit = {
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
-    val panel: JPanel = new JPanel()
-    panel.add(this.simulationPanel, BorderLayout.CENTER)
-    setContentPane(panel)
+    this.add(simulationPanel, BorderLayout.CENTER)
     this.setJMenuBar(northMenuBar)
-    panel
   }
 
-  private def setupButtonActions(panel: JPanel): Unit = {
-    panel.addKeyListener(new KeyListener {
+  private def setupButtonActions(): Unit =
+    this.addKeyListener(new KeyListener {
       override def keyTyped(keyEvent: KeyEvent): Unit = handleKeyCode(keyEvent.getKeyCode)
       override def keyPressed(keyEvent: KeyEvent): Unit = ()
       override def keyReleased(keyEvent: KeyEvent): Unit = ()
     })
-  }
 
-  private def handleKeyCode(keyCode: Int): Unit = {
+  private def handleKeyCode(keyCode: Int): Unit =
     keyCode match {
       case value if 1 until 4 contains value => controller.handleNumberButtonPress(value)
       case KeyEvent.VK_DOWN => controller.speedUpSimulation()
@@ -59,14 +56,13 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
       case KeyEvent.VK_Q => controller.shutDown()
       case _ => ()
     }
-  }
 
   /**
    * @return simulationPanel panel
    */
   def getSimulationPanel: NetworkRenderingPanel = simulationPanel
 
-  override def reset(): Unit = simulationPanel = NetworkRenderingPanel()
+  override def reset(): Unit = SwingUtilities.invokeAndWait(() => simulationPanel = NetworkRenderingPanel())
 
   override def getJMenuBar: JMenuBar = this.northMenuBar
 }

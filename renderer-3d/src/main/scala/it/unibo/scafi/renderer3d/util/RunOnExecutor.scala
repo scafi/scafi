@@ -18,13 +18,20 @@
 
 package it.unibo.scafi.renderer3d.util
 
-import it.unibo.scafi.incarnations.BasicAbstractSpatialSimulationIncarnation
-import it.unibo.scafi.space.Point3D
+import it.unibo.scafi.simulation.gui.controller.Controller
+import it.unibo.scafi.simulation.gui.controller.controller3d.DefaultController3D
+import it.unibo.scafi.simulation.gui.model.implementation.{SimulationImpl, SimulationManagerImpl}
 
 object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation {
   override type P = Point3D
 
-  private val threadPool = Executors.newCachedThreadPool()
+  def launch(): Unit =
+    if (Settings.Sim_3D_Rendering) {
+      DefaultController3D(new SimulationImpl(), new SimulationManagerImpl()).startup()
+    } else {
+      Controller.startup
+    }
+}
 
   def onExecutor[R](operation: => R): Unit = {
     val task = new Task[R] {

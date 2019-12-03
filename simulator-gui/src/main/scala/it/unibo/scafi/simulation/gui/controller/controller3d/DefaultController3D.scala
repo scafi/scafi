@@ -19,44 +19,44 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
-import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, NbrPolicy, Node, SimulationManager}
-import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationImpl, SimulationManagerImpl}
+import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, SensorEnum}
+import it.unibo.scafi.simulation.gui.model._
+import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
-import it.unibo.scafi.space.Point3D
+import it.unibo.scafi.simulation.gui.{Settings, Simulation}
+import javax.swing.SwingUtilities
 
-import scala.util.Random
+class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
+  private var gui: SimulatorUI3D = _
 
-//TODO
-class DefaultController3D extends Controller3D {
-  private val simulationManager: SimulationManager = new SimulationManagerImpl()
-  private val gui: SimulatorUI3D = DefaultSimulatorUI3D(this)
-
-  def startup(): Unit = { //TODO: complete this
-    val topology = Settings.Sim_Topology
-    val sensorValues = Settings.Sim_Sensors
-    val policyNeighborhood: NbrPolicy = Settings.Sim_Policy_Nbrhood match {
+  def startup(): Unit = {
+    startGUI()
+    setupSensors()
+    val policyNeighborhood: NbrPolicy = Settings.Sim_Policy_Nbrhood match { //TODO: remove copy-paste
       case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
-    val configurationSeed = Settings.ConfigurationSeed
-    val nodes = (1 to Settings.Sim_NumNodes).map(index => Entry[Int, Node](index, new NodeImpl(index, getRandomPosition)))
-    
-    simulationManager.simulation.network = new NetworkImpl(nodes, policyNeighborhood)
-    simulationManager.simulation.setDeltaRound(Settings.Sim_DeltaRound)
-    simulationManager.simulation.setRunProgram(Settings.Sim_ProgramClass)
-    simulationManager.simulation.setStrategy(Settings.Sim_ExecStrategy)
-    simulationManager.setPauseFire(Settings.Sim_DeltaRound)
-    simulationManager.start()
+    setupSimulation(NodesGenerator.createNodes(Settings.Sim_Topology), policyNeighborhood)
     enableMenu(true)
   }
 
-  private def getRandomPosition: Point3D = {
-    val MAX_DISTANCE = 10000
-    new Point3D(randomDouble(MAX_DISTANCE), randomDouble(MAX_DISTANCE), randomDouble(MAX_DISTANCE))
-  })
+  private def setupSensors(): Unit =
+    Utils.parseSensors(Settings.Sim_Sensors).foreach(entry => SensorEnum.sensors += Sensor(entry._1, entry._2))
 
-  private def randomDouble(maxValue: Int): Double = Random.nextInt(maxValue).toDouble
+  private def setupSimulation(nodes: Map[Int, Node], policyNeighborhood: NbrPolicy): Unit = { //TODO: remove copy-paste
+    simulation.network = new NetworkImpl(nodes, policyNeighborhood)
+    simulation.setDeltaRound(Settings.Sim_DeltaRound)
+    simulation.setRunProgram(Settings.Sim_ProgramClass)
+    simulation.setStrategy(Settings.Sim_ExecStrategy)
+    simulationManager.simulation = simulation
+    simulationManager.setPauseFire(Settings.Sim_DeltaRound)
+    simulationManager.setUpdateNodeFunction(updateNode)
+    simulationManager.start()
+  }
+
+  private def updateNode(nodeId: Int): Unit = ??? //TODO
+
+  private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => gui = DefaultSimulatorUI3D(this))
 
   def stopSimulation(): Unit = simulationManager.stop()
 
@@ -77,23 +77,18 @@ class DefaultController3D extends Controller3D {
     gui.getJMenuBar.getMenu(0).getSubElements()(0).getSubElements()(0).getComponent.setEnabled(!enabled) //new Simulation
   }
 
-  def handleNumberButtonPress(sensorIndex: Int): Unit = {
-    val simulation = simulationManager.simulation
-    val selectedNodesIDs = gui.getSimulationPanel.getSelectedNodesIDs()
-    val selectedNodes = simulation.network.nodes.filter(node => selectedNodesIDs.contains(node._2.id.toString)).values
-    selectedNodes.foreach(node => {
-      val sensorName = getSensorName(sensorIndex)
-      val sensorValue = node.getSensorValue(sensorName)
-      sensorValue match {case value: Boolean => simulation.setSensor(sensorName, !value, selectedNodes.toSet)}
+  def handleNumberButtonPress(sensorIndex: Int): Unit =
+    getSensorName(sensorIndex).foreach(sensorName => {
+      val simulation = simulationManager.simulation
+      val selectedNodesIDs = gui.getSimulationPanel.getSelectedNodesIDs()
+      val selectedNodes = simulation.network.nodes.filter(node => selectedNodesIDs.contains(node._2.id.toString)).values
+      selectedNodes.foreach(node => {
+        val sensorValue = node.getSensorValue(sensorName)
+        sensorValue match {case value: Boolean => simulation.setSensor(sensorName, !value, selectedNodes.toSet)}
+      })
     })
-  }
 
-  private def getSensorName(sensorIndex: Int): String = (sensorIndex match {
-    case 1 => SensorEnum.SENS1
-    case 2 => SensorEnum.SENS2
-    case 3 => SensorEnum.SENS3
-    case 4 => SensorEnum.SENS4
-  }).name
+  private def getSensorName(sensorIndex: Int): Option[String] = SensorEnum.fromInt(sensorIndex).map(_.name)
 
   def shutDown(): Unit = System.exit(0)
 
@@ -114,5 +109,6 @@ class DefaultController3D extends Controller3D {
 }
 
 object DefaultController3D {
-  def apply(): DefaultController3D = new DefaultController3D()
+  def apply(simulation: Simulation, simulationManager: SimulationManager): DefaultController3D =
+    new DefaultController3D(simulation, simulationManager)
 }

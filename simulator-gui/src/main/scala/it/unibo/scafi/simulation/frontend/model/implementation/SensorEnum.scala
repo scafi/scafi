@@ -18,4 +18,13 @@ object SensorEnum {
   val SENS4 = Sensor("sens4", false)
 
   var sensors = Set(SOURCE, DESTINATION, TEMPERATURE, OBSTACLE, SENS1, SENS2, SENS3, SENS4)
+
+  // scalastyle:off magic.number
+  def fromInt(value: Int): Option[Sensor] = value match {
+    case 1 => Option(SensorEnum.SENS1)
+    case 2 => Option(SensorEnum.SENS2)
+    case 3 => Option(SensorEnum.SENS3)
+    case 4 => Option(SensorEnum.SENS4)
+    case _ => None
+  }
 }
