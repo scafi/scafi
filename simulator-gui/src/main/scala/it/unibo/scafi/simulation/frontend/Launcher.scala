@@ -6,10 +6,16 @@
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.gui.controller.controller3d.DefaultController3D
 
 class Launcher extends App {
   def parseCommandLine(): Unit = SimulationCmdLine.parse(args, Settings)
-  def launch(): Unit = Controller.startup
+  def launch(): Unit =
+    if (Settings.Sim_3D_Rendering) {
+      DefaultController3D().startup()
+    } else {
+      Controller.startup
+    }
 }
 
 object DefaultLauncher extends Launcher {

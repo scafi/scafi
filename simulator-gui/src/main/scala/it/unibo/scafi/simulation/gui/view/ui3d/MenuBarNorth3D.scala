@@ -18,8 +18,50 @@
 
 package it.unibo.scafi.simulation.gui.view.ui3d
 
-import javax.swing.JMenuBar
+import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.gui.view.MenuBarNorth
+import javax.swing.JMenuItem
 
-class MenuBarNorth3D extends JMenuBar { //TODO
+class MenuBarNorth3D(controller: Controller3D) extends MenuBarNorth {
 
+  setupActions()
+
+  private def setupActions(): Unit = {
+    removeAllMenuActions()
+    simulation.setEnabled(false) //TODO
+    close.addActionListener(_ => controller.clearSimulation())
+    addImage.setEnabled(false)
+    removeImage.setEnabled(false)
+    setupStartPauseButtons()
+    step.setEnabled(false) //TODO
+    stop.addActionListener(_  => controller.stopSimulation())
+  }
+
+  private def removeAllMenuActions(): Unit = {
+    removeActionListeners(simulation)
+    removeActionListeners(close)
+    removeActionListeners(start)
+    removeActionListeners(pause)
+    removeActionListeners(stop)
+  }
+
+  private def setupStartPauseButtons(): Unit = {
+    start.addActionListener(_  => {
+      controller.resumeSimulation()
+      start.setEnabled(false)
+      pause.setEnabled(true)
+    })
+    pause.addActionListener(_  => {
+      controller.pauseSimulation()
+      start.setEnabled(true)
+      pause.setEnabled(false)
+    })
+  }
+
+  private def removeActionListeners(menuElement: JMenuItem): Unit =
+    menuElement.getActionListeners.foreach(menuElement.removeActionListener)
+}
+
+object MenuBarNorth3D {
+  def apply(controller: Controller3D): MenuBarNorth3D = new MenuBarNorth3D(controller)
 }

@@ -21,16 +21,13 @@ package it.unibo.scafi.renderer3d.manager
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import it.unibo.scafi.renderer3d.util.RunOnExecutor._
-import javafx.scene.input.{KeyEvent, MouseEvent}
+import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
 import org.scalafx.extras._
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Shape3D
 import scalafx.scene.{Camera, Scene}
-
-import scala.util.Try
 
 private[manager] trait SelectionManager {
   this: NodeManager =>
@@ -92,10 +89,5 @@ private[manager] trait SelectionManager {
     }
   }
 
-  //remove Try and use toIntOption when upgrading to scala 2.13
-  protected final def actOnSelectionByKeyboardEvent(event: KeyEvent, action: (Int, List[String]) => Unit): Unit =
-    Try(event.getCode.getName.toInt).fold(_ => (), handleSelectionAction(_, action))
-
-  private final def handleSelectionAction(keyboardNumber: Int, selectionAction: (Int, List[String]) => Unit): Unit =
-    onExecutor {selectionAction(keyboardNumber, onFXAndWait(selectedNodes.map(_.UID)))}
+  final def getSelectedNodesIDs(): List[String] = onFXAndWait(selectedNodes.map(_.UID))
 }

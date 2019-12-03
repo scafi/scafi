@@ -27,7 +27,7 @@ import javafx.scene.input.{MouseButton, MouseEvent}
 import scalafx.scene.input.KeyEvent
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
 
-final class NetworkRenderingPanel(selectionAction: (Int, List[String]) => Unit) extends JFXPanel
+final class NetworkRenderingPanel() extends JFXPanel
   with ConnectionManager with NodeManager with SelectionManager {
 
   override protected val mainScene: Scene = new Scene(createScene())
@@ -50,7 +50,6 @@ final class NetworkRenderingPanel(selectionAction: (Int, List[String]) => Unit) 
       }
       camera.moveByKeyboardEvent(event)
       camera.zoomByKeyboardEvent(event)
-      actOnSelectionByKeyboardEvent(event, selectionAction)
     })
 
   private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
@@ -68,5 +67,5 @@ final class NetworkRenderingPanel(selectionAction: (Int, List[String]) => Unit) 
 }
 
 object NetworkRenderingPanel {
-  def apply(selectionAction: (Int, List[String]) => Unit): NetworkRenderingPanel = new NetworkRenderingPanel(selectionAction)
+  def apply(): NetworkRenderingPanel = new NetworkRenderingPanel()
 }

@@ -16,8 +16,28 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller
+package it.unibo.scafi.simulation.gui.controller.controller3d
 
-class Controller3D { //TODO
+trait Controller3D {
+
+  def stopSimulation(): Unit
+
+  def pauseSimulation(): Unit
+
+  def resumeSimulation(): Unit
+
+  def clearSimulation(): Unit
+
+  def handleNumberButtonPress(value: Int): Unit
+
+  def shutDown(): Unit
+
+  def decreaseFontSize(): Unit
+
+  def increaseFontSize(): Unit
+
+  def slowDownSimulation(): Unit
+
+  def speedUpSimulation(): Unit
 
 }
