@@ -119,10 +119,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
   def enableMenu(enabled: Boolean) {
     gui.getSimulationPanel.getPopUpMenu.getSubElements()(1).getComponent.setEnabled(enabled) //menu Observation
     gui.getSimulationPanel.getPopUpMenu.getSubElements()(2).getComponent.setEnabled(enabled) //menu Action
-    gui.getJMenuBar.getMenu(1).setEnabled(enabled) //Simulation
-    gui.getJMenuBar.getMenu(1).getItem(0).getComponent.setEnabled(enabled)
-    gui.getJMenuBar.getMenu(1).getItem(1).getComponent.setEnabled(!enabled)
-    gui.getMenuBarNorth.getMenu(0).getSubElements()(0).getSubElements()(0).getComponent.setEnabled(!enabled) //new Simulation
+    ControllerUtils.enableMenuBar(enabled, gui.getJMenuBar)
   }
 
   def addObservation() {

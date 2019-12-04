@@ -53,14 +53,22 @@ private[manager] trait NodeManager {
       removeAllNodeConnections(node) //using ConnectionManager
     }))
 
-  protected final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Boolean =
-      networkNodesCache.get(nodeUID).fold(false)(node => {action(node.toNetworkNode); true})
+  private final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Boolean =
+    findNode(nodeUID).fold(false)(node => {action(node.toNetworkNode); true})
+
+  protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodesCache.get(nodeUID)
 
   final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Boolean = //TODO: controlla che sia ottimizzato
     onFXAndWait(findNodeAndExecuteAction(nodeUID, { node =>
       node.moveTo(product3ToPoint3D(position))
       updateNodeConnections(node) //using ConnectionManager
     }))
+
+  final def getNodePosition(nodeUID: String): Option[Product3[Double, Double, Double]] =
+    onFXAndWait(networkNodesCache.get(nodeUID).map((node: NetworkNode) => point3DToProduct3(node.getNodePosition)))
+
+  private final def point3DToProduct3(point: Point3D): Product3[Double, Double, Double] =
+    (point.x, point.y, point.z)
 
   final def updateNodeText(nodeUID: String, text: String): Boolean =
     onFXAndWait(findNodeAndExecuteAction(nodeUID, _.updateText(text)))

@@ -18,43 +18,35 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
-import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
-import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, SensorEnum}
+import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model._
-import it.unibo.scafi.simulation.gui.utility.Utils
+import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, SensorEnum}
 import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import javax.swing.SwingUtilities
 
 class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
   private var gui: SimulatorUI3D = _
+  //TODO: add a var and a setter to handle the change of the type of value shown above the nodes
 
   def startup(): Unit = {
     startGUI()
-    setupSensors()
-    val policyNeighborhood: NbrPolicy = Settings.Sim_Policy_Nbrhood match { //TODO: remove copy-paste
-      case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
-      case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
-    }
+    ControllerUtils.setupSensors(Settings.Sim_Sensors)
+    val policyNeighborhood: NbrPolicy = ControllerUtils.getNeighborhoodPolicy
     setupSimulation(NodesGenerator.createNodes(Settings.Sim_Topology), policyNeighborhood)
-    enableMenu(true)
+    ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
   }
 
-  private def setupSensors(): Unit =
-    Utils.parseSensors(Settings.Sim_Sensors).foreach(entry => SensorEnum.sensors += Sensor(entry._1, entry._2))
-
-  private def setupSimulation(nodes: Map[Int, Node], policyNeighborhood: NbrPolicy): Unit = { //TODO: remove copy-paste
+  private def setupSimulation(nodes: Map[Int, Node], policyNeighborhood: NbrPolicy): Unit = {
     simulation.network = new NetworkImpl(nodes, policyNeighborhood)
     simulation.setDeltaRound(Settings.Sim_DeltaRound)
     simulation.setRunProgram(Settings.Sim_ProgramClass)
     simulation.setStrategy(Settings.Sim_ExecStrategy)
     simulationManager.simulation = simulation
     simulationManager.setPauseFire(Settings.Sim_DeltaRound)
-    simulationManager.setUpdateNodeFunction(updateNode)
+    simulationManager.setUpdateNodeFunction(NodeUpdater.updateNode(_, gui, simulation.network, ???)) //TODO
     simulationManager.start()
   }
-
-  private def updateNode(nodeId: Int): Unit = ??? //TODO
 
   private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => gui = DefaultSimulatorUI3D(this))
 
@@ -67,14 +59,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   def clearSimulation(): Unit = {
     simulationManager.stop()
     gui.reset()
-    enableMenu(false)
-  }
-
-  private def enableMenu(enabled: Boolean): Unit = { //TODO: remove copy-paste
-    gui.getJMenuBar.getMenu(1).setEnabled(enabled) //Simulation
-    gui.getJMenuBar.getMenu(1).getItem(0).getComponent.setEnabled(enabled)
-    gui.getJMenuBar.getMenu(1).getItem(1).getComponent.setEnabled(!enabled)
-    gui.getJMenuBar.getMenu(0).getSubElements()(0).getSubElements()(0).getComponent.setEnabled(!enabled) //new Simulation
+    ControllerUtils.enableMenuBar(enable = false, gui.getJMenuBar)
   }
 
   def handleNumberButtonPress(sensorIndex: Int): Unit =

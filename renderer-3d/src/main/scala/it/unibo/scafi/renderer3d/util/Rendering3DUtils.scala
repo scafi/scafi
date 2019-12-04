@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.renderer3d.util
 
-import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import RichScalaFx._
 import scalafx.geometry.Point3D
 import scalafx.scene.PointLight
 import scalafx.scene.control.Label

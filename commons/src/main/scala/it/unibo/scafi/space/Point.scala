@@ -7,7 +7,7 @@ package it.unibo.scafi.space
 
 import scala.language.implicitConversions
 
-class Point3D(val x: Double, val y: Double, val z: Double) extends Serializable {
+class Point3D(val x: Double, val y: Double, val z: Double) extends Serializable with Product3[Double, Double, Double] {
   import scala.math.{sqrt, pow}
 
   def distance(p2: Point3D): Double = sqrt(pow(p2.x-x, 2) + pow(p2.y-y, 2) + pow(p2.z-z, 2))
@@ -22,6 +22,14 @@ class Point3D(val x: Double, val y: Double, val z: Double) extends Serializable 
   }
 
   override def hashCode(): Int = Seq(x, y, z).hashCode()
+
+  override def _1: Double = x
+
+  override def _2: Double = y
+
+  override def _3: Double = z
+
+  override def canEqual(otherObject: Any): Boolean = otherObject match {case _: Point3D => true; case _ => false}
 }
 object Point3D {
   def unapply(d: Point2D): Option[(Double, Double, Double)] = Some(d.x, d.y, d.z)

@@ -20,26 +20,31 @@ package it.unibo.scafi.renderer3d.manager
 
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
-import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import org.scalafx.extras._
 import scalafx.scene.Scene
 import scalafx.scene.shape.Cylinder
+
 import scala.collection.mutable.{Map => MutableMap}
 
 private[manager] trait ConnectionManager {
+  this: NodeManager => //NodeManager has to also be mixed in with ConnectionManager
 
   protected val mainScene: Scene
 
   //every connection is saved two times, so that it can be obtained from each node
   private final val connections = MutableMap[Node, MutableMap[Node, Cylinder]]()
 
+  final def getNodesConnectedToNode(nodeUID: String): Option[List[String]] = onFXAndWait {
+    findNode(nodeUID).flatMap(node => connections.get(node).map(_.keys.map(_.getId).toList))
+  }
+
   final def connect(node1UID: String, node2UID: String): Boolean = onFXAndWait {
     findNodes(node1UID, node2UID).fold(false)(nodes => connectNodes(nodes._1, nodes._2))
   }
 
   private final def findNodes(node1UID: String, node2UID: String): Option[(Node, Node)] =
-    (mainScene.findNodeById(node1UID), mainScene.findNodeById(node2UID)) match {
+    (findNode(node1UID), findNode(node2UID)) match {
       case (Some(nodeValue1), Some(nodeValue2)) => Option((nodeValue1, nodeValue2))
       case _ => None
     }

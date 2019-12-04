@@ -135,16 +135,12 @@ class Controller () {
     val deltaRound = Settings.Sim_DeltaRound
     val strategy = Settings.Sim_ExecStrategy
     val sensorValues = Settings.Sim_Sensors
-    val policyNeighborhood: NbrPolicy = Settings.Sim_Policy_Nbrhood match {
-      case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
-      case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
-    }
+    val policyNeighborhood: NbrPolicy = getNeighborhoodPolicy
     val configurationSeed = Settings.ConfigurationSeed
     val simulationSeed = Settings.SimulationSeed
     val randomSensorSeed = Settings.RandomSensorSeed
 
-    val sensorVals: Map[String,Any] = Utils.parseSensors(sensorValues)
-    sensorVals.foreach(kv => SensorEnum.sensors += new Sensor(kv._1, kv._2))
+    setupSensors(sensorValues)
 
     val ncols: Long = Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
@@ -268,25 +264,6 @@ class Controller () {
   }
 
   def selectionAttempted = this.gui.center.getCaptureRect.width!=0
-
-  def formatExport(v: Any) = {
-    if (v.isInstanceOf[Double]) {
-      if (v.asInstanceOf[Double]==Double.MaxValue) "inf" else
-      if (v.asInstanceOf[Double]==Double.MinValue) "-inf" else
-        f"${v.toString.toDouble}%5.2f"
-
-    }
-    else
-      v.toString
-  }
-
-  def formatPosition(pos: Point2D): String = {
-    f"(${pos.x}%5.2g ; ${pos.y}%5.2g)"
-  }
-
-  def formatPosition(pos: java.awt.Point): String = {
-    s"(${pos.getX.toInt}; ${pos.getY.toInt})"
-  }
 
   def updateNodeValue(nodeId: Int): Unit = {
     val (node, guiNode) = this.nodes(nodeId)
