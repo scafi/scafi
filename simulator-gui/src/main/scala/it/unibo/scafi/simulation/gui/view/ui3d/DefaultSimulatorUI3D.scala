@@ -23,11 +23,13 @@ import java.awt.event.{KeyEvent, KeyListener}
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import javax.swing._
 
 class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Simulator") with SimulatorUI3D {
   private var simulationPanel: NetworkRenderingPanel = NetworkRenderingPanel()
   final private val northMenuBar: JMenuBar = MenuBarNorth3D(controller)
+  final val customPopupMenu: MyPopupMenu = new MyPopupMenu(() => controller.clearSimulation())
 
   setupPanelAndMenu()
   setupButtonActions()

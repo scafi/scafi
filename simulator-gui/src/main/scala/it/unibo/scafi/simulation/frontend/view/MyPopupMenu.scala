@@ -14,15 +14,13 @@ import it.unibo.scafi.simulation.frontend.controller.Controller
   * This class represent the SoimulationPanel pop menu
   * that contains all possible action and observation
   */
-class MyPopupMenu() extends JPopupMenu {
+class MyPopupMenu(clearSimulation: () => Unit) extends JPopupMenu {
   final private val controller: Controller = Controller.getInstance
   final private val observations: JMenu = new JMenu("Observe")
   final private val actions: JMenu = new JMenu("Actions")
   val clear: JMenuItem = new JMenuItem("Clear")
 
-  clear.addActionListener((e:ActionEvent) => {
-    controller.clearSimulation()
-  })
+  clear.addActionListener(_ => clearSimulation())
   add(clear)
   addSeparator()
   add(observations)

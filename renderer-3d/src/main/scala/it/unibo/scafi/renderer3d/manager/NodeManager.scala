@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.renderer3d.manager
 
+import java.awt.Color
 import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
@@ -31,14 +32,14 @@ private[manager] trait NodeManager {
 
   private[this] final val networkNodesCache = MutableMap[String, NetworkNode]()
   private[this] var nodeLabelsScale = 1d
+  private[this] var nodesColor = Color.BLACK
   protected val mainScene: Scene
 
-  protected final def rotateAllNodeLabels(camera: Camera): Unit = onFX {
-    networkNodesCache.values.foreach(_.rotateTextToCamera(camera))
-  }
+  protected final def rotateAllNodeLabels(camera: Camera): Unit =
+    onFX {networkNodesCache.values.foreach(_.rotateTextToCamera(camera))}
 
-  final def addNode(position: Product3[Double, Double, Double], labelText: String, UID: String): Unit = onFX {
-    val networkNode = SimpleNetworkNode(product3ToPoint3D(position), labelText, UID, nodeLabelsScale)
+  final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
+    val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor, nodeLabelsScale)
     networkNodesCache(UID) = networkNode
     mainScene.getChildren.add(networkNode)
   }
@@ -47,22 +48,22 @@ private[manager] trait NodeManager {
     new Point3D(product._1, product._2, product._3)
 
   final def removeNode(nodeUID: String): Boolean =
-    onFXAndWait(findNodeAndExecuteAction(nodeUID, node => {
+    findNodeAndExecuteAction(nodeUID, node => {
       networkNodesCache.remove(nodeUID)
       mainScene.getChildren.remove(node)
       removeAllNodeConnections(node) //using ConnectionManager
-    }))
+    })
 
   private final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Boolean =
-    findNode(nodeUID).fold(false)(node => {action(node.toNetworkNode); true})
+    onFXAndWait(findNode(nodeUID).fold(false)(node => {action(node.toNetworkNode); true}))
 
   protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodesCache.get(nodeUID)
 
   final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Boolean = //TODO: controlla che sia ottimizzato
-    onFXAndWait(findNodeAndExecuteAction(nodeUID, { node =>
+    findNodeAndExecuteAction(nodeUID, { node =>
       node.moveTo(product3ToPoint3D(position))
       updateNodeConnections(node) //using ConnectionManager
-    }))
+    })
 
   final def getNodePosition(nodeUID: String): Option[Product3[Double, Double, Double]] =
     onFXAndWait(networkNodesCache.get(nodeUID).map((node: NetworkNode) => point3DToProduct3(node.getNodePosition)))
@@ -70,11 +71,22 @@ private[manager] trait NodeManager {
   private final def point3DToProduct3(point: Point3D): Product3[Double, Double, Double] =
     (point.x, point.y, point.z)
 
-  final def updateNodeText(nodeUID: String, text: String): Boolean =
-    onFXAndWait(findNodeAndExecuteAction(nodeUID, _.updateText(text)))
+  final def setNodeText(nodeUID: String, text: String): Boolean =
+    findNodeAndExecuteAction(nodeUID, _.updateText(text))
+
+  final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Boolean =
+    findNodeAndExecuteAction(nodeUID, node => {
+      val position = node.getScreenPosition
+      node.updateText(positionFormatter((position.x, position.y)))
+    })
 
   final def setNodeColor(nodeUID: String, color: java.awt.Color): Boolean =
-    onFXAndWait(findNodeAndExecuteAction(nodeUID, _.setColor(color)))
+    findNodeAndExecuteAction(nodeUID, _.setColor(color))
+
+  final def setNodesColor(color: java.awt.Color): Unit = onFX {
+    nodesColor = color
+    networkNodesCache.values.foreach(_.setColor(color))
+  }
 
   protected final def getAllNetworkNodes: List[NetworkNode] = networkNodesCache.values.toList
 

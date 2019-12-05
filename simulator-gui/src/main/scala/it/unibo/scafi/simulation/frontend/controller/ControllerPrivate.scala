@@ -122,29 +122,6 @@ class ControllerPrivate (val gui: SimulatorUI) {
     ControllerUtils.enableMenuBar(enabled, gui.getJMenuBar)
   }
 
-  def addObservation() {
-    //network.getObservableValue().forEach( s -> gui.getSimulationPanel().getPopUpMenu().addObservation(s, e->{}));
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Toggle Neighbours", (e:ActionEvent) => gui.getSimulationPanel.toggleNeighbours())
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Id", (e:ActionEvent) => controller.setShowValue(NodeValue.ID))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Export", (e:ActionEvent) => controller.setShowValue(NodeValue.EXPORT))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Position", (e:ActionEvent) => controller.setShowValue(NodeValue.POSITION))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Position in GUI", (e:ActionEvent) => controller.setShowValue(NodeValue.POSITION_IN_GUI))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Nothing", (e:ActionEvent) => controller.setShowValue(NodeValue.NONE))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Sensor", (e:ActionEvent) => {
-      try {
-        var sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
-          SensorEnum.sensors.map(_.name).mkString(", ") + ")")
-        controller.setShowValue(NodeValue.SENSOR(sensorName))
-      } catch { case _: Throwable => () }
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Generic observation", (e:ActionEvent) => {
-      try {
-        var observationStringRepr = JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)")
-        controller.setObservation(observationStringRepr)
-      } catch { case _: Throwable => () }
-    })
-  }
-
   def addAction() {
     /* for(Action a :ActionEnum.values()){
                gui.getSimulationPanel().getPopUpMenu().addAction(a.getName(), e->{});

@@ -15,12 +15,12 @@ import it.unibo.scafi.simulation.frontend.Settings
 /**
   * This is the most important panel in which the simulation will be executed.
   */
-class SimulationPanel() extends JDesktopPane {
+class SimulationPanel(clearSimulation: () => Unit) extends JDesktopPane {
   final private val neighborsPanel: NeighborsPanel = new NeighborsPanel
   final private val valuesPanel: ValuesPanel = new ValuesPanel
   private var bkgImage: Image = null
   final private val captureRect: Rectangle = new Rectangle
-  final private val popup: MyPopupMenu = new MyPopupMenu
+  final private val popup: MyPopupMenu = new MyPopupMenu(clearSimulation)
 
   this.setBackground(Settings.Color_background)
   setBorder(new LineBorder(Color.black))

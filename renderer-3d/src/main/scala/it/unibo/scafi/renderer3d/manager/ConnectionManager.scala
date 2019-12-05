@@ -18,30 +18,37 @@
 
 package it.unibo.scafi.renderer3d.manager
 
+import java.awt.Color
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
+import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import org.scalafx.extras._
 import scalafx.scene.Scene
 import scalafx.scene.shape.Cylinder
-
 import scala.collection.mutable.{Map => MutableMap}
 
 private[manager] trait ConnectionManager {
   this: NodeManager => //NodeManager has to also be mixed in with ConnectionManager
 
   protected val mainScene: Scene
-
+  private[this] var connectionsVisible = true
+  private[this] var connectionsColor = Color.BLACK
   //every connection is saved two times, so that it can be obtained from each node
-  private final val connections = MutableMap[Node, MutableMap[Node, Cylinder]]()
+  private[this] final val connections = MutableMap[Node, MutableMap[Node, Cylinder]]()
 
-  final def getNodesConnectedToNode(nodeUID: String): Option[List[String]] = onFXAndWait {
-    findNode(nodeUID).flatMap(node => connections.get(node).map(_.keys.map(_.getId).toList))
+  final def setConnectionsColor(color: Color): Unit = onFX {
+    connectionsColor = color
+    getAllConnections.foreach(_.setColor(color))
   }
 
-  final def connect(node1UID: String, node2UID: String): Boolean = onFXAndWait {
-    findNodes(node1UID, node2UID).fold(false)(nodes => connectNodes(nodes._1, nodes._2))
-  }
+  private final def getAllConnections: Set[Cylinder] = connections.flatMap(entry => entry._2.values).toSet
+
+  final def getNodesConnectedToNode(nodeUID: String): Option[List[String]] =
+    onFXAndWait {findNode(nodeUID).flatMap(node => connections.get(node).map(_.keys.map(_.getId).toList))}
+
+  final def connect(node1UID: String, node2UID: String): Boolean =
+    onFXAndWait {findNodes(node1UID, node2UID).fold(false)(nodes => connectNodes(nodes._1, nodes._2))}
 
   private final def findNodes(node1UID: String, node2UID: String): Option[(Node, Node)] =
     (findNode(node1UID), findNode(node2UID)) match {
@@ -70,9 +77,8 @@ private[manager] trait ConnectionManager {
     }
   }
 
-  final def disconnect(node1UID: String, node2UID: String): Boolean = onFXAndWait {
-    findNodes(node1UID, node2UID).fold(false)(nodes => disconnectNodes(nodes._1, nodes._2))
-  }
+  final def disconnect(node1UID: String, node2UID: String): Boolean =
+    onFXAndWait {findNodes(node1UID, node2UID).fold(false)(nodes => disconnectNodes(nodes._1, nodes._2))}
 
   private final def disconnectNodes(node1: Node, node2: Node): Boolean =
     connections.get(node1).fold(false)(innerMap => {
@@ -89,16 +95,14 @@ private[manager] trait ConnectionManager {
   private final def disconnectNodesOneDirectional(originNode: Node, targetNode: Node): Unit =
     connections(originNode).remove(targetNode)
 
-  protected final def removeAllNodeConnections(node: Node): Unit = onFX {
-    actOnAllNodeConnections(node, disconnectNodes(node, _))
-  }
+  protected final def removeAllNodeConnections(node: Node): Unit =
+    onFX {actOnAllNodeConnections(node, disconnectNodes(node, _))}
 
   private final def actOnAllNodeConnections(node: Node, action: Node => Unit): Unit =
     connections.get(node).fold()(_.keys.foreach(action(_)))
 
-  protected final def updateNodeConnections(node: Node): Unit = onFX {
-    actOnAllNodeConnections(node, updateConnection(node, _))
-  }
+  protected final def updateNodeConnections(node: Node): Unit =
+    onFX {actOnAllNodeConnections(node, updateConnection(node, _))}
 
   private final def updateConnection(node1: Node, node2: Node): Unit = {
     disconnectNodes(node1, node2)
@@ -109,10 +113,15 @@ private[manager] trait ConnectionManager {
     originNode match {
       case origin: NetworkNode => targetNode match {
         case target: NetworkNode =>
-          Rendering3DUtils.createLine(origin.getNodePosition, target.getNodePosition, 2)
+          Rendering3DUtils.createLine(origin.getNodePosition, target.getNodePosition,
+            connectionsVisible, connectionsColor)
       }
     }
 
-  final def setConnectionsVisible(visible: Boolean): Unit =
-    onFX(connections.flatMap(entry => entry._2.values).foreach(_.setVisible(visible))) //TODO: ottimizza
+  final def toggleConnections(): Unit = onFX {
+    connectionsVisible = !connectionsVisible
+    setConnectionsVisible(connectionsVisible)
+  }
+
+  private final def setConnectionsVisible(visible: Boolean): Unit = getAllConnections.foreach(_.setVisible(visible))
 }

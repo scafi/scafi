@@ -28,6 +28,8 @@ import scalafx.scene.text.Font
 import scalafx.scene.transform.{Rotate, Translate}
 
 object Rendering3DUtils {
+  private var materialCache: Map[Color, Material] = Map()
+
   def createLights: List[PointLight] = {
     val oneMillion = 1000000
     List(createPointLight(new Point3D(oneMillion, oneMillion, oneMillion)),
@@ -59,15 +61,24 @@ object Rendering3DUtils {
     box
   }
 
-  def createMaterial(color: Color): Material = new PhongMaterial {
-    diffuseColor = color
-    specularColor = color
+  def createMaterial(color: Color): Material =
+    materialCache.getOrElse(color, () => {
+      val material = new PhongMaterial {diffuseColor = color; specularColor = color}
+      materialCache += (color -> material)
+      material
+    })
+
+  def createLine(origin: Point3D, target: Point3D, visible: Boolean, color: java.awt.Color): Cylinder = {
+    val line = createCylinder(origin, target, 2)
+    line.setColor(color)
+    line.setVisible(visible)
+    line
   }
 
   /**
    * From https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
    * */
-  def createLine(origin: Point3D, target: Point3D, thickness: Int): Cylinder = {
+  private def createCylinder(origin: Point3D, target: Point3D, thickness: Int) = {
     val differenceVector = target.subtract(origin)
     val lineMiddle = target.midpoint(origin)
     val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
@@ -76,8 +87,6 @@ object Rendering3DUtils {
     val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), new Point3D(axisOfRotation))
     val line = new Cylinder(thickness, differenceVector.magnitude, 3)
     line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)
-    line.setColor(Color.Black)
     line
   }
-
 }

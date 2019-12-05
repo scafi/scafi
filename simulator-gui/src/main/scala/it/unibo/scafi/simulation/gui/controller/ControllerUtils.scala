@@ -21,10 +21,13 @@ package it.unibo.scafi.simulation.gui.controller
 import it.unibo.scafi.simulation.gui.Settings
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, Sensor}
+import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, NodeValue, Sensor}
 import it.unibo.scafi.simulation.gui.utility.Utils
+import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import it.unibo.scafi.space.{Point2D, Point3D}
-import javax.swing.JMenuBar
+import javax.swing.{JMenuBar, JOptionPane}
+
+import scala.util.Try
 
 private[controller] object ControllerUtils {
 
@@ -59,10 +62,68 @@ private[controller] object ControllerUtils {
 
   def formatPosition(pos: Point2D): String = s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)})"
 
+  def formatProductPosition(position: Product2[Double, Double]): String =
+    formatPosition(new Point2D(position._1, position._2))
+
   private def formatDouble(value: Double): String = f"(${value}%5.2g"
 
   def formatPosition(pos: Point3D): String =
     s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)} ; ${formatDouble(pos.z)})"
 
   def formatPosition(pos: java.awt.Point): String = s"(${pos.getX.toInt}; ${pos.getY.toInt})"
+
+  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, setValueToShow: NodeValue => Unit,
+                           setControllerObservationFunction: (Any=>Boolean) => Unit) {
+    popupMenu.addObservation("Toggle Neighbours", _ => toggleNeighbours())
+    popupMenu.addObservation("Id", _ => setValueToShow(NodeValue.ID))
+    popupMenu.addObservation("Export", _ => setValueToShow(NodeValue.EXPORT))
+    popupMenu.addObservation("Position", _ => setValueToShow(NodeValue.POSITION))
+    popupMenu.addObservation("Position in GUI", _ => setValueToShow(NodeValue.POSITION_IN_GUI))
+    popupMenu.addObservation("Nothing", _ => setValueToShow(NodeValue.NONE))
+    addSensorAndGenericPopupObservations(popupMenu, setValueToShow, setControllerObservationFunction)
+  }
+
+  private def addSensorAndGenericPopupObservations(popupMenu: MyPopupMenu, setValueToShow: NodeValue => Unit,
+                                                   setControllerObservationFunction: (Any=>Boolean) => Unit): Unit = {
+    popupMenu.addObservation("Sensor", _ => Try {
+      val sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
+          SensorEnum.sensors.map(_.name).mkString(", ") + ")")
+      setValueToShow(NodeValue.SENSOR(sensorName))
+    })
+    popupMenu.addObservation("Generic observation", _ => Try {
+      val observationStringRepr = JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)")
+      setObservation(observationStringRepr, setControllerObservationFunction)
+    })
+  }
+
+  private def setObservation(obs: String, setControllerObservationFunction: (Any=>Boolean) => Unit): Unit = {
+    val split = obs.trim.split(" ", 2)
+    val (operatorStr, valueStr) = (split(0), split(1))
+    val (valueType, value) = Utils.parseValue(valueStr)
+
+    val obsFun = (v:Any) => try {
+        (operatorStr, anyToDouble(v, valueType), anyToDouble(value, valueType)) match {
+          case ("==", Some(v1), Some(v2)) => v1 == v2
+          case (">=", Some(v1), Some(v2)) => v1 >= v2
+          case (">",  Some(v1), Some(v2)) => v1 > v2
+          case ("<=", Some(v1), Some(v2)) => v1 <= v2
+          case ("<",  Some(v1), Some(v2)) => v1 < v2
+          case _ => value.toString==v.toString
+        }
+      } catch {
+        case ex => { println("Errore: " + ex); false }
+      }
+    setControllerObservationFunction(obsFun)
+  }
+
+  private def anyToDouble(any: Any, valueType: String): Option[Double] =
+    if(valueType == "bool"){
+      if(any.asInstanceOf[Boolean]) Some(1.0) else Some(0.0)
+    }
+    else if(valueType=="int" || valueType=="double"){
+      Some(any.asInstanceOf[Double])
+    }
+    else{
+      None
+    }
 }

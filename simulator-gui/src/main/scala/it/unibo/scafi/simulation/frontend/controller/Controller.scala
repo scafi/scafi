@@ -37,7 +37,7 @@ object Controller {
       val simulationManagerImpl = new SimulationManagerImpl()
       simulationManagerImpl.setUpdateNodeFunction(Controller.getInstance.updateNodeValue)
       Controller.getInstance.setSimManager(simulationManagerImpl)
-      if (Settings.ShowConfigPanel) new ConfigurationPanel
+      if (Settings.ShowConfigPanel) new ConfigurationPanel(() => Controller.getInstance.startSimulation())
       else Controller.getInstance.startSimulation()
     })
   }
@@ -65,40 +65,6 @@ class Controller () {
       guiNode.setNodeLocation(pos.x,pos.y)
       guiNode.setSize(dim)
     })
-  }
-
-  def setObservation(obs: String): Unit = {
-    val split = obs.trim.split(" ", 2)
-    val (operatorStr, valueStr) = (split(0), split(1))
-    val (valueType, value) = Utils.parseValue(valueStr)
-
-    def anyToDouble(any: Any): Option[Double] = {
-      if(valueType=="bool"){
-        if(any.asInstanceOf[Boolean]==true) Some(1.0) else Some(0.0)
-      }
-      else if(valueType=="int" || valueType=="double"){
-        Some(any.asInstanceOf[Double])
-      }
-      else{
-        None
-      }
-    }
-
-    val obsFun = (v:Any) => {
-      try {
-        (operatorStr, anyToDouble(v), anyToDouble(value)) match {
-          case ("==", Some(v1), Some(v2)) => v1 == v2
-          case (">=", Some(v1), Some(v2)) => v1 >= v2
-          case (">",  Some(v1), Some(v2)) => v1 > v2
-          case ("<=", Some(v1), Some(v2)) => v1 <= v2
-          case ("<",  Some(v1), Some(v2)) => v1 < v2
-          case _ => value.toString==v.toString
-        }
-      } catch {
-        case ex => { println("Errore: " + ex); false }
-      }
-    }
-    setObservation(obsFun)
   }
 
   def isObserved(id: Int): Boolean = {
@@ -179,7 +145,8 @@ class Controller () {
     simManager.simulation = simulation
     simManager.setPauseFire(deltaRound)
     simManager.start()
-    controllerUtility.addObservation()
+    ControllerUtils.addPopupObservations(gui.getSimulationPanel.getPopUpMenu,
+      () => gui.getSimulationPanel.toggleNeighbours(), setShowValue, setObservation)
     controllerUtility.addAction()
     controllerUtility.enableMenu(true)
     // TODO: System.out.println("START")
@@ -205,7 +172,7 @@ class Controller () {
 
   def clearSimulation() {
     simManager.stop()
-    gui.setSimulationPanel(new SimulationPanel)
+    gui.setSimulationPanel(new SimulationPanel(() => clearSimulation()))
     controllerUtility.enableMenu(false)
     this.nodes = Map()
   }

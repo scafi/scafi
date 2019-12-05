@@ -89,5 +89,5 @@ private[manager] trait SelectionManager {
     }
   }
 
-  final def getSelectedNodesIDs(): List[String] = onFXAndWait(selectedNodes.map(_.UID))
+  final def getSelectedNodesIDs: List[String] = onFXAndWait(selectedNodes.map(_.UID))
 }

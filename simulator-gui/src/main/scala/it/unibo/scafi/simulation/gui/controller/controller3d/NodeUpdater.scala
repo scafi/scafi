@@ -28,12 +28,12 @@ import scala.util.Try
 
 object NodeUpdater {
 
-  def updateNode(nodeId: Int, gui: SimulatorUI3D, network: Network, valueToShow: NodeValue): Unit = {
+  def updateNode(nodeId: Int, gui: SimulatorUI3D, network: Network, getValueToShow: () => NodeValue): Unit = {
     //update the node's connections
     val gui3d = gui.getSimulationPanel
     val node = network.nodes(nodeId)
     val nodePositionChanged = createOrMoveNode(node, gui3d)
-    updateNodeText(node, nodePositionChanged, valueToShow)(gui3d)
+    updateNodeText(node, nodePositionChanged, getValueToShow())(gui3d)
     updateNodeConnections(gui3d, node)
   }
 
@@ -42,15 +42,12 @@ object NodeUpdater {
     val nodePositionInUI = gui3d.getNodePosition(nodeId)
     val didNodePositionChange = nodePositionInUI.getOrElse((0, 0, 0)) != node.position
     if (nodePositionInUI.isEmpty) {
-      gui3d.addNode(node.position, "", nodeId) //creating the node in ui if not already present
+      gui3d.addNode(node.position, nodeId) //creating the node in ui if not already present
     } else if (didNodePositionChange) {
       gui3d.moveNode(nodeId, node.position) //updating node position if the node moved
     }
     nodePositionInUI.isEmpty || didNodePositionChange
   }
-
-  private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderingPanel): Boolean =
-    gui3d.updateNodeText(node.id.toString, text) //updating the value of the node's label
 
   private def updateNodeText(node: Node, nodePositionChanged: Boolean, valueToShow: NodeValue)
                             (implicit gui3d: NetworkRenderingPanel): Unit = {
@@ -60,12 +57,15 @@ object NodeUpdater {
         case NodeValue.ID => setNodeText(node, node.id.toString)
         case NodeValue.EXPORT => setNodeText(node, formatExport(node.export))
         case NodeValue.POSITION => setNodeText(node, formatPosition(node.position))
-        case NodeValue.POSITION_IN_GUI => setNodeText(node, formatPosition(node.position))
+        case NodeValue.POSITION_IN_GUI => gui3d.setNodeTextAsUIPosition(node.id.toString, formatProductPosition)
         case NodeValue.SENSOR(name) => setNodeText(node, node.getSensorValue(name).toString)
         case _ => setNodeText(node, "")
       }
     }
   }
+
+  private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderingPanel): Boolean =
+    gui3d.setNodeText(node.id.toString, text) //updating the value of the node's label
 
   private def updateNodeConnections(gui3d: NetworkRenderingPanel, node: Node): Unit = {
     val nodeId = node.id.toString

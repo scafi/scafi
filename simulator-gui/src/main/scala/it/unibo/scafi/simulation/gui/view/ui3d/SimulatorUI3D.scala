@@ -19,9 +19,12 @@
 package it.unibo.scafi.simulation.gui.view.ui3d
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
+import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import javax.swing.{JFrame, JMenuBar}
 
 trait SimulatorUI3D extends JFrame{
+
+  def customPopupMenu: MyPopupMenu
 
   def getSimulationPanel: NetworkRenderingPanel
 

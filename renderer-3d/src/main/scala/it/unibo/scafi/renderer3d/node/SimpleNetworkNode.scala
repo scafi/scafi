@@ -18,6 +18,8 @@
 
 package it.unibo.scafi.renderer3d.node
 
+import java.awt
+
 import javafx.scene.Group
 import org.scalafx.extras._
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
@@ -26,7 +28,7 @@ import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
 import scalafx.scene.{CacheHint, Camera}
 
-final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: String, labelScale: Double)
+final case class SimpleNetworkNode(position: Point3D, UID: String, nodesColor: java.awt.Color, labelScale: Double)
   extends Group with NetworkNode {
 
   private[this] val NODE_SIZE = 60
@@ -36,8 +38,9 @@ final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: St
   private[this] val LABEL_FONT_SIZE = 200
   private[this] val node = createBox(NODE_SIZE, DEFAULT_COLOR, position)
   private[this] val labelPosition = new Point3D(position.x, position.y - (NODE_SIZE + 190), position.z)
-  private[this] val label = createLabel(labelText, LABEL_FONT_SIZE, labelPosition)
+  private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
 
+  setColor(nodesColor)
   setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
@@ -74,6 +77,6 @@ final case class SimpleNetworkNode(position: Point3D, labelText: String, UID: St
 }
 
 object SimpleNetworkNode {
-  def apply(position: Point3D, labelText: String, UID: String, labelScale: Double): SimpleNetworkNode =
-    new SimpleNetworkNode(position, labelText, UID, labelScale)
+  def apply(position: Point3D, UID: String, nodesColor: awt.Color, labelScale: Double): SimpleNetworkNode =
+    new SimpleNetworkNode(position, UID, nodesColor, labelScale)
 }

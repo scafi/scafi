@@ -22,7 +22,7 @@ class MenuBarNorth() extends JMenuBar {
   val file: JMenu = new JMenu("File")
   val newFile: JMenu = new JMenu("New")
   val simulation: JMenuItem = new JMenuItem("Scafi Simulation")
-  simulation.addActionListener((e:ActionEvent) => { new ConfigurationPanel(); () })
+  simulation.addActionListener((e:ActionEvent) => { new ConfigurationPanel(() => controller.startSimulation()); () })
   newFile.add(simulation)
   val open: JMenuItem = new JMenuItem("Open")
   val save: JMenuItem = new JMenuItem("Save")

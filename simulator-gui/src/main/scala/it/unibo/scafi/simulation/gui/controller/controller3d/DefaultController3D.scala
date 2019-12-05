@@ -21,34 +21,47 @@ package it.unibo.scafi.simulation.gui.controller.controller3d
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, SensorEnum}
+import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
 import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
+import it.unibo.scafi.simulation.gui.controller.controller3d.NodeUpdater._
 import javax.swing.SwingUtilities
 
 class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
   private var gui: SimulatorUI3D = _
-  //TODO: add a var and a setter to handle the change of the type of value shown above the nodes
+  private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
 
   def startup(): Unit = {
     startGUI()
     ControllerUtils.setupSensors(Settings.Sim_Sensors)
-    val policyNeighborhood: NbrPolicy = ControllerUtils.getNeighborhoodPolicy
-    setupSimulation(NodesGenerator.createNodes(Settings.Sim_Topology), policyNeighborhood)
     ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
+    ControllerUtils.addPopupObservations(gui.customPopupMenu,
+      () => gui.getSimulationPanel.toggleConnections(), setNodeValueTypeToShow, _ => ())
+    startSimulation()
   }
 
-  private def setupSimulation(nodes: Map[Int, Node], policyNeighborhood: NbrPolicy): Unit = {
+  private def startSimulation(): Unit = {
+    val nodes = NodesGenerator.createNodes(Settings.Sim_Topology)
+    val policyNeighborhood = ControllerUtils.getNeighborhoodPolicy
     simulation.network = new NetworkImpl(nodes, policyNeighborhood)
     simulation.setDeltaRound(Settings.Sim_DeltaRound)
     simulation.setRunProgram(Settings.Sim_ProgramClass)
     simulation.setStrategy(Settings.Sim_ExecStrategy)
     simulationManager.simulation = simulation
     simulationManager.setPauseFire(Settings.Sim_DeltaRound)
-    simulationManager.setUpdateNodeFunction(NodeUpdater.updateNode(_, gui, simulation.network, ???)) //TODO
+    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation.network, () => getNodeValueTypeToShow))
     simulationManager.start()
   }
 
-  private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => gui = DefaultSimulatorUI3D(this))
+  private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => {
+    gui = DefaultSimulatorUI3D(this)
+    gui.getSimulationPanel.setNodesColor(Settings.Color_device) //TODO: setup also the connection color and the other colors
+    if (Settings.ShowConfigPanel) new ConfigurationPanel(() => startSimulation())
+  })
+
+  def setNodeValueTypeToShow(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
+
+  def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
   def stopSimulation(): Unit = simulationManager.stop()
 
@@ -62,10 +75,10 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     ControllerUtils.enableMenuBar(enable = false, gui.getJMenuBar)
   }
 
-  def handleNumberButtonPress(sensorIndex: Int): Unit =
+  def handleNumberButtonPress(sensorIndex: Int): Unit = //TODO: set the node color
     getSensorName(sensorIndex).foreach(sensorName => {
       val simulation = simulationManager.simulation
-      val selectedNodesIDs = gui.getSimulationPanel.getSelectedNodesIDs()
+      val selectedNodesIDs = gui.getSimulationPanel.getSelectedNodesIDs
       val selectedNodes = simulation.network.nodes.filter(node => selectedNodesIDs.contains(node._2.id.toString)).values
       selectedNodes.foreach(node => {
         val sensorValue = node.getSensorValue(sensorName)
