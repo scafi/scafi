@@ -106,11 +106,15 @@ object RichScalaFx {
 
   implicit class RichShape3D(shape: Shape3D) {
     final def setColor(color: java.awt.Color): Unit = {
-        val material = createMaterial(Color.rgb(color.getRed, color.getGreen, color.getBlue, color.getAlpha/255))
+        val material = createMaterial(color.toScalaFx)
         onFX(shape.setMaterial(material))
       }
 
     final def setColor(color: Color): Unit = onFX(shape.setMaterial(createMaterial(color)))
+  }
+
+  implicit class RichColor(color: java.awt.Color) {
+    final def toScalaFx: Color = Color.rgb(color.getRed, color.getGreen, color.getBlue, color.getAlpha/255)
   }
 
   implicit class RichScene(scene: Scene) {

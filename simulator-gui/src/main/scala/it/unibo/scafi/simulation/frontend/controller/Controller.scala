@@ -136,7 +136,7 @@ class Controller () {
       i = i + 1
     })
 
-    val simulation: Simulation = new SimulationImpl
+    val simulation: Simulation = SimulationImpl(this.simManager, () => this.selectionAttempted)
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
     simulation.setRunProgram(runProgram)

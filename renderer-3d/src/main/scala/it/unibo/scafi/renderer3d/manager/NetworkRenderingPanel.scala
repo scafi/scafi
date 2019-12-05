@@ -37,7 +37,7 @@ final class NetworkRenderingPanel() extends JFXPanel
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {
       val simulationCamera: SimulationCamera = FpsCamera()
       camera = simulationCamera
-      root = new Group(Seq(simulationCamera) ++ Rendering3DUtils.createLights: _*)
+      root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
       setKeyboardInteraction(this, simulationCamera)
       setMouseInteraction(this, simulationCamera)
     }

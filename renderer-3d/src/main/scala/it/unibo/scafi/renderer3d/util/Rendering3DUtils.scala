@@ -18,9 +18,9 @@
 
 package it.unibo.scafi.renderer3d.util
 
-import RichScalaFx._
+import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import scalafx.geometry.Point3D
-import scalafx.scene.PointLight
+import scalafx.scene.AmbientLight
 import scalafx.scene.control.Label
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder}
@@ -30,20 +30,7 @@ import scalafx.scene.transform.{Rotate, Translate}
 object Rendering3DUtils {
   private var materialCache: Map[Color, Material] = Map()
 
-  def createLights: List[PointLight] = {
-    val oneMillion = 1000000
-    List(createPointLight(new Point3D(oneMillion, oneMillion, oneMillion)),
-         createPointLight(new Point3D(-oneMillion, oneMillion, -oneMillion)),
-         createPointLight(new Point3D(oneMillion, -oneMillion, -oneMillion)),
-         createPointLight(new Point3D(-oneMillion, -oneMillion, oneMillion))
-    )
-  }
-
-  private def createPointLight(position: Point3D): PointLight = {
-    val light = new PointLight {lightOn = true}
-    light.moveTo(position)
-    light
-  }
+  def createAmbientLight: AmbientLight = new AmbientLight()
 
   def createLabel(string: String, fontSize: Int, position: Point3D): Label = {
     val label = new Label(){
@@ -62,14 +49,14 @@ object Rendering3DUtils {
   }
 
   def createMaterial(color: Color): Material =
-    materialCache.getOrElse(color, () => {
+    materialCache.getOrElse(color, {
       val material = new PhongMaterial {diffuseColor = color; specularColor = color}
       materialCache += (color -> material)
       material
     })
 
   def createLine(origin: Point3D, target: Point3D, visible: Boolean, color: java.awt.Color): Cylinder = {
-    val line = createCylinder(origin, target, 2)
+    val line = createCylinder(origin, target)
     line.setColor(color)
     line.setVisible(visible)
     line
@@ -78,7 +65,7 @@ object Rendering3DUtils {
   /**
    * From https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
    * */
-  private def createCylinder(origin: Point3D, target: Point3D, thickness: Int) = {
+  private def createCylinder(origin: Point3D, target: Point3D, thickness: Int = 2) = {
     val differenceVector = target.subtract(origin)
     val lineMiddle = target.midpoint(origin)
     val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)

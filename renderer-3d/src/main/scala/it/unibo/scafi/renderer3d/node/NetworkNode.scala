@@ -21,6 +21,7 @@ package it.unibo.scafi.renderer3d.node
 import javafx.scene.Node
 import scalafx.geometry.Point3D
 import scalafx.scene.Camera
+import scalafx.scene.paint.Color
 
 trait NetworkNode extends Node{
 
@@ -28,7 +29,9 @@ trait NetworkNode extends Node{
 
   def rotateTextToCamera(camera: Camera): Unit
 
-  def setColor(color: java.awt.Color): Unit
+  def setNodeColor(color: Color): Unit
+
+  def setSelectionColor(color: Color): Unit
 
   def select(): Unit
 

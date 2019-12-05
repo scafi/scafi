@@ -29,17 +29,17 @@ import scala.util.Random
 
 private[controller3d] object NodesGenerator {
 
-  def createNodes(topology: String): Map[Int, Node] = { //TODO
+  def createNodes(topology: String, nodeCount: Int, seed: Long): Map[Int, Node] = {
     if(topology.contains("grid")){
-      val nodeCountInSide = Math.cbrt(Settings.Sim_NumNodes).toInt
+      val nodeCountInSide = Math.cbrt(nodeCount).toInt
       val step = 1.0 / nodeCountInSide
       val OFFSET = 0.05
       val variance = getVariance(topology)
       val gridSettings = GridSettings(nodeCountInSide, nodeCountInSide, step , step, variance, OFFSET, OFFSET).to3D
-      val locations =  SpaceHelper.grid3DLocations(gridSettings, Settings.ConfigurationSeed)
+      val locations =  SpaceHelper.grid3DLocations(gridSettings, seed)
       locations.zipWithIndex.toMap.map(_.swap).map({case (index, position) => (index, new NodeImpl(index, position))})
     } else {
-      (1 to Settings.Sim_NumNodes).map(index => (index, new NodeImpl(index, getRandomPosition))).toMap //TODO
+      (1 to nodeCount).map(index => (index, new NodeImpl(index, getRandomPosition))).toMap
     }
   }
 

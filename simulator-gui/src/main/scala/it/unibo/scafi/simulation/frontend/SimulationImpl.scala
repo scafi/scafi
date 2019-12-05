@@ -12,7 +12,9 @@ import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node}
 import it.unibo.scafi.space.{Point2D, Point3D}
 
 class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
-                     val simulationSeed: Long = System.nanoTime()) extends Simulation {
+                     val simulationSeed: Long = System.nanoTime(),
+                     simulatorManager: SimulationManager,
+                     private var selectionAttempted: () => Boolean) extends Simulation {
   //private Thread runProgram;  //should implements runnable
 
   private var net: SpaceAwareSimulator = null
@@ -20,7 +22,6 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
   var runProgram: Function0[(Int,Export)] = null
   var deltaRound: Double = .0
   var strategy: Any = null
-  final private val controller: Controller = Controller.getInstance
 
   this.deltaRound = 0.00
   this.strategy = null
@@ -54,7 +55,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   def setDeltaRound(deltaRound: Double) {
     this.deltaRound = deltaRound
-    this.controller.simManager.setPauseFire(deltaRound)
+    simulatorManager.setPauseFire(deltaRound)
   }
 
   def getDeltaRound(): Double = this.deltaRound
@@ -69,7 +70,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   override def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit = {
     val idSet: Set[Int] = nodes.map(_.id)
-    if(nodes.size==0 && !controller.selectionAttempted) {
+    if(nodes.size==0 && !selectionAttempted()) {
       net.addSensor(sensor, value)
       sensors += sensor -> value
     } else {
@@ -85,4 +86,12 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
     net.setPosition(n.id, new Point2D(n.position.x, n.position.y))
     network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
+
+  override def setSelectionAttemptedDependency(selectionAttempted: () => Boolean): Unit =
+    this.selectionAttempted = selectionAttempted
+}
+
+object SimulationImpl {
+  def apply(simulatorManager: SimulationManager, selectionAttempted: () => Boolean): SimulationImpl =
+    new SimulationImpl(System.nanoTime(), System.nanoTime(), simulatorManager, selectionAttempted)
 }

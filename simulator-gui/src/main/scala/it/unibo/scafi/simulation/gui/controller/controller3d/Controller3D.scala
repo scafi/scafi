@@ -40,4 +40,7 @@ trait Controller3D {
 
   def speedUpSimulation(): Unit
 
+  def setPosition(n: Node)
+
+  def setSelectionAttemptedDependency(selectionAttempted: () => Boolean): Unit
 }

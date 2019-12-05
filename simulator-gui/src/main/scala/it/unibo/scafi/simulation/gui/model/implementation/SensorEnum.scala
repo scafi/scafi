@@ -44,11 +44,11 @@ object SensorEnum {
     case _ => None
   }
 
-  def getColor(sensor: Sensor): Option[Color] = sensor match {
-    case SENS1 => Option(Settings.Color_device1)
-    case SENS2 => Option(Settings.Color_device2)
-    case SENS3 => Option(Settings.Color_device3)
-    case SENS4 => Option(Settings.Color_device4)
+  def getColor(sensorIndex: Int): Option[Color] = sensorIndex match {
+    case 1 => Option(Settings.Color_device1)
+    case 2 => Option(Settings.Color_device2)
+    case 3 => Option(Settings.Color_device3)
+    case 4 => Option(Settings.Color_device4)
     case _ => None
   }
 }

@@ -32,14 +32,15 @@ private[manager] trait NodeManager {
 
   private[this] final val networkNodesCache = MutableMap[String, NetworkNode]()
   private[this] var nodeLabelsScale = 1d
-  private[this] var nodesColor = Color.BLACK
+  private[this] val BRIGHTNESS = 50 //out of 255
+  private[this] var nodesColor = new Color(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS)
   protected val mainScene: Scene
 
   protected final def rotateAllNodeLabels(camera: Camera): Unit =
     onFX {networkNodesCache.values.foreach(_.rotateTextToCamera(camera))}
 
   final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
-    val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor, nodeLabelsScale)
+    val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor.toScalaFx, nodeLabelsScale)
     networkNodesCache(UID) = networkNode
     mainScene.getChildren.add(networkNode)
   }
@@ -81,11 +82,11 @@ private[manager] trait NodeManager {
     })
 
   final def setNodeColor(nodeUID: String, color: java.awt.Color): Boolean =
-    findNodeAndExecuteAction(nodeUID, _.setColor(color))
+    findNodeAndExecuteAction(nodeUID, _.setNodeColor(color.toScalaFx))
 
   final def setNodesColor(color: java.awt.Color): Unit = onFX {
     nodesColor = color
-    networkNodesCache.values.foreach(_.setColor(color))
+    networkNodesCache.values.foreach(_.setNodeColor(color.toScalaFx))
   }
 
   protected final def getAllNetworkNodes: List[NetworkNode] = networkNodesCache.values.toList

@@ -27,7 +27,8 @@ object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation
 
   def launch(): Unit =
     if (Settings.Sim_3D_Rendering) {
-      DefaultController3D(new SimulationImpl(), new SimulationManagerImpl()).startup()
+      val simulatorManager = new SimulationManagerImpl()
+      DefaultController3D(SimulationImpl(simulatorManager, () => false), simulatorManager).startup()
     } else {
       Controller.startup
     }

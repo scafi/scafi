@@ -18,6 +18,8 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
+import java.awt.Color
+
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, SensorEnum}
@@ -32,6 +34,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
 
   def startup(): Unit = {
+    simulation.setSelectionAttemptedDependency(() => gui.getSimulationPanel.isAttemptingSelection)
     startGUI()
     ControllerUtils.setupSensors(Settings.Sim_Sensors)
     ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
@@ -41,7 +44,8 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   }
 
   private def startSimulation(): Unit = {
-    val nodes = NodesGenerator.createNodes(Settings.Sim_Topology)
+    val nodes = NodesGenerator.createNodes(Settings.Sim_Topology, Settings.Sim_NumNodes, Settings.ConfigurationSeed)
+    nodes.values.foreach(node => gui.getSimulationPanel.addNode(node.position, node.id.toString))
     val policyNeighborhood = ControllerUtils.getNeighborhoodPolicy
     simulation.network = new NetworkImpl(nodes, policyNeighborhood)
     simulation.setDeltaRound(Settings.Sim_DeltaRound)
@@ -55,7 +59,12 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => {
     gui = DefaultSimulatorUI3D(this)
-    gui.getSimulationPanel.setNodesColor(Settings.Color_device) //TODO: setup also the connection color and the other colors
+    val gui3d = gui.getSimulationPanel
+    gui3d.setConnectionsVisible(Settings.Sim_DrawConnections)
+    gui3d.setSelectionColor(Settings.Color_selection)
+    gui3d.setNodesColor(Settings.Color_device)
+    gui3d.setConnectionsColor(Settings.Color_link)
+    gui3d.setBackground(Settings.Color_background)
     if (Settings.ShowConfigPanel) new ConfigurationPanel(() => startSimulation())
   })
 
@@ -78,6 +87,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   def handleNumberButtonPress(sensorIndex: Int): Unit = //TODO: set the node color
     getSensorName(sensorIndex).foreach(sensorName => {
       val simulation = simulationManager.simulation
+      gui.getSimulationPanel.setModifiedNodesColor(SensorEnum.getColor(sensorIndex).getOrElse(Color.BLACK))
       val selectedNodesIDs = gui.getSimulationPanel.getSelectedNodesIDs
       val selectedNodes = simulation.network.nodes.filter(node => selectedNodesIDs.contains(node._2.id.toString)).values
       selectedNodes.foreach(node => {

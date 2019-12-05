@@ -18,29 +18,25 @@
 
 package it.unibo.scafi.renderer3d.node
 
-import java.awt
-
-import javafx.scene.Group
-import org.scalafx.extras._
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import javafx.scene.Group
+import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
 import scalafx.scene.{CacheHint, Camera}
 
-final case class SimpleNetworkNode(position: Point3D, UID: String, nodesColor: java.awt.Color, labelScale: Double)
+final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Color, labelScale: Double)
   extends Group with NetworkNode {
 
   private[this] val NODE_SIZE = 60
-  private[this] val DEFAULT_COLOR = Color.color(0.2, 0.2, 0.2)
-  private[this] val SELECTION_MATERIAL = createMaterial(Color.Red)
-  private[this] val DEFAULT_MATERIAL = createMaterial(DEFAULT_COLOR)
   private[this] val LABEL_FONT_SIZE = 200
-  private[this] val node = createBox(NODE_SIZE, DEFAULT_COLOR, position)
+  private[this] val node = createBox(NODE_SIZE, nodeColor, position)
   private[this] val labelPosition = new Point3D(position.x, position.y - (NODE_SIZE + 190), position.z)
   private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
+  private[this] var currentColor = nodeColor
+  private[this] var selectionColor = Color.Red
 
-  setColor(nodesColor)
   setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
@@ -57,26 +53,38 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodesColor: j
 
   override def rotateTextToCamera(camera: Camera): Unit = label.lookAtOnXZPlane(camera.getPosition)
 
-  override def setColor(color: java.awt.Color): Unit = node.setColor(color)
+  override def setNodeColor(color: Color): Unit = onFX {
+    node.setColor(color)
+    currentColor = color
+  }
+
+  override def setSelectionColor(color: Color): Unit = onFX {
+    if(isSelected){
+      node.setColor(color)
+    }
+    selectionColor = color
+  }
+
+  private def isSelected: Boolean = node.getScaleX > 1
 
   override def getNodePosition: Point3D = node.getPosition
 
-  override def select(): Unit = {
+  override def select(): Unit = onFX {
     node.setScale(2)
-    node.setMaterial(SELECTION_MATERIAL)
+    node.setColor(selectionColor)
   }
 
-  override def deselect(): Unit = {
-    node.setScale(1)
-    if(node.getMaterial == SELECTION_MATERIAL.delegate){
-      node.setMaterial(DEFAULT_MATERIAL)
+  override def deselect(): Unit = onFX {
+    if(isSelected){
+      node.setScale(1)
+      node.setColor(currentColor)
     }
   }
 
-  override def setLabelScale(scale: Double): Unit = label.setScale(scale)
+  override def setLabelScale(scale: Double): Unit = onFX {label.setScale(scale)}
 }
 
 object SimpleNetworkNode {
-  def apply(position: Point3D, UID: String, nodesColor: awt.Color, labelScale: Double): SimpleNetworkNode =
-    new SimpleNetworkNode(position, UID, nodesColor, labelScale)
+  def apply(position: Point3D, UID: String, nodeColor: Color, labelScale: Double): SimpleNetworkNode =
+    new SimpleNetworkNode(position, UID, nodeColor, labelScale)
 }
