@@ -19,28 +19,28 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
-import it.unibo.scafi.simulation.gui.Settings
+import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
 import it.unibo.scafi.simulation.gui.model.{Network, Node, NodeValue}
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
+import it.unibo.scafi.space.Point3D
 
 import scala.util.Try
 
 private[controller3d] object NodeUpdater {
 
-  def updateNode(nodeId: Int, gui: SimulatorUI3D, network: Network, getValueToShow: () => NodeValue): Unit = {
-    //update the node's connections
+  def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, getValueToShow: () => NodeValue): Unit = {
     val gui3d = gui.getSimulationPanel
-    val node = network.nodes(nodeId)
+    val node = simulation.network.nodes(nodeId)
     val nodePositionChanged = createOrMoveNode(node, gui3d)
     updateNodeText(node, nodePositionChanged, getValueToShow())(gui3d)
-    updateNodeConnections(gui3d, node)
+    updateNodeConnections(gui3d, node, simulation.network.neighbourhood)
   }
 
   private def createOrMoveNode(node: Node, gui3d: NetworkRenderingPanel): Boolean = {
     val nodeId = node.id.toString
     val nodePositionInUI = gui3d.getNodePosition(nodeId)
-    val didNodePositionChange = nodePositionInUI.getOrElse((0, 0, 0)) != node.position
+    val didNodePositionChange = nodePositionInUI.getOrElse((0, 0, 0)) != toProduct3(node.position)
     if (nodePositionInUI.isEmpty) {
       gui3d.addNode(node.position, nodeId) //creating the node in ui if not already present
     } else if (didNodePositionChange) {
@@ -48,6 +48,8 @@ private[controller3d] object NodeUpdater {
     }
     nodePositionInUI.isEmpty || didNodePositionChange
   }
+
+  private final def toProduct3(point: Point3D): Product3[Double, Double, Double] = (point.x, point.y, point.z)
 
   private def updateNodeText(node: Node, nodePositionChanged: Boolean, valueToShow: NodeValue)
                             (implicit gui3d: NetworkRenderingPanel): Unit = {
@@ -67,10 +69,11 @@ private[controller3d] object NodeUpdater {
   private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderingPanel): Boolean =
     gui3d.setNodeText(node.id.toString, text) //updating the value of the node's label
 
-  private def updateNodeConnections(gui3d: NetworkRenderingPanel, node: Node): Unit = {
+  private def updateNodeConnections(gui3d: NetworkRenderingPanel, node: Node,
+                                    neighboursMap: Map[Node, Set[Node]]): Unit = {
     val nodeId = node.id.toString
     val connectionsInUI = gui3d.getNodesConnectedToNode(nodeId).getOrElse(Set())
-    val connections = node.neighbours.map(_.id.toString)
+    val connections = neighboursMap.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
     val removedConnections = connectionsInUI.diff(connections)
     newConnections.foreach(gui3d.connect(nodeId, _))

@@ -23,7 +23,6 @@ import java.awt.{BorderLayout, Color}
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import javax.swing.{JFrame, SwingUtilities}
-
 import scala.util.Random
 
 private[renderer3d] object RunnableTestExample extends App {

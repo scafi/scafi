@@ -31,4 +31,5 @@ trait SimulatorUI3D extends JFrame{
   def reset(): Unit
 
   def getJMenuBar: JMenuBar
+
 }

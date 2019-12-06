@@ -152,7 +152,8 @@ class ControllerImpl() extends Controller {
       i = i + 1
     })
 
-    val simulation: Simulation = SimulationImpl(this.simManager, () => this.selectionAttempted)
+    val simulation: Simulation = SimulationImpl(this.simManager)
+    simulation.setController(this)
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
     simulation.setRunProgram(runProgram)

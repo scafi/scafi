@@ -26,9 +26,9 @@ object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation
   override type P = Point3D
 
   def launch(): Unit =
-    if (Settings.Sim_3D_Rendering) {
+    if (Settings.Sim_3D) {
       val simulatorManager = new SimulationManagerImpl()
-      DefaultController3D(SimulationImpl(simulatorManager, () => false), simulatorManager).startup()
+      DefaultController3D(SimulationImpl(simulatorManager), simulatorManager).startup()
     } else {
       ControllerImpl.startup
     }

@@ -36,10 +36,12 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
 
   def startup(): Unit = {
+    simulation.setController(this)
     startGUI()
     ControllerUtils.addPopupObservations(gui.customPopupMenu,
       () => gui.getSimulationPanel.toggleConnections(), setNodeValueTypeToShow, _ => ())
     ControllerStarter.startup(simulation, gui, simulationManager)
+    startSimulation()
   }
 
   private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => {
@@ -53,7 +55,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
   override def startSimulation(): Unit = {
-    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation.network, () => getNodeValueTypeToShow))
+    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, () => getNodeValueTypeToShow))
     ControllerStarter.startSimulation(simulation, gui, simulationManager)
   }
 
@@ -102,6 +104,8 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   }
 
   override def showImage(img: Image, showed: Boolean): Unit = () //do nothing
+
+  override def selectionAttempted: Boolean = gui.getSimulationPanel.isAttemptingSelection
 }
 
 object DefaultController3D {

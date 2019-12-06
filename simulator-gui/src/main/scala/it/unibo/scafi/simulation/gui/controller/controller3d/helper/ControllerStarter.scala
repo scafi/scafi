@@ -27,10 +27,8 @@ import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 private[controller3d] object ControllerStarter {
 
   def startup(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Unit = {
-    simulation.setSelectionAttemptedDependency(() => gui.getSimulationPanel.isAttemptingSelection)
     ControllerUtils.setupSensors(Settings.Sim_Sensors)
     ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
-    startSimulation(simulation, gui, simulationManager)
   }
 
   def startSimulation(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Unit = {

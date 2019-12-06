@@ -121,7 +121,7 @@ lazy val simulator = project.
   )
 
 lazy val `simulator-gui` = project.
-  dependsOn(core,simulator, `renderer-3d`).
+  dependsOn(core,simulator,`renderer-3d`).
   settings(commonSettings: _*).
   settings(
     name := "scafi-simulator-gui",

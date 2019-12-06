@@ -13,10 +13,9 @@ import it.unibo.scafi.space.{Point2D, Point3D}
 
 class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
                      val simulationSeed: Long = System.nanoTime(),
-                     simulatorManager: SimulationManager,
-                     private var selectionAttempted: () => Boolean) extends Simulation {
+                     simulatorManager: SimulationManager) extends Simulation {
   //private Thread runProgram;  //should implements runnable
-
+  private var controller: Controller = null
   private var net: SpaceAwareSimulator = null
   var network: model.Network = null
   var runProgram: Function0[(Int,Export)] = null
@@ -70,7 +69,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   override def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit = {
     val idSet: Set[Int] = nodes.map(_.id)
-    if(nodes.size==0 && !selectionAttempted()) {
+    if(nodes.size==0 && !controller.selectionAttempted) {
       net.addSensor(sensor, value)
       sensors += sensor -> value
     } else {
@@ -87,11 +86,11 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
     network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
 
-  override def setSelectionAttemptedDependency(selectionAttempted: () => Boolean): Unit =
-    this.selectionAttempted = selectionAttempted
+  override def setController(controller: Controller): Unit =
+    this.controller = controller
 }
 
 object SimulationImpl {
-  def apply(simulatorManager: SimulationManager, selectionAttempted: () => Boolean): SimulationImpl =
-    new SimulationImpl(System.nanoTime(), System.nanoTime(), simulatorManager, selectionAttempted)
+  def apply(simulatorManager: SimulationManager): SimulationImpl =
+    new SimulationImpl(System.nanoTime(), System.nanoTime(), simulatorManager)
 }

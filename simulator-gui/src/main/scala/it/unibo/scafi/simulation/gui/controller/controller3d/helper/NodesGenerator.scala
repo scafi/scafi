@@ -18,29 +18,29 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
-import it.unibo.scafi.config.GridSettings
+import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
 import it.unibo.scafi.simulation.gui.Settings
 import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies.{Grid, Grid_HighVar, Grid_LoVar, Grid_MedVar}
 import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.NodeImpl
-import it.unibo.scafi.space.{Point3D, SpaceHelper}
-
-import scala.util.Random
+import it.unibo.scafi.space.SpaceHelper
 
 private[controller3d] object NodesGenerator {
 
+  private val SCENE_SIZE = 10000
+
   def createNodes(topology: String, nodeCount: Int, seed: Long): Map[Int, Node] = {
-    if(topology.contains("grid")){
+    val locations = if(topology.contains("grid")){
       val nodeCountInSide = Math.cbrt(nodeCount).toInt
-      val step = 1.0 / nodeCountInSide
-      val OFFSET = 0.05
-      val variance = getVariance(topology)
+      val step = SCENE_SIZE / nodeCountInSide
+      val OFFSET = SCENE_SIZE/40
+      val variance = getVariance(topology) * (SCENE_SIZE/10)
       val gridSettings = GridSettings(nodeCountInSide, nodeCountInSide, step , step, variance, OFFSET, OFFSET).to3D
-      val locations =  SpaceHelper.grid3DLocations(gridSettings, seed)
-      locations.zipWithIndex.toMap.map(_.swap).map({case (index, position) => (index, new NodeImpl(index, position))})
+      SpaceHelper.grid3DLocations(gridSettings, seed)
     } else {
-      (1 to nodeCount).map(index => (index, new NodeImpl(index, getRandomPosition))).toMap
+      SpaceHelper.random3DLocations(SimpleRandomSettings(-SCENE_SIZE/2, SCENE_SIZE/2), nodeCount, seed)
     }
+    locations.zipWithIndex.toMap.map(_.swap).map({case (index, position) => (index, new NodeImpl(index, position))})
   }
 
   private def getVariance(topology: String): Double = topology match { //TODO: remove copy-paste
@@ -49,12 +49,5 @@ private[controller3d] object NodesGenerator {
     case Grid_MedVar => Settings.Grid_MedVar_Eps
     case Grid_HighVar => Settings.Grid_HiVar_Eps
   }
-
-  private def getRandomPosition: Point3D = {
-    val MAX_DISTANCE = 10000
-    new Point3D(randomDouble(MAX_DISTANCE), randomDouble(MAX_DISTANCE), randomDouble(MAX_DISTANCE))
-  }
-
-  private def randomDouble(maxValue: Int): Double = Random.nextInt(maxValue).toDouble
 
 }

@@ -43,7 +43,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   this.getChildren.addAll(node, label)
 
   private def getLabelPosition(nodePosition: Point3D): Point3D =
-    new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + 190), nodePosition.z)
+    new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + 180), nodePosition.z)
 
   private def optimizeForSpeed(): Unit = {
     node.cache = true

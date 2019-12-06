@@ -18,7 +18,9 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
+import it.unibo.scafi.incarnations.BasicAbstractIncarnation
 import it.unibo.scafi.simulation.gui.controller.Controller
+import it.unibo.scafi.simulation.gui.model.{Network, Node}
 
 trait Controller3D extends Controller{
 
@@ -36,5 +38,5 @@ trait Controller3D extends Controller{
 
   def setPosition(n: Node)
 
-  def setSelectionAttemptedDependency(selectionAttempted: () => Boolean): Unit
+  def setController(controller: Controller): Unit
 }

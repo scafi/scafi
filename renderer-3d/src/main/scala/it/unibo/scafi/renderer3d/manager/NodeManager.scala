@@ -99,8 +99,8 @@ private[manager] trait NodeManager {
   final def decreaseFontSize(): Unit = updateLabelSize(-0.1)
 
   private final def updateLabelSize(sizeDifference: Double): Unit = onFX {
-    val MIN_SCALE = 0.1
-    val MAX_SCALE = 2
+    val MIN_SCALE = 0.5
+    val MAX_SCALE = 1.5
     nodeLabelsScale = RichMath.clamp(nodeLabelsScale + sizeDifference, MIN_SCALE, MAX_SCALE)
     networkNodesCache.values.foreach(_.setLabelScale(nodeLabelsScale))
   }
