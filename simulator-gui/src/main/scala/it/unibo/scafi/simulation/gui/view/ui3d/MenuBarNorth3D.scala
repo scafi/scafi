@@ -22,8 +22,7 @@ import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.view.MenuBarNorth
 import javax.swing.JMenuItem
 
-class MenuBarNorth3D(controller: Controller3D) extends MenuBarNorth {
-
+class MenuBarNorth3D(controller: Controller3D) extends MenuBarNorth(controller) {
   setupActions()
 
   private def setupActions(): Unit = {

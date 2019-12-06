@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.renderer3d.util
 
-import it.unibo.scafi.simulation.gui.controller.Controller
+import it.unibo.scafi.simulation.gui.controller.ControllerImpl
 import it.unibo.scafi.simulation.gui.controller.controller3d.DefaultController3D
 import it.unibo.scafi.simulation.gui.model.implementation.{SimulationImpl, SimulationManagerImpl}
 
@@ -30,7 +30,7 @@ object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation
       val simulatorManager = new SimulationManagerImpl()
       DefaultController3D(SimulationImpl(simulatorManager, () => false), simulatorManager).startup()
     } else {
-      Controller.startup
+      ControllerImpl.startup
     }
 }
 

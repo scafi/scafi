@@ -44,8 +44,8 @@ private[manager] trait ConnectionManager {
 
   private final def getAllConnections: Set[Cylinder] = connections.flatMap(entry => entry._2.values).toSet
 
-  final def getNodesConnectedToNode(nodeUID: String): Option[List[String]] =
-    onFXAndWait {findNode(nodeUID).flatMap(node => connections.get(node).map(_.keys.map(_.getId).toList))}
+  final def getNodesConnectedToNode(nodeUID: String): Option[Set[String]] =
+    onFXAndWait {findNode(nodeUID).flatMap(node => connections.get(node).map(_.keys.map(_.getId).toSet))}
 
   final def connect(node1UID: String, node2UID: String): Boolean =
     onFXAndWait {findNodes(node1UID, node2UID).fold(false)(nodes => connectNodes(nodes._1, nodes._2))}

@@ -16,13 +16,13 @@ import it.unibo.scafi.simulation.frontend.utility.{ImageFilter, Utils}
 /**
   * This class represent the Application menu
   */
-class MenuBarNorth() extends JMenuBar {
+class MenuBarNorth(controller: Controller) extends JMenuBar {
   private var menus = Vector[JMenu]()
 
   val file: JMenu = new JMenu("File")
   val newFile: JMenu = new JMenu("New")
   val simulation: JMenuItem = new JMenuItem("Scafi Simulation")
-  simulation.addActionListener((e:ActionEvent) => { new ConfigurationPanel(() => controller.startSimulation()); () })
+  simulation.addActionListener((e:ActionEvent) => { new ConfigurationPanel(controller); () })
   newFile.add(simulation)
   val open: JMenuItem = new JMenuItem("Open")
   val save: JMenuItem = new JMenuItem("Save")
@@ -80,7 +80,6 @@ class MenuBarNorth() extends JMenuBar {
   menus = menus :+ file
   menus = menus :+ simConfig
   menus.foreach(m => add(m))
-  private[view] val controller: Controller = Controller.getInstance
 
   override def setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)

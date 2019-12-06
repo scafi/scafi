@@ -32,7 +32,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private[this] val NODE_SIZE = 60
   private[this] val LABEL_FONT_SIZE = 200
   private[this] val node = createBox(NODE_SIZE, nodeColor, position)
-  private[this] val labelPosition = new Point3D(position.x, position.y - (NODE_SIZE + 190), position.z)
+  private[this] val labelPosition = getLabelPosition(position)
   private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
@@ -41,6 +41,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   this.setId(UID)
   optimizeForSpeed()
   this.getChildren.addAll(node, label)
+
+  private def getLabelPosition(nodePosition: Point3D): Point3D =
+    new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + 190), nodePosition.z)
 
   private def optimizeForSpeed(): Unit = {
     node.cache = true
@@ -82,6 +85,11 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   }
 
   override def setLabelScale(scale: Double): Unit = onFX {label.setScale(scale)}
+
+  override def moveNodeTo(position: Point3D): Unit = onFX {
+    node.moveTo(position)
+    label.moveTo(getLabelPosition(position))
+  }
 }
 
 object SimpleNetworkNode {

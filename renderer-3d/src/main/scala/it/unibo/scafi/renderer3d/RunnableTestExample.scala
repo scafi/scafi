@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.renderer3d
 
-import java.awt.event.{KeyEvent, KeyListener, MouseEvent, MouseListener}
+import java.awt.event.{KeyEvent, KeyListener}
 import java.awt.{BorderLayout, Color}
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
@@ -26,7 +26,7 @@ import javax.swing.{JFrame, SwingUtilities}
 
 import scala.util.Random
 
-private object RunnableTestExample extends App {
+private[renderer3d] object RunnableTestExample extends App {
   private val NODE_COUNT = 200
   private val NODE_BRIGHTNESS = 50
 
@@ -36,14 +36,13 @@ private object RunnableTestExample extends App {
     frame.add(networkRenderer, BorderLayout.CENTER)
     frame.setVisible(true)
 
-    addNodes(networkRenderer)
-
-    connectNodes(networkRenderer)
+    addNodes(networkRenderer, NODE_COUNT)
+    connectNodes(networkRenderer, NODE_COUNT)
     setNodesLabel(networkRenderer)
     testAPI(networkRenderer)
   })
 
-  private def addNodes(networkRenderer: NetworkRenderingPanel): Unit = (1 to NODE_COUNT).foreach(index =>
+  def addNodes(networkRenderer: NetworkRenderingPanel, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
     networkRenderer.addNode((getRandomDouble, getRandomDouble, getRandomDouble), index.toString))
 
   private def getRandomDouble: Double = {
@@ -87,12 +86,13 @@ private object RunnableTestExample extends App {
       }
   })
 
-  private def connectNodes(renderingPanel: NetworkRenderingPanel): Unit =
-    (1 to NODE_COUNT).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
+  def connectNodes(renderingPanel: NetworkRenderingPanel, nodeCount: Int): Unit =
+    (1 to nodeCount).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
 
   private def moveNodesRandomly(renderingPanel: NetworkRenderingPanel): Unit =
-    (0 to NODE_COUNT).foreach(index =>
-      renderingPanel.moveNode(index.toString, (getRandomDouble, getRandomDouble, getRandomDouble)))
+    (0 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition))
+
+  private def getRandomPosition: (Double, Double, Double) = (getRandomDouble, getRandomDouble, getRandomDouble)
 
   private def setNodesLabel(networkRenderer: NetworkRenderingPanel): Unit =
     (0 to NODE_COUNT).foreach(index => networkRenderer.setNodeText(index.toString, index.toString))

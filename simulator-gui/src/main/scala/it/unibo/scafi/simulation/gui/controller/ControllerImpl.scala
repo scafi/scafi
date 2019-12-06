@@ -1,47 +1,69 @@
 /*
- * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
+ * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENCE.txt file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.frontend.controller
+package it.unibo.scafi.simulation.gui.controller
 
 import java.awt.{Image, Point, Rectangle}
+
+import it.unibo.scafi.config.GridSettings
+import it.unibo.scafi.config.SimpleRandomSettings
+import it.unibo.scafi.simulation.gui.{Settings, Simulation}
+import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies._
+import it.unibo.scafi.simulation.gui.model._
+import it.unibo.scafi.simulation.gui.model.implementation._
+import it.unibo.scafi.simulation.gui.utility.Utils
+import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
+import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
+import it.unibo.scafi.space.{Point2D, SpaceHelper}
+import scala.collection.immutable.List
 import javax.swing.SwingUtilities
 
-import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
-import it.unibo.scafi.simulation.frontend.SettingsSpace.NbrHoodPolicies
-import it.unibo.scafi.simulation.frontend.model._
-import it.unibo.scafi.simulation.frontend.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationManagerImpl}
-import it.unibo.scafi.simulation.frontend.utility.Utils
-import it.unibo.scafi.simulation.frontend.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
-import it.unibo.scafi.simulation.frontend.{Settings, Simulation, SimulationImpl}
-import it.unibo.scafi.space.{Point2D, SpaceHelper}
+import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
 
-import scala.collection.immutable.List
 import scala.util.Try
 
-  def pauseSimulation(): Unit
+object ControllerImpl{
+  private var SINGLETON: ControllerImpl = null
+  private val gui = new SimulatorUI
 
-  def resumeSimulation(): Unit
+  def getInstance: ControllerImpl = {
+    if (SINGLETON == null) SINGLETON = new ControllerImpl
+    SINGLETON
+  }
 
-  def stepSimulation(stepCount: Int): Unit
+  def getUI: SimulatorUI = gui
 
   def startup: Unit = {
     SwingUtilities.invokeLater(() => {
-      Controller.getInstance.setGui(gui)
+      ControllerImpl.getInstance.setGui(gui)
       val simulationManagerImpl = new SimulationManagerImpl()
-      simulationManagerImpl.setUpdateNodeFunction(Controller.getInstance.updateNodeValue)
-      Controller.getInstance.setSimManager(simulationManagerImpl)
-      if (Settings.ShowConfigPanel) new ConfigurationPanel(() => Controller.getInstance.startSimulation())
-      else Controller.getInstance.startSimulation()
+      simulationManagerImpl.setUpdateNodeFunction(ControllerImpl.getInstance.updateNodeValue)
+      ControllerImpl.getInstance.setSimManager(simulationManagerImpl)
+      if (Settings.ShowConfigPanel) new ConfigurationPanel(ControllerImpl.getInstance)
+      else ControllerImpl.getInstance.startSimulation()
     })
   }
 }
 
-class Controller () {
-  private[frontend] var gui: SimulatorUI = null
-  protected[frontend] var simManager: SimulationManager = null
-  final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
+class ControllerImpl() extends Controller {
+  private[gui] var gui: SimulatorUI = null
+  protected[gui] var simManager: SimulationManager = null
+  final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]() //TODO: remove GuiNode if working in 3d
   private var valueShowed: NodeValue = NodeValue.EXPORT
   private var controllerUtility: ControllerPrivate = null
   private val updateFrequency = Settings.Sim_NumNodes / 4.0
@@ -105,7 +127,6 @@ class Controller () {
 
     val ncols: Long = Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
-    import it.unibo.scafi.simulation.frontend.SettingsSpace.Topologies._
     if (List(Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar) contains topology) {
       val nPerSide = Math.sqrt(numNodes)
       val tolerance = topology match {
@@ -167,7 +188,7 @@ class Controller () {
 
   def clearSimulation() {
     simManager.stop()
-    gui.setSimulationPanel(new SimulationPanel(() => clearSimulation()))
+    gui.setSimulationPanel(new SimulationPanel(this))
     controllerUtility.enableMenu(false)
     this.nodes = Map()
   }
@@ -312,6 +333,9 @@ class Controller () {
     controllerUtility.setSensor(sensorName, value)
   }
 
-  def showImage(img: Image, showed: Boolean)
+  def getSensor(s: String): Option[Any] =
+    controllerUtility.getSensorValue(s)
 
+  def checkSensor(sensor: String, operator: String, value: String) =
+    controllerUtility.checkSensor(sensor, operator, value)
 }

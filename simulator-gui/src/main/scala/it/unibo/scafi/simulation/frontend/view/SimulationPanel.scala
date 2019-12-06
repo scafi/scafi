@@ -12,15 +12,17 @@ import javax.swing.border.LineBorder
 
 import it.unibo.scafi.simulation.frontend.Settings
 
+import it.unibo.scafi.simulation.gui.controller.Controller
+
 /**
   * This is the most important panel in which the simulation will be executed.
   */
-class SimulationPanel(clearSimulation: () => Unit) extends JDesktopPane {
+class SimulationPanel(controller: Controller) extends JDesktopPane {
   final private val neighborsPanel: NeighborsPanel = new NeighborsPanel
   final private val valuesPanel: ValuesPanel = new ValuesPanel
   private var bkgImage: Image = null
   final private val captureRect: Rectangle = new Rectangle
-  final private val popup: MyPopupMenu = new MyPopupMenu(clearSimulation)
+  final private val popup: MyPopupMenu = new MyPopupMenu(controller)
 
   this.setBackground(Settings.Color_background)
   setBorder(new LineBorder(Color.black))

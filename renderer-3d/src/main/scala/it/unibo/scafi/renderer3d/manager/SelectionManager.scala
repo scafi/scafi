@@ -35,7 +35,7 @@ private[manager] trait SelectionManager {
   protected val mainScene: Scene
   private[this] val selectVolume =
     createBox(1, Color.color(0.2, 0.2, 0.8, 0.5), Point3D.Zero)
-  private[this] var selectedNodes: List[NetworkNode] = List()
+  private[this] var selectedNodes: Set[NetworkNode] = Set()
   private[this] var initialNode: Option[NetworkNode] = None
   private[this] var selectionColor = java.awt.Color.red
 
@@ -59,7 +59,7 @@ private[manager] trait SelectionManager {
 
   private final def deselectSelectedNodes(): Unit = {
     selectedNodes.foreach(_.deselect())
-    selectedNodes = List()
+    selectedNodes = Set()
   }
 
   protected final def modifySelectionVolume(camera: Camera, event: MouseEvent): Unit = onFX {
@@ -80,7 +80,7 @@ private[manager] trait SelectionManager {
       selectedNodes.foreach(_.select())
     }
 
-  private final def getIntersectingNetworkNodes(shape: Shape3D): List[NetworkNode] =
+  private final def getIntersectingNetworkNodes(shape: Shape3D): Set[NetworkNode] =
     getAllNetworkNodes.filter(node => shape.getBoundsInParent.intersects(node.getBoundsInParent))
 
   protected final def endSelection(event: MouseEvent): Unit = onFX {
@@ -90,7 +90,7 @@ private[manager] trait SelectionManager {
     }
   }
 
-  final def getSelectedNodesIDs: List[String] = onFXAndWait(selectedNodes.map(_.UID))
+  final def getSelectedNodesIDs: Set[String] = onFXAndWait(selectedNodes.map(_.UID))
 
   final def setModifiedNodesColor(color: java.awt.Color): Unit =
     onFX(selectedNodes.foreach(_.setNodeColor(color.toScalaFx)))

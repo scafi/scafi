@@ -18,15 +18,9 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
-trait Controller3D {
+import it.unibo.scafi.simulation.gui.controller.Controller
 
-  def stopSimulation(): Unit
-
-  def pauseSimulation(): Unit
-
-  def resumeSimulation(): Unit
-
-  def clearSimulation(): Unit
+trait Controller3D extends Controller{
 
   def handleNumberButtonPress(value: Int): Unit
 

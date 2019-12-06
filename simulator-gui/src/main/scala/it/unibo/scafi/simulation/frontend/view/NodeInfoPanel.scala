@@ -19,7 +19,7 @@ class NodeInfoPanel(val node: GuiNode) extends JInternalFrame {
   final private val idJl: JLabel = new JLabel
   private var sensors: Map[String, String] = Map[String, String]()
   final private var listSensorPanel: JPanel = null
-  final private val controller: Controller = Controller.getInstance
+  final private val controller: ControllerImpl = ControllerImpl.getInstance
 
   setSize(Utils.getGuiNodeInfoPanelDim)
   setResizable(true)

@@ -18,7 +18,7 @@ import scala.language.implicitConversions
   * This class is a wrapper for all private Controller methods.
   */
 class ControllerPrivate (val gui: SimulatorUI) {
-  final private val controller: Controller = Controller.getInstance
+  final private val controller: ControllerImpl = ControllerImpl.getInstance
 
   implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
     def actionPerformed(e: ActionEvent) { f(e) }

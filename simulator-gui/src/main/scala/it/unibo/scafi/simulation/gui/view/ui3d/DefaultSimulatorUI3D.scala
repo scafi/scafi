@@ -29,7 +29,7 @@ import javax.swing._
 class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Simulator") with SimulatorUI3D {
   private var simulationPanel: NetworkRenderingPanel = NetworkRenderingPanel()
   final private val northMenuBar: JMenuBar = MenuBarNorth3D(controller)
-  final val customPopupMenu: MyPopupMenu = new MyPopupMenu(() => controller.clearSimulation())
+  final val customPopupMenu: MyPopupMenu = new MyPopupMenu(controller)
 
   setupPanelAndMenu()
   setupButtonActions()

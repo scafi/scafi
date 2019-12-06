@@ -18,73 +18,60 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
-import java.awt.Color
+import java.awt.{Color, Image}
 
-import it.unibo.scafi.simulation.gui.controller.ControllerUtils
+import it.unibo.scafi.simulation.gui.controller.{Controller, ControllerUtils}
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.ControllerStarter
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdater.updateNode
 import it.unibo.scafi.simulation.gui.model._
-import it.unibo.scafi.simulation.gui.model.implementation.{NetworkImpl, SensorEnum}
+import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
 import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
-import it.unibo.scafi.simulation.gui.controller.controller3d.NodeUpdater._
 import javax.swing.SwingUtilities
 
-class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
+class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager)
+  extends Controller3D with Controller{
   private var gui: SimulatorUI3D = _
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
 
   def startup(): Unit = {
-    simulation.setSelectionAttemptedDependency(() => gui.getSimulationPanel.isAttemptingSelection)
     startGUI()
-    ControllerUtils.setupSensors(Settings.Sim_Sensors)
-    ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
     ControllerUtils.addPopupObservations(gui.customPopupMenu,
       () => gui.getSimulationPanel.toggleConnections(), setNodeValueTypeToShow, _ => ())
-    startSimulation()
-  }
-
-  private def startSimulation(): Unit = {
-    val nodes = NodesGenerator.createNodes(Settings.Sim_Topology, Settings.Sim_NumNodes, Settings.ConfigurationSeed)
-    nodes.values.foreach(node => gui.getSimulationPanel.addNode(node.position, node.id.toString))
-    val policyNeighborhood = ControllerUtils.getNeighborhoodPolicy
-    simulation.network = new NetworkImpl(nodes, policyNeighborhood)
-    simulation.setDeltaRound(Settings.Sim_DeltaRound)
-    simulation.setRunProgram(Settings.Sim_ProgramClass)
-    simulation.setStrategy(Settings.Sim_ExecStrategy)
-    simulationManager.simulation = simulation
-    simulationManager.setPauseFire(Settings.Sim_DeltaRound)
-    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation.network, () => getNodeValueTypeToShow))
-    simulationManager.start()
+    ControllerStarter.startup(simulation, gui, simulationManager)
   }
 
   private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => {
     gui = DefaultSimulatorUI3D(this)
-    val gui3d = gui.getSimulationPanel
-    gui3d.setConnectionsVisible(Settings.Sim_DrawConnections)
-    gui3d.setSelectionColor(Settings.Color_selection)
-    gui3d.setNodesColor(Settings.Color_device)
-    gui3d.setConnectionsColor(Settings.Color_link)
-    gui3d.setBackground(Settings.Color_background)
-    if (Settings.ShowConfigPanel) new ConfigurationPanel(() => startSimulation())
+    ControllerStarter.setupGUI(gui)
+    if (Settings.ShowConfigPanel) new ConfigurationPanel(this)
   })
 
   def setNodeValueTypeToShow(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
 
   def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
-  def stopSimulation(): Unit = simulationManager.stop()
+  override def startSimulation(): Unit = {
+    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation.network, () => getNodeValueTypeToShow))
+    ControllerStarter.startSimulation(simulation, gui, simulationManager)
+  }
 
-  def pauseSimulation(): Unit = simulationManager.pause()
+  override def stopSimulation(): Unit = simulationManager.stop()
 
-  def resumeSimulation(): Unit = simulationManager.resume()
+  override def pauseSimulation(): Unit = simulationManager.pause()
 
-  def clearSimulation(): Unit = {
+  override def resumeSimulation(): Unit = simulationManager.resume()
+
+  override def stepSimulation(stepCount: Int): Unit = simulationManager.step(stepCount)
+
+  override def clearSimulation(): Unit = {
     simulationManager.stop()
     gui.reset()
     ControllerUtils.enableMenuBar(enable = false, gui.getJMenuBar)
   }
 
-  def handleNumberButtonPress(sensorIndex: Int): Unit = //TODO: set the node color
+  def handleNumberButtonPress(sensorIndex: Int): Unit =
     getSensorName(sensorIndex).foreach(sensorName => {
       val simulation = simulationManager.simulation
       gui.getSimulationPanel.setModifiedNodesColor(SensorEnum.getColor(sensorIndex).getOrElse(Color.BLACK))
@@ -114,6 +101,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     simulationManager.simulation.setDeltaRound(newValue)
   }
 
+  override def showImage(img: Image, showed: Boolean): Unit = () //do nothing
 }
 
 object DefaultController3D {

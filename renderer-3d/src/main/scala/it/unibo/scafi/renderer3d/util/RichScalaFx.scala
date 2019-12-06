@@ -23,7 +23,7 @@ import it.unibo.scafi.renderer3d.util.Rendering3DUtils.createMaterial
 import javafx.scene.input.MouseEvent
 import org.scalafx.extras._
 import scalafx.geometry.{Point2D, Point3D}
-import scalafx.scene.{Node, Scene}
+import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Shape3D
 import scalafx.scene.transform.Rotate
@@ -64,7 +64,7 @@ object RichScalaFx {
     }
 
     /**
-     * Don't use this on Group objects, since it would always return Point3D(0, 0, 0)
+     * Don't use this on Group objects such as SimpleNetworkNode, since it would always return Point3D(0, 0, 0)
      * */
     final def getPosition: Point3D = {
       val transform = onFXAndWait(node.getLocalToSceneTransform)
@@ -76,6 +76,10 @@ object RichScalaFx {
       new Point2D(screenBounds.getMinX, screenBounds.getMinY)
     }
 
+    /**
+     * Using this on Group objects such as SimpleNetworkNode adds the position to the current position of the object,
+     * instead of actually moving the node at the specified position.
+     * */
     final def moveTo(position: Point3D): Unit = onFX {
       node.setTranslateX(position.x)
       node.setTranslateY(position.y)
@@ -115,10 +119,6 @@ object RichScalaFx {
 
   implicit class RichColor(color: java.awt.Color) {
     final def toScalaFx: Color = Color.rgb(color.getRed, color.getGreen, color.getBlue, color.getAlpha/255)
-  }
-
-  implicit class RichScene(scene: Scene) {
-    final def findNodeById(id: String): Option[Node] = scene.lookup(s"#$id")
   }
 
   implicit class RichMouseEvent(event: MouseEvent) {

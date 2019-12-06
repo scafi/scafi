@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d
+package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.simulation.gui.Settings

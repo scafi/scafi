@@ -18,7 +18,7 @@ import it.unibo.scafi.simulation.frontend.utility.Utils
 /**
   * This class represent the panel where the user can configure a new simulation.
   */
-class ConfigurationPanel(startSimulation: () => Unit) extends JDialog(Controller.getUI) with PropertyChangeListener {
+class ConfigurationPanel(controller: Controller) extends JDialog(ControllerImpl.getUI) with PropertyChangeListener {
   final private var err: JLabel = null
   final private var gbc: GridBagConstraints = null
 
@@ -119,7 +119,7 @@ class ConfigurationPanel(startSimulation: () => Unit) extends JDialog(Controller
       Settings.Sim_ExecStrategy = strategy.getText()
       if(topologyField.getSelectedItem() != null) Settings.Sim_Topology = topologyField.getSelectedItem().toString()
       //Settings.Sim_Sensors = sensors.getText
-      startSimulation()
+      controller.startSimulation()
       dispose()
     } catch {
       case ex: Throwable => ex.printStackTrace(); showErr(0)

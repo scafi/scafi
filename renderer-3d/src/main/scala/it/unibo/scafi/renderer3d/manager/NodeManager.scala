@@ -39,17 +39,20 @@ private[manager] trait NodeManager {
   protected final def rotateAllNodeLabels(camera: Camera): Unit =
     onFX {networkNodesCache.values.foreach(_.rotateTextToCamera(camera))}
 
-  final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
-    val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor.toScalaFx, nodeLabelsScale)
-    networkNodesCache(UID) = networkNode
-    mainScene.getChildren.add(networkNode)
+  final def addNode(position: Product3[Double, Double, Double], UID: String): Boolean = onFXAndWait {
+    val nodeAlreadyExists = networkNodesCache.contains(UID)
+    if(!nodeAlreadyExists){
+      val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor.toScalaFx, nodeLabelsScale)
+      networkNodesCache(UID) = networkNode
+      mainScene.getChildren.add(networkNode)
+    }
+    !nodeAlreadyExists
   }
 
   private final def product3ToPoint3D(product: Product3[Double, Double, Double]): Point3D =
     new Point3D(product._1, product._2, product._3)
 
-  final def removeNode(nodeUID: String): Boolean =
-    findNodeAndExecuteAction(nodeUID, node => {
+  final def removeNode(nodeUID: String): Boolean = findNodeAndExecuteAction(nodeUID, node => {
       networkNodesCache.remove(nodeUID)
       mainScene.getChildren.remove(node)
       removeAllNodeConnections(node) //using ConnectionManager
@@ -62,7 +65,7 @@ private[manager] trait NodeManager {
 
   final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Boolean = //TODO: controlla che sia ottimizzato
     findNodeAndExecuteAction(nodeUID, { node =>
-      node.moveTo(product3ToPoint3D(position))
+      node.moveNodeTo(product3ToPoint3D(position))
       updateNodeConnections(node) //using ConnectionManager
     })
 
@@ -89,7 +92,7 @@ private[manager] trait NodeManager {
     networkNodesCache.values.foreach(_.setNodeColor(color.toScalaFx))
   }
 
-  protected final def getAllNetworkNodes: List[NetworkNode] = networkNodesCache.values.toList
+  protected final def getAllNetworkNodes: Set[NetworkNode] = networkNodesCache.values.toSet
 
   final def increaseFontSize(): Unit = updateLabelSize(0.1)
 

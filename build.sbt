@@ -134,7 +134,7 @@ lazy val `renderer-3d` = project.
   settings(commonSettings: _*).
   settings(
     name := "scafi-3d-renderer",
-    libraryDependencies ++= Seq(scalafx12, scalafxExtras) ++ javaFXModules.map( m =>
+    libraryDependencies ++= Seq(scalafx12, scalafxExtras, scalatest) ++ javaFXModules.map( m =>
                      "org.openjfx"       %  s"javafx-$m"     % "12.0.2" classifier osName)
   )
 

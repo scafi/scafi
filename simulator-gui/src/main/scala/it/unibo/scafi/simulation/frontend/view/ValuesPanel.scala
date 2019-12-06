@@ -24,7 +24,7 @@ class ValuesPanel private[view]() extends JPanel {
   this.setSize(Toolkit.getDefaultToolkit.getScreenSize)
   this.setOpaque(false)
   this.setVisible(true)
-  private[view] val controller: Controller = Controller.getInstance
+  private[view] val controller: ControllerImpl = ControllerImpl.getInstance
 
   override protected def paintComponent(g: Graphics) {
     super.paintComponent(g)

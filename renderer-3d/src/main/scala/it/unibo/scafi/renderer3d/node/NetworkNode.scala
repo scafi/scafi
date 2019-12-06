@@ -41,5 +41,7 @@ trait NetworkNode extends Node{
 
   def getNodePosition: Point3D
 
+  def moveNodeTo(position: Point3D)
+
   val UID: String
 }

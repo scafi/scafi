@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d
+package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import it.unibo.scafi.simulation.gui.Settings
@@ -26,7 +26,7 @@ import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
 
 import scala.util.Try
 
-object NodeUpdater {
+private[controller3d] object NodeUpdater {
 
   def updateNode(nodeId: Int, gui: SimulatorUI3D, network: Network, getValueToShow: () => NodeValue): Unit = {
     //update the node's connections
@@ -69,7 +69,7 @@ object NodeUpdater {
 
   private def updateNodeConnections(gui3d: NetworkRenderingPanel, node: Node): Unit = {
     val nodeId = node.id.toString
-    val connectionsInUI = gui3d.getNodesConnectedToNode(nodeId).getOrElse(List()).toSet
+    val connectionsInUI = gui3d.getNodesConnectedToNode(nodeId).getOrElse(Set())
     val connections = node.neighbours.map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
     val removedConnections = connectionsInUI.diff(connections)
