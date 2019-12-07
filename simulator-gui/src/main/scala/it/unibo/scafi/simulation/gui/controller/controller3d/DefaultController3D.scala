@@ -57,6 +57,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
   override def startSimulation(): Unit = {
+    //TODO: disable new simulation button of gui.getJMenuBar using ControllerUtils
     simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, () => getNodeValueTypeToShow))
     ControllerStarter.startSimulation(simulation, gui, simulationManager)
   }
@@ -71,23 +72,33 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   override def clearSimulation(): Unit = {
     simulationManager.stop()
-    gui.reset()
     ControllerUtils.enableMenuBar(enable = false, gui.getJMenuBar)
+    gui.reset()
   }
 
-  def handleNumberButtonPress(sensorIndex: Int): Unit =
+  def handleNumberButtonPress(sensorIndex: Int): Unit = {
     getSensorName(sensorIndex).foreach(sensorName => {
-      val simulation = simulationManager.simulation
-      gui.getSimulationPanel.setModifiedNodesColor(SensorEnum.getColor(sensorIndex).getOrElse(Color.BLACK))
-      val selectedNodesIDs = gui.getSimulationPanel.getSelectedNodesIDs
-      val selectedNodes = simulation.network.nodes.filter(node => selectedNodesIDs.contains(node._2.id.toString)).values
-      selectedNodes.foreach(node => {
-        val sensorValue = node.getSensorValue(sensorName)
-        sensorValue match {case value: Boolean => simulation.setSensor(sensorName, !value, selectedNodes.toSet)}
+      val selectedNodeIDs = gui.getSimulationPanel.getSelectedNodesIDs
+      val selectedNodes = simulation.network.nodes.filter(node => selectedNodeIDs.contains(node._2.id.toString)).values
+      gui.getSimulationPanel.getInitialSelectedNodeId.foreach(initialNodeId => {
+        val initialNode = selectedNodes.filter(_.id == initialNodeId.toInt).head
+        val sensorValue = initialNode.getSensorValue(sensorName)
+        val newSensorValue = sensorValue match {case value: Boolean => !value}
+        selectedNodeIDs.foreach(setNodeSensor(_, sensorName, newSensorValue))
+        simulation.setSensor(sensorName, newSensorValue, selectedNodes.toSet)
       })
     })
+  }
 
   private def getSensorName(sensorIndex: Int): Option[String] = SensorEnum.fromInt(sensorIndex).map(_.name)
+
+  private def setNodeSensor(nodeId: String, sensorName: String, newSensorValue: Boolean): Unit = {
+    val selectedNode = simulation.network.nodes(nodeId.toInt)
+    selectedNode.setSensor(sensorName, newSensorValue)
+    val firstEnabledSensorInNode = selectedNode.sensors.filter(_._2.equals(true)).keys.headOption
+    val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))
+    gui.getSimulationPanel.setModifiedNodesColor(sensorColor.getOrElse(Settings.Color_device))
+  }
 
   def shutDown(): Unit = System.exit(0)
 

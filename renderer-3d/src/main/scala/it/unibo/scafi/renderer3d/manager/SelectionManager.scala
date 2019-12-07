@@ -91,6 +91,8 @@ private[manager] trait SelectionManager {
 
   final def getSelectedNodesIDs: Set[String] = onFXAndWait(selectedNodes.map(_.UID))
 
+  final def getInitialSelectedNodeId: Option[String] = onFXAndWait(initialNode.map(_.UID))
+
   final def setModifiedNodesColor(color: java.awt.Color): Unit =
     onFX(selectedNodes.foreach(_.setNodeColor(color.toScalaFx)))
 

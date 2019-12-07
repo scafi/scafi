@@ -24,6 +24,8 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.embed.swing.JFXPanel
 import javafx.scene.input
 import javafx.scene.input.{MouseButton, MouseEvent}
+import org.scalafx.extras.onFX
+import scalafx.geometry.Point3D
 import scalafx.scene.input.KeyEvent
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
 
@@ -32,6 +34,12 @@ final class NetworkRenderingPanel() extends JFXPanel
 
   override protected val mainScene: Scene = new Scene(createScene())
   this.setScene(mainScene)
+
+  def resetScene(): Unit = onFX {
+    getAllNetworkNodes.foreach(node => removeNode(node.UID))
+    mainScene.getCamera.moveTo(Point3D.Zero)
+    mainScene.getCamera.lookAtOnXZPlane(new Point3D(1, 0, 0))
+  }
 
   private[this] def createScene(): Scene = {
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {
@@ -45,11 +53,12 @@ final class NetworkRenderingPanel() extends JFXPanel
 
   private[this] def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
     scene.addEventFilter(KeyEvent.KeyPressed, (event: input.KeyEvent) => {
-      if (camera.isKeyboardEventAMovement(event) && camera.getPosition.magnitude()%2 < 0.25) {
+      if (camera.isKeyboardEventAMovement(event) && camera.getPosition.magnitude()%2 < 0.25) { //TODO: this sometimes doesn't work well enough
         rotateAllNodeLabels(camera)
       }
       camera.moveByKeyboardEvent(event)
       camera.zoomByKeyboardEvent(event)
+      camera.rotateByKeyboardEvent(event)
     })
 
   private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
@@ -58,7 +67,7 @@ final class NetworkRenderingPanel() extends JFXPanel
     scene.onMouseDragEntered = event => if(isPrimaryButton(event)) startSelection(event)
     scene.onMouseDragged = event => {
       if(isPrimaryButton(event)) modifySelectionVolume(camera, event)
-      if(event.getButton == MouseButton.SECONDARY) camera.rotateByMouseEvent(event)
+      if(event.getButton == MouseButton.MIDDLE) camera.rotateByMouseEvent(event)
     }
     scene.onMouseReleased = event => if(isPrimaryButton(event)) endSelection(event)
   }

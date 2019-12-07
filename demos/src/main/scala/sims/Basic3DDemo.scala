@@ -33,7 +33,6 @@ object Basic3DDemo extends Launcher {
   Settings.Sim_NbrRadius = 2000 // neighbourhood radius, set this quite high
   Settings.Sim_NumNodes = 100 // don't go too high, more than 300 causes a lot of stuttering
   Settings.ShowConfigPanel = false
-  println(Settings.Sim_3D + " A ")
   launch()
 }
 

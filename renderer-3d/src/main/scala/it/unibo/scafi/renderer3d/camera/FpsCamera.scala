@@ -52,6 +52,12 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     oldMousePosition = newMousePosition
   }
 
+  override def rotateByKeyboardEvent(keyEvent: input.KeyEvent): Unit = keyEvent.getCode match {
+      case KeyCode.LEFT => this.rotateCamera(-1)
+      case KeyCode.RIGHT => this.rotateCamera(1)
+      case _ => ()
+    }
+
   private def rotateCamera(xDegrees: Double): Unit = {
     val xDegreesSign = if(xDegrees >= 0) 1 else -1 //use xDegrees.sign when upgrading to scala 2.13
     this.rotateOnSelf(adjustedSensitivity * xDegreesSign, Rotate.YAxis)

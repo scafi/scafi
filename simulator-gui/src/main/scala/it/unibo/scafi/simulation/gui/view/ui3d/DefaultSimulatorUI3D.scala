@@ -19,10 +19,11 @@
 package it.unibo.scafi.simulation.gui.view.ui3d
 
 import java.awt.BorderLayout
-import java.awt.event.{KeyEvent, KeyListener}
+import java.awt.event.{KeyEvent, KeyListener, MouseEvent, MouseListener}
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import javax.swing._
 
@@ -31,8 +32,10 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
   final private val northMenuBar: JMenuBar = MenuBarNorth3D(controller)
   final val customPopupMenu: MyPopupMenu = new MyPopupMenu(controller)
 
+  setSize(Utils.getFrameDimension())
   setupPanelAndMenu()
   setupButtonActions()
+  setupMouseActions()
   setVisible(true)
 
   private def setupPanelAndMenu(): Unit = {
@@ -59,12 +62,30 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
       case _ => ()
     }
 
+  private def setupMouseActions(): Unit = simulationPanel.addMouseListener(new MouseListener {
+    override def mouseClicked(mouseEvent: MouseEvent): Unit = togglePopupMenu(mouseEvent)
+    override def mousePressed(mouseEvent: MouseEvent): Unit = ()
+    override def mouseReleased(mouseEvent: MouseEvent): Unit = ()
+    override def mouseEntered(mouseEvent: MouseEvent): Unit = ()
+    override def mouseExited(mouseEvent: MouseEvent): Unit = ()
+  })
+
+  private def togglePopupMenu(mouseEvent: MouseEvent): Unit =
+    if(SwingUtilities.isRightMouseButton(mouseEvent)){
+    if(customPopupMenu.isShowing){
+      customPopupMenu.setVisible(false)
+    } else {
+      customPopupMenu.show(simulationPanel, mouseEvent.getX, mouseEvent.getY)
+      customPopupMenu.setVisible(true)
+    }
+  }
+
   /**
    * @return simulationPanel panel
    */
   def getSimulationPanel: NetworkRenderingPanel = simulationPanel
 
-  override def reset(): Unit = SwingUtilities.invokeAndWait(() => simulationPanel = NetworkRenderingPanel())
+  override def reset(): Unit = simulationPanel.resetScene()
 
   override def getJMenuBar: JMenuBar = this.northMenuBar
 }

@@ -23,6 +23,8 @@ import java.awt.Color
 import it.unibo.scafi.simulation.gui.Settings
 import it.unibo.scafi.simulation.gui.model.Sensor
 
+import scala.util.{Success, Try}
+
 object SensorEnum {
   val SOURCE = Sensor("Source", false)
   val DESTINATION = Sensor("Destination", false)
@@ -50,5 +52,10 @@ object SensorEnum {
     case 3 => Option(Settings.Color_device3)
     case 4 => Option(Settings.Color_device4)
     case _ => None
+  }
+
+  def getColor(sensor: Sensor): Option[Color] = {
+    val sensorIndex = Try(sensor.name.replace("sens", "").toInt)
+    sensorIndex match {case Success(index) => getColor(index); case _ => None}
   }
 }
