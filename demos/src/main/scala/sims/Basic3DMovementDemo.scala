@@ -18,22 +18,29 @@
 
 package sims
 
+import java.awt.Color
+
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import lib.{FlockingLib, Movement2DSupport}
+import lib.Movement2DSupport
 
 object Basic3DMovementDemo extends Launcher {
   // Configuring simulation
+  Settings.Sim_3D = true //enables the 3d renderer
+  Settings.Color_device = Color.DARK_GRAY
+  Settings.Color_selection = Color.MAGENTA
+  Settings.Color_link = Color.green //the default color is not as visible
   Settings.Sim_ProgramClass = "sims.Basic3DMovement" // starting class, via Reflection
   Settings.Sim_NbrRadius = 2000 // neighbourhood radius
   Settings.Sim_NumNodes = 200 // number of nodes
   Settings.Movement_Activator = (b: Any) => b.asInstanceOf[(Double, Double)]
   Settings.To_String = _ => ""
+  Settings.ShowConfigPanel = false
   launch()
 }
 
 class Basic3DMovement extends AggregateProgram
-  with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
+  with SensorDefinitions with BlockG with Movement2DSupport {
 
   override def main:(Double, Double) = rep(randomMovement())(behaviour)
 

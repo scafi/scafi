@@ -28,7 +28,7 @@ import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
 import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
-import javax.swing.SwingUtilities
+import javax.swing.{JFrame, SwingUtilities}
 
 class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager)
   extends Controller3D with Controller{
@@ -49,6 +49,8 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     ControllerStarter.setupGUI(gui)
     if (Settings.ShowConfigPanel) new ConfigurationPanel(this)
   })
+
+  override def getUI: JFrame = gui
 
   def setNodeValueTypeToShow(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
 

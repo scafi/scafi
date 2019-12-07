@@ -32,4 +32,6 @@ trait SimulatorUI3D extends JFrame{
 
   def getJMenuBar: JMenuBar
 
+  def getUI: JFrame
+
 }

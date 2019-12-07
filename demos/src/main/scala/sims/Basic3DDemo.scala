@@ -27,11 +27,13 @@ object Basic3DDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer
   Settings.Color_device = Color.DARK_GRAY
-  Settings.Color_selection = Color.RED
+  Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
   Settings.Sim_NbrRadius = 2000 // neighbourhood radius, set this quite high
   Settings.Sim_NumNodes = 100 // don't go too high, more than 300 causes a lot of stuttering
+  Settings.ShowConfigPanel = false
+  println(Settings.Sim_3D + " A ")
   launch()
 }
 

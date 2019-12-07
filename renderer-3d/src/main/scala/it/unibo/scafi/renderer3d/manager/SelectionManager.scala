@@ -37,7 +37,6 @@ private[manager] trait SelectionManager {
     createBox(1, Color.color(0.2, 0.2, 0.8, 0.5), Point3D.Zero)
   private[this] var selectedNodes: Set[NetworkNode] = Set()
   private[this] var initialNode: Option[NetworkNode] = None
-  private[this] var selectionColor = java.awt.Color.red
 
   selectVolume.setCullFace(CullFace.NONE)
   selectVolume.setVisible(false)
@@ -94,11 +93,6 @@ private[manager] trait SelectionManager {
 
   final def setModifiedNodesColor(color: java.awt.Color): Unit =
     onFX(selectedNodes.foreach(_.setNodeColor(color.toScalaFx)))
-
-  final def setSelectionColor(color: java.awt.Color): Unit = onFX {
-    selectionColor = color
-    getAllNetworkNodes.foreach(_.setSelectionColor(color.toScalaFx))
-  }
 
   final def isAttemptingSelection: Boolean = onFXAndWait(selectVolume.isVisible)
 }

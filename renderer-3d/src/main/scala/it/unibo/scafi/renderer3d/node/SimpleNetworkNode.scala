@@ -52,9 +52,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     label.setCacheHint(CacheHint.Speed)
   }
 
-  override def updateText(text: String): Unit = onFX(label.setText(text))
+  override def setText(text: String): Unit = onFX(label.setText(text))
 
-  override def rotateTextToCamera(camera: Camera): Unit = label.lookAtOnXZPlane(camera.getPosition)
+  override def rotateTextToCamera(cameraPosition: Point3D): Unit = label.lookAtOnXZPlane(cameraPosition)
 
   override def setNodeColor(color: Color): Unit = onFX {
     node.setColor(color)
@@ -72,7 +72,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   override def getNodePosition: Point3D = node.getPosition
 
-  override def select(): Unit = onFX {
+  override def select(): Unit = {
     node.setScale(2)
     node.setColor(selectionColor)
   }
@@ -84,9 +84,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     }
   }
 
-  override def setLabelScale(scale: Double): Unit = onFX {label.setScale(scale)}
+  override def setLabelScale(scale: Double): Unit = label.setScale(scale)
 
-  override def moveNodeTo(position: Point3D): Unit = onFX {
+  override def moveNodeTo(position: Point3D): Unit = {
     node.moveTo(position)
     label.moveTo(getLabelPosition(position))
   }

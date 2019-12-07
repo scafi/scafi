@@ -30,20 +30,24 @@ import scala.collection.mutable.{Map => MutableMap}
 private[manager] trait NodeManager {
   this: ConnectionManager => //ConnectionManager has to also be mixed in with NodeManager
 
-  private[this] final val networkNodesCache = MutableMap[String, NetworkNode]()
+  private[this] final val networkNodes = MutableMap[String, NetworkNode]()
   private[this] var nodeLabelsScale = 1d
   private[this] val BRIGHTNESS = 50 //out of 255
   private[this] var nodesColor = new Color(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS)
+  private[this] var selectionColor = java.awt.Color.red
   protected val mainScene: Scene
 
-  protected final def rotateAllNodeLabels(camera: Camera): Unit =
-    onFX {networkNodesCache.values.foreach(_.rotateTextToCamera(camera))}
+  protected final def rotateAllNodeLabels(camera: Camera): Unit = onFX {
+    val cameraPosition = camera.getPosition
+    networkNodes.values.foreach(_.rotateTextToCamera(cameraPosition))
+  }
 
   final def addNode(position: Product3[Double, Double, Double], UID: String): Boolean = onFXAndWait {
-    val nodeAlreadyExists = networkNodesCache.contains(UID)
+    val nodeAlreadyExists = networkNodes.contains(UID)
     if(!nodeAlreadyExists){
       val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor.toScalaFx, nodeLabelsScale)
-      networkNodesCache(UID) = networkNode
+      networkNode.setSelectionColor(selectionColor.toScalaFx)
+      networkNodes(UID) = networkNode
       mainScene.getChildren.add(networkNode)
     }
     !nodeAlreadyExists
@@ -53,7 +57,7 @@ private[manager] trait NodeManager {
     new Point3D(product._1, product._2, product._3)
 
   final def removeNode(nodeUID: String): Boolean = findNodeAndExecuteAction(nodeUID, node => {
-      networkNodesCache.remove(nodeUID)
+      networkNodes.remove(nodeUID)
       mainScene.getChildren.remove(node)
       removeAllNodeConnections(node) //using ConnectionManager
     })
@@ -61,27 +65,27 @@ private[manager] trait NodeManager {
   private final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Boolean =
     onFXAndWait(findNode(nodeUID).fold(false)(node => {action(node.toNetworkNode); true}))
 
-  protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodesCache.get(nodeUID)
+  protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodes.get(nodeUID)
 
-  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Boolean = //TODO: controlla che sia ottimizzato
+  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Boolean =
     findNodeAndExecuteAction(nodeUID, { node =>
       node.moveNodeTo(product3ToPoint3D(position))
       updateNodeConnections(node) //using ConnectionManager
     })
 
   final def getNodePosition(nodeUID: String): Option[Product3[Double, Double, Double]] =
-    onFXAndWait(networkNodesCache.get(nodeUID).map((node: NetworkNode) => point3DToProduct3(node.getNodePosition)))
+    onFXAndWait(networkNodes.get(nodeUID).map((node: NetworkNode) => point3DToProduct3(node.getNodePosition)))
 
   private final def point3DToProduct3(point: Point3D): Product3[Double, Double, Double] =
     (point.x, point.y, point.z)
 
   final def setNodeText(nodeUID: String, text: String): Boolean =
-    findNodeAndExecuteAction(nodeUID, _.updateText(text))
+    findNodeAndExecuteAction(nodeUID, _.setText(text))
 
   final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Boolean =
     findNodeAndExecuteAction(nodeUID, node => {
       val position = node.getScreenPosition
-      node.updateText(positionFormatter((position.x, position.y)))
+      node.setText(positionFormatter((position.x, position.y)))
     })
 
   final def setNodeColor(nodeUID: String, color: java.awt.Color): Boolean =
@@ -89,10 +93,10 @@ private[manager] trait NodeManager {
 
   final def setNodesColor(color: java.awt.Color): Unit = onFX {
     nodesColor = color
-    networkNodesCache.values.foreach(_.setNodeColor(color.toScalaFx))
+    networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))
   }
 
-  protected final def getAllNetworkNodes: Set[NetworkNode] = networkNodesCache.values.toSet
+  protected final def getAllNetworkNodes: Set[NetworkNode] = networkNodes.values.toSet
 
   final def increaseFontSize(): Unit = updateLabelSize(0.1)
 
@@ -102,6 +106,11 @@ private[manager] trait NodeManager {
     val MIN_SCALE = 0.5
     val MAX_SCALE = 1.5
     nodeLabelsScale = RichMath.clamp(nodeLabelsScale + sizeDifference, MIN_SCALE, MAX_SCALE)
-    networkNodesCache.values.foreach(_.setLabelScale(nodeLabelsScale))
+    networkNodes.values.foreach(_.setLabelScale(nodeLabelsScale))
+  }
+
+  final def setSelectionColor(color: java.awt.Color): Unit = onFX {
+    selectionColor = color
+    getAllNetworkNodes.foreach(_.setSelectionColor(color.toScalaFx))
   }
 }

@@ -45,8 +45,8 @@ final class NetworkRenderingPanel() extends JFXPanel
 
   private[this] def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
     scene.addEventFilter(KeyEvent.KeyPressed, (event: input.KeyEvent) => {
-      if (camera.isKeyboardEventAMovement(event)) {
-        if(camera.getPosition.magnitude()%2 < 0.5) rotateAllNodeLabels(camera)
+      if (camera.isKeyboardEventAMovement(event) && camera.getPosition.magnitude()%2 < 0.25) {
+        rotateAllNodeLabels(camera)
       }
       camera.moveByKeyboardEvent(event)
       camera.zoomByKeyboardEvent(event)

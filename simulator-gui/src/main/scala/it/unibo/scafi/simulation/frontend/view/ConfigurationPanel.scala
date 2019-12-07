@@ -18,7 +18,7 @@ import it.unibo.scafi.simulation.frontend.utility.Utils
 /**
   * This class represent the panel where the user can configure a new simulation.
   */
-class ConfigurationPanel(controller: Controller) extends JDialog(ControllerImpl.getUI) with PropertyChangeListener {
+class ConfigurationPanel(controller: Controller) extends JDialog(controller.getUI) with PropertyChangeListener {
   final private var err: JLabel = null
   final private var gbc: GridBagConstraints = null
 

@@ -42,15 +42,15 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
   }
 
   private def setupButtonActions(): Unit =
-    this.addKeyListener(new KeyListener {
-      override def keyTyped(keyEvent: KeyEvent): Unit = handleKeyCode(keyEvent.getKeyCode)
+    simulationPanel.addKeyListener(new KeyListener {
+      override def keyTyped(keyEvent: KeyEvent): Unit = ()
       override def keyPressed(keyEvent: KeyEvent): Unit = ()
-      override def keyReleased(keyEvent: KeyEvent): Unit = ()
+      override def keyReleased(keyEvent: KeyEvent): Unit = handleKeyCode(keyEvent.getKeyCode)
     })
 
-  private def handleKeyCode(keyCode: Int): Unit =
-    keyCode match {
-      case value if 1 until 4 contains value => controller.handleNumberButtonPress(value)
+  private def handleKeyCode(keyCode: Int): Unit = keyCode match {
+      case value if KeyEvent.VK_1 to KeyEvent.VK_4 contains value =>
+        controller.handleNumberButtonPress(value - KeyEvent.VK_1 + 1)
       case KeyEvent.VK_DOWN => controller.speedUpSimulation()
       case KeyEvent.VK_UP => controller.slowDownSimulation()
       case KeyEvent.VK_P => controller.increaseFontSize()

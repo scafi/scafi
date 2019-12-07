@@ -26,6 +26,7 @@ import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder}
 import scalafx.scene.text.Font
 import scalafx.scene.transform.{Rotate, Translate}
+import org.scalafx.extras._
 
 object Rendering3DUtils {
   private var materialCache: Map[Color, Material] = Map()
@@ -48,12 +49,13 @@ object Rendering3DUtils {
     box
   }
 
-  def createMaterial(color: Color): Material =
+  def createMaterial(color: Color): Material = onFXAndWait {
     materialCache.getOrElse(color, {
       val material = new PhongMaterial {diffuseColor = color; specularColor = color}
       materialCache += (color -> material)
       material
     })
+  }
 
   def createLine(origin: Point3D, target: Point3D, visible: Boolean, color: java.awt.Color): Cylinder = {
     val line = createCylinder(origin, target)

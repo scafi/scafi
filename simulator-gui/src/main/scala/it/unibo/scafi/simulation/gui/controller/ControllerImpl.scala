@@ -30,10 +30,11 @@ import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
 import it.unibo.scafi.simulation.gui.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
 import it.unibo.scafi.space.{Point2D, SpaceHelper}
+
 import scala.collection.immutable.List
 import javax.swing.SwingUtilities
-
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
+import it.unibo.scafi.simulation.gui.controller.ControllerImpl.gui
 
 import scala.util.Try
 
@@ -45,8 +46,6 @@ object ControllerImpl{
     if (SINGLETON == null) SINGLETON = new ControllerImpl
     SINGLETON
   }
-
-  def getUI: SimulatorUI = gui
 
   def startup: Unit = {
     SwingUtilities.invokeLater(() => {
@@ -63,7 +62,7 @@ object ControllerImpl{
 class ControllerImpl() extends Controller {
   private[gui] var gui: SimulatorUI = null
   protected[gui] var simManager: SimulationManager = null
-  final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]() //TODO: remove GuiNode if working in 3d
+  final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()
   private var valueShowed: NodeValue = NodeValue.EXPORT
   private var controllerUtility: ControllerPrivate = null
   private val updateFrequency = Settings.Sim_NumNodes / 4.0
@@ -94,6 +93,8 @@ class ControllerImpl() extends Controller {
     this.gui = simulatorGui
     this.controllerUtility = new ControllerPrivate(gui)
   }
+
+  override def getUI: SimulatorUI = gui
 
   def setSimManager(simManager: SimulationManager) {
     this.simManager = simManager

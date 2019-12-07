@@ -25,9 +25,9 @@ import scalafx.scene.paint.Color
 
 trait NetworkNode extends Node{
 
-  def updateText(text: String): Unit
+  def setText(text: String): Unit
 
-  def rotateTextToCamera(camera: Camera): Unit
+  def rotateTextToCamera(cameraPosition: Point3D): Unit
 
   def setNodeColor(color: Color): Unit
 

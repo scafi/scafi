@@ -26,85 +26,29 @@ import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Shape3D
-import scalafx.scene.transform.Rotate
 
-object RichScalaFx {
-  implicit class RichPoint3D(point: Point3D) {
-    final def absolute: Point3D = new Point3D(point.x.abs, point.y.abs, point.z.abs)
-    final def negate: Point3D = point * -1
-
-    final def *(value: Double): Point3D = point.multiply(value).toScalaPoint
-    final def /(value: Double): Point3D = new Point3D(point.x / value, point.y / value, point.z / value)
-    final def +(otherPoint: Point3D): Point3D = point.add(otherPoint).toScalaPoint
-    final def -(otherPoint: Point3D): Point3D = point.subtract(otherPoint).toScalaPoint
-  }
-
-  implicit class RichJavaPoint3D(point: javafx.geometry.Point3D) {
-    final def toScalaPoint: Point3D = new Point3D(point)
-  }
-
-  implicit class RichPoint2D(point: Point2D) {
-    final def eulerAngleTo(otherPoint: Point2D): Double = {
-      val determinant = point.x * otherPoint.y - point.y * otherPoint.x
-      Math.atan2(determinant, point.dotProduct(otherPoint)).toDegrees
-    }
-  }
+object RichScalaFx extends RichScalaFxHelper {
 
   object RichMath {
     def clamp(value: Double, min: Double, max: Double): Double =
       if (value < min) min else if (value > max) max else value
   }
 
-  implicit class RichJavaNode(node: javafx.scene.Node) { //TODO: ottimizza, ruota solo se necessario
-    final def lookAtOnXZPlane(point: Point3D): Unit = {
-      val directionToPoint = (point - node.getPosition).normalize()
-      val directionOnXZPlane = new Point2D(directionToPoint.getX, directionToPoint.getZ)
-      val xAngle = directionOnXZPlane.eulerAngleTo(new Point2D(1, 0))
-      onFX {node.setRotationAxis(Rotate.YAxis); node.setRotate(xAngle - 90)}
-    }
-
-    /**
-     * Don't use this on Group objects such as SimpleNetworkNode, since it would always return Point3D(0, 0, 0)
-     * */
-    final def getPosition: Point3D = {
-      val transform = onFXAndWait(node.getLocalToSceneTransform)
-      new Point3D(transform.getTx, transform.getTy, transform.getTz)
-    }
-
-    final def getScreenPosition: Point2D = {
-      val screenBounds = node.localToScreen(node.getBoundsInLocal)
-      new Point2D(screenBounds.getMinX, screenBounds.getMinY)
-    }
-
-    /**
-     * Using this on Group objects such as SimpleNetworkNode adds the position to the current position of the object,
-     * instead of actually moving the node at the specified position.
-     * */
-    final def moveTo(position: Point3D): Unit = onFX {
-      node.setTranslateX(position.x)
-      node.setTranslateY(position.y)
-      node.setTranslateZ(position.z)
-    }
-
-    final def rotateOnSelf(angle: Double, axis: Point3D): Unit =
-      onFX {node.getTransforms.add(new Rotate(angle, 0, 0, 0, axis))}
-
-    final def toNetworkNode: NetworkNode = node match {case networkNode: NetworkNode => networkNode}
-
-    final def setScale(scale: Double): Unit = {
-      node.setScaleX(scale)
-      node.setScaleY(scale)
-      node.setScaleZ(scale)
-    }
-  }
-
   implicit class RichNode(node: Node) {
     final def getPosition: Point3D = node.delegate.getPosition
+
     final def getScreenPosition: Point2D = node.delegate.getScreenPosition
+
     final def moveTo(position: Point3D): Unit = node.delegate.moveTo(position)
+
     final def rotateOnSelf(angle: Double, axis: Point3D): Unit = node.delegate.rotateOnSelf(angle, axis)
+
     final def lookAtOnXZPlane(point: Point3D): Unit = node.delegate.lookAtOnXZPlane(point)
+
+    final def getLookAtAngleOnXZPlane(point: Point3D): Double = node.delegate.getLookAtAngleOnXZPlane(point)
+
     final def toNetworkNode: NetworkNode = node.delegate.toNetworkNode
+
     final def setScale(scale: Double): Unit = node.delegate.setScale(scale)
   }
 
