@@ -55,7 +55,7 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   deltaRoundField.setColumns(10)
   deltaRoundField.addPropertyChangeListener(this)
 
-  neinghborsAreaField = new JFormattedTextField(NumberFormat.getNumberInstance)
+  neinghborsAreaField = new JFormattedTextField(new DecimalFormat("####.###"))
   neinghborsAreaField.setValue(Settings.Sim_NbrRadius)
   neinghborsAreaField.setColumns(10)
   neinghborsAreaField.addPropertyChangeListener(this)

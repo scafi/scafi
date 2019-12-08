@@ -18,11 +18,11 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
-import java.awt.{Color, Image}
+import java.awt.Image
 
-import it.unibo.scafi.simulation.gui.controller.{Controller, ControllerUtils}
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.ControllerStarter
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdater.updateNode
+import it.unibo.scafi.simulation.gui.controller.{Controller, ControllerUtils}
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
@@ -39,8 +39,8 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     simulation.setController(this)
     startGUI()
     ControllerUtils.addPopupObservations(gui.customPopupMenu,
-      () => gui.getSimulationPanel.toggleConnections(), setNodeValueTypeToShow, _ => ())
-    ControllerStarter.startup(simulation, gui, simulationManager)
+      () => gui.getSimulationPanel.toggleConnections(), this)
+    ControllerUtils.setupSensors(Settings.Sim_Sensors)
     startSimulation()
   }
 
@@ -52,13 +52,12 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   override def getUI: JFrame = gui
 
-  def setNodeValueTypeToShow(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
+  def setShowValue(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
 
-  def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
+  def getShowValue: NodeValue = this.nodeValueTypeToShow
 
   override def startSimulation(): Unit = {
-    //TODO: disable new simulation button of gui.getJMenuBar using ControllerUtils
-    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, () => getNodeValueTypeToShow))
+    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, () => getShowValue))
     ControllerStarter.startSimulation(simulation, gui, simulationManager)
   }
 
@@ -116,9 +115,10 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     simulationManager.simulation.setDeltaRound(newValue)
   }
 
-  override def showImage(img: Image, showed: Boolean): Unit = () //do nothing
-
   override def selectionAttempted: Boolean = gui.getSimulationPanel.isAttemptingSelection
+
+  override def showImage(img: Image, showed: Boolean): Unit = () //do nothing
+  override def setObservation(observation: Any => Boolean): Unit = () //do nothing
 }
 
 object DefaultController3D {

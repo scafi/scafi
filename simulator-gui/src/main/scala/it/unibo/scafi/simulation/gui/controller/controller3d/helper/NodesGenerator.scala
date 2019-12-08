@@ -19,8 +19,7 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
-import it.unibo.scafi.simulation.gui.Settings
-import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies.{Grid, Grid_HighVar, Grid_LoVar, Grid_MedVar}
+import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.NodeImpl
 import it.unibo.scafi.space.SpaceHelper
@@ -34,20 +33,13 @@ private[controller3d] object NodesGenerator {
       val nodeCountInSide = Math.cbrt(nodeCount).toInt
       val step = SCENE_SIZE / nodeCountInSide
       val OFFSET = SCENE_SIZE/40
-      val variance = getVariance(topology) * (SCENE_SIZE/10)
+      val variance = ControllerUtils.getTolerance(topology) * (SCENE_SIZE/10)
       val gridSettings = GridSettings(nodeCountInSide, nodeCountInSide, step , step, variance, OFFSET, OFFSET).to3D
       SpaceHelper.grid3DLocations(gridSettings, seed)
     } else {
       SpaceHelper.random3DLocations(SimpleRandomSettings(-SCENE_SIZE/2, SCENE_SIZE/2), nodeCount, seed)
     }
     locations.zipWithIndex.toMap.map(_.swap).map({case (index, position) => (index, new NodeImpl(index, position))})
-  }
-
-  private def getVariance(topology: String): Double = topology match { //TODO: remove copy-paste
-    case Grid => 0
-    case Grid_LoVar => Settings.Grid_LoVar_Eps
-    case Grid_MedVar => Settings.Grid_MedVar_Eps
-    case Grid_HighVar => Settings.Grid_HiVar_Eps
   }
 
 }

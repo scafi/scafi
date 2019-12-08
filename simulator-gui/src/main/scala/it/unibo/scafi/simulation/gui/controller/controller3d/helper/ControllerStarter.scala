@@ -26,11 +26,6 @@ import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 
 private[controller3d] object ControllerStarter {
 
-  def startup(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Unit = {
-    ControllerUtils.setupSensors(Settings.Sim_Sensors)
-    ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
-  }
-
   def startSimulation(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Unit = {
     val nodes = NodesGenerator.createNodes(Settings.Sim_Topology, Settings.Sim_NumNodes, Settings.ConfigurationSeed)
     nodes.values.foreach(node => gui.getSimulationPanel.addNode(node.position, node.id.toString))
@@ -42,6 +37,7 @@ private[controller3d] object ControllerStarter {
     simulationManager.simulation = simulation
     simulationManager.setPauseFire(Settings.Sim_DeltaRound)
     simulationManager.start()
+    ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
   }
 
   def setupGUI(gui: SimulatorUI3D): Unit = {

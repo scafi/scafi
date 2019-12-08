@@ -35,11 +35,15 @@ private[manager] trait NodeManager {
   private[this] val BRIGHTNESS = 50 //out of 255
   private[this] var nodesColor = new Color(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS)
   private[this] var selectionColor = java.awt.Color.red
+  private[this] var positionThatLabelsFace = Point3D.Zero
   protected val mainScene: Scene
 
-  protected final def rotateAllNodeLabels(camera: Camera): Unit = onFX {
+  protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
     val cameraPosition = camera.getPosition
-    networkNodes.values.foreach(_.rotateTextToCamera(cameraPosition))
+    if(cameraPosition.distance(positionThatLabelsFace) > 3000){
+      networkNodes.values.foreach(_.rotateTextToCamera(cameraPosition))
+      positionThatLabelsFace = cameraPosition
+    }
   }
 
   final def addNode(position: Product3[Double, Double, Double], UID: String): Boolean = onFXAndWait {

@@ -20,6 +20,7 @@ package it.unibo.scafi.simulation.gui.controller
 
 import it.unibo.scafi.simulation.gui.Settings
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
+import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies.{Grid, Grid_HighVar, Grid_LoVar, Grid_MedVar}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, NodeValue, Sensor}
 import it.unibo.scafi.simulation.gui.utility.Utils
@@ -31,8 +32,7 @@ import scala.util.Try
 
 private[controller] object ControllerUtils {
 
-  def getNeighborhoodPolicy: EuclideanDistanceNbr =
-    Settings.Sim_Policy_Nbrhood match {
+  def getNeighborhoodPolicy: EuclideanDistanceNbr = Settings.Sim_Policy_Nbrhood match {
       case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
@@ -47,8 +47,7 @@ private[controller] object ControllerUtils {
     jMenuBar.getMenu(0).getSubElements()(0).getSubElements()(0).getComponent.setEnabled(!enable) //new Simulation
   }
 
-  def formatExport(value: Any): String =
-    value match {
+  def formatExport(value: Any): String = value match {
       case doubleValue: Double =>
         if (doubleValue == Double.MaxValue){
           "inf"
@@ -72,31 +71,29 @@ private[controller] object ControllerUtils {
 
   def formatPosition(pos: java.awt.Point): String = s"(${pos.getX.toInt}; ${pos.getY.toInt})"
 
-  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, setValueToShow: NodeValue => Unit,
-                           setControllerObservationFunction: (Any=>Boolean) => Unit) {
+  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: Controller) {
     popupMenu.addObservation("Toggle Neighbours", _ => toggleNeighbours())
-    popupMenu.addObservation("Id", _ => setValueToShow(NodeValue.ID))
-    popupMenu.addObservation("Export", _ => setValueToShow(NodeValue.EXPORT))
-    popupMenu.addObservation("Position", _ => setValueToShow(NodeValue.POSITION))
-    popupMenu.addObservation("Position in GUI", _ => setValueToShow(NodeValue.POSITION_IN_GUI))
-    popupMenu.addObservation("Nothing", _ => setValueToShow(NodeValue.NONE))
-    addSensorAndGenericPopupObservations(popupMenu, setValueToShow, setControllerObservationFunction)
+    popupMenu.addObservation("Id", _ => controller.setShowValue(NodeValue.ID))
+    popupMenu.addObservation("Export", _ => controller.setShowValue(NodeValue.EXPORT))
+    popupMenu.addObservation("Position", _ => controller.setShowValue(NodeValue.POSITION))
+    popupMenu.addObservation("Position in GUI", _ => controller.setShowValue(NodeValue.POSITION_IN_GUI))
+    popupMenu.addObservation("Nothing", _ => controller.setShowValue(NodeValue.NONE))
+    addSensorAndGenericPopupObservations(popupMenu, controller)
   }
 
-  private def addSensorAndGenericPopupObservations(popupMenu: MyPopupMenu, setValueToShow: NodeValue => Unit,
-                                                   setControllerObservationFunction: (Any=>Boolean) => Unit): Unit = {
+  private def addSensorAndGenericPopupObservations(popupMenu: MyPopupMenu, controller: Controller): Unit = {
     popupMenu.addObservation("Sensor", _ => Try {
       val sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
           SensorEnum.sensors.map(_.name).mkString(", ") + ")")
-      setValueToShow(NodeValue.SENSOR(sensorName))
+      controller.setShowValue(NodeValue.SENSOR(sensorName))
     })
     popupMenu.addObservation("Generic observation", _ => Try {
       val observationStringRepr = JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)")
-      setObservation(observationStringRepr, setControllerObservationFunction)
+      setObservation(observationStringRepr, controller)
     })
   }
 
-  private def setObservation(obs: String, setControllerObservationFunction: (Any=>Boolean) => Unit): Unit = {
+  private def setObservation(obs: String, controller: Controller): Unit = {
     val split = obs.trim.split(" ", 2)
     val (operatorStr, valueStr) = (split(0), split(1))
     val (valueType, value) = Utils.parseValue(valueStr)
@@ -113,7 +110,7 @@ private[controller] object ControllerUtils {
       } catch {
         case ex => { println("Errore: " + ex); false }
       }
-    setControllerObservationFunction(obsFun)
+    controller.setObservation(obsFun)
   }
 
   private def anyToDouble(any: Any, valueType: String): Option[Double] =
@@ -126,4 +123,11 @@ private[controller] object ControllerUtils {
     else{
       None
     }
+
+  def getTolerance(topology: String): Double = topology match {
+    case Grid => 0
+    case Grid_LoVar => Settings.Grid_LoVar_Eps
+    case Grid_MedVar => Settings.Grid_MedVar_Eps
+    case Grid_HighVar => Settings.Grid_HiVar_Eps
+  }
 }

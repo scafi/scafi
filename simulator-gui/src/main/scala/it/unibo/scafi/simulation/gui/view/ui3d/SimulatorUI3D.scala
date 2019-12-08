@@ -34,4 +34,8 @@ trait SimulatorUI3D extends JFrame{
 
   def getUI: JFrame
 
+  def setShowValue(valueKind: NodeValue): Unit
+
+  def setObservation(observation: Any=>Boolean): Unit
+
 }

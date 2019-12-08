@@ -130,12 +130,7 @@ class ControllerImpl() extends Controller {
     var positions: List[Point2D] = List[Point2D]()
     if (List(Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar) contains topology) {
       val nPerSide = Math.sqrt(numNodes)
-      val tolerance = topology match {
-        case Grid => 0
-        case Grid_LoVar => Settings.Grid_LoVar_Eps
-        case Grid_MedVar => Settings.Grid_MedVar_Eps
-        case Grid_HighVar => Settings.Grid_HiVar_Eps
-      }
+      val tolerance = ControllerUtils.getTolerance(topology)
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
       positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety), configurationSeed)
     } else {
@@ -164,7 +159,7 @@ class ControllerImpl() extends Controller {
     simManager.setPauseFire(deltaRound)
     simManager.start()
     ControllerUtils.addPopupObservations(gui.getSimulationPanel.getPopUpMenu,
-      () => gui.getSimulationPanel.toggleNeighbours(), setShowValue, setObservation)
+      () => gui.getSimulationPanel.toggleNeighbours(), this)
     controllerUtility.addAction()
     controllerUtility.enableMenu(true)
     // TODO: System.out.println("START")

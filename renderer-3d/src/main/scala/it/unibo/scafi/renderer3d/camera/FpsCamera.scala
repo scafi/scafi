@@ -28,14 +28,15 @@ import scalafx.scene.transform.{Rotate, Translate}
 
 import scala.collection.mutable.{Set => MutableSet}
 
-final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Double = 3d)
+final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Double = 0.5d)
   extends PerspectiveCamera(true) with SimulationCamera {
 
   private[this] val SPEED = 200
   private[this] val INITIAL_FOV = 40
   private[this] val MIN_FOV = 20
-  private[this] val MIN_SENSITIVITY = 1
-  private[this] val MAX_SENSITIVITY = 10
+  private[this] val MIN_SENSITIVITY = 0.1
+  private[this] val MAX_SENSITIVITY = 1d
+  private[this] val MAX_ROTATION = 15
   private[this] val adjustedSensitivity = RichMath.clamp(sensitivity, MIN_SENSITIVITY, MAX_SENSITIVITY)
   private[this] var oldMousePosition = new Point2D(0, 0)
   private[this] val buttonsPressed = MutableSet[CameraMoveDirection.Value]()
@@ -46,9 +47,11 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   this.setNearClip(0.1)
   this.moveTo(initialPosition)
 
+  override def initiateMouseRotation(mouseEvent: MouseEvent): Unit = oldMousePosition = mouseEvent.getScreenPosition
+
   override def rotateByMouseEvent(mouseEvent: MouseEvent): Unit = onFX {
     val newMousePosition = mouseEvent.getScreenPosition
-    this.rotateCamera(newMousePosition.x - oldMousePosition.x)
+    this.rotateCamera(RichMath.clamp((newMousePosition.x - oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
     oldMousePosition = newMousePosition
   }
 
@@ -58,10 +61,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
       case _ => ()
     }
 
-  private def rotateCamera(xDegrees: Double): Unit = {
-    val xDegreesSign = if(xDegrees >= 0) 1 else -1 //use xDegrees.sign when upgrading to scala 2.13
-    this.rotateOnSelf(adjustedSensitivity * xDegreesSign, Rotate.YAxis)
-  }
+  private def rotateCamera(xDegrees: Double): Unit = this.rotateOnSelf(adjustedSensitivity * xDegrees, Rotate.YAxis)
 
   override def zoomByKeyboardEvent(keyEvent: input.KeyEvent): Unit = //doesn't support multiple presses at the same time
     keyEvent.getCode match {

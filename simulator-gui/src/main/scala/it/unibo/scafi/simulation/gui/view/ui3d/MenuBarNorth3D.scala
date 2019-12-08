@@ -27,6 +27,7 @@ class MenuBarNorth3D(controller: Controller3D) extends MenuBarNorth(controller) 
   private def disableImageButtons(): Unit = {
     addImage.setEnabled(false)
     removeImage.setEnabled(false)
+    newFile.setEnabled(false)
   }
 }
 

@@ -43,7 +43,12 @@ private[manager] trait SelectionManager {
 
   protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = onFX {
     val screenPosition = new Point2D(event.getScreenX, event.getScreenY)
-    initialNode = Option(getAllNetworkNodes.minBy(node => node.getScreenPosition.distance(screenPosition)))
+    val allNetworkNodes = getAllNetworkNodes
+    if(allNetworkNodes.isEmpty){
+      initialNode = None
+    } else {
+      initialNode = Option(allNetworkNodes.minBy(node => node.getScreenPosition.distance(screenPosition)))
+    }
     deselectSelectedNodes()
   }
 

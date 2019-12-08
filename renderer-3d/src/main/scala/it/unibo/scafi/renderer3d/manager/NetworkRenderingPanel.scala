@@ -53,9 +53,7 @@ final class NetworkRenderingPanel() extends JFXPanel
 
   private[this] def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
     scene.addEventFilter(KeyEvent.KeyPressed, (event: input.KeyEvent) => {
-      if (camera.isKeyboardEventAMovement(event) && camera.getPosition.magnitude()%2 < 0.25) { //TODO: this sometimes doesn't work well enough
-        rotateAllNodeLabels(camera)
-      }
+      if (camera.isKeyboardEventAMovement(event)) rotateNodeLabelsIfNeeded(camera)
       camera.moveByKeyboardEvent(event)
       camera.zoomByKeyboardEvent(event)
       camera.rotateByKeyboardEvent(event)
@@ -63,7 +61,7 @@ final class NetworkRenderingPanel() extends JFXPanel
 
   private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
     scene.setOnDragDetected(_ => scene.startFullDrag())
-    scene.setOnMousePressed(event => if(isPrimaryButton(event)) setSelectionVolumeCenter(event))
+    scene.setOnMousePressed(onMousePressed(_, camera))
     scene.onMouseDragEntered = event => if(isPrimaryButton(event)) startSelection(event)
     scene.onMouseDragged = event => {
       if(isPrimaryButton(event)) modifySelectionVolume(camera, event)
@@ -72,7 +70,17 @@ final class NetworkRenderingPanel() extends JFXPanel
     scene.onMouseReleased = event => if(isPrimaryButton(event)) endSelection(event)
   }
 
+  private def onMousePressed(event: MouseEvent, camera: SimulationCamera): Unit = {
+    if(isPrimaryButton(event)){
+      setSelectionVolumeCenter(event)
+    } else if(isMiddleMouse(event)){
+      camera.initiateMouseRotation(event)
+    }
+  }
+
   private def isPrimaryButton(event: MouseEvent): Boolean = event.getButton == MouseButton.PRIMARY
+
+  private def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
 }
 
 object NetworkRenderingPanel {

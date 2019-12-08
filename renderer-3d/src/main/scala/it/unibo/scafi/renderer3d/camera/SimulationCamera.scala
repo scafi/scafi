@@ -22,6 +22,8 @@ import it.unibo.scafi.space.{Point2D, Point3D}
 
 trait SimulationCamera extends Camera{
 
+  def initiateMouseRotation(mouseEvent: MouseEvent): Unit
+
   def rotateByMouseEvent(mouseEvent: MouseEvent): Unit
 
   def rotateByKeyboardEvent(keyEvent: KeyEvent): Unit
