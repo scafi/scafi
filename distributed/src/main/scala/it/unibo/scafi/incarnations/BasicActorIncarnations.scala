@@ -88,13 +88,7 @@ trait BasicAbstractActorIncarnation
     }
 
   implicit def adaptExport(export: EXPORT): ComputationExport =
-    new ExportImpl with ComputationExportContract {
-      override def get[A](path: Path): Option[A] = export.get(path)
-      override def put[A](path: Path, value: A): A = export.put(path, value)
-      override def root[A](): A = export.root()
-      override def paths: Map[Path, Any] = export.paths
-      override def toString: String = export.toString
-    }
+    new ExportImpl(export.getMap) with ComputationExportContract
 
   implicit def adaptContext(ctx: CONTEXT): ComputationContext =
     new BaseContextImpl(ctx.selfId, ctx.exports()) with ComputationContextContract {

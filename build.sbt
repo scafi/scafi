@@ -136,7 +136,11 @@ lazy val spala = project.
 lazy val distributed = project.
   dependsOn(core, spala).
   settings(commonSettings: _*).
-  settings(name := "scafi-distributed")
+  settings(
+    name := "scafi-distributed",
+    libraryDependencies += scalatest
+  )
+
 
 lazy val tests = project.
   dependsOn(core, simulator).
