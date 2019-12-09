@@ -1,6 +1,11 @@
 package examples
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+// import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.incarnations.BasicAbstractIncarnation
+
+object MyIncarnation extends BasicAbstractIncarnation
+
+import MyIncarnation._
 
 class BasicUsageProgram extends AggregateProgram  {
   override def main(): Any = rep(0)(_+1)
