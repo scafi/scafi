@@ -40,7 +40,13 @@ private[controller] object ControllerUtils {
   def setupSensors(sensors: String): Unit =
     Utils.parseSensors(sensors).foreach(entry => SensorEnum.sensors += Sensor(entry._1, entry._2))
 
-  def enableMenuBar(enable: Boolean, jMenuBar: JMenuBar): Unit = {
+  def enableMenu(enabled: Boolean, menuBar: JMenuBar, popupMenu: MyPopupMenu) {
+    popupMenu.getSubElements()(1).getComponent.setEnabled(enabled) //menu Observation
+    popupMenu.getSubElements()(2).getComponent.setEnabled(enabled) //menu Action
+    enableMenuBar(enabled, menuBar)
+  }
+
+  private def enableMenuBar(enable: Boolean, jMenuBar: JMenuBar): Unit = {
     jMenuBar.getMenu(1).setEnabled(enable) //Simulation
     jMenuBar.getMenu(1).getItem(0).getComponent.setEnabled(enable)
     jMenuBar.getMenu(1).getItem(1).getComponent.setEnabled(!enable)
@@ -70,59 +76,6 @@ private[controller] object ControllerUtils {
     s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)} ; ${formatDouble(pos.z)})"
 
   def formatPosition(pos: java.awt.Point): String = s"(${pos.getX.toInt}; ${pos.getY.toInt})"
-
-  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: Controller) {
-    popupMenu.addObservation("Toggle Neighbours", _ => toggleNeighbours())
-    popupMenu.addObservation("Id", _ => controller.setShowValue(NodeValue.ID))
-    popupMenu.addObservation("Export", _ => controller.setShowValue(NodeValue.EXPORT))
-    popupMenu.addObservation("Position", _ => controller.setShowValue(NodeValue.POSITION))
-    popupMenu.addObservation("Position in GUI", _ => controller.setShowValue(NodeValue.POSITION_IN_GUI))
-    popupMenu.addObservation("Nothing", _ => controller.setShowValue(NodeValue.NONE))
-    addSensorAndGenericPopupObservations(popupMenu, controller)
-  }
-
-  private def addSensorAndGenericPopupObservations(popupMenu: MyPopupMenu, controller: Controller): Unit = {
-    popupMenu.addObservation("Sensor", _ => Try {
-      val sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
-          SensorEnum.sensors.map(_.name).mkString(", ") + ")")
-      controller.setShowValue(NodeValue.SENSOR(sensorName))
-    })
-    popupMenu.addObservation("Generic observation", _ => Try {
-      val observationStringRepr = JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)")
-      setObservation(observationStringRepr, controller)
-    })
-  }
-
-  private def setObservation(obs: String, controller: Controller): Unit = {
-    val split = obs.trim.split(" ", 2)
-    val (operatorStr, valueStr) = (split(0), split(1))
-    val (valueType, value) = Utils.parseValue(valueStr)
-
-    val obsFun = (v:Any) => try {
-        (operatorStr, anyToDouble(v, valueType), anyToDouble(value, valueType)) match {
-          case ("==", Some(v1), Some(v2)) => v1 == v2
-          case (">=", Some(v1), Some(v2)) => v1 >= v2
-          case (">",  Some(v1), Some(v2)) => v1 > v2
-          case ("<=", Some(v1), Some(v2)) => v1 <= v2
-          case ("<",  Some(v1), Some(v2)) => v1 < v2
-          case _ => value.toString==v.toString
-        }
-      } catch {
-        case ex => { println("Errore: " + ex); false }
-      }
-    controller.setObservation(obsFun)
-  }
-
-  private def anyToDouble(any: Any, valueType: String): Option[Double] =
-    if(valueType == "bool"){
-      if(any.asInstanceOf[Boolean]) Some(1.0) else Some(0.0)
-    }
-    else if(valueType=="int" || valueType=="double"){
-      Some(any.asInstanceOf[Double])
-    }
-    else{
-      None
-    }
 
   def getTolerance(topology: String): Double = topology match {
     case Grid => 0

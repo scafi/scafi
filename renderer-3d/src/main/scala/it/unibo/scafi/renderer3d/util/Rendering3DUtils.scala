@@ -23,7 +23,7 @@ import scalafx.geometry.Point3D
 import scalafx.scene.AmbientLight
 import scalafx.scene.control.Label
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
-import scalafx.scene.shape.{Box, Cylinder}
+import scalafx.scene.shape.{Box, Cylinder, Sphere}
 import scalafx.scene.text.Font
 import scalafx.scene.transform.{Rotate, Translate}
 import org.scalafx.extras._
@@ -47,6 +47,12 @@ object Rendering3DUtils {
     box.setColor(color)
     box.moveTo(position)
     box
+  }
+
+  def createSphere(radius: Int, color: Color, position: Point3D): Sphere = {
+    val sphere = new Sphere(radius, 5) {material = createMaterial(color)}
+    sphere.moveTo(position)
+    sphere
   }
 
   def createMaterial(color: Color): Material = onFXAndWait {

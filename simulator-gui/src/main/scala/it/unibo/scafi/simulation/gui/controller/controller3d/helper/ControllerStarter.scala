@@ -37,7 +37,7 @@ private[controller3d] object ControllerStarter {
     simulationManager.simulation = simulation
     simulationManager.setPauseFire(Settings.Sim_DeltaRound)
     simulationManager.start()
-    ControllerUtils.enableMenuBar(enable = true, gui.getJMenuBar)
+    ControllerUtils.enableMenu(enabled = true, gui.getJMenuBar, gui.customPopupMenu)
   }
 
   def setupGUI(gui: SimulatorUI3D): Unit = {

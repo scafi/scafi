@@ -38,4 +38,7 @@ trait SimulatorUI3D extends JFrame{
 
   def setObservation(observation: Any=>Boolean): Unit
 
+  def getObservation(): Any=>Boolean
+
+  def setSensor(sensorName: String, value: Any): Unit
 }

@@ -158,10 +158,10 @@ class ControllerImpl() extends Controller {
     simManager.simulation = simulation
     simManager.setPauseFire(deltaRound)
     simManager.start()
-    ControllerUtils.addPopupObservations(gui.getSimulationPanel.getPopUpMenu,
+    PopupMenuUtils.addPopupObservations(gui.getSimulationPanel.getPopUpMenu,
       () => gui.getSimulationPanel.toggleNeighbours(), this)
-    controllerUtility.addAction()
-    controllerUtility.enableMenu(true)
+    PopupMenuUtils.addPopupActions(this, gui.getSimulationPanel.getPopUpMenu)
+    ControllerUtils.enableMenu(enabled = true, gui.getMenuBarNorth, gui.getSimulationPanel.getPopUpMenu)
     // TODO: System.out.println("START")
   }
 
@@ -186,7 +186,7 @@ class ControllerImpl() extends Controller {
   def clearSimulation() {
     simManager.stop()
     gui.setSimulationPanel(new SimulationPanel(this))
-    controllerUtility.enableMenu(false)
+    ControllerUtils.enableMenu(enabled = false, gui.getMenuBarNorth, gui.getSimulationPanel.getPopUpMenu)
     this.nodes = Map()
   }
 

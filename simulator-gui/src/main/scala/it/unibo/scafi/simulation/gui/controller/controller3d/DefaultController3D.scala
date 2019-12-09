@@ -20,26 +20,27 @@ package it.unibo.scafi.simulation.gui.controller.controller3d
 
 import java.awt.Image
 
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.ControllerStarter
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdater.updateNode
-import it.unibo.scafi.simulation.gui.controller.{Controller, ControllerUtils}
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.{SensorSetter, ControllerStarter}
+import it.unibo.scafi.simulation.gui.controller.{ControllerUtils, PopupMenuUtils}
 import it.unibo.scafi.simulation.gui.model._
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
 import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import javax.swing.{JFrame, SwingUtilities}
 
-class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager)
-  extends Controller3D with Controller{
+//TODO: do sensor radius, Size_Device_Relative, Movement_Activator, Led_Activator, Color_actuator
+class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
   private var gui: SimulatorUI3D = _
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
+  private var observation: Option[Any => Boolean] = None
 
   def startup(): Unit = {
     simulation.setController(this)
     startGUI()
-    ControllerUtils.addPopupObservations(gui.customPopupMenu,
+    PopupMenuUtils.addPopupObservations(gui.customPopupMenu,
       () => gui.getSimulationPanel.toggleConnections(), this)
+    PopupMenuUtils.addPopupActions(this, gui.customPopupMenu)
     ControllerUtils.setupSensors(Settings.Sim_Sensors)
     startSimulation()
   }
@@ -54,10 +55,10 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   def setShowValue(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
 
-  def getShowValue: NodeValue = this.nodeValueTypeToShow
+  def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
   override def startSimulation(): Unit = {
-    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, () => getShowValue))
+    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, this))
     ControllerStarter.startSimulation(simulation, gui, simulationManager)
   }
 
@@ -71,33 +72,12 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   override def clearSimulation(): Unit = {
     simulationManager.stop()
-    ControllerUtils.enableMenuBar(enable = false, gui.getJMenuBar)
+    ControllerUtils.enableMenu(enabled = false, gui.getJMenuBar, gui.customPopupMenu)
     gui.reset()
   }
 
-  def handleNumberButtonPress(sensorIndex: Int): Unit = {
-    getSensorName(sensorIndex).foreach(sensorName => {
-      val selectedNodeIDs = gui.getSimulationPanel.getSelectedNodesIDs
-      val selectedNodes = simulation.network.nodes.filter(node => selectedNodeIDs.contains(node._2.id.toString)).values
-      gui.getSimulationPanel.getInitialSelectedNodeId.foreach(initialNodeId => {
-        val initialNode = selectedNodes.filter(_.id == initialNodeId.toInt).head
-        val sensorValue = initialNode.getSensorValue(sensorName)
-        val newSensorValue = sensorValue match {case value: Boolean => !value}
-        selectedNodeIDs.foreach(setNodeSensor(_, sensorName, newSensorValue))
-        simulation.setSensor(sensorName, newSensorValue, selectedNodes.toSet)
-      })
-    })
-  }
-
-  private def getSensorName(sensorIndex: Int): Option[String] = SensorEnum.fromInt(sensorIndex).map(_.name)
-
-  private def setNodeSensor(nodeId: String, sensorName: String, newSensorValue: Boolean): Unit = {
-    val selectedNode = simulation.network.nodes(nodeId.toInt)
-    selectedNode.setSensor(sensorName, newSensorValue)
-    val firstEnabledSensorInNode = selectedNode.sensors.filter(_._2.equals(true)).keys.headOption
-    val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))
-    gui.getSimulationPanel.setModifiedNodesColor(sensorColor.getOrElse(Settings.Color_device))
-  }
+  def handleNumberButtonPress(sensorIndex: Int): Unit =
+    SensorSetter(gui.getSimulationPanel, simulation).handleNumberButtonPress(sensorIndex)
 
   def shutDown(): Unit = System.exit(0)
 
@@ -111,14 +91,25 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   def speedUpSimulation(): Unit = {
     val currentDeltaRound = getSimulationDeltaRound
-    val newValue = if(currentDeltaRound-10 < 0) 0 else currentDeltaRound-10
+    val newValue = if (currentDeltaRound - 10 < 0) 0 else currentDeltaRound - 10
     simulationManager.simulation.setDeltaRound(newValue)
   }
 
   override def selectionAttempted: Boolean = gui.getSimulationPanel.isAttemptingSelection
 
   override def showImage(img: Image, showed: Boolean): Unit = () //do nothing
-  override def setObservation(observation: Any => Boolean): Unit = () //do nothing
+
+  override def setObservation(observation: Any => Boolean): Unit = {this.observation = Option(observation)}
+
+  override def getObservation(): Any => Boolean = observation match {
+    case Some(observation) => observation;
+    case None => _ => false
+  }
+
+  override def setSensor(sensorName: String, value: Any): Unit =
+    SensorSetter(gui.getSimulationPanel, simulation).setSensor(sensorName, value, selectionAttempted)
+
+  override def isObservationSet: Boolean = observation.isDefined
 }
 
 object DefaultController3D {

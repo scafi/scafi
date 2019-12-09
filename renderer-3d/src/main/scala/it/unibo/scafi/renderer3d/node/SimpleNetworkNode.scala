@@ -34,9 +34,11 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private[this] val node = createBox(NODE_SIZE, nodeColor, position)
   private[this] val labelPosition = getLabelPosition(position)
   private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
+  private[this] val sphere = createSphere(1, Color.rgb(200, 200, 200, 0.5), position)
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
 
+  sphere.setVisible(false)
   setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
@@ -45,12 +47,11 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private def getLabelPosition(nodePosition: Point3D): Point3D =
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + 180), nodePosition.z)
 
-  private def optimizeForSpeed(): Unit = {
-    node.cache = true
-    label.cache = true
-    node.setCacheHint(CacheHint.Speed)
-    label.setCacheHint(CacheHint.Speed)
-  }
+  private def optimizeForSpeed(): Unit =
+    List(node, label, sphere).foreach(element => {
+      element.cache = true
+      element.setCacheHint(CacheHint.Speed)
+    })
 
   override def setText(text: String): Unit = onFX(label.setText(text))
 
@@ -67,6 +68,8 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     }
     selectionColor = color
   }
+
+  override def setSphereColor(color: Color): Unit = sphere.setColor(Color(color.red, color.green, color.blue, 0.5))
 
   private def isSelected: Boolean = node.getScaleX > 1
 
@@ -86,8 +89,18 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   override def setLabelScale(scale: Double): Unit = label.setScale(scale)
 
+  override def setSphereRadius(radius: Double): Unit = onFX {
+    if(radius <= 0){
+      sphere.setVisible(false)
+    } else {
+      sphere.setVisible(true)
+      sphere.setScale(radius)
+    }
+  }
+
   override def moveNodeTo(position: Point3D): Unit = {
     node.moveTo(position)
+    sphere.moveTo(position)
     label.moveTo(getLabelPosition(position))
   }
 }

@@ -21,6 +21,7 @@ package it.unibo.scafi.simulation.gui.controller.controller3d
 import it.unibo.scafi.incarnations.BasicAbstractIncarnation
 import it.unibo.scafi.simulation.gui.controller.Controller
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
+import it.unibo.scafi.simulation.gui.model.NodeValue
 
 trait Controller3D extends Controller{
 
@@ -36,7 +37,8 @@ trait Controller3D extends Controller{
 
   def speedUpSimulation(): Unit
 
-  def setPosition(n: Node)
+  def getNodeValueTypeToShow: NodeValue
 
-  def setController(controller: Controller): Unit
+  def isObservationSet: Boolean
+
 }

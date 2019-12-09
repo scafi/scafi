@@ -19,22 +19,35 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
-import it.unibo.scafi.simulation.gui.model.{Network, Node, NodeValue}
+import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
+import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.space.Point3D
 
 import scala.util.Try
 
 private[controller3d] object NodeUpdater {
 
-  def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, getValueToShow: () => NodeValue): Unit = {
+  def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, controller: Controller3D): Unit = {
     val gui3d = gui.getSimulationPanel
     val node = simulation.network.nodes(nodeId)
     val nodePositionChanged = createOrMoveNode(node, gui3d)
-    updateNodeText(node, nodePositionChanged, getValueToShow())(gui3d)
+    updateNodeText(node, nodePositionChanged, controller.getNodeValueTypeToShow)(gui3d)
     updateNodeConnections(gui3d, node, simulation.network.neighbourhood)
+    if(controller.getObservation()(node.export)){
+      gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
+    } else if(controller.isObservationSet) {
+      updateNodeColorBySensors(node, gui3d)
+    }
+  }
+
+  def updateNodeColorBySensors(node: Node, simulationPanel: NetworkRenderingPanel): Unit = {
+    val firstEnabledSensorInNode = node.sensors.filter(_._2.equals(true)).keys.headOption
+    val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))
+    simulationPanel.setNodeColor(node.id.toString, sensorColor.getOrElse(Settings.Color_device))
   }
 
   private def createOrMoveNode(node: Node, gui3d: NetworkRenderingPanel): Boolean = {

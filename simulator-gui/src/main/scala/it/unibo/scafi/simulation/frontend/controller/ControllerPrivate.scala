@@ -116,36 +116,6 @@ class ControllerPrivate (val gui: SimulatorUI) {
     })
   }
 
-  def enableMenu(enabled: Boolean) {
-    gui.getSimulationPanel.getPopUpMenu.getSubElements()(1).getComponent.setEnabled(enabled) //menu Observation
-    gui.getSimulationPanel.getPopUpMenu.getSubElements()(2).getComponent.setEnabled(enabled) //menu Action
-    ControllerUtils.enableMenuBar(enabled, gui.getJMenuBar)
-  }
-
-  def addAction() {
-    /* for(Action a :ActionEnum.values()){
-               gui.getSimulationPanel().getPopUpMenu().addAction(a.getName(), e->{});
-           }*/
-
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Source", (e:ActionEvent) => {
-      setSensor(SensorEnum.SOURCE.name, true);
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Obstacle", (e:ActionEvent) => {
-      setSensor(SensorEnum.OBSTACLE.name, true)
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Not Source", (e:ActionEvent) => {
-      setSensor(SensorEnum.SOURCE.name, false)
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Not Obstacle", (e:ActionEvent) => {
-      setSensor(SensorEnum.OBSTACLE.name, false)
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Set Sensor", (e:ActionEvent) => {
-      val sensPane = new SensorOptionPane("Set Sensor")
-      sensPane.addOperator("=")
-      for (s <- SensorEnum.sensors)  sensPane.addSensor(s.name)
-    })
-  }
-
   def revalidateSimulationPanel() {
     gui.getSimulationPanel.revalidate()
     gui.getSimulationPanel.repaint()
