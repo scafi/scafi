@@ -33,7 +33,7 @@ object Basic3DMovementDemo extends Launcher {
   Settings.Sim_ProgramClass = "sims.Basic3DMovement" // starting class, via Reflection
   Settings.Sim_NbrRadius = 2000 // neighbourhood radius
   Settings.Sim_NumNodes = 200 // number of nodes
-  Settings.Movement_Activator = (b: Any) => b.asInstanceOf[(Double, Double)]
+  Settings.Movement_Activator_3D = (b: Any) => b.asInstanceOf[(Double, Double, Double)]
   Settings.To_String = _ => ""
   Settings.ShowConfigPanel = false
   launch()
@@ -42,8 +42,13 @@ object Basic3DMovementDemo extends Launcher {
 class Basic3DMovement extends AggregateProgram
   with SensorDefinitions with BlockG with Movement2DSupport {
 
-  override def main:(Double, Double) = rep(randomMovement())(behaviour)
+  override def main:(Double, Double, Double) = rep(random3DMovement())(behaviour)
 
-  private def behaviour(tuple: ((Double, Double))): (Double, Double) =
-    mux(sense1) {clockwiseRotation(.5, .5)} {(.0, .0)}
+  private def behaviour(tuple: ((Double, Double, Double))): (Double, Double, Double) =
+    mux(sense1) {random3DMovement()} {(.0, .0, .0)}
+
+  def random3DMovement(): (Double, Double, Double) = {
+    def randomDouble: Double = random.nextDouble()*2000
+    (randomDouble, randomDouble, randomDouble)
+  }
 }

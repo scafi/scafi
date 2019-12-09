@@ -34,11 +34,13 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private[this] val node = createBox(NODE_SIZE, nodeColor, position)
   private[this] val labelPosition = getLabelPosition(position)
   private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
-  private[this] val sphere = createSphere(1, Color.rgb(200, 200, 200, 0.5), position)
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
+  private[this] val SPHERE_BRIGHTNESS = 100 //out of 255
+  private[this] val SPHERE_OPACITY = 0.5
+  private[this] val sphere = createSphere(1,
+    Color.rgb(SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_OPACITY), position, drawOutlineOnly = true)
 
-  sphere.setVisible(false)
   setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
@@ -69,8 +71,6 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     selectionColor = color
   }
 
-  override def setSphereColor(color: Color): Unit = sphere.setColor(Color(color.red, color.green, color.blue, 0.5))
-
   private def isSelected: Boolean = node.getScaleX > 1
 
   override def getNodePosition: Point3D = node.getPosition
@@ -90,11 +90,11 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   override def setLabelScale(scale: Double): Unit = label.setScale(scale)
 
   override def setSphereRadius(radius: Double): Unit = onFX {
-    if(radius <= 0){
-      sphere.setVisible(false)
+    if(radius < 1){
+      this.getChildren.remove(sphere)
     } else {
-      sphere.setVisible(true)
-      sphere.setScale(radius)
+      this.getChildren.add(sphere)
+      sphere.setRadius(radius)
     }
   }
 

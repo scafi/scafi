@@ -47,6 +47,7 @@ private[controller3d] object ControllerStarter {
     gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)
     gui3d.setBackground(Settings.Color_background)
+    gui3d.drawNodesRadius(Settings.Sim_Draw_Sensor_Radius, Settings.Sim_Sensor_Radius)
   }
 
 }

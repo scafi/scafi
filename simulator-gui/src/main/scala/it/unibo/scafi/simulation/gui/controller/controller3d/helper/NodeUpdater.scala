@@ -22,7 +22,7 @@ import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
+import it.unibo.scafi.simulation.gui.model.{Network, Node, NodeValue}
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.space.Point3D
@@ -34,9 +34,9 @@ private[controller3d] object NodeUpdater {
   def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, controller: Controller3D): Unit = {
     val gui3d = gui.getSimulationPanel
     val node = simulation.network.nodes(nodeId)
-    val nodePositionChanged = createOrMoveNode(node, gui3d)
-    updateNodeText(node, nodePositionChanged, controller.getNodeValueTypeToShow)(gui3d)
-    updateNodeConnections(gui3d, node, simulation.network.neighbourhood)
+    createOrMoveNode(node, gui3d, simulation)
+    updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
+    updateNodeConnections(gui3d, node, simulation.network)
     if(controller.getObservation()(node.export)){
       gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
     } else if(controller.isObservationSet) {
@@ -50,22 +50,20 @@ private[controller3d] object NodeUpdater {
     simulationPanel.setNodeColor(node.id.toString, sensorColor.getOrElse(Settings.Color_device))
   }
 
-  private def createOrMoveNode(node: Node, gui3d: NetworkRenderingPanel): Boolean = {
+  /**
+   * Returns wether the node was created or not
+   * */
+  private def createOrMoveNode(node: Node, gui3d: NetworkRenderingPanel, simulation: Simulation): Unit = {
     val nodeId = node.id.toString
     val nodePositionInUI = gui3d.getNodePosition(nodeId)
-    val didNodePositionChange = nodePositionInUI.getOrElse((0, 0, 0)) != toProduct3(node.position)
     if (nodePositionInUI.isEmpty) {
       gui3d.addNode(node.position, nodeId) //creating the node in ui if not already present
-    } else if (didNodePositionChange) {
-      gui3d.moveNode(nodeId, node.position) //updating node position if the node moved
+    } else {
+      moveNode(node, gui3d, simulation) //updating node position if the node moved
     }
-    nodePositionInUI.isEmpty || didNodePositionChange
   }
 
-  private final def toProduct3(point: Point3D): Product3[Double, Double, Double] = (point.x, point.y, point.z)
-
-  private def updateNodeText(node: Node, nodePositionChanged: Boolean, valueToShow: NodeValue)
-                            (implicit gui3d: NetworkRenderingPanel): Unit = {
+  private def updateNodeText(node: Node, valueToShow: NodeValue)(implicit gui3d: NetworkRenderingPanel): Unit = {
     val outputString = Try(Settings.To_String(node.export))
     if(outputString.isSuccess && !outputString.get.equals("")) {
       valueToShow match {
@@ -82,15 +80,26 @@ private[controller3d] object NodeUpdater {
   private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderingPanel): Boolean =
     gui3d.setNodeText(node.id.toString, text) //updating the value of the node's label
 
-  private def updateNodeConnections(gui3d: NetworkRenderingPanel, node: Node,
-                                    neighboursMap: Map[Node, Set[Node]]): Unit = {
+  private def updateNodeConnections(gui3d: NetworkRenderingPanel, node: Node, network: Network): Unit = {
     val nodeId = node.id.toString
     val connectionsInUI = gui3d.getNodesConnectedToNode(nodeId).getOrElse(Set())
-    val connections = neighboursMap.getOrElse(node, Set()).map(_.id.toString)
+    val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
     val removedConnections = connectionsInUI.diff(connections)
     newConnections.foreach(gui3d.connect(nodeId, _))
-    removedConnections.foreach(gui3d.disconnect(nodeId, _))
+    removedConnections.foreach(connection => gui3d.disconnect(nodeId, connection))
+  }
+
+  //the problem is that in neighboursMap the removed connections never get removed
+  private def moveNode(node: Node, gui3d: NetworkRenderingPanel, simulation: Simulation): Unit = { //TODO: connections should be removed correctly
+    val vector = Try(Settings.Movement_Activator_3D(node.export)).getOrElse((0.0, 0.0, 0.0))
+    if(vector != (0, 0, 0)) {
+      val currentPosition = node.position
+      val newPosition = (currentPosition.x + vector._1, currentPosition.y + vector._2, currentPosition.z + vector._3)
+      gui3d.moveNode(node.id.toString, newPosition)
+      simulation.setPosition(node)
+      node.position = new Point3D(newPosition._1, newPosition._2, newPosition._3)
+    }
   }
 
 }

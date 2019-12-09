@@ -49,13 +49,14 @@ private[manager] trait NodeManager {
 
   final def drawNodesRadius(draw: Boolean, radius: Double): Unit = onFX {
     nodesRadius = if(draw && radius > 0) radius else 0
-    //TODO
+    networkNodes.values.foreach(_.setSphereRadius(nodesRadius))
   }
 
   final def addNode(position: Product3[Double, Double, Double], UID: String): Boolean = onFXAndWait {
     val nodeAlreadyExists = networkNodes.contains(UID)
     if(!nodeAlreadyExists){
       val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor.toScalaFx, nodeLabelsScale)
+      networkNode.setSphereRadius(nodesRadius)
       networkNode.setSelectionColor(selectionColor.toScalaFx)
       networkNodes(UID) = networkNode
       mainScene.getChildren.add(networkNode)

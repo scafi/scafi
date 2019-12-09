@@ -33,8 +33,6 @@ trait NetworkNode extends Node{
 
   def setNodeColor(color: Color): Unit
 
-  def setSphereColor(color: Color): Unit
-
   def setSelectionColor(color: Color): Unit
 
   def select(): Unit

@@ -29,7 +29,7 @@ import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorU
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import javax.swing.{JFrame, SwingUtilities}
 
-//TODO: do sensor radius, Size_Device_Relative, Movement_Activator, Led_Activator, Color_actuator
+//TODO: do Size_Device_Relative, Movement_Activator, Led_Activator, Color_actuator, Settings.To_String
 class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
   private var gui: SimulatorUI3D = _
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT

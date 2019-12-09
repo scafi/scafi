@@ -19,8 +19,8 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
+import it.unibo.scafi.simulation.gui.Simulation
 import it.unibo.scafi.simulation.gui.model.Node
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
 private[controller3d] class SensorSetter(simulationPanel: NetworkRenderingPanel, simulation: Simulation) {
@@ -51,8 +51,13 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderingPanel,
     })
   }
 
-  private def getSelectedNodes(selectedNodeIDs: Set[String]): Set[Node] =
-    simulation.network.nodes.filter(node => selectedNodeIDs.contains(node._2.id.toString)).values.toSet
+  private def getSelectedNodes(selectedNodeIDs: Set[String]): Set[Node] = {
+    if(simulation.network == null){
+      Set()
+    } else {
+      simulation.network.nodes.filter(node => selectedNodeIDs.contains(node._2.id.toString)).values.toSet
+    }
+  }
 
   private def getSensorName(sensorIndex: Int): Option[String] = SensorEnum.fromInt(sensorIndex).map(_.name)
 
