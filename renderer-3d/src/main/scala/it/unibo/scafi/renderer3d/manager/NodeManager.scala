@@ -22,7 +22,6 @@ import java.awt.Color
 import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
-import scalafx.geometry.Point3D
 import scalafx.scene.{Camera, Scene}
 import scala.collection.mutable.{Map => MutableMap}
 
@@ -30,39 +29,41 @@ private[manager] trait NodeManager {
   this: ConnectionManager => //ConnectionManager has to also be mixed in with NodeManager
 
   private[this] final val networkNodes = MutableMap[String, NetworkNode]()
-  private[this] var nodeLabelsScale = 1d
-  private[this] val BRIGHTNESS = 50 //out of 255
-  private[this] var nodesColor = new Color(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS)
-  private[this] var selectionColor = java.awt.Color.red
-  private[this] var positionThatLabelsFace = Point3D.Zero
-  private[this] var nodesRadius = 0d
-  private[this] var nodesScale = 1d
+  private[this] final val NODE_BRIGHTNESS = 50 //out of 255
+  private[this] final var state = NodeManagerState(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS),
+    java.awt.Color.red, java.awt.Color.yellow)
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
     val cameraPosition = camera.getPosition
-    if(cameraPosition.distance(positionThatLabelsFace) > 3000){
+    if(cameraPosition.distance(state.positionThatLabelsFace) > 3000){
       networkNodes.values.foreach(_.rotateTextToCamera(cameraPosition))
-      positionThatLabelsFace = cameraPosition
+      state = state.setPositionThatLabelsFace(cameraPosition)
     }
   }
 
-  final def drawNodesRadius(draw: Boolean, radius: Double): Unit = onFX {
-    nodesRadius = if(draw && radius > 0) radius else 0
-    networkNodes.values.foreach(_.setSphereRadius(nodesRadius))
+  final def setSpheresRadius(seeThroughSpheresRadius: Double, filledSpheresRadius: Double): Unit = onFX {
+    state = state.copy(seeThroughSpheresRadius = getAdjustedRadius(seeThroughSpheresRadius),
+      filledSpheresRadius = getAdjustedRadius(filledSpheresRadius))
+    networkNodes.values.foreach(node => {
+      node.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
+      node.setFilledSphereRadius(state.filledSpheresRadius)
+    })
   }
 
+  private final def getAdjustedRadius(radius: Double): Double = if(radius > 0) radius else 0
+
   final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
-    val nodeAlreadyExists = networkNodes.contains(UID)
-    if(!nodeAlreadyExists){
-      val networkNode = SimpleNetworkNode(position.toPoint3D, UID, nodesColor.toScalaFx, nodeLabelsScale)
-      networkNode.setSphereRadius(nodesRadius)
-      networkNode.setSelectionColor(selectionColor.toScalaFx)
-      if(nodesScale != 1d) networkNode.setNodeScale(nodesScale)
+    if(!networkNodes.contains(UID)){
+      val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodesColor.toScalaFx, state.nodeLabelsScale)
+      networkNode.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
+      networkNode.setFilledSphereRadius(state.filledSpheresRadius)
+      networkNode.setFilledSphereColor(state.filledSpheresColor.toScalaFx)
+      networkNode.setSelectionColor(state.selectionColor.toScalaFx)
+      if(state.nodesScale != 1d) networkNode.setNodeScale(state.nodesScale)
       networkNodes(UID) = networkNode
       mainScene.getChildren.add(networkNode)
     }
-    !nodeAlreadyExists
   }
 
   final def removeNode(nodeUID: String): Unit = findNodeAndExecuteAction(nodeUID, node => {
@@ -95,12 +96,17 @@ private[manager] trait NodeManager {
     findNodeAndExecuteAction(nodeUID, _.setNodeColor(color.toScalaFx))
 
   final def setNodesColor(color: java.awt.Color): Unit = onFX {
-    nodesColor = color
+    state = state.setNodesColor(color)
     networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))
   }
 
+  final def setFilledSpheresColor(color: java.awt.Color): Unit = onFX {
+    state = state.setFilledSpheresColor(color)
+    networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))
+  }
+
   final def setNodesScale(scale: Double): Unit = onFX {
-    this.nodesScale = scale
+    state = state.setNodesScale(scale)
     networkNodes.values.foreach(_.setNodeScale(scale))
   }
 
@@ -113,12 +119,12 @@ private[manager] trait NodeManager {
   private final def updateLabelSize(sizeDifference: Double): Unit = onFX {
     val MIN_SCALE = 0.5
     val MAX_SCALE = 1.5
-    nodeLabelsScale = RichMath.clamp(nodeLabelsScale + sizeDifference, MIN_SCALE, MAX_SCALE)
-    networkNodes.values.foreach(_.setLabelScale(nodeLabelsScale))
+    state = state.setNodeLabelsScale(RichMath.clamp(state.nodeLabelsScale + sizeDifference, MIN_SCALE, MAX_SCALE))
+    networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
   }
 
   final def setSelectionColor(color: java.awt.Color): Unit = onFX {
-    selectionColor = color
+    state = state.setSelectionColor(color)
     getAllNetworkNodes.foreach(_.setSelectionColor(color.toScalaFx))
   }
 }

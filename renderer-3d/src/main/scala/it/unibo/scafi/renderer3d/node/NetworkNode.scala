@@ -29,7 +29,11 @@ trait NetworkNode extends Node{
 
   def rotateTextToCamera(cameraPosition: Point3D): Unit
 
-  def setSphereRadius(radius: Double)
+  def setSeeThroughSphereRadius(radius: Double): Unit
+
+  def setFilledSphereRadius(radius: Double): Unit
+
+  def setFilledSphereColor(color: Color): Unit
 
   def setNodeColor(color: Color): Unit
 

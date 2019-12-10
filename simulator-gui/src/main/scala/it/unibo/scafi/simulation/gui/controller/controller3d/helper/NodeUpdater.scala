@@ -44,6 +44,7 @@ private[controller3d] object NodeUpdater {
     } else if(controller.isObservationSet) {
       updateNodeColorBySensors(node, gui3d)
     }
+    gui3d.blockUntilThreadIsFree()
   }
 
   def updateNodeColorBySensors(node: Node, simulationPanel: NetworkRenderingPanel): Unit = {

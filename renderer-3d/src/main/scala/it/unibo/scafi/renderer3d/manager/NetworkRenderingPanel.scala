@@ -24,7 +24,7 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.embed.swing.JFXPanel
 import javafx.scene.input
 import javafx.scene.input.{MouseButton, MouseEvent}
-import org.scalafx.extras.onFX
+import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.input.KeyEvent
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
@@ -34,6 +34,12 @@ final class NetworkRenderingPanel() extends JFXPanel
 
   override protected val mainScene: Scene = new Scene(createScene())
   this.setScene(mainScene)
+
+  /**
+   * Since the rest of the api returns immediately, this should be used to avoid the main loop being to fast and
+   * flooding this object with requests, by blocking the main loop on this method.
+   * */
+  def blockUntilThreadIsFree(): JFXPanel = onFXAndWait {NetworkRenderingPanel.this}
 
   def resetScene(): Unit = onFX {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))

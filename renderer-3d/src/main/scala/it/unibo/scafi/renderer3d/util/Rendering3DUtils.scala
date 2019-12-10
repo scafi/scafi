@@ -49,12 +49,15 @@ object Rendering3DUtils {
     box
   }
 
-  def createSeeThroughSphere(radius: Int,position: Point3D): Sphere = {
+  def createSeeThroughSphere(radius: Int, position: Point3D): Sphere = {
     val SPHERE_BRIGHTNESS = 100 //out of 255
     val SPHERE_OPACITY = 0.5
     val color = Color.rgb(SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_OPACITY)
     createSphere(radius, color, position, drawOutlineOnly = true)
   }
+
+  def createFilledSphere(radius: Int, position: Point3D): Sphere =
+    createSphere(radius, Color.Black, position, drawOutlineOnly = false)
 
   def createSphere(radius: Int, color: Color, position: Point3D, drawOutlineOnly: Boolean): Sphere = {
     val MESH_DIVISIONS = 5 //this is low for performance reasons

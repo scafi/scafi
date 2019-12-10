@@ -47,7 +47,9 @@ private[controller3d] object ControllerStarter {
     gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)
     gui3d.setBackground(Settings.Color_background)
-    gui3d.drawNodesRadius(Settings.Sim_Draw_Sensor_Radius, Settings.Sim_Sensor_Radius)
+    val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius else 0
+    gui3d.setSpheresRadius(sensorRadius, 0)
+    gui3d.setFilledSpheresColor(Settings.Color_actuator)
     gui3d.setNodesScale(100 / Settings.Size_Device_Relative)
   }
 

@@ -25,6 +25,7 @@ import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.CacheHint
 import scalafx.scene.paint.Color
+import scalafx.scene.shape.Sphere
 
 final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Color, labelScale: Double)
   extends Group with NetworkNode {
@@ -37,7 +38,8 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
-  private[this] val sphere = createSeeThroughSphere(1, position)
+  private[this] val seeThroughSphere = createSeeThroughSphere(1, position)
+  private[this] val filledSphere = createFilledSphere(1, position)
 
   setLabelScale(labelScale)
   this.setId(UID)
@@ -48,7 +50,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
 
   private def optimizeForSpeed(): Unit =
-    List(node, label, sphere).foreach(element => {
+    List(node, label, seeThroughSphere, filledSphere).foreach(element => {
       element.cache = true
       element.setCacheHint(CacheHint.Speed)
     })
@@ -57,10 +59,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   override def rotateTextToCamera(cameraPosition: Point3D): Unit = label.lookAtOnXZPlane(cameraPosition)
 
-  override def setNodeColor(color: Color): Unit = onFX {
-    node.setColor(color)
-    currentColor = color
-  }
+  override def setFilledSphereColor(color: Color): Unit = onFX {filledSphere.setColor(color)}
+
+  override def setNodeColor(color: Color): Unit = onFX {node.setColor(color); currentColor = color}
 
   override def setSelectionColor(color: Color): Unit = onFX {
     if(isSelected){
@@ -73,10 +74,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   override def getNodePosition: Point3D = node.getPosition
 
-  override def select(): Unit = {
-    node.setScale(2)
-    node.setColor(selectionColor)
-  }
+  override def select(): Unit = {node.setScale(2); node.setColor(selectionColor)}
 
   override def deselect(): Unit = onFX {
     if(isSelected){
@@ -87,18 +85,21 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   override def setLabelScale(scale: Double): Unit = label.setScale(scale)
 
-  override def setSphereRadius(radius: Double): Unit = onFX {
+  override def setSeeThroughSphereRadius(radius: Double): Unit = setSphereRadius(seeThroughSphere, radius)
+
+  override def setFilledSphereRadius(radius: Double): Unit = setSphereRadius(filledSphere, radius)
+
+  private def setSphereRadius(sphere: Sphere, radius: Double): Unit = onFX {
     if(radius < 1){
-      this.getChildren.remove(sphere)
+      this.getChildren.remove(seeThroughSphere)
     } else {
-      this.getChildren.add(sphere)
-      sphere.setRadius(radius)
+      this.getChildren.add(seeThroughSphere)
+      seeThroughSphere.setRadius(radius)
     }
   }
 
   override def moveNodeTo(position: Point3D): Unit = {
-    node.moveTo(position)
-    sphere.moveTo(position)
+    List(node, seeThroughSphere, filledSphere).foreach(_.moveTo(position))
     label.moveTo(getLabelPosition(position))
   }
 
