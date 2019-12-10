@@ -10,7 +10,6 @@ import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object BasicDemo extends Launcher {
   // Configuring simulation
-  Settings.Size_Device_Relative = 50
   Settings.Sim_ProgramClass = "sims.BasicProgram" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius

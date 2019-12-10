@@ -43,7 +43,9 @@ trait NetworkNode extends Node{
 
   def getNodePosition: Point3D
 
-  def moveNodeTo(position: Point3D)
+  def moveNodeTo(position: Point3D): Unit
+
+  def setNodeScale(scale: Double): Unit
 
   val UID: String
 }

@@ -44,11 +44,8 @@ private[manager] trait ConnectionManager {
 
   private final def getAllConnections: Set[Cylinder] = connections.flatMap(entry => entry._2.values).toSet
 
-  final def getNodesConnectedToNode(nodeUID: String): Option[Set[String]] =
-    onFXAndWait {findNode(nodeUID).flatMap(node => connections.get(node).map(_.keys.map(_.getId).toSet))}
-
-  final def connect(node1UID: String, node2UID: String): Boolean =
-    onFXAndWait {findNodes(node1UID, node2UID).fold(false)(nodes => connectNodes(nodes._1, nodes._2))}
+  final def connect(node1UID: String, node2UID: String): Unit =
+    onFX {findNodes(node1UID, node2UID).fold(false)(nodes => connectNodes(nodes._1, nodes._2))}
 
   private final def findNodes(node1UID: String, node2UID: String): Option[(Node, Node)] =
     (findNode(node1UID), findNode(node2UID)) match {
@@ -77,8 +74,8 @@ private[manager] trait ConnectionManager {
     }
   }
 
-  final def disconnect(node1UID: String, node2UID: String): Boolean =
-    onFXAndWait {findNodes(node1UID, node2UID).fold(false)(nodes => disconnectNodes(nodes._1, nodes._2))}
+  final def disconnect(node1UID: String, node2UID: String): Unit =
+    onFX {findNodes(node1UID, node2UID).fold(false)(nodes => disconnectNodes(nodes._1, nodes._2))}
 
   private final def disconnectNodes(node1: Node, node2: Node): Boolean =
     connections.get(node1).fold(false)(innerMap => {

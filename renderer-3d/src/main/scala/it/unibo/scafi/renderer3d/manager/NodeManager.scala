@@ -24,7 +24,6 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.{Camera, Scene}
-
 import scala.collection.mutable.{Map => MutableMap}
 
 private[manager] trait NodeManager {
@@ -37,6 +36,7 @@ private[manager] trait NodeManager {
   private[this] var selectionColor = java.awt.Color.red
   private[this] var positionThatLabelsFace = Point3D.Zero
   private[this] var nodesRadius = 0d
+  private[this] var nodesScale = 1d
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
@@ -52,59 +52,56 @@ private[manager] trait NodeManager {
     networkNodes.values.foreach(_.setSphereRadius(nodesRadius))
   }
 
-  final def addNode(position: Product3[Double, Double, Double], UID: String): Boolean = onFXAndWait {
+  final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
     val nodeAlreadyExists = networkNodes.contains(UID)
     if(!nodeAlreadyExists){
-      val networkNode = SimpleNetworkNode(product3ToPoint3D(position), UID, nodesColor.toScalaFx, nodeLabelsScale)
+      val networkNode = SimpleNetworkNode(position.toPoint3D, UID, nodesColor.toScalaFx, nodeLabelsScale)
       networkNode.setSphereRadius(nodesRadius)
       networkNode.setSelectionColor(selectionColor.toScalaFx)
+      if(nodesScale != 1d) networkNode.setNodeScale(nodesScale)
       networkNodes(UID) = networkNode
       mainScene.getChildren.add(networkNode)
     }
     !nodeAlreadyExists
   }
 
-  private final def product3ToPoint3D(product: Product3[Double, Double, Double]): Point3D =
-    new Point3D(product._1, product._2, product._3)
-
-  final def removeNode(nodeUID: String): Boolean = findNodeAndExecuteAction(nodeUID, node => {
+  final def removeNode(nodeUID: String): Unit = findNodeAndExecuteAction(nodeUID, node => {
       networkNodes.remove(nodeUID)
       mainScene.getChildren.remove(node)
       removeAllNodeConnections(node) //using ConnectionManager
     })
 
-  private final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Boolean =
-    onFXAndWait(findNode(nodeUID).fold(false)(node => {action(node.toNetworkNode); true}))
+  private final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Unit =
+    onFX(findNode(nodeUID).fold(false)(node => {action(node.toNetworkNode); true}))
 
   protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodes.get(nodeUID)
 
-  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Boolean =
+  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Unit =
     findNodeAndExecuteAction(nodeUID, { node =>
-      node.moveNodeTo(product3ToPoint3D(position))
+      node.moveNodeTo(position.toPoint3D)
       updateNodeConnections(node) //using ConnectionManager
     })
 
-  final def getNodePosition(nodeUID: String): Option[Product3[Double, Double, Double]] =
-    onFXAndWait(networkNodes.get(nodeUID).map((node: NetworkNode) => point3DToProduct3(node.getNodePosition)))
-
-  private final def point3DToProduct3(point: Point3D): Product3[Double, Double, Double] =
-    (point.x, point.y, point.z)
-
-  final def setNodeText(nodeUID: String, text: String): Boolean =
+  final def setNodeText(nodeUID: String, text: String): Unit =
     findNodeAndExecuteAction(nodeUID, _.setText(text))
 
-  final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Boolean =
+  final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit =
     findNodeAndExecuteAction(nodeUID, node => {
       val position = node.getScreenPosition
       node.setText(positionFormatter((position.x, position.y)))
     })
 
-  final def setNodeColor(nodeUID: String, color: java.awt.Color): Boolean =
+  final def setNodeColor(nodeUID: String, color: java.awt.Color): Unit =
     findNodeAndExecuteAction(nodeUID, _.setNodeColor(color.toScalaFx))
 
   final def setNodesColor(color: java.awt.Color): Unit = onFX {
     nodesColor = color
     networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))
+  }
+
+  final def setNodesScale(scale: Double): Unit = onFX {
+    this.nodesScale = scale
+    networkNodes.values.foreach(_.setNodeScale(scale))
   }
 
   protected final def getAllNetworkNodes: Set[NetworkNode] = networkNodes.values.toSet

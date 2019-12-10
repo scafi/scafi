@@ -68,4 +68,8 @@ object RichScalaFx extends RichScalaFxHelper {
   implicit class RichMouseEvent(event: MouseEvent) {
     final def getScreenPosition: Point2D = new Point2D(event.getScreenX, event.getScreenY)
   }
+
+  implicit class RichProduct3Double(product: Product3[Double, Double, Double]) {
+    final def toPoint3D: Point3D = new Point3D(product._1, product._2, product._3)
+  }
 }

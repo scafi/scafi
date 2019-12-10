@@ -27,12 +27,13 @@ import lib.Movement2DSupport
 object Basic3DMovementDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer
+  Settings.Sim_DeltaRound = 10 //delta rounds lower than this make it lag too much when moving many nodes
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible
   Settings.Sim_ProgramClass = "sims.Basic3DMovement" // starting class, via Reflection
-  Settings.Sim_NbrRadius = 2000 // neighbourhood radius
-  Settings.Sim_NumNodes = 200 // number of nodes
+  Settings.Sim_NbrRadius = 1500 // neighbourhood radius, don't go too high
+  Settings.Sim_NumNodes = 200 // number of nodes, don't go too high, not beyond 300
   Settings.Movement_Activator_3D = (b: Any) => b.asInstanceOf[(Double, Double, Double)]
   Settings.To_String = _ => ""
   Settings.ShowConfigPanel = false
@@ -48,7 +49,7 @@ class Basic3DMovement extends AggregateProgram
     mux(sense1) {random3DMovement()} {(.0, .0, .0)}
 
   def random3DMovement(): (Double, Double, Double) = {
-    def randomDouble: Double = random.nextDouble()*2000
+    def randomDouble: Double = random.nextDouble()*2000 - 1000
     (randomDouble, randomDouble, randomDouble)
   }
 }

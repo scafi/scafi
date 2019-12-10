@@ -26,13 +26,14 @@ import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 object Basic3DDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer
-  //Settings.Sim_Draw_Sensor_Radius = true
+  //Settings.Size_Device_Relative = 80 //makes the nodes a bit bigger
+  //Settings.Sim_Draw_Sensor_Radius = true //this is visible only using high Sim_Sensor_Radius values like 500
   //Settings.Sim_Sensor_Radius = 500
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
-  Settings.Sim_NbrRadius = 2000 // neighbourhood radius, set this quite high
+  Settings.Sim_NbrRadius = 1500 // neighbourhood radius, set this between 100 and 1200 or so
   Settings.Sim_NumNodes = 100 // don't go too high, more than 300 causes a lot of stuttering
   Settings.ShowConfigPanel = false
   launch()

@@ -35,7 +35,7 @@ private[controller3d] object ControllerStarter {
     simulation.setRunProgram(Settings.Sim_ProgramClass)
     simulation.setStrategy(Settings.Sim_ExecStrategy)
     simulationManager.simulation = simulation
-    simulationManager.setPauseFire(Settings.Sim_DeltaRound)
+    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, 1))
     simulationManager.start()
     ControllerUtils.enableMenu(enabled = true, gui.getJMenuBar, gui.customPopupMenu)
   }
@@ -48,6 +48,7 @@ private[controller3d] object ControllerStarter {
     gui3d.setConnectionsColor(Settings.Color_link)
     gui3d.setBackground(Settings.Color_background)
     gui3d.drawNodesRadius(Settings.Sim_Draw_Sensor_Radius, Settings.Sim_Sensor_Radius)
+    gui3d.setNodesScale(100 / Settings.Size_Device_Relative)
   }
 
 }

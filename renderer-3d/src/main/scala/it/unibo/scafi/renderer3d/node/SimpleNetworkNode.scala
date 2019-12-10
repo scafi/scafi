@@ -23,31 +23,29 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Group
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
+import scalafx.scene.CacheHint
 import scalafx.scene.paint.Color
-import scalafx.scene.{CacheHint, Camera}
 
 final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Color, labelScale: Double)
   extends Group with NetworkNode {
 
   private[this] val NODE_SIZE = 60
   private[this] val LABEL_FONT_SIZE = 200
+  private[this] val LABEL_ADDED_HEIGHT = 180
   private[this] val node = createBox(NODE_SIZE, nodeColor, position)
   private[this] val labelPosition = getLabelPosition(position)
   private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
-  private[this] val SPHERE_BRIGHTNESS = 100 //out of 255
-  private[this] val SPHERE_OPACITY = 0.5
-  private[this] val sphere = createSphere(1,
-    Color.rgb(SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_OPACITY), position, drawOutlineOnly = true)
+  private[this] val sphere = createSeeThroughSphere(1, position)
 
   setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
   this.getChildren.addAll(node, label)
 
-  private def getLabelPosition(nodePosition: Point3D): Point3D =
-    new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + 180), nodePosition.z)
+  private def getLabelPosition(nodePosition: Point3D, addedHeight: Double = LABEL_ADDED_HEIGHT): Point3D =
+    new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
 
   private def optimizeForSpeed(): Unit =
     List(node, label, sphere).foreach(element => {
@@ -102,6 +100,11 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     node.moveTo(position)
     sphere.moveTo(position)
     label.moveTo(getLabelPosition(position))
+  }
+
+  override def setNodeScale(scale: Double): Unit = {
+    node.setScale(scale)
+    label.moveTo(getLabelPosition(node.getPosition, LABEL_ADDED_HEIGHT*(1 + scale/5)))
   }
 }
 

@@ -82,7 +82,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
   }
 
   override def setPosition(n: Node): Unit = {
-    net.setPosition(n.id, new Point2D(n.position.x, n.position.y))
+    net.setPosition(n.id, new Point3D(n.position.x, n.position.y, n.position.z))
     network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
 
