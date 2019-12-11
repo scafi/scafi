@@ -36,14 +36,11 @@ private[controller3d] object NodeUpdater {
   def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, controller: Controller3D): Unit = {
     val gui3d = gui.getSimulationPanel
     val node = simulation.network.nodes(nodeId)
-    createOrMoveNode(node, gui3d, simulation)
+    createOrMoveNode(node, simulation, gui3d)
     updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
-    updateNodeConnections(gui3d, node, simulation.network)
-    if(controller.getObservation()(node.export)){
-      gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
-    } else if(controller.isObservationSet) {
-      updateNodeColorBySensors(node, gui3d)
-    }
+    updateNodeConnections(node, simulation.network, gui3d)
+    updateNodeColor(node, controller, gui3d)
+    updateLedActuatorRadius(node, controller, gui3d)
     gui3d.blockUntilThreadIsFree()
   }
 
@@ -56,7 +53,7 @@ private[controller3d] object NodeUpdater {
   /**
    * Returns wether the node was created or not
    * */
-  private def createOrMoveNode(node: Node, gui3d: NetworkRenderingPanel, simulation: Simulation): Unit = synchronized {
+  private def createOrMoveNode(node: Node, simulation: Simulation, gui3d: NetworkRenderingPanel): Unit = synchronized {
     if (!connectionsInGUI.contains(node.id)) {
       createNode(node, gui3d, simulation) //creating the node in ui if not already present
     } else {
@@ -102,7 +99,7 @@ private[controller3d] object NodeUpdater {
   private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderingPanel): Unit =
     gui3d.setNodeText(node.id.toString, text) //updating the value of the node's label
 
-  private def updateNodeConnections(gui3d: NetworkRenderingPanel, node: Node, network: Network): Unit = synchronized {
+  private def updateNodeConnections(node: Node, network: Network, gui3d: NetworkRenderingPanel): Unit = synchronized {
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
     val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
@@ -112,5 +109,19 @@ private[controller3d] object NodeUpdater {
     newConnections.foreach(gui3d.connect(nodeId, _))
     removedConnections.foreach(connection => gui3d.disconnect(nodeId, connection))
   }
+
+  private def updateNodeColor(node: Node, controller: Controller3D, gui3d: NetworkRenderingPanel): Unit = {
+    if(controller.getObservation()(node.export)){
+      gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
+    } else if(controller.isObservationSet) {
+      updateNodeColorBySensors(node, gui3d)
+    }
+  }
+
+  private def updateLedActuatorRadius(node: Node, controller: Controller3D, gui3d: NetworkRenderingPanel): Unit =
+    if(controller.isLedActivatorSet){
+      val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false)
+      gui3d.enableNodeFilledSphere(node.id.toString, enableLed)
+    }
 
 }

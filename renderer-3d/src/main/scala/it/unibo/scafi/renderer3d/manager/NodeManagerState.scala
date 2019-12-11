@@ -19,12 +19,12 @@
 package it.unibo.scafi.renderer3d.manager
 
 import java.awt.Color
-
+import NodeManagerState.NODE_BRIGHTNESS
 import scalafx.geometry.Point3D
 
-final case class NodeManagerState(nodesColor: Color,
-                                  selectionColor: Color,
-                                  filledSpheresColor: Color,
+final case class NodeManagerState(nodesColor: Color = new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS),
+                                  selectionColor: Color = java.awt.Color.red,
+                                  filledSpheresColor: Color = java.awt.Color.yellow,
                                   positionThatLabelsFace: Point3D = Point3D.Zero,
                                   seeThroughSpheresRadius: Double = 0,
                                   filledSpheresRadius: Double = 0,
@@ -44,5 +44,9 @@ final case class NodeManagerState(nodesColor: Color,
   def setNodesScale(value: Double): NodeManagerState = copy(nodesScale = value)
 
   def setNodeLabelsScale(value: Double): NodeManagerState = copy(nodeLabelsScale = value)
-  
+
+}
+
+object NodeManagerState {
+  final val NODE_BRIGHTNESS = 50 //out of 255
 }

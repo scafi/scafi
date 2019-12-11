@@ -41,4 +41,6 @@ trait Controller3D extends Controller{
 
   def isObservationSet: Boolean
 
+  def isLedActivatorSet: Boolean
+
 }

@@ -29,6 +29,7 @@ object Basic3DDemo extends Launcher {
   //Settings.Size_Device_Relative = 80 //makes the nodes a bit bigger
   //Settings.Sim_Draw_Sensor_Radius = true //this is visible only using high Sim_Sensor_Radius values like 500
   //Settings.Sim_Sensor_Radius = 500
+  //Settings.Led_Activator = _ => true
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible

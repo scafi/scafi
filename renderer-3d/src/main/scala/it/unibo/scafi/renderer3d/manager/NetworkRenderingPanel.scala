@@ -29,6 +29,7 @@ import scalafx.geometry.Point3D
 import scalafx.scene.input.KeyEvent
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
 
+//TODO: do scene.setFill(color) and camera rotation
 final class NetworkRenderingPanel() extends JFXPanel
   with ConnectionManager with NodeManager with SelectionManager {
 

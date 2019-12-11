@@ -29,7 +29,6 @@ import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorU
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import javax.swing.{JFrame, SwingUtilities}
 
-//TODO: do Led_Activator, Color_actuator
 class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
   private var gui: SimulatorUI3D = _
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
@@ -110,6 +109,8 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     SensorSetter(gui.getSimulationPanel, simulation).setSensor(sensorName, value, selectionAttempted)
 
   override def isObservationSet: Boolean = observation.isDefined
+
+  override def isLedActivatorSet: Boolean = Settings.Led_Activator(true)
 }
 
 object DefaultController3D {

@@ -18,7 +18,6 @@
 
 package it.unibo.scafi.renderer3d.manager
 
-import java.awt.Color
 import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
@@ -29,9 +28,7 @@ private[manager] trait NodeManager {
   this: ConnectionManager => //ConnectionManager has to also be mixed in with NodeManager
 
   private[this] final val networkNodes = MutableMap[String, NetworkNode]()
-  private[this] final val NODE_BRIGHTNESS = 50 //out of 255
-  private[this] final var state = NodeManagerState(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS),
-    java.awt.Color.red, java.awt.Color.yellow)
+  private[this] final var state = NodeManagerState()
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
@@ -41,6 +38,9 @@ private[manager] trait NodeManager {
       state = state.setPositionThatLabelsFace(cameraPosition)
     }
   }
+
+  final def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit =
+    onFX{findNode(nodeUID).foreach(_.setFilledSphereRadius(if(enable) 100 else 0))}
 
   final def setSpheresRadius(seeThroughSpheresRadius: Double, filledSpheresRadius: Double): Unit = onFX {
     state = state.copy(seeThroughSpheresRadius = getAdjustedRadius(seeThroughSpheresRadius),
@@ -73,7 +73,7 @@ private[manager] trait NodeManager {
     })
 
   private final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Unit =
-    onFX(findNode(nodeUID).fold(false)(node => {action(node.toNetworkNode); true}))
+    onFX(findNode(nodeUID).fold()(node => {action(node.toNetworkNode)}))
 
   protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodes.get(nodeUID)
 
@@ -83,8 +83,7 @@ private[manager] trait NodeManager {
       updateNodeConnections(node) //using ConnectionManager
     })
 
-  final def setNodeText(nodeUID: String, text: String): Unit =
-    findNodeAndExecuteAction(nodeUID, _.setText(text))
+  final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndExecuteAction(nodeUID, _.setText(text))
 
   final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit =
     findNodeAndExecuteAction(nodeUID, node => {

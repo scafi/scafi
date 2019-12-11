@@ -59,7 +59,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   override def rotateTextToCamera(cameraPosition: Point3D): Unit = label.lookAtOnXZPlane(cameraPosition)
 
-  override def setFilledSphereColor(color: Color): Unit = onFX {filledSphere.setColor(color)}
+  override def setFilledSphereColor(color: Color): Unit = onFX {filledSphere.setColor(new Color(color.opacity(0.1)))}
 
   override def setNodeColor(color: Color): Unit = onFX {node.setColor(color); currentColor = color}
 
@@ -91,10 +91,10 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   private def setSphereRadius(sphere: Sphere, radius: Double): Unit = onFX {
     if(radius < 1){
-      this.getChildren.remove(seeThroughSphere)
-    } else {
-      this.getChildren.add(seeThroughSphere)
-      seeThroughSphere.setRadius(radius)
+      this.getChildren.remove(sphere)
+    } else if(!this.getChildren.contains(sphere)) {
+      this.getChildren.add(sphere)
+      sphere.setRadius(radius)
     }
   }
 
@@ -104,7 +104,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   }
 
   override def setNodeScale(scale: Double): Unit = {
-    node.setScale(scale)
+    List(node, filledSphere).foreach(_.setScale(scale))
     label.moveTo(getLabelPosition(node.getPosition, LABEL_ADDED_HEIGHT*(1 + scale/5)))
   }
 }
