@@ -27,7 +27,7 @@ import org.scalafx.extras._
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Shape3D
-import scalafx.scene.{Camera, Scene}
+import scalafx.scene.{Camera, Node, Scene}
 
 private[manager] trait SelectionManager {
   this: NodeManager =>
@@ -65,7 +65,7 @@ private[manager] trait SelectionManager {
     selectedNodes = Set()
   }
 
-  protected final def modifySelectionVolume(camera: Camera, event: MouseEvent): Unit = onFX {
+  protected final def modifySelectionVolume(camera: Node, event: MouseEvent): Unit = onFX {
     if(selectVolume.isVisible){
       val screenPosition = event.getScreenPosition
       val initialNodeScreenPosition = initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)

@@ -19,15 +19,12 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
-import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdaterHelper._
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.model.{Network, Node, NodeValue}
+import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
-import it.unibo.scafi.space.Point3D
-
-import scala.util.Try
 
 private[controller3d] object NodeUpdater {
 
@@ -36,7 +33,7 @@ private[controller3d] object NodeUpdater {
   def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, controller: Controller3D): Unit = {
     val gui3d = gui.getSimulationPanel
     val node = simulation.network.nodes(nodeId)
-    createOrMoveNode(node, simulation, gui3d)
+    createOrMoveNode(node, simulation, controller, gui3d)
     updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
     updateNodeConnections(node, simulation.network, gui3d)
     updateNodeColor(node, controller, gui3d)
@@ -50,14 +47,12 @@ private[controller3d] object NodeUpdater {
     simulationPanel.setNodeColor(node.id.toString, sensorColor.getOrElse(Settings.Color_device))
   }
 
-  /**
-   * Returns wether the node was created or not
-   * */
-  private def createOrMoveNode(node: Node, simulation: Simulation, gui3d: NetworkRenderingPanel): Unit = synchronized {
-    if (!connectionsInGUI.contains(node.id)) {
-      createNode(node, gui3d, simulation) //creating the node in ui if not already present
-    } else {
+  private def createOrMoveNode(node: Node, simulation: Simulation, controller: Controller3D,
+                               gui3d: NetworkRenderingPanel): Unit = synchronized {
+    if (controller.getCreatedNodesID.contains(node.id)) {
       updateNodePosition(node, gui3d, simulation)
+    } else {
+      createNode(node, gui3d, simulation) //creating the node in ui if not already present
     }
   }
 
@@ -67,38 +62,6 @@ private[controller3d] object NodeUpdater {
     setSimulationNodePosition(node, (node.position.x, node.position.y, node.position.z), simulation)
   }
 
-  private def updateNodePosition(node: Node, gui3d: NetworkRenderingPanel, simulation: Simulation): Unit = {
-    val vector = Try(Settings.Movement_Activator_3D(node.export)).getOrElse((0.0, 0.0, 0.0))
-    if(vector != (0, 0, 0)) {
-      val currentPosition = node.position
-      val newPosition = (currentPosition.x + vector._1, currentPosition.y + vector._2, currentPosition.z + vector._3)
-      gui3d.moveNode(node.id.toString, newPosition)
-      setSimulationNodePosition(node, newPosition, simulation)
-    }
-  }
-
-  private def setSimulationNodePosition(node: Node, position: (Double, Double, Double), simulation: Simulation): Unit = {
-    simulation.setPosition(node)
-    node.position = new Point3D(position._1, position._2, position._3)
-  }
-
-  private def updateNodeText(node: Node, valueToShow: NodeValue)(implicit gui3d: NetworkRenderingPanel): Unit = {
-    val outputString = Try(Settings.To_String(node.export))
-    if(outputString.isSuccess && !outputString.get.equals("")) {
-      valueToShow match {
-        case NodeValue.ID => setNodeText(node, node.id.toString)
-        case NodeValue.EXPORT => setNodeText(node, formatExport(node.export))
-        case NodeValue.POSITION => setNodeText(node, formatPosition(node.position))
-        case NodeValue.POSITION_IN_GUI => gui3d.setNodeTextAsUIPosition(node.id.toString, formatProductPosition)
-        case NodeValue.SENSOR(name) => setNodeText(node, node.getSensorValue(name).toString)
-        case _ => setNodeText(node, "")
-      }
-    }
-  }
-
-  private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderingPanel): Unit =
-    gui3d.setNodeText(node.id.toString, text) //updating the value of the node's label
-
   private def updateNodeConnections(node: Node, network: Network, gui3d: NetworkRenderingPanel): Unit = synchronized {
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
     val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
@@ -106,8 +69,17 @@ private[controller3d] object NodeUpdater {
     val removedConnections = connectionsInUI.diff(connections)
     val nodeId = node.id.toString
     connectionsInGUI += (node.id -> connections)
-    newConnections.foreach(gui3d.connect(nodeId, _))
+    setNewConnections(newConnections, nodeId, gui3d)
     removedConnections.foreach(connection => gui3d.disconnect(nodeId, connection))
+  }
+
+  private def setNewConnections(newConnections: Set[String], nodeId: String, gui3d: NetworkRenderingPanel): Unit = {
+    newConnections.foreach(neighbourId => {
+      gui3d.connect(nodeId, neighbourId)
+      val neighbourIntId = neighbourId.toInt
+      val previousNodeNeighbours = connectionsInGUI.getOrElse(neighbourIntId, Set())
+      connectionsInGUI += (neighbourIntId -> (previousNodeNeighbours + nodeId))
+    })
   }
 
   private def updateNodeColor(node: Node, controller: Controller3D, gui3d: NetworkRenderingPanel): Unit = {
@@ -117,11 +89,5 @@ private[controller3d] object NodeUpdater {
       updateNodeColorBySensors(node, gui3d)
     }
   }
-
-  private def updateLedActuatorRadius(node: Node, controller: Controller3D, gui3d: NetworkRenderingPanel): Unit =
-    if(controller.isLedActivatorSet){
-      val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false)
-      gui3d.enableNodeFilledSphere(node.id.toString, enableLed)
-    }
 
 }

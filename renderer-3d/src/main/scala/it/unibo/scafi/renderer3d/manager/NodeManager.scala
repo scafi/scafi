@@ -19,7 +19,7 @@
 package it.unibo.scafi.renderer3d.manager
 
 import com.typesafe.scalalogging.Logger
-import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
+import it.unibo.scafi.renderer3d.node.{NetworkNode, OptimizedNodeRenderer, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
 import scalafx.scene.{Camera, Scene}
@@ -30,6 +30,7 @@ private[manager] trait NodeManager {
   this: ConnectionManager => //ConnectionManager has to also be mixed in with NodeManager
 
   private[this] final val networkNodes = MutableMap[String, NetworkNode]()
+  private[this] final val meshRenderer = OptimizedNodeRenderer()
   private[this] final var state = NodeManagerState()
   private[this] val logger = Logger("NodeManager")
   protected val mainScene: Scene
@@ -59,6 +60,7 @@ private[manager] trait NodeManager {
   final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
     findNode(UID).fold{
       val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodesColor.toScalaFx, state.nodeLabelsScale)
+      meshRenderer.addNodes(List((networkNode, state.nodesColor.toScalaFx)), mainScene) //
       networkNode.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
       networkNode.setFilledSphereRadius(state.filledSpheresRadius)
       networkNode.setFilledSphereColor(state.filledSpheresColor.toScalaFx)
@@ -81,7 +83,11 @@ private[manager] trait NodeManager {
   protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodes.get(nodeUID)
 
   final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Unit =
-    findNodeAndAct(nodeUID, {node => node.moveNodeTo(position.toPoint3D); updateNodeConnections(node)})
+    findNodeAndAct(nodeUID, node => {
+      node.moveNodeTo(position.toPoint3D);
+      meshRenderer.moveNodes(List((node, position.toPoint3D)), mainScene) //
+      updateNodeConnections(node)
+    })
 
   final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text))
 
@@ -92,11 +98,15 @@ private[manager] trait NodeManager {
     })
 
   final def setNodeColor(nodeUID: String, color: java.awt.Color): Unit =
-    findNodeAndAct(nodeUID, _.setNodeColor(color.toScalaFx))
+    findNodeAndAct(nodeUID, node => {
+      meshRenderer.setNodesColor(List((node, color.toScalaFx)), mainScene) //
+      node.setNodeColor(color.toScalaFx)
+    })
 
   final def setNodesColor(color: java.awt.Color): Unit = onFX {
     state = state.setNodesColor(color)
     networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))
+    meshRenderer.setDefaultColor(color.toScalaFx) //
   }
 
   final def setFilledSpheresColor(color: java.awt.Color): Unit = onFX {

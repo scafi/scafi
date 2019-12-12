@@ -35,7 +35,7 @@ private[camera] object CameraMoveDirection extends Enumeration {
   private val DOWN = UP.negate
 
   implicit class CameraMoveDirectionValue(direction: Value) {
-    final def toVector(camera: Camera): Option[Point3D] =
+    final def toVector: Option[Point3D] =
       this.direction match {
         case CameraMoveDirection.forward => Option(FORWARD)
         case CameraMoveDirection.backward => Option(BACKWARD)

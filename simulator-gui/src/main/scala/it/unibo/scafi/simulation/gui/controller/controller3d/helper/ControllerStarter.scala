@@ -26,7 +26,7 @@ import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 
 private[controller3d] object ControllerStarter {
 
-  def startSimulation(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Unit = {
+  def setupSimulation(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Set[Int] = {
     val nodes = NodesGenerator.createNodes(Settings.Sim_Topology, Settings.Sim_NumNodes, Settings.ConfigurationSeed)
     nodes.values.foreach(node => gui.getSimulationPanel.addNode(node.position, node.id.toString))
     val policyNeighborhood = ControllerUtils.getNeighborhoodPolicy
@@ -36,8 +36,8 @@ private[controller3d] object ControllerStarter {
     simulation.setStrategy(Settings.Sim_ExecStrategy)
     simulationManager.simulation = simulation
     simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, 1)) //this avoids javaFx thread flooding
-    simulationManager.start()
     ControllerUtils.enableMenu(enabled = true, gui.getJMenuBar, gui.customPopupMenu)
+    nodes.keys.toSet
   }
 
   def setupGUI(gui: SimulatorUI3D): Unit = {

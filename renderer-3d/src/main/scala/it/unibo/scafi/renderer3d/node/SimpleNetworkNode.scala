@@ -44,7 +44,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
-  this.getChildren.addAll(node, label)
+  this.getChildren.addAll(label) // node has not been added since OptimizedNodeRenderer has been used instead
 
   private def getLabelPosition(nodePosition: Point3D, addedHeight: Double = LABEL_ADDED_HEIGHT): Point3D =
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
@@ -74,9 +74,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   override def getNodePosition: Point3D = node.getPosition
 
-  override def select(): Unit = {node.setScale(2); node.setColor(selectionColor)}
+  override def select(): Unit = {node.setScale(2); node.setColor(selectionColor)} //TODO
 
-  override def deselect(): Unit = onFX {
+  override def deselect(): Unit = onFX { //TODO
     if(isSelected){
       node.setScale(1)
       node.setColor(currentColor)

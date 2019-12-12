@@ -33,6 +33,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   private var gui: SimulatorUI3D = _
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
   private var observation: Option[Any => Boolean] = None
+  private var nodeIds: Set[Int] = Set()
 
   def startup(): Unit = {
     simulation.setController(this)
@@ -58,7 +59,8 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   override def startSimulation(): Unit = {
     simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, this))
-    ControllerStarter.startSimulation(simulation, gui, simulationManager)
+    nodeIds = ControllerStarter.setupSimulation(simulation, gui, simulationManager)
+    simulationManager.start()
   }
 
   override def stopSimulation(): Unit = simulationManager.stop()
@@ -111,6 +113,8 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   override def isObservationSet: Boolean = observation.isDefined
 
   override def isLedActivatorSet: Boolean = Settings.Led_Activator(true)
+
+  override def getCreatedNodesID: Set[Int] = nodeIds
 }
 
 object DefaultController3D {

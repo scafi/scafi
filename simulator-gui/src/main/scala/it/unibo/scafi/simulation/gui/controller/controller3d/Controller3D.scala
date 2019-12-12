@@ -43,4 +43,6 @@ trait Controller3D extends Controller{
 
   def isLedActivatorSet: Boolean
 
+  def getCreatedNodesID: Set[Int]
+
 }

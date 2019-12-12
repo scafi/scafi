@@ -39,7 +39,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   private[this] val MAX_ROTATION = 15
   private[this] val adjustedSensitivity = RichMath.clamp(sensitivity, MIN_SENSITIVITY, MAX_SENSITIVITY)
   private[this] var oldMousePosition = new Point2D(0, 0)
-  private[this] val buttonsPressed = MutableSet[CameraMoveDirection.Value]()
+  private[this] val moveDirections = MutableSet[CameraMoveDirection.Value]()
   private[this] var multipleKeyPressesEnabled = false
 
   this.setFieldOfView(INITIAL_FOV)
@@ -78,16 +78,16 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     if(!multipleKeyPressesEnabled){
       enableMultipleKeyPresses()
     }
-    if(buttonsPressed.isEmpty){
+    if(moveDirections.isEmpty){
       getMoveDirection(event).fold()(moveCamera)
     } else {
-      buttonsPressed.foreach(moveCamera)
+      moveDirections.foreach(moveCamera)
     }
   }
 
   private def enableMultipleKeyPresses(): Unit = {
-    this.getScene.setOnKeyPressed(getMoveDirection(_).fold()(buttonsPressed.add))
-    this.getScene.setOnKeyReleased(getMoveDirection(_).fold()(buttonsPressed.remove))
+    this.getScene.setOnKeyPressed(getMoveDirection(_).fold()(moveDirections.add))
+    this.getScene.setOnKeyReleased(getMoveDirection(_).fold()(moveDirections.remove))
     multipleKeyPressesEnabled = true
   }
 
@@ -103,7 +103,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     }
 
   private def moveCamera(cameraDirection: CameraMoveDirection.Value): Unit = {
-    val directionVector = cameraDirection.toVector(this)
+    val directionVector = cameraDirection.toVector
     directionVector.fold()(direction => {
       val speedVector = direction * SPEED
       this.getTransforms.add(new Translate(speedVector.getX, speedVector.getY, speedVector.getZ))
