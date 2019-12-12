@@ -18,10 +18,12 @@
 
 package it.unibo.scafi.renderer3d.manager
 
+import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
 import scalafx.scene.{Camera, Scene}
+
 import scala.collection.mutable.{Map => MutableMap}
 
 private[manager] trait NodeManager {
@@ -29,18 +31,19 @@ private[manager] trait NodeManager {
 
   private[this] final val networkNodes = MutableMap[String, NetworkNode]()
   private[this] final var state = NodeManagerState()
+  private[this] val logger = Logger("NodeManager")
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
     val cameraPosition = camera.getPosition
-    if(cameraPosition.distance(state.positionThatLabelsFace) > 3000){
+    if(cameraPosition.distance(state.positionThatLabelsFace) > 2500){
       networkNodes.values.foreach(_.rotateTextToCamera(cameraPosition))
       state = state.setPositionThatLabelsFace(cameraPosition)
     }
   }
 
   final def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit =
-    onFX{findNode(nodeUID).foreach(_.setFilledSphereRadius(if(enable) 100 else 0))}
+    onFX {findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) 100 else 0))}
 
   final def setSpheresRadius(seeThroughSpheresRadius: Double, filledSpheresRadius: Double): Unit = onFX {
     state = state.copy(seeThroughSpheresRadius = getAdjustedRadius(seeThroughSpheresRadius),
@@ -54,7 +57,7 @@ private[manager] trait NodeManager {
   private final def getAdjustedRadius(radius: Double): Double = if(radius > 0) radius else 0
 
   final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
-    if(!networkNodes.contains(UID)){
+    findNode(UID).fold{
       val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodesColor.toScalaFx, state.nodeLabelsScale)
       networkNode.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
       networkNode.setFilledSphereRadius(state.filledSpheresRadius)
@@ -62,37 +65,34 @@ private[manager] trait NodeManager {
       networkNode.setSelectionColor(state.selectionColor.toScalaFx)
       if(state.nodesScale != 1d) networkNode.setNodeScale(state.nodesScale)
       networkNodes(UID) = networkNode
-      mainScene.getChildren.add(networkNode)
-    }
+      mainScene.getChildren.add(networkNode); ()
+    }(_ => logger.error("Node " + UID + " already exists"))
   }
 
-  final def removeNode(nodeUID: String): Unit = findNodeAndExecuteAction(nodeUID, node => {
+  final def removeNode(nodeUID: String): Unit = findNodeAndAct(nodeUID, node => {
       networkNodes.remove(nodeUID)
       mainScene.getChildren.remove(node)
       removeAllNodeConnections(node) //using ConnectionManager
     })
 
-  private final def findNodeAndExecuteAction(nodeUID: String, action: NetworkNode => Unit): Unit =
-    onFX(findNode(nodeUID).fold()(node => {action(node.toNetworkNode)}))
+  private final def findNodeAndAct(nodeUID: String, action: NetworkNode => Unit): Unit =
+    onFX(findNode(nodeUID).fold(logger.error("Could not find node " + nodeUID))(node => {action(node.toNetworkNode)}))
 
   protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodes.get(nodeUID)
 
   final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Unit =
-    findNodeAndExecuteAction(nodeUID, { node =>
-      node.moveNodeTo(position.toPoint3D)
-      updateNodeConnections(node) //using ConnectionManager
-    })
+    findNodeAndAct(nodeUID, {node => node.moveNodeTo(position.toPoint3D); updateNodeConnections(node)})
 
-  final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndExecuteAction(nodeUID, _.setText(text))
+  final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text))
 
   final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit =
-    findNodeAndExecuteAction(nodeUID, node => {
+    findNodeAndAct(nodeUID, node => {
       val position = node.getScreenPosition
       node.setText(positionFormatter((position.x, position.y)))
     })
 
   final def setNodeColor(nodeUID: String, color: java.awt.Color): Unit =
-    findNodeAndExecuteAction(nodeUID, _.setNodeColor(color.toScalaFx))
+    findNodeAndAct(nodeUID, _.setNodeColor(color.toScalaFx))
 
   final def setNodesColor(color: java.awt.Color): Unit = onFX {
     state = state.setNodesColor(color)

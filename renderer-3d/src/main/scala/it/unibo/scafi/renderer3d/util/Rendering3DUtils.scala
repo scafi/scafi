@@ -42,7 +42,7 @@ object Rendering3DUtils {
     label
   }
 
-  def createBox(size: Int, color: Color, position: Point3D): Box = {
+  def createBox(size: Int, color: Color, position: Point3D = Point3D.Zero): Box = {
     val box = new Box(size, size, size)
     box.setColor(color)
     box.moveTo(position)

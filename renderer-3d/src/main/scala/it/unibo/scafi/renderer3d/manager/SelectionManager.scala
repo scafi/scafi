@@ -33,8 +33,7 @@ private[manager] trait SelectionManager {
   this: NodeManager =>
 
   protected val mainScene: Scene
-  private[this] val selectVolume =
-    createBox(1, Color.color(0.2, 0.2, 0.8, 0.5), Point3D.Zero)
+  private[this] val selectVolume = createBox(1, Color.color(0.2, 0.2, 0.8, 0.5))
   private[this] var selectedNodes: Set[NetworkNode] = Set()
   private[this] var initialNode: Option[NetworkNode] = None
 

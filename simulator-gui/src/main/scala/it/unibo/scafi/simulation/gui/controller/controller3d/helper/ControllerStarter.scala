@@ -35,7 +35,7 @@ private[controller3d] object ControllerStarter {
     simulation.setRunProgram(Settings.Sim_ProgramClass)
     simulation.setStrategy(Settings.Sim_ExecStrategy)
     simulationManager.simulation = simulation
-    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, 1))
+    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, 1)) //this avoids javaFx thread flooding
     simulationManager.start()
     ControllerUtils.enableMenu(enabled = true, gui.getJMenuBar, gui.customPopupMenu)
   }
@@ -46,7 +46,7 @@ private[controller3d] object ControllerStarter {
     gui3d.setSelectionColor(Settings.Color_selection)
     gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)
-    gui3d.setBackground(Settings.Color_background)
+    gui3d.setBackgroundColor(Settings.Color_background)
     val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius else 0
     gui3d.setSpheresRadius(sensorRadius, 0)
     gui3d.setFilledSpheresColor(Settings.Color_actuator)

@@ -18,10 +18,10 @@
 
 package it.unibo.scafi.renderer3d.camera
 
+import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.input
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import org.scalafx.extras._
-import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.PerspectiveCamera
 import scalafx.scene.transform.{Rotate, Translate}
@@ -61,7 +61,8 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
       case _ => ()
     }
 
-  private def rotateCamera(xDegrees: Double): Unit = this.rotateOnSelf(adjustedSensitivity * xDegrees, Rotate.YAxis)
+  private def rotateCamera(yAxisDegrees: Double): Unit =
+    this.rotateOnSelf(adjustedSensitivity * yAxisDegrees, Rotate.YAxis)
 
   override def zoomByKeyboardEvent(keyEvent: input.KeyEvent): Unit = //doesn't support multiple presses at the same time
     keyEvent.getCode match {
@@ -70,9 +71,8 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
       case _ => ()
     }
 
-  private def addZoomAmount(amount: Int): Unit = onFX {
-    this.setFieldOfView(RichMath.clamp(this.getFieldOfView - amount, MIN_FOV, INITIAL_FOV))
-  }
+  private def addZoomAmount(amount: Int): Unit =
+    onFX {this.setFieldOfView(RichMath.clamp(this.getFieldOfView - amount, MIN_FOV, INITIAL_FOV))}
 
   override def moveByKeyboardEvent(event: KeyEvent): Unit = onFX {
     if(!multipleKeyPressesEnabled){

@@ -27,6 +27,8 @@ import scala.collection.mutable.{Map => MutableMap, Set => MutableSet}
 
 /**
   Use this methods with multiple nodes, batching and reducing the method calls, otherwise it gets too slow.
+ Call updateMesh when you want to show the effects of the previous method calls, but not too frequently, since
+ it's costly.
 * */
 class OptimizedNodeRenderer {
 
@@ -37,15 +39,17 @@ class OptimizedNodeRenderer {
 
   scatterMesh.setTextureModeVertices3D(MAX_HSV_VALUE, position => Integer.valueOf(nodesColorInUI(position)))
 
-  def addNodes(nodes: List[(NetworkNode, Color)]): Unit = onFX {
+  def addNodes(nodes: List[(NetworkNode, Color)]): Unit = synchronized {
     nodesColorInUI ++= nodes.map(node => (toFxyzPoint(node._1.getNodePosition), toHSVInteger(node._2)))
     nodesInUI ++= nodes.map(_._1)
-    updateScatterMesh()
   }
 
   private def toHSVInteger(color: Color): Int = color.hue.toInt
 
-  private def updateScatterMesh(): Unit = scatterMesh.setScatterData(nodesColorInUI.map(_._1).toList.asJava)
+  def updateMesh(): Unit = synchronized {
+    val points = nodesColorInUI.keys.toList.asJava
+    onFX {scatterMesh.setScatterData(points)}
+  }
 
   private def toFxyzPoint(point: Point3D): org.fxyz3d.geometry.Point3D =
     new org.fxyz3d.geometry.Point3D(point.x, point.y, point.z)
@@ -53,13 +57,12 @@ class OptimizedNodeRenderer {
   /**
    * Call this before actually moving the NetworkNode
    * */
-  def moveNodes(nodes: List[(NetworkNode, Point3D)]): Unit = onFX {
+  def moveNodes(nodes: List[(NetworkNode, Point3D)]): Unit = synchronized {
     nodes.foreach(node => if(isAKnownNode(node._1)){
       val oldNodePosition = toFxyzPoint(node._1.getNodePosition)
       val color = nodesColorInUI.remove(oldNodePosition)
       color.fold()(color => nodesColorInUI += (toFxyzPoint(node._2) -> color))
     })
-    updateScatterMesh()
   }
 
   private def isAKnownNode(node: NetworkNode): Boolean = nodesInUI.contains(node)
@@ -67,11 +70,10 @@ class OptimizedNodeRenderer {
   /**
    * Call this only if the nodes position has not changed yet. Otherwise, call moveNodes before this.
    * */
-  def setNodesColor(nodes: List[(NetworkNode, Color)]): Unit = onFX {
+  def setNodesColor(nodes: List[(NetworkNode, Color)]): Unit = synchronized {
     nodes.foreach(node => if(isAKnownNode(node._1)){
       nodesColorInUI.update(toFxyzPoint(node._1.getNodePosition), toHSVInteger(node._2))
     })
-    updateScatterMesh()
   }
 
 }

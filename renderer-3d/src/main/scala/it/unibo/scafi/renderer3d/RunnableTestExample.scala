@@ -21,13 +21,16 @@ package it.unibo.scafi.renderer3d
 import java.awt.event.{KeyEvent, KeyListener}
 import java.awt.{BorderLayout, Color}
 
+import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import javax.swing.{JFrame, SwingUtilities}
+
 import scala.util.Random
 
 private[renderer3d] object RunnableTestExample extends App {
   private val NODE_COUNT = 200
   private val NODE_BRIGHTNESS = 50
+  private val logger = Logger("RunnableTestExample")
 
   SwingUtilities.invokeLater(() => {
     val frame = new JFrame()
@@ -81,18 +84,18 @@ private[renderer3d] object RunnableTestExample extends App {
     override def keyReleased(keyEvent: KeyEvent): Unit =
       if(keyEvent.getKeyCode == KeyEvent.VK_1) {
         networkRenderer.setModifiedNodesColor(Color.YELLOW)
-        println("Selected nodes: " + networkRenderer.getSelectedNodesIDs)
+        logger.info("Selected nodes: " + networkRenderer.getSelectedNodesIDs)
       }
   })
 
   def connectNodes(renderingPanel: NetworkRenderingPanel, nodeCount: Int): Unit =
-    (1 to nodeCount).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
+    (1 until nodeCount).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
 
   private def moveNodesRandomly(renderingPanel: NetworkRenderingPanel): Unit =
-    (0 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition))
+    (1 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition))
 
   private def getRandomPosition: (Double, Double, Double) = (getRandomDouble, getRandomDouble, getRandomDouble)
 
   private def setNodesLabel(networkRenderer: NetworkRenderingPanel): Unit =
-    (0 to NODE_COUNT).foreach(index => networkRenderer.setNodeText(index.toString, index.toString))
+    (1 to NODE_COUNT).foreach(index => networkRenderer.setNodeText(index.toString, index.toString))
 }
