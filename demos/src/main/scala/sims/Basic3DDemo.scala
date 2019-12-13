@@ -30,7 +30,7 @@ object Basic3DDemo extends Launcher {
   //Settings.Sim_Draw_Sensor_Radius = true //this is visible only using high Sim_Sensor_Radius values like 500
   //Settings.Sim_Sensor_Radius = 500
   //Settings.Led_Activator = _ => true
-  //Settings.Color_background = Color.BLACK
+  //Settings.Color_background = Color.GRAY
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible

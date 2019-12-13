@@ -18,6 +18,8 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
+import java.awt.Color
+
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model.SimulationManager
 import it.unibo.scafi.simulation.gui.model.implementation.NetworkImpl
@@ -35,7 +37,7 @@ private[controller3d] object ControllerStarter {
     simulation.setRunProgram(Settings.Sim_ProgramClass)
     simulation.setStrategy(Settings.Sim_ExecStrategy)
     simulationManager.simulation = simulation
-    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, 1)) //this avoids javaFx thread flooding
+    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, 1)) //IMPORTANT: this avoids javaFx thread flooding
     ControllerUtils.enableMenu(enabled = true, gui.getJMenuBar, gui.customPopupMenu)
     nodes.keys.toSet
   }

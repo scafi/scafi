@@ -25,20 +25,35 @@ import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
+import scalafx.application.Platform
 
 private[controller3d] object NodeUpdater {
 
   private var connectionsInGUI = Map[Int, Set[String]]()
+  private var nodesInGUI = Set[Int]()
+  private val MAX_WAIT_COUNTER = 10000
+  private var javaFxWaitCounter = MAX_WAIT_COUNTER
 
   def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, controller: Controller3D): Unit = {
-    val gui3d = gui.getSimulationPanel
-    val node = simulation.network.nodes(nodeId)
-    createOrMoveNode(node, simulation, controller, gui3d)
-    updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
-    updateNodeConnections(node, simulation.network, gui3d)
-    updateNodeColor(node, controller, gui3d)
-    updateLedActuatorRadius(node, controller, gui3d)
-    gui3d.blockUntilThreadIsFree()
+    waitForJavaFxIfNeeded(gui) //this waits from time to time that the javafX thred is not too congested
+    Platform.runLater { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
+      if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
+      val gui3d = gui.getSimulationPanel
+      val node = simulation.network.nodes(nodeId)
+      createOrMoveNode(node, simulation, controller, gui3d)
+      updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
+      updateNodeConnections(node, simulation.network, gui3d)
+      updateNodeColor(node, controller, gui3d)
+      updateLedActuatorRadius(node, controller, gui3d)
+    }
+  }
+
+  private def waitForJavaFxIfNeeded(gui: SimulatorUI3D): Unit = {
+    javaFxWaitCounter = javaFxWaitCounter - 1;
+    if(javaFxWaitCounter <= 0){
+      javaFxWaitCounter = MAX_WAIT_COUNTER
+      gui.getSimulationPanel.blockUntilThreadIsFree()
+    }
   }
 
   def updateNodeColorBySensors(node: Node, simulationPanel: NetworkRenderingPanel): Unit = {
@@ -48,8 +63,8 @@ private[controller3d] object NodeUpdater {
   }
 
   private def createOrMoveNode(node: Node, simulation: Simulation, controller: Controller3D,
-                               gui3d: NetworkRenderingPanel): Unit = synchronized {
-    if (controller.getCreatedNodesID.contains(node.id)) {
+                               gui3d: NetworkRenderingPanel): Unit = {
+    if (nodesInGUI.contains(node.id)) {
       updateNodePosition(node, gui3d, simulation)
     } else {
       createNode(node, gui3d, simulation) //creating the node in ui if not already present
@@ -59,10 +74,11 @@ private[controller3d] object NodeUpdater {
   private def createNode(node: Node, gui3d: NetworkRenderingPanel, simulation: Simulation): Unit = {
     gui3d.addNode(node.position, node.id.toString)
     connectionsInGUI += (node.id -> Set())
+    nodesInGUI += node.id
     setSimulationNodePosition(node, (node.position.x, node.position.y, node.position.z), simulation)
   }
 
-  private def updateNodeConnections(node: Node, network: Network, gui3d: NetworkRenderingPanel): Unit = synchronized {
+  private def updateNodeConnections(node: Node, network: Network, gui3d: NetworkRenderingPanel): Unit = {
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
     val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
