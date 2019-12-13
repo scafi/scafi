@@ -44,7 +44,8 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   setLabelScale(labelScale)
   this.setId(UID)
   optimizeForSpeed()
-  this.getChildren.addAll(node, label)
+  label.setVisible(false)
+  this.getChildren.addAll(node) //label is not added by default for performance reasons, since it would show "" anyway
 
   private def getLabelPosition(nodePosition: Point3D, addedHeight: Double = LABEL_ADDED_HEIGHT): Point3D =
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
@@ -55,9 +56,19 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
       element.setCacheHint(CacheHint.Speed)
     })
 
-  override def setText(text: String): Unit = onFX(label.setText(text))
+  override def setText(text: String): Unit = onFX{
+    label.setText(text)
+    if(text == "") {
+      label.setVisible(false)
+      this.getChildren.remove(label)
+    } else if(!label.isVisible) {
+      label.setVisible(true)
+      this.getChildren.add(label)
+    }
+  }
 
-  override def rotateTextToCamera(cameraPosition: Point3D): Unit = label.lookAtOnXZPlane(cameraPosition)
+  override def rotateTextToCamera(cameraPosition: Point3D): Unit =
+    onFX {if(label.isVisible) label.lookAtOnXZPlane(cameraPosition)}
 
   override def setFilledSphereColor(color: Color): Unit = onFX {filledSphere.setColor(new Color(color.opacity(0.1)))}
 

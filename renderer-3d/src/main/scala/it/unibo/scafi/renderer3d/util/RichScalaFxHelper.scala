@@ -37,7 +37,6 @@ private[util] trait RichScalaFxHelper {
   }
 
   implicit class RichPoint3D(point: Point3D) {
-    final def absolute: Point3D = new Point3D(point.x.abs, point.y.abs, point.z.abs)
     final def negate: Point3D = point * -1
     final def toProduct: Product3[Double, Double, Double] = (point.x, point.y, point.z)
 

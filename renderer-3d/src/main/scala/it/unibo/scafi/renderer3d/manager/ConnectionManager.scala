@@ -97,7 +97,7 @@ private[manager] trait ConnectionManager {
     onFX {actOnAllNodeConnections(node, disconnectNodes(node, _))}
 
   private final def actOnAllNodeConnections(node: Node, action: Node => Unit): Unit =
-    connections.get(node).fold(logger.error("Could not find node " + node.getId))(_.keys.foreach(action(_)))
+    connections.get(node).fold()(_.keys.foreach(action(_)))
 
   protected final def updateNodeConnections(node: Node): Unit =
     onFX {actOnAllNodeConnections(node, updateConnection(node, _))}

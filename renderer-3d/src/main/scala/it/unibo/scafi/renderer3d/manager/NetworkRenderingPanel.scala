@@ -22,7 +22,6 @@ import javafx.embed.swing.JFXPanel
 import org.scalafx.extras._
 import scalafx.scene.Scene
 
-//TODO: do camera rotation
 final class NetworkRenderingPanel() extends JFXPanel
   with ConnectionManager with NodeManager with SelectionManager with SceneManager {
 

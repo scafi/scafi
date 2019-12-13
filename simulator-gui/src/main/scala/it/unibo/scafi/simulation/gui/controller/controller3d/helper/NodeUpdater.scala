@@ -19,6 +19,7 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
+import it.unibo.scafi.renderer3d.util.RichScalaFx.RichMath
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdaterHelper._
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
@@ -31,11 +32,13 @@ private[controller3d] object NodeUpdater {
 
   private var connectionsInGUI = Map[Int, Set[String]]()
   private var nodesInGUI = Set[Int]()
+  private val MIN_WAIT_COUNTER = 100
   private val MAX_WAIT_COUNTER = 10000
-  private var javaFxWaitCounter = MAX_WAIT_COUNTER
+  private var waitCounterThreshold = -1 //not yet initialized
+  private var javaFxWaitCounter = waitCounterThreshold
 
   def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation, controller: Controller3D): Unit = {
-    waitForJavaFxIfNeeded(gui) //this waits from time to time that the javafX thred is not too congested
+    waitForJavaFxIfNeeded(gui, controller) //this waits from time to time for the javaFx to become less congested
     Platform.runLater { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
       if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
       val gui3d = gui.getSimulationPanel
@@ -48,10 +51,14 @@ private[controller3d] object NodeUpdater {
     }
   }
 
-  private def waitForJavaFxIfNeeded(gui: SimulatorUI3D): Unit = {
+  private def waitForJavaFxIfNeeded(gui: SimulatorUI3D, controller: Controller3D): Unit = {
+    if(waitCounterThreshold == -1){ //looking at the node count to find out the right value for waitCounterThreshold
+      val counterThreshold = 1000000 / Math.pow(controller.getCreatedNodesID.size, 1.3)
+      waitCounterThreshold = RichMath.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
+    }
     javaFxWaitCounter = javaFxWaitCounter - 1;
     if(javaFxWaitCounter <= 0){
-      javaFxWaitCounter = MAX_WAIT_COUNTER
+      javaFxWaitCounter = waitCounterThreshold
       gui.getSimulationPanel.blockUntilThreadIsFree()
     }
   }
@@ -78,23 +85,30 @@ private[controller3d] object NodeUpdater {
     setSimulationNodePosition(node, (node.position.x, node.position.y, node.position.z), simulation)
   }
 
-  private def updateNodeConnections(node: Node, network: Network, gui3d: NetworkRenderingPanel): Unit = {
+  private def updateNodeConnections(node: Node, network: Network, gui3d: NetworkRenderingPanel): Unit = { //TODO
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
     val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
     val removedConnections = connectionsInUI.diff(connections)
-    val nodeId = node.id.toString
     connectionsInGUI += (node.id -> connections)
-    setNewConnections(newConnections, nodeId, gui3d)
-    removedConnections.foreach(connection => gui3d.disconnect(nodeId, connection))
+    setNewAndRemovedConnections(newConnections, removedConnections, node, gui3d)
   }
 
-  private def setNewConnections(newConnections: Set[String], nodeId: String, gui3d: NetworkRenderingPanel): Unit = {
-    newConnections.foreach(neighbourId => {
-      gui3d.connect(nodeId, neighbourId)
+  private def setNewAndRemovedConnections(newConnections: Set[String], removedConnections: Set[String],
+                                          node: Node, gui3d: NetworkRenderingPanel): Unit = {
+    addOrRemoveNodeFromNeighbours(newConnections, node, adding = true, gui3d)
+    addOrRemoveNodeFromNeighbours(removedConnections, node, adding = false, gui3d)
+  }
+
+  private def addOrRemoveNodeFromNeighbours(connections: Set[String], node: Node, adding: Boolean,
+                                            gui3d: NetworkRenderingPanel): Unit = {
+    val nodeId = node.id.toString
+    connections.foreach(neighbourId => {
       val neighbourIntId = neighbourId.toInt
       val previousNodeNeighbours = connectionsInGUI.getOrElse(neighbourIntId, Set())
-      connectionsInGUI += (neighbourIntId -> (previousNodeNeighbours + nodeId))
+      val updatedNodeNeighbours = if(adding) previousNodeNeighbours + nodeId else previousNodeNeighbours - nodeId
+      connectionsInGUI += (neighbourIntId -> updatedNodeNeighbours)
+      if(adding) gui3d.connect(nodeId, neighbourId) else gui3d.disconnect(nodeId, neighbourId)
     })
   }
 
