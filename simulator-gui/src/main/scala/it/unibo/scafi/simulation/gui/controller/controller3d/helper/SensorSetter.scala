@@ -64,7 +64,7 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderingPanel,
   private def setNodeSensor(node: Node, sensorName: String, newSensorValue: Boolean): Unit = {
     val selectedNode = simulation.network.nodes(node.id)
     selectedNode.setSensor(sensorName, newSensorValue)
-    NodeUpdater.updateNodeColorBySensors(node, simulationPanel)
+    NodeUpdaterHelper.updateNodeColorBySensors(node, simulationPanel)
   }
 }
 

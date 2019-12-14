@@ -21,6 +21,7 @@ package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils.{formatExport, formatPosition, formatProductPosition}
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
 import it.unibo.scafi.space.Point3D
@@ -29,17 +30,18 @@ import scala.util.Try
 
 private[controller3d] object NodeUpdaterHelper {
 
-  def updateNodePosition(node: Node, gui3d: NetworkRenderingPanel, simulation: Simulation): Unit = {
+  def updateNodePosition(node: Node, gui3d: NetworkRenderingPanel,
+                         simulation: Simulation): Product3[Double, Double, Double] = {
     val vector = Try(Settings.Movement_Activator_3D(node.export)).getOrElse((0.0, 0.0, 0.0))
+    val currentPosition = node.position
     if(vector != (0, 0, 0)) {
-      val currentPosition = node.position
-      val newPosition = (currentPosition.x + vector._1, currentPosition.y + vector._2, currentPosition.z + vector._3)
-      gui3d.moveNode(node.id.toString, newPosition)
-      setSimulationNodePosition(node, newPosition, simulation)
+      (currentPosition.x + vector._1, currentPosition.y + vector._2, currentPosition.z + vector._3)
+    } else {
+      (currentPosition.x, currentPosition.y, currentPosition.z)
     }
   }
 
-  def setSimulationNodePosition(node: Node, position: (Double, Double, Double), simulation: Simulation): Unit = {
+  def setSimulationNodePosition(node: Node, position: Product3[Double, Double, Double], simulation: Simulation): Unit = {
     simulation.setPosition(node)
     node.position = new Point3D(position._1, position._2, position._3)
   }
@@ -66,5 +68,11 @@ private[controller3d] object NodeUpdaterHelper {
       val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false)
       gui3d.enableNodeFilledSphere(node.id.toString, enableLed)
     }
+
+  def updateNodeColorBySensors(node: Node, simulationPanel: NetworkRenderingPanel): Unit = {
+    val firstEnabledSensorInNode = node.sensors.find(_._2.equals(true)).map(_._1)
+    val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))
+    simulationPanel.setNodeColor(node.id.toString, sensorColor.getOrElse(Settings.Color_device))
+  }
 
 }

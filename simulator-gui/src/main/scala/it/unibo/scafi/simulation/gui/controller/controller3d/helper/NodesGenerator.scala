@@ -26,7 +26,7 @@ import it.unibo.scafi.space.SpaceHelper
 
 private[controller3d] object NodesGenerator {
 
-  private val SCENE_SIZE = 10000
+  val SCENE_SIZE = 10000
 
   def createNodes(topology: String, nodeCount: Int, seed: Long): Map[Int, Node] = {
     val locations = if(topology.contains("grid")){

@@ -121,5 +121,8 @@ private[manager] trait ConnectionManager {
     setConnectionsVisible(connectionsVisible)
   }
 
-  final def setConnectionsVisible(visible: Boolean): Unit = getAllConnections.foreach(_.setVisible(visible))
+  final def setConnectionsVisible(setVisible: Boolean): Unit = getAllConnections.foreach(connection => {
+    if(setVisible) mainScene.getChildren.add(connection) else mainScene.getChildren.remove(connection)
+    connection.setVisible(setVisible)
+  })
 }

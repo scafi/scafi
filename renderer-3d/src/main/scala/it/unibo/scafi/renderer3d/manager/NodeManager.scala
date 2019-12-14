@@ -37,7 +37,7 @@ private[manager] trait NodeManager {
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
     val cameraPosition = camera.getPosition
-    if(cameraPosition.distance(state.positionThatLabelsFace) > 2500){
+    if(cameraPosition.distance(state.positionThatLabelsFace) > state.sceneSize/4){
       networkNodes.values.foreach(_.rotateTextToCamera(cameraPosition))
       state = state.setPositionThatLabelsFace(cameraPosition)
     }
@@ -121,4 +121,6 @@ private[manager] trait NodeManager {
     state = state.setSelectionColor(color)
     getAllNetworkNodes.foreach(_.setSelectionColor(color.toScalaFx))
   }
+
+  final def setSceneSize(sceneSize: Double): Unit = onFX {state = state.setSceneSize(sceneSize)}
 }

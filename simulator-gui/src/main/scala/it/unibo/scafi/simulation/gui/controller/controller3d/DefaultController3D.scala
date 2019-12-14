@@ -20,8 +20,7 @@ package it.unibo.scafi.simulation.gui.controller.controller3d
 
 import java.awt.Image
 
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdater.updateNode
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.{SensorSetter, ControllerStarter}
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.{ControllerStarter, NodeUpdater, SensorSetter}
 import it.unibo.scafi.simulation.gui.controller.{ControllerUtils, PopupMenuUtils}
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
@@ -34,6 +33,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
   private var observation: Option[Any => Boolean] = None
   private var nodeIds: Set[Int] = Set()
+  private val nodeUpdater = NodeUpdater(this)
 
   def startup(): Unit = {
     simulation.setController(this)
@@ -58,7 +58,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
   override def startSimulation(): Unit = {
-    simulationManager.setUpdateNodeFunction(updateNode(_, gui, simulation, this))
+    simulationManager.setUpdateNodeFunction(nodeUpdater.updateNode(_, gui, simulation))
     nodeIds = ControllerStarter.setupSimulation(simulation, gui, simulationManager)
     simulationManager.start()
   }

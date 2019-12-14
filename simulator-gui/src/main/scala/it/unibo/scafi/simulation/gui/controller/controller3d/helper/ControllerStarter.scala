@@ -18,8 +18,6 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
-import java.awt.Color
-
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model.SimulationManager
 import it.unibo.scafi.simulation.gui.model.implementation.NetworkImpl
@@ -53,6 +51,7 @@ private[controller3d] object ControllerStarter {
     gui3d.setSpheresRadius(sensorRadius, 0)
     gui3d.setFilledSpheresColor(Settings.Color_actuator)
     gui3d.setNodesScale(100 / Settings.Size_Device_Relative)
+    gui3d.setSceneSize(NodesGenerator.SCENE_SIZE)
   }
 
 }

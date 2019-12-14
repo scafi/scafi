@@ -25,6 +25,8 @@ import scalafx.scene.transform.Rotate
 
 private[util] trait RichScalaFxHelper {
 
+  private val X_AXIS_2D = new Point2D(1, 0)
+
   implicit class RichJavaPoint3D(point: javafx.geometry.Point3D) {
     final def toScalaPoint: Point3D = new Point3D(point)
   }
@@ -32,7 +34,7 @@ private[util] trait RichScalaFxHelper {
   implicit class RichPoint2D(point: Point2D) {
     final def eulerAngleTo(otherPoint: Point2D): Double = {
       val determinant = point.x * otherPoint.y - point.y * otherPoint.x
-      Math.atan2(determinant, point.dotProduct(otherPoint)).toDegrees
+      FastMath.atan2(determinant.toFloat, point.dotProduct(otherPoint).toFloat).toDegrees
     }
   }
 
@@ -53,9 +55,9 @@ private[util] trait RichScalaFxHelper {
     }
 
     final def getLookAtAngleOnXZPlane(point: Point3D): Double = {
-      val directionToPoint = (point - node.getPosition).normalize()
-      val directionOnXZPlane = new Point2D(directionToPoint.getX, directionToPoint.getZ)
-      directionOnXZPlane.eulerAngleTo(new Point2D(1, 0)) - 90
+      val nodePosition = node.getPosition
+      val directionOnXZPlane = new Point2D(point.x - nodePosition.x, point.z - nodePosition.z)
+      directionOnXZPlane.eulerAngleTo(X_AXIS_2D) - 90
     }
 
     /**

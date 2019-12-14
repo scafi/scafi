@@ -30,7 +30,8 @@ private[manager] final case class NodeManagerState(nodesColor: Color =
                                   seeThroughSpheresRadius: Double = 0,
                                   filledSpheresRadius: Double = 0,
                                   nodesScale: Double = 1,
-                                  nodeLabelsScale: Double = 1){
+                                  nodeLabelsScale: Double = 1,
+                                  sceneSize: Double = 1){
 
   def setNodesColor(value: Color): NodeManagerState = copy(nodesColor = value)
 
@@ -46,6 +47,7 @@ private[manager] final case class NodeManagerState(nodesColor: Color =
 
   def setNodeLabelsScale(value: Double): NodeManagerState = copy(nodeLabelsScale = value)
 
+  def setSceneSize(value: Double): NodeManagerState = copy(sceneSize = value)
 }
 
 object NodeManagerState {
