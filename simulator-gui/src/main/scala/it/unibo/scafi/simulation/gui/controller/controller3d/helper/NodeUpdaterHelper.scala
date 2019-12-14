@@ -30,15 +30,27 @@ import scala.util.Try
 
 private[controller3d] object NodeUpdaterHelper {
 
-  def updateNodePosition(node: Node, gui3d: NetworkRenderingPanel,
-                         simulation: Simulation): Product3[Double, Double, Double] = {
+  def createOrMoveNode(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
+                       gui3d: NetworkRenderingPanel): Unit = {
+    val nodeId = node.id.toString
+    if (newPosition.isDefined) {
+      if (isPositionDifferent) {
+        gui3d.moveNode(nodeId, newPosition.getOrElse((0, 0, 0)))
+      }
+    } else {
+      gui3d.addNode(node.position, nodeId)
+    }
+  }
+
+  def didPositionChange(node: Node, newPosition: Option[Product3[Double, Double, Double]]): Boolean =
+    newPosition.fold(false)(newPosition =>
+        (node.position.x, node.position.y, node.position.z) != (newPosition._1, newPosition._2, newPosition._3))
+
+  def getUpdatedNodePosition(node: Node, gui3d: NetworkRenderingPanel,
+                             simulation: Simulation): Product3[Double, Double, Double] = {
     val vector = Try(Settings.Movement_Activator_3D(node.export)).getOrElse((0.0, 0.0, 0.0))
     val currentPosition = node.position
-    if(vector != (0, 0, 0)) {
-      (currentPosition.x + vector._1, currentPosition.y + vector._2, currentPosition.z + vector._3)
-    } else {
-      (currentPosition.x, currentPosition.y, currentPosition.z)
-    }
+    (currentPosition.x + vector._1, currentPosition.y + vector._2, currentPosition.z + vector._3)
   }
 
   def setSimulationNodePosition(node: Node, position: Product3[Double, Double, Double], simulation: Simulation): Unit = {
@@ -73,6 +85,14 @@ private[controller3d] object NodeUpdaterHelper {
     val firstEnabledSensorInNode = node.sensors.find(_._2.equals(true)).map(_._1)
     val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))
     simulationPanel.setNodeColor(node.id.toString, sensorColor.getOrElse(Settings.Color_device))
+  }
+
+  def updateNodeColor(node: Node, gui3d: NetworkRenderingPanel, controller: Controller3D): Unit = {
+    if(controller.getObservation()(node.export)){
+      gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
+    } else if(controller.isObservationSet) {
+      updateNodeColorBySensors(node, gui3d)
+    }
   }
 
 }

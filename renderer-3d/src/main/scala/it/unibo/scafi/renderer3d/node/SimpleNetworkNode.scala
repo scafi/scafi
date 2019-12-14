@@ -30,12 +30,12 @@ import scalafx.scene.shape.Sphere
 final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Color, labelScale: Double)
   extends Group with NetworkNode {
 
+  private[this] val ID = UID.toInt
   private[this] val NODE_SIZE = 60
   private[this] val LABEL_FONT_SIZE = 200
   private[this] val LABEL_ADDED_HEIGHT = 180
   private[this] val node = createBox(NODE_SIZE, nodeColor, position)
-  private[this] val labelPosition = getLabelPosition(position)
-  private[this] val label = createLabel("", LABEL_FONT_SIZE, labelPosition)
+  private[this] val label = createLabel("", LABEL_FONT_SIZE, getLabelPosition(position))
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
   private[this] val seeThroughSphere = createSeeThroughSphere(1, position)
@@ -59,8 +59,10 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   override def setText(text: String): Unit = onFX{
     label.setText(text)
     if(text == "") {
-      label.setVisible(false)
-      this.getChildren.remove(label)
+      if(label.isVisible){
+        label.setVisible(false)
+        this.getChildren.remove(label)
+      }
     } else if(!label.isVisible) {
       label.setVisible(true)
       this.getChildren.add(label)

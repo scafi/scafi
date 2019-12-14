@@ -22,6 +22,7 @@ import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
+import scalafx.application.Platform
 import scalafx.scene.{Camera, Scene}
 
 import scala.collection.mutable.{Map => MutableMap}
@@ -36,9 +37,11 @@ private[manager] trait NodeManager {
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
+    val LABELS_GROUP_SIZE = 150
     val cameraPosition = camera.getPosition
-    if(cameraPosition.distance(state.positionThatLabelsFace) > state.sceneSize/4){
-      networkNodes.values.foreach(_.rotateTextToCamera(cameraPosition))
+    if(cameraPosition.distance(state.positionThatLabelsFace) > state.sceneSize/3.33){
+      networkNodes.values.grouped(LABELS_GROUP_SIZE)
+        .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition))))
       state = state.setPositionThatLabelsFace(cameraPosition)
     }
   }
@@ -73,7 +76,7 @@ private[manager] trait NodeManager {
   final def removeNode(nodeUID: String): Unit = findNodeAndAct(nodeUID, node => {
       networkNodes.remove(nodeUID)
       mainScene.getChildren.remove(node)
-      removeAllNodeConnections(node) //using ConnectionManager
+      removeAllNodeConnections(node.getId) //using ConnectionManager
     })
 
   private final def findNodeAndAct(nodeUID: String, action: NetworkNode => Unit): Unit =
@@ -81,8 +84,8 @@ private[manager] trait NodeManager {
 
   protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodes.get(nodeUID)
 
-  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Unit =
-    findNodeAndAct(nodeUID, node => {node.moveNodeTo(position.toPoint3D); updateNodeConnections(node)})
+  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Unit = //TODO: this should not get called if the nodes don't move
+    findNodeAndAct(nodeUID, node => {node.moveNodeTo(position.toPoint3D); updateNodeConnections(nodeUID)})
 
   final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text))
 

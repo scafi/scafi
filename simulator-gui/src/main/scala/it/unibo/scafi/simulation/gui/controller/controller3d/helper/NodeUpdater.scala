@@ -20,19 +20,18 @@ package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
 import it.unibo.scafi.renderer3d.util.RichScalaFx.RichMath
+import it.unibo.scafi.simulation.gui.Simulation
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdaterHelper._
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import scalafx.application.Platform
 
-private[controller3d] class NodeUpdater(controller: Controller3D) { //TODO: do code refactoring
-  private var connectionsInGUI = Map[Int, Set[String]]()
-  private var nodesInGUI = Set[Int]()
+private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: NetworkRenderingPanel) {
   private val MIN_WAIT_COUNTER = 100
   private val MAX_WAIT_COUNTER = 10000
+  private var connectionsInGUI = Map[Int, Set[String]]()
+  private var nodesInGUI = Set[Int]()
   private var waitCounterThreshold = -1 //not yet initialized
   private var javaFxWaitCounter = waitCounterThreshold
 
@@ -42,38 +41,34 @@ private[controller3d] class NodeUpdater(controller: Controller3D) { //TODO: do c
     val gui3d = gui.getSimulationPanel
     val node = simulation.network.nodes(nodeId)
     val newPosition = getNewNodePosition(node, gui3d, simulation)
+    val isPositionDifferent = didPositionChange(node, newPosition)
+    updateNodeSimulationPosition(simulation, gui3d, node, newPosition)
     val newAndRemovedConnections = updateNodeConnections(node, simulation.network, gui3d)
-    updateUI(newPosition, node, gui3d, newAndRemovedConnections) //using Platform.runLater
+    updateUI(newPosition, node, isPositionDifferent, newAndRemovedConnections) //using Platform.runLater
   }
 
-  private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, gui3d: NetworkRenderingPanel,
-                       connections: (Set[String], Set[String])): Unit = { //TODO
+  private def updateNodeSimulationPosition(simulation: Simulation, gui3d: NetworkRenderingPanel,
+                                           node: Node, newPosition: Option[Product3[Double, Double, Double]]): Unit = {
+    newPosition.fold(createNodeInSimulation(node, gui3d, simulation))(newPosition =>
+      setSimulationNodePosition(node, newPosition, simulation))
+  }
+
+  private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
+                       connections: (Set[String], Set[String])): Unit = {
     val nodeId = node.id.toString
     Platform.runLater { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
-      if(newPosition.isDefined){
-        gui3d.moveNode(nodeId, newPosition.getOrElse((0, 0, 0)))
-      } else {
-        gui3d.addNode(node.position, nodeId)
-      }
+      createOrMoveNode(newPosition, node, isPositionDifferent, gui3d)
       updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
       connections._1.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
       connections._2.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deleting removed connections
-      updateNodeColor(node, gui3d)
+      updateNodeColor(node, gui3d, controller)
       updateLedActuatorRadius(node, controller, gui3d)
     }
   }
 
   private def getNewNodePosition(node: Node, gui3d: NetworkRenderingPanel,
-                                 simulation: Simulation): Option[Product3[Double, Double, Double]] = {
-    if (nodesInGUI.contains(node.id)){
-      val newPosition = updateNodePosition(node, gui3d, simulation)
-      setSimulationNodePosition(node, newPosition, simulation)
-      Option(newPosition)
-    } else{
-      createNodeInSimulation(node, gui3d, simulation)
-      None
-    }
-  }
+                                 simulation: Simulation): Option[Product3[Double, Double, Double]] =
+    if (nodesInGUI.contains(node.id)) Option(getUpdatedNodePosition(node, gui3d, simulation)) else None
 
   private def waitForJavaFxIfNeeded(gui: SimulatorUI3D): Unit = {
     if(waitCounterThreshold == -1){ //looking at the node count to find out the right value for waitCounterThreshold
@@ -121,17 +116,8 @@ private[controller3d] class NodeUpdater(controller: Controller3D) { //TODO: do c
       connectionsInGUI += (neighbourIntId -> updatedNodeNeighbours)
     })
   }
-
-  private def updateNodeColor(node: Node, gui3d: NetworkRenderingPanel): Unit = {
-    if(controller.getObservation()(node.export)){
-      gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
-    } else if(controller.isObservationSet) {
-      updateNodeColorBySensors(node, gui3d)
-    }
-  }
-
 }
 
 object NodeUpdater {
-  def apply(controller: Controller3D): NodeUpdater = new NodeUpdater(controller)
+  def apply(controller: Controller3D, gui3d: NetworkRenderingPanel): NodeUpdater = new NodeUpdater(controller, gui3d)
 }

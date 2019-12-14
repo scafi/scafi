@@ -33,11 +33,12 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
   private var observation: Option[Any => Boolean] = None
   private var nodeIds: Set[Int] = Set()
-  private val nodeUpdater = NodeUpdater(this)
+  private var nodeUpdater: NodeUpdater = _
 
   def startup(): Unit = {
     simulation.setController(this)
     startGUI()
+    nodeUpdater = NodeUpdater(this, gui.getSimulationPanel)
     PopupMenuUtils.addPopupObservations(gui.customPopupMenu,
       () => gui.getSimulationPanel.toggleConnections(), this)
     PopupMenuUtils.addPopupActions(this, gui.customPopupMenu)

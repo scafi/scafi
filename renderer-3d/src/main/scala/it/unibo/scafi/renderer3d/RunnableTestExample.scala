@@ -28,14 +28,19 @@ import javax.swing.{JFrame, SwingUtilities}
 import scala.util.Random
 
 private[renderer3d] object RunnableTestExample extends App {
-  private val NODE_COUNT = 200
+  private val SCENE_SIZE = 10000
+  private val FRAME_WIDTH = 800
+  private val FRAME_HEIGHT = 600
+  private val NODE_COUNT = 500
   private val NODE_BRIGHTNESS = 50
   private val logger = Logger("RunnableTestExample")
 
   SwingUtilities.invokeLater(() => {
     val frame = new JFrame()
     val networkRenderer = NetworkRenderingPanel()
+    networkRenderer.setSceneSize(SCENE_SIZE)
     frame.add(networkRenderer, BorderLayout.CENTER)
+    frame.setSize(FRAME_WIDTH, FRAME_HEIGHT)
     frame.setVisible(true)
 
     addNodes(networkRenderer, NODE_COUNT)
@@ -47,10 +52,7 @@ private[renderer3d] object RunnableTestExample extends App {
   def addNodes(networkRenderer: NetworkRenderingPanel, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
     networkRenderer.addNode((getRandomDouble, getRandomDouble, getRandomDouble), index.toString))
 
-  private def getRandomDouble: Double = {
-    val MAX_VALUE = 10000
-    Random.nextInt(MAX_VALUE).toDouble
-  }
+  private def getRandomDouble: Double = Random.nextInt(SCENE_SIZE).toDouble
 
   private def testAPI(networkRenderer: NetworkRenderingPanel): Unit = {
     testNodeAPI(networkRenderer)

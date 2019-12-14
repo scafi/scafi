@@ -52,4 +52,8 @@ trait NetworkNode extends Node{
   def setNodeScale(scale: Double): Unit
 
   val UID: String
+
+  override def hashCode(): Int = super.hashCode()
+  override def equals(obj: Any): Boolean =
+    obj match {case node: NetworkNode => node.UID == this.UID; case _ => super.equals(obj)}
 }

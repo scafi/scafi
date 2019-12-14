@@ -26,6 +26,7 @@ final class NetworkRenderingPanel() extends JFXPanel
   with ConnectionManager with NodeManager with SelectionManager with SceneManager {
 
   override protected val mainScene: Scene = new Scene(createScene())
+  mainScene.getChildren.add(connectionGroup)
   this.setScene(mainScene)
 
   /**

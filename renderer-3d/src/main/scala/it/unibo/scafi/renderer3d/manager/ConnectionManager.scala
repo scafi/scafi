@@ -26,7 +26,7 @@ import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import org.scalafx.extras._
-import scalafx.scene.Scene
+import scalafx.scene.Group
 import scalafx.scene.shape.Cylinder
 
 import scala.collection.mutable.{Map => MutableMap}
@@ -34,10 +34,10 @@ import scala.collection.mutable.{Map => MutableMap}
 private[manager] trait ConnectionManager {
   this: NodeManager => //NodeManager has to also be mixed in with ConnectionManager
 
-  protected val mainScene: Scene
-  private[this] var connectionsVisible = true
+  protected val connectionGroup = new Group() //implementations have to add this to the main scene
   private[this] var connectionsColor = Color.BLACK
-  private[this] final val connections = MutableMap[Node, MutableMap[Node, Cylinder]]() //each connection is saved 2 times
+  private[this] final val connections = MutableMap[String, MutableMap[String, Cylinder]]() //each connection is saved 2 times
+  private[this] var connectionsVisible = true
   private[this] val logger = Logger("ConnectionManager")
 
   final def setConnectionsColor(color: Color): Unit = onFX {
@@ -48,7 +48,7 @@ private[manager] trait ConnectionManager {
   private final def getAllConnections: Set[Cylinder] = connections.flatMap(entry => entry._2.values).toSet
 
   final def connect(node1UID: String, node2UID: String): Unit =
-    onFX {findNodes(node1UID, node2UID).fold()(nodes => connectNodes(nodes._1, nodes._2))}
+    onFX {findNodes(node1UID, node2UID).fold()(nodes => connectNodes(nodes._1, nodes._2))} //TODO
 
   private final def findNodes(node1UID: String, node2UID: String): Option[(Node, Node)] =
     (findNode(node1UID), findNode(node2UID)) match {
@@ -57,55 +57,51 @@ private[manager] trait ConnectionManager {
     }
 
   private final def connectNodes(node1: Node, node2: Node): Unit = {
-    if(connections.contains(node1) && connections(node1).contains(node2)){
-      logger.error("Nodes " + node1.getId + " and " + node2.getId + " are already connected")
+    val (node1ID, node2ID) = (node1.getId, node2.getId)
+    if(connections.contains(node1ID) && connections(node1ID).contains(node2ID)){
+      logger.error("Nodes " + node1ID + " and " + node2ID + " are already connected")
     } else {
       val connection = createNodeConnection(node1, node2)
-      connectNodesOneDirectional(node1, node2, connection)
-      connectNodesOneDirectional(node2, node1, connection) //inverted the order of the nodes
-      mainScene.getChildren.add(connection)
+      connectNodesOneDirectional(node1ID, node2ID, connection)
+      connectNodesOneDirectional(node2ID, node1ID, connection) //inverted the order of the nodes
+      connectionGroup.getChildren.add(connection)
     }
   }
 
-  private final def connectNodesOneDirectional(originNode: Node, targetNode: Node, connection: Cylinder): Unit = {
-    if(connections.contains(originNode)){ //the node already has some connections
-      val innerMap = connections(originNode)
-      innerMap(targetNode) = connection
+  private final def connectNodesOneDirectional(originNodeID: String, targetNodeID: String, connection: Cylinder): Unit = {
+    if(connections.contains(originNodeID)){ //the node already has some connections
+      val innerMap = connections(originNodeID)
+      innerMap(targetNodeID) = connection
     } else {
-      connections(originNode) = MutableMap(targetNode -> connection)
+      connections(originNodeID) = MutableMap(targetNodeID -> connection)
     }
   }
 
-  final def disconnect(node1UID: String, node2UID: String): Unit =
-    onFX {findNodes(node1UID, node2UID).fold()(nodes => disconnectNodes(nodes._1, nodes._2))}
-
-  private final def disconnectNodes(node1: Node, node2: Node): Unit =
-    connections.get(node1).fold()(innerMap => {
-      if(!innerMap.contains(node2)){
-        logger.error("Nodes " + node1.getId + " and " + node2.getId + " are not already connected")
+  final def disconnect(node1UID: String, node2UID: String): Unit = onFX {
+    connections.get(node1UID).fold()(innerMap => {
+      if(!innerMap.contains(node2UID)){
+        logger.error("Nodes " + node1UID + " and " + node2UID + " are not already connected")
       } else {
-        mainScene.getChildren.remove(innerMap(node2)) //removes the line from the scene
-        disconnectNodesOneDirectional(node1, node2)
-        disconnectNodesOneDirectional(node2, node1)
+        connectionGroup.getChildren.remove(innerMap(node2UID)) //removes the line from the scene
+        disconnectNodesOneDirectional(node1UID, node2UID)
+        disconnectNodesOneDirectional(node2UID, node1UID)
       }
-    })
+    })}
 
-  private final def disconnectNodesOneDirectional(originNode: Node, targetNode: Node): Unit =
-    connections(originNode).remove(targetNode)
+  private final def disconnectNodesOneDirectional(originNodeID: String, targetNodeID: String): Unit =
+    connections(originNodeID).remove(targetNodeID)
 
-  protected final def removeAllNodeConnections(node: Node): Unit =
-    onFX {actOnAllNodeConnections(node, disconnectNodes(node, _))}
+  protected final def removeAllNodeConnections(nodeID: String): Unit =
+    onFX {actOnAllNodeConnections(nodeID, disconnect(nodeID, _))}
 
-  private final def actOnAllNodeConnections(node: Node, action: Node => Unit): Unit =
-    connections.get(node).fold()(_.keys.foreach(action(_)))
+  private final def actOnAllNodeConnections(nodeID: String, action: String => Unit): Unit =
+    connections.get(nodeID).fold()(_.keys.foreach(action(_)))
 
-  protected final def updateNodeConnections(node: Node): Unit =
-    onFX {actOnAllNodeConnections(node, updateConnection(node, _))}
+  protected final def updateNodeConnections(nodeID: String): Unit =
+    onFX {actOnAllNodeConnections(nodeID, updateConnection(nodeID, _))}
 
-  private final def updateConnection(node1: Node, node2: Node): Unit = {
-    disconnectNodes(node1, node2)
-    connectNodes(node1, node2)
-  }
+  private final def updateConnection(node1ID: String, node2ID: String): Unit =
+    {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
 
   private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Cylinder =
     originNode match {
@@ -122,7 +118,7 @@ private[manager] trait ConnectionManager {
   }
 
   final def setConnectionsVisible(setVisible: Boolean): Unit = getAllConnections.foreach(connection => {
-    if(setVisible) mainScene.getChildren.add(connection) else mainScene.getChildren.remove(connection)
+    if(setVisible) connectionGroup.getChildren.add(connection) else connectionGroup.getChildren.remove(connection)
     connection.setVisible(setVisible)
   })
 }
