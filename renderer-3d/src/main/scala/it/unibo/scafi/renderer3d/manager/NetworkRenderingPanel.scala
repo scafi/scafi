@@ -22,16 +22,24 @@ import javafx.embed.swing.JFXPanel
 import org.scalafx.extras._
 import scalafx.scene.Scene
 
-final class NetworkRenderingPanel() extends JFXPanel
-  with ConnectionManager with NodeManager with SelectionManager with SceneManager {
+/**
+ * Main entry point of this module. This class extends JFXPanel (because NetworkRenderer does) so that it can be used
+ * as a normal JPanel inside Swing. This panel is the main one, it renders all the nodes, the connections, etc.
+ * This class offers all the main APIs needed for adding, removing and moving nodes and connections, handling the
+ * selected nodes, etc.
+ * */
+final class NetworkRenderingPanel() extends NetworkRenderer with ConnectionManager with NodeManager with SelectionManager
+  with SceneManager{
 
   override protected val mainScene: Scene = new Scene(createScene())
   mainScene.getChildren.add(connectionGroup)
   this.setScene(mainScene)
 
   /**
-   * Since the rest of the api returns immediately, this should be used to avoid the main loop being to fast and
-   * flooding this object with requests, by blocking the main loop on this method.
+   * This method adds a small job to the ones that the javaFx thread has to run and it waits for its result.
+   * Therefore, it blocks the calling thread until the javaFx thread is free enough to run the new job.
+   * Since the rest of the api returns immediately, this should be used to avoid the main loop being too fast and
+   * flooding the javaFx thread with requests, by calling this method in the main loop.
    * */
   def blockUntilThreadIsFree(): JFXPanel = onFXAndWait {NetworkRenderingPanel.this}
 

@@ -18,12 +18,12 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
-import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
+import it.unibo.scafi.renderer3d.manager.NetworkRenderer
 import it.unibo.scafi.simulation.gui.Simulation
 import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
-private[controller3d] class SensorSetter(simulationPanel: NetworkRenderingPanel, simulation: Simulation) {
+private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer, simulation: Simulation) {
 
   def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit = { //TODO: don't copy-paste
     val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
@@ -69,6 +69,6 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderingPanel,
 }
 
 private[controller3d] object SensorSetter {
-  def apply(simulationPanel: NetworkRenderingPanel, simulation: Simulation): SensorSetter =
+  def apply(simulationPanel: NetworkRenderer, simulation: Simulation): SensorSetter =
     new SensorSetter(simulationPanel, simulation)
 }

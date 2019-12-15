@@ -19,7 +19,6 @@
 package it.unibo.scafi.renderer3d.manager
 
 import java.awt.Color
-
 import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
@@ -28,9 +27,9 @@ import javafx.scene.Node
 import org.scalafx.extras._
 import scalafx.scene.Group
 import scalafx.scene.shape.Cylinder
-
 import scala.collection.mutable.{Map => MutableMap}
 
+/** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify connections.*/
 private[manager] trait ConnectionManager {
   this: NodeManager => //NodeManager has to also be mixed in with ConnectionManager
 
@@ -40,6 +39,9 @@ private[manager] trait ConnectionManager {
   private[this] var connectionsVisible = true
   private[this] val logger = Logger("ConnectionManager")
 
+  /** Sets the color that every connection will have.
+   * @param color the chosen color
+   * @return Unit, since it has the side effect of changing the connection color */
   final def setConnectionsColor(color: Color): Unit = onFX {
     connectionsColor = color
     getAllConnections.foreach(_.setColor(color))
@@ -47,13 +49,17 @@ private[manager] trait ConnectionManager {
 
   private final def getAllConnections: Set[Cylinder] = connections.flatMap(entry => entry._2.values).toSet
 
+  /** Connects the two specified nodes if not already connected, adding the connection to the scene.
+   * @param node1UID the id of the first node to connect
+   * @param node2UID the id of the second node to connect
+   * @return Unit, since it has the side effect of connecting the two nodes. */
   final def connect(node1UID: String, node2UID: String): Unit =
     onFX {findNodes(node1UID, node2UID).fold()(nodes => connectNodes(nodes._1, nodes._2))} //TODO
 
   private final def findNodes(node1UID: String, node2UID: String): Option[(Node, Node)] =
     (findNode(node1UID), findNode(node2UID)) match {
       case (Some(nodeValue1), Some(nodeValue2)) => Option((nodeValue1, nodeValue2))
-      case _ => {logger.error("Can't find nodes " + node1UID + " and " + node2UID); None}
+      case _ => logger.error("Can't find nodes " + node1UID + " and " + node2UID); None
     }
 
   private final def connectNodes(node1: Node, node2: Node): Unit = {
@@ -77,6 +83,10 @@ private[manager] trait ConnectionManager {
     }
   }
 
+  /** Disconnects the two specified nodes if not already disconnected, removing the connection from the scene.
+   * @param node1UID the id of the first node to disconnect
+   * @param node2UID the id of the second node to disconnect
+   * @return Unit, since it has the side effect of disconnecting the two nodes. */
   final def disconnect(node1UID: String, node2UID: String): Unit = onFX {
     connections.get(node1UID).fold()(innerMap => {
       if(!innerMap.contains(node2UID)){
@@ -104,20 +114,17 @@ private[manager] trait ConnectionManager {
     {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
 
   private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Cylinder =
-    originNode match {
-      case origin: NetworkNode => targetNode match {
-        case target: NetworkNode =>
-          Rendering3DUtils.createLine(origin.getNodePosition, target.getNodePosition,
-            connectionsVisible, connectionsColor)
-      }
-    }
+    (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) =>
+      Rendering3DUtils.createLine(origin.getNodePosition, target.getNodePosition, connectionsVisible, connectionsColor)}
 
+  /** Toggles the connections on or off, making them visible or invisible.
+   * @return Unit, since it has the side effect of making the connections visible or invisible */
   final def toggleConnections(): Unit = onFX {
     connectionsVisible = !connectionsVisible
     setConnectionsVisible(connectionsVisible)
   }
 
-  final def setConnectionsVisible(setVisible: Boolean): Unit = getAllConnections.foreach(connection => {
+  private final def setConnectionsVisible(setVisible: Boolean): Unit = getAllConnections.foreach(connection => {
     if(setVisible) connectionGroup.getChildren.add(connection) else connectionGroup.getChildren.remove(connection)
     connection.setVisible(setVisible)
   })

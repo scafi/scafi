@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
-import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
+import it.unibo.scafi.renderer3d.manager.NetworkRenderer
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils.{formatExport, formatPosition, formatProductPosition}
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
@@ -31,7 +31,7 @@ import scala.util.Try
 private[controller3d] object NodeUpdaterHelper {
 
   def createOrMoveNode(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
-                       gui3d: NetworkRenderingPanel): Unit = {
+                       gui3d: NetworkRenderer): Unit = {
     val nodeId = node.id.toString
     if (newPosition.isDefined) {
       if (isPositionDifferent) {
@@ -46,7 +46,7 @@ private[controller3d] object NodeUpdaterHelper {
     newPosition.fold(false)(newPosition =>
         (node.position.x, node.position.y, node.position.z) != (newPosition._1, newPosition._2, newPosition._3))
 
-  def getUpdatedNodePosition(node: Node, gui3d: NetworkRenderingPanel,
+  def getUpdatedNodePosition(node: Node, gui3d: NetworkRenderer,
                              simulation: Simulation): Product3[Double, Double, Double] = {
     val vector = Try(Settings.Movement_Activator_3D(node.export)).getOrElse((0.0, 0.0, 0.0))
     val currentPosition = node.position
@@ -58,7 +58,7 @@ private[controller3d] object NodeUpdaterHelper {
     node.position = new Point3D(position._1, position._2, position._3)
   }
 
-  def updateNodeText(node: Node, valueToShow: NodeValue)(implicit gui3d: NetworkRenderingPanel): Unit = {
+  def updateNodeText(node: Node, valueToShow: NodeValue)(implicit gui3d: NetworkRenderer): Unit = {
     val outputString = Try(Settings.To_String(node.export))
     if(outputString.isSuccess && !outputString.get.equals("")) {
       valueToShow match {
@@ -72,22 +72,22 @@ private[controller3d] object NodeUpdaterHelper {
     }
   }
 
-  private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderingPanel): Unit =
+  private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderer): Unit =
     gui3d.setNodeText(node.id.toString, text) //updating the value of the node's label
 
-  def updateLedActuatorRadius(node: Node, controller: Controller3D, gui3d: NetworkRenderingPanel): Unit =
+  def updateLedActuatorRadius(node: Node, controller: Controller3D, gui3d: NetworkRenderer): Unit =
     if(controller.isLedActivatorSet){
       val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false)
       gui3d.enableNodeFilledSphere(node.id.toString, enableLed)
     }
 
-  def updateNodeColorBySensors(node: Node, simulationPanel: NetworkRenderingPanel): Unit = {
+  def updateNodeColorBySensors(node: Node, simulationPanel: NetworkRenderer): Unit = {
     val firstEnabledSensorInNode = node.sensors.find(_._2.equals(true)).map(_._1)
     val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))
     simulationPanel.setNodeColor(node.id.toString, sensorColor.getOrElse(Settings.Color_device))
   }
 
-  def updateNodeColor(node: Node, gui3d: NetworkRenderingPanel, controller: Controller3D): Unit = {
+  def updateNodeColor(node: Node, gui3d: NetworkRenderer, controller: Controller3D): Unit = {
     if(controller.getObservation()(node.export)){
       gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
     } else if(controller.isObservationSet) {

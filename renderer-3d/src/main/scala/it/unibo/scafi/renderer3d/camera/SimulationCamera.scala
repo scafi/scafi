@@ -20,17 +20,52 @@ package it.unibo.scafi.renderer3d.camera
 
 import it.unibo.scafi.space.{Point2D, Point3D}
 
+/**
+ * This trait is an interface of a camera that supports operations to move and turn the camera by mouse and keyboard.
+ * Each method takes as an input a key or mouse event and if the correct button is used then the specified action
+ * gets executed.
+ * */
 trait SimulationCamera extends Camera{
 
+  /**
+   * This has to be called before actually rotating the camera; it indicates the start of the rotation.
+   * @param mouseEvent the mouse event that starts the rotation
+   * @return Unit, since it has the side effect of preparing the camera for rotation
+   * */
   def initiateMouseRotation(mouseEvent: MouseEvent): Unit
 
+  /**
+   * Rotates the camera based on the new position of the mouse.
+   * @param mouseEvent the mouse event that will be used to rotate the camera
+   * @return Unit, since it has the side effect of rotating the camera
+   * */
   def rotateByMouseEvent(mouseEvent: MouseEvent): Unit
 
+  /**
+   * Rotates the camera based on the pressed keyboard key.
+   * @param keyEvent the keyboard event that will be used to rotate the camera
+   * @return Unit, since it has the side effect of rotating the camera
+   * */
   def rotateByKeyboardEvent(keyEvent: KeyEvent): Unit
 
-  def moveByKeyboardEvent(event: KeyEvent): Unit
+  /**
+   * Moves the camera based on the pressed keyboard key.
+   * @param keyEvent the keyboard event that will be used to move the camera
+   * @return Unit, since it has the side effect of moving the camera
+   * */
+  def moveByKeyboardEvent(keyEvent: KeyEvent): Unit
 
+  /**
+   * Zooms the camera based on the pressed keyboard key.
+   * @param keyEvent the keyboard event that will be used to zoom the camera
+   * @return Unit, since it has the side effect of zooming the camera
+   * */
   def zoomByKeyboardEvent(keyEvent: KeyEvent): Unit
 
-  def isKeyboardEventAMovement(keyEvent: KeyEvent): Boolean
+  /**
+   * This can be used to check if a keyboard event is a rotation or a movement.
+   * @param keyEvent the keyboard event that will be checked
+   * @return true if the event will cause a rotation or movement, false otherwise.
+   * */
+  def isEventAMovementOrRotation(keyEvent: KeyEvent): Boolean
 }

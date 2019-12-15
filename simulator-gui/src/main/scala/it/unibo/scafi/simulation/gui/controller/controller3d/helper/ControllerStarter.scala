@@ -42,7 +42,7 @@ private[controller3d] object ControllerStarter {
 
   def setupGUI(gui: SimulatorUI3D): Unit = {
     val gui3d = gui.getSimulationPanel
-    gui3d.setConnectionsVisible(Settings.Sim_DrawConnections)
+    if(!Settings.Sim_DrawConnections) gui3d.toggleConnections()
     gui3d.setSelectionColor(Settings.Color_selection)
     gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)

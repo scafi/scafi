@@ -22,6 +22,9 @@ import java.awt.Color
 import NodeManagerState.NODE_BRIGHTNESS
 import scalafx.geometry.Point3D
 
+/**
+ * This class contains the main state of NodeManager, as an immutable object. The setters return a new instance.
+ * */
 private[manager] final case class NodeManagerState(nodesColor: Color =
                                                    new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS),
                                   selectionColor: Color = java.awt.Color.red,

@@ -19,6 +19,7 @@
 package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.AmbientLight
 import scalafx.scene.control.Label
@@ -26,7 +27,6 @@ import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder, DrawMode, Sphere}
 import scalafx.scene.text.Font
 import scalafx.scene.transform.{Rotate, Translate}
-import org.scalafx.extras._
 
 object Rendering3DUtils {
   private var materialCache: Map[Color, Material] = Map()
@@ -90,7 +90,7 @@ object Rendering3DUtils {
     val lineMiddle = target.midpoint(origin)
     val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
     val axisOfRotation = differenceVector.crossProduct(Rotate.YAxis)
-    val angle = Math.acos(differenceVector.normalize.dotProduct(Rotate.YAxis))
+    val angle = FastMath.acos(differenceVector.normalize.dotProduct(Rotate.YAxis))
     val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), new Point3D(axisOfRotation))
     val line = new Cylinder(thickness, differenceVector.magnitude, 3)
     line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)

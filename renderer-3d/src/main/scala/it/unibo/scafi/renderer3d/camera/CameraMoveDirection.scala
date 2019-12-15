@@ -24,6 +24,9 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 
 import scala.language.implicitConversions
 
+/**
+ * This enum is a type containing all the possible directions that the camera can go towards.
+ * */
 private[camera] object CameraMoveDirection extends Enumeration {
   val forward, backward, left, right, up, down = Value
 
@@ -34,16 +37,19 @@ private[camera] object CameraMoveDirection extends Enumeration {
   private val UP = new Point3D(0, -1, 0)
   private val DOWN = UP.negate
 
-  implicit class CameraMoveDirectionValue(direction: Value) {
-    final def toVector: Option[Point3D] =
+  implicit class CameraMoveDirectionValue(direction: CameraMoveDirection.Value) {
+    /**
+     * Create a direction vector from the instance of CameraMoveDirection.
+     * @return the direction as a Point3D
+     * */
+    final def toVector: Point3D =
       this.direction match {
-        case CameraMoveDirection.forward => Option(FORWARD)
-        case CameraMoveDirection.backward => Option(BACKWARD)
-        case CameraMoveDirection.left => Option(LEFT)
-        case CameraMoveDirection.right => Option(RIGHT)
-        case CameraMoveDirection.up => Option(UP)
-        case CameraMoveDirection.down => Option(DOWN)
-        case _ => None
+        case CameraMoveDirection.forward => FORWARD
+        case CameraMoveDirection.backward => BACKWARD
+        case CameraMoveDirection.left => LEFT
+        case CameraMoveDirection.right => RIGHT
+        case CameraMoveDirection.up => UP
+        case CameraMoveDirection.down => DOWN
       }
   }
 }
