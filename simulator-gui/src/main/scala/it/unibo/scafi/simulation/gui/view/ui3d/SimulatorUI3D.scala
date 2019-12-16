@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.simulation.gui.view.ui3d
 
-import it.unibo.scafi.renderer3d.manager.NetworkRenderer
+import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import javax.swing.{JFrame, JMenuBar}
 
@@ -37,7 +37,7 @@ trait SimulatorUI3D extends JFrame{
    * Retrieves the 3D simulation panel. This is the 3D renderer that contains the main API of the module renderer-3d
    * @return the 3D simulation panel
    * */
-  def getSimulationPanel: NetworkRenderer
+  def getSimulationPanel: NetworkRenderer3D
 
   /**
    * Resets the scene, deleting all the nodes and connections.

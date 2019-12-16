@@ -69,7 +69,7 @@ object Rendering3DUtils {
    * @param radius the desired radius of the sphere
    * @param position the position where the sphere should be placed
    * @return the sphere */
-  def createOutlinedSphere(radius: Int, position: Point3D): Sphere = {
+  def createOutlinedSphere(radius: Double, position: Point3D): Sphere = {
     val SPHERE_BRIGHTNESS = 100 //out of 255
     val SPHERE_OPACITY = 0.5
     val color = Color.rgb(SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_BRIGHTNESS, SPHERE_OPACITY)
@@ -80,7 +80,7 @@ object Rendering3DUtils {
    * @param radius the desired radius of the sphere
    * @param position the position where the sphere should be placed
    * @return the sphere */
-  def createFilledSphere(radius: Int, position: Point3D): Sphere =
+  def createFilledSphere(radius: Double, position: Point3D): Sphere =
     createSphere(radius, Color.Black, position, drawOutlineOnly = false)
 
   /** Creates a sphere that can be rendered as outline or as a filled sphere.
@@ -89,7 +89,7 @@ object Rendering3DUtils {
    * @param position the position where the sphere should be placed
    * @param drawOutlineOnly if it is true only the sphere will be rendered as wireframe
    * @return the sphere */
-  def createSphere(radius: Int, color: Color, position: Point3D, drawOutlineOnly: Boolean): Sphere = {
+  def createSphere(radius: Double, color: Color, position: Point3D, drawOutlineOnly: Boolean): Sphere = {
     val MESH_DIVISIONS = 5 //this is low for performance reasons
     val sphere = new Sphere(radius, MESH_DIVISIONS) {material = createMaterial(color)}
     sphere.moveTo(position)
@@ -126,7 +126,7 @@ object Rendering3DUtils {
   /**
    * Creates a 3d cylinder. From https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
    * */
-  private def createCylinder(origin: Point3D, target: Point3D, thickness: Int = 2) = {
+  private def createCylinder(origin: Point3D, target: Point3D, thickness: Double = 0.2) = {
     val differenceVector = target.subtract(origin)
     val lineMiddle = target.midpoint(origin)
     val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)

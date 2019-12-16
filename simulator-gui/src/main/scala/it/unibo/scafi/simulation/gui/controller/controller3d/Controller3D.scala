@@ -23,26 +23,65 @@ import it.unibo.scafi.simulation.gui.controller.Controller
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.model.NodeValue
 
+/**
+ * Interface of the 3d controller. This is a normal [[Controller]] but it has some more methods.
+ * */
 trait Controller3D extends Controller{
 
+  /**
+   * Handles a number button press on the keyboard and updates the enabled sensors and colors of the selected nodes.
+   * @param value the number of the keyboard button
+   * */
   def handleNumberButtonPress(value: Int): Unit
 
+  /**
+   * Sets up the controller, so that it can be used.
+   * */
+  def startup(): Unit
+
+  /**
+   * Stops the whole app.
+   * */
   def shutDown(): Unit
 
+  /**
+   * Decreases the font size of the labels in the scene.
+   * */
   def decreaseFontSize(): Unit
 
+  /**
+   * Increases the font size of the labels in the scene.
+   * */
   def increaseFontSize(): Unit
 
+  /**
+   * Slows down the simulation.
+   * */
   def slowDownSimulation(): Unit
 
+  /**
+   * Speeds up the simulation.
+   * */
   def speedUpSimulation(): Unit
 
+  /**
+   * @return the node value type that is being shown right now
+   * */
   def getNodeValueTypeToShow: NodeValue
 
+  /**
+   * @return whether the observation function has been set
+   * */
   def isObservationSet: Boolean
 
+  /**
+   * @return whether the led activator function has been set
+   * */
   def isLedActivatorSet: Boolean
 
+  /**
+   * @return the set of the unique IDs of the nodes created at startup.
+   * */
   def getCreatedNodesID: Set[Int]
 
 }

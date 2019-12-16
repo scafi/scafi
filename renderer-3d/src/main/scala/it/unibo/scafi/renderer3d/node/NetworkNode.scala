@@ -73,7 +73,7 @@ trait NetworkNode extends Node{
    * @return Unit, since it has the side effect of deselecting the node */
   def deselect(): Unit
 
-  /** Sets the scale of the node's label.
+  /** Sets the scale of the node's label. ATTENTION: big labels cause performance issues.
    * @param scale the new scale of the label
    * @return Unit, since it has the side effect of setting the scale of the node's label */
   def setLabelScale(scale: Double): Unit

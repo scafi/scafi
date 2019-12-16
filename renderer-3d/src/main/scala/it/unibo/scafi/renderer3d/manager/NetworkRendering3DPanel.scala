@@ -28,8 +28,8 @@ import scalafx.scene.Scene
  * This class offers all the main APIs needed for adding, removing and moving nodes and connections, handling the
  * selected nodes, etc.
  * */
-final class NetworkRenderingPanel() extends NetworkRenderer with ConnectionManager with NodeManager with SelectionManager
-  with SceneManager{
+final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionManager with NodeManager
+  with SelectionManager with SceneManager{
 
   override protected val mainScene: Scene = new Scene(createScene())
   mainScene.getChildren.add(connectionGroup)
@@ -41,10 +41,10 @@ final class NetworkRenderingPanel() extends NetworkRenderer with ConnectionManag
    * Since the rest of the api returns immediately, this should be used to avoid the main loop being too fast and
    * flooding the javaFx thread with requests, by calling this method in the main loop.
    * */
-  def blockUntilThreadIsFree(): JFXPanel = onFXAndWait {NetworkRenderingPanel.this}
+  def blockUntilThreadIsFree(): JFXPanel = onFXAndWait {NetworkRendering3DPanel.this}
 
 }
 
-object NetworkRenderingPanel {
-  def apply(): NetworkRenderingPanel = new NetworkRenderingPanel()
+object NetworkRendering3DPanel {
+  def apply(): NetworkRendering3DPanel = new NetworkRendering3DPanel()
 }

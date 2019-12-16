@@ -54,7 +54,7 @@ private[manager] trait ConnectionManager {
    * @param node2UID the id of the second node to connect
    * @return Unit, since it has the side effect of connecting the two nodes. */
   final def connect(node1UID: String, node2UID: String): Unit =
-    onFX {findNodes(node1UID, node2UID).fold()(nodes => connectNodes(nodes._1, nodes._2))} //TODO
+    onFX {findNodes(node1UID, node2UID).fold()(nodes => connectNodes(nodes._1, nodes._2))}
 
   private final def findNodes(node1UID: String, node2UID: String): Option[(Node, Node)] =
     (findNode(node1UID), findNode(node2UID)) match {

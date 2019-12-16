@@ -18,8 +18,6 @@
 
 package it.unibo.scafi.simulation.gui.controller
 
-import java.awt.event.ActionEvent
-
 import it.unibo.scafi.simulation.gui.model.NodeValue
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.utility.Utils
@@ -28,8 +26,15 @@ import javax.swing.JOptionPane
 
 import scala.util.Try
 
+/**
+ * Utility object containing methods that are useful for any class that uses [[MyPopupMenu]].
+ * */
 object PopupMenuUtils {
 
+  /**Adds the actions to execute whenever the appropriate observation event occurs.
+   * @param popupMenu the popup menu that will fire the events
+   * @param toggleNeighbours the function to call whenever the event "Toggle Neighbours" occurs
+   * @param controller an instance of [[Controller]] that will receive and handle most of the events */
   def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: Controller) {
     popupMenu.addObservation("Toggle Neighbours", _ => toggleNeighbours())
     popupMenu.addObservation("Id", _ => controller.setShowValue(NodeValue.ID))
@@ -83,6 +88,9 @@ object PopupMenuUtils {
       None
     }
 
+  /**Adds the actions to execute whenever the appropriate user event occurs.
+   * @param controller an instance of [[Controller]] that will receive and handle most of the events
+   * @param popupMenu the popup menu that will fire the events */
   def addPopupActions(controller: Controller, popupMenu: MyPopupMenu) {
     /* for(Action a :ActionEnum.values()){
                gui.getSimulationPanel().getPopUpMenu().addAction(a.getName(), e->{});

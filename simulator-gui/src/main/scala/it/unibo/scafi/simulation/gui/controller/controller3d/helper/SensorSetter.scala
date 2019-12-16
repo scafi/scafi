@@ -18,13 +18,23 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
-import it.unibo.scafi.renderer3d.manager.NetworkRenderer
+import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.Simulation
 import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
-private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer, simulation: Simulation) {
+/**
+ * Helper class that has methods to set and update the node's sensors.
+ * */
+private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, simulation: Simulation) {
 
+  /**
+   * Sets the specified sensor value to the new one for all the selected nodes. If the user is not attempting selection,
+   * every node gets updated.
+   * @param sensorName the name of the chosen sensor
+   * @param value the new sensor value to set
+   * @param selectionAttempted whether the user is attempting selection right now
+   * */
   def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit = { //TODO: don't copy-paste
     val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
     setNodesSensor(selectedNodes, sensorName, value)
@@ -38,6 +48,7 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer, simul
   private def setNodesSensor(nodes: Iterable[Node], sensorName: String, value: Any): Unit =
     nodes.foreach(_.setSensor(sensorName, value))
 
+  /** See [[it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D.handleNumberButtonPress]] */
   def handleNumberButtonPress(sensorIndex: Int): Unit = {
     getSensorName(sensorIndex).foreach(sensorName => {
       val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
@@ -69,6 +80,6 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer, simul
 }
 
 private[controller3d] object SensorSetter {
-  def apply(simulationPanel: NetworkRenderer, simulation: Simulation): SensorSetter =
+  def apply(simulationPanel: NetworkRenderer3D, simulation: Simulation): SensorSetter =
     new SensorSetter(simulationPanel, simulation)
 }

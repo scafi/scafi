@@ -30,17 +30,30 @@ import javax.swing.{JMenuBar, JOptionPane}
 
 import scala.util.Try
 
+/**
+ * Utility object containing methods that are useful for any [[Controller]].
+ * */
 private[controller] object ControllerUtils {
 
+  /**Obtains the neighborhod policy from the constants available in [[Settings]].
+   * @return the neighborhod policy */
   def getNeighborhoodPolicy: EuclideanDistanceNbr = Settings.Sim_Policy_Nbrhood match {
       case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
 
+  /**Adds to [[SensorEnum.sensors]] all the provided sensors.
+   * @param sensors the sensors to parse and add
+   * @return Unit, since it has the side effect of setting the sensors. */
   def setupSensors(sensors: String): Unit =
     Utils.parseSensors(sensors).foreach(entry => SensorEnum.sensors += Sensor(entry._1, entry._2))
 
-  def enableMenu(enabled: Boolean, menuBar: JMenuBar, popupMenu: MyPopupMenu) {
+  /**Enables or disables the provided menu bar and popup menu.
+   * @param enabled this is used to understand whether the menus should be enabled or disabled
+   * @param menuBar the menu bar to enable or disable
+   * @param popupMenu the popup menu to enable or disable
+   * @return Unit, since it has the side effect of enabling or disabling the menus. */
+  def enableMenu(enabled: Boolean, menuBar: JMenuBar, popupMenu: MyPopupMenu): Unit = {
     popupMenu.getSubElements()(1).getComponent.setEnabled(enabled) //menu Observation
     popupMenu.getSubElements()(2).getComponent.setEnabled(enabled) //menu Action
     enableMenuBar(enabled, menuBar)
@@ -53,6 +66,8 @@ private[controller] object ControllerUtils {
     jMenuBar.getMenu(0).getSubElements()(0).getSubElements()(0).getComponent.setEnabled(!enable) //new Simulation
   }
 
+  /**@param value the value to format
+   * @return the formatted String value */
   def formatExport(value: Any): String = value match {
       case doubleValue: Double =>
         if (doubleValue == Double.MaxValue){
@@ -65,18 +80,28 @@ private[controller] object ControllerUtils {
       case _ => value.toString
     }
 
+  /**@param pos the position to format
+   * @return the formatted position of type String */
   def formatPosition(pos: Point2D): String = s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)})"
 
+  /**@param position the position to format
+   * @return the formatted position of type String */
   def formatProductPosition(position: Product2[Double, Double]): String =
     formatPosition(new Point2D(position._1, position._2))
 
   private def formatDouble(value: Double): String = f"(${value}%5.2g"
 
+  /**@param pos the position to format
+   * @return the formatted position of type String */
   def formatPosition(pos: Point3D): String =
     s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)} ; ${formatDouble(pos.z)})"
 
+  /**@param pos the position to format
+   * @return the formatted position of type String */
   def formatPosition(pos: java.awt.Point): String = s"(${pos.getX.toInt}; ${pos.getY.toInt})"
 
+  /**@param topology the network topology
+   * @return the tolerance related to the provided topology */
   def getTolerance(topology: String): Double = topology match {
     case Grid => 0
     case Grid_LoVar => Settings.Grid_LoVar_Eps

@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
-import it.unibo.scafi.renderer3d.manager.NetworkRenderer
+import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.renderer3d.util.RichScalaFx.RichMath
 import it.unibo.scafi.simulation.gui.Simulation
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
@@ -27,7 +27,8 @@ import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
 import scalafx.application.Platform
 
-private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: NetworkRenderer) {
+/** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
+private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D) {
   private val MIN_WAIT_COUNTER = 100
   private val MAX_WAIT_COUNTER = 10000
   private var connectionsInGUI = Map[Int, Set[String]]()
@@ -35,6 +36,12 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   private var waitCounterThreshold = -1 //not yet initialized
   private var javaFxWaitCounter = waitCounterThreshold
 
+  /** Most important method of this class. It updates the specified node in the UI and in the simulation.
+   * Most of the calculations are done outside of theJavaFx thread to reduce lag.
+   * @param nodeId the id of the node to update
+   * @param gui the 3D UI that needs to receive an update about the node
+   * @param simulation the simulation that needs to be read and updated
+   * */
   def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation): Unit = {
     waitForJavaFxIfNeeded(gui) //this waits from time to time for the javaFx to become less congested
     if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
@@ -47,7 +54,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     updateUI(newPosition, node, isPositionDifferent, newAndRemovedConnections) //using Platform.runLater
   }
 
-  private def updateNodeSimulationPosition(simulation: Simulation, gui3d: NetworkRenderer,
+  private def updateNodeSimulationPosition(simulation: Simulation, gui3d: NetworkRenderer3D,
                                            node: Node, newPosition: Option[Product3[Double, Double, Double]]): Unit = {
     newPosition.fold(createNodeInSimulation(node, gui3d, simulation))(newPosition =>
       setSimulationNodePosition(node, newPosition, simulation))
@@ -62,11 +69,11 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
       connections._1.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
       connections._2.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deleting removed connections
       updateNodeColor(node, gui3d, controller)
-      updateLedActuatorRadius(node, controller, gui3d)
+      updateLedActuatorStatus(node, controller, gui3d)
     }
   }
 
-  private def getNewNodePosition(node: Node, gui3d: NetworkRenderer,
+  private def getNewNodePosition(node: Node, gui3d: NetworkRenderer3D,
                                  simulation: Simulation): Option[Product3[Double, Double, Double]] =
     if (nodesInGUI.contains(node.id)) Option(getUpdatedNodePosition(node, gui3d, simulation)) else None
 
@@ -82,7 +89,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     }
   }
 
-  private def createNodeInSimulation(node: Node, gui3d: NetworkRenderer, simulation: Simulation): Unit = {
+  private def createNodeInSimulation(node: Node, gui3d: NetworkRenderer3D, simulation: Simulation): Unit = {
     gui3d.addNode(node.position, node.id.toString)
     connectionsInGUI += (node.id -> Set())
     nodesInGUI += node.id
@@ -90,7 +97,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   }
 
   private def updateNodeConnections(node: Node, network: Network,
-                                    gui3d: NetworkRenderer): (Set[String], Set[String]) = {
+                                    gui3d: NetworkRenderer3D): (Set[String], Set[String]) = {
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
     val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
@@ -101,13 +108,13 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   }
 
   private def setNewAndRemovedConnections(newConnections: Set[String], removedConnections: Set[String],
-                                          node: Node, gui3d: NetworkRenderer): Unit = {
+                                          node: Node, gui3d: NetworkRenderer3D): Unit = {
     addOrRemoveNodeFromNeighbours(newConnections, node, adding = true, gui3d)
     addOrRemoveNodeFromNeighbours(removedConnections, node, adding = false, gui3d)
   }
 
   private def addOrRemoveNodeFromNeighbours(connections: Set[String], node: Node, adding: Boolean,
-                                            gui3d: NetworkRenderer): Unit = {
+                                            gui3d: NetworkRenderer3D): Unit = {
     val nodeId = node.id.toString
     connections.foreach(neighbourId => {
       val neighbourIntId = neighbourId.toInt
@@ -119,5 +126,5 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
 }
 
 object NodeUpdater {
-  def apply(controller: Controller3D, gui3d: NetworkRenderer): NodeUpdater = new NodeUpdater(controller, gui3d)
+  def apply(controller: Controller3D, gui3d: NetworkRenderer3D): NodeUpdater = new NodeUpdater(controller, gui3d)
 }

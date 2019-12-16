@@ -21,19 +21,19 @@ package it.unibo.scafi.simulation.gui.view.ui3d
 import java.awt.BorderLayout
 import java.awt.event.{KeyEvent, KeyListener, MouseEvent, MouseListener}
 
-import it.unibo.scafi.renderer3d.manager.{NetworkRenderer, NetworkRenderingPanel}
+import it.unibo.scafi.renderer3d.manager.{NetworkRenderer3D, NetworkRendering3DPanel}
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.MyPopupMenu
+import it.unibo.scafi.simulation.gui.view.{MenuBarNorth, MyPopupMenu}
 import javax.swing._
 
 /**
  * An implementation of [[SimulatorUI3D]]. It's a Swing frame that contains a menu bar, a popup menu and a single panel,
- * which is the network renderer.
+ * which is the 3D network renderer.
  * */
 class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Simulator") with SimulatorUI3D {
-  private var simulationPanel: NetworkRenderer = NetworkRenderingPanel()
-  final private val northMenuBar: JMenuBar = MenuBarNorth3D(controller)
+  private var simulationPanel: NetworkRenderer3D = NetworkRendering3DPanel()
+  final private val northMenuBar: JMenuBar = new MenuBarNorth(controller)
   final val customPopupMenu: MyPopupMenu = new MyPopupMenu(controller)
   
   setSize(Utils.getFrameDimension())
@@ -84,13 +84,13 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
     }
   }
 
-  /**
-   * @return simulationPanel panel
-   */
-  def getSimulationPanel: NetworkRenderer = simulationPanel
+  /** See [[SimulatorUI3D.getSimulationPanel]] */
+  override def getSimulationPanel: NetworkRenderer3D = simulationPanel
 
+  /** See [[SimulatorUI3D.reset]] */
   override def reset(): Unit = simulationPanel.resetScene()
 
+  /** See [[SimulatorUI3D.getJMenuBar]] */
   override def getJMenuBar: JMenuBar = this.northMenuBar
 }
 

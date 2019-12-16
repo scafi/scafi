@@ -18,7 +18,8 @@
 
 package it.unibo.scafi.renderer3d.manager
 
-import java.awt.Color
+import java.awt.{Color, Image}
+
 import javafx.embed.swing.JFXPanel
 
 /**
@@ -26,7 +27,7 @@ import javafx.embed.swing.JFXPanel
  * Users of this module should use only this interface to interact with renderer-3d, as it offers all the main APIs
  * needed for adding, removing and moving nodes and connections, handling the selected nodes, etc.
  * */
-trait NetworkRenderer extends JFXPanel{
+trait NetworkRenderer3D extends JFXPanel{
 
   //** connections API **
   /** See [[ConnectionManager.setConnectionsColor]] */
@@ -88,6 +89,9 @@ trait NetworkRenderer extends JFXPanel{
   def setSceneSize(sceneSize: Double): Unit
 
   //** scene API **
+  /** See [[SceneManager.setBackgroundImage]] */
+  def setBackgroundImage(image: Image): Unit
+
   /** See [[SceneManager.setBackgroundColor]] */
   def setBackgroundColor(color: Color): Unit
 
@@ -108,6 +112,6 @@ trait NetworkRenderer extends JFXPanel{
   def isAttemptingSelection: Boolean
 
   //** rest of the API **
-  /** See [[NetworkRenderingPanel.blockUntilThreadIsFree]] */
+  /** See [[NetworkRendering3DPanel.blockUntilThreadIsFree]] */
   def blockUntilThreadIsFree(): JFXPanel
 }

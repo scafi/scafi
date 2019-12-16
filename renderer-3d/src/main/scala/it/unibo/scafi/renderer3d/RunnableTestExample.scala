@@ -21,12 +21,12 @@ package it.unibo.scafi.renderer3d
 import java.awt.event.{KeyEvent, KeyListener}
 import java.awt.{BorderLayout, Color}
 import com.typesafe.scalalogging.Logger
-import it.unibo.scafi.renderer3d.manager.{NetworkRenderer, NetworkRenderingPanel}
+import it.unibo.scafi.renderer3d.manager.{NetworkRenderer3D, NetworkRendering3DPanel}
 import javax.swing.{JFrame, SwingUtilities, WindowConstants}
 import scala.util.Random
 
 /**
- * Example usage of the main API of this module, provided by [[NetworkRenderer]]. This class creates some nodes,
+ * Example usage of the main API of this module, provided by [[NetworkRenderer3D]]. This class creates some nodes,
  * connects each one to the previous one and to the next one, also moves them around randomly at the start, etc. It
  * also calls many methods of the main API to test that they actually work.
  * This example can be used to quickly check for regressions in the renderer-3d module, by running it and checking if
@@ -50,7 +50,7 @@ private[renderer3d] object RunnableTestExample extends App {
 
   SwingUtilities.invokeLater(() => {
     val frame = new JFrame()
-    val networkRenderer: NetworkRenderer = NetworkRenderingPanel()
+    val networkRenderer: NetworkRenderer3D = NetworkRendering3DPanel()
     networkRenderer.setSceneSize(SCENE_SIZE)
     frame.add(networkRenderer, BorderLayout.CENTER)
     frame.setSize(FRAME_WIDTH, FRAME_HEIGHT)
@@ -63,18 +63,18 @@ private[renderer3d] object RunnableTestExample extends App {
     testAPI(networkRenderer)
   })
 
-  private def addNodes(networkRenderer: NetworkRenderer, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
+  private def addNodes(networkRenderer: NetworkRenderer3D, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
     networkRenderer.addNode((getRandomDouble, getRandomDouble, getRandomDouble), index.toString))
 
   private def getRandomDouble: Double = Random.nextInt(SCENE_SIZE).toDouble
 
-  private def testAPI(networkRenderer: NetworkRenderer): Unit = {
+  private def testAPI(networkRenderer: NetworkRenderer3D): Unit = {
     testNodeAPI(networkRenderer)
     testConnectionsAPI(networkRenderer)
     testSelectionAPI(networkRenderer)
   }
 
-  private def testNodeAPI(networkRenderer: NetworkRenderer): Unit = {
+  private def testNodeAPI(networkRenderer: NetworkRenderer3D): Unit = {
     moveNodesRandomly(networkRenderer)
     networkRenderer.increaseFontSize()
     networkRenderer.decreaseFontSize()
@@ -85,14 +85,14 @@ private[renderer3d] object RunnableTestExample extends App {
     networkRenderer.setNodeColor("1", Color.blue)
   }
 
-  private def testConnectionsAPI(networkRenderer: NetworkRenderer): Unit = {
+  private def testConnectionsAPI(networkRenderer: NetworkRenderer3D): Unit = {
     networkRenderer.toggleConnections()
     networkRenderer.toggleConnections()
     networkRenderer.setConnectionsColor(Color.green)
     networkRenderer.disconnect("1", "2")
   }
 
-  private def testSelectionAPI(networkRenderer: NetworkRenderer): Unit =
+  private def testSelectionAPI(networkRenderer: NetworkRenderer3D): Unit =
     networkRenderer.addKeyListener(new KeyListener {
     override def keyTyped(keyEvent: KeyEvent): Unit = ()
     override def keyPressed(keyEvent: KeyEvent): Unit = ()
@@ -104,14 +104,14 @@ private[renderer3d] object RunnableTestExample extends App {
       }
   })
 
-  private def connectNodes(renderingPanel: NetworkRenderer, nodeCount: Int): Unit =
+  private def connectNodes(renderingPanel: NetworkRenderer3D, nodeCount: Int): Unit =
     (1 until nodeCount).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
 
-  private def moveNodesRandomly(renderingPanel: NetworkRenderer): Unit =
+  private def moveNodesRandomly(renderingPanel: NetworkRenderer3D): Unit =
     (1 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition))
 
   private def getRandomPosition: (Double, Double, Double) = (getRandomDouble, getRandomDouble, getRandomDouble)
 
-  private def setNodesLabel(networkRenderer: NetworkRenderer): Unit =
+  private def setNodesLabel(networkRenderer: NetworkRenderer3D): Unit =
     (1 to NODE_COUNT).foreach(index => networkRenderer.setNodeText(index.toString, index.toString))
 }

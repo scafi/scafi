@@ -24,10 +24,23 @@ import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.NodeImpl
 import it.unibo.scafi.space.SpaceHelper
 
+/**
+ * Utility object that has methods to create the scene nodes.
+ * */
 private[controller3d] object NodesGenerator {
 
-  val SCENE_SIZE = 10000
+  /**
+   * The lenght of the imaginary cube that surrounds the whole scene.
+   * */
+  val SCENE_SIZE = 1000
 
+  /**
+   * Creates the scene nodes with the given topology.
+   * @param topology it explains how th noes should be placed in the scene
+   * @param nodeCount the number of nodes to create
+   * @param seed it will be used as an input for the randomization of the positions
+   * @return a map of (UID -> Node) entries, from the unique ID of the node to the node itself.
+   * */
   def createNodes(topology: String, nodeCount: Int, seed: Long): Map[Int, Node] = {
     val locations = if(topology.contains("grid")){
       val nodeCountInSide = Math.cbrt(nodeCount).toInt

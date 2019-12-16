@@ -32,15 +32,15 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   extends Group with NetworkNode {
 
   private[this] val ID = UID.toInt
-  private[this] val NODE_SIZE = 60
-  private[this] val LABEL_FONT_SIZE = 100
-  private[this] val LABEL_ADDED_HEIGHT = 90
+  private[this] val NODE_SIZE = 6
+  private[this] val LABEL_FONT_SIZE = 30 //ATTENTION: big labels cause performance issues
+  private[this] val LABEL_ADDED_HEIGHT = 25
   private[this] val node = createCube(NODE_SIZE, nodeColor, position)
   private[this] val label = createLabel("", LABEL_FONT_SIZE, getLabelPosition(position))
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
-  private[this] val seeThroughSphere = createOutlinedSphere(1, position)
-  private[this] val filledSphere = createFilledSphere(1, position)
+  private[this] val seeThroughSphere = createOutlinedSphere(0.1, position)
+  private[this] val filledSphere = createFilledSphere(0.1, position)
 
   setLabelScale(labelScale)
   this.setId(UID)
@@ -107,7 +107,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   }
 
   /** See [[NetworkNode.setLabelScale]] */
-  override def setLabelScale(scale: Double): Unit = label.setScale(scale)
+  override def setLabelScale(scale: Double): Unit = label.setScale(scale * 0.5)
 
   /** See [[NetworkNode.setSeeThroughSphereRadius]] */
   override def setSeeThroughSphereRadius(radius: Double): Unit = setSphereRadius(seeThroughSphere, radius)

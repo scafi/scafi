@@ -19,7 +19,6 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
 import java.awt.Image
-
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.{ControllerStarter, NodeUpdater, SensorSetter}
 import it.unibo.scafi.simulation.gui.controller.{ControllerUtils, PopupMenuUtils}
 import it.unibo.scafi.simulation.gui.model._
@@ -28,6 +27,7 @@ import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorU
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import javax.swing.{JFrame, SwingUtilities}
 
+/** 3D version of the app's Controller, uses [[SimulatorUI3D]] as the view. It handles user interaction. */
 class DefaultController3D(simulation: Simulation, simulationManager: SimulationManager) extends Controller3D {
   private var gui: SimulatorUI3D = _
   private var nodeValueTypeToShow: NodeValue = NodeValue.EXPORT
@@ -35,6 +35,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   private var nodeIds: Set[Int] = Set()
   private var nodeUpdater: NodeUpdater = _
 
+  /** See [[Controller3D.startup]] */
   def startup(): Unit = {
     simulation.setController(this)
     startGUI()
@@ -52,69 +53,97 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     if (Settings.ShowConfigPanel) new ConfigurationPanel(this)
   })
 
+  /** See [[Controller3D.getUI]] */
   override def getUI: JFrame = gui
 
-  def setShowValue(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
+  /** See [[Controller3D.setShowValue]] */
+  override def setShowValue(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
 
-  def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
+  /** See [[Controller3D.getNodeValueTypeToShow]] */
+  override def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
+  /** See [[Controller3D.startSimulation]] */
   override def startSimulation(): Unit = {
     simulationManager.setUpdateNodeFunction(nodeUpdater.updateNode(_, gui, simulation))
     nodeIds = ControllerStarter.setupSimulation(simulation, gui, simulationManager)
     simulationManager.start()
   }
 
+  /** See [[Controller3D.stopSimulation]] */
   override def stopSimulation(): Unit = simulationManager.stop()
 
+  /** See [[Controller3D.pauseSimulation]] */
   override def pauseSimulation(): Unit = simulationManager.pause()
 
+  /** See [[Controller3D.resumeSimulation]] */
   override def resumeSimulation(): Unit = simulationManager.resume()
 
+  /** See [[Controller3D.stepSimulation]] */
   override def stepSimulation(stepCount: Int): Unit = simulationManager.step(stepCount)
 
+  /** See [[Controller3D.clearSimulation]] */
   override def clearSimulation(): Unit = {
     simulationManager.stop()
     ControllerUtils.enableMenu(enabled = false, gui.getJMenuBar, gui.customPopupMenu)
     gui.reset()
   }
 
-  def handleNumberButtonPress(sensorIndex: Int): Unit =
+  /** See [[Controller3D.handleNumberButtonPress]] */
+  override def handleNumberButtonPress(sensorIndex: Int): Unit =
     SensorSetter(gui.getSimulationPanel, simulation).handleNumberButtonPress(sensorIndex)
 
-  def shutDown(): Unit = System.exit(0)
+  /** See [[Controller3D.shutDown]] */
+  override def shutDown(): Unit = System.exit(0)
 
-  def decreaseFontSize(): Unit = gui.getSimulationPanel.decreaseFontSize()
+  /** See [[Controller3D.decreaseFontSize]] */
+  override def decreaseFontSize(): Unit = gui.getSimulationPanel.decreaseFontSize()
 
-  def increaseFontSize(): Unit = gui.getSimulationPanel.increaseFontSize()
+  /** See [[Controller3D.increaseFontSize]] */
+  override def increaseFontSize(): Unit = gui.getSimulationPanel.increaseFontSize()
 
-  def slowDownSimulation(): Unit = simulationManager.simulation.setDeltaRound(getSimulationDeltaRound + 10)
+  /** See [[Controller3D.slowDownSimulation]] */
+  override def slowDownSimulation(): Unit = simulationManager.simulation.setDeltaRound(getSimulationDeltaRound + 10)
 
   private def getSimulationDeltaRound: Double = simulationManager.simulation.getDeltaRound()
 
-  def speedUpSimulation(): Unit = {
+  /** See [[Controller3D.speedUpSimulation]] */
+  override def speedUpSimulation(): Unit = {
     val currentDeltaRound = getSimulationDeltaRound
     val newValue = if (currentDeltaRound - 10 < 0) 0 else currentDeltaRound - 10
     simulationManager.simulation.setDeltaRound(newValue)
   }
 
+  /** See [[Controller3D.selectionAttempted]] */
   override def selectionAttempted: Boolean = gui.getSimulationPanel.isAttemptingSelection
 
-  override def showImage(img: Image, showed: Boolean): Unit = () //do nothing
+  /** See [[Controller3D.showImage]] */
+  override def showImage(image: Image, showed: Boolean): Unit =
+    if(showed){
+      gui.getSimulationPanel.setBackgroundImage(image)
+    }  else {
+      gui.getSimulationPanel.setBackgroundColor(Settings.Color_background)
+    }
 
+  /** See [[Controller3D.setObservation]] */
   override def setObservation(observation: Any => Boolean): Unit = {this.observation = Option(observation)}
 
+  /** See [[Controller3D.getObservation]] */
   override def getObservation(): Any => Boolean = observation match {
     case Some(observation) => observation;
     case None => _ => false
   }
 
+  /** See [[Controller3D.setSensor]] */
   override def setSensor(sensorName: String, value: Any): Unit =
     SensorSetter(gui.getSimulationPanel, simulation).setSensor(sensorName, value, selectionAttempted)
 
+  /** See [[Controller3D.isObservationSet]] */
   override def isObservationSet: Boolean = observation.isDefined
 
+  /** See [[Controller3D.isLedActivatorSet]] */
   override def isLedActivatorSet: Boolean = Settings.Led_Activator(true)
 
+  /** See [[Controller3D.getCreatedNodesID]] */
   override def getCreatedNodesID: Set[Int] = nodeIds
 }
 

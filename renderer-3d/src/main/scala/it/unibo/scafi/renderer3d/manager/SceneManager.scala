@@ -18,7 +18,8 @@
 
 package it.unibo.scafi.renderer3d.manager
 
-import java.awt.Color
+import java.awt.{Color, Image}
+
 import it.unibo.scafi.renderer3d.camera.{FpsCamera, SimulationCamera}
 import javafx.scene.input
 import javafx.scene.input.{MouseButton, MouseEvent}
@@ -28,6 +29,9 @@ import scalafx.scene.{Group, Scene, SceneAntialiasing}
 import scalafx.scene.input.KeyEvent
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import javafx.scene.paint.ImagePattern
+import scalafx.embed.swing.SwingFXUtils
+import java.awt.image.BufferedImage
 
 /**
  *  Trait that contains some of the main API of the renderer-3d module regarding the scene: the method that resets
@@ -38,17 +42,34 @@ private[manager] trait SceneManager {
 
   protected val mainScene: Scene
 
+  /** Sets the background image of the scene.
+   * @param image the image to set as background
+   * @return Unit, since it has the side effect of setting the scene's background image */
+  def setBackgroundImage(image: Image): Unit = onFX{
+    val javaFxImage = SwingFXUtils.toFXImage(toBufferedImage(image), null)
+    mainScene.setFill(new ImagePattern(javaFxImage))
+  }
+
+  private def toBufferedImage(image: Image): BufferedImage = {
+    image match {case image: BufferedImage => image; case _ => {
+      val bimage = new BufferedImage(image.getWidth(null), image.getHeight(null),
+        BufferedImage.TYPE_INT_ARGB)
+      val bGr = bimage.createGraphics
+      bGr.drawImage(image, 0, 0, null)
+      bGr.dispose()
+      bimage
+    }}
+  }
+
   /** Sets the background color of the scene.
    * @param color the color to set
-   * @return Unit, since it has the side effect of setting the scene's color
-   * */
+   * @return Unit, since it has the side effect of setting the scene's color */
   def setBackgroundColor(color: Color): Unit = onFX {mainScene.setFill(color.toScalaFx)}
 
   /** Resets the scene: this means deleting all the nodes and connections, obtaining an empty scene (the light and
    *  camera will still exist, though)
-   * @return Unit, since it has the side effect of resetting the scene
-   * */
-  def resetScene(): Unit = onFX {
+   * @return Unit, since it has the side effect of resetting the scene */
+  def resetScene(): Unit = onFX { //TODO: solve bug that causes the connections to be invisible
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
     mainScene.getCamera.moveTo(Point3D.Zero)
     mainScene.getCamera.lookAtOnXZPlane(new Point3D(1, 0, 0))
