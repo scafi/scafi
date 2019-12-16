@@ -34,7 +34,7 @@ private[manager] trait SelectionManager {
   this: NodeManager =>
 
   protected val mainScene: Scene
-  private[this] val selectVolume = createBox(1, Color.color(0.2, 0.2, 0.8, 0.5))
+  private[this] val selectVolume = createCube(1, Color.color(0.2, 0.2, 0.8, 0.5))
   private[this] var selectedNodes: Set[NetworkNode] = Set()
   private[this] var initialNode: Option[NetworkNode] = None
 
@@ -95,25 +95,21 @@ private[manager] trait SelectionManager {
   }
 
   /** Gets the IDs of the currently selected nodes.
-   * @return a Set containg the IDs of the currently selected nodes
-   * */
+   * @return a Set containg the IDs of the currently selected nodes */
   final def getSelectedNodesIDs: Set[String] = onFXAndWait(selectedNodes.map(_.UID))
 
   /** Gets the first node selected, the one that is in the center of the selection cube.
-   * @return a String if the initial node exists, None otherwise.
-   * */
+   * @return a String if the initial node exists, None otherwise. */
   final def getInitialSelectedNodeId: Option[String] = onFXAndWait(initialNode.map(_.UID))
 
   /** Sets the color of only the currently selected nodes. This does not set the color of every node that might get
    *  selected in the future.
    * @param color the new color of the selected nodes
-   * @return Unit, since it has the side effect of setting the selected nodes' color
-   * */
+   * @return Unit, since it has the side effect of setting the selected nodes' color */
   final def setModifiedNodesColor(color: java.awt.Color): Unit =
     onFX(selectedNodes.foreach(_.setNodeColor(color.toScalaFx)))
 
   /** This can be used to know whether the user is currently attempting a selection or not.
-   * @return true if the user is currently attempting a selection, false otherwise
-   * */
+   * @return true if the user is currently attempting a selection, false otherwise */
   final def isAttemptingSelection: Boolean = onFXAndWait(selectVolume.isVisible)
 }

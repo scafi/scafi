@@ -22,14 +22,33 @@ import it.unibo.scafi.renderer3d.manager.NetworkRenderer
 import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import javax.swing.{JFrame, JMenuBar}
 
+/**
+ * Interface of the 3D view in MVC pattern.
+ * */
 trait SimulatorUI3D extends JFrame{
 
+  /**
+   * Retrieves the popup menu.
+   * @return the popup menu
+   * */
   def customPopupMenu: MyPopupMenu
 
+  /**
+   * Retrieves the 3D simulation panel. This is the 3D renderer that contains the main API of the module renderer-3d
+   * @return the 3D simulation panel
+   * */
   def getSimulationPanel: NetworkRenderer
 
+  /**
+   * Resets the scene, deleting all the nodes and connections.
+   * @return Unit, since it has the side effect of resetting the scene
+   * */
   def reset(): Unit
 
+  /**
+   * Retrieves the menu bar.
+   * @return the menu bar
+   * */
   def getJMenuBar: JMenuBar
 
   def getUI: JFrame

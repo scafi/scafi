@@ -28,7 +28,7 @@ import scala.collection.mutable.{Map => MutableMap}
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify nodes. */
 private[manager] trait NodeManager {
-  this: ConnectionManager => //ConnectionManager has to also be mixed in with NodeManager
+  this: ConnectionManager with SceneManager => //ConnectionManager and SceneManager have to be mixed in with NodeManager
 
   private[this] final val FILLED_SPHERE_RADIUS = 100
   private[this] final val networkNodes = MutableMap[String, NetworkNode]()
@@ -110,15 +110,15 @@ private[manager] trait NodeManager {
    * @param nodeUID the unique id of the node
    * @param text the new text to set
    * @return Unit, since it has the side effect of changing the label's text */
-  final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text))
+  final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text, mainScene.getCamera))
 
   /** Sets the label text of the specified node to the position of that node in 2D, from the point of view of the camera
    * @param nodeUID the unique id of the node
    * @param positionFormatter the function used to format the position before setting it as the label's text
    * @return Unit, since it has the side effect of changing the label's text */
   final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit = //TODO: the formatter should be used
-    findNodeAndAct(nodeUID, node =>
-    {val position = node.getScreenPosition; node.setText(positionFormatter(position.x, position.y))})
+    findNodeAndAct(nodeUID, node => {val position = node.getScreenPosition
+      node.setText(positionFormatter(position.x, position.y), mainScene.getCamera)})
 
   /** Sets the color of the specified node to a new one.
    * @param nodeUID the unique id of the node

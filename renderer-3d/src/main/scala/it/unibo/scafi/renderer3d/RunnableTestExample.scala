@@ -20,27 +20,41 @@ package it.unibo.scafi.renderer3d
 
 import java.awt.event.{KeyEvent, KeyListener}
 import java.awt.{BorderLayout, Color}
-
 import com.typesafe.scalalogging.Logger
-import it.unibo.scafi.renderer3d.manager.NetworkRenderingPanel
-import javax.swing.{JFrame, SwingUtilities}
-
+import it.unibo.scafi.renderer3d.manager.{NetworkRenderer, NetworkRenderingPanel}
+import javax.swing.{JFrame, SwingUtilities, WindowConstants}
 import scala.util.Random
 
+/**
+ * Example usage of the main API of this module, provided by [[NetworkRenderer]]. This class creates some nodes,
+ * connects each one to the previous one and to the next one, also moves them around randomly at the start, etc. It
+ * also calls many methods of the main API to test that they actually work.
+ * This example can be used to quickly check for regressions in the renderer-3d module, by running it and checking if
+ * the scene looks and behaves as usual:
+ *  -the second-last node should not exist
+ *  -the node before the second-last should show its 2D position instead of its index value, also it should be orange
+ *  -the first node should be blue
+ *  -the connections, nodes and labels should be visible
+ *  -the connections should be green
+ *  -nodes 1 and 2 should be disconnected
+ *  -selecting some nodes and pressing a keyboard number between 1 and 4 should print the selected nodes to the console
+ *    and should set their color to yellow.
+ * */
 private[renderer3d] object RunnableTestExample extends App {
   private val SCENE_SIZE = 10000
   private val FRAME_WIDTH = 800
   private val FRAME_HEIGHT = 600
-  private val NODE_COUNT = 500
+  private val NODE_COUNT = 400
   private val NODE_BRIGHTNESS = 50
   private val logger = Logger("RunnableTestExample")
 
   SwingUtilities.invokeLater(() => {
     val frame = new JFrame()
-    val networkRenderer = NetworkRenderingPanel()
+    val networkRenderer: NetworkRenderer = NetworkRenderingPanel()
     networkRenderer.setSceneSize(SCENE_SIZE)
     frame.add(networkRenderer, BorderLayout.CENTER)
     frame.setSize(FRAME_WIDTH, FRAME_HEIGHT)
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
     frame.setVisible(true)
 
     addNodes(networkRenderer, NODE_COUNT)
@@ -49,36 +63,36 @@ private[renderer3d] object RunnableTestExample extends App {
     testAPI(networkRenderer)
   })
 
-  def addNodes(networkRenderer: NetworkRenderingPanel, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
+  private def addNodes(networkRenderer: NetworkRenderer, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
     networkRenderer.addNode((getRandomDouble, getRandomDouble, getRandomDouble), index.toString))
 
   private def getRandomDouble: Double = Random.nextInt(SCENE_SIZE).toDouble
 
-  private def testAPI(networkRenderer: NetworkRenderingPanel): Unit = {
+  private def testAPI(networkRenderer: NetworkRenderer): Unit = {
     testNodeAPI(networkRenderer)
     testConnectionsAPI(networkRenderer)
     testSelectionAPI(networkRenderer)
   }
 
-  private def testNodeAPI(networkRenderer: NetworkRenderingPanel): Unit = {
+  private def testNodeAPI(networkRenderer: NetworkRenderer): Unit = {
     moveNodesRandomly(networkRenderer)
     networkRenderer.increaseFontSize()
     networkRenderer.decreaseFontSize()
     networkRenderer.removeNode((NODE_COUNT-1).toString)
     networkRenderer.setNodeTextAsUIPosition((NODE_COUNT-2).toString, {case (x: Double, y: Double) => x + " " + y})
-    networkRenderer.setNodeColor((NODE_COUNT-2).toString, Color.orange)
     networkRenderer.setNodesColor(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS))
+    networkRenderer.setNodeColor((NODE_COUNT-2).toString, Color.orange)
     networkRenderer.setNodeColor("1", Color.blue)
   }
 
-  private def testConnectionsAPI(networkRenderer: NetworkRenderingPanel): Unit = {
+  private def testConnectionsAPI(networkRenderer: NetworkRenderer): Unit = {
     networkRenderer.toggleConnections()
     networkRenderer.toggleConnections()
     networkRenderer.setConnectionsColor(Color.green)
     networkRenderer.disconnect("1", "2")
   }
 
-  private def testSelectionAPI(networkRenderer: NetworkRenderingPanel): Unit =
+  private def testSelectionAPI(networkRenderer: NetworkRenderer): Unit =
     networkRenderer.addKeyListener(new KeyListener {
     override def keyTyped(keyEvent: KeyEvent): Unit = ()
     override def keyPressed(keyEvent: KeyEvent): Unit = ()
@@ -90,14 +104,14 @@ private[renderer3d] object RunnableTestExample extends App {
       }
   })
 
-  def connectNodes(renderingPanel: NetworkRenderingPanel, nodeCount: Int): Unit =
+  private def connectNodes(renderingPanel: NetworkRenderer, nodeCount: Int): Unit =
     (1 until nodeCount).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
 
-  private def moveNodesRandomly(renderingPanel: NetworkRenderingPanel): Unit =
+  private def moveNodesRandomly(renderingPanel: NetworkRenderer): Unit =
     (1 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition))
 
   private def getRandomPosition: (Double, Double, Double) = (getRandomDouble, getRandomDouble, getRandomDouble)
 
-  private def setNodesLabel(networkRenderer: NetworkRenderingPanel): Unit =
+  private def setNodesLabel(networkRenderer: NetworkRenderer): Unit =
     (1 to NODE_COUNT).foreach(index => networkRenderer.setNodeText(index.toString, index.toString))
 }
