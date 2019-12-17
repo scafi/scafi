@@ -32,21 +32,19 @@ import scala.collection.mutable.{Set => MutableSet}
  * JavaFx 3D camera that moves with keyboard input and rotates with mouse or keyboard input.
  * It can move up, down, left, right, forward and backwards but it rotates only on the Y axis.
  * */
-final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Double = 0.5d)
+final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Double = 0.6d)
   extends PerspectiveCamera(true) with SimulationCamera {
 
-  private[this] val INITIAL_FOV = 40
-  private[this] val MIN_FOV = 20
+  private[this] val INITIAL_FOV = 60
   private[this] val MIN_SENSITIVITY = 0.1
   private[this] val MAX_SENSITIVITY = 1d
-  private[this] val KEYBOARD_SENSITIVITY = 2
+  private[this] val KEYBOARD_ARROW_SENSITIVITY = 2
   private[this] val MAX_ROTATION = 15
   private[this] val adjustedSensitivity = RichMath.clamp(sensitivity, MIN_SENSITIVITY, MAX_SENSITIVITY)
   private[this] var oldMousePosition = new Point2D(0, 0)
   private[this] val moveDirections = MutableSet[CameraMoveDirection.Value]()
   private[this] var multipleKeyPressesEnabled = false
 
-  this.setScale(0.1)
   this.setFieldOfView(INITIAL_FOV)
   this.setFarClip(60000.0)
   this.setNearClip(0.1)
@@ -67,8 +65,8 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     getKeyboardRotation(keyEvent).fold()(this.rotateCamera(_))
 
   private def getKeyboardRotation(keyEvent: input.KeyEvent): Option[Int] = keyEvent.getCode match {
-    case KeyCode.LEFT => Option(-KEYBOARD_SENSITIVITY)
-    case KeyCode.RIGHT => Option(KEYBOARD_SENSITIVITY)
+    case KeyCode.LEFT => Option(-KEYBOARD_ARROW_SENSITIVITY)
+    case KeyCode.RIGHT => Option(KEYBOARD_ARROW_SENSITIVITY)
     case _ => None
   }
 
@@ -84,7 +82,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     }
 
   private def addZoomAmount(amount: Int): Unit =
-    onFX {this.setFieldOfView(RichMath.clamp(this.getFieldOfView - amount, MIN_FOV, INITIAL_FOV))}
+    onFX {this.setFieldOfView(RichMath.clamp(this.getFieldOfView - amount, INITIAL_FOV/2, INITIAL_FOV))}
 
   /** See [[SimulationCamera.moveByKeyboardEvent]] */
   override def moveByKeyboardEvent(event: KeyEvent): Unit = onFX {

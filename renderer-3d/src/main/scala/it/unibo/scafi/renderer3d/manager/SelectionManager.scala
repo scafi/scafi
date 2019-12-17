@@ -31,7 +31,7 @@ import scalafx.scene.{Camera, Node, Scene}
 
 /** Trait that contains some of the main API of the renderer-3d module regarding the nodes' selection. */
 private[manager] trait SelectionManager {
-  this: NodeManager =>
+  this: NodeManager => //NodeManager has to also be mixed in with SelectionManager
 
   protected val mainScene: Scene
   private[this] val selectVolume = createCube(1, Color.color(0.2, 0.2, 0.8, 0.5))
@@ -106,7 +106,7 @@ private[manager] trait SelectionManager {
    *  selected in the future.
    * @param color the new color of the selected nodes
    * @return Unit, since it has the side effect of setting the selected nodes' color */
-  final def setModifiedNodesColor(color: java.awt.Color): Unit =
+  final def setCurrentSelectionColor(color: java.awt.Color): Unit =
     onFX(selectedNodes.foreach(_.setNodeColor(color.toScalaFx)))
 
   /** This can be used to know whether the user is currently attempting a selection or not.

@@ -38,9 +38,20 @@ import java.awt.image.BufferedImage
  *  the scene, etc.
  *  */
 private[manager] trait SceneManager {
-  this: NodeManager with SelectionManager => //NodeManager has to also be mixed in with SceneManager
+  this: NodeManager with SelectionManager => //NodeManager and SelectionManager have to also be mixed in
 
   protected val mainScene: Scene
+  protected var sceneSize = 1d
+
+  /** Sets the scene's size and also the camera, connections and nodes scale accordingly, so that the nodes and
+   * connections are visible. Setting this value correctly makes it possible to update the labels' position only when
+   * needed. ATTENTION: big values will cause performance problems, while small values move the labels too far away from
+   * the nodes, so a value of 1000 or so is ideal. This means that the 3d points should be positioned in a
+   * 1000*1000*1000 space.
+   * @param sceneSize it's the side's length of the imaginary cube that encloses the whole scene
+   * @return Unit, since it has the side effect of changing the scene's size */
+  final def setSceneSize(sceneSize: Double): Unit =
+    onFX {this.sceneSize = sceneSize; mainScene.getCamera.setScale(sceneSize/10000)}
 
   /** Sets the background image of the scene.
    * @param image the image to set as background
@@ -50,6 +61,9 @@ private[manager] trait SceneManager {
     mainScene.setFill(new ImagePattern(javaFxImage))
   }
 
+  /**
+   * From https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage
+   * */
   private def toBufferedImage(image: Image): BufferedImage = {
     image match {case image: BufferedImage => image; case _ => {
       val bimage = new BufferedImage(image.getWidth(null), image.getHeight(null),
@@ -74,6 +88,8 @@ private[manager] trait SceneManager {
     mainScene.getCamera.moveTo(Point3D.Zero)
     mainScene.getCamera.lookAtOnXZPlane(new Point3D(1, 0, 0))
   }
+
+  def setCameraScale(scale: Double): Unit = mainScene.getCamera.setScale(scale)
 
   protected def createScene(): Scene = {
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {

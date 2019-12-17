@@ -85,10 +85,10 @@ trait NetworkRenderer3D extends JFXPanel{
   /** See [[NodeManager.setSelectionColor]] */
   def setSelectionColor(color: java.awt.Color): Unit
 
-  /** See [[NodeManager.setSceneSize]] */
+  //** scene API **
+  /** See [[SceneManager.setSceneSize]] */
   def setSceneSize(sceneSize: Double): Unit
 
-  //** scene API **
   /** See [[SceneManager.setBackgroundImage]] */
   def setBackgroundImage(image: Image): Unit
 
@@ -105,8 +105,8 @@ trait NetworkRenderer3D extends JFXPanel{
   /** See [[SelectionManager.getInitialSelectedNodeId]] */
   def getInitialSelectedNodeId: Option[String]
 
-  /** See [[SelectionManager.setModifiedNodesColor]] */
-  def setModifiedNodesColor(color: java.awt.Color): Unit
+  /** See [[SelectionManager.setCurrentSelectionColor]] */
+  def setCurrentSelectionColor(color: java.awt.Color): Unit
 
   /** See [[SelectionManager.isAttemptingSelection]] */
   def isAttemptingSelection: Boolean

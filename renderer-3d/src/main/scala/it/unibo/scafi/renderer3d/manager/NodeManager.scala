@@ -30,16 +30,15 @@ import scala.collection.mutable.{Map => MutableMap}
 private[manager] trait NodeManager {
   this: ConnectionManager with SceneManager => //ConnectionManager and SceneManager have to be mixed in with NodeManager
 
-  private[this] final val FILLED_SPHERE_RADIUS = 100
   private[this] final val networkNodes = MutableMap[String, NetworkNode]()
-  private[this] final var state = NodeManagerState()
+  private[this] final var state: NodeManagerState = NodeManagerState()
   private[this] val logger = Logger("NodeManager")
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
     val LABELS_GROUP_SIZE = 300
     val cameraPosition = camera.getPosition
-    if(cameraPosition.distance(state.positionThatLabelsFace) > state.sceneSize/4){
+    if(cameraPosition.distance(state.positionThatLabelsFace) > sceneSize/4){
       networkNodes.values.grouped(LABELS_GROUP_SIZE)
         .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition)))) //TODO: use runLater only on the second group
       state = state.setPositionThatLabelsFace(cameraPosition)
@@ -51,7 +50,7 @@ private[manager] trait NodeManager {
    * @param enable specifies if the method should enable or disable the sphere
    * @return Unit, since it has the side effect of enabling or disabling the sphere */
   final def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit =
-    onFX {findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) FILLED_SPHERE_RADIUS else 0))}
+    onFX {findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) sceneSize/100 else 0))}
 
   /** Sets the radius of the colored spheres and the outlined ones, centered on the nodes.
    * @param seeThroughSpheresRadius the radius of the outlined spheres
@@ -142,8 +141,8 @@ private[manager] trait NodeManager {
   /** Sets the scale of all the nodes. This applies to nodes not already created, too.
    * @param scale the new scale of the nodes
    * @return Unit, since it has the side effect of changing the nodes' scale */
-  final def setNodesScale(scale: Double): Unit =
-    onFX {state = state.setNodesScale(scale); networkNodes.values.foreach(_.setNodeScale(scale))}
+  final def setNodesScale(scale: Double): Unit = //TODO: nodesScale value is somehow not getting updated
+    onFX {state = state.setNodesScale(scale * sceneSize); networkNodes.values.foreach(_.setNodeScale(state.nodesScale))}
 
   protected final def getAllNetworkNodes: Set[NetworkNode] = networkNodes.values.toSet
 
@@ -158,7 +157,7 @@ private[manager] trait NodeManager {
   private final def updateLabelSize(sizeDifference: Double): Unit = onFX {
     val (minScale, maxScale) = (0.7, 1.2)
     state = state.setNodeLabelsScale(RichMath.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
-    networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
+    networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale * sceneSize/1000))
   }
 
   /** Sets the color of the nodes when they get selected. This applies to nodes not already created, too.
@@ -168,10 +167,4 @@ private[manager] trait NodeManager {
     state = state.setSelectionColor(color)
     getAllNetworkNodes.foreach(_.setSelectionColor(color.toScalaFx))
   }
-
-  /** Sets the scene's size.
-   * Setting this value correctly make sit possible to update the labels' position only when needed.
-   * @param sceneSize it's the side's length of the imaginary cube that encloses the whole scene
-   * @return Unit, since it has the side effect of changing the scene's size */
-  final def setSceneSize(sceneSize: Double): Unit = onFX {state = state.setSceneSize(sceneSize)}
 }

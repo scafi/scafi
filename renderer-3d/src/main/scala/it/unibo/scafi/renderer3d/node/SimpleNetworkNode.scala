@@ -23,7 +23,6 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.{Camera, Group}
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
-import scalafx.scene.CacheHint
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Sphere
 
@@ -31,31 +30,23 @@ import scalafx.scene.shape.Sphere
 final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Color, labelScale: Double)
   extends Group with NetworkNode {
 
-  private[this] val ID = UID.toInt
   private[this] val NODE_SIZE = 6
-  private[this] val LABEL_FONT_SIZE = 30 //ATTENTION: big labels cause performance issues
-  private[this] val LABEL_ADDED_HEIGHT = 25
+  private[this] val LABEL_FONT_SIZE = 30 //ATTENTION: big labels cause performance issues, but small fonts are blurry
+  private[this] val LABEL_ADDED_HEIGHT = NODE_SIZE*4
   private[this] val node = createCube(NODE_SIZE, nodeColor, position)
   private[this] val label = createLabel("", LABEL_FONT_SIZE, getLabelPosition(position))
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
-  private[this] val seeThroughSphere = createOutlinedSphere(0.1, position)
-  private[this] val filledSphere = createFilledSphere(0.1, position)
+  private[this] val seeThroughSphere = createOutlinedSphere(1, position)
+  private[this] val filledSphere = createFilledSphere(1, position)
 
   setLabelScale(labelScale)
   this.setId(UID)
-  optimizeForSpeed()
   label.setVisible(false)
   this.getChildren.addAll(node) //label is not added by default for performance reasons, since it would show "" anyway
 
   private def getLabelPosition(nodePosition: Point3D, addedHeight: Double = LABEL_ADDED_HEIGHT): Point3D =
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
-
-  private def optimizeForSpeed(): Unit =
-    List(node, label, seeThroughSphere, filledSphere).foreach(element => {
-      element.cache = true
-      element.setCacheHint(CacheHint.Speed)
-    })
 
   /** See [[NetworkNode.setText]] */
   override def setText(text: String, camera: Camera): Unit = onFX{
@@ -107,7 +98,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   }
 
   /** See [[NetworkNode.setLabelScale]] */
-  override def setLabelScale(scale: Double): Unit = label.setScale(scale * 0.5)
+  override def setLabelScale(scale: Double): Unit = label.setScale(scale * 0.5 * NODE_SIZE/6)
 
   /** See [[NetworkNode.setSeeThroughSphereRadius]] */
   override def setSeeThroughSphereRadius(radius: Double): Unit = setSphereRadius(seeThroughSphere, radius)

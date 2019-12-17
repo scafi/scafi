@@ -31,7 +31,7 @@ import scala.collection.mutable.{Map => MutableMap}
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify connections.*/
 private[manager] trait ConnectionManager {
-  this: NodeManager => //NodeManager has to also be mixed in with ConnectionManager
+  this: NodeManager with SceneManager => //NodeManager and SceneManager have to also be mixed in with ConnectionManager
 
   protected val connectionGroup = new Group() //implementations have to add this to the main scene
   private[this] var connectionsColor = Color.BLACK
@@ -114,8 +114,10 @@ private[manager] trait ConnectionManager {
     {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
 
   private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Cylinder =
-    (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) =>
-      Rendering3DUtils.createLine(origin.getNodePosition, target.getNodePosition, connectionsVisible, connectionsColor)}
+    (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) => {
+      val points = (origin.getNodePosition, target.getNodePosition)
+      Rendering3DUtils.createLine(points, connectionsVisible, connectionsColor, sceneSize / 5000)
+    }}
 
   /** Toggles the connections on or off, making them visible or invisible.
    * @return Unit, since it has the side effect of making the connections visible or invisible */

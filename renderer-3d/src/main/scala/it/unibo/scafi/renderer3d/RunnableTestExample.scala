@@ -23,6 +23,7 @@ import java.awt.{BorderLayout, Color}
 import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.manager.{NetworkRenderer3D, NetworkRendering3DPanel}
 import javax.swing.{JFrame, SwingUtilities, WindowConstants}
+
 import scala.util.Random
 
 /**
@@ -38,10 +39,11 @@ import scala.util.Random
  *  -the connections should be green
  *  -nodes 1 and 2 should be disconnected
  *  -selecting some nodes and pressing a keyboard number between 1 and 4 should print the selected nodes to the console
- *    and should set their color to yellow.
+ *    and should set their color to yellow
+ *  -the background color should be light gray
  * */
 private[renderer3d] object RunnableTestExample extends App {
-  private val SCENE_SIZE = 10000
+  private val SCENE_SIZE = 1000
   private val FRAME_WIDTH = 800
   private val FRAME_HEIGHT = 600
   private val NODE_COUNT = 400
@@ -57,6 +59,7 @@ private[renderer3d] object RunnableTestExample extends App {
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
     frame.setVisible(true)
 
+    testSceneAPI(networkRenderer) //this needs to be done first because it resets the scene
     addNodes(networkRenderer, NODE_COUNT)
     connectNodes(networkRenderer, NODE_COUNT)
     setNodesLabel(networkRenderer)
@@ -66,12 +69,17 @@ private[renderer3d] object RunnableTestExample extends App {
   private def addNodes(networkRenderer: NetworkRenderer3D, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
     networkRenderer.addNode((getRandomDouble, getRandomDouble, getRandomDouble), index.toString))
 
-  private def getRandomDouble: Double = Random.nextInt(SCENE_SIZE).toDouble
+  private def getRandomDouble: Double = Random.nextInt(SCENE_SIZE).toDouble - SCENE_SIZE/2
 
   private def testAPI(networkRenderer: NetworkRenderer3D): Unit = {
     testNodeAPI(networkRenderer)
     testConnectionsAPI(networkRenderer)
     testSelectionAPI(networkRenderer)
+  }
+
+  private def testSceneAPI(networkRenderer: NetworkRenderer3D): Unit = {
+    networkRenderer.resetScene()
+    networkRenderer.setBackgroundColor(Color.LIGHT_GRAY)
   }
 
   private def testNodeAPI(networkRenderer: NetworkRenderer3D): Unit = {
@@ -99,7 +107,7 @@ private[renderer3d] object RunnableTestExample extends App {
 
     override def keyReleased(keyEvent: KeyEvent): Unit =
       if(keyEvent.getKeyCode == KeyEvent.VK_1) {
-        networkRenderer.setModifiedNodesColor(Color.YELLOW)
+        networkRenderer.setCurrentSelectionColor(Color.YELLOW)
         logger.info("Selected nodes: " + networkRenderer.getSelectedNodesIDs)
       }
   })

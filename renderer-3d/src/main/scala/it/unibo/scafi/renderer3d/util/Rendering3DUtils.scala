@@ -57,7 +57,7 @@ object Rendering3DUtils {
    * @param color the color of the cube
    * @param position the position where the cube should be placed
    * @return the cube */
-  def createCube(size: Int, color: Color, position: Point3D = Point3D.Zero): Box = {
+  def createCube(size: Double, color: Color, position: Point3D = Point3D.Zero): Box = {
     val box = new Box(size, size, size)
     box.setColor(color)
     box.moveTo(position)
@@ -109,13 +109,12 @@ object Rendering3DUtils {
   }
 
   /** Creates a 3d line as a really thin cylinder.
-   * @param origin the starting 3d point of the line
-   * @param target the end 3d point of the line
+   * @param points the start and end 3d points of the line
    * @param visible whether the line should be already visible or not
    * @param color the chosen color
    * @return the 3d line */
-  def createLine(origin: Point3D, target: Point3D, visible: Boolean, color: java.awt.Color): Cylinder = {
-    val line = createCylinder(origin, target)
+  def createLine(points: (Point3D, Point3D), visible: Boolean, color: java.awt.Color, thickness: Double): Cylinder = {
+    val line = createCylinder(points._1, points._2, thickness)
     line.setColor(color)
     line.setVisible(visible)
     optimize(line) match {case line: Cylinder => line}
@@ -126,7 +125,7 @@ object Rendering3DUtils {
   /**
    * Creates a 3d cylinder. From https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
    * */
-  private def createCylinder(origin: Point3D, target: Point3D, thickness: Double = 0.2) = {
+  private def createCylinder(origin: Point3D, target: Point3D, thickness: Double) = {
     val differenceVector = target.subtract(origin)
     val lineMiddle = target.midpoint(origin)
     val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
