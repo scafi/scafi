@@ -66,6 +66,7 @@ private[controller3d] object ControllerStarter {
   def setupGUI(gui: SimulatorUI3D): Unit = {
     val gui3d = gui.getSimulationPanel
     if(!Settings.Sim_DrawConnections) gui3d.toggleConnections()
+    gui3d.setSceneSize(NodesGenerator.SCENE_SIZE)
     gui3d.setSelectionColor(Settings.Color_selection)
     gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)
@@ -74,7 +75,7 @@ private[controller3d] object ControllerStarter {
     gui3d.setSpheresRadius(sensorRadius, 0)
     gui3d.setFilledSpheresColor(Settings.Color_actuator)
     gui3d.setNodesScale(100 / Settings.Size_Device_Relative)
-    gui3d.setSceneSize(NodesGenerator.SCENE_SIZE)
+
   }
 
 }

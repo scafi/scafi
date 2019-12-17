@@ -85,6 +85,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   override def clearSimulation(): Unit = {
     simulationManager.stop()
     ControllerUtils.enableMenu(enabled = false, gui.getJMenuBar, gui.customPopupMenu)
+    nodeUpdater.resetNodeCache()
     gui.reset()
   }
 

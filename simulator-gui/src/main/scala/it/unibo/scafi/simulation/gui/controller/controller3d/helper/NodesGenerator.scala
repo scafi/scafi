@@ -36,7 +36,7 @@ private[controller3d] object NodesGenerator {
    * ATTENTION: big values will cause performance problems, while small values move the labels too far away from the
    * nodes, so a value of 1000 or so is ideal. This means that the 3d points should be positioned in a 1000*1000*1000
    * space and the Settings.Sim_NbrRadius and Settings.Sim_Sensor_Radius values should be also high enough, for
-   * example: 150 and 50 are possible values, respectively.
+   * example 150 and 50 are good values, respectively.
    * */
   val SCENE_SIZE = 1000
 

@@ -95,7 +95,7 @@ private[manager] trait SelectionManager {
   }
 
   /** Gets the IDs of the currently selected nodes.
-   * @return a Set containg the IDs of the currently selected nodes */
+   * @return a Set containing the IDs of the currently selected nodes */
   final def getSelectedNodesIDs: Set[String] = onFXAndWait(selectedNodes.map(_.UID))
 
   /** Gets the first node selected, the one that is in the center of the selection cube.

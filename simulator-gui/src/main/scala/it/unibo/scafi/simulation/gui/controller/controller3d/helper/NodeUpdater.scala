@@ -36,6 +36,11 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   private var waitCounterThreshold = -1 //not yet initialized
   private var javaFxWaitCounter = waitCounterThreshold
 
+  /**
+   * Resets the collections that keep information about the nodes.
+   * */
+  def resetNodeCache(): Unit = {connectionsInGUI = Map(); nodesInGUI = Set()}
+
   /** Most important method of this class. It updates the specified node in the UI and in the simulation.
    * Most of the calculations are done outside of theJavaFx thread to reduce lag.
    * @param nodeId the id of the node to update
@@ -82,7 +87,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
       val counterThreshold = 1000000 / Math.pow(controller.getCreatedNodesID.size, 1.4)
       waitCounterThreshold = RichMath.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
     }
-    javaFxWaitCounter = javaFxWaitCounter - 1;
+    javaFxWaitCounter = javaFxWaitCounter - 1
     if(javaFxWaitCounter <= 0){
       javaFxWaitCounter = waitCounterThreshold
       gui.getSimulationPanel.blockUntilThreadIsFree()

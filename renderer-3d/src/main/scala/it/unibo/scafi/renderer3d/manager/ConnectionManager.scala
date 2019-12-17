@@ -114,10 +114,10 @@ private[manager] trait ConnectionManager {
     {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
 
   private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Cylinder =
-    (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) => {
+    (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) =>
       val points = (origin.getNodePosition, target.getNodePosition)
-      Rendering3DUtils.createLine(points, connectionsVisible, connectionsColor, sceneSize / 5000)
-    }}
+      Rendering3DUtils.createLine(points, connectionsVisible, connectionsColor, sceneScaleMultiplier/5)
+    }
 
   /** Toggles the connections on or off, making them visible or invisible.
    * @return Unit, since it has the side effect of making the connections visible or invisible */

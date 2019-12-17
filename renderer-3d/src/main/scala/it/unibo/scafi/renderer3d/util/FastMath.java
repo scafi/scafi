@@ -24,8 +24,7 @@ package it.unibo.scafi.renderer3d.util;
  * */
 public class FastMath {
 
-    private static double PI_OVER_2 = Math.PI / 2.0;
-    private static final float PI = (float) Math.PI;
+    private static final double PI_OVER_2 = Math.PI / 2.0;
     private static final float PI_2 = (float) PI_OVER_2;
 
     private FastMath(){}

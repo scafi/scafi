@@ -32,7 +32,7 @@ private[manager] trait NodeManager {
 
   private[this] final val networkNodes = MutableMap[String, NetworkNode]()
   private[this] final var state: NodeManagerState = NodeManagerState()
-  private[this] val logger = Logger("NodeManager")
+  private[this] final val logger = Logger("NodeManager")
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
@@ -50,7 +50,7 @@ private[manager] trait NodeManager {
    * @param enable specifies if the method should enable or disable the sphere
    * @return Unit, since it has the side effect of enabling or disabling the sphere */
   final def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit =
-    onFX {findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) sceneSize/100 else 0))}
+    onFX {findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) 10*sceneScaleMultiplier else 0))}
 
   /** Sets the radius of the colored spheres and the outlined ones, centered on the nodes.
    * @param seeThroughSpheresRadius the radius of the outlined spheres
@@ -138,26 +138,31 @@ private[manager] trait NodeManager {
   final def setFilledSpheresColor(color: java.awt.Color): Unit = onFX {
     state = state.setFilledSpheresColor(color); networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
 
-  /** Sets the scale of all the nodes. This applies to nodes not already created, too.
+  /** Sets the scale of all the nodes (and also their labels). This applies to nodes not already created, too.
    * @param scale the new scale of the nodes
    * @return Unit, since it has the side effect of changing the nodes' scale */
-  final def setNodesScale(scale: Double): Unit = //TODO: nodesScale value is somehow not getting updated
-    onFX {state = state.setNodesScale(scale * sceneSize); networkNodes.values.foreach(_.setNodeScale(state.nodesScale))}
+  final def setNodesScale(scale: Double): Unit = onFX {
+    val finalScale = scale * sceneScaleMultiplier
+    state = state.setNodesScale(finalScale)
+    state = state.setNodeLabelsScale(finalScale)
+    networkNodes.values.foreach(_.setNodeScale(state.nodesScale))
+    updateLabelsSize(0)
+  }
 
   protected final def getAllNetworkNodes: Set[NetworkNode] = networkNodes.values.toSet
 
   /** Increases the font size of every label. This applies to labels not already created, too.
    * @return Unit, since it has the side effect of changing the font size of the labels */
-  final def increaseFontSize(): Unit = updateLabelSize(0.1)
+  final def increaseFontSize(): Unit = updateLabelsSize(0.1*sceneScaleMultiplier)
 
   /** Decreases the font size of every label. This applies to labels not already created, too.
    * @return Unit, since it has the side effect of changing the font size of the labels */
-  final def decreaseFontSize(): Unit = updateLabelSize(-0.1)
+  final def decreaseFontSize(): Unit = updateLabelsSize(-0.1*sceneScaleMultiplier)
 
-  private final def updateLabelSize(sizeDifference: Double): Unit = onFX {
-    val (minScale, maxScale) = (0.7, 1.2)
+  private final def updateLabelsSize(sizeDifference: Double): Unit = onFX {
+    val (minScale, maxScale) = (0.7*sceneScaleMultiplier, 1.2*sceneScaleMultiplier)
     state = state.setNodeLabelsScale(RichMath.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
-    networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale * sceneSize/1000))
+    networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
   }
 
   /** Sets the color of the nodes when they get selected. This applies to nodes not already created, too.

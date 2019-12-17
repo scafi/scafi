@@ -23,6 +23,7 @@ import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.{AmbientLight, CacheHint, Node}
 import scalafx.scene.control.Label
+import scalafx.scene.image.{Image, ImageView, WritableImage}
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder, DrawMode, Sphere}
 import scalafx.scene.text.Font
@@ -62,6 +63,22 @@ object Rendering3DUtils {
     box.setColor(color)
     box.moveTo(position)
     optimize(box) match {case box: Box => box}
+  }
+
+  /** Creates a 2d square image with one color. This should be used instead of shapes for performance reasons.
+   * @param size the length of the side of the image
+   * @param color the color of the image
+   * @param position the position where the image should be placed
+   * @return the ImageView containing the image */
+  def createSquareImage(size: Double, color: Color, position: Point3D = Point3D.Zero): ImageView = {
+    val IMAGE_SIZE = 1
+    val IMAGE_SCALE = 10
+    val image = new WritableImage(IMAGE_SIZE, IMAGE_SIZE)
+    image.getPixelWriter.setColor(0, 0, color)
+    val imageView = new ImageView(image)
+    imageView.setScale(IMAGE_SCALE)
+    imageView.moveTo(position)
+    imageView
   }
 
   /** Creates a sphere that is rendered as a wireframe, with lines linking consecutive vertices, colored with a half
@@ -132,7 +149,7 @@ object Rendering3DUtils {
     val axisOfRotation = differenceVector.crossProduct(Rotate.YAxis)
     val angle = FastMath.acos(differenceVector.normalize.dotProduct(Rotate.YAxis))
     val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), new Point3D(axisOfRotation))
-    val line = new Cylinder(thickness, differenceVector.magnitude, 3)
+    val line = new Cylinder(thickness, differenceVector.magnitude, 3) //low divisions for performance reasons
     line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)
     line
   }

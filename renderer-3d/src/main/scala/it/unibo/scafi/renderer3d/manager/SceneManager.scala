@@ -33,25 +33,25 @@ import javafx.scene.paint.ImagePattern
 import scalafx.embed.swing.SwingFXUtils
 import java.awt.image.BufferedImage
 
-/**
- *  Trait that contains some of the main API of the renderer-3d module regarding the scene: the method that resets
- *  the scene, etc.
- *  */
+/** Trait that contains some of the main API of the renderer-3d module regarding the scene. */
 private[manager] trait SceneManager {
   this: NodeManager with SelectionManager => //NodeManager and SelectionManager have to also be mixed in
 
+  private final val DEFAULT_SCENE_SIZE = 1000
   protected val mainScene: Scene
-  protected var sceneSize = 1d
+  protected final var sceneSize = 1d
 
   /** Sets the scene's size and also the camera, connections and nodes scale accordingly, so that the nodes and
    * connections are visible. Setting this value correctly makes it possible to update the labels' position only when
    * needed. ATTENTION: big values will cause performance problems, while small values move the labels too far away from
    * the nodes, so a value of 1000 or so is ideal. This means that the 3d points should be positioned in a
-   * 1000*1000*1000 space.
+   * 1000*1000*1000 space. This method has to be called before setting the scale of the nodes.
    * @param sceneSize it's the side's length of the imaginary cube that encloses the whole scene
    * @return Unit, since it has the side effect of changing the scene's size */
   final def setSceneSize(sceneSize: Double): Unit =
     onFX {this.sceneSize = sceneSize; mainScene.getCamera.setScale(sceneSize/10000)}
+
+  protected final def sceneScaleMultiplier: Double = sceneSize / DEFAULT_SCENE_SIZE
 
   /** Sets the background image of the scene.
    * @param image the image to set as background
@@ -61,18 +61,16 @@ private[manager] trait SceneManager {
     mainScene.setFill(new ImagePattern(javaFxImage))
   }
 
-  /**
-   * From https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage
-   * */
+  /** From https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage */
   private def toBufferedImage(image: Image): BufferedImage = {
-    image match {case image: BufferedImage => image; case _ => {
+    image match {case image: BufferedImage => image; case _ =>
       val bimage = new BufferedImage(image.getWidth(null), image.getHeight(null),
         BufferedImage.TYPE_INT_ARGB)
       val bGr = bimage.createGraphics
       bGr.drawImage(image, 0, 0, null)
       bGr.dispose()
       bimage
-    }}
+    }
   }
 
   /** Sets the background color of the scene.
@@ -83,7 +81,7 @@ private[manager] trait SceneManager {
   /** Resets the scene: this means deleting all the nodes and connections, obtaining an empty scene (the light and
    *  camera will still exist, though)
    * @return Unit, since it has the side effect of resetting the scene */
-  def resetScene(): Unit = onFX { //TODO: solve bug that causes the connections to be invisible
+  def resetScene(): Unit = onFX {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
     mainScene.getCamera.moveTo(Point3D.Zero)
     mainScene.getCamera.lookAtOnXZPlane(new Point3D(1, 0, 0))
