@@ -40,7 +40,7 @@ private[manager] trait NodeManager {
     val cameraPosition = camera.getPosition
     if(cameraPosition.distance(state.positionThatLabelsFace) > sceneSize/4){
       networkNodes.values.grouped(LABELS_GROUP_SIZE)
-        .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition)))) //TODO: use runLater only on the second group
+        .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition))))
       state = state.setPositionThatLabelsFace(cameraPosition)
     }
   }
@@ -115,7 +115,7 @@ private[manager] trait NodeManager {
    * @param nodeUID the unique id of the node
    * @param positionFormatter the function used to format the position before setting it as the label's text
    * @return Unit, since it has the side effect of changing the label's text */
-  final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit = //TODO: the formatter should be used
+  final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit =
     findNodeAndAct(nodeUID, node => {val position = node.getScreenPosition
       node.setText(positionFormatter(position.x, position.y), mainScene.getCamera)})
 

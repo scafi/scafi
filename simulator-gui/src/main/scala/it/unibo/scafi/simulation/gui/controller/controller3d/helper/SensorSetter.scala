@@ -35,7 +35,7 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, sim
    * @param value the new sensor value to set
    * @param selectionAttempted whether the user is attempting selection right now
    * */
-  def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit = { //TODO: don't copy-paste
+  def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit = {
     val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
     setNodesSensor(selectedNodes, sensorName, value)
     simulation.setSensor(sensorName, value.toString.toBoolean, selectedNodes)

@@ -19,11 +19,11 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
-import it.unibo.scafi.simulation.gui.controller.ControllerUtils.{formatExport, formatPosition, formatProductPosition}
+import it.unibo.scafi.simulation.gui.controller.ControllerUtils.{formatAndRoundPosition, formatExport}
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
+import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.space.Point3D
 
 import scala.util.Try
@@ -88,8 +88,8 @@ private[helper] object NodeUpdaterHelper {
       valueToShow match {
         case NodeValue.ID => setNodeText(node, node.id.toString)
         case NodeValue.EXPORT => setNodeText(node, formatExport(node.export))
-        case NodeValue.POSITION => setNodeText(node, formatPosition(node.position))
-        case NodeValue.POSITION_IN_GUI => gui3d.setNodeTextAsUIPosition(node.id.toString, formatProductPosition)
+        case NodeValue.POSITION => setNodeText(node, formatAndRoundPosition(node.position))
+        case NodeValue.POSITION_IN_GUI => gui3d.setNodeTextAsUIPosition(node.id.toString, formatAndRoundPosition)
         case NodeValue.SENSOR(name) => setNodeText(node, node.getSensorValue(name).toString)
         case _ => setNodeText(node, "")
       }

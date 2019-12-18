@@ -21,13 +21,13 @@ package it.unibo.scafi.renderer3d.util
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
-import scalafx.scene.{AmbientLight, CacheHint, Node}
 import scalafx.scene.control.Label
-import scalafx.scene.image.{Image, ImageView, WritableImage}
+import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder, DrawMode, Sphere}
 import scalafx.scene.text.Font
 import scalafx.scene.transform.{Rotate, Translate}
+import scalafx.scene.{AmbientLight, CacheHint, Node}
 
 /**
  * This object contains methods to create the elements of the 3d JavaFx scene such as labels, cubes, spheres, lines, etc.
@@ -39,7 +39,7 @@ object Rendering3DUtils {
    * @return the ambient light */
   def createAmbientLight: AmbientLight = new AmbientLight()
 
-  /** Creates a 2d label, which can also be used in a 3d scene.
+  /** Creates a 2d label that can also be used and rotated in a 3d scene.
    * @param textString the text that should be displayed
    * @param fontSize the font size to be used
    * @param position the position where the label should be placed

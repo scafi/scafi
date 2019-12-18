@@ -84,17 +84,21 @@ private[controller] object ControllerUtils {
    * @return the formatted position of type String */
   def formatPosition(pos: Point2D): String = s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)})"
 
-  /**@param position the position to format
-   * @return the formatted position of type String */
-  def formatProductPosition(position: Product2[Double, Double]): String =
-    formatPosition(new Point2D(position._1, position._2))
-
   private def formatDouble(value: Double): String = f"(${value}%5.2g"
 
-  /**@param pos the position to format
+  /** This formats the position removing the trailing part, rounding the value. Parentheses are omitted to reduce clutter
+   *@param position the position to format
    * @return the formatted position of type String */
-  def formatPosition(pos: Point3D): String =
-    s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)} ; ${formatDouble(pos.z)})"
+  def formatAndRoundPosition(position: Product2[Double, Double]): String =
+    s"${formatAndRound(position._1)};${formatAndRound(position._2)}"
+
+  private def formatAndRound(value: Double): String = f"${value}%.0f"
+
+  /**Formats the 3D position. The parentheses were omitted to reduce clutter.
+   * @param position the position to format
+   * @return the formatted position of type String */
+  def formatAndRoundPosition(position: Point3D): String =
+    s"${formatAndRound(position._1)};${formatAndRound(position._2)};${formatAndRound(position._2)}"
 
   /**@param pos the position to format
    * @return the formatted position of type String */
