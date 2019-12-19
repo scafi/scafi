@@ -30,14 +30,14 @@ object Basic3DDemo extends Launcher {
   //Settings.Sim_Draw_Sensor_Radius = true //this is visible only using high Sim_Sensor_Radius values like 500
   //Settings.Sim_Sensor_Radius = 50
   //Settings.Led_Activator = _ => true
-  //Settings.Color_background = Color.GRAY
+  //Settings.Color_background = Color.LIGHT_GRAY
   //Settings.Sim_DrawConnections = false
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
-  Settings.Sim_NbrRadius = 150 // neighbourhood radius, set this between 50 and 200 or so
-  Settings.Sim_NumNodes = 300 // don't go too high, not more than 500
+  Settings.Sim_NbrRadius = 250 // neighbourhood radius, don't go too high if there are a lot of nodes
+  Settings.Sim_NumNodes = 300 // don't go too high
   Settings.ShowConfigPanel = false
   launch()
 }

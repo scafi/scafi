@@ -46,7 +46,7 @@ private[renderer3d] object RunnableTestExample extends App {
   private val SCENE_SIZE = 1000
   private val FRAME_WIDTH = 800
   private val FRAME_HEIGHT = 600
-  private val NODE_COUNT = 400
+  private val NODE_COUNT = 1000
   private val NODE_BRIGHTNESS = 50
   private val logger = Logger("RunnableTestExample")
 

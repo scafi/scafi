@@ -25,7 +25,7 @@ import scalafx.scene.control.Label
 import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder, DrawMode, Sphere}
-import scalafx.scene.text.Font
+import scalafx.scene.text.{Font, Text}
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{AmbientLight, CacheHint, Node}
 
@@ -39,18 +39,18 @@ object Rendering3DUtils {
    * @return the ambient light */
   def createAmbientLight: AmbientLight = new AmbientLight()
 
-  /** Creates a 2d label that can also be used and rotated in a 3d scene.
+  /** Creates a 2d text label that can also be used and rotated in a 3d scene.
    * @param textString the text that should be displayed
    * @param fontSize the font size to be used
-   * @param position the position where the label should be placed
-   * @return the label */
-  def createLabel(textString: String, fontSize: Int, position: Point3D): Label = {
-    val label = new Label(){
+   * @param position the position where the text label should be placed
+   * @return the text label */
+  def createText(textString: String, fontSize: Int, position: Point3D): Text = {
+    val label = new Text(){
       font = new Font(fontSize)
       text = textString
     }
     label.moveTo(position)
-    optimize(label) match {case label: Label => label}
+    optimize(label) match {case label: Text => label}
   }
 
   /** Creates a 3d cube.

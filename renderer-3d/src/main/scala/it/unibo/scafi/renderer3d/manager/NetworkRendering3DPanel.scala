@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.renderer3d.manager
 
+import it.unibo.scafi.renderer3d.fps_counter.FPSCounter
 import javafx.embed.swing.JFXPanel
 import org.scalafx.extras._
 import scalafx.scene.Scene
@@ -34,6 +35,7 @@ final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionM
   override protected val mainScene: Scene = new Scene(createScene())
   mainScene.getChildren.add(connectionGroup)
   this.setScene(mainScene)
+  FPSCounter.addToScene(mainScene) //use this when you want to check performance
 
   /**
    * This method adds a small job to the ones that the javaFx thread has to run and it waits for its result.

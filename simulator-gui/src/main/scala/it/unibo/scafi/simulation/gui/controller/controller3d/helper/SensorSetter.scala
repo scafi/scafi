@@ -24,7 +24,7 @@ import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
 /**
- * Helper class that has methods to set and update the node's sensors.
+ * Helper class to set and update the node's sensors.
  * */
 private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, simulation: Simulation) {
 

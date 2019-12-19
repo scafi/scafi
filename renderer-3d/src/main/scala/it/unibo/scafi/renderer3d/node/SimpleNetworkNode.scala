@@ -32,9 +32,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   private[this] val NODE_SIZE = 6
   private[this] val LABEL_FONT_SIZE = 30 //ATTENTION: big labels cause performance issues, but small fonts are blurry
-  private[this] val LABEL_ADDED_HEIGHT = NODE_SIZE*4
+  private[this] val LABEL_ADDED_HEIGHT = NODE_SIZE
   private[this] val node = createCube(NODE_SIZE, nodeColor, position)
-  private[this] val label = createLabel("", LABEL_FONT_SIZE, getLabelPosition(position))
+  private[this] val label = createText("", LABEL_FONT_SIZE, getLabelPosition(position))
   private[this] var currentColor = nodeColor
   private[this] var selectionColor = Color.Red
   private[this] val seeThroughSphere = createOutlinedSphere(1, position)
@@ -50,17 +50,23 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
 
   /** See [[NetworkNode.setText]] */
   override def setText(text: String, camera: Camera): Unit = onFX{
-    label.setText(text)
     if(text == "") {
       if(label.isVisible){
         label.setVisible(false)
         this.getChildren.remove(label)
       }
     } else if(!label.isVisible) {
-      label.setVisible(true)
-      this.getChildren.add(label)
-      rotateTextToCamera(camera.getPosition)
+      reAddLabel(text, camera)
+    } else {
+      label.setText(text)
     }
+  }
+
+  private def reAddLabel(text: String, camera: Camera): Unit = {
+    label.setText(text)
+    label.setVisible(true)
+    this.getChildren.add(label)
+    rotateTextToCamera(camera.getPosition)
   }
 
   /** See [[NetworkNode.rotateTextToCamera]] */
@@ -98,7 +104,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   }
 
   /** See [[NetworkNode.setLabelScale]] */
-  override def setLabelScale(scale: Double): Unit = label.setScale(scale * 0.5 * NODE_SIZE/6)
+  override def setLabelScale(scale: Double): Unit = label.setScale(scale * NODE_SIZE/18)
 
   /** See [[NetworkNode.setSeeThroughSphereRadius]] */
   override def setSeeThroughSphereRadius(radius: Double): Unit = setSphereRadius(seeThroughSphere, radius)

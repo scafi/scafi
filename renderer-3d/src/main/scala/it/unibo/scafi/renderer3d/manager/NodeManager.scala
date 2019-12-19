@@ -36,7 +36,7 @@ private[manager] trait NodeManager {
   protected val mainScene: Scene
 
   protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
-    val LABELS_GROUP_SIZE = 300
+    val LABELS_GROUP_SIZE = 400
     val cameraPosition = camera.getPosition
     if(cameraPosition.distance(state.positionThatLabelsFace) > sceneSize/4){
       networkNodes.values.grouped(LABELS_GROUP_SIZE)
@@ -50,7 +50,7 @@ private[manager] trait NodeManager {
    * @param enable specifies if the method should enable or disable the sphere
    * @return Unit, since it has the side effect of enabling or disabling the sphere */
   final def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit =
-    onFX {findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) 10*sceneScaleMultiplier else 0))}
+    onFX {findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) 8 else 0))}
 
   /** Sets the radius of the colored spheres and the outlined ones, centered on the nodes.
    * @param seeThroughSpheresRadius the radius of the outlined spheres
