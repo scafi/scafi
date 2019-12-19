@@ -42,7 +42,7 @@ private[controller3d] object NodesGenerator {
 
   /**
    * Creates the scene nodes with the given topology.
-   * @param topology it explains how th noes should be placed in the scene
+   * @param topology it explains how the noes should be placed in the scene
    * @param nodeCount the number of nodes to create
    * @param seed it will be used as an input for the randomization of the positions
    * @return a map of (UID -> Node) entries, from the unique ID of the node to the node itself.

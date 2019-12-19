@@ -35,7 +35,7 @@ import scala.collection.mutable.{Set => MutableSet}
 final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Double = 0.6d)
   extends PerspectiveCamera(true) with SimulationCamera {
 
-  private[this] val INITIAL_FOV = 60
+  private[this] val INITIAL_FOV = 40
   private[this] val MIN_SENSITIVITY = 0.1
   private[this] val MAX_SENSITIVITY = 1d
   private[this] val KEYBOARD_ARROW_SENSITIVITY = 2

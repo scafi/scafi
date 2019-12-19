@@ -21,7 +21,6 @@ package it.unibo.scafi.renderer3d.util
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
-import scalafx.scene.control.Label
 import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder, DrawMode, Sphere}
@@ -135,6 +134,28 @@ object Rendering3DUtils {
     line.setColor(color)
     line.setVisible(visible)
     optimize(line) match {case line: Cylinder => line}
+  }
+
+  //TODO: check if it works, then remove copy pasted code
+  def connectLineToPoints(line: Cylinder, origin: Point3D, target: Point3D): Unit = {
+    resetLine(line)
+    val differenceVector = target.subtract(origin)
+    val lineMiddle = target.midpoint(origin)
+    val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
+    val axisOfRotation = differenceVector.crossProduct(Rotate.YAxis)
+    val angle = FastMath.acos(differenceVector.normalize.dotProduct(Rotate.YAxis))
+    val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), new Point3D(axisOfRotation))
+    line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)
+  }
+
+  private def resetLine(line: Cylinder): Unit = { //TODO: optimize
+    line.moveTo(Point3D.Zero)
+    line.setRotationAxis(new Point3D(1, 0, 0))
+    line.setRotate(0)
+    line.setRotationAxis(new Point3D(0, 1, 0))
+    line.setRotate(0)
+    line.setRotationAxis(new Point3D(0, 0, 1))
+    line.setRotate(0)
   }
 
   private final def optimize(node: Node): Node = {node.cache = true; node.setCacheHint(CacheHint.Speed); node}

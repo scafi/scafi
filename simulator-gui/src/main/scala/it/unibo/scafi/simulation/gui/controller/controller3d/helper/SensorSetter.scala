@@ -52,14 +52,17 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, sim
   def handleNumberButtonPress(sensorIndex: Int): Unit = {
     getSensorName(sensorIndex).foreach(sensorName => {
       val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
-      simulationPanel.getInitialSelectedNodeId.foreach(initialNodeId => {
-        val initialNode = selectedNodes.filter(_.id == initialNodeId.toInt).head
-        val sensorValue = initialNode.getSensorValue(sensorName)
-        val newSensorValue = sensorValue match {case value: Boolean => !value}
-        selectedNodes.foreach(node => setNodeSensor(node, sensorName, newSensorValue))
-        simulation.setSensor(sensorName, newSensorValue, selectedNodes)
-      })
+      simulationPanel.getInitialSelectedNodeId
+        .flatMap(initialNodeId => selectedNodes.find(_.id == initialNodeId.toInt))
+        .fold()(initialNode => setSensorByInitialNode(sensorName, selectedNodes, initialNode))
     })
+  }
+
+  private def setSensorByInitialNode(sensorName: String, selectedNodes: Set[Node], initialNode: Node): Unit = {
+    val sensorValue = initialNode.getSensorValue(sensorName)
+    val newSensorValue = sensorValue match {case value: Boolean => !value}
+    selectedNodes.foreach(node => setNodeSensor(node, sensorName, newSensorValue))
+    simulation.setSensor(sensorName, newSensorValue, selectedNodes)
   }
 
   private def getSelectedNodes(selectedNodeIDs: Set[String]): Set[Node] = {

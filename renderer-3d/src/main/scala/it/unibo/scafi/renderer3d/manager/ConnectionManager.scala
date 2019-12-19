@@ -110,7 +110,7 @@ private[manager] trait ConnectionManager {
   protected final def updateNodeConnections(nodeID: String): Unit =
     onFX {actOnAllNodeConnections(nodeID, updateConnection(nodeID, _))}
 
-  private final def updateConnection(node1ID: String, node2ID: String): Unit =
+  private final def updateConnection(node1ID: String, node2ID: String): Unit = //TODO: optimize
     {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
 
   private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Cylinder =
