@@ -36,6 +36,7 @@ final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionM
   mainScene.getChildren.add(connectionGroup)
   this.setScene(mainScene)
   FPSCounter.addToScene(mainScene) //use this when you want to check performance
+  onFX{ Thread.currentThread().setPriority(Thread.MAX_PRIORITY) }
 
   /**
    * This method adds a small job to the ones that the javaFx thread has to run and it waits for its result.

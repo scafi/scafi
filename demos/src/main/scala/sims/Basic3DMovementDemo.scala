@@ -33,7 +33,7 @@ object Basic3DMovementDemo extends Launcher {
   Settings.Color_link = Color.green //the default color is not as visible
   Settings.Sim_ProgramClass = "sims.Basic3DMovement" // starting class, via Reflection
   Settings.Sim_NbrRadius = 300 // neighbourhood radius, don't go too high
-  Settings.Sim_NumNodes = 300 // number of nodes, don't go too high
+  Settings.Sim_NumNodes = 400 // number of nodes, don't go too high
   Settings.Movement_Activator_3D = (b: Any) => b.asInstanceOf[(Double, Double, Double)]
   Settings.To_String = _ => ""
   Settings.ShowConfigPanel = false

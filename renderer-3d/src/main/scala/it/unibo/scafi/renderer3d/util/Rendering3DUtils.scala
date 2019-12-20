@@ -19,13 +19,14 @@
 package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import javafx.scene.transform.Rotate
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, Cylinder, DrawMode, Sphere}
 import scalafx.scene.text.{Font, Text}
-import scalafx.scene.transform.{Rotate, Translate}
+import scalafx.scene.transform.Translate
 import scalafx.scene.{AmbientLight, CacheHint, Node}
 
 /**
@@ -124,6 +125,17 @@ object Rendering3DUtils {
     })
   }
 
+  //TODO: check if it works, then remove copy pasted code
+  def connectLineToPoints(line: Cylinder, origin: Point3D, target: Point3D): Unit = {
+    val differenceVector = target.subtract(origin)
+    val lineMiddle = target.midpoint(origin)
+    val axisOfRotation = differenceVector.crossProduct(Rotate.Y_AXIS)
+    line.setRotationAxis(axisOfRotation)
+    line.setRotate(Rotate.Y_AXIS.angle(differenceVector.normalize()))
+    line.setHeight(differenceVector.magnitude)
+    line.moveTo(lineMiddle.toScalaPoint)
+  }
+
   /** Creates a 3d line as a really thin cylinder.
    * @param points the start and end 3d points of the line
    * @param visible whether the line should be already visible or not
@@ -136,28 +148,6 @@ object Rendering3DUtils {
     optimize(line) match {case line: Cylinder => line}
   }
 
-  //TODO: check if it works, then remove copy pasted code
-  def connectLineToPoints(line: Cylinder, origin: Point3D, target: Point3D): Unit = {
-    resetLine(line)
-    val differenceVector = target.subtract(origin)
-    val lineMiddle = target.midpoint(origin)
-    val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
-    val axisOfRotation = differenceVector.crossProduct(Rotate.YAxis)
-    val angle = FastMath.acos(differenceVector.normalize.dotProduct(Rotate.YAxis))
-    val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), new Point3D(axisOfRotation))
-    line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)
-  }
-
-  private def resetLine(line: Cylinder): Unit = { //TODO: optimize
-    line.moveTo(Point3D.Zero)
-    line.setRotationAxis(new Point3D(1, 0, 0))
-    line.setRotate(0)
-    line.setRotationAxis(new Point3D(0, 1, 0))
-    line.setRotate(0)
-    line.setRotationAxis(new Point3D(0, 0, 1))
-    line.setRotate(0)
-  }
-
   private final def optimize(node: Node): Node = {node.cache = true; node.setCacheHint(CacheHint.Speed); node}
 
   /**
@@ -167,9 +157,9 @@ object Rendering3DUtils {
     val differenceVector = target.subtract(origin)
     val lineMiddle = target.midpoint(origin)
     val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
-    val axisOfRotation = differenceVector.crossProduct(Rotate.YAxis)
-    val angle = FastMath.acos(differenceVector.normalize.dotProduct(Rotate.YAxis))
-    val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), new Point3D(axisOfRotation))
+    val axisOfRotation = differenceVector.crossProduct(Rotate.Y_AXIS)
+    val angle = FastMath.acos(differenceVector.normalize.dotProduct(Rotate.Y_AXIS))
+    val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation)
     val line = new Cylinder(thickness, differenceVector.magnitude, 3) //low divisions for performance reasons
     line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)
     line

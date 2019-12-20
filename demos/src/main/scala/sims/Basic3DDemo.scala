@@ -21,6 +21,7 @@ package sims
 import java.awt.Color
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object Basic3DDemo extends Launcher {
@@ -30,8 +31,9 @@ object Basic3DDemo extends Launcher {
   //Settings.Sim_Draw_Sensor_Radius = true //this is visible only using high Sim_Sensor_Radius values like 500
   //Settings.Sim_Sensor_Radius = 50
   //Settings.Led_Activator = _ => true
-  Settings.Color_background = Color.LIGHT_GRAY
+  //Settings.Color_background = Color.LIGHT_GRAY
   //Settings.Sim_DrawConnections = false
+  //Settings.Sim_Topology = Topologies.Grid_LoVar
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible
