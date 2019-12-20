@@ -21,7 +21,6 @@ package sims
 import java.awt.Color
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object Basic3DDemo extends Launcher {
@@ -30,7 +29,7 @@ object Basic3DDemo extends Launcher {
   //Settings.Size_Device_Relative = 80 //makes the nodes a bit bigger
   //Settings.Sim_Draw_Sensor_Radius = true //this is visible only using high Sim_Sensor_Radius values like 500
   //Settings.Sim_Sensor_Radius = 50
-  //Settings.Led_Activator = _ => true
+  //Settings.Led_Activator = _ => scala.util.Random.nextBoolean()
   //Settings.Color_background = Color.LIGHT_GRAY
   //Settings.Sim_DrawConnections = false
   //Settings.Sim_Topology = Topologies.Grid_LoVar

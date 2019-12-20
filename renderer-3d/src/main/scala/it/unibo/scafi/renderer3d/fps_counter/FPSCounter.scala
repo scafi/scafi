@@ -58,13 +58,15 @@ object FPSCounter {
     }
   }
 
-  private def showUpdatedLabel(now: Long, tooltip: Tooltip, scene: Scene, oldFrameTime: Long) = {
+  /** The tooltip will appear on the top right corner. */
+  private def showUpdatedLabel(now: Long, tooltip: Tooltip, scene: Scene, oldFrameTime: Long): Unit = {
     val window = scene.getWindow
     val elapsedNanoseconds = now - oldFrameTime
     val nanosecondsPerFrame = elapsedNanoseconds / FRAME_TIMES_LENGTH
     val frameRate = 1000000000.0 / nanosecondsPerFrame
     val maximumTimeDifference = frameTimes.sliding(2).map{case Seq(x, y, _*) => y - x}.max
     tooltip.setText("FPS: %.1f\nMax time: %.1f ms".format(frameRate, maximumTimeDifference/1000000d))
-    tooltip.show(scene.getChildren.get(0), TOOLTIP_X_POSITION + window.getX, TOOLTIP_Y_POSITION + window.getY)
+    tooltip.show(scene.getChildren.get(0), window.getX + window.getWidth - TOOLTIP_X_POSITION,
+      TOOLTIP_Y_POSITION + window.getY)
   }
 }

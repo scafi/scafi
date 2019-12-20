@@ -87,6 +87,14 @@ object RichScalaFx extends RichScalaFxHelper {
   }
 
   implicit class RichShape3D(shape: Shape3D) {
+    /** See [[RichJavaShape3D.setColor]] */
+    final def setColor(color: java.awt.Color): Unit = shape.delegate.setColor(color)
+
+    /** See [[RichJavaShape3D.setColor]] */
+    final def setColor(color: Color): Unit = shape.delegate.setColor(color)
+  }
+
+  implicit class RichJavaShape3D(shape: javafx.scene.shape.Shape3D) {
     /** Sets the color of the shape using java.awt.Color
      * @param color the new java.awt.Color of the shape
      * @return Unit, since it has the side effect of changing the color of the shape */

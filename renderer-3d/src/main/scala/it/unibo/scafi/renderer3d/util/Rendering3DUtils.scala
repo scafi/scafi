@@ -19,14 +19,14 @@
 package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import javafx.scene.transform.Rotate
+import org.fxyz3d.geometry.{Point3D => FxPoint3D}
+import org.fxyz3d.shapes.primitives.FrustumMesh
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
-import scalafx.scene.shape.{Box, Cylinder, DrawMode, Sphere}
+import scalafx.scene.shape.{Box, DrawMode, Sphere}
 import scalafx.scene.text.{Font, Text}
-import scalafx.scene.transform.Translate
 import scalafx.scene.{AmbientLight, CacheHint, Node}
 
 /**
@@ -125,43 +125,27 @@ object Rendering3DUtils {
     })
   }
 
-  //TODO: check if it works, then remove copy pasted code
-  def connectLineToPoints(line: Cylinder, origin: Point3D, target: Point3D): Unit = {
-    val differenceVector = target.subtract(origin)
-    val lineMiddle = target.midpoint(origin)
-    val axisOfRotation = differenceVector.crossProduct(Rotate.Y_AXIS)
-    line.setRotationAxis(axisOfRotation)
-    line.setRotate(Rotate.Y_AXIS.angle(differenceVector.normalize()))
-    line.setHeight(differenceVector.magnitude)
-    line.moveTo(lineMiddle.toScalaPoint)
-  }
-
   /** Creates a 3d line as a really thin cylinder.
    * @param points the start and end 3d points of the line
    * @param visible whether the line should be already visible or not
    * @param color the chosen color
    * @return the 3d line */
-  def createLine(points: (Point3D, Point3D), visible: Boolean, color: java.awt.Color, thickness: Double): Cylinder = {
-    val line = createCylinder(points._1, points._2, thickness)
+  def createLine(points: (Point3D, Point3D), visible: Boolean, color: java.awt.Color,
+                 thickness: Double): FrustumMesh = {
+    val line = new FrustumMesh(thickness, thickness, 1, 0, toFXyzPoint(points._1), toFXyzPoint(points._2))
     line.setColor(color)
     line.setVisible(visible)
-    optimize(line) match {case line: Cylinder => line}
-  }
-
-  private final def optimize(node: Node): Node = {node.cache = true; node.setCacheHint(CacheHint.Speed); node}
-
-  /**
-   * Creates a 3d cylinder. From https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
-   * */
-  private def createCylinder(origin: Point3D, target: Point3D, thickness: Double) = {
-    val differenceVector = target.subtract(origin)
-    val lineMiddle = target.midpoint(origin)
-    val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
-    val axisOfRotation = differenceVector.crossProduct(Rotate.Y_AXIS)
-    val angle = FastMath.acos(differenceVector.normalize.dotProduct(Rotate.Y_AXIS))
-    val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation)
-    val line = new Cylinder(thickness, differenceVector.magnitude, 3) //low divisions for performance reasons
-    line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)
     line
   }
+
+  /** Updates the position, rotation and height of the line so that it connects the two provided points.
+   * @param line the line to modify
+   * @param point1 the first point
+   * @param point2 the second point */
+  def connectLineToPoints(line: FrustumMesh, point1: Point3D, point2: Point3D): Unit =
+  {line.setAxisOrigin(toFXyzPoint(point1)); line.setAxisEnd(toFXyzPoint(point2))}
+
+  private def toFXyzPoint(point: Point3D): org.fxyz3d.geometry.Point3D = new FxPoint3D(point.x, point.y, point.z)
+
+  private final def optimize(node: Node): Node = {node.cache = true; node.setCacheHint(CacheHint.Speed); node}
 }

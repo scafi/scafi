@@ -44,7 +44,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
       () => gui.getSimulationPanel.toggleConnections(), this)
     PopupMenuUtils.addPopupActions(this, gui.customPopupMenu)
     ControllerUtils.setupSensors(Settings.Sim_Sensors)
-    startSimulation()
+    if (!Settings.ShowConfigPanel) startSimulation()
   }
 
   private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => {

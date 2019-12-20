@@ -35,7 +35,7 @@ final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionM
   override protected val mainScene: Scene = new Scene(createScene())
   mainScene.getChildren.add(connectionGroup)
   this.setScene(mainScene)
-  FPSCounter.addToScene(mainScene) //use this when you want to check performance
+  FPSCounter.addToScene(mainScene) //use this when you want to check performance TODO: comment out this
   onFX{ Thread.currentThread().setPriority(Thread.MAX_PRIORITY) }
 
   /**

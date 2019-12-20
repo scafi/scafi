@@ -54,13 +54,13 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     val node = simulation.network.nodes(nodeId)
     val newPosition = getNewNodePosition(node, gui3d, simulation)
     val isPositionDifferent = didPositionChange(node, newPosition)
-    updateNodeSimulationPosition(simulation, gui3d, node, newPosition)
+    updateNodeInSimulation(simulation, gui3d, node, newPosition)
     val newAndRemovedConnections = updateNodeConnections(node, simulation.network, gui3d)
     updateUI(newPosition, node, isPositionDifferent, newAndRemovedConnections) //using Platform.runLater
   }
 
-  private def updateNodeSimulationPosition(simulation: Simulation, gui3d: NetworkRenderer3D,
-                                           node: Node, newPosition: Option[Product3[Double, Double, Double]]): Unit = {
+  private def updateNodeInSimulation(simulation: Simulation, gui3d: NetworkRenderer3D, node: Node,
+                                     newPosition: Option[Product3[Double, Double, Double]]): Unit = {
     newPosition.fold(createNodeInSimulation(node, gui3d, simulation))(newPosition =>
       setSimulationNodePosition(node, newPosition, simulation))
   }
@@ -106,7 +106,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
     val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)
-    val removedConnections = connectionsInUI.diff(connections)
+    val removedConnections = connectionsInUI -- connections
     connectionsInGUI += (node.id -> connections)
     setNewAndRemovedConnections(newConnections, removedConnections, node, gui3d)
     (newConnections, removedConnections)

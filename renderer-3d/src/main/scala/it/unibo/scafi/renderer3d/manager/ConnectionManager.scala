@@ -19,23 +19,26 @@
 package it.unibo.scafi.renderer3d.manager
 
 import java.awt.Color
+
 import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
+import org.fxyz3d.shapes.primitives.FrustumMesh
 import org.scalafx.extras._
 import scalafx.scene.Group
-import scalafx.scene.shape.Cylinder
+
 import scala.collection.mutable.{Map => MutableMap}
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify connections.*/
 private[manager] trait ConnectionManager {
   this: NodeManager with SceneManager => //NodeManager and SceneManager have to also be mixed in with ConnectionManager
 
+  private type Line = FrustumMesh //instead of Cylinder, for performance reasons
   protected val connectionGroup = new Group() //implementations have to add this to the main scene
   private[this] var connectionsColor = Color.BLACK
-  private[this] final val connections = MutableMap[String, MutableMap[String, Cylinder]]() //each connection is saved 2 times
+  private[this] final val connections = MutableMap[String, MutableMap[String, Line]]() //each line is saved 2 times
   private[this] var connectionsVisible = true
   private[this] val logger = Logger("ConnectionManager")
 
@@ -47,7 +50,7 @@ private[manager] trait ConnectionManager {
     getAllConnections.foreach(_.setColor(color))
   }
 
-  private final def getAllConnections: Set[Cylinder] = connections.flatMap(entry => entry._2.values).toSet
+  private final def getAllConnections: Set[Line] = connections.flatMap(entry => entry._2.values).toSet
 
   /** Connects the two specified nodes if not already connected, adding the connection to the scene.
    * @param node1UID the id of the first node to connect
@@ -56,7 +59,7 @@ private[manager] trait ConnectionManager {
   final def connect(node1UID: String, node2UID: String): Unit =
     onFX {findNodes(node1UID, node2UID).fold()(nodes => connectNodes(nodes._1, nodes._2))}
 
-  private final def findNodes(node1UID: String, node2UID: String): Option[(Node, Node)] =
+  private final def findNodes(node1UID: String, node2UID: String): Option[(NetworkNode, NetworkNode)] =
     (findNode(node1UID), findNode(node2UID)) match {
       case (Some(nodeValue1), Some(nodeValue2)) => Option((nodeValue1, nodeValue2))
       case _ => logger.error("Can't find nodes " + node1UID + " and " + node2UID); None
@@ -74,7 +77,7 @@ private[manager] trait ConnectionManager {
     }
   }
 
-  private final def connectNodesOneDirectional(originNodeID: String, targetNodeID: String, connection: Cylinder): Unit = {
+  private final def connectNodesOneDirectional(originNodeID: String, targetNodeID: String, connection: Line): Unit = {
     if(connections.contains(originNodeID)){ //the node already has some connections
       val innerMap = connections(originNodeID)
       innerMap(targetNodeID) = connection
@@ -113,7 +116,7 @@ private[manager] trait ConnectionManager {
   private final def updateConnection(node1ID: String, node2ID: String): Unit = //TODO: optimize
     {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
 
-  private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Cylinder =
+  private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Line =
     (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) =>
       val points = (origin.getNodePosition, target.getNodePosition)
       Rendering3DUtils.createLine(points, connectionsVisible, connectionsColor, sceneScaleMultiplier/5)

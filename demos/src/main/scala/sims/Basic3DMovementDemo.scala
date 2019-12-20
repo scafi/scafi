@@ -36,7 +36,6 @@ object Basic3DMovementDemo extends Launcher {
   Settings.Sim_NumNodes = 400 // number of nodes, don't go too high
   Settings.Movement_Activator_3D = (b: Any) => b.asInstanceOf[(Double, Double, Double)]
   Settings.To_String = _ => ""
-  Settings.ShowConfigPanel = false
   launch()
 }
 
