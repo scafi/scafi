@@ -28,7 +28,7 @@ import scala.collection.mutable
  * Simple class to add a tooltip on the current scene showing the current frames per second.
  * */
 object FPSCounter {
-  private val TOOLTIP_X_POSITION = 5
+  private val TOOLTIP_X_POSITION = 140
   private val TOOLTIP_Y_POSITION = 5
   private val FRAME_TIMES_LENGTH = 100
   private val frameTimes = new mutable.ArraySeq[Long](FRAME_TIMES_LENGTH)

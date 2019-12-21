@@ -20,10 +20,12 @@ package sims
 
 import java.awt.Color
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, LSNS_RANDOM}
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
-import lib.Movement2DSupport
 
+import scala.util.Random
+
+//Reduce window size if you need more FPS. This is very useful for screens with high resolutions.
 object Basic3DMovementDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer
@@ -31,16 +33,17 @@ object Basic3DMovementDemo extends Launcher {
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
   Settings.Color_link = Color.green //the default color is not as visible
-  Settings.Sim_ProgramClass = "sims.Basic3DMovement" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.Basic3DMovement"
   Settings.Sim_NbrRadius = 300 // neighbourhood radius, don't go too high
   Settings.Sim_NumNodes = 400 // number of nodes, don't go too high
+  Settings.ShowConfigPanel = false
   Settings.Movement_Activator_3D = (b: Any) => b.asInstanceOf[(Double, Double, Double)]
   Settings.To_String = _ => ""
   launch()
 }
 
-class Basic3DMovement extends AggregateProgram
-  with SensorDefinitions with BlockG with Movement2DSupport {
+class Basic3DMovement extends AggregateProgram with SensorDefinitions {
+  lazy val random: Random = sense[Random](LSNS_RANDOM)
 
   override def main:(Double, Double, Double) = rep(random3DMovement())(behaviour)
 

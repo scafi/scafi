@@ -35,7 +35,7 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
   final private val simulationPanel: NetworkRenderer3D = NetworkRendering3DPanel()
   final private val northMenuBar: JMenuBar = new MenuBarNorth(controller)
   final val customPopupMenu: MyPopupMenu = new MyPopupMenu(controller)
-  
+
   setSize(Utils.getFrameDimension())
   setupPanelAndMenu()
   setupButtonActions()

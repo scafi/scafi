@@ -49,10 +49,11 @@ object PopupMenuUtils {
     popupMenu.addObservation("Sensor", _ => Try {
       val sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
         SensorEnum.sensors.map(_.name).mkString(", ") + ")")
-      controller.setShowValue(NodeValue.SENSOR(sensorName))
+      if(sensorName != null) controller.setShowValue(NodeValue.SENSOR(sensorName))
     })
     popupMenu.addObservation("Generic observation", _ => Try {
-      val observationStringRepr = JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)")
+      val observationStringRepr =
+        JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)\nThe space in the middle is required")
       setGenericObservation(observationStringRepr, controller)
     })
   }

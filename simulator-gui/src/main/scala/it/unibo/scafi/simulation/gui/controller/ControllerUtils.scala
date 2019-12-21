@@ -35,8 +35,8 @@ import scala.util.Try
  * */
 private[controller] object ControllerUtils {
 
-  /**Obtains the neighborhod policy from the constants available in [[Settings]].
-   * @return the neighborhod policy */
+  /**Obtains the neighborhood policy from the constants available in [[Settings]].
+   * @return the neighborhood policy */
   def getNeighborhoodPolicy: EuclideanDistanceNbr = Settings.Sim_Policy_Nbrhood match {
       case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)

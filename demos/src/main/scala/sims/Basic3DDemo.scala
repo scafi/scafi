@@ -21,8 +21,10 @@ package sims
 import java.awt.Color
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
+//Reduce window size if you need more FPS. This is very useful for screens with high resolutions.
 object Basic3DDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer

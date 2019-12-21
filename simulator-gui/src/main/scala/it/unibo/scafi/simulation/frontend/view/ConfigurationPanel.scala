@@ -35,12 +35,14 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   final private var addFile: JButton = null
   private var submitButton: JButton = null //Button for starting the simulation
 
+  final private val decimalFormat = new DecimalFormat("#.###")
+
   setTitle("Configuration")
   setSize(Utils.getConfPanelDim)
   setLocationRelativeTo(null)
   setAlwaysOnTop(true)
 
-  nodeNumberField = new JFormattedTextField(NumberFormat.getIntegerInstance)
+  nodeNumberField = new JFormattedTextField(decimalFormat)
   nodeNumberField.setValue(Settings.Sim_NumNodes)
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)
@@ -48,6 +50,7 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
 
   topologyField = new JComboBox[String](vtop.toArray)
+  topologyField.setSelectedItem(Settings.Sim_Topology)
   topologyField.addPropertyChangeListener(this)
 
   deltaRoundField = new JFormattedTextField(NumberFormat.getNumberInstance)
@@ -55,7 +58,7 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   deltaRoundField.setColumns(10)
   deltaRoundField.addPropertyChangeListener(this)
 
-  neinghborsAreaField = new JFormattedTextField(new DecimalFormat("####.###"))
+  neinghborsAreaField = new JFormattedTextField(decimalFormat)
   neinghborsAreaField.setValue(Settings.Sim_NbrRadius)
   neinghborsAreaField.setColumns(10)
   neinghborsAreaField.addPropertyChangeListener(this)

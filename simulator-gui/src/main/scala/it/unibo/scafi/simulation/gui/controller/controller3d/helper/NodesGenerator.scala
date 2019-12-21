@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
-import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
+import it.unibo.scafi.config.{Grid3DSettings, SimpleRandomSettings}
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.NodeImpl
@@ -37,6 +37,8 @@ private[controller3d] object NodesGenerator {
    * nodes, so a value of 2000 or so is ideal. This means that the 3d points should be positioned in a 2000*2000*2000
    * space and the Settings.Sim_NbrRadius and Settings.Sim_Sensor_Radius values should be also high enough, for
    * example 300 and 100 are good values, respectively.
+   * Nodes can also be positioned outside of the 2000*2000*2000 space but it's not ideal, since the camera would take
+   * too much time to navigate the whole scene.
    * */
   val SCENE_SIZE = 2000
 
@@ -48,12 +50,12 @@ private[controller3d] object NodesGenerator {
    * @return a map of (UID -> Node) entries, from the unique ID of the node to the node itself.
    * */
   def createNodes(topology: String, nodeCount: Int, seed: Long): Map[Int, Node] = {
-    val locations = if(topology.contains("grid")){
+    val locations = if(topology.toLowerCase.contains("grid")){
       val nodeCountInSide = Math.cbrt(nodeCount).toInt
       val step = SCENE_SIZE / nodeCountInSide
       val OFFSET = SCENE_SIZE/40
       val variance = ControllerUtils.getTolerance(topology) * (SCENE_SIZE/10)
-      val gridSettings = GridSettings(nodeCountInSide, nodeCountInSide, step , step, variance, OFFSET, OFFSET).to3D
+      val gridSettings = Grid3DSettings.cube(nodeCountInSide, step = step, tolerance = variance, offset = OFFSET)
       SpaceHelper.grid3DLocations(gridSettings, seed)
     } else {
       SpaceHelper.random3DLocations(SimpleRandomSettings(-SCENE_SIZE/2, SCENE_SIZE/2), nodeCount, seed)

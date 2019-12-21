@@ -56,34 +56,4 @@ public class FastMath {
         }
         return angle * PI_2;
     }
-
-    /**
-     * Acos approximated algorithm, using asin.
-     * @param x the x component
-     * @return the value that approximates Math.acos(x)
-     * */
-    public static double acos(double x) {
-        return PI_OVER_2 - asin( x );
-    }
-
-    /** Asin approximated algorithm.
-     * Code is from:
-     * https://github.com/metsci/glimpse/blob/master/util/src/main/java/com/metsci/glimpse/util/math/fast/PolynomialApprox.java
-     * @param x the x component
-     * @return the value that approximates Math.asin(x)
-     * */
-    public static double asin(double x) {
-        boolean isNeg = x < 0;
-        x = Math.abs(x);
-
-        double y1 = x * ( -.0170881256 + ( x * ( .0066700901 + ( x * -.0012624911 ) ) ) );
-        double y2 = x * ( -.0501743046 + ( x * ( .0308918810 + y1 ) ) );
-        double y = 1.5707963050 + ( x * ( -.2145988016 + ( x * ( .0889789874 + y2 ) ) ) );
-        double theta = PI_OVER_2 - ( Math.sqrt( 1.0 - x ) * y );
-
-        if(isNeg){
-            theta = -theta;
-        }
-        return theta;
-    }
 }

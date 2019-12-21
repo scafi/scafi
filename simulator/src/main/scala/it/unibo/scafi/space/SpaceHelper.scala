@@ -31,7 +31,7 @@ object SpaceHelper {
   }
 
   def gridLocations(gs: GridSettings, seed: Long = System.currentTimeMillis()): List[Point2D] =
-    grid3DLocations(gs.to3D, seed).map(point => new Point2D(point.x, point.y))
+    grid3DLocations(gs.to3DPlane, seed).map(point => new Point2D(point.x, point.y))
 
   // the tolerance is doubled because it can be positive or negative
   def grid3DLocations(settings: Grid3DSettings, seed: Long = System.currentTimeMillis()): List[Point3D] =

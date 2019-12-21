@@ -18,7 +18,7 @@ case class GridSettings(nrows: Int = 10,
                         offsety: Double = 0,
                         mapPos: (Int, Int, Double,Double) => (Double,Double) = (_,_,x,y) => (x,y)) extends ShapeSettings) extends ShapeSettings {
 
-  def to3D: Grid3DSettings =
+  def to3DPlane: Grid3DSettings =
     Grid3DSettings(nrows, ncols, 1, stepx, stepy, (stepx + stepy)/2, tolerance, offsetx, offsety, (offsetx + offsety)/2)
 }
 
@@ -32,6 +32,11 @@ case class Grid3DSettings(nRows: Int = 5,
                           offsetX: Double = 0,
                           offsetY: Double = 0,
                           offsetZ: Double = 0) extends ShapeSettings
+
+object Grid3DSettings {
+  def cube(nodeCountInSide: Int, step: Double, tolerance: Double, offset: Double): Grid3DSettings =
+    Grid3DSettings(nodeCountInSide, nodeCountInSide, nodeCountInSide, step, step, step, tolerance, offset, offset, offset)
+}
 
 case class SimpleRandomSettings(min: Double = 0,
                                 max: Double = 1000) extends ShapeSettings
