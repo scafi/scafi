@@ -22,13 +22,11 @@ import it.unibo.scafi.simulation.gui.Settings
 import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
 import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies.{Grid, Grid_HighVar, Grid_LoVar, Grid_MedVar}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, NodeValue, Sensor}
+import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, Sensor}
 import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import it.unibo.scafi.space.{Point2D, Point3D}
-import javax.swing.{JMenuBar, JOptionPane}
-
-import scala.util.Try
+import javax.swing.JMenuBar
 
 /**
  * Utility object containing methods that are useful for any [[Controller]].
@@ -41,6 +39,13 @@ private[controller] object ControllerUtils {
       case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
+
+  /**Obtains the 3D neighborhood policy from the constants available in [[Settings]].
+   * @return the 3D neighborhood policy */
+  def get3DNeighborhoodPolicy(sceneSize: Int): EuclideanDistanceNbr = Settings.Sim_Policy_Nbrhood match {
+    case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius * sceneSize)
+    case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius * sceneSize)
+  }
 
   /**Adds to [[SensorEnum.sensors]] all the provided sensors.
    * @param sensors the sensors to parse and add
@@ -84,7 +89,7 @@ private[controller] object ControllerUtils {
    * @return the formatted position of type String */
   def formatPosition(pos: Point2D): String = s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)})"
 
-  private def formatDouble(value: Double): String = f"(${value}%5.2g"
+  private def formatDouble(value: Double): String = f"($value%5.2g"
 
   /** This formats the position removing the trailing part, rounding the value. Parentheses are omitted to reduce clutter
    *@param position the position to format
@@ -92,7 +97,7 @@ private[controller] object ControllerUtils {
   def formatAndRoundPosition(position: Product2[Double, Double]): String =
     s"${formatAndRound(position._1)};${formatAndRound(position._2)}"
 
-  private def formatAndRound(value: Double): String = f"${value}%.0f"
+  private def formatAndRound(value: Double): String = f"$value%.0f"
 
   /**Formats the 3D position. The parentheses were omitted to reduce clutter.
    * @param position the position to format

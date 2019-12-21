@@ -47,7 +47,7 @@ private[controller3d] object ControllerStarter {
   }
 
   private def setSimulationSettings(simulation: Simulation, nodes: Map[Int, Node]): Unit = {
-    val policyNeighborhood = ControllerUtils.getNeighborhoodPolicy
+    val policyNeighborhood = ControllerUtils.get3DNeighborhoodPolicy(NodesGenerator.SCENE_SIZE)
     simulation.network = new NetworkImpl(nodes, policyNeighborhood)
     simulation.setDeltaRound(Settings.Sim_DeltaRound)
     simulation.setRunProgram(Settings.Sim_ProgramClass)
@@ -71,11 +71,10 @@ private[controller3d] object ControllerStarter {
     gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)
     gui3d.setBackgroundColor(Settings.Color_background)
-    val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius else 0
+    val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius * NodesGenerator.SCENE_SIZE else 0
     gui3d.setSpheresRadius(sensorRadius, 0)
     gui3d.setFilledSpheresColor(Settings.Color_actuator)
     gui3d.setNodesScale(100 / Settings.Size_Device_Relative)
-
   }
 
 }

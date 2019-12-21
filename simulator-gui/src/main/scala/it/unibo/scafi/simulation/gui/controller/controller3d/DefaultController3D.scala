@@ -19,7 +19,7 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
 import java.awt.Image
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.{ControllerStarter, NodeUpdater, SensorSetter}
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper._
 import it.unibo.scafi.simulation.gui.controller.{ControllerUtils, PopupMenuUtils}
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
@@ -83,10 +83,9 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   /** See [[Controller3D.clearSimulation]] */
   override def clearSimulation(): Unit = {
-    simulationManager.stop()
-    ControllerUtils.enableMenu(enabled = false, gui.getJMenuBar, gui.customPopupMenu)
-    nodeUpdater.resetNodeCache()
-    gui.reset()
+    this.nodeValueTypeToShow = NodeValue.EXPORT
+    this.observation = None
+    ControllerResetter.resetSimulation(simulationManager, nodeUpdater, gui)
   }
 
   /** See [[Controller3D.handleNumberButtonPress]] */

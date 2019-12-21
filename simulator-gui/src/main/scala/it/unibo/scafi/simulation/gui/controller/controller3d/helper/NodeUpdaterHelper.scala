@@ -80,17 +80,17 @@ private[helper] object NodeUpdaterHelper {
 
   /** Sets the new node's text.
    * @param node the node that has to be updated
-   * @param valueToShow the value type to be shown
+   * @param valueTypeToShow the value type to be shown
    * @param gui3d the 3D network renderer */
-  def updateNodeText(node: Node, valueToShow: NodeValue)(implicit gui3d: NetworkRenderer3D): Unit = {
+  def updateNodeText(node: Node, valueTypeToShow: NodeValue)(implicit gui3d: NetworkRenderer3D): Unit = {
     val outputString = Try(Settings.To_String(node.export))
     if(outputString.isSuccess && !outputString.get.equals("")) {
-      valueToShow match {
+      valueTypeToShow match {
         case NodeValue.ID => setNodeText(node, node.id.toString)
         case NodeValue.EXPORT => setNodeText(node, formatExport(node.export))
         case NodeValue.POSITION => setNodeText(node, formatAndRoundPosition(node.position))
         case NodeValue.POSITION_IN_GUI => gui3d.setNodeTextAsUIPosition(node.id.toString, formatAndRoundPosition)
-        case NodeValue.SENSOR(name) => setNodeText(node, node.getSensorValue(name).toString)
+        case NodeValue.SENSOR(name) => if(name != null) setNodeText(node, node.getSensorValue(name).toString)
         case _ => setNodeText(node, "")
       }
     }

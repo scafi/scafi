@@ -66,7 +66,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   }
 
   private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
-                       connections: (Set[String], Set[String])): Unit = {
+                       connections: (Set[String], Set[String])): Unit = { //TODO: update node color only if needed
     val nodeId = node.id.toString
     Platform.runLater { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
       createOrMoveNode(newPosition, node, isPositionDifferent, gui3d)

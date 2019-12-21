@@ -54,7 +54,7 @@ private[controller3d] object NodesGenerator {
       val nodeCountInSide = Math.cbrt(nodeCount).toInt
       val step = SCENE_SIZE / nodeCountInSide
       val OFFSET = SCENE_SIZE/40
-      val variance = ControllerUtils.getTolerance(topology) * (SCENE_SIZE/10)
+      val variance = ControllerUtils.getTolerance(topology) * SCENE_SIZE
       val gridSettings = Grid3DSettings.cube(nodeCountInSide, step = step, tolerance = variance, offset = OFFSET)
       SpaceHelper.grid3DLocations(gridSettings, seed)
     } else {

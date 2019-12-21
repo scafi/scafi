@@ -24,22 +24,25 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
 import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
-//Reduce window size if you need more FPS. This is very useful for screens with high resolutions.
+/**
+ * To convert a 2D simulation to 3D: set Settings.Sim_3D to true and use Settings.Movement_Activator_3D instead of
+ * Settings.Movement_Activator.
+ * Reduce window size if you need more FPS. This is very useful for screens with high resolutions.
+ * */
 object Basic3DDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer
   //Settings.Size_Device_Relative = 80 //makes the nodes a bit bigger
-  //Settings.Sim_Draw_Sensor_Radius = true //this is visible only using high Sim_Sensor_Radius values like 500
-  //Settings.Sim_Sensor_Radius = 50
+  //Settings.Sim_Draw_Sensor_Radius = true
+  //Settings.Sim_Sensor_Radius = 0.025
   //Settings.Led_Activator = _ => scala.util.Random.nextBoolean()
-  //Settings.Color_background = Color.LIGHT_GRAY
+  Settings.Color_background = Color.LIGHT_GRAY
   //Settings.Sim_DrawConnections = false
   //Settings.Sim_Topology = Topologies.Grid_LoVar
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_selection = Color.MAGENTA
-  Settings.Color_link = Color.green //the default color is not as visible
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
-  Settings.Sim_NbrRadius = 250 // neighbourhood radius, don't go too high if there are a lot of nodes
+  Settings.Sim_NbrRadius = 0.15 // neighbourhood radius, don't go too high if there are a lot of nodes
   Settings.Sim_NumNodes = 600 // don't go too high
   Settings.ShowConfigPanel = false
   launch()

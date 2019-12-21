@@ -53,7 +53,7 @@ object PopupMenuUtils {
     })
     popupMenu.addObservation("Generic observation", _ => Try {
       val observationStringRepr =
-        JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)\nThe space in the middle is required")
+        JOptionPane.showInputDialog("Statement on export (e.g.: >= int 5)\nThe spaces in the middle are required")
       setGenericObservation(observationStringRepr, controller)
     })
   }
@@ -81,11 +81,11 @@ object PopupMenuUtils {
   private def anyToDouble(any: Any, valueType: String): Option[Double] =
     if(valueType == "bool"){
       if(any.asInstanceOf[Boolean]) Some(1.0) else Some(0.0)
-    }
-    else if(valueType=="int" || valueType=="double"){
+    } else if(valueType=="int"){
+      Some(any.asInstanceOf[Int])
+    } else if(valueType=="double"){
       Some(any.asInstanceOf[Double])
-    }
-    else{
+    } else {
       None
     }
 

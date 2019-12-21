@@ -35,14 +35,12 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   final private var addFile: JButton = null
   private var submitButton: JButton = null //Button for starting the simulation
 
-  final private val decimalFormat = new DecimalFormat("#.###")
-
   setTitle("Configuration")
   setSize(Utils.getConfPanelDim)
   setLocationRelativeTo(null)
   setAlwaysOnTop(true)
 
-  nodeNumberField = new JFormattedTextField(decimalFormat)
+  nodeNumberField = new JFormattedTextField(new DecimalFormat("#.###"))
   nodeNumberField.setValue(Settings.Sim_NumNodes)
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)
@@ -58,7 +56,7 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   deltaRoundField.setColumns(10)
   deltaRoundField.addPropertyChangeListener(this)
 
-  neinghborsAreaField = new JFormattedTextField(decimalFormat)
+  neinghborsAreaField = new JFormattedTextField(NumberFormat.getNumberInstance)
   neinghborsAreaField.setValue(Settings.Sim_NbrRadius)
   neinghborsAreaField.setColumns(10)
   neinghborsAreaField.addPropertyChangeListener(this)
@@ -116,7 +114,7 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   submitButton.addActionListener((e: ActionEvent) => {
     try {
       Settings.Sim_NumNodes = nodeNumberField.getText.toInt
-      Settings.Sim_NbrRadius = neinghborsAreaField.getText.toDouble
+      Settings.Sim_NbrRadius = neinghborsAreaField.getText.replaceAll(",", ".").toDouble
       Settings.Sim_DeltaRound = deltaRoundField.getText.toInt
       Settings.Sim_ProgramClass = runProgram.getText()
       Settings.Sim_ExecStrategy = strategy.getText()
