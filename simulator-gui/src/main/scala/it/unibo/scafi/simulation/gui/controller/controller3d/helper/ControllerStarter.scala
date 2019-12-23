@@ -41,7 +41,8 @@ private[controller3d] object ControllerStarter {
     nodes.values.foreach(node => gui.getSimulationPanel.addNode(node.position, node.id.toString))
     setSimulationSettings(simulation, nodes)
     simulationManager.simulation = simulation
-    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, 2)) //IMPORTANT: this avoids javaFx thread flooding
+    val deltaRound = if(Settings.Sim_NumNodes * Settings.Sim_NbrRadius >= 90) 2 else 1
+    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, deltaRound)) //this avoids javaFx thread flooding
     enableMenus(gui)
     nodes.keys.toSet
   }

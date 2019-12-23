@@ -40,7 +40,7 @@ class ConfigurationPanel(controller: Controller) extends JDialog(controller.getU
   setLocationRelativeTo(null)
   setAlwaysOnTop(true)
 
-  nodeNumberField = new JFormattedTextField(new DecimalFormat("#.###"))
+  nodeNumberField = new JFormattedTextField(NumberFormat.getIntegerInstance)
   nodeNumberField.setValue(Settings.Sim_NumNodes)
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)

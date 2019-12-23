@@ -40,9 +40,12 @@ class MenuBarNorth(controller: Controller) extends JMenuBar {
     choose.addChoosableFileFilter(new ImageFilter())
     choose.setAcceptAllFileFilterUsed(false)
     choose.showOpenDialog(this.getParent())
-    controller.showImage(new ImageIcon(choose.getSelectedFile().getPath()).getImage(), true)
-    removeImage.setEnabled(true)
-    addImage.setEnabled(false)
+    val selectedFile = choose.getSelectedFile()
+    if(selectedFile != null){
+      controller.showImage(new ImageIcon(selectedFile.getPath()).getImage(), true)
+      removeImage.setEnabled(true)
+      addImage.setEnabled(false)
+    }
   })
   removeImage.addActionListener((e:ActionEvent)  => {
     controller.showImage(new ImageIcon("").getImage(), false)

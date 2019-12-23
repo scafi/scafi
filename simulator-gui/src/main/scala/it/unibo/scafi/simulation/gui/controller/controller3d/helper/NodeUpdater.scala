@@ -20,7 +20,7 @@ package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.renderer3d.util.RichScalaFx.RichMath
-import it.unibo.scafi.simulation.gui.Simulation
+import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdaterHelper._
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
@@ -39,7 +39,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   /**
    * Resets the collections that keep information about the nodes.
    * */
-  def resetNodeCache(): Unit = {connectionsInGUI = Map(); nodesInGUI = Set()}
+  def resetNodeCache(): Unit = synchronized {connectionsInGUI = Map(); nodesInGUI = Set()}
 
   /** Most important method of this class. It updates the specified node in the UI and in the simulation.
    * Most of the calculations are done outside of theJavaFx thread to reduce lag.
@@ -47,7 +47,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
    * @param gui the 3D UI that needs to receive an update about the node
    * @param simulation the simulation that needs to be read and updated
    * */
-  def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation): Unit = {
+  def updateNode(nodeId: Int, gui: SimulatorUI3D, simulation: Simulation): Unit = synchronized {
     waitForJavaFxIfNeeded(gui) //this waits from time to time for the javaFx to become less congested
     if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
     val gui3d = gui.getSimulationPanel
@@ -84,7 +84,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
 
   private def waitForJavaFxIfNeeded(gui: SimulatorUI3D): Unit = {
     if(waitCounterThreshold == -1){ //looking at the node count to find out the right value for waitCounterThreshold
-      val counterThreshold = 1000000 / Math.pow(controller.getCreatedNodesID.size, 1.4)
+      val counterThreshold = 1000000 / Math.pow(Settings.Sim_NumNodes*Settings.Sim_NbrRadius*6.5, 1.4)
       waitCounterThreshold = RichMath.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
     }
     javaFxWaitCounter = javaFxWaitCounter - 1
