@@ -113,8 +113,11 @@ private[manager] trait ConnectionManager {
   protected final def updateNodeConnections(nodeID: String): Unit =
     onFX {actOnAllNodeConnections(nodeID, updateConnection(nodeID, _))}
 
-  private final def updateConnection(node1ID: String, node2ID: String): Unit = //TODO: optimize
-    {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
+  private final def updateConnection(node1ID: String, node2ID: String): Unit = {
+    val line = connections(node1ID)(node2ID)
+    findNodes(node1ID, node2ID).fold()(nodes =>
+      Rendering3DUtils.connectLineToPoints(line, nodes._1.getNodePosition, nodes._2.getNodePosition))
+  }
 
   private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Line =
     (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) =>
@@ -129,8 +132,6 @@ private[manager] trait ConnectionManager {
     setConnectionsVisible(connectionsVisible)
   }
 
-  private final def setConnectionsVisible(setVisible: Boolean): Unit = getAllConnections.foreach(connection => {
-    if(setVisible) connectionGroup.getChildren.add(connection) else connectionGroup.getChildren.remove(connection)
-    connection.setVisible(setVisible)
-  })
+  private final def setConnectionsVisible(setVisible: Boolean): Unit =
+    if(setVisible) mainScene.getChildren.add(connectionGroup) else mainScene.getChildren.remove(connectionGroup)
 }
