@@ -57,19 +57,21 @@ private[manager] trait SceneManager {
    * @param image the image to set as background
    * @return Unit, since it has the side effect of setting the scene's background image */
   def setBackgroundImage(image: Image): Unit = onFX{
+    //scalastyle:off null
     val javaFxImage = SwingFXUtils.toFXImage(toBufferedImage(image), null)
     mainScene.setFill(new ImagePattern(javaFxImage))
   }
 
   /** From https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage */
   private def toBufferedImage(image: Image): BufferedImage = {
+    //scalastyle:off null
     image match {case image: BufferedImage => image; case _ =>
-      val bimage = new BufferedImage(image.getWidth(null), image.getHeight(null),
+      val bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
         BufferedImage.TYPE_INT_ARGB)
-      val bGr = bimage.createGraphics
-      bGr.drawImage(image, 0, 0, null)
-      bGr.dispose()
-      bimage
+      val graphics2D = bufferedImage.createGraphics
+      graphics2D.drawImage(image, 0, 0, null)
+      graphics2D.dispose()
+      bufferedImage
     }
   }
 
@@ -94,6 +96,7 @@ private[manager] trait SceneManager {
       val simulationCamera: SimulationCamera = FpsCamera()
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
+      simulationCamera.initialize()
       setKeyboardInteraction(this, simulationCamera)
       setMouseInteraction(this, simulationCamera)
     }
@@ -102,9 +105,7 @@ private[manager] trait SceneManager {
   private[this] def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
     scene.addEventFilter(KeyEvent.KeyPressed, (event: input.KeyEvent) => {
       if (camera.isEventAMovementOrRotation(event)) rotateNodeLabelsIfNeeded(camera)
-      camera.moveByKeyboardEvent(event)
       camera.zoomByKeyboardEvent(event)
-      camera.rotateByKeyboardEvent(event)
     })
 
   private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {

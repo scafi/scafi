@@ -32,7 +32,7 @@ import scalafx.scene.Scene
 final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionManager with NodeManager
   with SelectionManager with SceneManager{
 
-  private val SHOW_FPS_COUNTER = false //use this when you want to check performance
+  private val SHOW_FPS_COUNTER = true //use this when you want to check performance
   override protected val mainScene: Scene = new Scene(createScene())
   
   mainScene.getChildren.add(connectionGroup)

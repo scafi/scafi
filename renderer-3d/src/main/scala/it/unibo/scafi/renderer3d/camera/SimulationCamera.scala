@@ -28,6 +28,11 @@ import it.unibo.scafi.space.{Point2D, Point3D}
 trait SimulationCamera extends Camera{
 
   /**
+   * Lets the camera be used in the scene. Also, it enables the use of more than one pressed key at the same time.
+   * */
+  def initialize(): Unit
+
+  /**
    * This has to be called before actually rotating the camera; it indicates the start of the rotation.
    * @param mouseEvent the mouse event that starts the rotation
    * @return Unit, since it has the side effect of preparing the camera for rotation
@@ -40,20 +45,6 @@ trait SimulationCamera extends Camera{
    * @return Unit, since it has the side effect of rotating the camera
    * */
   def rotateByMouseEvent(mouseEvent: MouseEvent): Unit
-
-  /**
-   * Rotates the camera based on the pressed keyboard key.
-   * @param keyEvent the keyboard event that will be used to rotate the camera
-   * @return Unit, since it has the side effect of rotating the camera
-   * */
-  def rotateByKeyboardEvent(keyEvent: KeyEvent): Unit
-
-  /**
-   * Moves the camera based on the pressed keyboard key.
-   * @param keyEvent the keyboard event that will be used to move the camera
-   * @return Unit, since it has the side effect of moving the camera
-   * */
-  def moveByKeyboardEvent(keyEvent: KeyEvent): Unit
 
   /**
    * Zooms the camera based on the pressed keyboard key.

@@ -41,7 +41,7 @@ private[manager] trait NodeManager {
     if(cameraPosition.distance(state.positionThatLabelsFace) > sceneSize/4){
       networkNodes.values.grouped(LABELS_GROUP_SIZE)
         .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition))))
-      state = state.setPositionThatLabelsFace(cameraPosition)
+      state = state.withPositionThatLabelsFace(cameraPosition)
     }
   }
 
@@ -130,21 +130,21 @@ private[manager] trait NodeManager {
    * @param color the new default color for the nodes
    * @return Unit, since it has the side effect of changing the nodes' color */
   final def setNodesColor(color: java.awt.Color): Unit =
-    onFX {state = state.setNodesColor(color); networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))}
+    onFX {state = state.withNodesColor(color); networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))}
 
   /** Sets the color of all the colored spheres centered on the nodes. This applies to spheres not already created, too.
    * @param color the new default color for the spheres
    * @return Unit, since it has the side effect of changing the spheres' color */
   final def setFilledSpheresColor(color: java.awt.Color): Unit = onFX {
-    state = state.setFilledSpheresColor(color); networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
+    state = state.withFilledSpheresColor(color); networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
 
   /** Sets the scale of all the nodes (and also their labels). This applies to nodes not already created, too.
    * @param scale the new scale of the nodes
    * @return Unit, since it has the side effect of changing the nodes' scale */
   final def setNodesScale(scale: Double): Unit = onFX {
     val finalScale = scale * sceneScaleMultiplier
-    state = state.setNodesScale(finalScale)
-    state = state.setNodeLabelsScale(finalScale)
+    state = state.withNodesScale(finalScale)
+    state = state.withNodeLabelsScale(finalScale)
     networkNodes.values.foreach(_.setNodeScale(state.nodesScale))
     updateLabelsSize(0)
   }
@@ -161,7 +161,7 @@ private[manager] trait NodeManager {
 
   private final def updateLabelsSize(sizeDifference: Double): Unit = onFX {
     val (minScale, maxScale) = (0.7*sceneScaleMultiplier, 1.2*sceneScaleMultiplier)
-    state = state.setNodeLabelsScale(RichMath.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
+    state = state.withNodeLabelsScale(RichMath.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
     networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
   }
 
@@ -169,7 +169,7 @@ private[manager] trait NodeManager {
    * @param color the new color of the selected nodes
    * @return Unit, since it has the side effect of changing the nodes' selection color */
   final def setSelectionColor(color: java.awt.Color): Unit = onFX {
-    state = state.setSelectionColor(color)
+    state = state.withSelectionColor(color)
     getAllNetworkNodes.foreach(_.setSelectionColor(color.toScalaFx))
   }
 }

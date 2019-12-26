@@ -35,19 +35,19 @@ private[manager] final case class NodeManagerState(nodesColor: Color =
                                   nodesScale: Double = 1,
                                   nodeLabelsScale: Double = 1){
 
-  def setNodesColor(value: Color): NodeManagerState = copy(nodesColor = value)
+  def withNodesColor(value: Color): NodeManagerState = copy(nodesColor = value)
 
-  def setSelectionColor(value: Color): NodeManagerState = copy(selectionColor = value)
+  def withSelectionColor(value: Color): NodeManagerState = copy(selectionColor = value)
 
-  def setFilledSpheresColor(value: Color): NodeManagerState = copy(filledSpheresColor = value)
+  def withFilledSpheresColor(value: Color): NodeManagerState = copy(filledSpheresColor = value)
 
-  def setPositionThatLabelsFace(value: Point3D): NodeManagerState = copy(positionThatLabelsFace = value)
+  def withPositionThatLabelsFace(value: Point3D): NodeManagerState = copy(positionThatLabelsFace = value)
 
-  def setSeeThroughSpheresRadius(value: Double): NodeManagerState = copy(seeThroughSpheresRadius = value)
+  def withSeeThroughSpheresRadius(value: Double): NodeManagerState = copy(seeThroughSpheresRadius = value)
 
-  def setNodesScale(value: Double): NodeManagerState = copy(nodesScale = value)
+  def withNodesScale(value: Double): NodeManagerState = copy(nodesScale = value)
 
-  def setNodeLabelsScale(value: Double): NodeManagerState = copy(nodeLabelsScale = value)
+  def withNodeLabelsScale(value: Double): NodeManagerState = copy(nodeLabelsScale = value)
 }
 
 object NodeManagerState {
