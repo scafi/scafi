@@ -36,5 +36,5 @@ private[manager] final case class NodeManagerState(nodesColor: Color =
                                   nodeLabelsScale: Double = 1)
 
 object NodeManagerState {
-  final val NODE_BRIGHTNESS = 50 //out of 255
+  private final val NODE_BRIGHTNESS = 50 //out of 255
 }

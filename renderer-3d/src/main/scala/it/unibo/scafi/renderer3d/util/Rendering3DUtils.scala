@@ -23,7 +23,6 @@ import org.fxyz3d.geometry.{Point3D => FxPoint3D}
 import org.fxyz3d.shapes.primitives.FrustumMesh
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
-import scalafx.scene.image.{ImageView, WritableImage}
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.shape.{Box, DrawMode, Sphere}
 import scalafx.scene.text.{Font, Text}
@@ -63,22 +62,6 @@ object Rendering3DUtils {
     box.setColor(color)
     box.moveTo(position)
     optimize(box) match {case box: Box => box}
-  }
-
-  /** Creates a 2d square image with one color. This should be used instead of shapes for performance reasons.
-   * @param size the length of the side of the image
-   * @param color the color of the image
-   * @param position the position where the image should be placed
-   * @return the ImageView containing the image */
-  def createSquareImage(size: Double, color: Color, position: Point3D = Point3D.Zero): ImageView = {
-    val IMAGE_SIZE = 1
-    val IMAGE_SCALE = 10
-    val image = new WritableImage(IMAGE_SIZE, IMAGE_SIZE)
-    image.getPixelWriter.setColor(0, 0, color)
-    val imageView = new ImageView(image)
-    imageView.setScale(IMAGE_SCALE)
-    imageView.moveTo(position)
-    imageView
   }
 
   /** Creates a sphere that is rendered as a wireframe, with lines linking consecutive vertices, colored with a half
