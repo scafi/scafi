@@ -21,18 +21,27 @@ package it.unibo.scafi.renderer3d.camera
 import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirection}
 import scalafx.geometry.Point2D
 
+/**
+ * This class contains the main state of the camera, as an immutable object.
+ * */
 private[camera] final case class CameraState(oldMousePosition: Point2D = new Point2D(0, 0),
                        moveDirections: Set[MoveDirection.Value] = Set(),
                        rotateDirection: Option[RotateDirection.Value] = None) {
 
-  def withOldMousePosition(value: Point2D): CameraState = this.copy(oldMousePosition = value)
+  /**
+   * Creates a new instance that contains one more move direction.
+   * @param direction the new direction to be added to the set
+   * @return the new CameraState instance
+   * */
+  def withAddedMoveDirection(direction: MoveDirection.Value): CameraState =
+    this.copy(moveDirections = moveDirections + direction)
 
-  def withAddedMoveDirection(value: MoveDirection.Value): CameraState =
-    this.copy(moveDirections = moveDirections + value)
-
-  def withRemovedMoveDirection(value: MoveDirection.Value): CameraState =
-    this.copy(moveDirections = moveDirections - value)
-
-  def withRotateDirection(value: Option[RotateDirection.Value]): CameraState = this.copy(rotateDirection = value)
+  /**
+   * Creates a new instance that contains one less move direction.
+   * @param direction the direction to be removed from the set
+   * @return the new CameraState instance
+   * */
+  def withRemovedMoveDirection(direction: MoveDirection.Value): CameraState =
+    this.copy(moveDirections = moveDirections - direction)
 
 }

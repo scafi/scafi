@@ -96,39 +96,23 @@ private[manager] trait SceneManager {
       val simulationCamera: SimulationCamera = FpsCamera()
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
-      simulationCamera.initialize()
+      simulationCamera.initialize(this)
       setKeyboardInteraction(this, simulationCamera)
       setMouseInteraction(this, simulationCamera)
     }
   }
 
   private[this] def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
-    scene.addEventFilter(KeyEvent.KeyPressed, (event: input.KeyEvent) => {
-      if (camera.isEventAMovementOrRotation(event)) rotateNodeLabelsIfNeeded(camera)
-      camera.zoomByKeyboardEvent(event)
-    })
+    scene.addEventFilter(KeyEvent.KeyPressed, (event: input.KeyEvent) =>
+      if(camera.isEventAMovementOrRotation(event)) rotateNodeLabelsIfNeeded(camera))
 
   private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
-    scene.setOnDragDetected(_ => scene.startFullDrag())
-    scene.setOnMousePressed(onMousePressed(_, camera))
+    scene.setOnMousePressed(event => if(isPrimaryButton(event)) setSelectionVolumeCenter(event))
     scene.onMouseDragEntered = event => if(isPrimaryButton(event)) startSelection(event)
-    scene.onMouseDragged = event => {
-      if(isPrimaryButton(event)) modifySelectionVolume(camera, event)
-      if(event.getButton == MouseButton.MIDDLE) camera.rotateByMouseEvent(event)
-    }
+    scene.onMouseDragged = event => if(isPrimaryButton(event)) modifySelectionVolume(camera, event)
     scene.onMouseReleased = event => if(isPrimaryButton(event)) endSelection(event)
   }
 
-  private[this] def onMousePressed(event: MouseEvent, camera: SimulationCamera): Unit = {
-    if(isPrimaryButton(event)){
-      setSelectionVolumeCenter(event)
-    } else if(isMiddleMouse(event)){
-      camera.initiateMouseRotation(event)
-    }
-  }
-
   private[this] def isPrimaryButton(event: MouseEvent): Boolean = event.getButton == MouseButton.PRIMARY
-
-  private[this] def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
 
 }

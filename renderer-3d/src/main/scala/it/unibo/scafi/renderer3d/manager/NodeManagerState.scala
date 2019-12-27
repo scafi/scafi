@@ -23,7 +23,7 @@ import NodeManagerState.NODE_BRIGHTNESS
 import scalafx.geometry.Point3D
 
 /**
- * This class contains the main state of NodeManager, as an immutable object. The setters return a new instance.
+ * This class contains the main state of NodeManager, as an immutable object.
  * */
 private[manager] final case class NodeManagerState(nodesColor: Color =
                                                    new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS),
@@ -33,22 +33,7 @@ private[manager] final case class NodeManagerState(nodesColor: Color =
                                   seeThroughSpheresRadius: Double = 0,
                                   filledSpheresRadius: Double = 0,
                                   nodesScale: Double = 1,
-                                  nodeLabelsScale: Double = 1){
-
-  def withNodesColor(value: Color): NodeManagerState = copy(nodesColor = value)
-
-  def withSelectionColor(value: Color): NodeManagerState = copy(selectionColor = value)
-
-  def withFilledSpheresColor(value: Color): NodeManagerState = copy(filledSpheresColor = value)
-
-  def withPositionThatLabelsFace(value: Point3D): NodeManagerState = copy(positionThatLabelsFace = value)
-
-  def withSeeThroughSpheresRadius(value: Double): NodeManagerState = copy(seeThroughSpheresRadius = value)
-
-  def withNodesScale(value: Double): NodeManagerState = copy(nodesScale = value)
-
-  def withNodeLabelsScale(value: Double): NodeManagerState = copy(nodeLabelsScale = value)
-}
+                                  nodeLabelsScale: Double = 1)
 
 object NodeManagerState {
   final val NODE_BRIGHTNESS = 50 //out of 255

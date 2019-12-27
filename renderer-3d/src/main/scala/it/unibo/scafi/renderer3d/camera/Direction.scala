@@ -22,6 +22,9 @@ import scalafx.geometry.Point3D
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.input.{KeyCode, KeyEvent}
 
+/**
+ * It contains enums for movement and rotation directions.
+ * */
 private[camera] object Direction {
 
   /** Enum containing the possible directions that the camera can rotate towards. */
