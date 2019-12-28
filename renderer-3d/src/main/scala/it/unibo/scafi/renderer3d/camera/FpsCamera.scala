@@ -20,13 +20,15 @@ package it.unibo.scafi.renderer3d.camera
 
 import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirection}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import javafx.beans.{InvalidationListener, Observable}
+import javafx.beans.value.{ChangeListener, ObservableValue}
 import javafx.scene.input
-import javafx.scene.input.{KeyCode, KeyEvent, MouseButton, MouseEvent}
+import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import org.scalafx.extras._
 import scalafx.animation.AnimationTimer
 import scalafx.geometry.Point3D
-import scalafx.scene.{PerspectiveCamera, Scene}
 import scalafx.scene.transform.{Rotate, Translate}
+import scalafx.scene.{PerspectiveCamera, Scene}
 
 /**
  * JavaFx 3D camera that moves with keyboard input and rotates with mouse or keyboard input.
@@ -45,7 +47,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
 
   setup()
 
-  private def setup(): Unit = { //TODO: stop culler if the camera is not moving
+  private def setup(): Unit = {
     this.setFieldOfView(INITIAL_FOV)
     this.setFarClip(60000.0)
     this.setNearClip(0.1)
@@ -59,10 +61,12 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     }).start()
   }
 
-  private def startMouseRotation(mouseEvent: MouseEvent): Unit =
+  /** See [[SimulationCamera.startMouseRotation()]] */
+  override def startMouseRotation(mouseEvent: MouseEvent): Unit =
     onFX {state = state.copy(oldMousePosition = mouseEvent.getScreenPosition)}
 
-  private def rotateByMouseEvent(mouseEvent: MouseEvent): Unit = onFX {
+  /** See [[SimulationCamera.rotateByMouseEvent()]] */
+  override def rotateByMouseEvent(mouseEvent: MouseEvent): Unit = onFX {
     val newMousePosition = mouseEvent.getScreenPosition
     this.rotateCamera(RichMath.clamp((newMousePosition.x - state.oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
     state = state.copy(oldMousePosition = newMousePosition)
@@ -106,17 +110,14 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
       RotateDirection.getDirection(event).fold()(direction =>
         if(state.rotateDirection == Option(direction)) state = state.copy(rotateDirection = None))
     })
+    /* //TODO
+    scene.getFocusOwner.focusedProperty().addListener(new InvalidationListener {
+      override def invalidated(observable: Observable): Unit =
+        state = state.copy(moveDirections = Set(), rotateDirection = None)
+    })
+     */
     scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: input.KeyEvent) => zoomByKeyboardEvent(event))
-    setMouseInteraction(scene)
   }
-
-  private def setMouseInteraction(scene: Scene): Unit = {
-    scene.setOnDragDetected(_ => scene.startFullDrag())
-    scene.setOnMousePressed(event => if(isMiddleMouse(event)) startMouseRotation(event))
-    scene.setOnMouseDragged(event => if(isMiddleMouse(event)) rotateByMouseEvent(event))
-  }
-
-  private def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
 
   private def moveCamera(cameraDirection: MoveDirection.Value, delay: Double): Unit = {
     val SPEED = 100

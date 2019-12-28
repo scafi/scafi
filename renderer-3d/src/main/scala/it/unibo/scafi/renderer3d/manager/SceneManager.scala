@@ -27,7 +27,7 @@ import org.scalafx.extras.onFX
 import scalafx.geometry.Point3D
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
 import scalafx.scene.input.KeyEvent
-import it.unibo.scafi.renderer3d.util.{FrustumCuller, Rendering3DUtils}
+import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.paint.ImagePattern
 import scalafx.embed.swing.SwingFXUtils
@@ -89,12 +89,14 @@ private[manager] trait SceneManager {
     mainScene.getCamera.lookAtOnXZPlane(new Point3D(1, 0, 0))
   }
 
+  /** Sets the camera scale to the new one, making it bigger or smaller. This is useful if the scene is not well visible
+   * because the nodes are too big or small to be seen.
+   * @param scale the scale to set */
   def setCameraScale(scale: Double): Unit = mainScene.getCamera.setScale(scale)
 
   protected def createScene(): Scene = {
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {
       val simulationCamera: SimulationCamera = FpsCamera()
-      FrustumCuller(simulationCamera, () => getAllNetworkNodes).start()
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
       simulationCamera.initialize(this)
@@ -108,12 +110,27 @@ private[manager] trait SceneManager {
       if(camera.isEventAMovementOrRotation(event)) rotateNodeLabelsIfNeeded(camera))
 
   private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
-    scene.setOnMousePressed(event => if(isPrimaryButton(event)) setSelectionVolumeCenter(event))
+    setMousePressedAndDragged(scene, camera)
+    scene.setOnDragDetected(_ => scene.startFullDrag())
     scene.onMouseDragEntered = event => if(isPrimaryButton(event)) startSelection(event)
-    scene.onMouseDragged = event => if(isPrimaryButton(event)) modifySelectionVolume(camera, event)
     scene.onMouseReleased = event => if(isPrimaryButton(event)) endSelection(event)
   }
 
+  private[this] def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
+    scene.setOnMousePressed(event => if(isPrimaryButton(event)) {
+      setSelectionVolumeCenter(event)
+    } else if(isMiddleMouse(event)) {
+      camera.startMouseRotation(event)
+    })
+    scene.onMouseDragged = event => if(isPrimaryButton(event)) {
+      modifySelectionVolume(camera, event)
+    } else if(isMiddleMouse(event)) {
+      camera.rotateByMouseEvent(event)
+    }
+  }
+
   private[this] def isPrimaryButton(event: MouseEvent): Boolean = event.getButton == MouseButton.PRIMARY
+
+  private[this] def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
 
 }

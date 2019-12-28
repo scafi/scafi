@@ -18,13 +18,13 @@
 
 package it.unibo.scafi.renderer3d.camera
 
-import javafx.scene.input.KeyEvent
-import scalafx.scene.{PerspectiveCamera, Scene}
+import javafx.scene.input.{KeyEvent, MouseEvent}
+import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
 /**
  * This trait is an interface of a camera that supports operations like movement and rotation.
  * */
-trait SimulationCamera extends PerspectiveCamera{
+trait SimulationCamera extends Camera{
 
   /**
    * Lets the camera be used in the scene. Also, it enables the use of more than one pressed key at the same time.
@@ -38,4 +38,18 @@ trait SimulationCamera extends PerspectiveCamera{
    * @return true if the event will cause a rotation or movement, false otherwise.
    * */
   def isEventAMovementOrRotation(keyEvent: KeyEvent): Boolean
+
+  /**
+   * This has to be called before actually rotating the camera; it indicates the start of the rotation.
+   * @param mouseEvent the mouse event that starts the rotation
+   * @return Unit, since it has the side effect of preparing the camera for rotation
+   * */
+  def startMouseRotation(mouseEvent: MouseEvent): Unit
+
+  /**
+   * Rotates the camera based on the new position of the mouse.
+   * @param mouseEvent the mouse event that will be used to rotate the camera
+   * @return Unit, since it has the side effect of rotating the camera
+   * */
+  def rotateByMouseEvent(mouseEvent: MouseEvent): Unit
 }
