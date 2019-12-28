@@ -70,8 +70,7 @@ object RichScalaFx extends RichScalaFxHelper {
      * @return Unit, since it has the side effect of rotating the node */
     final def lookAtOnXZPlane(point: Point3D): Unit = node.delegate.lookAtOnXZPlane(point)
 
-    /** Retrieves the node's rotation angle on the Y axis. The angle is between the X axis and the direction
-     * that points to the specified 3d position.
+    /** Retrieves the angle between the X axis and the vector from the node's position and the specified 3d position.
      * @param point the specified 3d position used to calculate the angle
      * @return the rotation angle on the Y axis */
     final def getLookAtAngleOnXZPlane(point: Point3D): Double = node.delegate.getLookAtAngleOnXZPlane(point)
@@ -84,6 +83,10 @@ object RichScalaFx extends RichScalaFxHelper {
      * @param scale the new scale of the node
      * @return Unit, since it has the side effect of scaling the node */
     final def setScale(scale: Double): Unit = node.delegate.setScale(scale)
+
+    /** Retrieves the euler angle on the Y axis of the current node.
+     * @return the angle on the Y axis, in the range from -180 to 180. */
+    final def getYRotationAngle: Double = node.delegate.getYRotationAngle
   }
 
   implicit class RichShape3D(shape: Shape3D) {

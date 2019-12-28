@@ -27,7 +27,7 @@ import org.scalafx.extras.onFX
 import scalafx.geometry.Point3D
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
 import scalafx.scene.input.KeyEvent
-import it.unibo.scafi.renderer3d.util.Rendering3DUtils
+import it.unibo.scafi.renderer3d.util.{FrustumCuller, Rendering3DUtils}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.paint.ImagePattern
 import scalafx.embed.swing.SwingFXUtils
@@ -94,6 +94,7 @@ private[manager] trait SceneManager {
   protected def createScene(): Scene = {
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {
       val simulationCamera: SimulationCamera = FpsCamera()
+      FrustumCuller(simulationCamera, () => getAllNetworkNodes).start()
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
       simulationCamera.initialize(this)

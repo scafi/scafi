@@ -45,7 +45,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
 
   setup()
 
-  private def setup(): Unit = {
+  private def setup(): Unit = { //TODO: stop culler if the camera is not moving
     this.setFieldOfView(INITIAL_FOV)
     this.setFarClip(60000.0)
     this.setNearClip(0.1)

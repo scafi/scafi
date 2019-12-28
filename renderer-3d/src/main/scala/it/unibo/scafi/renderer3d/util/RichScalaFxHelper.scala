@@ -116,6 +116,13 @@ private[util] trait RichScalaFxHelper {
       node.setScaleY(scale)
       node.setScaleZ(scale)
     }
+
+    /** See [[RichScalaFx.RichNode.getYRotationAngle]] */
+    final def getYRotationAngle: Double = {
+      val zx = node.getLocalToSceneTransform.getMzx
+      val zz = node.getLocalToSceneTransform.getMzz
+      FastMath.atan2(-zz.toFloat, zx.toFloat).toDegrees
+    }
   }
 
 }
