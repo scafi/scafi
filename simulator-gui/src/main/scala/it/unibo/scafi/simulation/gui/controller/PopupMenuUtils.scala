@@ -89,7 +89,7 @@ object PopupMenuUtils {
       None
     }
 
-  /**Adds the actions to execute whenever the appropriate user event occurs.
+  /**Adds the actions to execute whenever a popup "Action" menu is pressed.
    * @param controller an instance of [[Controller]] that will receive and handle most of the events
    * @param popupMenu the popup menu that will fire the events */
   def addPopupActions(controller: Controller, popupMenu: MyPopupMenu) {
@@ -101,7 +101,7 @@ object PopupMenuUtils {
     popupMenu.addAction("Not Source", _ => controller.setSensor(SensorEnum.SOURCE.name, false))
     popupMenu.addAction("Not Obstacle", _ => controller.setSensor(SensorEnum.OBSTACLE.name, false))
     popupMenu.addAction("Set Sensor", _ => {
-      val sensPane = new SensorOptionPane("Set Sensor")
+      val sensPane = new SensorOptionPane("Set Sensor", controller)
       sensPane.addOperator("=")
       for (s <- SensorEnum.sensors)  sensPane.addSensor(s.name)
     })

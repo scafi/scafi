@@ -37,16 +37,17 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, sim
    * */
   def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit = {
     val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
-    setNodesSensor(selectedNodes, sensorName, value)
-    simulation.setSensor(sensorName, value.toString.toBoolean, selectedNodes)
     if (selectedNodes.isEmpty && !selectionAttempted) {
       setNodesSensor(simulation.network.nodes.values, sensorName, value)
       simulation.setSensor(sensorName, value)
+    } else {
+      setNodesSensor(selectedNodes, sensorName, value)
+      simulation.setSensor(sensorName, value.toString.toBoolean, selectedNodes)
     }
   }
 
   private def setNodesSensor(nodes: Iterable[Node], sensorName: String, value: Any): Unit =
-    nodes.foreach(_.setSensor(sensorName, value))
+    nodes.foreach(setNodeSensor(_, sensorName, value))
 
   /** See [[it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D.handleNumberButtonPress]] */
   def handleNumberButtonPress(sensorIndex: Int): Unit = {
@@ -75,8 +76,8 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, sim
 
   private def getSensorName(sensorIndex: Int): Option[String] = SensorEnum.fromInt(sensorIndex).map(_.name)
 
-  private def setNodeSensor(node: Node, sensorName: String, newSensorValue: Boolean): Unit = {
-    val selectedNode = simulation.network.nodes(node.id)
+  private def setNodeSensor(node: Node, sensorName: String, newSensorValue: Any): Unit = {
+    val selectedNode = simulation.network.nodes(node.id) //TODO: check if this is needed
     selectedNode.setSensor(sensorName, newSensorValue)
     NodeUpdaterHelper.updateNodeColorBySensors(node, simulationPanel)
   }

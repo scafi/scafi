@@ -25,8 +25,9 @@ import scalafx.geometry.Point2D
  * This class contains the main state of the camera, as an immutable object.
  * */
 private[camera] final case class CameraState(oldMousePosition: Point2D = new Point2D(0, 0),
-                       moveDirections: Set[MoveDirection.Value] = Set(),
-                       rotateDirection: Option[RotateDirection.Value] = None) {
+                                             moveDirections: Set[MoveDirection.Value] = Set(),
+                                             rotateDirection: Option[RotateDirection.Value] = None,
+                                             onCameraChange: () => Unit = () => Unit) {
 
   /**
    * Creates a new instance that contains one more move direction.

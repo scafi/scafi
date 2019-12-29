@@ -19,7 +19,7 @@
 package it.unibo.scafi.renderer3d.camera
 
 import javafx.scene.input.{KeyEvent, MouseEvent}
-import scalafx.scene.{Camera, PerspectiveCamera, Scene}
+import scalafx.scene.{Camera, Scene}
 
 /**
  * This trait is an interface of a camera that supports operations like movement and rotation.
@@ -28,9 +28,12 @@ trait SimulationCamera extends Camera{
 
   /**
    * Lets the camera be used in the scene. Also, it enables the use of more than one pressed key at the same time.
+   * Be sure that the provided parameters are not null.
    * @param scene the scene that contains this camera
+   * @param onCameraChangeAction the action to execute whenever the camera moves or rotates
+   * @return Unit, since it has the side effect of initialize the camera
    * */
-  def initialize(scene: Scene): Unit
+  def initialize(scene: Scene, onCameraChangeAction: () => Unit): Unit
 
   /**
    * This can be used to check if a keyboard event is a rotation or a movement.
@@ -52,4 +55,12 @@ trait SimulationCamera extends Camera{
    * @return Unit, since it has the side effect of rotating the camera
    * */
   def rotateByMouseEvent(mouseEvent: MouseEvent): Unit
+
+  /**
+   * Stops any movement or rotation currently active on the camera. This is useful since the camera remembers any pressed
+   * key, so if the user stops pressing a movement or rotation key when the main window is not focused, the camera will
+   * continue to move or rotate forever. This method should then be called to stop that.
+   * @return Unit, since it has the side effect of  stopping the camera from moving and rotating
+   * */
+  def stopMovingAndRotating(): Unit
 }

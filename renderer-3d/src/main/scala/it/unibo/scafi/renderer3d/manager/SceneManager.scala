@@ -18,26 +18,27 @@
 
 package it.unibo.scafi.renderer3d.manager
 
+import java.awt.image.BufferedImage
 import java.awt.{Color, Image}
 
 import it.unibo.scafi.renderer3d.camera.{FpsCamera, SimulationCamera}
-import javafx.scene.input
-import javafx.scene.input.{MouseButton, MouseEvent}
-import org.scalafx.extras.onFX
-import scalafx.geometry.Point3D
-import scalafx.scene.{Group, Scene, SceneAntialiasing}
-import scalafx.scene.input.KeyEvent
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import javafx.beans.{InvalidationListener, Observable}
+import javafx.scene.input.{MouseButton, MouseEvent}
 import javafx.scene.paint.ImagePattern
+import javafx.stage.Window
+import org.scalafx.extras.onFX
 import scalafx.embed.swing.SwingFXUtils
-import java.awt.image.BufferedImage
+import scalafx.geometry.Point3D
+import scalafx.scene.{Group, Scene, SceneAntialiasing}
 
 /** Trait that contains some of the main API of the renderer-3d module regarding the scene. */
 private[manager] trait SceneManager {
   this: NodeManager with SelectionManager => //NodeManager and SelectionManager have to also be mixed in
 
   private final val DEFAULT_SCENE_SIZE = 1000
+  private final val simulationCamera: SimulationCamera = FpsCamera()
   protected val mainScene: Scene
   protected final var sceneSize = 1d
 
@@ -94,20 +95,19 @@ private[manager] trait SceneManager {
    * @param scale the scale to set */
   def setCameraScale(scale: Double): Unit = mainScene.getCamera.setScale(scale)
 
-  protected def createScene(): Scene = {
+  protected def createScene(): Scene =
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {
-      val simulationCamera: SimulationCamera = FpsCamera()
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
-      simulationCamera.initialize(this)
-      setKeyboardInteraction(this, simulationCamera)
+      simulationCamera.initialize(this,
+        () => if(System.currentTimeMillis()%2==0) rotateNodeLabelsIfNeeded(simulationCamera))
       setMouseInteraction(this, simulationCamera)
     }
-  }
 
-  private[this] def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
-    scene.addEventFilter(KeyEvent.KeyPressed, (event: input.KeyEvent) =>
-      if(camera.isEventAMovementOrRotation(event)) rotateNodeLabelsIfNeeded(camera))
+  protected def setFocusLossAction(window: Window): Unit  = //call this after initialization, so that window is != null
+    window.focusedProperty().addListener(new InvalidationListener {
+      override def invalidated(observable: Observable): Unit = simulationCamera.stopMovingAndRotating()
+    })
 
   private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
     setMousePressedAndDragged(scene, camera)

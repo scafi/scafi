@@ -35,10 +35,19 @@ object SensorEnum {
   val SENS3 = Sensor("sens3", false)
   val SENS4 = Sensor("sens4", false)
 
+  //scalastyle:off magic.number
+  private val SOURCE_COLOR = new Color(42, 58, 139)
+  private val DESTINATION_COLOR = new Color(139, 58, 42)
+  private val OBSTACLE_COLOR = new Color(58, 139, 42)
   var sensors = Set(SOURCE, DESTINATION, TEMPERATURE, OBSTACLE, SENS1, SENS2, SENS3, SENS4)
 
   // scalastyle:off magic.number
-  def fromInt(value: Int): Option[Sensor] = value match {
+  /**
+   * Gets the sensor that corresponds to the provided integer.
+   * @param sensorIndex the integer value to use
+   * @return the sensor related to the integer value, None if it could not be found
+   * */
+  def fromInt(sensorIndex: Int): Option[Sensor] = sensorIndex match {
     case 1 => Option(SensorEnum.SENS1)
     case 2 => Option(SensorEnum.SENS2)
     case 3 => Option(SensorEnum.SENS3)
@@ -46,6 +55,11 @@ object SensorEnum {
     case _ => None
   }
 
+  /**
+   * Gets the color that corresponds to the provided integer.
+   * @param sensorIndex the integer value to use
+   * @return the color related to the integer value, None if it could not be found
+   * */
   def getColor(sensorIndex: Int): Option[Color] = sensorIndex match {
     case 1 => Option(Settings.Color_device1)
     case 2 => Option(Settings.Color_device2)
@@ -54,8 +68,21 @@ object SensorEnum {
     case _ => None
   }
 
+  /**
+   * Gets the color that corresponds to the provided sensor.
+   * @param sensor the provided sensor
+   * @return the color related to the sensor, None if it could not be found
+   * */
   def getColor(sensor: Sensor): Option[Color] = {
     val sensorIndex = Try(sensor.name.replace("sens", "").toInt)
-    sensorIndex match {case Success(index) => getColor(index); case _ => None}
+    sensorIndex match {
+      case Success(index) => getColor(index)
+      case _ => sensor match {
+        case SOURCE => Option(SOURCE_COLOR)
+        case DESTINATION => Option(DESTINATION_COLOR)
+        case OBSTACLE => Option(OBSTACLE_COLOR)
+        case _ => None
+      }
+    }
   }
 }

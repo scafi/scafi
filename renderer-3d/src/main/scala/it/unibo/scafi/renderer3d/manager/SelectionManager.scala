@@ -47,7 +47,7 @@ private[manager] trait SelectionManager {
     if(allNetworkNodes.isEmpty){
       initialNode = None
     } else {
-      initialNode = Option(allNetworkNodes.minBy(node => node.getScreenPosition.distance(screenPosition)))
+      initialNode = Option(allNetworkNodes.minBy(_.getScreenPosition.distance(screenPosition)))
     }
     deselectSelectedNodes()
   }

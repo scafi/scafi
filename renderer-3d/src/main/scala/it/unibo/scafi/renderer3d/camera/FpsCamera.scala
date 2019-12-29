@@ -20,8 +20,6 @@ package it.unibo.scafi.renderer3d.camera
 
 import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirection}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import javafx.beans.{InvalidationListener, Observable}
-import javafx.beans.value.{ChangeListener, ObservableValue}
 import javafx.scene.input
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import org.scalafx.extras._
@@ -30,10 +28,8 @@ import scalafx.geometry.Point3D
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{PerspectiveCamera, Scene}
 
-/**
- * JavaFx 3D camera that moves with keyboard input and rotates with mouse or keyboard input.
- * It can move up, down, left, right, forward and backwards but it rotates only on the Y axis.
- * */
+/** JavaFx 3D camera that moves with keyboard input and rotates with mouse or keyboard input.
+ * It can move up, down, left, right, forward and backwards but it rotates only on the Y axis. */
 final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Double = 0.6d)
   extends PerspectiveCamera(true) with SimulationCamera {
 
@@ -55,6 +51,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     var previousTime = System.nanoTime()
     AnimationTimer(time => {
       val delay = (time - previousTime)/10000000
+      if(state.rotateDirection.isDefined || state.moveDirections.nonEmpty) state.onCameraChange()
       state.rotateDirection.fold()(direction => rotateByDirection(direction, delay))
       moveByDirections(state.moveDirections, delay)
       previousTime = time
@@ -99,8 +96,8 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     }
   }
 
-  /** See [[SimulationCamera.initialize()]] */
-  override def initialize(scene: Scene): Unit = {
+  /** See [[SimulationCamera.initialize]] */
+  override def initialize(scene: Scene, onCameraChangeAction: () => Unit): Unit = onFX {
     scene.setOnKeyPressed(event => {
       MoveDirection.getDirection(event).fold()(direction => state = state.withAddedMoveDirection(direction))
       RotateDirection.getDirection(event).fold()(direction => state = state.copy(rotateDirection = Option(direction)))
@@ -108,16 +105,14 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     scene.setOnKeyReleased(event => {
       MoveDirection.getDirection(event).fold()(direction => state = state.withRemovedMoveDirection(direction))
       RotateDirection.getDirection(event).fold()(direction =>
-        if(state.rotateDirection == Option(direction)) state = state.copy(rotateDirection = None))
+        if (state.rotateDirection == Option(direction)) state = state.copy(rotateDirection = None))
     })
-    /* //TODO
-    scene.getFocusOwner.focusedProperty().addListener(new InvalidationListener {
-      override def invalidated(observable: Observable): Unit =
-        state = state.copy(moveDirections = Set(), rotateDirection = None)
-    })
-     */
-    scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: input.KeyEvent) => zoomByKeyboardEvent(event))
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: KeyEvent) => zoomByKeyboardEvent(event))
+    state = state.copy(onCameraChange = onCameraChangeAction)
   }
+
+  /** See [[SimulationCamera.stopMovingAndRotating]] */
+  override def stopMovingAndRotating(): Unit = onFX {state = state.copy(moveDirections = Set(), rotateDirection = None)}
 
   private def moveCamera(cameraDirection: MoveDirection.Value, delay: Double): Unit = {
     val SPEED = 100
