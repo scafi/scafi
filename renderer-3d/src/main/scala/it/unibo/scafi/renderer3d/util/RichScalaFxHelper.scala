@@ -23,10 +23,8 @@ import org.scalafx.extras.{onFX, onFXAndWait}
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
 
-/**
- * Object that contains some of the required implicit classes to enrich the language (using "Pimp my Library") when
- * working with ScalaFx and JavaFx.
- * */
+/** Object that contains some of the required implicit classes to enrich the language (using "Pimp my Library") when
+ * working with ScalaFx and JavaFx. */
 private[util] trait RichScalaFxHelper {
   private val X_AXIS_2D = new Point2D(1, 0)
 

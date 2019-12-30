@@ -10,12 +10,14 @@ import it.unibo.scafi.simulation.gui.controller.controller3d.DefaultController3D
 
 class Launcher extends App {
   def parseCommandLine(): Unit = SimulationCmdLine.parse(args, Settings)
-  def launch(): Unit =
-    if (Settings.Sim_3D_Rendering) {
-      DefaultController3D().startup()
+  def launch(): Unit = {
+    if (Settings.Sim_3D) {
+      val simulatorManager = new SimulationManagerImpl()
+      DefaultController3D(SimulationImpl(simulatorManager), simulatorManager).startup()
     } else {
-      Controller.startup
+      ControllerImpl.startup
     }
+  }
 }
 
 object DefaultLauncher extends Launcher {

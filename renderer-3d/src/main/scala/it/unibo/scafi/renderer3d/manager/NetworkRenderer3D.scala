@@ -99,6 +99,9 @@ trait NetworkRenderer3D extends JFXPanel{
   def resetScene(): Unit
 
   //** selection API **
+  /** See [[SelectionManager.setActionOnMovedNodes]] */
+  def setActionOnMovedNodes(action: Set[(String, Product3[Double, Double, Double])] => Unit): Unit
+
   /** See [[SelectionManager.getSelectedNodesIDs]] */
   def getSelectedNodesIDs: Set[String]
 

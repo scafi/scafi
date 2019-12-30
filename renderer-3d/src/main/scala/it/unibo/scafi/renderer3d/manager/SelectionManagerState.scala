@@ -16,20 +16,13 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.util
+package it.unibo.scafi.renderer3d.manager
 
-import java.util.concurrent.Executors
+import it.unibo.scafi.renderer3d.node.NetworkNode
+import scalafx.geometry.Point2D
 
-import javafx.concurrent.Task
-
-object RunOnExecutor {
-
-  private val threadPool = Executors.newCachedThreadPool()
-
-  def apply[R](operation: => R): Unit = {
-    val task = new Task[R] {
-      override def call(): R = operation
-    }
-    threadPool.submit(task)
-  }
-}
+private[manager] final case class SelectionManagerState(selectedNodes: Set[NetworkNode] = Set(),
+                                                        initialNode: Option[NetworkNode] = None,
+                                                        initialMousePosition: Point2D = Point2D.Zero,
+                                                        selectionComplete: Boolean = false,
+                                      movementAction: Set[(String, Product3[Double, Double, Double])] => Unit = _ => ())

@@ -19,12 +19,12 @@
 package it.unibo.scafi.renderer3d.camera
 
 import javafx.scene.input.{KeyEvent, MouseEvent}
-import scalafx.scene.{Camera, Scene}
+import scalafx.scene.{PerspectiveCamera, Scene}
 
 /**
  * This trait is an interface of a camera that supports operations like movement and rotation.
  * */
-trait SimulationCamera extends Camera{
+trait SimulationCamera extends PerspectiveCamera{
 
   /**
    * Lets the camera be used in the scene. Also, it enables the use of more than one pressed key at the same time.

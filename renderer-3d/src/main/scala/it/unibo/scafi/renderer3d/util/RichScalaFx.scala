@@ -27,10 +27,8 @@ import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Shape3D
 
-/**
- * Object that contains implicit classes to enrich the language (using "Pimp my Library"), raising the level of
- * abstraction when working with ScalaFx and JavaFx.
- * */
+/** Object that contains implicit classes to enrich the language (using "Pimp my Library"), raising the level of
+ * abstraction when working with ScalaFx and JavaFx. */
 object RichScalaFx extends RichScalaFxHelper {
 
   object RichMath {

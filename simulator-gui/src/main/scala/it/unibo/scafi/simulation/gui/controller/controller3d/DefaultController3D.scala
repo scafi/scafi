@@ -39,7 +39,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   def startup(): Unit = {
     simulation.setController(this)
     startGUI()
-    nodeUpdater = NodeUpdater(this, gui.getSimulationPanel)
+    nodeUpdater = NodeUpdater(this, gui.getSimulationPanel, simulation)
     PopupMenuUtils.addPopupObservations(gui.customPopupMenu,
       () => gui.getSimulationPanel.toggleConnections(), this)
     PopupMenuUtils.addPopupActions(this, gui.customPopupMenu)
@@ -64,7 +64,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   /** See [[Controller3D.startSimulation]] */
   override def startSimulation(): Unit = {
-    simulationManager.setUpdateNodeFunction(nodeUpdater.updateNode(_, gui, simulation))
+    simulationManager.setUpdateNodeFunction(nodeUpdater.updateNode(_))
     nodeIds = ControllerStarter.setupSimulation(simulation, gui, simulationManager)
     simulationManager.start()
   }

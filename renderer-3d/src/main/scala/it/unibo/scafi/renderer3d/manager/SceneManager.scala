@@ -57,14 +57,14 @@ private[manager] trait SceneManager {
   /** Sets the background image of the scene.
    * @param image the image to set as background
    * @return Unit, since it has the side effect of setting the scene's background image */
-  def setBackgroundImage(image: Image): Unit = onFX{
+  final def setBackgroundImage(image: Image): Unit = onFX{
     //scalastyle:off null
     val javaFxImage = SwingFXUtils.toFXImage(toBufferedImage(image), null)
     mainScene.setFill(new ImagePattern(javaFxImage))
   }
 
   /** From https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage */
-  private def toBufferedImage(image: Image): BufferedImage = {
+  private final def toBufferedImage(image: Image): BufferedImage = {
     //scalastyle:off null
     image match {case image: BufferedImage => image; case _ =>
       val bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
@@ -79,12 +79,12 @@ private[manager] trait SceneManager {
   /** Sets the background color of the scene.
    * @param color the color to set
    * @return Unit, since it has the side effect of setting the scene's color */
-  def setBackgroundColor(color: Color): Unit = onFX {mainScene.setFill(color.toScalaFx)}
+  final def setBackgroundColor(color: Color): Unit = onFX {mainScene.setFill(color.toScalaFx)}
 
   /** Resets the scene: this means deleting all the nodes and connections, obtaining an empty scene (the light and
    *  camera will still exist, though)
    * @return Unit, since it has the side effect of resetting the scene */
-  def resetScene(): Unit = onFX {
+  final def resetScene(): Unit = onFX {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
     mainScene.getCamera.moveTo(Point3D.Zero)
     mainScene.getCamera.lookAtOnXZPlane(new Point3D(1, 0, 0))
@@ -93,9 +93,9 @@ private[manager] trait SceneManager {
   /** Sets the camera scale to the new one, making it bigger or smaller. This is useful if the scene is not well visible
    * because the nodes are too big or small to be seen.
    * @param scale the scale to set */
-  def setCameraScale(scale: Double): Unit = mainScene.getCamera.setScale(scale)
+  final def setCameraScale(scale: Double): Unit = mainScene.getCamera.setScale(scale)
 
-  protected def createScene(): Scene =
+  protected final def createScene(): Scene =
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
@@ -104,33 +104,40 @@ private[manager] trait SceneManager {
       setMouseInteraction(this, simulationCamera)
     }
 
-  protected def setFocusLossAction(window: Window): Unit  = //call this after initialization, so that window is != null
+  protected final def setFocusLossAction(window: Window): Unit  = //call this after initialization, so that window is != null
     window.focusedProperty().addListener(new InvalidationListener {
       override def invalidated(observable: Observable): Unit = simulationCamera.stopMovingAndRotating()
     })
 
-  private[this] def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
+  private[this] final def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
     setMousePressedAndDragged(scene, camera)
     scene.setOnDragDetected(_ => scene.startFullDrag())
-    scene.onMouseDragEntered = event => if(isPrimaryButton(event)) startSelection(event)
-    scene.onMouseReleased = event => if(isPrimaryButton(event)) endSelection(event)
+    scene.onMouseDragEntered = event => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event)
+    scene.onMouseReleased = event => if(isPrimaryButton(event)) {
+      if(isSelectionComplete) endSelectionMovement()
+      endSelection(event)
+    }
   }
 
-  private[this] def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
+  private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
     scene.setOnMousePressed(event => if(isPrimaryButton(event)) {
-      setSelectionVolumeCenter(event)
+      if(isUserMovingNodes(event)) setInitialMousePosition(event) else setSelectionVolumeCenter(event)
     } else if(isMiddleMouse(event)) {
       camera.startMouseRotation(event)
     })
     scene.onMouseDragged = event => if(isPrimaryButton(event)) {
-      modifySelectionVolume(camera, event)
+      if(isUserMovingNodes(event)) {
+        if(System.currentTimeMillis()%10==0) moveSelectedNodes(camera, event)
+      } else {
+        modifySelectionVolume(camera, event)
+      }
     } else if(isMiddleMouse(event)) {
       camera.rotateByMouseEvent(event)
     }
   }
 
-  private[this] def isPrimaryButton(event: MouseEvent): Boolean = event.getButton == MouseButton.PRIMARY
+  private[this] final def isPrimaryButton(event: MouseEvent): Boolean = event.getButton == MouseButton.PRIMARY
 
-  private[this] def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
+  private[this] final def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
 
 }
