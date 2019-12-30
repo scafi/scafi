@@ -114,23 +114,20 @@ private[manager] trait SceneManager {
     scene.setOnDragDetected(_ => scene.startFullDrag())
     scene.onMouseDragEntered = event => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event)
     scene.onMouseReleased = event => if(isPrimaryButton(event)) {
-      if(isSelectionComplete) endSelectionMovement()
+      endSelectionMovementIfNeeded(event)
       endSelection(event)
     }
   }
 
   private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
     scene.setOnMousePressed(event => if(isPrimaryButton(event)) {
-      if(isUserMovingNodes(event)) setInitialMousePosition(event) else setSelectionVolumeCenter(event)
+      if(isSelectionComplete && !movementComplete) setMouseSelectingPosition(event) else setSelectionVolumeCenter(event)
     } else if(isMiddleMouse(event)) {
       camera.startMouseRotation(event)
     })
-    scene.onMouseDragged = event => if(isPrimaryButton(event)) {
-      if(isUserMovingNodes(event)) {
-        if(System.currentTimeMillis()%10==0) moveSelectedNodes(camera, event)
-      } else {
-        modifySelectionVolume(camera, event)
-      }
+    scene.onMouseDragged = event =>
+      if(isPrimaryButton(event)) {
+        if(isSelectionComplete) moveSelectedNodesIfNeeded(camera, event) else modifySelectionVolume(camera, event)
     } else if(isMiddleMouse(event)) {
       camera.rotateByMouseEvent(event)
     }

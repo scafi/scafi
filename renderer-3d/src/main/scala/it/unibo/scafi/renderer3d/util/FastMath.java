@@ -64,7 +64,7 @@ public class FastMath {
      * From https://stackoverflow.com/questions/31225062/rotating-a-vector-by-angle-and-axis-in-java
      * @param vector the vector to rotate
      * @param axis the axis aroundwhich the vector should be rotated
-     * @param angle the rotation angle to apply
+     * @param angle the rotation angle to apply, in radians
      * @return the rotated vector
      * */
     public static Point3D rotateVector(Point3D vector, Point3D axis, double angle){

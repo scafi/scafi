@@ -23,6 +23,6 @@ import scalafx.geometry.Point2D
 
 private[manager] final case class SelectionManagerState(selectedNodes: Set[NetworkNode] = Set(),
                                                         initialNode: Option[NetworkNode] = None,
-                                                        initialMousePosition: Point2D = Point2D.Zero,
+                                                        mousePosition: Option[Point2D] = None,
                                                         selectionComplete: Boolean = false,
                                       movementAction: Set[(String, Product3[Double, Double, Double])] => Unit = _ => ())

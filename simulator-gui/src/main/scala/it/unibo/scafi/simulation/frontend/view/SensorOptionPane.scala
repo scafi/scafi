@@ -21,6 +21,8 @@ class SensorOptionPane(title: String, controller: Controller) extends JDialog {
   val enter: JButton = new JButton("OK")
   val cancel: JButton = new JButton("Cancel")
 
+  sensorNameField.setToolTipText("e.g.: sens1")
+  valueField.setToolTipText("The space in the middle is required, e.g.: int 5")
   setTitle(title)
   setSize(600, 300)
   this.setLocationRelativeTo(null)
