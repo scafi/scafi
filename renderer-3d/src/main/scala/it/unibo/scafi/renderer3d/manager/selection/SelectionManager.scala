@@ -44,9 +44,11 @@ private[manager] trait SelectionManager {
 
   protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = onFX {
     val screenPosition = event.getScreenPosition
-    val allNetworkNodes = getAllNetworkNodes
-    state = state.copy(selectionComplete = false, initialNode =
-      if(allNetworkNodes.isEmpty) None else Option(allNetworkNodes.minBy(_.getScreenPosition.distance(screenPosition))))
+    state = state.copy(selectionComplete = false, initialNode = {
+      val camera = mainScene.getCamera match {case camera: javafx.scene.PerspectiveCamera => camera}
+      val filteredNodes = getAllNetworkNodes.filter(camera.isNodeVisible(_)) //use minByOption when using Scala 2.13
+      if(filteredNodes.isEmpty) None else Option(filteredNodes.minBy(_.getScreenPosition.distance(screenPosition)))
+    })
   }
 
   protected final def setMousePosition(event: MouseEvent): Unit = onFX {

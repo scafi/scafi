@@ -20,16 +20,33 @@ package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils.createMaterial
+import it.unibo.scafi.renderer3d.util.math.MathUtils
+import javafx.scene.PerspectiveCamera
 import javafx.scene.input.MouseEvent
 import org.scalafx.extras._
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Shape3D
+import scalafx.scene.transform.Rotate
 
 /** Object that contains implicit classes to enrich the language (using "Pimp my Library"), raising the level of
  * abstraction when working with ScalaFx and JavaFx. */
 object RichScalaFx extends RichScalaFxHelper {
+
+  implicit class RichPerspectiveCamera(camera: PerspectiveCamera) {
+    /** Checks if the given node is visible from the camera.
+     * @param node the node to check
+     * @return whether the node is visible from the camera */
+    def isNodeVisible(node: NetworkNode): Boolean = {
+      val window = camera.getScene.getWindow
+      val windowMaximumSize = Math.max(window.getHeight, window.getWidth)
+      val windowMinimumSize = Math.min(window.getHeight, window.getWidth)
+      val cameraForward = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle).toRadians)
+      val angleBetweenDirections = cameraForward.angle(node.getNodePosition - camera.getPosition) - 170
+      angleBetweenDirections.abs < camera.getFieldOfView*windowMaximumSize/windowMinimumSize*9/16 - 10
+    }
+  }
 
   implicit class RichNode(node: Node) {
     /** Gets the node's position in the 3D scene. ATTENTION: Don't use this on Group objects such as SimpleNetworkNode,

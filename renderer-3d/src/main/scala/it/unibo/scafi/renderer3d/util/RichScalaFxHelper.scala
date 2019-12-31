@@ -103,8 +103,10 @@ private[util] trait RichScalaFxHelper {
     }
 
     /** See [[RichScalaFx.RichNode.rotateOnSelf]] */
-    final def rotateOnSelf(angle: Double, axis: Point3D): Unit =
-      onFX {node.getTransforms.add(new Rotate(angle, 0, 0, 0, axis))}
+    final def rotateOnSelf(angle: Double, axis: Point3D): Unit = onFX {
+      node.setRotationAxis(axis)
+      node.setRotate(node.getRotate + angle)
+    }
 
     /** See [[RichScalaFx.RichNode.toNetworkNode]] */
     final def toNetworkNode: NetworkNode = node match {case networkNode: NetworkNode => networkNode}

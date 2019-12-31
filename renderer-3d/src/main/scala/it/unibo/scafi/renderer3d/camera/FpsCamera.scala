@@ -118,7 +118,11 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   private def moveCamera(cameraDirection: MoveDirection.Value, delay: Double): Unit = {
     val SPEED = 100
     val speedVector = cameraDirection.toVector * SPEED * delay
-    this.getTransforms.add(new Translate(speedVector.getX, speedVector.getY, speedVector.getZ))
+    val translate = new Translate(speedVector.getX, speedVector.getY, speedVector.getZ)
+    this.getTransforms.add(translate)
+    val newPosition = this.getPosition
+    this.getTransforms.remove(translate) //this is needed, otherwise this.getTransforms grows bigger and bigger
+    this.moveTo(newPosition)
   }
 
   /** See [[SimulationCamera.isEventAMovementOrRotation]] */

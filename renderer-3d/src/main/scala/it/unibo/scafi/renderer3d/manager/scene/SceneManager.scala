@@ -33,6 +33,7 @@ import javafx.stage.Window
 import org.scalafx.extras.onFX
 import scalafx.embed.swing.SwingFXUtils
 import scalafx.geometry.Point3D
+import scalafx.scene.transform.Rotate
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
 
 /** Trait that contains some of the main API of the renderer-3d module regarding the scene. */
@@ -89,7 +90,7 @@ private[manager] trait SceneManager {
   final def resetScene(): Unit = onFX {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
     mainScene.getCamera.moveTo(Point3D.Zero)
-    mainScene.getCamera.lookAtOnXZPlane(new Point3D(1, 0, 0))
+    mainScene.getCamera.lookAtOnXZPlane(Rotate.XAxis)
   }
 
   /** Sets the camera scale to the new one, making it bigger or smaller. This is useful if the scene is not well visible
