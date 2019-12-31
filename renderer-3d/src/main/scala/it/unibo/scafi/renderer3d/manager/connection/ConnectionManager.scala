@@ -16,11 +16,13 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.manager
+package it.unibo.scafi.renderer3d.manager.connection
 
 import java.awt.Color
 
 import com.typesafe.scalalogging.Logger
+import it.unibo.scafi.renderer3d.manager.node.NodeManager
+import it.unibo.scafi.renderer3d.manager.scene.SceneManager
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._

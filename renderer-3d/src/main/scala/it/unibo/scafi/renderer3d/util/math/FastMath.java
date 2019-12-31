@@ -16,13 +16,11 @@
  * limitations under the License.
  */
 
-package it.unibo.scafi.renderer3d.util;
-
-import scalafx.geometry.Point3D;
+package it.unibo.scafi.renderer3d.util.math;
 
 /**
- * This class implements some of Math's methods but in an optimized and approximated way. It can also have other math
- * related functions. Using java because it seems to be a bit faster.
+ * This class implements some of java.lang.Math's methods but in an optimized and approximated way. The methods have the
+ * same signature as the ones in java.lang.Math . Using java because it seems to be a bit faster.
  * */
 public class FastMath {
 
@@ -57,30 +55,5 @@ public class FastMath {
             }
         }
         return angle * PI_2;
-    }
-
-    /**
-     * Rotates the given vector by the specified angle, around the specified axis.
-     * From https://stackoverflow.com/questions/31225062/rotating-a-vector-by-angle-and-axis-in-java
-     * @param vector the vector to rotate
-     * @param axis the axis aroundwhich the vector should be rotated
-     * @param angle the rotation angle to apply, in radians
-     * @return the rotated vector
-     * */
-    public static Point3D rotateVector(Point3D vector, Point3D axis, double angle){
-        double x, y, z;
-        double u, v, w;
-        x=vector.x();y=vector.y();z=vector.z();
-        u=axis.x();v=axis.y();w=axis.z();
-        double xPrime = u*(u*x + v*y + w*z)*(1d - Math.cos(angle))
-                + x*Math.cos(angle)
-                + (-w*y + v*z)*Math.sin(angle);
-        double yPrime = v*(u*x + v*y + w*z)*(1d - Math.cos(angle))
-                + y*Math.cos(angle)
-                + (w*x - u*z)*Math.sin(angle);
-        double zPrime = w*(u*x + v*y + w*z)*(1d - Math.cos(angle))
-                + z*Math.cos(angle)
-                + (-v*x + u*y)*Math.sin(angle);
-        return new Point3D(xPrime, yPrime, zPrime);
     }
 }

@@ -16,12 +16,14 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.manager
+package it.unibo.scafi.renderer3d.manager.selection
 
-import it.unibo.scafi.renderer3d.manager.SelectionManagerHelper._
+import it.unibo.scafi.renderer3d.manager.node.NodeManager
+import it.unibo.scafi.renderer3d.manager.selection.SelectionManagerHelper._
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import it.unibo.scafi.renderer3d.util.{FastMath, RunOnExecutor}
+import it.unibo.scafi.renderer3d.util.RunOnExecutor
+import it.unibo.scafi.renderer3d.util.math.MathUtils
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import org.scalafx.extras._
@@ -43,16 +45,11 @@ private[manager] trait SelectionManager {
   protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = onFX {
     val screenPosition = event.getScreenPosition
     val allNetworkNodes = getAllNetworkNodes
-    if(allNetworkNodes.isEmpty){
-      state = state.copy(initialNode = None)
-    } else {
-      state = state.copy(initialNode = Option(allNetworkNodes.minBy(_.getScreenPosition.distance(screenPosition))))
-    }
-    state = state.copy(selectionComplete = false)
-    deselectSelectedNodes()
+    state = state.copy(selectionComplete = false, initialNode =
+      if(allNetworkNodes.isEmpty) None else Option(allNetworkNodes.minBy(_.getScreenPosition.distance(screenPosition))))
   }
 
-  protected final def setMouseSelectingPosition(event: MouseEvent): Unit = onFX {
+  protected final def setMousePosition(event: MouseEvent): Unit = onFX {
     val condition = state.mousePosition.nonEmpty || isMouseOnSelection(event, selectVolume)
     state = state.copy(mousePosition = if(condition) Option(event.getScreenPosition) else None)
   }
@@ -74,12 +71,12 @@ private[manager] trait SelectionManager {
   protected final def moveSelectedNodesIfNeeded(camera: PerspectiveCamera, event: MouseEvent): Unit = onFX {
     val mousePosition = event.getScreenPosition
     if((mousePosition distance state.mousePosition.getOrElse(mousePosition)) > 50){
-      val cameraRight = FastMath.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
+      val cameraRight = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
       val mouseMovement = mousePosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
       val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, mainScene)
       val movementVector = (cameraRight * multiplier.x) + Rotate.YAxis*multiplier.y
       state.selectedNodes.foreach(node => moveNode(node.UID, (node.getNodePosition + movementVector).toProduct))
-      setMouseSelectingPosition(event)
+      setMousePosition(event)
       selectVolume.moveTo(selectVolume.getPosition + movementVector)
       RunOnExecutor {state.movementAction(state.selectedNodes.map(node => (node.UID, node.getNodePosition.toProduct)))}
     }}
@@ -109,6 +106,7 @@ private[manager] trait SelectionManager {
       mainScene.getChildren.remove(selectVolume)
       selectVolume.setVisible(false)
       state = state.copy(mousePosition = None)
+      deselectSelectedNodes()
     }
   }
 

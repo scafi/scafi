@@ -16,12 +16,14 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.manager
+package it.unibo.scafi.renderer3d.manager.scene
 
 import java.awt.image.BufferedImage
 import java.awt.{Color, Image}
 
 import it.unibo.scafi.renderer3d.camera.{FpsCamera, SimulationCamera}
+import it.unibo.scafi.renderer3d.manager.node.NodeManager
+import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.beans.{InvalidationListener, Observable}
@@ -104,10 +106,12 @@ private[manager] trait SceneManager {
       setMouseInteraction(this, simulationCamera)
     }
 
-  protected final def setFocusLossAction(window: Window): Unit  = //call this after initialization, so that window is != null
-    window.focusedProperty().addListener(new InvalidationListener {
+  protected final def stopMovingOnFocusLoss(window: Window): Unit  = {//call after initialization, so window is != null
+    val listener = new InvalidationListener {
       override def invalidated(observable: Observable): Unit = simulationCamera.stopMovingAndRotating()
-    })
+    }
+    Seq(window.focusedProperty(), window.heightProperty(), window.widthProperty()).foreach(_.addListener(listener))
+  }
 
   private[this] final def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
     setMousePressedAndDragged(scene, camera)
@@ -121,7 +125,7 @@ private[manager] trait SceneManager {
 
   private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
     scene.setOnMousePressed(event => if(isPrimaryButton(event)) {
-      if(isSelectionComplete && !movementComplete) setMouseSelectingPosition(event) else setSelectionVolumeCenter(event)
+      if(isSelectionComplete && !movementComplete) setMousePosition(event) else setSelectionVolumeCenter(event)
     } else if(isMiddleMouse(event)) {
       camera.startMouseRotation(event)
     })

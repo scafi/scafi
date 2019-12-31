@@ -19,6 +19,7 @@
 package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.node.NetworkNode
+import it.unibo.scafi.renderer3d.util.math.FastMath
 import org.scalafx.extras.{onFX, onFXAndWait}
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate

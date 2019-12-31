@@ -16,14 +16,18 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.manager
+package it.unibo.scafi.renderer3d.manager.node
 
 import com.typesafe.scalalogging.Logger
+import it.unibo.scafi.renderer3d.manager.connection.ConnectionManager
+import it.unibo.scafi.renderer3d.manager.scene.SceneManager
 import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
 import scalafx.application.Platform
 import scalafx.scene.{Camera, Scene}
+
 import scala.collection.mutable.{Map => MutableMap}
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify nodes. */
@@ -162,7 +166,7 @@ private[manager] trait NodeManager {
 
   private final def updateLabelsSize(sizeDifference: Double): Unit = onFX {
     val (minScale, maxScale) = (0.7*sceneScaleMultiplier, 1.2*sceneScaleMultiplier)
-    state = state.copy(nodeLabelsScale = RichMath.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
+    state = state.copy(nodeLabelsScale = MathUtils.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
     networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
   }
 

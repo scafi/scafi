@@ -19,6 +19,10 @@
 package it.unibo.scafi.renderer3d.manager
 
 import it.unibo.scafi.renderer3d.fps_counter.FPSCounter
+import it.unibo.scafi.renderer3d.manager.connection.ConnectionManager
+import it.unibo.scafi.renderer3d.manager.node.NodeManager
+import it.unibo.scafi.renderer3d.manager.scene.SceneManager
+import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import javafx.embed.swing.JFXPanel
 import org.scalafx.extras._
 import scalafx.application.Platform
@@ -38,7 +42,7 @@ final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionM
   
   mainScene.getChildren.add(connectionGroup)
   this.setScene(mainScene)
-  Platform.runLater(setFocusLossAction(mainScene.getWindow)) //runLater is needed, otherwise getWindow would be null
+  Platform.runLater(stopMovingOnFocusLoss(mainScene.getWindow)) //runLater is needed, otherwise getWindow would be null
   if(SHOW_FPS_COUNTER) FPSCounter.addToScene(mainScene)
 
   /**

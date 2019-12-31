@@ -31,16 +31,6 @@ import scalafx.scene.shape.Shape3D
  * abstraction when working with ScalaFx and JavaFx. */
 object RichScalaFx extends RichScalaFxHelper {
 
-  object RichMath {
-    /** Simple function to clamp a value between a minimum value and a maximum.
-     * @param value the initial value
-     * @param minimum the minimum value
-     * @param maximum the maximum value
-     * @return the adjusted value*/
-    def clamp(value: Double, minimum: Double, maximum: Double): Double =
-      if (value < minimum) minimum else if (value > maximum) maximum else value
-  }
-
   implicit class RichNode(node: Node) {
     /** Gets the node's position in the 3D scene. ATTENTION: Don't use this on Group objects such as SimpleNetworkNode,
      *  since it would always return Point3D(0, 0, 0)

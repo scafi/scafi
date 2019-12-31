@@ -19,11 +19,11 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
-import it.unibo.scafi.renderer3d.util.RichScalaFx.RichMath
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdaterHelper._
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
+import org.fxyz3d.geometry.MathUtils
 import scalafx.application.Platform
 
 /** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
@@ -81,7 +81,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   private def waitForJavaFxIfNeeded(): Unit = {
     if(waitCounterThreshold == -1){ //looking at the node count to find out the right value for waitCounterThreshold
       val counterThreshold = 1000000 / Math.pow(Settings.Sim_NumNodes*Settings.Sim_NbrRadius*6.5, 1.4)
-      waitCounterThreshold = RichMath.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
+      waitCounterThreshold = MathUtils.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
     }
     javaFxWaitCounter = javaFxWaitCounter - 1
     if(javaFxWaitCounter <= 0){

@@ -20,6 +20,10 @@ package it.unibo.scafi.renderer3d.manager
 
 import java.awt.{Color, Image}
 
+import it.unibo.scafi.renderer3d.manager.connection.ConnectionManager
+import it.unibo.scafi.renderer3d.manager.node.NodeManager
+import it.unibo.scafi.renderer3d.manager.scene.SceneManager
+import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import javafx.embed.swing.JFXPanel
 
 /**

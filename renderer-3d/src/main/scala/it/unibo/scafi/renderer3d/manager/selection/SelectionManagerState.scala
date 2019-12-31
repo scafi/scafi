@@ -16,12 +16,12 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.manager
+package it.unibo.scafi.renderer3d.manager.selection
 
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import scalafx.geometry.Point2D
 
-private[manager] final case class SelectionManagerState(selectedNodes: Set[NetworkNode] = Set(),
+private[selection] final case class SelectionManagerState(selectedNodes: Set[NetworkNode] = Set(),
                                                         initialNode: Option[NetworkNode] = None,
                                                         mousePosition: Option[Point2D] = None,
                                                         selectionComplete: Boolean = false,

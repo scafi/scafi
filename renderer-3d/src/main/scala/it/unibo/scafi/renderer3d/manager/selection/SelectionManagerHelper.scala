@@ -16,21 +16,21 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.manager
+package it.unibo.scafi.renderer3d.manager.selection
 
 import it.unibo.scafi.renderer3d.node.NetworkNode
+import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
-import scalafx.geometry.{Point2D, Point3D}
-import scalafx.scene.{PerspectiveCamera, Scene}
-import scalafx.scene.shape.Shape3D
-import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.shape.CullFace
+import scalafx.geometry.{Point2D, Point3D}
+import scalafx.scene.shape.Shape3D
+import scalafx.scene.{PerspectiveCamera, Scene}
 
 /**
  * Helper object for [[SelectionManager]] with various utility methods.
  * */
-private[manager] object SelectionManagerHelper {
+private[selection] object SelectionManagerHelper {
   
   /**
    * Sets up the select volume, making it visible even when inside it and invisible at first.
@@ -74,9 +74,8 @@ private[manager] object SelectionManagerHelper {
    * */
   final def getMovementMultiplier(movementVector: Point2D, camera: PerspectiveCamera, initialNode: Option[NetworkNode],
                                   scene: Scene): Point2D = {
-    val multiplier = camera.getFieldOfView / (40 * 2000) *
+    val multiplier = camera.getFieldOfView / (60 * scene.getHeight)  *
       camera.getPosition.distance(initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
-    new Point2D(multiplier * scene.getWindow.getWidth * movementVector.getX / 2560,
-      multiplier * scene.getWindow.getHeight * movementVector.getY / 1440)
+    new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
   }
 }

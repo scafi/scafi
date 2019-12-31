@@ -22,6 +22,7 @@ import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirectio
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.input
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
+import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
 import scalafx.animation.AnimationTimer
 import scalafx.geometry.Point3D
@@ -38,7 +39,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   private[this] val MAX_SENSITIVITY = 1d
   private[this] val KEYBOARD_ARROW_SENSITIVITY = 1
   private[this] val MAX_ROTATION = 15
-  private[this] val adjustedSensitivity = RichMath.clamp(sensitivity, MIN_SENSITIVITY, MAX_SENSITIVITY)
+  private[this] val adjustedSensitivity = MathUtils.clamp(sensitivity, MIN_SENSITIVITY, MAX_SENSITIVITY)
   private[this] var state: CameraState = CameraState()
 
   setup()
@@ -65,7 +66,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   /** See [[SimulationCamera.rotateByMouseEvent()]] */
   override def rotateByMouseEvent(mouseEvent: MouseEvent): Unit = onFX {
     val newMousePosition = mouseEvent.getScreenPosition
-    this.rotateCamera(RichMath.clamp((newMousePosition.x - state.oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
+    this.rotateCamera(MathUtils.clamp((newMousePosition.x - state.oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
     state = state.copy(oldMousePosition = newMousePosition)
   }
 
@@ -87,7 +88,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     }
 
   private def addZoomAmount(amount: Int): Unit =
-    onFX {this.setFieldOfView(RichMath.clamp(this.getFieldOfView - amount, INITIAL_FOV/2, INITIAL_FOV))}
+    onFX {this.setFieldOfView(MathUtils.clamp(this.getFieldOfView - amount, INITIAL_FOV/2, INITIAL_FOV))}
 
   private def moveByDirections(directions: Set[MoveDirection.Value], delay: Double): Unit = {
     if(directions.nonEmpty){
