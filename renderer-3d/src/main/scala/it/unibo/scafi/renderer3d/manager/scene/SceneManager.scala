@@ -108,7 +108,7 @@ private[manager] trait SceneManager {
     }
 
   protected final def stopMovingOnFocusLoss(window: Window): Unit  = {//call after initialization, so window is != null
-    val listener = new InvalidationListener {
+    val listener = new InvalidationListener { //without this the camera would sometimes keep moving without user input
       override def invalidated(observable: Observable): Unit = simulationCamera.stopMovingAndRotating()
     }
     Seq(window.focusedProperty(), window.heightProperty(), window.widthProperty()).foreach(_.addListener(listener))

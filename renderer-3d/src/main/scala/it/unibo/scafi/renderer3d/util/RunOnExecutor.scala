@@ -25,16 +25,18 @@ import javafx.concurrent.Task
 /**
  * Function that can be used to execute code on a Thread Pool. This is useful whenever someone needs to run a task in a
  * different thread than the current one (for example the JavaFx one), without creating a new thread every time.
- * The chosen executor is ideal for many short tasks.
+ * The chosen executor for multi threading is ideal for many short tasks.
  * */
 object RunOnExecutor {
 
-  private val threadPool = Executors.newCachedThreadPool()
+  private val singleThreadExecutor = Executors.newSingleThreadExecutor
+  private val cachedThreadPool = Executors.newCachedThreadPool()
 
-  def apply[R](operation: => R): Unit = {
+  def apply[R](operation: => R, singleThreaded: Boolean = false): Unit = {
     val task = new Task[R] {
       override def call(): R = operation
     }
-    threadPool.submit(task)
+    val executor = if(singleThreaded) singleThreadExecutor else cachedThreadPool
+    executor.submit(task)
   }
 }

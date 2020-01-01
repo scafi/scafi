@@ -80,7 +80,8 @@ private[manager] trait SelectionManager {
       state.selectedNodes.foreach(node => moveNode(node.UID, (node.getNodePosition + movementVector).toProduct))
       setMousePosition(event)
       selectVolume.moveTo(selectVolume.getPosition + movementVector)
-      RunOnExecutor {state.movementAction(state.selectedNodes.map(node => (node.UID, node.getNodePosition.toProduct)))}
+      RunOnExecutor(state.movementAction(state.selectedNodes.map(node => (node.UID, node.getNodePosition.toProduct))),
+        singleThreaded = true)
     }}
 
   protected final def modifySelectionVolume(camera: Node, event: MouseEvent): Unit = onFX {

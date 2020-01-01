@@ -71,10 +71,8 @@ private[util] trait RichScalaFxHelper {
 
   implicit class RichJavaNode(node: javafx.scene.Node) {
     /** See [[RichScalaFx.RichNode.lookAtOnXZPlane]] */
-    final def lookAtOnXZPlane(point: Point3D): Unit = {
-      val yAngle = getLookAtAngleOnXZPlane(point)
-      onFX {node.setRotationAxis(Rotate.YAxis); node.setRotate(yAngle)}
-    }
+    final def lookAtOnXZPlane(point: Point3D): Unit =
+      onFX {node.setRotationAxis(Rotate.YAxis); node.setRotate(getLookAtAngleOnXZPlane(point))}
 
     /** See [[RichScalaFx.RichNode.getLookAtAngleOnXZPlane]] */
     final def getLookAtAngleOnXZPlane(point: Point3D): Double = {

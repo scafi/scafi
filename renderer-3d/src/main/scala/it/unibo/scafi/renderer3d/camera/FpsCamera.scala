@@ -53,7 +53,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     AnimationTimer(time => {
       val delay = (time - previousTime)/10000000
       if(state.rotateDirection.isDefined || state.moveDirections.nonEmpty) state.onCameraChange()
-      state.rotateDirection.fold()(direction => rotateByDirection(direction, delay))
+      state.rotateDirection.fold()(direction => rotateCamera(getKeyboardRotation(direction) * delay))
       moveByDirections(state.moveDirections, delay)
       previousTime = time
     }).start()
@@ -69,9 +69,6 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     this.rotateCamera(MathUtils.clamp((newMousePosition.x - state.oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
     state = state.copy(oldMousePosition = newMousePosition)
   }
-
-  private def rotateByDirection(direction: RotateDirection.Value, delay: Double): Unit =
-    this.rotateCamera(getKeyboardRotation(direction) * delay)
 
   private def getKeyboardRotation(direction: RotateDirection.Value): Int = direction match {
     case RotateDirection.left => -KEYBOARD_ARROW_SENSITIVITY

@@ -28,14 +28,12 @@ import scalafx.application.Platform
 
 /** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
 private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D, simulation: Simulation) {
-  private val MIN_WAIT_COUNTER = 100
-  private val MAX_WAIT_COUNTER = 10000
   private var connectionsInGUI = Map[Int, Set[String]]()
   private var nodesInGUI = Set[Int]()
   private var waitCounterThreshold = -1 //not yet initialized
   private var javaFxWaitCounter = waitCounterThreshold
 
-  gui3d.setActionOnMovedNodes(synchronized {_.foreach(node =>
+  gui3d.setActionOnMovedNodes(synchronized {_.foreach(node => //updating simulation when user moves the selected nodes
     setSimulationNodePosition(simulation.network.nodes(node._1.toInt), node._2, simulation))})
 
   /** Resets the collections that keep information about the nodes. */
@@ -44,7 +42,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   /** Most important method of this class. It updates the specified node in the UI and in the simulation.
    * Most of the calculations are done outside of theJavaFx thread to reduce lag.
    * @param nodeId the id of the node to update */
-  def updateNode(nodeId: Int): Unit = synchronized {
+  def updateNode(nodeId: Int): Unit = synchronized { //FIXME: when manually moving nodes the simulation and view disagree on nodes position
     waitForJavaFxIfNeeded() //this waits from time to time for the javaFx to become less congested
     if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
     val node = simulation.network.nodes(nodeId)
@@ -79,15 +77,14 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     if (nodesInGUI.contains(node.id)) Option(getUpdatedNodePosition(node, gui3d, simulation)) else None
 
   private def waitForJavaFxIfNeeded(): Unit = {
+    val MIN_WAIT_COUNTER = 100
+    val MAX_WAIT_COUNTER = 10000
     if(waitCounterThreshold == -1){ //looking at the node count to find out the right value for waitCounterThreshold
       val counterThreshold = 1000000 / Math.pow(Settings.Sim_NumNodes*Settings.Sim_NbrRadius*6.5, 1.4)
       waitCounterThreshold = MathUtils.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
     }
     javaFxWaitCounter = javaFxWaitCounter - 1
-    if(javaFxWaitCounter <= 0){
-      javaFxWaitCounter = waitCounterThreshold
-      gui3d.blockUntilThreadIsFree()
-    }
+    if(javaFxWaitCounter <= 0) {javaFxWaitCounter = waitCounterThreshold; gui3d.blockUntilThreadIsFree()}
   }
 
   private def createNodeInSimulation(node: Node, gui3d: NetworkRenderer3D, simulation: Simulation): Unit = {
