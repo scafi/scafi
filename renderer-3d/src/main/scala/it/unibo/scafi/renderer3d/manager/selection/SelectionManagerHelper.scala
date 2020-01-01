@@ -25,7 +25,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.shape.Shape3D
-import scalafx.scene.{PerspectiveCamera, Scene}
+import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
 /**
  * Helper object for [[SelectionManager]] with various utility methods.
@@ -77,5 +77,34 @@ private[selection] object SelectionManagerHelper {
     val multiplier = camera.getFieldOfView / (60 * scene.getHeight)  *
       camera.getPosition.distance(initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
     new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
+  }
+
+  /**
+   * Starts the node selection, so that the user can select visible nodes. It shows a cube representing the selected area.
+   * @param event the mouse event
+   * @param state the current state of SelectionManager
+   * @param scene the scene that contains all the nodes
+   * @param selectVolume the cube that is going to be visible
+   * */
+  final def startSelection(event: MouseEvent, state: SelectionManagerState, scene: Scene, selectVolume: Node): Unit =
+    if(state.initialNode.isDefined && !scene.getChildren.contains(selectVolume)){
+      selectVolume.moveTo(state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
+      selectVolume.setScale(1)
+      selectVolume.setVisible(true)
+      scene.getChildren.add(selectVolume)
+    }
+
+  /**
+   * Updates the selection volume so that it contains the selected nodes and it faces the camera.
+   * @param selectVolume the selection volume to update
+   * @param state the current state of SelectionManager
+   * @param event the mouse event that caused this update
+   * @param camera the camera in the scene
+   * */
+  def updateSelectionVolume(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera): Unit = {
+    val initialNodeScreenPosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
+    val cameraToNodeDistance = state.initialNode.map(_.getPosition).getOrElse(Point3D.Zero).distance(camera.getPosition)
+    selectVolume.setScale(event.getScreenPosition.distance(initialNodeScreenPosition) * cameraToNodeDistance / 1000)
+    selectVolume.lookAtOnXZPlane(camera.getPosition)
   }
 }

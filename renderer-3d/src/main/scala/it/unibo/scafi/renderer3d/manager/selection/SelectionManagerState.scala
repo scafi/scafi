@@ -25,4 +25,5 @@ private[selection] final case class SelectionManagerState(selectedNodes: Set[Net
                                                         initialNode: Option[NetworkNode] = None,
                                                         mousePosition: Option[Point2D] = None,
                                                         selectionComplete: Boolean = false,
+                                                        movementTask: Option[() => Unit] = None,
                                       movementAction: Set[(String, Product3[Double, Double, Double])] => Unit = _ => ())

@@ -87,12 +87,11 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   private def addZoomAmount(amount: Int): Unit =
     onFX {this.setFieldOfView(MathUtils.clamp(this.getFieldOfView - amount, INITIAL_FOV/2, INITIAL_FOV))}
 
-  private def moveByDirections(directions: Set[MoveDirection.Value], delay: Double): Unit = {
+  private def moveByDirections(directions: Set[MoveDirection.Value], delay: Double): Unit =
     if(directions.nonEmpty){
       val adjustedDelay = delay/Math.sqrt(directions.size)
       directions.foreach(direction => moveCamera(direction, adjustedDelay))
     }
-  }
 
   /** See [[SimulationCamera.initialize]] */
   override def initialize(scene: Scene, onCameraChangeAction: () => Unit): Unit = onFX {

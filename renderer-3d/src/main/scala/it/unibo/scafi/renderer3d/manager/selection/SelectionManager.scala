@@ -18,19 +18,21 @@
 
 package it.unibo.scafi.renderer3d.manager.selection
 
+import java.awt.event.ActionEvent
+
 import it.unibo.scafi.renderer3d.manager.node.NodeManager
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManagerHelper._
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import it.unibo.scafi.renderer3d.util.RunOnExecutor
 import it.unibo.scafi.renderer3d.util.math.MathUtils
-import javafx.scene.Node
 import javafx.scene.input.MouseEvent
+import javax.swing.Timer
 import org.scalafx.extras._
-import scalafx.geometry.{Point2D, Point3D}
+import scalafx.geometry.Point2D
 import scalafx.scene.paint.Color
 import scalafx.scene.transform.Rotate
-import scalafx.scene.{PerspectiveCamera, Scene}
+import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
 /** Trait that contains some of the main API of the renderer-3d module regarding the nodes' selection. */
 private[manager] trait SelectionManager {
@@ -39,6 +41,11 @@ private[manager] trait SelectionManager {
   protected val mainScene: Scene
   private[this] val selectVolume = createCube(1, Color.color(0.2, 0.2, 0.8, 0.5))
   private[this] var state = SelectionManagerState()
+  private[this] val timer: Timer =  new Timer(0, (_: ActionEvent) => onFXAndWait { //avoids performance issues
+    state.movementTask.getOrElse(() => Unit)(); //executing the movement task
+    state = state.copy(movementTask = None) //removes the task
+    timer.stop()
+  })
 
   setupSelectVolume(selectVolume)
 
@@ -56,25 +63,19 @@ private[manager] trait SelectionManager {
     state = state.copy(mousePosition = if(condition) Option(event.getScreenPosition) else None)
   }
 
-  protected final def startSelection(event: MouseEvent): Unit = onFX {
-    if(state.initialNode.isDefined && !mainScene.getChildren.contains(selectVolume)){
-      selectVolume.moveTo(state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
-      selectVolume.setScale(1)
-      selectVolume.setVisible(true)
-      mainScene.getChildren.add(selectVolume)
-    }
-  }
+  protected final def startSelection(event: MouseEvent): Unit =
+    onFX {SelectionManagerHelper.startSelection(event, state, mainScene, selectVolume)}
 
   private final def deselectSelectedNodes(): Unit = {
     state.selectedNodes.foreach(_.deselect())
     state = state.copy(selectedNodes = Set())
   }
 
-  protected final def moveSelectedNodesIfNeeded(camera: PerspectiveCamera, event: MouseEvent): Unit = onFX {
-    val mousePosition = event.getScreenPosition
-    if((mousePosition distance state.mousePosition.getOrElse(mousePosition)) > 50){
+  protected final def moveSelectedNodesIfNeeded(camera: PerspectiveCamera, event: MouseEvent): Unit =
+    if(state.mousePosition.isDefined && !timer.isRunning) onFX {
+    state = state.copy(movementTask = Option(() => { //overwrites the previous movement task, to avoid performance issues
       val cameraRight = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
-      val mouseMovement = mousePosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
+      val mouseMovement = event.getScreenPosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
       val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, mainScene)
       val movementVector = (cameraRight * multiplier.x) + Rotate.YAxis*multiplier.y
       state.selectedNodes.foreach(node => moveNode(node.UID, (node.getNodePosition + movementVector).toProduct))
@@ -82,15 +83,13 @@ private[manager] trait SelectionManager {
       selectVolume.moveTo(selectVolume.getPosition + movementVector)
       RunOnExecutor(state.movementAction(state.selectedNodes.map(node => (node.UID, node.getNodePosition.toProduct))),
         singleThreaded = true)
-    }}
+    }))
+    timer.start() //the next selection movement is done only if the previous one finished
+  }
 
-  protected final def modifySelectionVolume(camera: Node, event: MouseEvent): Unit = onFX {
+  protected final def modifySelectionVolume(camera: Camera, event: MouseEvent): Unit = onFX {
     if(selectVolume.isVisible){
-      val initialNodeScreenPosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
-      val cameraToNodeDistance = state.initialNode.map(_.getPosition).getOrElse(Point3D.Zero).distance(camera.getPosition)
-      selectVolume.setScale(event.getScreenPosition.distance(initialNodeScreenPosition) * cameraToNodeDistance / 1000)
-      selectVolume.lookAtOnXZPlane(camera.getPosition)
-      updateSelectionIfNeeded(event)
+      updateSelectionVolume(selectVolume, state, event, camera); updateSelectionIfNeeded(event)
     }
   }
 
