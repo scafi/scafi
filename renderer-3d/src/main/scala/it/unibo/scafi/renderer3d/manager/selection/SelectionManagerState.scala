@@ -21,6 +21,9 @@ package it.unibo.scafi.renderer3d.manager.selection
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import scalafx.geometry.Point2D
 
+/**
+ * This class contains the main state of SelectionManager, as an immutable object.
+ * */
 private[selection] final case class SelectionManagerState(selectedNodes: Set[NetworkNode] = Set(),
                                                         initialNode: Option[NetworkNode] = None,
                                                         mousePosition: Option[Point2D] = None,

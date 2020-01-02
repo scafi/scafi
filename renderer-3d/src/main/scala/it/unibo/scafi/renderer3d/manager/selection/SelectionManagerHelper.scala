@@ -24,7 +24,8 @@ import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
 import scalafx.geometry.{Point2D, Point3D}
-import scalafx.scene.shape.Shape3D
+import scalafx.scene.paint.Color
+import scalafx.scene.shape.{Shape3D, Sphere}
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
 /**
@@ -37,6 +38,7 @@ private[selection] object SelectionManagerHelper {
    * @param selectVolume the shape to be set
    * */
   final def setupSelectVolume(selectVolume: Shape3D): Unit = {
+    selectVolume.setColor(Color.color(0.2, 0.2, 0.8, 0.5))
     selectVolume.setCullFace(CullFace.NONE)
     selectVolume.setVisible(false)
   }
@@ -53,18 +55,15 @@ private[selection] object SelectionManagerHelper {
   }
 
   /**
-   * Retrieves the nodes that are intersecting with the provided shape.
-   * @param shape the shape that will be used to check the intersection with the nodes
+   * Retrieves the nodes that are intersecting with the provided sphere.
+   * @param sphere the sphere that will be used to check its intersection with the nodes
    * @param networkNodes the set of networkNodes
-   * @return the set of nodes that intersect with the shape
+   * @return the set of nodes that intersect with the sphere
    * */
-  final def getIntersectingNetworkNodes(shape: Shape3D, networkNodes: Set[NetworkNode]): Set[NetworkNode] = {
-    val shapeScale = shape.getScaleX
-    val adjustedXZScale = shapeScale * 0.8 //adjusting scale on X and Z axis since they are a bit too big
-    shape.setScaleX(adjustedXZScale); shape.setScaleZ(adjustedXZScale)
-    val result = networkNodes.filter(_.nodeIntersectsWith(shape))
-    shape.setScale(shapeScale)
-    result
+  final def getIntersectingNetworkNodes(sphere: Sphere, networkNodes: Set[NetworkNode]): Set[NetworkNode] = {
+    val shapePosition = sphere.getPosition
+    val shapeScale = sphere.getScaleX
+    networkNodes.filter(_.getNodePosition.distance(shapePosition) < shapeScale)
   }
 
   /**
@@ -106,8 +105,7 @@ private[selection] object SelectionManagerHelper {
    * */
   def updateSelectionVolume(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera): Unit = {
     val initialNodeScreenPosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
-    val cameraToNodeDistance = state.initialNode.map(_.getPosition).getOrElse(Point3D.Zero).distance(camera.getPosition)
+    val cameraToNodeDistance = state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero).distance(camera.getPosition)
     selectVolume.setScale(event.getScreenPosition.distance(initialNodeScreenPosition) * cameraToNodeDistance / 1000)
-    selectVolume.lookAtOnXZPlane(camera.getPosition)
   }
 }

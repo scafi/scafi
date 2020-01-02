@@ -82,7 +82,7 @@ trait NetworkNode extends Node{
    * @return the current position of the node */
   def getNodePosition: Point3D
 
-  /** Moves the node to the specified position in the 3d scene.
+  /** Moves the node to the specified position in the 3d scene. IMPORTANT: don't use other methods to move this node
    * @param position the new position of the node
    * @return Unit, since it has the side effect of moving the node */
   def moveNodeTo(position: Point3D): Unit
@@ -92,7 +92,7 @@ trait NetworkNode extends Node{
    * @return Unit, since it has the side effect of setting the scale of the node */
   def setNodeScale(scale: Double): Unit
 
-  /** Checks if the cube of the node is intersecting with the provided node's mesh.
+  /** Checks if the cube of the node is intersecting with the provided node's mesh. ATTENTION: this is inaccurate.
    * @param node the node to check for intersection
    * @return whether the two nodes are intersecting */
   def nodeIntersectsWith(node: Node): Boolean

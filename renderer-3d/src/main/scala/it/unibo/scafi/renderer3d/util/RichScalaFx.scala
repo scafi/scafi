@@ -93,7 +93,7 @@ object RichScalaFx extends RichScalaFxHelper {
      * @return the angle on the Y axis, in the range from -180 to 180. */
     final def getYRotationAngle: Double = node.delegate.getYRotationAngle
 
-    /** Checks if the node is intersecting with the provided node's mesh.
+    /** Checks if the node is intersecting with the provided node's mesh. ATTENTION: this is not accurate.
      * @param otherNode the node to check for intersection with the current one
      * @return whether the two nodes are intersecting */
     final def isIntersectingWith(otherNode: Node): Boolean = node.delegate.isIntersectingWith(otherNode.delegate)

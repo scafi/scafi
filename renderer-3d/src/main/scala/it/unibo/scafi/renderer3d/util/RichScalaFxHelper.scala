@@ -18,8 +18,10 @@
 
 package it.unibo.scafi.renderer3d.util
 
+import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.math.FastMath
+import javafx.scene.Group
 import org.scalafx.extras.{onFX, onFXAndWait}
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
@@ -27,7 +29,8 @@ import scalafx.scene.transform.Rotate
 /** Object that contains some of the required implicit classes to enrich the language (using "Pimp my Library") when
  * working with ScalaFx and JavaFx. */
 private[util] trait RichScalaFxHelper {
-  private val X_AXIS_2D = new Point2D(1, 0)
+  private[this] val X_AXIS_2D = new Point2D(1, 0)
+  private[this] val logger = Logger("RichScalaFxHelper")
 
   implicit class RichJavaPoint3D(point: javafx.geometry.Point3D) {
     /** Converts the javafx.geometry.Point3D to scalafx.geometry.Point3D
@@ -83,9 +86,13 @@ private[util] trait RichScalaFxHelper {
 
     /** See [[RichScalaFx.RichNode.getPosition]] */
     final def getPosition: Point3D = {
+      printIllegalCallIfNeeded("getPosition")
       val transform = onFXAndWait(node.getLocalToSceneTransform)
       new Point3D(transform.getTx, transform.getTy, transform.getTz)
     }
+
+    private[this] def printIllegalCallIfNeeded(methodName: String): Unit = node match {
+        case _: Group => logger.error("Illegal call of method " + methodName + " on Node of type Group"); case _ => ()}
 
     /** See [[RichScalaFx.RichNode.getScreenPosition]] */
     final def getScreenPosition: Point2D = {
@@ -95,6 +102,7 @@ private[util] trait RichScalaFxHelper {
 
     /** See [[RichScalaFx.RichNode.moveTo]] */
     final def moveTo(position: Point3D): Unit = onFX {
+      printIllegalCallIfNeeded("moveTo")
       node.setTranslateX(position.x)
       node.setTranslateY(position.y)
       node.setTranslateZ(position.z)

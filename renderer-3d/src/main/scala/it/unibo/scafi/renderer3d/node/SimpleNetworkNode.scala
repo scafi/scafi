@@ -37,8 +37,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private[this] val label = createText("", LABEL_FONT_SIZE, getLabelPosition(position))
   private[this] val seeThroughSphere = createOutlinedSphere(1, position)
   private[this] val filledSphere = createFilledSphere(1, position)
-  private[this] var currentColor = nodeColor
-  private[this] var selectionColor = Color.Red
+  private[this] var state = NetworkNodeState(nodeColor, position)
 
   setLabelScale(labelScale)
   this.setId(UID)
@@ -51,10 +50,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   /** See [[NetworkNode.setText]] */
   override def setText(text: String, camera: Camera): Unit = onFX{
     if(text == "") {
-      if(label.isVisible){
-        label.setVisible(false)
-        this.getChildren.remove(label)
-      }
+      if(label.isVisible) {label.setVisible(false); this.getChildren.remove(label)}
     } else if(!label.isVisible) {
       reAddLabel(text, camera)
     } else {
@@ -77,31 +73,23 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   override def setFilledSphereColor(color: Color): Unit = onFX {filledSphere.setColor(new Color(color.opacity(0.1)))}
 
   /** See [[NetworkNode.setNodeColor]] */
-  override def setNodeColor(color: Color): Unit = onFX {node.setColor(color); currentColor = color}
+  override def setNodeColor(color: Color): Unit = onFX {node.setColor(color); state = state.copy(currentColor = color)}
 
   /** See [[NetworkNode.setSelectionColor]] */
-  override def setSelectionColor(color: Color): Unit = onFX {
-    if(isSelected){
-      node.setColor(color)
-    }
-    selectionColor = color
-  }
+  override def setSelectionColor(color: Color): Unit =
+    onFX {if(isSelected) node.setColor(color); state = state.copy(selectionColor = color)}
 
-  private def isSelected: Boolean = node.getScaleX > 1 //FIXME: this may not work when calling setNodeScale
+  private def isSelected: Boolean = node.getScaleX > this.state.scale
 
   /** See [[NetworkNode.getNodePosition]] */
-  override def getNodePosition: Point3D = node.getPosition
+  override def getNodePosition: Point3D = state.currentPosition //not using node.getPosition to improve performance
 
   /** See [[NetworkNode.select]] */
-  override def select(): Unit = {node.setScale(2); node.setColor(selectionColor)}
+  override def select(): Unit = {node.setScale(2*this.state.scale); node.setColor(state.selectionColor)}
 
   /** See [[NetworkNode.deselect]] */
-  override def deselect(): Unit = onFX {
-    if(isSelected){
-      node.setScale(1)
-      node.setColor(currentColor)
-    }
-  }
+  override def deselect(): Unit =
+    onFX {if(isSelected) {node.setScale(this.state.scale); node.setColor(state.currentColor)}}
 
   /** See [[NetworkNode.setLabelScale]] */
   override def setLabelScale(scale: Double): Unit = label.setScale(scale * NODE_SIZE/18)
@@ -122,15 +110,17 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   }
 
   /** See [[NetworkNode.moveNodeTo]] */
-  override def moveNodeTo(position: Point3D): Unit = {
+  override def moveNodeTo(position: Point3D): Unit = onFX {
     List(node, seeThroughSphere, filledSphere).foreach(_.moveTo(position))
     label.moveTo(getLabelPosition(position))
+    state = state.copy(currentPosition = position)
   }
 
   /** See [[NetworkNode.setNodeScale]] */
-  override def setNodeScale(scale: Double): Unit = {
-    List(node, filledSphere).foreach(_.setScale(scale))
-    label.moveTo(getLabelPosition(node.getPosition, LABEL_ADDED_HEIGHT*(1 + scale/5)))
+  override def setNodeScale(newScale: Double): Unit = onFX {
+    state = state.copy(scale = newScale)
+    List(node, filledSphere).foreach(_.setScale(newScale))
+    label.moveTo(getLabelPosition(node.getPosition, LABEL_ADDED_HEIGHT*(1 + newScale/5)))
   }
 
   /** See [[NetworkNode.nodeIntersectsWith]] */

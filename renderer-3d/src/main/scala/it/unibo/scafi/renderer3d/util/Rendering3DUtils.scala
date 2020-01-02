@@ -28,9 +28,7 @@ import scalafx.scene.shape.{Box, DrawMode, Sphere}
 import scalafx.scene.text.{Font, Text}
 import scalafx.scene.{AmbientLight, CacheHint, Node}
 
-/**
- * This object contains methods to create the elements of the 3d JavaFx scene such as labels, cubes, spheres, lines, etc.
- * */
+/** This contains methods to create the elements of the 3d JavaFx scene such as labels, cubes, spheres, lines, etc. */
 object Rendering3DUtils {
   private var materialCache: Map[Color, Material] = Map()
 
@@ -79,9 +77,17 @@ object Rendering3DUtils {
   /** Creates a black sphere where the polygonal faces are rendered as solid surfaces.
    * @param radius the desired radius of the sphere
    * @param position the position where the sphere should be placed
+   * @param highQuality whether the sphere should have lots of divisions or not
    * @return the sphere */
-  def createFilledSphere(radius: Double, position: Point3D): Sphere =
-    createSphere(radius, Color.Black, position, drawOutlineOnly = false)
+  def createFilledSphere(radius: Double, position: Point3D, highQuality: Boolean = false): Sphere =
+    if(highQuality) {
+      val SPHERE_DIVISIONS = 32
+      val sphere = new Sphere(radius, SPHERE_DIVISIONS)
+      sphere.moveTo(position)
+      optimize(sphere) match {case sphere: Sphere => sphere}
+    } else {
+      createSphere(radius, Color.Black, position, drawOutlineOnly = false)
+    }
 
   /** Creates a sphere that can be rendered as outline or as a filled sphere.
    * @param radius the desired radius of the sphere

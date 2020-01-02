@@ -29,8 +29,7 @@ import it.unibo.scafi.renderer3d.util.math.MathUtils
 import javafx.scene.input.MouseEvent
 import javax.swing.Timer
 import org.scalafx.extras._
-import scalafx.geometry.Point2D
-import scalafx.scene.paint.Color
+import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
@@ -39,7 +38,7 @@ private[manager] trait SelectionManager {
   this: NodeManager => //NodeManager has to also be mixed in with SelectionManager
 
   protected val mainScene: Scene
-  private[this] val selectVolume = createCube(1, Color.color(0.2, 0.2, 0.8, 0.5))
+  private[this] val selectVolume = createFilledSphere(1, Point3D.Zero, highQuality = true)
   private[this] var state = SelectionManagerState()
   private[this] val timer: Timer =  new Timer(0, (_: ActionEvent) => onFXAndWait { //avoids performance issues
     state.movementTask.getOrElse(() => Unit)(); //executing the movement task
@@ -58,13 +57,13 @@ private[manager] trait SelectionManager {
     })
   }
 
-  protected final def setMousePosition(event: MouseEvent): Unit = onFX {
-    val condition = state.mousePosition.nonEmpty || isMouseOnSelection(event, selectVolume)
-    state = state.copy(mousePosition = if(condition) Option(event.getScreenPosition) else None)
-  }
+  protected final def setMousePosition(event: MouseEvent, mouseOnSelectionCheck: Boolean = true): Unit =
+    onFX {state = state.copy(mousePosition =
+      if(!mouseOnSelectionCheck || isMouseOnSelection(event, selectVolume)) Option(event.getScreenPosition) else None)}
 
-  protected final def startSelection(event: MouseEvent): Unit =
-    onFX {SelectionManagerHelper.startSelection(event, state, mainScene, selectVolume)}
+  protected final def startSelection(event: MouseEvent): Unit = onFX (if(!isMouseOnSelection(event, selectVolume)) {
+      SelectionManagerHelper.startSelection(event, state, mainScene, selectVolume)
+    })
 
   private final def deselectSelectedNodes(): Unit = {
     state.selectedNodes.foreach(_.deselect())
@@ -79,7 +78,7 @@ private[manager] trait SelectionManager {
       val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, mainScene)
       val movementVector = (cameraRight * multiplier.x) + Rotate.YAxis*multiplier.y
       state.selectedNodes.foreach(node => moveNode(node.UID, (node.getNodePosition + movementVector).toProduct))
-      setMousePosition(event)
+      setMousePosition(event, mouseOnSelectionCheck = false)
       selectVolume.moveTo(selectVolume.getPosition + movementVector)
       RunOnExecutor(state.movementAction(state.selectedNodes.map(node => (node.UID, node.getNodePosition.toProduct))),
         singleThreaded = true)
