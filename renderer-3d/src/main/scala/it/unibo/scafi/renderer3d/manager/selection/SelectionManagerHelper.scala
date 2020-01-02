@@ -49,7 +49,7 @@ private[selection] object SelectionManagerHelper {
    * */
   final def isMouseOnSelection(event: MouseEvent, selectVolume: Node): Boolean = {
     val pickedNode = event.getPickResult.getIntersectedNode
-    pickedNode != null && areNodesIntersecting(pickedNode, selectVolume)
+    pickedNode != null && (pickedNode isIntersectingWith selectVolume)
   }
 
   /**
@@ -58,11 +58,14 @@ private[selection] object SelectionManagerHelper {
    * @param networkNodes the set of networkNodes
    * @return the set of nodes that intersect with the shape
    * */
-  final def getIntersectingNetworkNodes(shape: Shape3D, networkNodes: Set[NetworkNode]): Set[NetworkNode] =
-    networkNodes.filter(areNodesIntersecting(shape, _))
-
-  private final def areNodesIntersecting(node1: Node, node2: Node): Boolean =
-    node1!= null && node2!=null && node1.getBoundsInParent.intersects(node2.getBoundsInParent)
+  final def getIntersectingNetworkNodes(shape: Shape3D, networkNodes: Set[NetworkNode]): Set[NetworkNode] = {
+    val shapeScale = shape.getScaleX
+    val adjustedXZScale = shapeScale * 0.8 //adjusting scale on X and Z axis since they are a bit too big
+    shape.setScaleX(adjustedXZScale); shape.setScaleZ(adjustedXZScale)
+    val result = networkNodes.filter(_.nodeIntersectsWith(shape))
+    shape.setScale(shapeScale)
+    result
+  }
 
   /**
    * Calculates the multiplier to apply to the movement vector that will be applied to the selected nodes. This makes

@@ -72,8 +72,8 @@ private[manager] trait SelectionManager {
   }
 
   protected final def moveSelectedNodesIfNeeded(camera: PerspectiveCamera, event: MouseEvent): Unit =
-    if(state.mousePosition.isDefined && !timer.isRunning) onFX {
-    state = state.copy(movementTask = Option(() => { //overwrites the previous movement task, to avoid performance issues
+    if(state.mousePosition.isDefined && !timer.isRunning) onFX { //does nothing if the previous task is still running
+    state = state.copy(movementTask = Option(() => {
       val cameraRight = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
       val mouseMovement = event.getScreenPosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
       val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, mainScene)
@@ -84,21 +84,19 @@ private[manager] trait SelectionManager {
       RunOnExecutor(state.movementAction(state.selectedNodes.map(node => (node.UID, node.getNodePosition.toProduct))),
         singleThreaded = true)
     }))
-    timer.start() //the next selection movement is done only if the previous one finished
+    timer.start() //using a timer instead of an executor since it seems faster
   }
 
-  protected final def modifySelectionVolume(camera: Camera, event: MouseEvent): Unit = onFX {
-    if(selectVolume.isVisible){
-      updateSelectionVolume(selectVolume, state, event, camera); updateSelectionIfNeeded(event)
-    }
-  }
+  protected final def modifySelectionVolumeIfNeeded(camera: Camera, event: MouseEvent): Unit =
+    onFX (if(selectVolume.isVisible && (event.getScreenX + event.getScreenY)%2 < 1){
+      updateSelectionVolume(selectVolume, state, event, camera); updateSelection(event)
+    })
 
-  private final def updateSelectionIfNeeded(event: MouseEvent): Unit =
-    if((event.getScreenX + event.getScreenY)%2 < 1){
-      deselectSelectedNodes()
-      state = state.copy(selectedNodes = getIntersectingNetworkNodes(selectVolume, getAllNetworkNodes))
-      state.selectedNodes.foreach(_.select())
-    }
+  private final def updateSelection(event: MouseEvent): Unit = {
+    deselectSelectedNodes()
+    state = state.copy(selectedNodes = getIntersectingNetworkNodes(selectVolume, getAllNetworkNodes))
+    state.selectedNodes.foreach(_.select())
+  }
 
   protected final def endSelection(event: MouseEvent): Unit =
     onFX {if(selectVolume.isVisible) state = state.copy(selectionComplete = true)}

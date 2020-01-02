@@ -20,7 +20,7 @@ package it.unibo.scafi.renderer3d.node
 
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import javafx.scene.{Camera, Group}
+import javafx.scene.{Camera, Group, Node}
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
@@ -35,10 +35,10 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private[this] val LABEL_ADDED_HEIGHT = NODE_SIZE
   private[this] val node = createCube(NODE_SIZE, nodeColor, position)
   private[this] val label = createText("", LABEL_FONT_SIZE, getLabelPosition(position))
-  private[this] var currentColor = nodeColor
-  private[this] var selectionColor = Color.Red
   private[this] val seeThroughSphere = createOutlinedSphere(1, position)
   private[this] val filledSphere = createFilledSphere(1, position)
+  private[this] var currentColor = nodeColor
+  private[this] var selectionColor = Color.Red
 
   setLabelScale(labelScale)
   this.setId(UID)
@@ -87,7 +87,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     selectionColor = color
   }
 
-  private def isSelected: Boolean = node.getScaleX > 1
+  private def isSelected: Boolean = node.getScaleX > 1 //FIXME: this may not work when calling setNodeScale
 
   /** See [[NetworkNode.getNodePosition]] */
   override def getNodePosition: Point3D = node.getPosition
@@ -132,6 +132,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
     List(node, filledSphere).foreach(_.setScale(scale))
     label.moveTo(getLabelPosition(node.getPosition, LABEL_ADDED_HEIGHT*(1 + scale/5)))
   }
+
+  /** See [[NetworkNode.nodeIntersectsWith]] */
+  override def nodeIntersectsWith(node: Node): Boolean = this.node.delegate.isIntersectingWith(node)
 }
 
 object SimpleNetworkNode {

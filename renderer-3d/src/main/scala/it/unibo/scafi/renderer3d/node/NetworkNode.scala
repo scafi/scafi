@@ -92,6 +92,11 @@ trait NetworkNode extends Node{
    * @return Unit, since it has the side effect of setting the scale of the node */
   def setNodeScale(scale: Double): Unit
 
+  /** Checks if the cube of the node is intersecting with the provided node's mesh.
+   * @param node the node to check for intersection
+   * @return whether the two nodes are intersecting */
+  def nodeIntersectsWith(node: Node): Boolean
+
   /** The unique ID of the node.*/
   val UID: String
 

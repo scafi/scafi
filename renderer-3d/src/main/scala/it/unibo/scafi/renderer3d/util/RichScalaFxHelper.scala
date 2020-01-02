@@ -122,6 +122,10 @@ private[util] trait RichScalaFxHelper {
       val zz = node.getLocalToSceneTransform.getMzz
       FastMath.atan2(-zz.toFloat, zx.toFloat).toDegrees
     }
+
+    /** See [[RichScalaFx.RichNode.isIntersectingWith]] */
+    final def isIntersectingWith(otherNode: javafx.scene.Node): Boolean =
+      otherNode!=null && node.getBoundsInParent.intersects(otherNode.getBoundsInParent)
   }
 
 }
