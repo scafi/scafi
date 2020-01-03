@@ -47,11 +47,11 @@ private[manager] trait SelectionManager {
 
   setupSelectVolume(selectVolume)
 
-  protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = onFX {
+  protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = onFX { //use minByOption when using Scala 2.13
     val screenPosition = event.getScreenPosition
     state = state.copy(selectionComplete = false, initialNode = {
       val camera = mainScene.getCamera match {case camera: javafx.scene.PerspectiveCamera => camera}
-      val filteredNodes = getAllNetworkNodes.filter(camera.isNodeVisible(_)) //use minByOption when using Scala 2.13
+      val filteredNodes = getAllNetworkNodes.filter(camera.isNodeVisible(_, useSmallerFOVWindow = true))
       if(filteredNodes.isEmpty) None else Option(filteredNodes.minBy(_.getScreenPosition.distance(screenPosition)))
     })
   }
@@ -100,13 +100,17 @@ private[manager] trait SelectionManager {
   protected final def endSelection(event: MouseEvent): Unit =
     onFX {if(selectVolume.isVisible) state = state.copy(selectionComplete = true)}
 
-  protected final def endSelectionMovementIfNeeded(event: MouseEvent): Unit =
-    onFX (if(isSelectionComplete && !isMouseOnSelection(event, selectVolume)){
-      mainScene.getChildren.remove(selectVolume)
-      selectVolume.setVisible(false)
-      state = state.copy(mousePosition = None)
-      deselectSelectedNodes()
+  protected final def endSelectionMovementIfNeeded(event: Option[MouseEvent]): Unit = //forces end if None is provided
+    onFX (if(isSelectionComplete) {
+      event.fold(endSelectionMovement())(event => if(!isMouseOnSelection(event, selectVolume)) endSelectionMovement())
     })
+
+  private def endSelectionMovement(): Unit = {
+    mainScene.getChildren.remove(selectVolume)
+    selectVolume.setVisible(false)
+    state = state.copy(mousePosition = None)
+    deselectSelectedNodes()
+  }
 
   protected final def isSelectionComplete: Boolean = state.selectionComplete
 

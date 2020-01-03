@@ -35,16 +35,20 @@ import scalafx.scene.transform.Rotate
 object RichScalaFx extends RichScalaFxHelper {
 
   implicit class RichPerspectiveCamera(camera: PerspectiveCamera) {
-    /** Checks if the given node is visible from the camera.
+    /** Checks if the given node is visible from the camera. Leave useSmallerFOVWindow to false if you want to use this
+     *  for frustum culling.
      * @param node the node to check
+     * @param useSmallerFOVWindow specifies if it's ok to use a smaller FOV for the calculation or not
      * @return whether the node is visible from the camera */
-    def isNodeVisible(node: NetworkNode): Boolean = {
+    def isNodeVisible(node: NetworkNode, useSmallerFOVWindow: Boolean = false): Boolean = {
       val window = camera.getScene.getWindow
       val windowMaximumSize = Math.max(window.getHeight, window.getWidth)
       val windowMinimumSize = Math.min(window.getHeight, window.getWidth)
       val cameraForward = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle).toRadians)
       val angleBetweenDirections = cameraForward.angle(node.getNodePosition - camera.getPosition) - 170
-      angleBetweenDirections.abs < camera.getFieldOfView*windowMaximumSize/windowMinimumSize*9/16 - 10
+      val (defaultFOVReduction, higherFOVReduction) = (10, 14)
+      angleBetweenDirections.abs < camera.getFieldOfView*windowMaximumSize/windowMinimumSize*9/16 -
+        (if(useSmallerFOVWindow) higherFOVReduction else defaultFOVReduction)
     }
   }
 

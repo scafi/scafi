@@ -45,11 +45,11 @@ private[manager] trait SceneManager {
   protected val mainScene: Scene
   protected final var sceneSize = 1d
 
-  /** Sets the scene's size and also the camera, connections and nodes scale accordingly, so that the nodes and
-   * connections are visible. Setting this value correctly makes it possible to update the labels' position only when
-   * needed. ATTENTION: big values will cause performance problems, while small values move the labels too far away from
-   * the nodes, so a value of 1000 or so is ideal. This means that the 3d points should be positioned in a
-   * 1000*1000*1000 space. This method has to be called before setting the scale of the nodes.
+  /** Sets the scene's size and also the camera, connections and nodes scale accordingly, so that the scene is visible.
+   * Setting this value correctly makes it possible to update the labels' position only when needed. ATTENTION: big
+   * values will cause performance problems, while small values move the labels too far away from the nodes. If
+   * sceneSize is 1000 the 3d points should be positioned in a 1000*1000*1000 space. This method has to be called before
+   * setting the scale of the nodes.
    * @param sceneSize it's the side's length of the imaginary cube that encloses the whole scene
    * @return Unit, since it has the side effect of changing the scene's size */
   final def setSceneSize(sceneSize: Double): Unit =
@@ -91,6 +91,7 @@ private[manager] trait SceneManager {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
     mainScene.getCamera.moveTo(Point3D.Zero)
     mainScene.getCamera.lookAtOnXZPlane(Rotate.XAxis)
+    endSelectionMovementIfNeeded(None) //forcing selection reset
   }
 
   /** Sets the camera scale to the new one, making it bigger or smaller. This is useful if the scene is not well visible
@@ -119,13 +120,13 @@ private[manager] trait SceneManager {
     scene.setOnDragDetected(_ => scene.startFullDrag())
     scene.onMouseDragEntered = event => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event)
     scene.onMouseReleased = event => if(isPrimaryButton(event)) {
-      endSelectionMovementIfNeeded(event)
       endSelection(event)
     }
   }
 
   private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
     scene.setOnMousePressed(event => if(isPrimaryButton(event)) {
+      endSelectionMovementIfNeeded(Option(event))
       if(isSelectionComplete && !movementComplete) setMousePosition(event) else setSelectionVolumeCenter(event)
     } else if(isMiddleMouse(event)) {
       camera.startMouseRotation(event)
@@ -143,5 +144,4 @@ private[manager] trait SceneManager {
   private[this] final def isPrimaryButton(event: MouseEvent): Boolean = event.getButton == MouseButton.PRIMARY
 
   private[this] final def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
-
 }
