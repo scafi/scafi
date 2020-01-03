@@ -25,12 +25,11 @@ import it.unibo.scafi.renderer3d.manager.selection.SelectionManagerHelper._
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import it.unibo.scafi.renderer3d.util.RunOnExecutor
-import it.unibo.scafi.renderer3d.util.math.MathUtils
+import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javax.swing.Timer
 import org.scalafx.extras._
-import scalafx.geometry.{Point2D, Point3D}
-import scalafx.scene.transform.Rotate
+import scalafx.scene.paint.Color
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
 /** Trait that contains some of the main API of the renderer-3d module regarding the nodes' selection. */
@@ -38,7 +37,7 @@ private[manager] trait SelectionManager {
   this: NodeManager => //NodeManager has to also be mixed in with SelectionManager
 
   protected val mainScene: Scene
-  private[this] val selectVolume = createFilledSphere(1, Point3D.Zero, highQuality = true)
+  private[this] val selectVolume = createCube(1, Color.color(0.2, 0.2, 0.8, 0.5))
   private[this] var state = SelectionManagerState()
   private[this] val timer: Timer =  new Timer(0, (_: ActionEvent) => onFXAndWait { //avoids performance issues
     state.movementTask.getOrElse(() => Unit)(); //executing the movement task
@@ -61,22 +60,18 @@ private[manager] trait SelectionManager {
     onFX {state = state.copy(mousePosition =
       if(!mouseOnSelectionCheck || isMouseOnSelection(event, selectVolume)) Option(event.getScreenPosition) else None)}
 
-  protected final def startSelection(event: MouseEvent): Unit = onFX (if(!isMouseOnSelection(event, selectVolume)) {
+  protected final def startSelection(event: MouseEvent): Unit = onFX (
+    if(!isMouseOnSelection(event, selectVolume)) {
       SelectionManagerHelper.startSelection(event, state, mainScene, selectVolume)
     })
 
-  private final def deselectSelectedNodes(): Unit = {
-    state.selectedNodes.foreach(_.deselect())
-    state = state.copy(selectedNodes = Set())
-  }
+  private final def deselectSelectedNodes(): Unit =
+    {state.selectedNodes.foreach(_.deselect()); state = state.copy(selectedNodes = Set())}
 
   protected final def moveSelectedNodesIfNeeded(camera: PerspectiveCamera, event: MouseEvent): Unit =
     if(state.mousePosition.isDefined && !timer.isRunning) onFX { //does nothing if the previous task is still running
     state = state.copy(movementTask = Option(() => {
-      val cameraRight = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
-      val mouseMovement = event.getScreenPosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
-      val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, mainScene)
-      val movementVector = (cameraRight * multiplier.x) + Rotate.YAxis*multiplier.y
+      val movementVector = getMovementVector(event, state, mainScene, camera)
       state.selectedNodes.foreach(node => moveNode(node.UID, (node.getNodePosition + movementVector).toProduct))
       setMousePosition(event, mouseOnSelectionCheck = false)
       selectVolume.moveTo(selectVolume.getPosition + movementVector)
@@ -86,10 +81,15 @@ private[manager] trait SelectionManager {
     timer.start() //using a timer instead of an executor since it seems faster
   }
 
-  protected final def modifySelectionVolumeIfNeeded(camera: Camera, event: MouseEvent): Unit =
-    onFX (if(selectVolume.isVisible && (event.getScreenX + event.getScreenY)%2 < 1){
-      updateSelectionVolume(selectVolume, state, event, camera); updateSelection(event)
-    })
+  protected final def scaleSelectionVolumeIfNeeded(camera: Camera, event: MouseEvent): Unit =
+    modifySelectionVolume(camera, event, updateSelectionVolume)
+
+  protected final def changeSelectionVolumeSizesIfNeeded(camera: Camera, event: MouseEvent): Unit =
+    modifySelectionVolume(camera, event, changeSelectVolumeSizes)
+
+  private final def modifySelectionVolume(camera: Camera, event: MouseEvent,
+                                          action: (Node, SelectionManagerState, MouseEvent, Camera) => Unit): Unit =
+    onFX (if(shouldUpdateNode(event, selectVolume)) {action(selectVolume, state, event, camera); updateSelection(event)})
 
   private final def updateSelection(event: MouseEvent): Unit = {
     deselectSelectedNodes()
@@ -100,14 +100,13 @@ private[manager] trait SelectionManager {
   protected final def endSelection(event: MouseEvent): Unit =
     onFX {if(selectVolume.isVisible) state = state.copy(selectionComplete = true)}
 
-  protected final def endSelectionMovementIfNeeded(event: MouseEvent): Unit = onFX {
-    if(isSelectionComplete && !isMouseOnSelection(event, selectVolume)){
+  protected final def endSelectionMovementIfNeeded(event: MouseEvent): Unit =
+    onFX (if(isSelectionComplete && !isMouseOnSelection(event, selectVolume)){
       mainScene.getChildren.remove(selectVolume)
       selectVolume.setVisible(false)
       state = state.copy(mousePosition = None)
       deselectSelectedNodes()
-    }
-  }
+    })
 
   protected final def isSelectionComplete: Boolean = state.selectionComplete
 

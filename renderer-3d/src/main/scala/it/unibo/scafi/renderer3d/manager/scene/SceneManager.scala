@@ -132,9 +132,11 @@ private[manager] trait SceneManager {
     })
     scene.onMouseDragged = event =>
       if(isPrimaryButton(event)) {
-        if(isSelectionComplete) moveSelectedNodesIfNeeded(camera, event) else modifySelectionVolumeIfNeeded(camera, event)
+        if(isSelectionComplete) moveSelectedNodesIfNeeded(camera, event) else scaleSelectionVolumeIfNeeded(camera, event)
     } else if(isMiddleMouse(event)) {
       camera.rotateByMouseEvent(event)
+    } else if(event.getButton == MouseButton.SECONDARY) {
+      changeSelectionVolumeSizesIfNeeded(camera, event)
     }
   }
 

@@ -20,60 +20,50 @@ package it.unibo.scafi.renderer3d.manager.selection
 
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import it.unibo.scafi.renderer3d.util.math.MathUtils
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Shape3D, Sphere}
+import scalafx.scene.shape.Shape3D
+import scalafx.scene.transform.Rotate
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
-/**
- * Helper object for [[SelectionManager]] with various utility methods.
- * */
+/** Helper object for [[SelectionManager]] with various utility methods. */
 private[selection] object SelectionManagerHelper {
   
-  /**
-   * Sets up the select volume, making it visible even when inside it and invisible at first.
-   * @param selectVolume the shape to be set
-   * */
+  /** Sets up the select volume, making it visible even when inside it and invisible at first.
+   * @param selectVolume the shape to be set */
   final def setupSelectVolume(selectVolume: Shape3D): Unit = {
     selectVolume.setColor(Color.color(0.2, 0.2, 0.8, 0.5))
     selectVolume.setCullFace(CullFace.NONE)
     selectVolume.setVisible(false)
   }
 
-  /**
-   * Finds out if the mouse cursor is over the current selection.
+  /** Finds out if the mouse cursor is over the current selection.
    * @param event the mouse event to check
    * @param selectVolume the current select volume, the cube that contains the selected nodes
-   * @return whether the mouse cursor is over the current selection
-   * */
+   * @return whether the mouse cursor is over the current selection */
   final def isMouseOnSelection(event: MouseEvent, selectVolume: Node): Boolean = {
     val pickedNode = event.getPickResult.getIntersectedNode
     pickedNode != null && (pickedNode isIntersectingWith selectVolume)
   }
 
-  /**
-   * Retrieves the nodes that are intersecting with the provided sphere.
-   * @param sphere the sphere that will be used to check its intersection with the nodes
+  /** Retrieves the nodes that are intersecting with the provided 3D shape. ATTENTION: this is not accurate if the shape
+   * has been rotated.
+   * @param shape the shape that will be used to check its intersection with the nodes
    * @param networkNodes the set of networkNodes
-   * @return the set of nodes that intersect with the sphere
-   * */
-  final def getIntersectingNetworkNodes(sphere: Sphere, networkNodes: Set[NetworkNode]): Set[NetworkNode] = {
-    val shapePosition = sphere.getPosition
-    val shapeScale = sphere.getScaleX
-    networkNodes.filter(_.getNodePosition.distance(shapePosition) < shapeScale)
-  }
+   * @return the set of nodes that intersect with the shape */
+  final def getIntersectingNetworkNodes(shape: Shape3D, networkNodes: Set[NetworkNode]): Set[NetworkNode] =
+    networkNodes.filter(_.nodeIntersectsWith(shape))
 
-  /**
-   * Calculates the multiplier to apply to the movement vector that will be applied to the selected nodes. This makes
+  /** Calculates the multiplier to apply to the movement vector that will be applied to the selected nodes. This makes
    * sure that the movement is perceived as the same with any window size, camera distance and field of view.
    * @param movementVector the initial movement vector taken from the movement of the mouse cursor
    * @param camera the PerspectiveCamera in the scene
    * @param initialNode the node that is in the center if the selection cube
-   * @param scene the scene that contains all the nodes
-   * */
+   * @param scene the scene that contains all the nodes */
   final def getMovementMultiplier(movementVector: Point2D, camera: PerspectiveCamera, initialNode: Option[NetworkNode],
                                   scene: Scene): Point2D = {
     val multiplier = camera.getFieldOfView / (60 * scene.getHeight)  *
@@ -81,13 +71,12 @@ private[selection] object SelectionManagerHelper {
     new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
   }
 
-  /**
-   * Starts the node selection, so that the user can select visible nodes. It shows a cube representing the selected area.
+  /** Starts the node selection, so that the user can select visible nodes. It shows a cube representing the selected
+   *  area.
    * @param event the mouse event
    * @param state the current state of SelectionManager
    * @param scene the scene that contains all the nodes
-   * @param selectVolume the cube that is going to be visible
-   * */
+   * @param selectVolume the cube that is going to be visible */
   final def startSelection(event: MouseEvent, state: SelectionManagerState, scene: Scene, selectVolume: Node): Unit =
     if(state.initialNode.isDefined && !scene.getChildren.contains(selectVolume)){
       selectVolume.moveTo(state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
@@ -96,16 +85,53 @@ private[selection] object SelectionManagerHelper {
       scene.getChildren.add(selectVolume)
     }
 
-  /**
-   * Updates the selection volume so that it contains the selected nodes and it faces the camera.
+  /** Updates the selection volume so that it contains the selected nodes
    * @param selectVolume the selection volume to update
    * @param state the current state of SelectionManager
    * @param event the mouse event that caused this update
-   * @param camera the camera in the scene
-   * */
-  def updateSelectionVolume(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera): Unit = {
+   * @param camera the camera in the scene */
+  def updateSelectionVolume(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera) {
     val initialNodeScreenPosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
-    val cameraToNodeDistance = state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero).distance(camera.getPosition)
+    val initialNodePosition = state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero)
+    val cameraToNodeDistance = initialNodePosition distance camera.getPosition
     selectVolume.setScale(event.getScreenPosition.distance(initialNodeScreenPosition) * cameraToNodeDistance / 1000)
+  }
+
+  /** Checks if the specified node should be updated or not.
+   * @param event the current mouse event
+   * @param node the node to check
+   * @return whether the specified node should be updated */
+  def shouldUpdateNode(event: MouseEvent, node: Node): Boolean =
+    node.isVisible && (event.getScreenX + event.getScreenY) % 3 < 1
+
+  /** Changes the length and height of selectVolume by the mouse movements.
+   * @param selectVolume the node to modify
+   * @param state        the current state of SelectionManager
+   * @param event the mouse event that caused this update
+   * @param camera the camera in the scene */
+  def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera) {
+    val cameraPosition = camera.getPosition
+    val initialNodePosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
+    val positionDifference = (event.getScreenPosition subtract initialNodePosition) multiply 4
+    if (cameraPosition.getX.abs > cameraPosition.getZ.abs) {
+      selectVolume.setScaleZ(positionDifference.getX)
+    } else {
+      selectVolume.setScaleX(positionDifference.getX)
+    }
+    selectVolume.setScaleY(positionDifference.getY)
+  }
+
+  /** Calculates the movement vector that should be applied to the selected nodes. It should move them left or right and
+   * up or down in relation to the current view of the camera.
+   * @param event the mouse event
+   * @param state the current state of SelectionManager
+   * @param scene the scene that contains all the nodes
+   * @param camera the camera in the scene */
+  def getMovementVector(event: MouseEvent, state: SelectionManagerState, scene: Scene,
+                        camera: PerspectiveCamera): Point3D = {
+    val cameraRight = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
+    val mouseMovement = event.getScreenPosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
+    val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, scene)
+    (cameraRight * multiplier.x) + Rotate.YAxis * multiplier.y
   }
 }
