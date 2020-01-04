@@ -24,6 +24,7 @@ import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdaterH
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import org.fxyz3d.geometry.MathUtils
+import org.scalafx.extras._
 import scalafx.application.Platform
 
 /** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
@@ -33,8 +34,18 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   private var waitCounterThreshold = -1 //not yet initialized
   private var javaFxWaitCounter = waitCounterThreshold
 
-  gui3d.setActionOnMovedNodes(synchronized {_.foreach(node => //updating simulation when user moves the selected nodes
-    setSimulationNodePosition(simulation.network.nodes(node._1.toInt), node._2, simulation))})
+  gui3d.setActionOnMovedNodes(nodes => synchronized { //updating simulation when user moves the selected nodes
+    val simulationNodes = nodes.map(node => (simulation.network.nodes(node._1.toInt), node._2))
+    simulationNodes.foreach(node => {
+      val nodePosition = node._1.position
+      val newPosition = (nodePosition.x + node._2._1, nodePosition.y + node._2._2, nodePosition.z + node._2._3)
+      setSimulationNodePosition(node._1, newPosition, simulation)
+    })
+    Platform.runLater(simulationNodes.foreach(node => { //without runLater it would cause many requests to javaFx
+      val newPosition = Option((node._1.position.x, node._1.position.y, node._1.position.z))
+      updateUI(newPosition, node._1, isPositionDifferent = true, (Set(), Set()))
+    }))
+  })
 
   /** Resets the collections that keep information about the nodes. */
   def resetNodeCache(): Unit = synchronized {connectionsInGUI = Map(); nodesInGUI = Set()}
@@ -62,7 +73,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
                        connections: (Set[String], Set[String])): Unit = {
     val nodeId = node.id.toString
-    Platform.runLater { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
+    onFX { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
       createOrMoveNode(newPosition, node, isPositionDifferent, gui3d)
       updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
       connections._1.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
