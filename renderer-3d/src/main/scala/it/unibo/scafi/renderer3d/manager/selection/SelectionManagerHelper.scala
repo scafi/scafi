@@ -18,9 +18,12 @@
 
 package it.unibo.scafi.renderer3d.manager.selection
 
+import java.util.concurrent.ThreadPoolExecutor
+
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import it.unibo.scafi.renderer3d.util.math.MathUtils
+import javafx.concurrent.Task
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
@@ -134,4 +137,10 @@ private[selection] object SelectionManagerHelper {
     val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, scene)
     (cameraRight * multiplier.x) + Rotate.YAxis * multiplier.y
   }
+
+  /** Submits to the provided executor the movement task that is inside the provided SelectionManagerState instance.
+   * @param executor the executor to work with
+   * @param state the current state of SelectionManager */
+  def submitMovementTaskToExecutor(executor: ThreadPoolExecutor, state: SelectionManagerState): Unit =
+    executor.submit(new Task[Unit]() {override def call(): Unit = state.movementTask.getOrElse(() => Unit)()})
 }

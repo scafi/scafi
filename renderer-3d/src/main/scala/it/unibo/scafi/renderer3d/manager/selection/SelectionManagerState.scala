@@ -23,6 +23,8 @@ import scalafx.geometry.Point2D
 
 /**
  * This class contains the main state of SelectionManager, as an immutable object.
+ * @param movementTask the task that will move the currently selected nodes in the new position
+ * @param movementAction the listener to execute whenever nodes are moved by the user
  * */
 private[selection] final case class SelectionManagerState(selectedNodes: Set[NetworkNode] = Set(),
                                                         initialNode: Option[NetworkNode] = None,

@@ -18,7 +18,7 @@
 
 package it.unibo.scafi.renderer3d.manager.selection
 
-import java.awt.event.ActionEvent
+import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import it.unibo.scafi.renderer3d.manager.node.NodeManager
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManagerHelper._
@@ -26,7 +26,6 @@ import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
-import javax.swing.Timer
 import org.scalafx.extras._
 import scalafx.scene.paint.Color
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
@@ -37,16 +36,15 @@ private[manager] trait SelectionManager {
 
   protected val mainScene: Scene
   private[this] val selectVolume = createCube(1, Color.color(0.2, 0.2, 0.8, 0.5))
-  private[this] var state = SelectionManagerState()
-  private[this] val timer: Timer =  new Timer(0, (_: ActionEvent) => { //avoids performance issues
-    state.movementTask.getOrElse(() => Unit)(); //tells simulation about the movement, blocking, so it's outside javafx
-  }) //TODO: don't use javax.swing.Timer, so that the AWT thread does not get blocked
+  @volatile private[this] var state = SelectionManagerState()
+  private[this] val movementExecutor = new ThreadPoolExecutor(1, 1, 1,
+    TimeUnit.MINUTES, new LinkedBlockingQueue[Runnable]())
 
   setupSelectVolume(selectVolume)
 
   protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = onFX { //use minByOption when using Scala 2.13
     val screenPosition = event.getScreenPosition
-    state = state.copy(selectionComplete = false, initialNode = {
+    state = state.copy(selectionComplete = false, initialNode = { //TODO: use event.getPickResult.getIntersectedNode if it's not null
       val camera = mainScene.getCamera match {case camera: javafx.scene.PerspectiveCamera => camera}
       val filteredNodes = getAllNetworkNodes.filter(camera.isNodeVisible(_, useSmallerFOVWindow = true))
       if(filteredNodes.isEmpty) None else Option(filteredNodes.minBy(_.getScreenPosition.distance(screenPosition)))
@@ -66,15 +64,18 @@ private[manager] trait SelectionManager {
     {state.selectedNodes.foreach(_.deselect()); state = state.copy(selectedNodes = Set())}
 
   protected final def moveSelectedNodesIfNeeded(camera: PerspectiveCamera, event: MouseEvent): Unit =
-    if(state.mousePosition.isDefined && !timer.isRunning) onFX { //does nothing if the previous task is still running
-      state = state.copy(movementTask = Option(() => { //TODO: check thread safety and that javaFx is not being flooded
+    if(state.mousePosition.isDefined) onFX { //does nothing if the previous task is still running
+      state = state.copy(movementTask = Option(() => {
         val movementVector = getMovementVector(event, state, mainScene, camera)
         setMousePosition(event, mouseOnSelectionCheck = false)
-        selectVolume.moveTo(selectVolume.getPosition + movementVector)
         state.movementAction(state.selectedNodes.map(node => (node.UID, movementVector.toProduct))) //blocking
-        onFXAndWait {state = state.copy(movementTask = None); timer.stop()} //removes the task
+        onFXAndWait {
+          selectVolume.moveTo(selectVolume.getPosition + movementVector)
+          if(state.movementTask.isDefined) submitMovementTaskToExecutor(movementExecutor, state)
+          state = state.copy(movementTask = None) //removes the task
+        }
       })) //the simulator is then expected to update the nodes positions in renderer3d
-      timer.start() //using a timer instead of an executor since it seems faster
+      if(movementExecutor.getActiveCount == 0) submitMovementTaskToExecutor(movementExecutor, state)
   }
 
   protected final def scaleSelectionVolumeIfNeeded(camera: Camera, event: MouseEvent): Unit =
