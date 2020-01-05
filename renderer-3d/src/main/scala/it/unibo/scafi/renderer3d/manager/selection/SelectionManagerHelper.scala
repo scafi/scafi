@@ -19,11 +19,11 @@
 package it.unibo.scafi.renderer3d.manager.selection
 
 import java.util.concurrent.ThreadPoolExecutor
-
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import it.unibo.scafi.renderer3d.util.math.MathUtils
 import javafx.concurrent.Task
+import javafx.scene
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
@@ -53,8 +53,7 @@ private[selection] object SelectionManagerHelper {
     pickedNode != null && (pickedNode isIntersectingWith selectVolume)
   }
 
-  /** Retrieves the nodes that are intersecting with the provided 3D shape. ATTENTION: this is not accurate if the shape
-   * has been rotated.
+  /** Retrieves the nodes intersecting with the 3D shape. ATTENTION: this is not accurate if the shape was rotated.
    * @param shape the shape that will be used to check its intersection with the nodes
    * @param networkNodes the set of networkNodes
    * @return the set of nodes that intersect with the shape */
@@ -74,8 +73,7 @@ private[selection] object SelectionManagerHelper {
     new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
   }
 
-  /** Starts the node selection, so that the user can select visible nodes. It shows a cube representing the selected
-   *  area.
+  /** Starts node selection, so that the user can select visible nodes. It shows a cube representing the selected area.
    * @param event the mouse event
    * @param state the current state of SelectionManager
    * @param scene the scene that contains all the nodes
@@ -129,7 +127,8 @@ private[selection] object SelectionManagerHelper {
    * @param event the mouse event
    * @param state the current state of SelectionManager
    * @param scene the scene that contains all the nodes
-   * @param camera the camera in the scene */
+   * @param camera the camera in the scene
+   * @return the movement vector */
   def getMovementVector(event: MouseEvent, state: SelectionManagerState, scene: Scene,
                         camera: PerspectiveCamera): Point3D = {
     val cameraRight = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
@@ -143,4 +142,16 @@ private[selection] object SelectionManagerHelper {
    * @param state the current state of SelectionManager */
   def submitMovementTaskToExecutor(executor: ThreadPoolExecutor, state: SelectionManagerState): Unit =
     executor.submit(new Task[Unit]() {override def call(): Unit = state.movementTask.getOrElse(() => Unit)()})
+
+  /** Finds the NetworkNode in the screen closest to the mouse cursor.
+   * @param event the mouse event
+   * @param mainScene the scene that contains all the nodes
+   * @param networkNodes the set of all the network nodes
+   * @return the closest network node to the mouse cursor*/
+  def findClosestNodeOnScreen(event: MouseEvent, mainScene: Scene,
+                              networkNodes: Set[NetworkNode]): Option[NetworkNode] = {
+    val camera = mainScene.getCamera match {case camera: scene.PerspectiveCamera => camera}
+    val filteredNodes = networkNodes.filter(camera.isNodeVisible(_, useSmallerFOVWindow = true))
+    if(filteredNodes.isEmpty) None else Option(filteredNodes.minBy(_.getScreenPosition.distance(event.getScreenPosition)))
+  }
 }

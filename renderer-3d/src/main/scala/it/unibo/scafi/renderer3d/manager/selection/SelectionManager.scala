@@ -22,6 +22,7 @@ import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
 import it.unibo.scafi.renderer3d.manager.node.NodeManager
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManagerHelper._
+import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
@@ -42,23 +43,20 @@ private[manager] trait SelectionManager {
 
   setupSelectVolume(selectVolume)
 
-  protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = onFX { //use minByOption when using Scala 2.13
-    val screenPosition = event.getScreenPosition
-    state = state.copy(selectionComplete = false, initialNode = { //TODO: use event.getPickResult.getIntersectedNode if it's not null
-      val camera = mainScene.getCamera match {case camera: javafx.scene.PerspectiveCamera => camera}
-      val filteredNodes = getAllNetworkNodes.filter(camera.isNodeVisible(_, useSmallerFOVWindow = true))
-      if(filteredNodes.isEmpty) None else Option(filteredNodes.minBy(_.getScreenPosition.distance(screenPosition)))
-    })
-  }
+  protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = //use minByOption when using Scala 2.13
+    onFX (state = state.copy(selectionComplete = false, initialNode = {
+      val pickedNode = Option(event.getPickResult.getIntersectedNode)
+      val networkNode = pickedNode.flatMap{case node: NetworkNode => Option(node); case node => node.getParent match {
+        case networkNode: NetworkNode => Option(networkNode); case _ => None}}
+      networkNode.fold(findClosestNodeOnScreen(event, mainScene, getAllNetworkNodes))(Option(_))
+    }))
 
   protected final def setMousePosition(event: MouseEvent, mouseOnSelectionCheck: Boolean = true): Unit =
     onFX {state = state.copy(mousePosition =
       if(!mouseOnSelectionCheck || isMouseOnSelection(event, selectVolume)) Option(event.getScreenPosition) else None)}
 
-  protected final def startSelection(event: MouseEvent): Unit = onFX (
-    if(!isMouseOnSelection(event, selectVolume)) {
-      SelectionManagerHelper.startSelection(event, state, mainScene, selectVolume)
-    })
+  protected final def startSelection(event: MouseEvent): Unit =
+    onFX {SelectionManagerHelper.startSelection(event, state, mainScene, selectVolume)}
 
   private final def deselectSelectedNodes(): Unit =
     {state.selectedNodes.foreach(_.deselect()); state = state.copy(selectedNodes = Set())}
@@ -68,13 +66,13 @@ private[manager] trait SelectionManager {
       state = state.copy(movementTask = Option(() => {
         val movementVector = getMovementVector(event, state, mainScene, camera)
         setMousePosition(event, mouseOnSelectionCheck = false)
-        state.movementAction(state.selectedNodes.map(node => (node.UID, movementVector.toProduct))) //blocking
+        state.movementAction(state.selectedNodes.map(_.UID), movementVector.toProduct) //blocking
         onFXAndWait {
           selectVolume.moveTo(selectVolume.getPosition + movementVector)
           if(state.movementTask.isDefined) submitMovementTaskToExecutor(movementExecutor, state)
           state = state.copy(movementTask = None) //removes the task
         }
-      })) //the simulator is then expected to update the nodes positions in renderer3d
+      })) //the simulator is then expected to update the nodes positions of the 3d view
       if(movementExecutor.getActiveCount == 0) submitMovementTaskToExecutor(movementExecutor, state)
   }
 
@@ -115,7 +113,7 @@ private[manager] trait SelectionManager {
 
   /** Sets the action to execute whenever the user moves the selected nodes.
    * @param action the action to set */
-  final def setActionOnMovedNodes(action: Set[(String, Product3[Double, Double, Double])] => Unit): Unit =
+  final def setActionOnMovedNodes(action: (Set[String], Product3[Double, Double, Double]) => Unit): Unit =
     onFX {state = state.copy(movementAction = action)}
 
   /** Gets the IDs of the currently selected nodes.

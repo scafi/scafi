@@ -41,6 +41,7 @@ import scala.util.Random
  *  -selecting some nodes and pressing a keyboard number between 1 and 4 should print the selected nodes to the console
  *    and should set their color to yellow
  *  -the background color should be light gray
+ * The movement of selected node is not implemented here, to test that please use Basic3DDemo or a similar 3D demo.
  * */
 private[renderer3d] object RunnableTestExample extends App {
   private val SCENE_SIZE = 2000

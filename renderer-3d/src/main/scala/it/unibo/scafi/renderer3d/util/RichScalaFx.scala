@@ -58,7 +58,7 @@ object RichScalaFx extends RichScalaFxHelper {
      * @return the node's position */
     final def getPosition: Point3D = node.delegate.getPosition
 
-    /** Gets the node's 2D position, from the point of view of the camera
+    /** Gets the node's 2D position, from the point of view of the camera. Using it on Group instances may not be ideal.
      * @return the node's 2D position */
     final def getScreenPosition: Point2D = node.delegate.getScreenPosition
 

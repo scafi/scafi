@@ -25,7 +25,6 @@ import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
-import scalafx.application.Platform
 
 /** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
 private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D, simulation: Simulation) {
@@ -34,16 +33,17 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   private var waitCounterThreshold = -1 //not yet initialized
   private var javaFxWaitCounter = waitCounterThreshold
 
-  gui3d.setActionOnMovedNodes(nodes => synchronized { //updating simulation when user moves the selected nodes
-    val simulationNodes = nodes.map(node => (simulation.network.nodes(node._1.toInt), node._2))
-    simulationNodes.foreach(node => {
-      val nodePosition = node._1.position
-      val newPosition = (nodePosition.x + node._2._1, nodePosition.y + node._2._2, nodePosition.z + node._2._3)
-      setSimulationNodePosition(node._1, newPosition, simulation)
+  gui3d.setActionOnMovedNodes((nodeIDs, movement) => synchronized { //updating simulation when user moves the selected nodes
+    val simulationNodes = nodeIDs.map(nodeID => simulation.network.nodes(nodeID.toInt)).map(node => {
+      val nodePosition = node.position
+      val result = (node, Option(nodePosition.x + movement._1, nodePosition.y + movement._2, nodePosition.z + movement._3))
+      updateNodeInSimulation(simulation, gui3d, result._1, result._2)
+      result
     })
-    Platform.runLater(simulationNodes.foreach(node => { //without runLater it would cause many requests to javaFx
-      val newPosition = Option((node._1.position.x, node._1.position.y, node._1.position.z))
-      updateUI(newPosition, node._1, isPositionDifferent = true, (Set(), Set()))
+    val updatedConnections = simulationNodes
+      .map(node => (node._1, node._2, updateNodeConnections(node._1, simulation.network, gui3d)))
+    onFX (updatedConnections.foreach(node => { //without runLater it would cause many requests to javaFx
+      updateUI(node._2, node._1, isPositionDifferent = true, (node._3._1, node._3._2))
     }))
   })
 
@@ -53,7 +53,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   /** Most important method of this class. It updates the specified node in the UI and in the simulation.
    * Most of the calculations are done outside of theJavaFx thread to reduce lag.
    * @param nodeId the id of the node to update */
-  def updateNode(nodeId: Int): Unit = synchronized { //FIXME: when manually moving nodes the simulation and view disagree on nodes position
+  def updateNode(nodeId: Int): Unit = synchronized {
     waitForJavaFxIfNeeded() //this waits from time to time for the javaFx to become less congested
     if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
     val node = simulation.network.nodes(nodeId)

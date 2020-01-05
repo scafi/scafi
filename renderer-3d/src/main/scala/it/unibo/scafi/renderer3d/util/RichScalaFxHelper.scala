@@ -97,7 +97,7 @@ private[util] trait RichScalaFxHelper {
     /** See [[RichScalaFx.RichNode.getScreenPosition]] */
     final def getScreenPosition: Point2D = {
       val screenBounds = onFXAndWait(node.localToScreen(node.getBoundsInLocal))
-      new Point2D(screenBounds.getMinX, screenBounds.getMinY)
+      new Point2D((screenBounds.getMinX + screenBounds.getMaxX)/2, (screenBounds.getMinY + screenBounds.getMaxY)/2)
     }
 
     /** See [[RichScalaFx.RichNode.moveTo]] */

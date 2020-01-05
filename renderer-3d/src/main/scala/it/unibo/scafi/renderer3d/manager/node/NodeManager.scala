@@ -96,7 +96,7 @@ private[manager] trait NodeManager {
   final def removeNode(nodeUID: String): Unit = findNodeAndAct(nodeUID, node => {
       networkNodes.remove(nodeUID)
       mainScene.getChildren.remove(node)
-      removeAllNodeConnections(node.getId) //using ConnectionManager
+      removeAllNodeConnections(node.UID) //using ConnectionManager
     })
 
   private final def findNodeAndAct(nodeUID: String, action: NetworkNode => Unit): Unit =

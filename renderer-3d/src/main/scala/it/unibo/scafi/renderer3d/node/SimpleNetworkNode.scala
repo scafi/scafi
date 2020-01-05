@@ -40,7 +40,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   private[this] var state = NetworkNodeState(nodeColor, position)
 
   setLabelScale(labelScale)
-  this.setId(UID)
+  this.setId(UID) //IMPORTANT: NetworkNodes can be found using this id, so don't set ids to other stuff in the scene
   label.setVisible(false)
   this.getChildren.addAll(node) //label is not added by default for performance reasons, since it would show "" anyway
 

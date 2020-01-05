@@ -67,8 +67,8 @@ private[manager] trait ConnectionManager {
       case _ => logger.error("Can't find nodes " + node1UID + " and " + node2UID); None
     }
 
-  private final def connectNodes(node1: Node, node2: Node): Unit = {
-    val (node1ID, node2ID) = (node1.getId, node2.getId)
+  private final def connectNodes(node1: NetworkNode, node2: NetworkNode): Unit = {
+    val (node1ID, node2ID) = (node1.UID, node2.UID)
     if(connections.contains(node1ID) && connections(node1ID).contains(node2ID)){
       logger.error("Nodes " + node1ID + " and " + node2ID + " are already connected")
     } else {
