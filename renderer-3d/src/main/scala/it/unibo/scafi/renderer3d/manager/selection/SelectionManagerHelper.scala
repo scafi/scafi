@@ -149,7 +149,7 @@ private[selection] object SelectionManagerHelper {
    * @param networkNodes the set of all the network nodes
    * @return the closest network node to the mouse cursor*/
   def findClosestNodeOnScreen(event: MouseEvent, mainScene: Scene,
-                              networkNodes: Set[NetworkNode]): Option[NetworkNode] = {
+                              networkNodes: Set[NetworkNode]): Option[NetworkNode] = { //use minByOption on scala 2.13
     val camera = mainScene.getCamera match {case camera: scene.PerspectiveCamera => camera}
     val filteredNodes = networkNodes.filter(camera.isNodeVisible(_, useSmallerFOVWindow = true))
     if(filteredNodes.isEmpty) None else Option(filteredNodes.minBy(_.getScreenPosition.distance(event.getScreenPosition)))

@@ -20,21 +20,19 @@ package it.unibo.scafi.renderer3d.manager.node
 
 import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.manager.connection.ConnectionManager
+import it.unibo.scafi.renderer3d.manager.node.NodeManagerHelper._
 import it.unibo.scafi.renderer3d.manager.scene.SceneManager
-import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
+import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
 import scalafx.application.Platform
 import scalafx.scene.{Camera, Scene}
 
-import scala.collection.mutable.{Map => MutableMap}
-
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify nodes. */
 private[manager] trait NodeManager {
   this: ConnectionManager with SceneManager => //ConnectionManager and SceneManager have to be mixed in with NodeManager
 
-  private[this] final val networkNodes = MutableMap[String, NetworkNode]()
   private[this] final var state: NodeManagerState = NodeManagerState()
   private[this] final val logger = Logger("NodeManager")
   protected val mainScene: Scene
@@ -43,7 +41,7 @@ private[manager] trait NodeManager {
     val LABELS_GROUP_SIZE = 400
     val cameraPosition = camera.getPosition
     if(cameraPosition.distance(state.positionThatLabelsFace) > sceneSize/4){
-      networkNodes.values.grouped(LABELS_GROUP_SIZE)
+      state.networkNodes.values.grouped(LABELS_GROUP_SIZE)
         .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition))))
       state = state.copy(positionThatLabelsFace = cameraPosition)
     }
@@ -65,13 +63,8 @@ private[manager] trait NodeManager {
   final def setSpheresRadius(seeThroughSpheresRadius: Double, filledSpheresRadius: Double): Unit = onFX {
     state = state.copy(seeThroughSpheresRadius = getAdjustedRadius(seeThroughSpheresRadius),
       filledSpheresRadius = getAdjustedRadius(filledSpheresRadius))
-    networkNodes.values.foreach(node => {
-      node.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
-      node.setFilledSphereRadius(state.filledSpheresRadius)
-    })
+    setNodeSpheresRadius(state)
   }
-
-  private final def getAdjustedRadius(radius: Double): Double = if(radius > 0) radius else 0
 
   /** Adds a new 3D node at the specified position and with the specified ID.
    * @param position the position where the new node will be placed
@@ -79,13 +72,8 @@ private[manager] trait NodeManager {
    * @return Unit, since it has the side effect of adding the new node */
   final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
     findNode(UID).fold{
-      val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodesColor.toScalaFx, state.nodeLabelsScale)
-      networkNode.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
-      networkNode.setFilledSphereRadius(state.filledSpheresRadius)
-      networkNode.setFilledSphereColor(state.filledSpheresColor.toScalaFx)
-      networkNode.setSelectionColor(state.selectionColor.toScalaFx)
-      if(state.nodesScale != 1d) networkNode.setNodeScale(state.nodesScale)
-      networkNodes(UID) = networkNode
+      val networkNode = createNetworkNode(position, UID, state)
+      state = state.copy(networkNodes = state.networkNodes + (UID -> networkNode))
       mainScene.getChildren.add(networkNode); ()
     }(_ => logger.error("Node " + UID + " already exists"))
   }
@@ -94,15 +82,15 @@ private[manager] trait NodeManager {
    * @param nodeUID the unique id of the node to remove
    * @return Unit, since it has the side effect of removing the node */
   final def removeNode(nodeUID: String): Unit = findNodeAndAct(nodeUID, node => {
-      networkNodes.remove(nodeUID)
-      mainScene.getChildren.remove(node)
-      removeAllNodeConnections(node.UID) //using ConnectionManager
-    })
+    state = state.copy(networkNodes = state.networkNodes - nodeUID)
+    mainScene.getChildren.remove(node)
+    removeAllNodeConnections(node.UID) //using ConnectionManager
+  })
 
   private final def findNodeAndAct(nodeUID: String, action: NetworkNode => Unit): Unit =
     onFX(findNode(nodeUID).fold(logger.error("Could not find node " + nodeUID))(node => {action(node.toNetworkNode)}))
 
-  protected final def findNode(nodeUID: String): Option[NetworkNode] = networkNodes.get(nodeUID)
+  protected final def findNode(nodeUID: String): Option[NetworkNode] = state.networkNodes.get(nodeUID)
 
   /** Moves the node with the specified ID to the specified position.
    * @param nodeUID the unique id of the node to move
@@ -136,13 +124,13 @@ private[manager] trait NodeManager {
    * @param color the new default color for the nodes
    * @return Unit, since it has the side effect of changing the nodes' color */
   final def setNodesColor(color: java.awt.Color): Unit =
-    onFX {state = state.copy(nodesColor = color); networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))}
+    onFX {state = state.copy(nodesColor = color); state.networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))}
 
   /** Sets the color of all the colored spheres centered on the nodes. This applies to spheres not already created, too.
    * @param color the new default color for the spheres
    * @return Unit, since it has the side effect of changing the spheres' color */
   final def setFilledSpheresColor(color: java.awt.Color): Unit = onFX {
-    state = state.copy(filledSpheresColor = color); networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
+    state = state.copy(filledSpheresColor = color); state.networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
 
   /** Sets the scale of all the nodes (and also their labels). This applies to nodes not already created, too.
    * @param scale the new scale of the nodes
@@ -150,11 +138,11 @@ private[manager] trait NodeManager {
   final def setNodesScale(scale: Double): Unit = onFX {
     val finalScale = scale * sceneScaleMultiplier
     state = state.copy(nodesScale = finalScale, nodeLabelsScale = finalScale)
-    networkNodes.values.foreach(_.setNodeScale(state.nodesScale))
+    state.networkNodes.values.foreach(_.setNodeScale(state.nodesScale))
     updateLabelsSize(0)
   }
 
-  protected final def getAllNetworkNodes: Set[NetworkNode] = networkNodes.values.toSet
+  protected final def getAllNetworkNodes: Set[NetworkNode] = state.networkNodes.values.toSet
 
   /** Increases the font size of every label. This applies to labels not already created, too.
    * @return Unit, since it has the side effect of changing the font size of the labels */
@@ -167,7 +155,7 @@ private[manager] trait NodeManager {
   private final def updateLabelsSize(sizeDifference: Double): Unit = onFX {
     val (minScale, maxScale) = (0.7*sceneScaleMultiplier, 1.2*sceneScaleMultiplier)
     state = state.copy(nodeLabelsScale = MathUtils.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
-    networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
+    state.networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
   }
 
   /** Sets the color of the nodes when they get selected. This applies to nodes not already created, too.

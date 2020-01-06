@@ -84,7 +84,7 @@ private[helper] object NodeUpdaterHelper {
    * @param gui3d the 3D network renderer */
   def updateNodeText(node: Node, valueTypeToShow: NodeValue)(implicit gui3d: NetworkRenderer3D): Unit = {
     val outputString = Try(Settings.To_String(node.export))
-    if(outputString.isSuccess && !outputString.get.equals("")) {
+    if(outputString.isSuccess && !outputString.getOrElse("").equals("")) {
       valueTypeToShow match {
         case NodeValue.ID => setNodeText(node, node.id.toString)
         case NodeValue.EXPORT => setNodeText(node, formatExport(node.export))

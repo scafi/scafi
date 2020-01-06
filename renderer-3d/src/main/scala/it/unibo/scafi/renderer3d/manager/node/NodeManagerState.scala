@@ -21,6 +21,7 @@ package it.unibo.scafi.renderer3d.manager.node
 import java.awt.Color
 
 import it.unibo.scafi.renderer3d.manager.node.NodeManagerState.NODE_BRIGHTNESS
+import it.unibo.scafi.renderer3d.node.NetworkNode
 import scalafx.geometry.Point3D
 
 /**
@@ -34,7 +35,8 @@ private[node] final case class NodeManagerState(nodesColor: Color =
                                   seeThroughSpheresRadius: Double = 0,
                                   filledSpheresRadius: Double = 0,
                                   nodesScale: Double = 1,
-                                  nodeLabelsScale: Double = 1)
+                                  nodeLabelsScale: Double = 1,
+                                  networkNodes: Map[String, NetworkNode] = Map())
 
 object NodeManagerState {
   private final val NODE_BRIGHTNESS = 50 //out of 255

@@ -26,12 +26,9 @@ import it.unibo.scafi.renderer3d.manager.scene.SceneManager
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import javafx.scene.Node
 import org.fxyz3d.shapes.primitives.FrustumMesh
 import org.scalafx.extras._
 import scalafx.scene.Group
-
-import scala.collection.mutable.{Map => MutableMap}
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify connections.*/
 private[manager] trait ConnectionManager {
@@ -39,10 +36,10 @@ private[manager] trait ConnectionManager {
 
   private type Line = FrustumMesh //instead of Cylinder, for performance reasons
   protected val connectionGroup = new Group() //implementations have to add this to the main scene
-  private[this] var connectionsColor = Color.BLACK
-  private[this] final val connections = MutableMap[String, MutableMap[String, Line]]() //each line is saved 2 times
-  private[this] var connectionsVisible = true
   private[this] val logger = Logger("ConnectionManager")
+  private[this] var connectionsColor = Color.BLACK
+  private[this] var connections = Map[String, Map[String, Line]]() //each line is saved 2 times
+  private[this] var connectionsVisible = true
 
   /** Sets the color that every connection will have.
    * @param color the chosen color
@@ -82,9 +79,9 @@ private[manager] trait ConnectionManager {
   private final def connectNodesOneDirectional(originNodeID: String, targetNodeID: String, connection: Line): Unit = {
     if(connections.contains(originNodeID)){ //the node already has some connections
       val innerMap = connections(originNodeID)
-      innerMap(targetNodeID) = connection
+      connections += (originNodeID -> (innerMap + (targetNodeID -> connection)))
     } else {
-      connections(originNodeID) = MutableMap(targetNodeID -> connection)
+      connections += (originNodeID -> Map(targetNodeID -> connection))
     }
   }
 
@@ -103,8 +100,10 @@ private[manager] trait ConnectionManager {
       }
     })}
 
-  private final def disconnectNodesOneDirectional(originNodeID: String, targetNodeID: String): Unit =
-    connections(originNodeID).remove(targetNodeID)
+  private final def disconnectNodesOneDirectional(originNodeID: String, targetNodeID: String): Unit = {
+    val innerMap = connections(originNodeID)
+    connections += (originNodeID -> (innerMap - targetNodeID))
+    }
 
   protected final def removeAllNodeConnections(nodeID: String): Unit =
     onFX {actOnAllNodeConnections(nodeID, disconnect(nodeID, _))}

@@ -106,7 +106,7 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   }
 
   private def updateNodeConnections(node: Node, network: Network,
-                                    gui3d: NetworkRenderer3D): (Set[String], Set[String]) = {
+                                    gui3d: NetworkRenderer3D): (Set[String], Set[String]) = { //has side effects
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
     val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
     val newConnections = connections.diff(connectionsInUI)

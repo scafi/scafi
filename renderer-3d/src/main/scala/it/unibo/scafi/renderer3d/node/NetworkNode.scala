@@ -100,8 +100,4 @@ trait NetworkNode extends Node{
 
   /** The unique ID of the node.*/
   val UID: String
-
-  override def hashCode(): Int = super.hashCode()
-  override def equals(obj: Any): Boolean =
-    obj match {case node: NetworkNode => node.UID == this.UID; case _ => super.equals(obj)}
 }
