@@ -39,7 +39,8 @@ private[controller3d] object ControllerStarter {
   def setupSimulation(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Set[Int] = {
     val nodes = NodesGenerator.createNodes(Settings.Sim_Topology, Settings.Sim_NumNodes, Settings.ConfigurationSeed)
     setSimulationSettings(simulation, nodes)
-    nodes.values.foreach(node => gui.getSimulationPanel.addNode(node.position, node.id.toString))
+    nodes.values.foreach(node => gui.getSimulationPanel.addNode(PositionConverter.controllerToView(node.position),
+      node.id.toString))
     simulationManager.simulation = simulation
     val deltaRound = if(Settings.Sim_NumNodes * Settings.Sim_NbrRadius >= 90) 2 else 1
     simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, deltaRound)) //this avoids javaFx thread flooding
@@ -48,7 +49,7 @@ private[controller3d] object ControllerStarter {
   }
 
   private def setSimulationSettings(simulation: Simulation, nodes: Map[Int, Node]): Unit = {
-    val policyNeighborhood = ControllerUtils.get3DNeighborhoodPolicy(NodesGenerator.SCENE_SIZE)
+    val policyNeighborhood = ControllerUtils.getNeighborhoodPolicy
     simulation.network = new NetworkImpl(nodes, policyNeighborhood)
     simulation.setDeltaRound(Settings.Sim_DeltaRound)
     simulation.setRunProgram(Settings.Sim_ProgramClass)
@@ -67,12 +68,12 @@ private[controller3d] object ControllerStarter {
   def setupGUI(gui: SimulatorUI3D): Unit = {
     val gui3d = gui.getSimulationPanel
     if(!Settings.Sim_DrawConnections) gui3d.toggleConnections()
-    gui3d.setSceneSize(NodesGenerator.SCENE_SIZE)
+    gui3d.setSceneSize(PositionConverter.SCENE_SIZE)
     gui3d.setSelectionColor(Settings.Color_selection)
     gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)
     gui3d.setBackgroundColor(Settings.Color_background)
-    val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius * NodesGenerator.SCENE_SIZE else 0
+    val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius else 0
     gui3d.setSpheresRadius(sensorRadius, 0)
     gui3d.setFilledSpheresColor(Settings.Color_actuator)
     gui3d.setNodesScale(100 / Settings.Size_Device_Relative)

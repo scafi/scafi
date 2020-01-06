@@ -38,5 +38,5 @@ object Grid3DSettings {
     Grid3DSettings(nodeCountInSide, nodeCountInSide, nodeCountInSide, step, step, step, tolerance, offset, offset, offset)
 }
 
-case class SimpleRandomSettings(min: Double = 0,
-                                max: Double = 1000) extends ShapeSettings
+case class SimpleRandomSettings(min: Double = 0.05,
+                                max: Double = 0.95) extends ShapeSettings

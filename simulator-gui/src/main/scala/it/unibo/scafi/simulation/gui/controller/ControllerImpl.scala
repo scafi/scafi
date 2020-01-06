@@ -134,7 +134,7 @@ class ControllerImpl() extends Controller {
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
       positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety), configurationSeed)
     } else {
-      positions = SpaceHelper.randomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes, configurationSeed)
+      positions = SpaceHelper.randomLocations(new SimpleRandomSettings(), numNodes, configurationSeed)
     }
 
     var i: Int = 0

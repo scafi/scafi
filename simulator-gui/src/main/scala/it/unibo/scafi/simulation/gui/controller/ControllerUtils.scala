@@ -40,13 +40,6 @@ private[controller] object ControllerUtils {
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
 
-  /**Obtains the 3D neighborhood policy from the constants available in [[Settings]].
-   * @return the 3D neighborhood policy */
-  def get3DNeighborhoodPolicy(sceneSize: Int): EuclideanDistanceNbr = Settings.Sim_Policy_Nbrhood match {
-    case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius * sceneSize)
-    case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius * sceneSize)
-  }
-
   /**Adds to [[SensorEnum.sensors]] all the provided sensors.
    * @param sensors the sensors to parse and add
    * @return Unit, since it has the side effect of setting the sensors. */
@@ -89,7 +82,11 @@ private[controller] object ControllerUtils {
    * @return the formatted position of type String */
   def formatPosition(pos: Point2D): String = s"(${formatDouble(pos.x)} ; ${formatDouble(pos.y)})"
 
-  private def formatDouble(value: Double): String = f"($value%5.2g"
+  /**@param pos the position to format
+   * @return the formatted position of type String */
+  def formatPosition(pos: Point3D): String = s"${formatDouble(pos._1)};${formatDouble(pos._2)};${formatDouble(pos._2)}"
+
+  private def formatDouble(value: Double): String = f"$value%5.2g"
 
   /** This formats the position removing the trailing part, rounding the value. Parentheses are omitted to reduce clutter
    *@param position the position to format
@@ -98,12 +95,6 @@ private[controller] object ControllerUtils {
     s"${formatAndRound(position._1)};${formatAndRound(position._2)}"
 
   private def formatAndRound(value: Double): String = f"$value%.0f"
-
-  /**Formats the 3D position. The parentheses were omitted to reduce clutter.
-   * @param position the position to format
-   * @return the formatted position of type String */
-  def formatAndRoundPosition(position: Point3D): String =
-    s"${formatAndRound(position._1)};${formatAndRound(position._2)};${formatAndRound(position._2)}"
 
   /**@param pos the position to format
    * @return the formatted position of type String */

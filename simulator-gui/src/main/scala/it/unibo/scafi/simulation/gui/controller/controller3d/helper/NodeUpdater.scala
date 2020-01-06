@@ -36,7 +36,8 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   gui3d.setActionOnMovedNodes((nodeIDs, movement) => synchronized { //updating simulation when user moves the selected nodes
     val simulationNodes = nodeIDs.map(nodeID => simulation.network.nodes(nodeID.toInt)).map(node => {
       val nodePosition = node.position
-      val result = (node, Option(nodePosition.x + movement._1, nodePosition.y + movement._2, nodePosition.z + movement._3))
+      val vector = PositionConverter.viewToController(movement)
+      val result = (node, Option(nodePosition.x + vector._1, nodePosition.y + vector._2, nodePosition.z + vector._3))
       updateNodeInSimulation(simulation, gui3d, result._1, result._2)
       result
     })

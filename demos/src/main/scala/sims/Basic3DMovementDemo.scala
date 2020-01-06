@@ -48,7 +48,7 @@ class Basic3DMovement extends AggregateProgram with SensorDefinitions {
     mux(sense1) {random3DMovement()} {(.0, .0, .0)}
 
   def random3DMovement(): (Double, Double, Double) = {
-    def randomDouble: Double = random.nextDouble()*400 - 200
+    def randomDouble: Double = (random.nextDouble() - 0.5) / 10
     (randomDouble, randomDouble, randomDouble)
   }
 }
