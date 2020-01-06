@@ -74,17 +74,13 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, nodeColor: Co
   /** See [[NetworkNode.setNodeColor]] */
   override def setNodeColor(color: Color): Unit = onFX {node.setColor(color); state = state.copy(currentColor = color)}
 
-  /** See [[NetworkNode.setSelectionColor]] */
-  override def setSelectionColor(color: Color): Unit =
-    onFX {if(isSelected) node.setColor(color); state = state.copy(selectionColor = color)}
-
   private def isSelected: Boolean = node.getScaleX > this.state.scale
 
   /** See [[NetworkNode.getNodePosition]] */
   override def getNodePosition: Point3D = state.currentPosition //not using node.getPosition to improve performance
 
   /** See [[NetworkNode.select]] */
-  override def select(): Unit = {node.setScale(2*this.state.scale); node.setColor(state.selectionColor)}
+  override def select(): Unit = node.setScale(2*this.state.scale)
 
   /** See [[NetworkNode.deselect]] */
   override def deselect(): Unit =

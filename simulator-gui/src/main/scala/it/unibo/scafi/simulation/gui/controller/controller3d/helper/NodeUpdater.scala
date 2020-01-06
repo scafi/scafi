@@ -65,10 +65,9 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
   }
 
   private def updateNodeInSimulation(simulation: Simulation, gui3d: NetworkRenderer3D, node: Node,
-                                     newPosition: Option[Product3[Double, Double, Double]]): Unit = {
+                                     newPosition: Option[Product3[Double, Double, Double]]): Unit =
     newPosition.fold(createNodeInSimulation(node, gui3d, simulation))(newPosition =>
       setSimulationNodePosition(node, newPosition, simulation))
-  }
 
   private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
                        connections: (Set[String], Set[String])): Unit = {

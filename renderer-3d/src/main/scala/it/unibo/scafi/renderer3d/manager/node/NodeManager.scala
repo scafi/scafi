@@ -129,8 +129,9 @@ private[manager] trait NodeManager {
   /** Sets the color of all the colored spheres centered on the nodes. This applies to spheres not already created, too.
    * @param color the new default color for the spheres
    * @return Unit, since it has the side effect of changing the spheres' color */
-  final def setFilledSpheresColor(color: java.awt.Color): Unit = onFX {
-    state = state.copy(filledSpheresColor = color); state.networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
+  final def setFilledSpheresColor(color: java.awt.Color): Unit =
+    onFX {state = state.copy(filledSpheresColor = color)
+    state.networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
 
   /** Sets the scale of all the nodes (and also their labels). This applies to nodes not already created, too.
    * @param scale the new scale of the nodes
@@ -156,13 +157,5 @@ private[manager] trait NodeManager {
     val (minScale, maxScale) = (0.7*sceneScaleMultiplier, 1.2*sceneScaleMultiplier)
     state = state.copy(nodeLabelsScale = MathUtils.clamp(state.nodeLabelsScale + sizeDifference, minScale, maxScale))
     state.networkNodes.values.foreach(_.setLabelScale(state.nodeLabelsScale))
-  }
-
-  /** Sets the color of the nodes when they get selected. This applies to nodes not already created, too.
-   * @param color the new color of the selected nodes
-   * @return Unit, since it has the side effect of changing the nodes' selection color */
-  final def setSelectionColor(color: java.awt.Color): Unit = onFX {
-    state = state.copy(selectionColor = color)
-    getAllNetworkNodes.foreach(_.setSelectionColor(color.toScalaFx))
   }
 }

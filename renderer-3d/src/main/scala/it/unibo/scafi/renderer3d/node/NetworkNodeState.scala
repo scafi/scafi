@@ -26,10 +26,9 @@ import scalafx.scene.paint.Color
  * */
 private[node] final case class NetworkNodeState(currentColor: Color = Color.Black,
                             scale: Double = 1d,
-                            selectionColor: Color = Color.Red,
                             currentPosition: Point3D = Point3D.Zero)
 
 object NetworkNodeState {
   def apply(currentColor: Color, currentPosition: Point3D): NetworkNodeState =
-    new NetworkNodeState(currentColor, 1, Color.Red, currentPosition)
+    new NetworkNodeState(currentColor, 1, currentPosition)
 }

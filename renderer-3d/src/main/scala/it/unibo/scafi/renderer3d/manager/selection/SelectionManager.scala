@@ -134,4 +134,13 @@ private[manager] trait SelectionManager {
   /** This can be used to know whether the user is currently attempting a selection or not.
    * @return true if the user is currently attempting a selection, false otherwise */
   final def isAttemptingSelection: Boolean = onFXAndWait(selectVolume.isVisible)
+
+  /** Sets the color of the current selection.
+   * @param color the new color of the selection
+   * @return Unit, since it has the side effect of changing the selection color */
+  final def setSelectionColor(color: java.awt.Color): Unit = onFX {
+    val MIN_ALPHA = 40 //otherwise it's not visible
+    selectVolume.setColor(new java.awt.Color(color.getRed, color.getGreen, color.getBlue,
+      Math.max(color.getAlpha, MIN_ALPHA)))
+  }
 }

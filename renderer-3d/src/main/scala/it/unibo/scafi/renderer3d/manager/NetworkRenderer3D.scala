@@ -86,9 +86,6 @@ trait NetworkRenderer3D extends JFXPanel{
   /** See [[NodeManager.decreaseFontSize]] */
   def decreaseFontSize(): Unit
 
-  /** See [[NodeManager.setSelectionColor]] */
-  def setSelectionColor(color: java.awt.Color): Unit
-
   //** scene API **
   /** See [[SceneManager.setSceneSize]] */
   def setSceneSize(sceneSize: Double): Unit
@@ -117,6 +114,9 @@ trait NetworkRenderer3D extends JFXPanel{
 
   /** See [[SelectionManager.isAttemptingSelection]] */
   def isAttemptingSelection: Boolean
+
+  /** See [[SelectionManager.setSelectionColor]] */
+  def setSelectionColor(color: java.awt.Color): Unit
 
   //** rest of the API **
   /** See [[NetworkRendering3DPanel.blockUntilThreadIsFree]] */

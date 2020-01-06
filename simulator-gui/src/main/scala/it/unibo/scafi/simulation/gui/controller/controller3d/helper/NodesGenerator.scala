@@ -35,8 +35,7 @@ private[controller3d] object NodesGenerator {
    * be visible.
    * ATTENTION: big values will cause performance problems, while small values move the labels too far away from the
    * nodes, so a value of 2000 or so is ideal. This means that the 3d points should be positioned in a 2000*2000*2000
-   * space and the Settings.Sim_NbrRadius and Settings.Sim_Sensor_Radius values should be also high enough, for
-   * example 300 and 100 are good values, respectively.
+   * space.
    * Nodes can also be positioned outside of the 2000*2000*2000 space but it's not ideal, since the camera would take
    * too much time to navigate the whole scene.
    * */

@@ -19,6 +19,7 @@
 package it.unibo.scafi.renderer3d.manager.selection
 
 import java.util.concurrent.ThreadPoolExecutor
+
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import it.unibo.scafi.renderer3d.util.math.MathUtils
@@ -28,7 +29,6 @@ import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
 import scalafx.geometry.{Point2D, Point3D}
-import scalafx.scene.paint.Color
 import scalafx.scene.shape.Shape3D
 import scalafx.scene.transform.Rotate
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
@@ -38,11 +38,8 @@ private[selection] object SelectionManagerHelper {
   
   /** Sets up the select volume, making it visible even when inside it and invisible at first.
    * @param selectVolume the shape to be set */
-  final def setupSelectVolume(selectVolume: Shape3D): Unit = {
-    selectVolume.setColor(Color.color(0.2, 0.2, 0.8, 0.5))
-    selectVolume.setCullFace(CullFace.NONE)
-    selectVolume.setVisible(false)
-  }
+  final def setupSelectVolume(selectVolume: Shape3D): Unit =
+    {selectVolume.setCullFace(CullFace.NONE); selectVolume.setVisible(false)}
 
   /** Finds out if the mouse cursor is over the current selection.
    * @param event the mouse event to check
@@ -59,19 +56,6 @@ private[selection] object SelectionManagerHelper {
    * @return the set of nodes that intersect with the shape */
   final def getIntersectingNetworkNodes(shape: Shape3D, networkNodes: Set[NetworkNode]): Set[NetworkNode] =
     networkNodes.filter(_.nodeIntersectsWith(shape))
-
-  /** Calculates the multiplier to apply to the movement vector that will be applied to the selected nodes. This makes
-   * sure that the movement is perceived as the same with any window size, camera distance and field of view.
-   * @param movementVector the initial movement vector taken from the movement of the mouse cursor
-   * @param camera the PerspectiveCamera in the scene
-   * @param initialNode the node that is in the center if the selection cube
-   * @param scene the scene that contains all the nodes */
-  final def getMovementMultiplier(movementVector: Point2D, camera: PerspectiveCamera, initialNode: Option[NetworkNode],
-                                  scene: Scene): Point2D = {
-    val multiplier = camera.getFieldOfView / (60 * scene.getHeight)  *
-      camera.getPosition.distance(initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
-    new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
-  }
 
   /** Starts node selection, so that the user can select visible nodes. It shows a cube representing the selected area.
    * @param event the mouse event
@@ -135,6 +119,13 @@ private[selection] object SelectionManagerHelper {
     val mouseMovement = event.getScreenPosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
     val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, scene)
     (cameraRight * multiplier.x) + Rotate.YAxis * multiplier.y
+  }
+
+  private final def getMovementMultiplier(movementVector: Point2D, camera: PerspectiveCamera,
+                                          initialNode: Option[NetworkNode], scene: Scene): Point2D = {
+    val multiplier = camera.getFieldOfView / (60 * scene.getHeight)  *
+      camera.getPosition.distance(initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
+    new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
   }
 
   /** Submits to the provided executor the movement task that is inside the provided SelectionManagerState instance.

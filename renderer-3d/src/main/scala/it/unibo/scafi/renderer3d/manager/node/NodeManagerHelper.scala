@@ -44,7 +44,6 @@ private[node] object NodeManagerHelper {
     networkNode.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
     networkNode.setFilledSphereRadius(state.filledSpheresRadius)
     networkNode.setFilledSphereColor(state.filledSpheresColor.toScalaFx)
-    networkNode.setSelectionColor(state.selectionColor.toScalaFx)
     if (state.nodesScale != 1d) networkNode.setNodeScale(state.nodesScale)
     networkNode
   }

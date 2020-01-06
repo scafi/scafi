@@ -128,7 +128,7 @@ object RichScalaFx extends RichScalaFxHelper {
   implicit class RichColor(color: java.awt.Color) {
     /** Converts the java.awt.Color to scalafx.scene.paint.Color
      * @return the color of type scalafx.scene.paint.Color */
-    final def toScalaFx: Color = Color.rgb(color.getRed, color.getGreen, color.getBlue, color.getAlpha/255)
+    final def toScalaFx: Color = Color.rgb(color.getRed, color.getGreen, color.getBlue, color.getAlpha/255d)
   }
 
   implicit class RichMouseEvent(event: MouseEvent) {

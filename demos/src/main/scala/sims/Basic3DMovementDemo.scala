@@ -29,9 +29,7 @@ import scala.util.Random
 object Basic3DMovementDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer
-  Settings.Color_background = Color.LIGHT_GRAY
   Settings.Color_device = Color.DARK_GRAY
-  Settings.Color_selection = Color.MAGENTA
   Settings.Sim_ProgramClass = "sims.Basic3DMovement"
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius, don't go too high
   Settings.Sim_NumNodes = 600 // number of nodes, don't go too high

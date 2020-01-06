@@ -36,11 +36,11 @@ object Basic3DDemo extends Launcher {
   //Settings.Sim_Draw_Sensor_Radius = true
   //Settings.Sim_Sensor_Radius = 0.025
   //Settings.Led_Activator = _ => scala.util.Random.nextBoolean()
-  Settings.Color_background = Color.LIGHT_GRAY
+  //Settings.Color_background = Color.LIGHT_GRAY
   //Settings.Sim_DrawConnections = false
   //Settings.Sim_Topology = Topologies.Grid_LoVar
+  //Settings.Color_selection = new Color(30, 30, 180, 30)
   Settings.Color_device = Color.DARK_GRAY
-  Settings.Color_selection = Color.MAGENTA
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius, don't go too high if there are a lot of nodes
   Settings.Sim_NumNodes = 600 // don't go too high
