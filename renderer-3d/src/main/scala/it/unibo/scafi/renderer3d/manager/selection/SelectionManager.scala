@@ -92,17 +92,17 @@ private[manager] trait SelectionManager {
     state.selectedNodes.foreach(_.select())
   }
 
-  protected final def endSelection(event: MouseEvent): Unit =
-    onFX {if(selectVolume.isVisible) state = state.copy(selectionComplete = true)}
+  protected final def endSelectionAndRotateSelectedLabels(event: MouseEvent): Unit = onFX (if(selectVolume.isVisible) {
+    state = state.copy(selectionComplete = true)
+    if(state.mousePosition.isDefined) rotateNodeLabelsIfNeeded(Option(state.selectedNodes))
+  })
 
-  protected final def endSelectionMovementIfNeeded(event: Option[MouseEvent]): Unit = //forces end if None is provided
-    onFX (if(isSelectionComplete) {
-      event.fold(endSelectionMovement())(event => if(!isMouseOnSelection(event, selectVolume)) endSelectionMovement())
-    })
+  protected final def endSelectionMovementIfNeeded(event: Option[MouseEvent]): Unit = onFX (if(isSelectionComplete) {
+    event.fold(endSelectionMovement())(event => if(!isMouseOnSelection(event, selectVolume)) endSelectionMovement())
+  }) //forces end if None is provided
 
   private def endSelectionMovement(): Unit = {
-    mainScene.getChildren.remove(selectVolume)
-    selectVolume.setVisible(false)
+    hideSelectVolume(mainScene, selectVolume)
     state = state.copy(mousePosition = None)
     deselectSelectedNodes()
   }
@@ -124,10 +124,8 @@ private[manager] trait SelectionManager {
    * @return a String if the initial node exists, None otherwise. */
   final def getInitialSelectedNodeId: Option[String] = onFXAndWait(state.initialNode.map(_.UID))
 
-  /** Sets the color of only the currently selected nodes. This does not set the color of every node that might get
-   *  selected in the future.
-   * @param color the new color of the selected nodes
-   * @return Unit, since it has the side effect of setting the selected nodes' color */
+  /** Sets the color of the selected nodes. This does not set the color of nodes that might get selected in the future.
+   * @param color the new color of the selected nodes */
   final def setCurrentSelectionColor(color: java.awt.Color): Unit =
     onFX(state.selectedNodes.foreach(_.setNodeColor(color.toScalaFx)))
 
@@ -136,11 +134,10 @@ private[manager] trait SelectionManager {
   final def isAttemptingSelection: Boolean = onFXAndWait(selectVolume.isVisible)
 
   /** Sets the color of the current selection.
-   * @param color the new color of the selection
-   * @return Unit, since it has the side effect of changing the selection color */
+   * @param color the new color of the selection */
   final def setSelectionColor(color: java.awt.Color): Unit = onFX {
     val MIN_ALPHA = 40 //otherwise it's not visible
     selectVolume.setColor(new java.awt.Color(color.getRed, color.getGreen, color.getBlue,
-      Math.max(color.getAlpha, MIN_ALPHA)))
+      if(color.getAlpha == 0) 0 else Math.max(color.getAlpha, MIN_ALPHA)))
   }
 }

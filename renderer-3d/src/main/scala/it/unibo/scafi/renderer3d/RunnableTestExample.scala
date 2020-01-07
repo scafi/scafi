@@ -89,7 +89,7 @@ private[renderer3d] object RunnableTestExample extends App {
     networkRenderer.decreaseFontSize()
     networkRenderer.removeNode((NODE_COUNT-1).toString)
     networkRenderer.setNodeTextAsUIPosition((NODE_COUNT-2).toString, {case (x: Double, y: Double) => x + " " + y})
-    networkRenderer.setNodesColor(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS))
+    networkRenderer.setNodesColors(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS), Color.RED)
     networkRenderer.setNodeColor((NODE_COUNT-2).toString, Color.orange)
     networkRenderer.setNodeColor("1", Color.blue)
   }
@@ -117,7 +117,7 @@ private[renderer3d] object RunnableTestExample extends App {
     (1 until nodeCount).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
 
   private def moveNodesRandomly(renderingPanel: NetworkRenderer3D): Unit =
-    (1 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition))
+    (1 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition, showDirection = false))
 
   private def getRandomPosition: (Double, Double, Double) = (getRandomDouble, getRandomDouble, getRandomDouble)
 

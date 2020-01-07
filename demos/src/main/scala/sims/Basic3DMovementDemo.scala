@@ -35,6 +35,10 @@ object Basic3DMovementDemo extends Launcher {
   Settings.Sim_NumNodes = 600 // number of nodes, don't go too high
   Settings.ShowConfigPanel = false
   Settings.Movement_Activator_3D = (b: Any) => b.asInstanceOf[(Double, Double, Double)]
+  /*
+  Settings.Movement_Activator_3D = //example of conversion from 2d movement to 3d
+    (b: Any) => {val position2d = Settings.Movement_Activator(b); (position2d._1, position2d._2, 0)}
+    */
   Settings.To_String = _ => ""
   launch()
 }
@@ -44,7 +48,7 @@ class Basic3DMovement extends AggregateProgram with SensorDefinitions {
 
   override def main:(Double, Double, Double) = rep(random3DMovement())(behaviour)
 
-  private def behaviour(tuple: ((Double, Double, Double))): (Double, Double, Double) =
+  private def behaviour(tuple: (Double, Double, Double)): (Double, Double, Double) =
     mux(sense1) {random3DMovement()} {(.0, .0, .0)}
 
   def random3DMovement(): (Double, Double, Double) = {

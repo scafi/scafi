@@ -104,7 +104,7 @@ private[manager] trait SceneManager {
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
       simulationCamera.initialize(this,
-        () => if(System.currentTimeMillis()%2==0) rotateNodeLabelsIfNeeded(simulationCamera))
+        () => if(System.currentTimeMillis()%2==0) rotateNodeLabelsIfNeeded())
       setMouseInteraction(this, simulationCamera)
     }
 
@@ -119,9 +119,7 @@ private[manager] trait SceneManager {
     setMousePressedAndDragged(scene, camera)
     scene.setOnDragDetected(_ => scene.startFullDrag())
     scene.onMouseDragEntered = event => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event)
-    scene.onMouseReleased = event => if(isPrimaryButton(event)) {
-      endSelection(event)
-    }
+    scene.onMouseReleased = event => if(isPrimaryButton(event)) {endSelectionAndRotateSelectedLabels(event)}
   }
 
   private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {

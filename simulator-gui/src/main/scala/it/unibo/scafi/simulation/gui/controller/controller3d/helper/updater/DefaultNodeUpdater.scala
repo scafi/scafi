@@ -16,24 +16,26 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper
+package it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.NodeUpdaterHelper._
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.PositionConverter
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.NodeUpdaterHelper._
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
 
 /** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
-private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D, simulation: Simulation) {
+private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D,
+                                               simulation: Simulation) extends NodeUpdater {
   private var connectionsInGUI = Map[Int, Set[String]]()
   private var nodesInGUI = Set[Int]()
   private var waitCounterThreshold = -1 //not yet initialized
   private var javaFxWaitCounter = waitCounterThreshold
 
-  gui3d.setActionOnMovedNodes((nodeIDs, movement) => synchronized { //updating simulation when user moves the selected nodes
+  gui3d.setActionOnMovedNodes((nodeIDs, movement) => synchronized { //updates simulation when user moves some nodes
     val simulationNodes = nodeIDs.map(nodeID => simulation.network.nodes(nodeID.toInt)).map(node => {
       val nodePosition = node.position
       val vector = PositionConverter.viewToController(movement)
@@ -44,16 +46,14 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     val updatedConnections = simulationNodes
       .map(node => (node._1, node._2, updateNodeConnections(node._1, simulation.network, gui3d)))
     onFX (updatedConnections.foreach(node => { //without runLater it would cause many requests to javaFx
-      updateUI(node._2, node._1, isPositionDifferent = true, (node._3._1, node._3._2))
+      updateUI(node._2, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false, node._3._1, node._3._2))
     }))
   })
 
-  /** Resets the collections that keep information about the nodes. */
+  /** See [[NodeUpdater.resetNodeCache]] */
   def resetNodeCache(): Unit = synchronized {connectionsInGUI = Map(); nodesInGUI = Set()}
 
-  /** Most important method of this class. It updates the specified node in the UI and in the simulation.
-   * Most of the calculations are done outside of theJavaFx thread to reduce lag.
-   * @param nodeId the id of the node to update */
+  /** See [[NodeUpdater.updateNode]] */
   def updateNode(nodeId: Int): Unit = synchronized {
     waitForJavaFxIfNeeded() //this waits from time to time for the javaFx to become less congested
     if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
@@ -62,7 +62,8 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     val isPositionDifferent = didPositionChange(node, newPosition)
     updateNodeInSimulation(simulation, gui3d, node, newPosition)
     val newAndRemovedConnections = updateNodeConnections(node, simulation.network, gui3d)
-    updateUI(newPosition, node, isPositionDifferent, newAndRemovedConnections) //using Platform.runLater
+    val options = UpdateOptions(isPositionNew = isPositionDifferent, showMoveDirection = true, newAndRemovedConnections)
+    updateUI(newPosition, node, options) //using Platform.runLater
   }
 
   private def updateNodeInSimulation(simulation: Simulation, gui3d: NetworkRenderer3D, node: Node,
@@ -70,14 +71,13 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
     newPosition.fold(createNodeInSimulation(node, gui3d, simulation))(newPosition =>
       setSimulationNodePosition(node, newPosition, simulation))
 
-  private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
-                       connections: (Set[String], Set[String])): Unit = {
+  private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, options: UpdateOptions) {
     val nodeId = node.id.toString
     onFX { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
-      createOrMoveNode(newPosition, node, isPositionDifferent, gui3d)
+      createOrMoveNode(newPosition, node, options, gui3d)
       updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
-      connections._1.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
-      connections._2.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deleting removed connections
+      options.newConnections.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
+      options.removedConnections.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deletes old connections
       updateNodeColor(node, gui3d, controller)
       updateLedActuatorStatus(node, controller, gui3d)
     }
@@ -132,9 +132,13 @@ private[controller3d] class NodeUpdater(controller: Controller3D, gui3d: Network
       connectionsInGUI += (neighbourIntId -> updatedNodeNeighbours)
     })
   }
+
+  /** See [[NodeUpdater.updateNodeColorBySensors]] */
+  def updateNodeColorBySensors(node: Node, gui3d: NetworkRenderer3D): Unit =
+    NodeUpdaterHelper.updateNodeColorBySensors(node, gui3d)
 }
 
-object NodeUpdater {
-  def apply(controller: Controller3D, gui3d: NetworkRenderer3D, simulation: Simulation): NodeUpdater =
-    new NodeUpdater(controller, gui3d, simulation)
+object DefaultNodeUpdater {
+  def apply(controller: Controller3D, gui3d: NetworkRenderer3D, simulation: Simulation): DefaultNodeUpdater =
+    new DefaultNodeUpdater(controller, gui3d, simulation)
 }

@@ -26,7 +26,6 @@ import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
-import scalafx.application.Platform
 import scalafx.scene.{Camera, Scene}
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify nodes. */
@@ -37,20 +36,16 @@ private[manager] trait NodeManager {
   private[this] final val logger = Logger("NodeManager")
   protected val mainScene: Scene
 
-  protected final def rotateNodeLabelsIfNeeded(camera: Camera): Unit = onFX {
-    val LABELS_GROUP_SIZE = 400
-    val cameraPosition = camera.getPosition
-    if(cameraPosition.distance(state.positionThatLabelsFace) > sceneSize/4){
-      state.networkNodes.values.grouped(LABELS_GROUP_SIZE)
-        .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition))))
-      state = state.copy(positionThatLabelsFace = cameraPosition)
-    }
+  protected final def rotateNodeLabelsIfNeeded(nodes: Option[Set[NetworkNode]] = None): Unit = onFX {
+    val cameraPosition = mainScene.getCamera.getPosition
+    if(nodes.nonEmpty || cameraPosition.distance(state.positionThatLabelsFace) > sceneSize/4){
+      rotateNodeLabels(cameraPosition, state, nodes); state = state.copy(positionThatLabelsFace = cameraPosition)
+    } //rotates all the nodes if "nodes" is empty
   }
 
   /** Enables or disables the colored sphere (not the outlined one) centered on the specified node.
    * @param nodeUID the id of the affected node
-   * @param enable specifies if the method should enable or disable the sphere
-   * @return Unit, since it has the side effect of enabling or disabling the sphere */
+   * @param enable specifies if the method should enable or disable the sphere */
   final def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit = onFX {
     val FILLED_SPHERES_RADIUS = 8
     findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) FILLED_SPHERES_RADIUS else 0))
@@ -58,8 +53,7 @@ private[manager] trait NodeManager {
 
   /** Sets the radius of the colored spheres and the outlined ones, centered on the nodes.
    * @param seeThroughSpheresRadius the radius of the outlined spheres
-   * @param filledSpheresRadius the radius of the colored spheres
-   * @return Unit, since it has the side effect of setting the radius of the spheres */
+   * @param filledSpheresRadius the radius of the colored spheres */
   final def setSpheresRadius(seeThroughSpheresRadius: Double, filledSpheresRadius: Double): Unit = onFX {
     state = state.copy(seeThroughSpheresRadius = getAdjustedRadius(seeThroughSpheresRadius),
       filledSpheresRadius = getAdjustedRadius(filledSpheresRadius))
@@ -68,8 +62,7 @@ private[manager] trait NodeManager {
 
   /** Adds a new 3D node at the specified position and with the specified ID.
    * @param position the position where the new node will be placed
-   * @param UID the unique id of the new node
-   * @return Unit, since it has the side effect of adding the new node */
+   * @param UID the unique id of the new node */
   final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
     findNode(UID).fold{
       val networkNode = createNetworkNode(position, UID, state)
@@ -79,8 +72,7 @@ private[manager] trait NodeManager {
   }
 
   /** Removes the node with the specified ID, so that it's not in the scene anymore.
-   * @param nodeUID the unique id of the node to remove
-   * @return Unit, since it has the side effect of removing the node */
+   * @param nodeUID the unique id of the node to remove */
   final def removeNode(nodeUID: String): Unit = findNodeAndAct(nodeUID, node => {
     state = state.copy(networkNodes = state.networkNodes - nodeUID)
     mainScene.getChildren.remove(node)
@@ -95,47 +87,48 @@ private[manager] trait NodeManager {
   /** Moves the node with the specified ID to the specified position.
    * @param nodeUID the unique id of the node to move
    * @param position the new position to set
-   * @return Unit, since it has the side effect of moving the node */
-  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Unit =
-    findNodeAndAct(nodeUID, node => {node.moveNodeTo(position.toPoint3D); updateNodeConnections(nodeUID)})
+   * @param showDirection whether the view should show the movement direction or not */
+  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double], showDirection: Boolean): Unit =
+    findNodeAndAct(nodeUID, node => {changeNodePosition(position, showDirection, node); updateNodeConnections(nodeUID)})
+
+  /** Shows the node as a normal, non moving node.
+   * @param nodeUID the unique id of the node to move */
+  final def stopShowingNodeMovement(nodeUID: String): Unit = findNodeAndAct(nodeUID, _.showMovement(false))
 
   /** Sets the label text of the specified node to the new text
    * @param nodeUID the unique id of the node
-   * @param text the new text to set
-   * @return Unit, since it has the side effect of changing the label's text */
+   * @param text the new text to set */
   final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text, mainScene.getCamera))
 
   /** Sets the label text of the specified node to the position of that node in 2D, from the point of view of the camera
    * @param nodeUID the unique id of the node
-   * @param positionFormatter the function used to format the position before setting it as the label's text
-   * @return Unit, since it has the side effect of changing the label's text */
+   * @param positionFormatter the function used to format the position before setting it as the label's text */
   final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit =
     findNodeAndAct(nodeUID, node => {val position = node.getScreenPosition
       node.setText(positionFormatter(position.x, position.y), mainScene.getCamera)})
 
   /** Sets the color of the specified node to a new one.
    * @param nodeUID the unique id of the node
-   * @param color the new color of the node
-   * @return Unit, since it has the side effect of changing the node's color */
+   * @param color the new color of the node */
   final def setNodeColor(nodeUID: String, color: java.awt.Color): Unit =
     findNodeAndAct(nodeUID, _.setNodeColor(color.toScalaFx))
 
-  /** Sets the default color of all the nodes. This applies to nodes not already created, too.
-   * @param color the new default color for the nodes
-   * @return Unit, since it has the side effect of changing the nodes' color */
-  final def setNodesColor(color: java.awt.Color): Unit =
-    onFX {state = state.copy(nodesColor = color); state.networkNodes.values.foreach(_.setNodeColor(color.toScalaFx))}
+  /** Sets the default and movement colors of all the nodes. This applies to nodes not already created, too.
+   * @param defaultColor the new default color for the nodes
+   * @param movementColor the new movement color for the nodes */
+  final def setNodesColors(defaultColor: java.awt.Color, movementColor: java.awt.Color): Unit = onFX {
+    state = state.copy(nodesColor = defaultColor, movementColor = movementColor)
+    state.networkNodes.values.foreach(node => node.setNodeColors(defaultColor.toScalaFx, movementColor.toScalaFx))
+  }
 
   /** Sets the color of all the colored spheres centered on the nodes. This applies to spheres not already created, too.
-   * @param color the new default color for the spheres
-   * @return Unit, since it has the side effect of changing the spheres' color */
+   * @param color the new default color for the spheres */
   final def setFilledSpheresColor(color: java.awt.Color): Unit =
     onFX {state = state.copy(filledSpheresColor = color)
     state.networkNodes.values.foreach(_.setFilledSphereColor(color.toScalaFx))}
 
   /** Sets the scale of all the nodes (and also their labels). This applies to nodes not already created, too.
-   * @param scale the new scale of the nodes
-   * @return Unit, since it has the side effect of changing the nodes' scale */
+   * @param scale the new scale of the nodes */
   final def setNodesScale(scale: Double): Unit = onFX {
     val finalScale = scale * sceneScaleMultiplier
     state = state.copy(nodesScale = finalScale, nodeLabelsScale = finalScale)
@@ -145,12 +138,10 @@ private[manager] trait NodeManager {
 
   protected final def getAllNetworkNodes: Set[NetworkNode] = state.networkNodes.values.toSet
 
-  /** Increases the font size of every label. This applies to labels not already created, too.
-   * @return Unit, since it has the side effect of changing the font size of the labels */
+  /** Increases the font size of every label. This applies to labels not already created, too. */
   final def increaseFontSize(): Unit = updateLabelsSize(0.1*sceneScaleMultiplier)
 
-  /** Decreases the font size of every label. This applies to labels not already created, too.
-   * @return Unit, since it has the side effect of changing the font size of the labels */
+  /** Decreases the font size of every label. This applies to labels not already created, too. */
   final def decreaseFontSize(): Unit = updateLabelsSize(-0.1*sceneScaleMultiplier)
 
   private final def updateLabelsSize(sizeDifference: Double): Unit = onFX {

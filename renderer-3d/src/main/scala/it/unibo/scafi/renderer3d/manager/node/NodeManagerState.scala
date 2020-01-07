@@ -29,6 +29,7 @@ import scalafx.geometry.Point3D
  * */
 private[node] final case class NodeManagerState(nodesColor: Color =
                                                    new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS),
+                                  movementColor: Color = Color.RED,
                                   filledSpheresColor: Color = java.awt.Color.yellow,
                                   positionThatLabelsFace: Point3D = Point3D.Zero,
                                   seeThroughSpheresRadius: Double = 0,

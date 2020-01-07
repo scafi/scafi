@@ -20,6 +20,8 @@ package it.unibo.scafi.renderer3d.manager.node
 
 import it.unibo.scafi.renderer3d.node.{NetworkNode, SimpleNetworkNode}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import scalafx.application.Platform
+import scalafx.geometry.Point3D
 
 /** Helper object for [[NodeManager]] with various utility methods. */
 private[node] object NodeManagerHelper {
@@ -40,7 +42,8 @@ private[node] object NodeManagerHelper {
    * */
   final def createNetworkNode(position: Product3[Double, Double, Double], UID: String,
                               state: NodeManagerState): NetworkNode = {
-    val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodesColor.toScalaFx, state.nodeLabelsScale)
+    val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodeLabelsScale)
+    networkNode.setNodeColors(state.nodesColor.toScalaFx, state.movementColor.toScalaFx)
     networkNode.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
     networkNode.setFilledSphereRadius(state.filledSpheresRadius)
     networkNode.setFilledSphereColor(state.filledSpheresColor.toScalaFx)
@@ -57,6 +60,30 @@ private[node] object NodeManagerHelper {
       node.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
       node.setFilledSphereRadius(state.filledSpheresRadius)
     })
+  }
+
+  /**
+   * Moves the node to the specified position and renders it as a moving node.
+   * @param position the position where the new node should be placed
+   * @param showDirection whether the node should be rendered as a moving node or not
+   * @param node the node to move
+   * */
+  def changeNodePosition(position: Product3[Double, Double, Double], showDirection: Boolean, node: NetworkNode) {
+    if (showDirection) node.showMovement(show = true)
+    node.moveNodeTo(position.toPoint3D, showDirection)
+  }
+
+  /**
+   * Rotates all the labels so that they face the camera.
+   * @param cameraPosition the position of the camera in the 3d space
+   * @param state the current state of NodeManager
+   * @param nodes the nodes to update. If empty, all the nodes will see their labels rotated.
+   * */
+  def rotateNodeLabels(cameraPosition: Point3D, state: NodeManagerState, nodes: Option[Set[NetworkNode]]): Unit = {
+    val LABELS_GROUP_SIZE = 400
+    val networkNodes = if(nodes.isEmpty) state.networkNodes.values else nodes.getOrElse(Set())
+    networkNodes.grouped(LABELS_GROUP_SIZE)
+      .foreach(group => Platform.runLater(group.foreach(_.rotateTextToCamera(cameraPosition))))
   }
 
 }

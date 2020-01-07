@@ -35,8 +35,7 @@ import scalafx.scene.transform.Rotate
 object RichScalaFx extends RichScalaFxHelper {
 
   implicit class RichPerspectiveCamera(camera: PerspectiveCamera) {
-    /** Checks if the given node is visible from the camera. Leave useSmallerFOVWindow to false if you want to use this
-     *  for frustum culling.
+    /** Checks if the given node is visible from the camera. Set useSmallerFOVWindow to false for frustum culling.
      * @param node the node to check
      * @param useSmallerFOVWindow specifies if it's ok to use a smaller FOV for the calculation or not
      * @return whether the node is visible from the camera */
@@ -64,19 +63,20 @@ object RichScalaFx extends RichScalaFxHelper {
 
     /** Moves the node to another 3D position. ATTENTION: Using this on Group objects such as SimpleNetworkNode adds the
      *  position to the current position of the object, instead of actually moving the node at the specified position.
-     * @param position the new position of the node
-     * @return Unit, since it has the side effect of moving the node */
+     * @param position the new position of the node */
     final def moveTo(position: Point3D): Unit = node.delegate.moveTo(position)
 
     /** Rotates the node around itself, with the specified rotation axis
      * @param angle the rotation angle
-     * @param axis the rotation axis
-     * @return Unit, since it has the side effect of rotating the node */
+     * @param axis the rotation axis */
     final def rotateOnSelf(angle: Double, axis: Point3D): Unit = node.delegate.rotateOnSelf(angle, axis)
 
+    /** Rotates the node around itself so that it faces the point. ATTENTION: this resets the node's transformations.
+     * @param point the point that the node will face */
+    final def lookAt(point: Point3D): Unit = node.delegate.lookAt(point)
+
     /** Rotates the node around itself but only on the Y axis, so that it faces the specified point.
-     * @param point the point that the node will face
-     * @return Unit, since it has the side effect of rotating the node */
+     * @param point the point that the node will face */
     final def lookAtOnXZPlane(point: Point3D): Unit = node.delegate.lookAtOnXZPlane(point)
 
     /** Retrieves the angle between the X axis and the vector from the node's position and the specified 3d position.
@@ -89,16 +89,14 @@ object RichScalaFx extends RichScalaFxHelper {
     final def toNetworkNode: NetworkNode = node.delegate.toNetworkNode
 
     /** Sets the scale of the node.
-     * @param scale the new scale of the node
-     * @return Unit, since it has the side effect of scaling the node */
+     * @param scale the new scale of the node */
     final def setScale(scale: Double): Unit = node.delegate.setScale(scale)
 
     /** Retrieves the euler angle on the Y axis of the current node.
      * @return the angle on the Y axis, in the range from -180 to 180. */
     final def getYRotationAngle: Double = node.delegate.getYRotationAngle
 
-    /** Checks if the node is intersecting with the provided node's mesh. ATTENTION: this is not accurate if the nodes
-     * are rotated.
+    /** Checks if the node is intersecting with the other node. ATTENTION: this is not accurate if the nodes are rotated.
      * @param otherNode the node to check for intersection with the current one
      * @return whether the two nodes are intersecting */
     final def isIntersectingWith(otherNode: Node): Boolean = node.delegate.isIntersectingWith(otherNode.delegate)
@@ -114,14 +112,12 @@ object RichScalaFx extends RichScalaFxHelper {
 
   implicit class RichJavaShape3D(shape: javafx.scene.shape.Shape3D) {
     /** Sets the color of the shape using java.awt.Color
-     * @param color the new java.awt.Color of the shape
-     * @return Unit, since it has the side effect of changing the color of the shape */
+     * @param color the new java.awt.Color of the shape */
     final def setColor(color: java.awt.Color): Unit =
     {val material = createMaterial(color.toScalaFx); onFX(shape.setMaterial(material))}
 
     /** Sets the color of the shape using scalafx.scene.paint.Color.
-     * @param color the new scalafx.scene.paint.Color of the shape
-     * @return Unit, since it has the side effect of changing the color of the shape */
+     * @param color the new scalafx.scene.paint.Color of the shape */
     final def setColor(color: Color): Unit = onFX(shape.setMaterial(createMaterial(color)))
   }
 

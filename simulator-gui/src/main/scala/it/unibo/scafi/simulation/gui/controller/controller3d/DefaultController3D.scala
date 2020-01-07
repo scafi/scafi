@@ -19,7 +19,10 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d
 
 import java.awt.Image
+
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper._
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.sensor.DefaultSensorSetter
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.{DefaultNodeUpdater, NodeUpdater}
 import it.unibo.scafi.simulation.gui.controller.{ControllerUtils, PopupMenuUtils}
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
@@ -39,7 +42,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   def startup(): Unit = {
     simulation.setController(this)
     startGUI()
-    nodeUpdater = NodeUpdater(this, gui.getSimulationPanel, simulation)
+    nodeUpdater = DefaultNodeUpdater(this, gui.getSimulationPanel, simulation)
     PopupMenuUtils.addPopupObservations(gui.customPopupMenu,
       () => gui.getSimulationPanel.toggleConnections(), this)
     PopupMenuUtils.addPopupActions(this, gui.customPopupMenu)
@@ -90,7 +93,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   /** See [[Controller3D.handleNumberButtonPress]] */
   override def handleNumberButtonPress(sensorIndex: Int): Unit =
-    SensorSetter(gui.getSimulationPanel, simulation).handleNumberButtonPress(sensorIndex)
+    DefaultSensorSetter(gui.getSimulationPanel, simulation, nodeUpdater).handleNumberButtonPress(sensorIndex)
 
   /** See [[Controller3D.shutDown]] */
   override def shutDown(): Unit = System.exit(0)
@@ -135,7 +138,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   /** See [[Controller3D.setSensor]] */
   override def setSensor(sensorName: String, value: Any): Unit =
-    SensorSetter(gui.getSimulationPanel, simulation).setSensor(sensorName, value, selectionAttempted)
+    DefaultSensorSetter(gui.getSimulationPanel, simulation, nodeUpdater).setSensor(sensorName, value, selectionAttempted)
 
   /** See [[Controller3D.isObservationSet]] */
   override def isObservationSet: Boolean = observation.isDefined

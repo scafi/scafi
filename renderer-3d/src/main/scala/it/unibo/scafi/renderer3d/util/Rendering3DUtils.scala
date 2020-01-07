@@ -19,8 +19,9 @@
 package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import javafx.scene.shape.Shape3D
 import org.fxyz3d.geometry.{Point3D => FxPoint3D}
-import org.fxyz3d.shapes.primitives.FrustumMesh
+import org.fxyz3d.shapes.primitives.{ConeMesh, FrustumMesh}
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
@@ -42,10 +43,7 @@ object Rendering3DUtils {
    * @param position the position where the text label should be placed
    * @return the text label */
   def createText(textString: String, fontSize: Int, position: Point3D): Text = {
-    val label = new Text(){
-      font = new Font(fontSize)
-      text = textString
-    }
+    val label = new Text() {font = new Font(fontSize); text = textString}
     label.moveTo(position)
     optimize(label) match {case label: Text => label}
   }
@@ -57,9 +55,24 @@ object Rendering3DUtils {
    * @return the cube */
   def createCube(size: Double, color: Color, position: Point3D = Point3D.Zero): Box = {
     val box = new Box(size, size, size)
-    box.setColor(color)
-    box.moveTo(position)
+    setColorAndPosition(box, color, position)
     optimize(box) match {case box: Box => box}
+  }
+
+  private def setColorAndPosition(shape: Shape3D, color: Color, position: Point3D): Unit =
+    {shape.setColor(color); shape.moveTo(position)}
+
+  /** Creates a 3d cone.
+   * @param radius the radius of the cone
+   * @param height the height of the cone
+   * @param color the color of the cone
+   * @param position the position where the cone should be placed
+   * @return the cone */
+  def createCone(radius: Double, height: Double, color: Color, position: Point3D = Point3D.Zero): ConeMesh = {
+    val DIVISIONS = 4
+    val cone = new ConeMesh(DIVISIONS, radius, height)
+    setColorAndPosition(cone, color, position)
+    cone
   }
 
   /** Creates a sphere that is rendered as a wireframe, with lines linking consecutive vertices, colored with a half

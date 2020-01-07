@@ -106,8 +106,7 @@ private[selection] object SelectionManagerHelper {
     selectVolume.setScaleY(positionDifference.getY)
   }
 
-  /** Calculates the movement vector that should be applied to the selected nodes. It should move them left or right and
-   * up or down in relation to the current view of the camera.
+  /** Calculates the movement vector to apply to the selected nodes. It moves them in relation to the view of the camera.
    * @param event the mouse event
    * @param state the current state of SelectionManager
    * @param scene the scene that contains all the nodes
@@ -145,4 +144,10 @@ private[selection] object SelectionManagerHelper {
     val filteredNodes = networkNodes.filter(camera.isNodeVisible(_, useSmallerFOVWindow = true))
     if(filteredNodes.isEmpty) None else Option(filteredNodes.minBy(_.getScreenPosition.distance(event.getScreenPosition)))
   }
+
+  /** Makes the selection volume not visible.
+   * @param scene the scene that contains all the nodes
+   * @param selectVolume the selection volume to modify */
+  def hideSelectVolume(scene: Scene, selectVolume: Node): Unit =
+    {scene.getChildren.remove(selectVolume); selectVolume.setVisible(false)}
 }

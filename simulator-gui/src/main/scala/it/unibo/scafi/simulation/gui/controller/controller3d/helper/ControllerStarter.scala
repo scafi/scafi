@@ -70,7 +70,7 @@ private[controller3d] object ControllerStarter {
     if(!Settings.Sim_DrawConnections) gui3d.toggleConnections()
     gui3d.setSceneSize(PositionConverter.SCENE_SIZE)
     gui3d.setSelectionColor(Settings.Color_selection)
-    gui3d.setNodesColor(Settings.Color_device)
+    gui3d.setNodesColors(Settings.Color_device, Settings.Color_movement)
     gui3d.setConnectionsColor(Settings.Color_link)
     gui3d.setBackgroundColor(Settings.Color_background)
     val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius else 0

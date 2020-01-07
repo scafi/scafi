@@ -16,11 +16,12 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper
+package it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.PositionConverter
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
@@ -31,19 +32,22 @@ import scala.util.Try
 /**
  * Utility object that has methods to update the scene nodes.
  * */
-private[helper] object NodeUpdaterHelper {
+private[updater] object NodeUpdaterHelper {
 
   /** Checks the new node's position and if it's defined it updates the node's position, otherwise it creates the node.
    * @param newPosition the new node's position. It could be None, which means that the node doesn't exist yet in the UI
    * @param node the node to be created or moved
-   * @param isPositionDifferent it says whether the new position is different from the previous one, for optimization
+   * @param options specifies how to update the node's position and movement
    * @param gui3d the 3D network renderer that has to be updated */
-  def createOrMoveNode(newPosition: Option[Product3[Double, Double, Double]], node: Node, isPositionDifferent: Boolean,
+  def createOrMoveNode(newPosition: Option[Product3[Double, Double, Double]], node: Node, options: UpdateOptions,
                        gui3d: NetworkRenderer3D): Unit = {
     val nodeId = node.id.toString
     if (newPosition.isDefined) {
-      if (isPositionDifferent) {
-        gui3d.moveNode(nodeId, PositionConverter.controllerToView(newPosition.getOrElse((0, 0, 0))))
+      if (options.isPositionNew) {
+        gui3d.moveNode(nodeId, PositionConverter.controllerToView(newPosition.getOrElse((0, 0, 0))),
+          showDirection = options.showMoveDirection)
+      } else {
+        gui3d.stopShowingNodeMovement(nodeId)
       }
     } else {
       gui3d.addNode(PositionConverter.controllerToView(node.position), nodeId)
@@ -109,9 +113,7 @@ private[helper] object NodeUpdaterHelper {
       gui3d.enableNodeFilledSphere(node.id.toString, enableLed)
     }
 
-  /** Sets the node's color as the color relative to the first enabled sensor in that node.
-   * @param node the node that has to be checked
-   * @param gui3d the 3D network renderer */
+  /** See [[NodeUpdater.updateNodeColorBySensors]] */
   def updateNodeColorBySensors(node: Node, gui3d: NetworkRenderer3D): Unit = {
     val firstEnabledSensorInNode = node.sensors.find(_._2.equals(true)).map(_._1)
     val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))

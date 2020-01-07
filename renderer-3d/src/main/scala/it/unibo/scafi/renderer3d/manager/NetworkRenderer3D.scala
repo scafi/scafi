@@ -26,11 +26,9 @@ import it.unibo.scafi.renderer3d.manager.scene.SceneManager
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import javafx.embed.swing.JFXPanel
 
-/**
- * Interface of the main entry point of this module. This renders all the nodes, the connections, etc.
+/** Interface of the main entry point of this module. This renders all the nodes, the connections, etc.
  * Users of this module should use only this interface to interact with renderer-3d, as it offers all the main APIs
- * needed for adding, removing and moving nodes and connections, handling the selected nodes, etc.
- * */
+ * needed for adding, removing and moving nodes and connections, handling the selected nodes, etc. */
 trait NetworkRenderer3D extends JFXPanel{
 
   //** connections API **
@@ -60,7 +58,10 @@ trait NetworkRenderer3D extends JFXPanel{
   def removeNode(nodeUID: String): Unit
 
   /** See [[NodeManager.moveNode]] */
-  def moveNode(nodeUID: String, position: Product3[Double, Double, Double]): Unit
+  def moveNode(nodeUID: String, position: Product3[Double, Double, Double], showDirection: Boolean): Unit
+
+  /** See [[NodeManager.stopShowingNodeMovement]] */
+  def stopShowingNodeMovement(nodeUID: String): Unit
 
   /** See [[NodeManager.setNodeText]] */
   def setNodeText(nodeUID: String, text: String): Unit
@@ -71,8 +72,8 @@ trait NetworkRenderer3D extends JFXPanel{
   /** See [[NodeManager.setNodeColor]] */
   def setNodeColor(nodeUID: String, color: java.awt.Color): Unit
 
-  /** See [[NodeManager.setNodesColor]] */
-  def setNodesColor(color: java.awt.Color): Unit
+  /** See [[NodeManager.setNodesColors]] */
+  def setNodesColors(defaultColor: java.awt.Color, movementColor: java.awt.Color): Unit
 
   /** See [[NodeManager.setFilledSpheresColor]] */
   def setFilledSpheresColor(color: java.awt.Color): Unit

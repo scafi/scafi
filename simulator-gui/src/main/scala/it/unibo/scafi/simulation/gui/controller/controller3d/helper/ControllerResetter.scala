@@ -19,6 +19,7 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.NodeUpdater
 import it.unibo.scafi.simulation.gui.model.SimulationManager
 import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
 

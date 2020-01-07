@@ -19,7 +19,9 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper
 
 /**
- * Utility object to convert the position of nodes from the controller to the view and back.
+ * Utility object to convert the position of nodes from the controller to the view and back. This is needed because the
+ * controller and 3d view use different position scaling: the controller uses values in a really small range like
+ * [0.05, 0.95], while the 3d view uses big values, since small values would cause bugs.
  * */
 private[helper] object PositionConverter {
 
@@ -35,9 +37,19 @@ private[helper] object PositionConverter {
    * */
   val SCENE_SIZE = 2000
 
+  /**
+   * Converts the provided position so that the view can use it.
+   * @param position the position to convert
+   * @return the converted position
+   * */
   def controllerToView(position: Product3[Double, Double, Double]): Product3[Double, Double, Double] =
     (position._1*SCENE_SIZE, position._2*SCENE_SIZE, position._3*SCENE_SIZE)
 
+  /**
+   * Converts the provided position so that the controller can use it.
+   * @param position the position to convert
+   * @return the converted position
+   * */
   def viewToController(position: Product3[Double, Double, Double]): Product3[Double, Double, Double] =
     (position._1/(SCENE_SIZE), position._2/(SCENE_SIZE), position._3/(SCENE_SIZE))
 

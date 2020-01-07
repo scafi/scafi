@@ -26,8 +26,7 @@ import org.scalafx.extras.{onFX, onFXAndWait}
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
 
-/** Object that contains some of the required implicit classes to enrich the language (using "Pimp my Library") when
- * working with ScalaFx and JavaFx. */
+/** Object that contains some implicit classes to enrich the language (using "Pimp my Library") when using ScalaFx. */
 private[util] trait RichScalaFxHelper {
   private[this] val X_AXIS_2D = new Point2D(1, 0)
   private[this] val logger = Logger("RichScalaFxHelper")
@@ -73,6 +72,16 @@ private[util] trait RichScalaFxHelper {
   }
 
   implicit class RichJavaNode(node: javafx.scene.Node) {
+    /** See [[RichScalaFx.RichNode.lookAt]] */
+    final def lookAt(point: Point3D, addedXAngle: Double = 0): Unit = onFX {
+      node.lookAtOnXZPlane(point)
+      val direction = point - node.getPosition
+      val angleOnX = new Point2D(direction.x, direction.y).eulerAngleTo(new Point2D(direction.x, 0)) + addedXAngle
+      val rotateOnX = new Rotate(angleOnX, Rotate.XAxis)
+      node.getTransforms.removeAll(node.getTransforms)
+      node.getTransforms.add(rotateOnX)
+    }
+
     /** See [[RichScalaFx.RichNode.lookAtOnXZPlane]] */
     final def lookAtOnXZPlane(point: Point3D): Unit =
       onFX {node.setRotationAxis(Rotate.YAxis); node.setRotate(getLookAtAngleOnXZPlane(point))}
@@ -135,5 +144,4 @@ private[util] trait RichScalaFxHelper {
     final def isIntersectingWith(otherNode: javafx.scene.Node): Boolean =
       otherNode!=null && node.getBoundsInParent.intersects(otherNode.getBoundsInParent)
   }
-
 }

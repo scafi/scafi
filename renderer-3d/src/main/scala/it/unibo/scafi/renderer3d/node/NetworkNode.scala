@@ -59,6 +59,12 @@ trait NetworkNode extends Node{
    * @return Unit, since it has the side effect of setting the cube's color */
   def setNodeColor(color: Color): Unit
 
+  /** Sets the default and movement colors of the shape that represents the current node
+   * @param defaultColor the new default color of the cube.
+   * @param movementColor the new movement color of the cube.
+   * @return Unit, since it has the side effect of setting the cube's colors */
+  def setNodeColors(defaultColor: Color, movementColor: Color): Unit
+
   /** Selects the node, making it bigger and changing its color to the selection color.
    * @return Unit, since it has the side effect of selecting the node */
   def select(): Unit
@@ -78,8 +84,9 @@ trait NetworkNode extends Node{
 
   /** Moves the node to the specified position in the 3d scene. IMPORTANT: don't use other methods to move this node
    * @param position the new position of the node
+   * @param updateMovementDirection whether the movement shown as a red arrow should be updated or not
    * @return Unit, since it has the side effect of moving the node */
-  def moveNodeTo(position: Point3D): Unit
+  def moveNodeTo(position: Point3D, updateMovementDirection: Boolean = false): Unit
 
   /** Sets the scale of the shape representing the node.
    * @param scale the new scale of the node
@@ -91,6 +98,10 @@ trait NetworkNode extends Node{
    * @param node the node to check for intersection
    * @return whether the two nodes are intersecting */
   def nodeIntersectsWith(node: Node): Boolean
+
+  /** Renders the node differently, to show that it is moving.
+   * @param show whether to show the movement or not */
+  def showMovement(show: Boolean): Unit
 
   /** The unique ID of the node.*/
   val UID: String

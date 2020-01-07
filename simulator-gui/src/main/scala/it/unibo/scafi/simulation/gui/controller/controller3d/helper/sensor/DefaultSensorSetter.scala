@@ -16,25 +16,21 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper
+package it.unibo.scafi.simulation.gui.controller.controller3d.helper.sensor
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.Simulation
+import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.NodeUpdater
 import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
 /**
  * Helper class to set and update the node's sensors.
  * */
-private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, simulation: Simulation) {
+private[controller3d] class DefaultSensorSetter(simulationPanel: NetworkRenderer3D, simulation: Simulation,
+                                                nodeUpdater: NodeUpdater) extends SensorSetter {
 
-  /**
-   * Sets the specified sensor value to the new one for all the selected nodes. If the user is not attempting selection,
-   * every node gets updated.
-   * @param sensorName the name of the chosen sensor
-   * @param value the new sensor value to set
-   * @param selectionAttempted whether the user is attempting selection right now
-   * */
+  /** See [[SensorSetter.setSensor]] */
   def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit = {
     val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
     if (selectedNodes.isEmpty && !selectionAttempted) {
@@ -77,13 +73,12 @@ private[controller3d] class SensorSetter(simulationPanel: NetworkRenderer3D, sim
   private def getSensorName(sensorIndex: Int): Option[String] = SensorEnum.fromInt(sensorIndex).map(_.name)
 
   private def setNodeSensor(node: Node, sensorName: String, newSensorValue: Any): Unit = {
-    val selectedNode = simulation.network.nodes(node.id) //TODO: check if this is needed
-    selectedNode.setSensor(sensorName, newSensorValue)
-    NodeUpdaterHelper.updateNodeColorBySensors(node, simulationPanel)
+    node.setSensor(sensorName, newSensorValue)
+    nodeUpdater.updateNodeColorBySensors(node, simulationPanel)
   }
 }
 
-private[controller3d] object SensorSetter {
-  def apply(simulationPanel: NetworkRenderer3D, simulation: Simulation): SensorSetter =
-    new SensorSetter(simulationPanel, simulation)
+private[controller3d] object DefaultSensorSetter {
+  def apply(simulationPanel: NetworkRenderer3D, simulation: Simulation, nodeUpdater: NodeUpdater): DefaultSensorSetter =
+    new DefaultSensorSetter(simulationPanel, simulation, nodeUpdater)
 }
