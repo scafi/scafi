@@ -18,6 +18,8 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater
 
+import java.awt.Color
+
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
@@ -29,9 +31,7 @@ import it.unibo.scafi.space.Point3D
 
 import scala.util.Try
 
-/**
- * Utility object that has methods to update the scene nodes.
- * */
+/** Utility object that has methods to update the scene nodes. */
 private[updater] object NodeUpdaterHelper {
 
   /** Checks the new node's position and if it's defined it updates the node's position, otherwise it creates the node.
@@ -41,17 +41,13 @@ private[updater] object NodeUpdaterHelper {
    * @param gui3d the 3D network renderer that has to be updated */
   def createOrMoveNode(newPosition: Option[Product3[Double, Double, Double]], node: Node, options: UpdateOptions,
                        gui3d: NetworkRenderer3D): Unit = {
-    val nodeId = node.id.toString
-    if (newPosition.isDefined) {
+    val nodeId = node.id.toString //TODO: don't do this in javaFx thread
+    newPosition.fold(gui3d.addNode(PositionConverter.controllerToView(node.position), nodeId))(newPosition =>
       if (options.isPositionNew) {
-        gui3d.moveNode(nodeId, PositionConverter.controllerToView(newPosition.getOrElse((0, 0, 0))),
-          showDirection = options.showMoveDirection)
-      } else {
+        gui3d.moveNode(nodeId, PositionConverter.controllerToView(newPosition), showDirection = options.showMoveDirection)
+      } else if(options.stoppedMoving) {
         gui3d.stopShowingNodeMovement(nodeId)
-      }
-    } else {
-      gui3d.addNode(PositionConverter.controllerToView(node.position), nodeId)
-    }
+      })
   }
 
   /**@param node the node that has to be checked
@@ -61,14 +57,18 @@ private[updater] object NodeUpdaterHelper {
     newPosition.fold(false)(newPosition =>
         (node.position.x, node.position.y, node.position.z) != (newPosition._1, newPosition._2, newPosition._3))
 
-  /** Retrieves the new node's position from the simulation.
+  /** Retrieves the new node's position from the simulation. Uses the 2d movement function if the 3d one is not defined,
+   * by applying it to the x and y of the nodes.
    * @param node the node whose position has to be retrieved
    * @param gui3d the 3D network renderer
    * @param simulation the simulation that has to be read
    * @return the new node's position */
   def getUpdatedNodePosition(node: Node, gui3d: NetworkRenderer3D,
                              simulation: Simulation): Product3[Double, Double, Double] = {
-    val vector = Try(Settings.Movement_Activator_3D(node.export)).getOrElse((0.0, 0.0, 0.0))
+    val movement2dTo3D =
+      (anyObject: Any) => {val position2d = Settings.Movement_Activator(anyObject); (position2d._1, position2d._2, 0d)}
+    val movementFunction = Settings.Movement_Activator_3D.fold(movement2dTo3D)(function => function)
+    val vector = Try(movementFunction(node.export)).getOrElse((0.0, 0.0, 0.0))
     val currentPosition = node.position
     (currentPosition.x + vector._1, currentPosition.y + vector._2, currentPosition.z + vector._3)
   }
@@ -87,7 +87,7 @@ private[updater] object NodeUpdaterHelper {
    * @param valueTypeToShow the value type to be shown
    * @param gui3d the 3D network renderer */
   def updateNodeText(node: Node, valueTypeToShow: NodeValue)(implicit gui3d: NetworkRenderer3D): Unit = {
-    val outputString = Try(Settings.To_String(node.export))
+    val outputString = Try(Settings.To_String(node.export)) //TODO: don't do this in javaFx thread
     if(outputString.isSuccess && !outputString.getOrElse("").equals("")) {
       valueTypeToShow match {
         case NodeValue.ID => setNodeText(node, node.id.toString)
@@ -109,27 +109,45 @@ private[updater] object NodeUpdaterHelper {
    * @param gui3d the 3D network renderer */
   def updateLedActuatorStatus(node: Node, controller: Controller3D, gui3d: NetworkRenderer3D): Unit =
     if(controller.isLedActivatorSet){
-      val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false)
+      val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false) //TODO: don't do this in javaFx thread
       gui3d.enableNodeFilledSphere(node.id.toString, enableLed)
     }
 
   /** See [[NodeUpdater.updateNodeColorBySensors]] */
-  def updateNodeColorBySensors(node: Node, gui3d: NetworkRenderer3D): Unit = {
+  def updateNodeColorBySensors(node: Node, gui3d: NetworkRenderer3D): Unit =
+    gui3d.setNodeColor(node.id.toString, getNodeColorBySensors(node))
+
+  private def getNodeColorBySensors(node: Node): Color = {
     val firstEnabledSensorInNode = node.sensors.find(_._2.equals(true)).map(_._1)
-    val sensorColor = firstEnabledSensorInNode.map(SensorEnum.getColor(_).getOrElse(Settings.Color_device))
-    gui3d.setNodeColor(node.id.toString, sensorColor.getOrElse(Settings.Color_device))
+    firstEnabledSensorInNode.flatMap(SensorEnum.getColor).getOrElse(Settings.Color_device)
   }
 
-  /** Sets the node's color by checking the observation function of the controller and the enabled sensor in that node.
-   * @param node the node that has to be checked
-   * @param gui3d the 3D network renderer
-   * @param controller the 3D controller */
-  def updateNodeColor(node: Node, gui3d: NetworkRenderer3D, controller: Controller3D): Unit = {
+  /** Gets the new color for the provided node.
+   * @param node the node whose color has to be decided
+   * @param controller the 3D controller
+   * @return the new color for the node or None if the node's color is still up to date */
+  def getUpdatedNodeColor(node: Node, controller: Controller3D): Option[Color] =
     if(controller.getObservation()(node.export)){
-      gui3d.setNodeColor(node.id.toString, Settings.Color_observation)
+      Option(Settings.Color_observation)
     } else if(controller.isObservationSet) {
-      updateNodeColorBySensors(node, gui3d)
+      Option(getNodeColorBySensors(node))
+    } else {
+      None
     }
+
+  /** Given a set of node IDs and a movement vector, it returns a set containing the nodes and their new positions.
+   * @param nodeIDs the set of node IDs
+   * @param movement the movement vector
+   * @param simulation the simulation that has to be read
+   * @return a set containing the nodes and their new positions */
+  def getMovedNodes(nodeIDs: Set[String], movement: Product3[Double, Double, Double],
+                    simulation: Simulation): Set[(Node, Option[(Double, Double, Double)])] = {
+    val simulationNodes = nodeIDs.map(nodeID => simulation.network.nodes(nodeID.toInt)).map(node => {
+      val nodePosition = node.position
+      val vector = PositionConverter.viewToController(movement)
+      (node, Option(nodePosition.x + vector._1, nodePosition.y + vector._2, nodePosition.z + vector._3))
+    })
+    simulationNodes
   }
 
 }

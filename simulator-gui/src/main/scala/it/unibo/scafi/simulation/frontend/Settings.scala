@@ -49,7 +49,7 @@ object Settings {
 
   var Led_Activator: Any=>Boolean = (_)=>false
   var Movement_Activator: Any=>(Double, Double) = (_)=>(0.0, 0.0)
-  var Movement_Activator_3D: Any=>(Double, Double, Double) = (_)=>(0.0, 0.0, 0.0)
+  var Movement_Activator_3D: Option[Any=>(Double, Double, Double)] = None //if None: uses 2d Movement_Activator for x and y
   var To_String: Any=>String = x => x.toString
 
 }

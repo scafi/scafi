@@ -68,10 +68,8 @@ private[node] object NodeManagerHelper {
    * @param showDirection whether the node should be rendered as a moving node or not
    * @param node the node to move
    * */
-  def changeNodePosition(position: Product3[Double, Double, Double], showDirection: Boolean, node: NetworkNode) {
-    if (showDirection) node.showMovement(show = true)
+  def changeNodePosition(position: Product3[Double, Double, Double], showDirection: Boolean, node: NetworkNode): Unit =
     node.moveNodeTo(position.toPoint3D, showDirection)
-  }
 
   /**
    * Rotates all the labels so that they face the camera.

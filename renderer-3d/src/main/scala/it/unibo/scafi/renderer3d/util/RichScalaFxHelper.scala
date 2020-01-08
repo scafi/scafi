@@ -73,9 +73,9 @@ private[util] trait RichScalaFxHelper {
 
   implicit class RichJavaNode(node: javafx.scene.Node) {
     /** See [[RichScalaFx.RichNode.lookAt]] */
-    final def lookAt(point: Point3D): Unit = onFX {
+    final def lookAt(point: Point3D, currentPosition: Point3D): Unit = onFX {
       node.lookAtOnXZPlane(point)
-      val direction = point - node.getPosition
+      val direction = point - currentPosition
       val angleOnX = new Point2D(direction.x, direction.y).eulerAngleTo(new Point2D(direction.x, 0)) + 90
       val finalAngleOnX = if(direction.x > 0) - (angleOnX + 180) else angleOnX
       val rotateOnX = new Rotate(finalAngleOnX, Rotate.XAxis)

@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.renderer3d.node
 
+import it.unibo.scafi.renderer3d.node.NetworkNodeHelper._
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.shape.Shape3D
@@ -25,7 +26,6 @@ import javafx.scene.{Camera, Group, Node}
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Sphere
 
 /** An implementation of [[NetworkNode]], using a cube to represent the node. An instance is a node of the 3d network.*/
 final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: Double, nodeColor: Color = Color.Black)
@@ -60,12 +60,8 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: D
     }
   }
 
-  private def reAddLabel(text: String, camera: Camera): Unit = {
-    label.setText(text)
-    label.setVisible(true)
-    this.getChildren.add(label)
-    rotateTextToCamera(camera.getPosition)
-  }
+  private def reAddLabel(text: String, camera: Camera): Unit =
+    {addAndSetLabel(text, label, this); rotateTextToCamera(camera.getPosition)}
 
   /** See [[NetworkNode.rotateTextToCamera]] */
   override def rotateTextToCamera(cameraPosition: Point3D): Unit =
@@ -97,23 +93,17 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: D
   override def setLabelScale(scale: Double): Unit = label.setScale(scale * NODE_SIZE/18)
 
   /** See [[NetworkNode.setSeeThroughSphereRadius]] */
-  override def setSeeThroughSphereRadius(radius: Double): Unit = setSphereRadius(seeThroughSphere, radius)
+  override def setSeeThroughSphereRadius(radius: Double): Unit = setSphereRadius(seeThroughSphere, radius, this)
 
   /** See [[NetworkNode.setFilledSphereRadius]] */
-  override def setFilledSphereRadius(radius: Double): Unit = setSphereRadius(filledSphere, radius)
-
-  private def setSphereRadius(sphere: Sphere, radius: Double): Unit = onFX {
-    if(radius < 1){
-      this.getChildren.remove(sphere)
-    } else if(!this.getChildren.contains(sphere)) {
-      this.getChildren.add(sphere)
-      sphere.setRadius(radius)
-    }
-  }
+  override def setFilledSphereRadius(radius: Double): Unit = setSphereRadius(filledSphere, radius, this)
 
   /** See [[NetworkNode.moveNodeTo]] */
   override def moveNodeTo(position: Point3D, updateMovementDirection: Boolean = false): Unit = onFX {
-    if(cone.isVisible && updateMovementDirection) {cone.lookAt(position)}
+    if(updateMovementDirection) {
+      showMovement(show = true, node, cone, this)
+      cone.lookAt(position, node.getPosition)
+    }
     List[Shape3D](node, seeThroughSphere, filledSphere, cone).foreach(_.moveTo(position))
     label.moveTo(getLabelPosition(position))
     state = state.copy(currentPosition = position)
@@ -129,16 +119,8 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: D
   /** See [[NetworkNode.nodeIntersectsWith]] */
   override def nodeIntersectsWith(node: Node): Boolean = this.node.delegate.isIntersectingWith(node)
 
-  /** See [[NetworkNode.showMovement]] */
-  override def showMovement(show: Boolean): Unit = onFX {
-    if(show && !cone.isVisible) {
-      this.getChildren.add(cone)
-    } else if(!show && cone.isVisible) {
-      this.getChildren.remove(cone)
-    }
-    node.setVisible(!show)
-    cone.setVisible(show)
-  }
+  /** See [[NetworkNode.hideMovement]] */
+  override def hideMovement(): Unit = showMovement(show = false, node, cone, this)
 }
 
 object SimpleNetworkNode {

@@ -36,7 +36,7 @@ import scala.util.Random
  *  -the node before the second-last should show its 2D position instead of its index value, also it should be orange
  *  -the first node should be blue
  *  -the connections, nodes and labels should be visible
- *  -the connections should be green
+ *  -the connections should be gray
  *  -nodes 1 and 2 should be disconnected
  *  -selecting some nodes and pressing a keyboard number between 1 and 4 should print the selected nodes to the console
  *    and should set their color to yellow
@@ -47,7 +47,7 @@ private[renderer3d] object RunnableTestExample extends App {
   private val SCENE_SIZE = 2000
   private val FRAME_WIDTH = 800
   private val FRAME_HEIGHT = 600
-  private val NODE_COUNT = 1000
+  private val NODE_COUNT = 500
   private val NODE_BRIGHTNESS = 50
   private val logger = Logger("RunnableTestExample")
 
@@ -97,7 +97,7 @@ private[renderer3d] object RunnableTestExample extends App {
   private def testConnectionsAPI(networkRenderer: NetworkRenderer3D): Unit = {
     networkRenderer.toggleConnections()
     networkRenderer.toggleConnections()
-    networkRenderer.setConnectionsColor(Color.green)
+    networkRenderer.setConnectionsColor(Color.GRAY)
     networkRenderer.disconnect("1", "2")
   }
 

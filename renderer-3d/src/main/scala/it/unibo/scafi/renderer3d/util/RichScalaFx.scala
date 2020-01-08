@@ -72,8 +72,9 @@ object RichScalaFx extends RichScalaFxHelper {
     final def rotateOnSelf(angle: Double, axis: Point3D): Unit = node.delegate.rotateOnSelf(angle, axis)
 
     /** Rotates the node around itself so that it faces the point. ATTENTION: this resets the node's transformations.
-     * @param point the point that the node will face */
-    final def lookAt(point: Point3D): Unit = node.delegate.lookAt(point)
+     * @param point the point that the node will face
+     * @param currentPosition the current position of the node */
+    final def lookAt(point: Point3D, currentPosition: Point3D): Unit = node.delegate.lookAt(point, currentPosition)
 
     /** Rotates the node around itself but only on the Y axis, so that it faces the specified point.
      * @param point the point that the node will face */

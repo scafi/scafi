@@ -99,9 +99,8 @@ trait NetworkNode extends Node{
    * @return whether the two nodes are intersecting */
   def nodeIntersectsWith(node: Node): Boolean
 
-  /** Renders the node differently, to show that it is moving.
-   * @param show whether to show the movement or not */
-  def showMovement(show: Boolean): Unit
+  /** Renders the node so that it doesn't show it as moving. */
+  def hideMovement(): Unit
 
   /** The unique ID of the node.*/
   val UID: String

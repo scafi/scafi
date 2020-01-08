@@ -18,17 +18,16 @@
 
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater
 
+import java.awt.Color
+
 /**
  * Simple type containing the options used to update a single node.
  * */
 private[updater] case class UpdateOptions(isPositionNew: Boolean,
                                           showMoveDirection: Boolean,
+                                          stoppedMoving: Boolean,
                                           newConnections: Set[String],
-                                          removedConnections: Set[String])
-
-object UpdateOptions {
-  def apply(isPositionNew: Boolean, showMoveDirection: Boolean, connections: (Set[String], Set[String])): UpdateOptions =
-    new UpdateOptions(isPositionNew, showMoveDirection, connections._1, connections._2)
-}
+                                          removedConnections: Set[String],
+                                          color: Option[Color])
 
 

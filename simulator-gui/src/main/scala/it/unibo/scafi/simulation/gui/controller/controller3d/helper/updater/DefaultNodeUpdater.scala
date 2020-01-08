@@ -19,34 +19,28 @@
 package it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
+import it.unibo.scafi.simulation.gui.Simulation
 import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.PositionConverter
 import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.NodeUpdaterHelper._
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
-import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
 
 /** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
 private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D,
                                                simulation: Simulation) extends NodeUpdater {
+
+  private val javaFxWaiter = JavaFxWaiter(gui3d)
   private var connectionsInGUI = Map[Int, Set[String]]()
   private var nodesInGUI = Set[Int]()
-  private var waitCounterThreshold = -1 //not yet initialized
-  private var javaFxWaitCounter = waitCounterThreshold
+  private var movingNodes = Set[Int]()
 
   gui3d.setActionOnMovedNodes((nodeIDs, movement) => synchronized { //updates simulation when user moves some nodes
-    val simulationNodes = nodeIDs.map(nodeID => simulation.network.nodes(nodeID.toInt)).map(node => {
-      val nodePosition = node.position
-      val vector = PositionConverter.viewToController(movement)
-      val result = (node, Option(nodePosition.x + vector._1, nodePosition.y + vector._2, nodePosition.z + vector._3))
-      updateNodeInSimulation(simulation, gui3d, result._1, result._2)
-      result
-    })
-    val updatedConnections = simulationNodes
+    val nodesAndConnections = getMovedNodes(nodeIDs, movement, simulation)
       .map(node => (node._1, node._2, updateNodeConnections(node._1, simulation.network, gui3d)))
-    onFX (updatedConnections.foreach(node => { //without runLater it would cause many requests to javaFx
-      updateUI(node._2, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false, node._3._1, node._3._2))
+    nodesAndConnections.foreach(node => updateNodeInSimulation(simulation, gui3d, node._1, node._2))
+    onFX (nodesAndConnections.foreach(node => { //without runLater it would cause many requests to javaFx
+      updateUI(node._2, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false, stoppedMoving = false,
+        node._3._1, node._3._2, getUpdatedNodeColor(node._1, controller)))
     }))
   })
 
@@ -55,15 +49,23 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
 
   /** See [[NodeUpdater.updateNode]] */
   def updateNode(nodeId: Int): Unit = synchronized {
-    waitForJavaFxIfNeeded() //this waits from time to time for the javaFx to become less congested
+    javaFxWaiter.waitForJavaFxIfNeeded() //this waits from time to time for the javaFx to become less congested
     if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
     val node = simulation.network.nodes(nodeId)
     val newPosition = getNewNodePosition(node, gui3d, simulation)
     val isPositionDifferent = didPositionChange(node, newPosition)
-    updateNodeInSimulation(simulation, gui3d, node, newPosition)
-    val newAndRemovedConnections = updateNodeConnections(node, simulation.network, gui3d)
-    val options = UpdateOptions(isPositionNew = isPositionDifferent, showMoveDirection = true, newAndRemovedConnections)
+    val options = getUIUpdateOptions(node, newPosition, isPositionDifferent)
+    if(isPositionDifferent) movingNodes += nodeId else movingNodes -= nodeId
     updateUI(newPosition, node, options) //using Platform.runLater
+  }
+
+  private def getUIUpdateOptions(node: Node, newPosition: Option[Product3[Double, Double, Double]],
+                                 isPositionDifferent: Boolean) = {
+    val nodeStoppedMoving = !isPositionDifferent && movingNodes.contains(node.id)
+    updateNodeInSimulation(simulation, gui3d, node, newPosition)
+    val (newConnections, oldConnections) = updateNodeConnections(node, simulation.network, gui3d)
+    UpdateOptions(isPositionNew = isPositionDifferent, showMoveDirection = true,
+      stoppedMoving = nodeStoppedMoving, newConnections, oldConnections,  getUpdatedNodeColor(node, controller))
   }
 
   private def updateNodeInSimulation(simulation: Simulation, gui3d: NetworkRenderer3D, node: Node,
@@ -78,7 +80,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
       updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
       options.newConnections.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
       options.removedConnections.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deletes old connections
-      updateNodeColor(node, gui3d, controller)
+      options.color.fold()(color => gui3d.setNodeColor(nodeId, color))
       updateLedActuatorStatus(node, controller, gui3d)
     }
   }
@@ -86,17 +88,6 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
   private def getNewNodePosition(node: Node, gui3d: NetworkRenderer3D,
                                  simulation: Simulation): Option[Product3[Double, Double, Double]] =
     if (nodesInGUI.contains(node.id)) Option(getUpdatedNodePosition(node, gui3d, simulation)) else None
-
-  private def waitForJavaFxIfNeeded(): Unit = {
-    val MIN_WAIT_COUNTER = 100
-    val MAX_WAIT_COUNTER = 10000
-    if(waitCounterThreshold == -1){ //looking at the node count to find out the right value for waitCounterThreshold
-      val counterThreshold = 1000000 / Math.pow(Settings.Sim_NumNodes*Settings.Sim_NbrRadius*6.5, 1.4)
-      waitCounterThreshold = MathUtils.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
-    }
-    javaFxWaitCounter = javaFxWaitCounter - 1
-    if(javaFxWaitCounter <= 0) {javaFxWaitCounter = waitCounterThreshold; gui3d.blockUntilThreadIsFree()}
-  }
 
   private def createNodeInSimulation(node: Node, gui3d: NetworkRenderer3D, simulation: Simulation): Unit = {
     gui3d.addNode(node.position, node.id.toString)
