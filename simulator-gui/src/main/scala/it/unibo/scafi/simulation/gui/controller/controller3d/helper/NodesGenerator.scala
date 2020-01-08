@@ -39,8 +39,8 @@ private[controller3d] object NodesGenerator {
   def createNodes(topology: String, nodeCount: Int, seed: Long): Map[Int, Node] = {
     val locations = if(topology.toLowerCase.contains("grid")){
       val nodeCountInSide = Math.cbrt(nodeCount).toInt
-      val step = 1 / nodeCountInSide
-      val OFFSET = 1/40
+      val step = 1d / nodeCountInSide
+      val OFFSET = 1d/40
       val variance = ControllerUtils.getTolerance(topology)
       val gridSettings = Grid3DSettings.cube(nodeCountInSide, step = step, tolerance = variance, offset = OFFSET)
       SpaceHelper.grid3DLocations(gridSettings, seed)

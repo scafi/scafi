@@ -113,8 +113,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: D
 
   /** See [[NetworkNode.moveNodeTo]] */
   override def moveNodeTo(position: Point3D, updateMovementDirection: Boolean = false): Unit = onFX {
-    val X_ROTATION_ANGLE = 90
-    if(cone.isVisible && updateMovementDirection) {cone.lookAt(position, X_ROTATION_ANGLE)}
+    if(cone.isVisible && updateMovementDirection) {cone.lookAt(position)}
     List[Shape3D](node, seeThroughSphere, filledSphere, cone).foreach(_.moveTo(position))
     label.moveTo(getLabelPosition(position))
     state = state.copy(currentPosition = position)

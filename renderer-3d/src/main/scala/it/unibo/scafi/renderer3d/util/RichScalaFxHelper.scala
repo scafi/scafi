@@ -38,7 +38,7 @@ private[util] trait RichScalaFxHelper {
   }
 
   implicit class RichPoint2D(point: Point2D) {
-    /** Calculates the angle between the point(seen as a 2D direction vector) and the other specified 2D direction.
+    /** Calculates the angle (0-180) between the point (seen as a 2D direction) and the other specified 2D direction.
      * @param otherPoint the other point, seen as a 2D direction vector
      * @return the angle between the two 2D directions */
     final def eulerAngleTo(otherPoint: Point2D): Double = {
@@ -73,11 +73,12 @@ private[util] trait RichScalaFxHelper {
 
   implicit class RichJavaNode(node: javafx.scene.Node) {
     /** See [[RichScalaFx.RichNode.lookAt]] */
-    final def lookAt(point: Point3D, addedXAngle: Double = 0): Unit = onFX {
+    final def lookAt(point: Point3D): Unit = onFX {
       node.lookAtOnXZPlane(point)
       val direction = point - node.getPosition
-      val angleOnX = new Point2D(direction.x, direction.y).eulerAngleTo(new Point2D(direction.x, 0)) + addedXAngle
-      val rotateOnX = new Rotate(angleOnX, Rotate.XAxis)
+      val angleOnX = new Point2D(direction.x, direction.y).eulerAngleTo(new Point2D(direction.x, 0)) + 90
+      val finalAngleOnX = if(direction.x > 0) - (angleOnX + 180) else angleOnX
+      val rotateOnX = new Rotate(finalAngleOnX, Rotate.XAxis)
       node.getTransforms.removeAll(node.getTransforms)
       node.getTransforms.add(rotateOnX)
     }
