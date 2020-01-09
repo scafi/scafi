@@ -46,7 +46,7 @@ private[manager] trait NodeManager {
   /** Enables or disables the colored sphere (not the outlined one) centered on the specified node.
    * @param nodeUID the id of the affected node
    * @param enable specifies if the method should enable or disable the sphere */
-  final def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit = onFX {
+  final def enableNodeFilledSphere(nodeUID: Int, enable: Boolean): Unit = onFX {
     val FILLED_SPHERES_RADIUS = 8
     findNodeAndAct(nodeUID, _.setFilledSphereRadius(if(enable) FILLED_SPHERES_RADIUS else 0))
   }
@@ -63,7 +63,7 @@ private[manager] trait NodeManager {
   /** Adds a new 3D node at the specified position and with the specified ID.
    * @param position the position where the new node will be placed
    * @param UID the unique id of the new node */
-  final def addNode(position: Product3[Double, Double, Double], UID: String): Unit = onFX {
+  final def addNode(position: Product3[Double, Double, Double], UID: Int): Unit = onFX {
     findNode(UID).fold{
       val networkNode = createNetworkNode(position, UID, state)
       state = state.copy(networkNodes = state.networkNodes + (UID -> networkNode))
@@ -73,44 +73,44 @@ private[manager] trait NodeManager {
 
   /** Removes the node with the specified ID, so that it's not in the scene anymore.
    * @param nodeUID the unique id of the node to remove */
-  final def removeNode(nodeUID: String): Unit = findNodeAndAct(nodeUID, node => {
+  final def removeNode(nodeUID: Int): Unit = findNodeAndAct(nodeUID, node => {
     state = state.copy(networkNodes = state.networkNodes - nodeUID)
     mainScene.getChildren.remove(node)
     removeAllNodeConnections(node.UID) //using ConnectionManager
   })
 
-  private final def findNodeAndAct(nodeUID: String, action: NetworkNode => Unit): Unit =
+  private final def findNodeAndAct(nodeUID: Int, action: NetworkNode => Unit): Unit =
     onFX(findNode(nodeUID).fold(logger.error("Could not find node " + nodeUID))(node => {action(node.toNetworkNode)}))
 
-  protected final def findNode(nodeUID: String): Option[NetworkNode] = state.networkNodes.get(nodeUID)
+  protected final def findNode(nodeUID: Int): Option[NetworkNode] = state.networkNodes.get(nodeUID)
 
   /** Moves the node with the specified ID to the specified position.
    * @param nodeUID the unique id of the node to move
    * @param position the new position to set
    * @param showDirection whether the view should show the movement direction or not */
-  final def moveNode(nodeUID: String, position: Product3[Double, Double, Double], showDirection: Boolean): Unit =
+  final def moveNode(nodeUID: Int, position: Product3[Double, Double, Double], showDirection: Boolean): Unit =
     findNodeAndAct(nodeUID, node => {changeNodePosition(position, showDirection, node); updateNodeConnections(nodeUID)})
 
   /** Shows the node as a normal, non moving node.
    * @param nodeUID the unique id of the node to move */
-  final def stopShowingNodeMovement(nodeUID: String): Unit = findNodeAndAct(nodeUID, _.hideMovement())
+  final def stopShowingNodeMovement(nodeUID: Int): Unit = findNodeAndAct(nodeUID, _.hideMovement())
 
   /** Sets the label text of the specified node to the new text
    * @param nodeUID the unique id of the node
    * @param text the new text to set */
-  final def setNodeText(nodeUID: String, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text, mainScene.getCamera))
+  final def setNodeText(nodeUID: Int, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text, mainScene.getCamera))
 
   /** Sets the label text of the specified node to the position of that node in 2D, from the point of view of the camera
    * @param nodeUID the unique id of the node
    * @param positionFormatter the function used to format the position before setting it as the label's text */
-  final def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit =
+  final def setNodeTextAsUIPosition(nodeUID: Int, positionFormatter: Product2[Double, Double] => String): Unit =
     findNodeAndAct(nodeUID, node => {val position = node.getScreenPosition
       node.setText(positionFormatter(position.x, position.y), mainScene.getCamera)})
 
   /** Sets the color of the specified node to a new one.
    * @param nodeUID the unique id of the node
    * @param color the new color of the node */
-  final def setNodeColor(nodeUID: String, color: java.awt.Color): Unit =
+  final def setNodeColor(nodeUID: Int, color: java.awt.Color): Unit =
     findNodeAndAct(nodeUID, _.setNodeColor(color.toScalaFx))
 
   /** Sets the default and movement colors of all the nodes. This applies to nodes not already created, too.

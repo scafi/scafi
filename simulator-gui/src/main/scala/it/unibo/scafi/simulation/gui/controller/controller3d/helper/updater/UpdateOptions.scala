@@ -26,8 +26,8 @@ import java.awt.Color
 private[updater] case class UpdateOptions(isPositionNew: Boolean,
                                           showMoveDirection: Boolean,
                                           stoppedMoving: Boolean,
-                                          newConnections: Set[String],
-                                          removedConnections: Set[String],
+                                          newConnections: Set[Int],
+                                          removedConnections: Set[Int],
                                           color: Option[Color])
 
 

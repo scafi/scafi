@@ -19,7 +19,7 @@
 package it.unibo.scafi.renderer3d.node
 
 import javafx.scene.Group
-import org.fxyz3d.shapes.primitives.ConeMesh
+import javafx.scene.shape.MeshView
 import org.scalafx.extras.onFX
 import scalafx.scene.Node
 import scalafx.scene.shape.Sphere
@@ -46,7 +46,7 @@ private[node] object NetworkNodeHelper {
    * @param show whether the cone should be rendered or not
    * @param cone the cone to render
    * @param group the group that should contain the provided cone */
-  def showMovement(show: Boolean, node: Node, cone: ConeMesh, group: Group): Unit = onFX {
+  def showMovement(show: Boolean, node: Node, cone: MeshView, group: Group): Unit = onFX {
     if(show && !cone.isVisible) {
       group.getChildren.add(cone)
     } else if(!show && cone.isVisible) {

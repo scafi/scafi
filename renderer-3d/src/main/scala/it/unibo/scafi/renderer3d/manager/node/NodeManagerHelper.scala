@@ -40,7 +40,7 @@ private[node] object NodeManagerHelper {
    * @param state the current state of NodeManager
    * @return the new NetworkNode instance
    * */
-  final def createNetworkNode(position: Product3[Double, Double, Double], UID: String,
+  final def createNetworkNode(position: Product3[Double, Double, Double], UID: Int,
                               state: NodeManagerState): NetworkNode = {
     val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodeLabelsScale)
     networkNode.setNodeColors(state.nodesColor.toScalaFx, state.movementColor.toScalaFx)

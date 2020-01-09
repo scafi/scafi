@@ -32,7 +32,7 @@ object Basic3DMovementDemo extends Launcher {
   Settings.Color_device = Color.DARK_GRAY
   Settings.Sim_ProgramClass = "sims.Basic3DMovement"
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius, don't go too high
-  Settings.Sim_NumNodes = 600 // number of nodes, don't go too high
+  Settings.Sim_NumNodes = 300 // number of nodes, don't go too high
   Settings.ShowConfigPanel = false
   Settings.Movement_Activator_3D = Option((b: Any) => b.asInstanceOf[(Double, Double, Double)])
   Settings.To_String = _ => ""

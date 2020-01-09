@@ -37,8 +37,8 @@ object MathUtils {
   def rotateVector(vector: Point3D, axis: Point3D, angle: Double): Point3D = {
     val (x, y, z) = (vector.x, vector.y, vector.z)
     val (u, v, w) = (axis.x, axis.y, axis.z)
-    val angleSin = Math.sin(angle)
-    val angleCos = Math.cos(angle)
+    val angleSin = FastMath.sin(angle.toFloat)
+    val angleCos = FastMath.cos(angle.toFloat)
     val refactoredPart = u * (u * x + v * y + w * z) * (1d - angleCos)
     val xPrime = u * refactoredPart + x * angleCos + (-w * y + v * z) * angleSin
     val yPrime = v * refactoredPart + y * angleCos + (w * x - u * z) * angleSin

@@ -113,16 +113,16 @@ private[manager] trait SelectionManager {
 
   /** Sets the action to execute whenever the user moves the selected nodes.
    * @param action the action to set */
-  final def setActionOnMovedNodes(action: (Set[String], Product3[Double, Double, Double]) => Unit): Unit =
+  final def setActionOnMovedNodes(action: (Set[Int], Product3[Double, Double, Double]) => Unit): Unit =
     onFX {state = state.copy(movementAction = action)}
 
   /** Gets the IDs of the currently selected nodes.
    * @return a Set containing the IDs of the currently selected nodes */
-  final def getSelectedNodesIDs: Set[String] = onFXAndWait(state.selectedNodes.map(_.UID))
+  final def getSelectedNodesIDs: Set[Int] = onFXAndWait(state.selectedNodes.map(_.UID))
 
   /** Gets the first node selected, the one that is in the center of the selection cube.
    * @return a String if the initial node exists, None otherwise. */
-  final def getInitialSelectedNodeId: Option[String] = onFXAndWait(state.initialNode.map(_.UID))
+  final def getInitialSelectedNodeId: Option[Int] = onFXAndWait(state.initialNode.map(_.UID))
 
   /** Sets the color of the selected nodes. This does not set the color of nodes that might get selected in the future.
    * @param color the new color of the selected nodes */

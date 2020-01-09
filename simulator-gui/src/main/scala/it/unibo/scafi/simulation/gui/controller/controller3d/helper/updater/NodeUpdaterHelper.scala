@@ -41,7 +41,7 @@ private[updater] object NodeUpdaterHelper {
    * @param gui3d the 3D network renderer that has to be updated */
   def createOrMoveNode(newPosition: Option[Product3[Double, Double, Double]], node: Node, options: UpdateOptions,
                        gui3d: NetworkRenderer3D): Unit = {
-    val nodeId = node.id.toString //TODO: don't do this in javaFx thread
+    val nodeId = node.id
     newPosition.fold(gui3d.addNode(PositionConverter.controllerToView(node.position), nodeId))(newPosition =>
       if (options.isPositionNew) {
         gui3d.moveNode(nodeId, PositionConverter.controllerToView(newPosition), showDirection = options.showMoveDirection)
@@ -87,13 +87,13 @@ private[updater] object NodeUpdaterHelper {
    * @param valueTypeToShow the value type to be shown
    * @param gui3d the 3D network renderer */
   def updateNodeText(node: Node, valueTypeToShow: NodeValue)(implicit gui3d: NetworkRenderer3D): Unit = {
-    val outputString = Try(Settings.To_String(node.export)) //TODO: don't do this in javaFx thread
+    val outputString = Try(Settings.To_String(node.export))
     if(outputString.isSuccess && !outputString.getOrElse("").equals("")) {
       valueTypeToShow match {
         case NodeValue.ID => setNodeText(node, node.id.toString)
         case NodeValue.EXPORT => setNodeText(node, formatExport(node.export))
         case NodeValue.POSITION => setNodeText(node, formatPosition(node.position))
-        case NodeValue.POSITION_IN_GUI => gui3d.setNodeTextAsUIPosition(node.id.toString, formatAndRoundPosition)
+        case NodeValue.POSITION_IN_GUI => gui3d.setNodeTextAsUIPosition(node.id, formatAndRoundPosition)
         case NodeValue.SENSOR(name) => if(name != null) setNodeText(node, node.getSensorValue(name).toString)
         case _ => setNodeText(node, "")
       }
@@ -101,7 +101,7 @@ private[updater] object NodeUpdaterHelper {
   }
 
   private def setNodeText(node: Node, text: String)(implicit gui3d: NetworkRenderer3D): Unit =
-    gui3d.setNodeText(node.id.toString, text) //updating the value of the node's label
+    gui3d.setNodeText(node.id, text) //updating the value of the node's label
 
   /** Checks if the specified node has Led_Activator active, if it does it enables a 3D sphere in the UI.
    * @param node the node that has to be checked
@@ -109,13 +109,13 @@ private[updater] object NodeUpdaterHelper {
    * @param gui3d the 3D network renderer */
   def updateLedActuatorStatus(node: Node, controller: Controller3D, gui3d: NetworkRenderer3D): Unit =
     if(controller.isLedActivatorSet){
-      val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false) //TODO: don't do this in javaFx thread
-      gui3d.enableNodeFilledSphere(node.id.toString, enableLed)
+      val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false)
+      gui3d.enableNodeFilledSphere(node.id, enableLed)
     }
 
   /** See [[NodeUpdater.updateNodeColorBySensors]] */
   def updateNodeColorBySensors(node: Node, gui3d: NetworkRenderer3D): Unit =
-    gui3d.setNodeColor(node.id.toString, getNodeColorBySensors(node))
+    gui3d.setNodeColor(node.id, getNodeColorBySensors(node))
 
   private def getNodeColorBySensors(node: Node): Color = {
     val firstEnabledSensorInNode = node.sensors.find(_._2.equals(true)).map(_._1)
@@ -140,9 +140,9 @@ private[updater] object NodeUpdaterHelper {
    * @param movement the movement vector
    * @param simulation the simulation that has to be read
    * @return a set containing the nodes and their new positions */
-  def getMovedNodes(nodeIDs: Set[String], movement: Product3[Double, Double, Double],
+  def getMovedNodes(nodeIDs: Set[Int], movement: Product3[Double, Double, Double],
                     simulation: Simulation): Set[(Node, Option[(Double, Double, Double)])] = {
-    val simulationNodes = nodeIDs.map(nodeID => simulation.network.nodes(nodeID.toInt)).map(node => {
+    val simulationNodes = nodeIDs.map(nodeID => simulation.network.nodes(nodeID)).map(node => {
       val nodePosition = node.position
       val vector = PositionConverter.viewToController(movement)
       (node, Option(nodePosition.x + vector._1, nodePosition.y + vector._2, nodePosition.z + vector._3))

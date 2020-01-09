@@ -56,4 +56,43 @@ public class FastMath {
         }
         return angle * PI_2;
     }
+
+    //Sin and cos code from: https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/math/MathUtils.java
+
+    static private final int SIN_BITS = 14; // 16KB. Adjust for accuracy.
+    static private final int SIN_MASK = ~(-1 << SIN_BITS);
+    static private final int SIN_COUNT = SIN_MASK + 1;
+    static public final float PI = 3.1415927f;
+    static public final float degreesToRadians = PI / 180;
+    static private final float radFull = PI * 2;
+    static private final float degFull = 360;
+    static private final float radToIndex = SIN_COUNT / radFull;
+    static private final float degToIndex = SIN_COUNT / degFull;
+
+    static private class Sin {
+        static final float[] table = new float[SIN_COUNT];
+
+        static {
+            for (int i = 0; i < SIN_COUNT; i++)
+                table[i] = (float)Math.sin((i + 0.5f) / SIN_COUNT * radFull);
+            for (int i = 0; i < 360; i += 90)
+                table[(int)(i * degToIndex) & SIN_MASK] = (float)Math.sin(i * degreesToRadians);
+        }
+    }
+
+    /** Calculates an approximation of the sin function for the provided angle.
+     * @param radians angle in radians
+     * @return the sin of the angle
+     * */
+    static public float sin(float radians) {
+        return Sin.table[(int)(radians * radToIndex) & SIN_MASK];
+    }
+
+    /** Calculates an approximation of the cos function for the provided angle.
+     * @param radians angle in radians
+     * @return the cos of the angle
+     * */
+    static public float cos(float radians) {
+        return Sin.table[(int)((radians + PI / 2) * radToIndex) & SIN_MASK];
+    }
 }

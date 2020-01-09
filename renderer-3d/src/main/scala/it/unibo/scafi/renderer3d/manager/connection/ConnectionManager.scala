@@ -38,7 +38,7 @@ private[manager] trait ConnectionManager {
   protected val connectionGroup = new Group() //implementations have to add this to the main scene
   private[this] val logger = Logger("ConnectionManager")
   private[this] var connectionsColor = Color.BLACK
-  private[this] var connections = Map[String, Map[String, Line]]() //each line is saved 2 times
+  private[this] var connections = Map[Int, Map[Int, Line]]() //each line is saved 2 times
   private[this] var connectionsVisible = true
 
   /** Sets the color that every connection will have.
@@ -55,10 +55,10 @@ private[manager] trait ConnectionManager {
    * @param node1UID the id of the first node to connect
    * @param node2UID the id of the second node to connect
    * @return Unit, since it has the side effect of connecting the two nodes. */
-  final def connect(node1UID: String, node2UID: String): Unit =
+  final def connect(node1UID: Int, node2UID: Int): Unit =
     onFX {findNodes(node1UID, node2UID).fold()(nodes => connectNodes(nodes._1, nodes._2))}
 
-  private final def findNodes(node1UID: String, node2UID: String): Option[(NetworkNode, NetworkNode)] =
+  private final def findNodes(node1UID: Int, node2UID: Int): Option[(NetworkNode, NetworkNode)] =
     (findNode(node1UID), findNode(node2UID)) match {
       case (Some(nodeValue1), Some(nodeValue2)) => Option((nodeValue1, nodeValue2))
       case _ => logger.error("Can't find nodes " + node1UID + " and " + node2UID); None
@@ -76,7 +76,7 @@ private[manager] trait ConnectionManager {
     }
   }
 
-  private final def connectNodesOneDirectional(originNodeID: String, targetNodeID: String, connection: Line): Unit = {
+  private final def connectNodesOneDirectional(originNodeID: Int, targetNodeID: Int, connection: Line): Unit = {
     if(connections.contains(originNodeID)){ //the node already has some connections
       val innerMap = connections(originNodeID)
       connections += (originNodeID -> (innerMap + (targetNodeID -> connection)))
@@ -89,7 +89,7 @@ private[manager] trait ConnectionManager {
    * @param node1UID the id of the first node to disconnect
    * @param node2UID the id of the second node to disconnect
    * @return Unit, since it has the side effect of disconnecting the two nodes. */
-  final def disconnect(node1UID: String, node2UID: String): Unit = onFX {
+  final def disconnect(node1UID: Int, node2UID: Int): Unit = onFX {
     connections.get(node1UID).fold()(innerMap => {
       if(!innerMap.contains(node2UID)){
         logger.error("Nodes " + node1UID + " and " + node2UID + " are not already connected")
@@ -100,21 +100,21 @@ private[manager] trait ConnectionManager {
       }
     })}
 
-  private final def disconnectNodesOneDirectional(originNodeID: String, targetNodeID: String): Unit = {
+  private final def disconnectNodesOneDirectional(originNodeID: Int, targetNodeID: Int): Unit = {
     val innerMap = connections(originNodeID)
     connections += (originNodeID -> (innerMap - targetNodeID))
     }
 
-  protected final def removeAllNodeConnections(nodeID: String): Unit =
+  protected final def removeAllNodeConnections(nodeID: Int): Unit =
     onFX {actOnAllNodeConnections(nodeID, disconnect(nodeID, _))}
 
-  private final def actOnAllNodeConnections(nodeID: String, action: String => Unit): Unit =
+  private final def actOnAllNodeConnections(nodeID: Int, action: Int => Unit): Unit =
     connections.get(nodeID).fold()(_.keys.foreach(action(_)))
 
-  protected final def updateNodeConnections(nodeID: String): Unit =
+  protected final def updateNodeConnections(nodeID: Int): Unit =
     onFX {actOnAllNodeConnections(nodeID, updateConnection(nodeID, _))}
 
-  private final def updateConnection(node1ID: String, node2ID: String): Unit = {
+  private final def updateConnection(node1ID: Int, node2ID: Int): Unit = {
     val line = connections(node1ID)(node2ID)
     findNodes(node1ID, node2ID).fold()(nodes =>
       Rendering3DUtils.connectLineToPoints(line, nodes._1.getNodePosition, nodes._2.getNodePosition))

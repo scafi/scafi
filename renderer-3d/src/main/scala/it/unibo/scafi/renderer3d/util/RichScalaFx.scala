@@ -45,7 +45,7 @@ object RichScalaFx extends RichScalaFxHelper {
       val windowMinimumSize = Math.min(window.getHeight, window.getWidth)
       val cameraForward = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle).toRadians)
       val angleBetweenDirections = cameraForward.angle(node.getNodePosition - camera.getPosition) - 170
-      val (defaultFOVReduction, higherFOVReduction) = (10, 14)
+      val (defaultFOVReduction, higherFOVReduction) = (10, 13)
       angleBetweenDirections.abs < camera.getFieldOfView*windowMaximumSize/windowMinimumSize*9/16 -
         (if(useSmallerFOVWindow) higherFOVReduction else defaultFOVReduction)
     }

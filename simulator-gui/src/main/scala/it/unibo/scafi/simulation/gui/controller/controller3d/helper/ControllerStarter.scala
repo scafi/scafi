@@ -39,8 +39,8 @@ private[controller3d] object ControllerStarter {
   def setupSimulation(simulation: Simulation, gui: SimulatorUI3D, simulationManager: SimulationManager): Set[Int] = {
     val nodes = NodesGenerator.createNodes(Settings.Sim_Topology, Settings.Sim_NumNodes, Settings.ConfigurationSeed)
     setSimulationSettings(simulation, nodes)
-    nodes.values.foreach(node => gui.getSimulationPanel.addNode(PositionConverter.controllerToView(node.position),
-      node.id.toString))
+    nodes.values
+      .foreach(node => gui.getSimulationPanel.addNode(PositionConverter.controllerToView(node.position), node.id))
     simulationManager.simulation = simulation
     val deltaRound = if(Settings.Sim_NumNodes * Settings.Sim_NbrRadius >= 90) 2 else 1
     simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, deltaRound)) //this avoids javaFx thread flooding

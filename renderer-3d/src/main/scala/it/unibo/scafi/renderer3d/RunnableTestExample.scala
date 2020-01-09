@@ -68,7 +68,7 @@ private[renderer3d] object RunnableTestExample extends App {
   })
 
   private def addNodes(networkRenderer: NetworkRenderer3D, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>
-    networkRenderer.addNode((getRandomDouble, getRandomDouble, getRandomDouble), index.toString))
+    networkRenderer.addNode((getRandomDouble, getRandomDouble, getRandomDouble), index))
 
   private def getRandomDouble: Double = Random.nextInt(SCENE_SIZE).toDouble - SCENE_SIZE/2
 
@@ -87,18 +87,18 @@ private[renderer3d] object RunnableTestExample extends App {
     moveNodesRandomly(networkRenderer)
     networkRenderer.increaseFontSize()
     networkRenderer.decreaseFontSize()
-    networkRenderer.removeNode((NODE_COUNT-1).toString)
-    networkRenderer.setNodeTextAsUIPosition((NODE_COUNT-2).toString, {case (x: Double, y: Double) => x + " " + y})
+    networkRenderer.removeNode(NODE_COUNT-1)
+    networkRenderer.setNodeTextAsUIPosition(NODE_COUNT-2, {case (x: Double, y: Double) => x + " " + y})
     networkRenderer.setNodesColors(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS), Color.RED)
-    networkRenderer.setNodeColor((NODE_COUNT-2).toString, Color.orange)
-    networkRenderer.setNodeColor("1", Color.blue)
+    networkRenderer.setNodeColor(NODE_COUNT-2, Color.orange)
+    networkRenderer.setNodeColor(1, Color.blue)
   }
 
   private def testConnectionsAPI(networkRenderer: NetworkRenderer3D): Unit = {
     networkRenderer.toggleConnections()
     networkRenderer.toggleConnections()
     networkRenderer.setConnectionsColor(Color.GRAY)
-    networkRenderer.disconnect("1", "2")
+    networkRenderer.disconnect(1, 2)
   }
 
   private def testSelectionAPI(networkRenderer: NetworkRenderer3D): Unit =
@@ -114,13 +114,13 @@ private[renderer3d] object RunnableTestExample extends App {
   })
 
   private def connectNodes(renderingPanel: NetworkRenderer3D, nodeCount: Int): Unit =
-    (1 until nodeCount).foreach(index => renderingPanel.connect(index.toString, (index + 1).toString))
+    (1 until nodeCount).foreach(index => renderingPanel.connect(index, index + 1))
 
   private def moveNodesRandomly(renderingPanel: NetworkRenderer3D): Unit =
-    (1 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index.toString, getRandomPosition, showDirection = false))
+    (1 to NODE_COUNT).foreach(index => renderingPanel.moveNode(index, getRandomPosition, showDirection = false))
 
   private def getRandomPosition: (Double, Double, Double) = (getRandomDouble, getRandomDouble, getRandomDouble)
 
   private def setNodesLabel(networkRenderer: NetworkRenderer3D): Unit =
-    (1 to NODE_COUNT).foreach(index => networkRenderer.setNodeText(index.toString, index.toString))
+    (1 to NODE_COUNT).foreach(index => networkRenderer.setNodeText(index, index.toString))
 }

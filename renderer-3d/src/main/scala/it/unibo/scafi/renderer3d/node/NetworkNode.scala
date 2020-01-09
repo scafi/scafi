@@ -103,5 +103,5 @@ trait NetworkNode extends Node{
   def hideMovement(): Unit
 
   /** The unique ID of the node.*/
-  val UID: String
+  val UID: Int
 }

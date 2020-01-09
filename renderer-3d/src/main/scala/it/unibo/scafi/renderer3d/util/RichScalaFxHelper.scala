@@ -79,8 +79,7 @@ private[util] trait RichScalaFxHelper {
       val angleOnX = new Point2D(direction.x, direction.y).eulerAngleTo(new Point2D(direction.x, 0)) + 90
       val finalAngleOnX = if(direction.x > 0) - (angleOnX + 180) else angleOnX
       val rotateOnX = new Rotate(finalAngleOnX, Rotate.XAxis)
-      node.getTransforms.removeAll(node.getTransforms)
-      node.getTransforms.add(rotateOnX)
+      node.getTransforms.setAll(rotateOnX)
     }
 
     /** See [[RichScalaFx.RichNode.lookAtOnXZPlane]] */

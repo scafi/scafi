@@ -36,41 +36,41 @@ trait NetworkRenderer3D extends JFXPanel{
   def setConnectionsColor(color: Color): Unit
 
   /** See [[ConnectionManager.connect]] */
-  def connect(node1UID: String, node2UID: String): Unit
+  def connect(node1UID: Int, node2UID: Int): Unit
 
   /** See [[ConnectionManager.disconnect]] */
-  def disconnect(node1UID: String, node2UID: String): Unit
+  def disconnect(node1UID: Int, node2UID: Int): Unit
 
   /** See [[ConnectionManager.toggleConnections]] */
   def toggleConnections(): Unit
 
   //** nodes API **
   /** See [[NodeManager.enableNodeFilledSphere]] */
-  def enableNodeFilledSphere(nodeUID: String, enable: Boolean): Unit
+  def enableNodeFilledSphere(nodeUID: Int, enable: Boolean): Unit
 
   /** See [[NodeManager.setSpheresRadius]] */
   def setSpheresRadius(seeThroughSpheresRadius: Double, filledSpheresRadius: Double): Unit
 
   /** See [[NodeManager.addNode]] */
-  def addNode(position: Product3[Double, Double, Double], UID: String): Unit
+  def addNode(position: Product3[Double, Double, Double], UID: Int): Unit
 
   /** See [[NodeManager.removeNode]] */
-  def removeNode(nodeUID: String): Unit
+  def removeNode(nodeUID: Int): Unit
 
   /** See [[NodeManager.moveNode]] */
-  def moveNode(nodeUID: String, position: Product3[Double, Double, Double], showDirection: Boolean): Unit
+  def moveNode(nodeUID: Int, position: Product3[Double, Double, Double], showDirection: Boolean): Unit
 
   /** See [[NodeManager.stopShowingNodeMovement]] */
-  def stopShowingNodeMovement(nodeUID: String): Unit
+  def stopShowingNodeMovement(nodeUID: Int): Unit
 
   /** See [[NodeManager.setNodeText]] */
-  def setNodeText(nodeUID: String, text: String): Unit
+  def setNodeText(nodeUID: Int, text: String): Unit
 
   /** See [[NodeManager.setNodeTextAsUIPosition]] */
-  def setNodeTextAsUIPosition(nodeUID: String, positionFormatter: Product2[Double, Double] => String): Unit
+  def setNodeTextAsUIPosition(nodeUID: Int, positionFormatter: Product2[Double, Double] => String): Unit
 
   /** See [[NodeManager.setNodeColor]] */
-  def setNodeColor(nodeUID: String, color: java.awt.Color): Unit
+  def setNodeColor(nodeUID: Int, color: java.awt.Color): Unit
 
   /** See [[NodeManager.setNodesColors]] */
   def setNodesColors(defaultColor: java.awt.Color, movementColor: java.awt.Color): Unit
@@ -102,13 +102,13 @@ trait NetworkRenderer3D extends JFXPanel{
 
   //** selection API **
   /** See [[SelectionManager.setActionOnMovedNodes]] */
-  def setActionOnMovedNodes(action: (Set[String], Product3[Double, Double, Double]) => Unit): Unit
+  def setActionOnMovedNodes(action: (Set[Int], Product3[Double, Double, Double]) => Unit): Unit
 
   /** See [[SelectionManager.getSelectedNodesIDs]] */
-  def getSelectedNodesIDs: Set[String]
+  def getSelectedNodesIDs: Set[Int]
 
   /** See [[SelectionManager.getInitialSelectedNodeId]] */
-  def getInitialSelectedNodeId: Option[String]
+  def getInitialSelectedNodeId: Option[Int]
 
   /** See [[SelectionManager.setCurrentSelectionColor]] */
   def setCurrentSelectionColor(color: java.awt.Color): Unit

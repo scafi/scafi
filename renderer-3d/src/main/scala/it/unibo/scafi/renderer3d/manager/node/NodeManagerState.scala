@@ -36,7 +36,7 @@ private[node] final case class NodeManagerState(nodesColor: Color =
                                   filledSpheresRadius: Double = 0,
                                   nodesScale: Double = 1,
                                   nodeLabelsScale: Double = 1,
-                                  networkNodes: Map[String, NetworkNode] = Map())
+                                  networkNodes: Map[Int, NetworkNode] = Map())
 
 object NodeManagerState {
   private final val NODE_BRIGHTNESS = 50 //out of 255

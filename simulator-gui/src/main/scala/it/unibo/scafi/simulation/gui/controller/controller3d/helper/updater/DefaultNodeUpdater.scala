@@ -29,8 +29,9 @@ import org.scalafx.extras._
 private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D,
                                                simulation: Simulation) extends NodeUpdater {
 
+  private type ID = Int
   private val javaFxWaiter = JavaFxWaiter(gui3d)
-  private var connectionsInGUI = Map[Int, Set[String]]()
+  private var connectionsInGUI = Map[Int, Set[ID]]()
   private var nodesInGUI = Set[Int]()
   private var movingNodes = Set[Int]()
 
@@ -74,7 +75,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
       setSimulationNodePosition(node, newPosition, simulation))
 
   private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, options: UpdateOptions) {
-    val nodeId = node.id.toString
+    val nodeId = node.id
     onFX { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
       createOrMoveNode(newPosition, node, options, gui3d)
       updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
@@ -90,16 +91,15 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     if (nodesInGUI.contains(node.id)) Option(getUpdatedNodePosition(node, gui3d, simulation)) else None
 
   private def createNodeInSimulation(node: Node, gui3d: NetworkRenderer3D, simulation: Simulation): Unit = {
-    gui3d.addNode(node.position, node.id.toString)
     connectionsInGUI += (node.id -> Set())
     nodesInGUI += node.id
     setSimulationNodePosition(node, (node.position.x, node.position.y, node.position.z), simulation)
   }
 
   private def updateNodeConnections(node: Node, network: Network,
-                                    gui3d: NetworkRenderer3D): (Set[String], Set[String]) = { //has side effects
+                                    gui3d: NetworkRenderer3D): (Set[ID], Set[ID]) = { //has side effects
     val connectionsInUI = connectionsInGUI.getOrElse(node.id, Set())
-    val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id.toString)
+    val connections = network.neighbourhood.getOrElse(node, Set()).map(_.id)
     val newConnections = connections.diff(connectionsInUI)
     val removedConnections = connectionsInUI -- connections
     connectionsInGUI += (node.id -> connections)
@@ -107,17 +107,17 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     (newConnections, removedConnections)
   }
 
-  private def setNewAndRemovedConnections(newConnections: Set[String], removedConnections: Set[String],
+  private def setNewAndRemovedConnections(newConnections: Set[ID], removedConnections: Set[ID],
                                           node: Node, gui3d: NetworkRenderer3D): Unit = {
     addOrRemoveNodeFromNeighbours(newConnections, node, adding = true, gui3d)
     addOrRemoveNodeFromNeighbours(removedConnections, node, adding = false, gui3d)
   }
 
-  private def addOrRemoveNodeFromNeighbours(connections: Set[String], node: Node, adding: Boolean,
+  private def addOrRemoveNodeFromNeighbours(connections: Set[ID], node: Node, adding: Boolean,
                                             gui3d: NetworkRenderer3D): Unit = {
-    val nodeId = node.id.toString
+    val nodeId = node.id
     connections.foreach(neighbourId => {
-      val neighbourIntId = neighbourId.toInt
+      val neighbourIntId = neighbourId
       val previousNodeNeighbours = connectionsInGUI.getOrElse(neighbourIntId, Set())
       val updatedNodeNeighbours = if(adding) previousNodeNeighbours + nodeId else previousNodeNeighbours - nodeId
       connectionsInGUI += (neighbourIntId -> updatedNodeNeighbours)

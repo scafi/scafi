@@ -28,7 +28,7 @@ import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
 
 /** An implementation of [[NetworkNode]], using a cube to represent the node. An instance is a node of the 3d network.*/
-final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: Double, nodeColor: Color = Color.Black)
+final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Double, nodeColor: Color = Color.Black)
   extends Group with NetworkNode {
 
   private[this] val NODE_SIZE = 6
@@ -102,7 +102,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: D
   override def moveNodeTo(position: Point3D, updateMovementDirection: Boolean = false): Unit = onFX {
     if(updateMovementDirection) {
       showMovement(show = true, node, cone, this)
-      cone.lookAt(position, node.getPosition)
+      cone.lookAt(position, state.currentPosition)
     }
     List[Shape3D](node, seeThroughSphere, filledSphere, cone).foreach(_.moveTo(position))
     label.moveTo(getLabelPosition(position))
@@ -124,6 +124,6 @@ final case class SimpleNetworkNode(position: Point3D, UID: String, labelScale: D
 }
 
 object SimpleNetworkNode {
-  def apply(position: Point3D, UID: String, labelScale: Double): SimpleNetworkNode =
+  def apply(position: Point3D, UID: Int, labelScale: Double): SimpleNetworkNode =
     new SimpleNetworkNode(position, UID, labelScale)
 }

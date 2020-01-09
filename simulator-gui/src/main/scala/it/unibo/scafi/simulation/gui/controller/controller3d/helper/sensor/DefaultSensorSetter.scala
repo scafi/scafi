@@ -50,7 +50,7 @@ private[controller3d] class DefaultSensorSetter(simulationPanel: NetworkRenderer
     getSensorName(sensorIndex).foreach(sensorName => {
       val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
       simulationPanel.getInitialSelectedNodeId
-        .flatMap(initialNodeId => selectedNodes.find(_.id == initialNodeId.toInt))
+        .flatMap(initialNodeId => selectedNodes.find(_.id == initialNodeId))
         .fold()(initialNode => setSensorByInitialNode(sensorName, selectedNodes, initialNode))
     })
   }
@@ -62,11 +62,11 @@ private[controller3d] class DefaultSensorSetter(simulationPanel: NetworkRenderer
     simulation.setSensor(sensorName, newSensorValue, selectedNodes)
   }
 
-  private def getSelectedNodes(selectedNodeIDs: Set[String]): Set[Node] = {
+  private def getSelectedNodes(selectedNodeIDs: Set[Int]): Set[Node] = {
     if(simulation.network == null){
       Set()
     } else {
-      simulation.network.nodes.filter(node => selectedNodeIDs.contains(node._2.id.toString)).values.toSet
+      simulation.network.nodes.filter(node => selectedNodeIDs.contains(node._2.id)).values.toSet
     }
   }
 

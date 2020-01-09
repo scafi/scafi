@@ -33,11 +33,12 @@ import scalafx.scene.Scene
  * as a normal JPanel inside Swing. This panel is the main one, it renders all the nodes, the connections, etc.
  * This class offers all the main APIs needed for adding, removing and moving nodes and connections, handling the
  * selected nodes, etc.
+ * Developers can also enable a FPS counter to check performance (off by default).
  * */
 final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionManager with NodeManager
   with SelectionManager with SceneManager{
 
-  private val SHOW_FPS_COUNTER = true //use this when you want to check performance
+  private val SHOW_FPS_COUNTER = false //use this when you want to check performance
   override protected val mainScene: Scene = new Scene(createScene())
   
   mainScene.getChildren.add(connectionGroup)

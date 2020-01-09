@@ -43,7 +43,7 @@ object Basic3DDemo extends Launcher {
   Settings.Color_device = Color.DARK_GRAY
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius, don't go too high if there are a lot of nodes
-  Settings.Sim_NumNodes = 600 // don't go too high
+  Settings.Sim_NumNodes = 300 // don't go too high
   Settings.ShowConfigPanel = false
   launch()
 }
