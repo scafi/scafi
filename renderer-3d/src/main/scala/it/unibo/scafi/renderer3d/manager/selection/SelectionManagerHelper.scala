@@ -27,9 +27,8 @@ import javafx.concurrent.Task
 import javafx.scene
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
-import javafx.scene.shape.CullFace
+import javafx.scene.shape.{CullFace, Shape3D}
 import scalafx.geometry.{Point2D, Point3D}
-import scalafx.scene.shape.Shape3D
 import scalafx.scene.transform.Rotate
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 

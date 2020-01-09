@@ -18,12 +18,10 @@
 
 package it.unibo.scafi.renderer3d.node
 
-import javafx.scene.Group
-import javafx.scene.shape.MeshView
+import javafx.scene.{Group, Node}
+import javafx.scene.shape.{MeshView, Sphere}
+import javafx.scene.text.Text
 import org.scalafx.extras.onFX
-import scalafx.scene.Node
-import scalafx.scene.shape.Sphere
-import scalafx.scene.text.Text
 
 /** Helper object for [[SimpleNetworkNode]] with various utility methods. */
 private[node] object NetworkNodeHelper {

@@ -46,7 +46,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
 
   private def setup(): Unit = {
     this.setFieldOfView(INITIAL_FOV)
-    this.setFarClip(60000.0)
+    this.setFarClip(100000.0)
     this.setNearClip(0.1)
     this.moveTo(initialPosition)
     var previousTime = System.nanoTime()

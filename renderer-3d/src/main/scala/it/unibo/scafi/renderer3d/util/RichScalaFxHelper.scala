@@ -19,7 +19,6 @@
 package it.unibo.scafi.renderer3d.util
 
 import com.typesafe.scalalogging.Logger
-import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.math.FastMath
 import javafx.scene.Group
 import org.scalafx.extras.{onFX, onFXAndWait}
@@ -122,9 +121,6 @@ private[util] trait RichScalaFxHelper {
       node.setRotationAxis(axis)
       node.setRotate(node.getRotate + angle)
     }
-
-    /** See [[RichScalaFx.RichNode.toNetworkNode]] */
-    final def toNetworkNode: NetworkNode = node match {case networkNode: NetworkNode => networkNode}
 
     /** See [[RichScalaFx.RichNode.setScale]] */
     final def setScale(scale: Double): Unit = onFX {

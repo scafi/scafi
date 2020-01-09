@@ -55,6 +55,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     val node = simulation.network.nodes(nodeId)
     val newPosition = getNewNodePosition(node, gui3d, simulation)
     val isPositionDifferent = didPositionChange(node, newPosition)
+    updateNodeInSimulation(simulation, gui3d, node, newPosition)
     val options = getUIUpdateOptions(node, newPosition, isPositionDifferent)
     if(isPositionDifferent) movingNodes += nodeId else movingNodes -= nodeId
     updateUI(newPosition, node, options) //using Platform.runLater
@@ -63,7 +64,6 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
   private def getUIUpdateOptions(node: Node, newPosition: Option[Product3[Double, Double, Double]],
                                  isPositionDifferent: Boolean) = {
     val nodeStoppedMoving = !isPositionDifferent && movingNodes.contains(node.id)
-    updateNodeInSimulation(simulation, gui3d, node, newPosition)
     val (newConnections, oldConnections) = updateNodeConnections(node, simulation.network, gui3d)
     UpdateOptions(isPositionNew = isPositionDifferent, showMoveDirection = true,
       stoppedMoving = nodeStoppedMoving, newConnections, oldConnections,  getUpdatedNodeColor(node, controller))

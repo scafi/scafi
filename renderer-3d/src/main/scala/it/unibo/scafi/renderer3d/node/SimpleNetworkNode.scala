@@ -36,32 +36,29 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
   private[this] val LABEL_ADDED_HEIGHT = NODE_SIZE
   private[this] val node = createCube(NODE_SIZE, nodeColor, position)
   private[this] val label = createText("", LABEL_FONT_SIZE, getLabelPosition(position))
-  private[this] val cone = createCone(NODE_SIZE, NODE_SIZE*4, nodeColor, position)
+  private[this] val cone = createCone(NODE_SIZE/2, NODE_SIZE*2, nodeColor, position)
   private[this] val seeThroughSphere = createOutlinedSphere(1, position)
   private[this] val filledSphere = createFilledSphere(1, position)
   private[this] var state = NetworkNodeState(nodeColor, position)
 
   setLabelScale(labelScale)
-  label.setVisible(false)
-  cone.setVisible(false)
+  List(label, cone).foreach(_.setVisible(false))
   this.getChildren.addAll(node) //label is not added by default for performance reasons, since it would show "" anyway
 
   private def getLabelPosition(nodePosition: Point3D, addedHeight: Double = LABEL_ADDED_HEIGHT): Point3D =
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
 
   /** See [[NetworkNode.setText]] */
-  override def setText(text: String, camera: Camera): Unit = onFX{
-    if(text == "") {
+  override def setText(text: String, camera: Camera): Unit = onFX {
+    if(text.length == 0) {
       if(label.isVisible) {label.setVisible(false); this.getChildren.remove(label)}
     } else if(!label.isVisible) {
-      reAddLabel(text, camera)
+      addAndSetLabel(text, label, this)
+      rotateTextToCamera(camera.getPosition)
     } else {
       label.setText(text)
     }
   }
-
-  private def reAddLabel(text: String, camera: Camera): Unit =
-    {addAndSetLabel(text, label, this); rotateTextToCamera(camera.getPosition)}
 
   /** See [[NetworkNode.rotateTextToCamera]] */
   override def rotateTextToCamera(cameraPosition: Point3D): Unit =
@@ -106,6 +103,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
     }
     List[Shape3D](node, seeThroughSphere, filledSphere, cone).foreach(_.moveTo(position))
     label.moveTo(getLabelPosition(position))
+    if(updateMovementDirection) cone.moveTo(position*2 - cone.getPosition) //this makes the cone position more precise
     state = state.copy(currentPosition = position)
   }
 
@@ -113,11 +111,11 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
   override def setNodeScale(newScale: Double): Unit = onFX {
     state = state.copy(scale = newScale)
     List[Shape3D](node, filledSphere, cone).foreach(_.setScale(newScale))
-    label.moveTo(getLabelPosition(node.getPosition, LABEL_ADDED_HEIGHT*(1 + newScale/5)))
+    label.moveTo(getLabelPosition(state.currentPosition, LABEL_ADDED_HEIGHT*(1 + newScale/5)))
   }
 
   /** See [[NetworkNode.nodeIntersectsWith]] */
-  override def nodeIntersectsWith(node: Node): Boolean = this.node.delegate.isIntersectingWith(node)
+  override def nodeIntersectsWith(node: Node): Boolean = this.node.isIntersectingWith(node)
 
   /** See [[NetworkNode.hideMovement]] */
   override def hideMovement(): Unit = showMovement(show = false, node, cone, this)

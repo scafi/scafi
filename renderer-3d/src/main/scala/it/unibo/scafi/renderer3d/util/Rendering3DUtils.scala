@@ -19,15 +19,18 @@
 package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import javafx.scene.shape.Shape3D
+import javafx.scene.Node
+import javafx.scene.shape.{Box, DrawMode, Shape3D, Sphere}
+import javafx.scene.text.Text
 import org.fxyz3d.geometry.{Point3D => FxPoint3D}
 import org.fxyz3d.shapes.primitives.{ConeMesh, FrustumMesh}
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
-import scalafx.scene.shape.{Box, DrawMode, Sphere}
-import scalafx.scene.text.{Font, Text}
-import scalafx.scene.{AmbientLight, CacheHint, Node}
+import scalafx.scene.text.Font
+import scalafx.scene.{AmbientLight, CacheHint}
+
+import scala.util.control.NonFatal
 
 /** This contains methods to create the elements of the 3d JavaFx scene such as labels, cubes, spheres, lines, etc. */
 object Rendering3DUtils {
@@ -43,9 +46,9 @@ object Rendering3DUtils {
    * @param position the position where the text label should be placed
    * @return the text label */
   def createText(textString: String, fontSize: Int, position: Point3D): Text = {
-    val label = new Text() {font = new Font(fontSize); text = textString}
+    val label = new scalafx.scene.text.Text() {font = new Font(fontSize); text = textString}.delegate
     label.moveTo(position)
-    optimize(label) match {case label: Text => label}
+    optimize(label)
   }
 
   /** Creates a 3d cube.
@@ -56,7 +59,7 @@ object Rendering3DUtils {
   def createCube(size: Double, color: Color, position: Point3D = Point3D.Zero): Box = {
     val box = new Box(size, size, size)
     setColorAndPosition(box, color, position)
-    optimize(box) match {case box: Box => box}
+    optimize(box)
   }
 
   private def setColorAndPosition(shape: Shape3D, color: Color, position: Point3D): Unit =
@@ -72,11 +75,10 @@ object Rendering3DUtils {
     val DIVISIONS = 4
     val cone = new ConeMesh(DIVISIONS, radius, height)
     setColorAndPosition(cone, color, position)
-    cone
+    optimize(cone)
   }
 
-  /** Creates a sphere that is rendered as a wireframe, with lines linking consecutive vertices, colored with a half
-   * transparent gray.
+  /** Creates a wireframe sphere, with lines linking consecutive vertices, colored with a half transparent gray.
    * @param radius the desired radius of the sphere
    * @param position the position where the sphere should be placed
    * @return the sphere */
@@ -97,7 +99,7 @@ object Rendering3DUtils {
       val SPHERE_DIVISIONS = 32
       val sphere = new Sphere(radius, SPHERE_DIVISIONS)
       sphere.moveTo(position)
-      optimize(sphere) match {case sphere: Sphere => sphere}
+      optimize(sphere)
     } else {
       createSphere(radius, Color.Black, position, drawOutlineOnly = false)
     }
@@ -110,10 +112,10 @@ object Rendering3DUtils {
    * @return the sphere */
   def createSphere(radius: Double, color: Color, position: Point3D, drawOutlineOnly: Boolean): Sphere = {
     val MESH_DIVISIONS = 5 //this is low for performance reasons
-    val sphere = new Sphere(radius, MESH_DIVISIONS) {material = createMaterial(color)}
+    val sphere = new scalafx.scene.shape.Sphere(radius, MESH_DIVISIONS) {material = createMaterial(color)}.delegate
     sphere.moveTo(position)
-    if(drawOutlineOnly) sphere.setDrawMode(DrawMode.Line)
-    optimize(sphere) match {case sphere: Sphere => sphere}
+    if(drawOutlineOnly) sphere.setDrawMode(DrawMode.LINE)
+    optimize(sphere)
   }
 
   /** Creates a material given a color. Caching has been used, since the same materials can be requested many times.
@@ -137,7 +139,7 @@ object Rendering3DUtils {
     val line = new FrustumMesh(thickness, thickness, 1, 0, toFXyzPoint(points._1), toFXyzPoint(points._2))
     line.setColor(color)
     line.setVisible(visible)
-    line
+    optimize(line)
   }
 
   /** Updates the position, rotation and height of the line so that it connects the two provided points.
@@ -145,9 +147,9 @@ object Rendering3DUtils {
    * @param point1 the first point
    * @param point2 the second point */
   def connectLineToPoints(line: FrustumMesh, point1: Point3D, point2: Point3D): Unit =
-  {line.setAxisOrigin(toFXyzPoint(point1)); line.setAxisEnd(toFXyzPoint(point2))}
+    try {line.setAxisOrigin(toFXyzPoint(point1)); line.setAxisEnd(toFXyzPoint(point2))} catch {case NonFatal(_) => ()}
 
   private def toFXyzPoint(point: Point3D): org.fxyz3d.geometry.Point3D = new FxPoint3D(point.x, point.y, point.z)
 
-  private final def optimize(node: Node): Node = {node.cache = true; node.setCacheHint(CacheHint.Speed); node}
+  private final def optimize[A <: Node](node: A): A = {node.setCache(true); node.setCacheHint(CacheHint.Speed); node}
 }

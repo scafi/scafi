@@ -80,7 +80,7 @@ private[manager] trait NodeManager {
   })
 
   private final def findNodeAndAct(nodeUID: Int, action: NetworkNode => Unit): Unit =
-    onFX(findNode(nodeUID).fold(logger.error("Could not find node " + nodeUID))(node => {action(node.toNetworkNode)}))
+    onFX(findNode(nodeUID).fold(logger.error("Could not find node " + nodeUID))(action(_)))
 
   protected final def findNode(nodeUID: Int): Option[NetworkNode] = state.networkNodes.get(nodeUID)
 

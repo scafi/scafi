@@ -85,10 +85,6 @@ object RichScalaFx extends RichScalaFxHelper {
      * @return the rotation angle on the Y axis */
     final def getLookAtAngleOnXZPlane(point: Point3D): Double = node.delegate.getLookAtAngleOnXZPlane(point)
 
-    /** Converts the node to a NetworkNode.
-     * @return the casted node */
-    final def toNetworkNode: NetworkNode = node.delegate.toNetworkNode
-
     /** Sets the scale of the node.
      * @param scale the new scale of the node */
     final def setScale(scale: Double): Unit = node.delegate.setScale(scale)
