@@ -46,10 +46,8 @@ private[manager] trait ConnectionManager {
    * @return Unit, since it has the side effect of changing the connection color */
   final def setConnectionsColor(color: Color): Unit = onFX {
     connectionsColor = color
-    getAllConnections.foreach(_.setColor(color))
+    connections.flatMap(entry => entry._2.values).foreach(_.setColor(color))
   }
-
-  private final def getAllConnections: Set[Line] = connections.flatMap(entry => entry._2.values).toSet
 
   /** Connects the two specified nodes if not already connected, adding the connection to the scene.
    * @param node1UID the id of the first node to connect

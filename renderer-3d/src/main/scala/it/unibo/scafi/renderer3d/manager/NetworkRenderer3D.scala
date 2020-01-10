@@ -73,7 +73,7 @@ trait NetworkRenderer3D extends JFXPanel{
   def setNodeColor(nodeUID: Int, color: java.awt.Color): Unit
 
   /** See [[NodeManager.setNodesColors]] */
-  def setNodesColors(defaultColor: java.awt.Color, movementColor: java.awt.Color): Unit
+  def setNodesColor(defaultColor: java.awt.Color): Unit
 
   /** See [[NodeManager.setFilledSpheresColor]] */
   def setFilledSpheresColor(color: java.awt.Color): Unit

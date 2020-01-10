@@ -43,7 +43,7 @@ private[node] object NodeManagerHelper {
   final def createNetworkNode(position: Product3[Double, Double, Double], UID: Int,
                               state: NodeManagerState): NetworkNode = {
     val networkNode = SimpleNetworkNode(position.toPoint3D, UID, state.nodeLabelsScale)
-    networkNode.setNodeColors(state.nodesColor.toScalaFx, state.movementColor.toScalaFx)
+    networkNode.setNodeColor(state.nodesColor.toScalaFx)
     networkNode.setSeeThroughSphereRadius(state.seeThroughSpheresRadius)
     networkNode.setFilledSphereRadius(state.filledSpheresRadius)
     networkNode.setFilledSphereColor(state.filledSpheresColor.toScalaFx)

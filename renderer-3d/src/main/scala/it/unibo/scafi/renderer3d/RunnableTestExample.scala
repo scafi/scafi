@@ -89,7 +89,7 @@ private[renderer3d] object RunnableTestExample extends App {
     networkRenderer.decreaseFontSize()
     networkRenderer.removeNode(NODE_COUNT-1)
     networkRenderer.setNodeTextAsUIPosition(NODE_COUNT-2, {case (x: Double, y: Double) => x + " " + y})
-    networkRenderer.setNodesColors(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS), Color.RED)
+    networkRenderer.setNodesColor(new Color(NODE_BRIGHTNESS, NODE_BRIGHTNESS, NODE_BRIGHTNESS))
     networkRenderer.setNodeColor(NODE_COUNT-2, Color.orange)
     networkRenderer.setNodeColor(1, Color.blue)
   }

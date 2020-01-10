@@ -68,11 +68,8 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
   override def setFilledSphereColor(color: Color): Unit = onFX {filledSphere.setColor(new Color(color.opacity(0.1)))}
 
   /** See [[NetworkNode.setNodeColor]] */
-  override def setNodeColor(color: Color): Unit = onFX {node.setColor(color); state = state.copy(currentColor = color)}
-
-  /** See [[NetworkNode.setNodeColors]] */
-  override def setNodeColors(defaultColor: Color, movementColor: Color): Unit =
-    onFX {setNodeColor(defaultColor); cone.setColor(movementColor)}
+  override def setNodeColor(color: Color): Unit =
+    onFX {List(node, cone).foreach(_.setColor(color)); state = state.copy(currentColor = color)}
 
   private def isSelected: Boolean = node.getScaleX > this.state.scale
 

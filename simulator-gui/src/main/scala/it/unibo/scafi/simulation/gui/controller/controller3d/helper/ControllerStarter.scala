@@ -42,7 +42,7 @@ private[controller3d] object ControllerStarter {
     nodes.values
       .foreach(node => gui.getSimulationPanel.addNode(PositionConverter.controllerToView(node.position), node.id))
     simulationManager.simulation = simulation
-    val deltaRound: Int = getDeltaRound
+    val deltaRound: Int = getDeltaRound //call this after setSimulationSettings, since that can modify Sim_NbrRadius
     simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, deltaRound)) //avoids javaFx thread flooding
     enableMenus(gui)
     nodes.keys.toSet
@@ -56,7 +56,7 @@ private[controller3d] object ControllerStarter {
     }
 
   private def setSimulationSettings(simulation: Simulation, nodes: Map[Int, Node]): Unit = {
-    val policyNeighborhood = ControllerUtils.getNeighborhoodPolicy
+    val policyNeighborhood = ControllerUtils.get3DNeighborhoodPolicy
     simulation.network = new NetworkImpl(nodes, policyNeighborhood)
     simulation.setDeltaRound(Settings.Sim_DeltaRound)
     simulation.setRunProgram(Settings.Sim_ProgramClass)
@@ -77,7 +77,7 @@ private[controller3d] object ControllerStarter {
     if(!Settings.Sim_DrawConnections) gui3d.toggleConnections()
     gui3d.setSceneSize(PositionConverter.SCENE_SIZE)
     gui3d.setSelectionColor(Settings.Color_selection)
-    gui3d.setNodesColors(Settings.Color_device, Settings.Color_movement)
+    gui3d.setNodesColor(Settings.Color_device)
     gui3d.setConnectionsColor(Settings.Color_link)
     gui3d.setBackgroundColor(Settings.Color_background)
     val sensorRadius = if(Settings.Sim_Draw_Sensor_Radius) Settings.Sim_Sensor_Radius else 0

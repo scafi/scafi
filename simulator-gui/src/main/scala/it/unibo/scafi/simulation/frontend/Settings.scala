@@ -15,6 +15,7 @@ object Settings {
   var Sim_ExecStrategy = ExecStrategies.Random
 
   var Sim_3D = false
+  var Sim_3D_Reduce_Sparsity = true
   var Sim_Topology = Topologies.Random
   var Sim_Sensors = "someSensor bool true\nanotherSensor int 77"
   var Sim_ProgramClass = ""

@@ -114,11 +114,10 @@ private[manager] trait NodeManager {
     findNodeAndAct(nodeUID, _.setNodeColor(color.toScalaFx))
 
   /** Sets the default and movement colors of all the nodes. This applies to nodes not already created, too.
-   * @param defaultColor the new default color for the nodes
-   * @param movementColor the new movement color for the nodes */
-  final def setNodesColors(defaultColor: java.awt.Color, movementColor: java.awt.Color): Unit = onFX {
-    state = state.copy(nodesColor = defaultColor, movementColor = movementColor)
-    state.networkNodes.values.foreach(node => node.setNodeColors(defaultColor.toScalaFx, movementColor.toScalaFx))
+   * @param defaultColor the new default color for the nodes */
+  final def setNodesColor(defaultColor: java.awt.Color): Unit = onFX {
+    state = state.copy(nodesColor = defaultColor)
+    state.networkNodes.values.foreach(node => node.setNodeColor(defaultColor.toScalaFx))
   }
 
   /** Sets the color of all the colored spheres centered on the nodes. This applies to spheres not already created, too.

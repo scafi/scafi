@@ -59,12 +59,6 @@ trait NetworkNode extends Node{
    * @return Unit, since it has the side effect of setting the cube's color */
   def setNodeColor(color: Color): Unit
 
-  /** Sets the default and movement colors of the shape that represents the current node
-   * @param defaultColor the new default color of the cube.
-   * @param movementColor the new movement color of the cube.
-   * @return Unit, since it has the side effect of setting the cube's colors */
-  def setNodeColors(defaultColor: Color, movementColor: Color): Unit
-
   /** Selects the node, making it bigger and changing its color to the selection color.
    * @return Unit, since it has the side effect of selecting the node */
   def select(): Unit

@@ -40,6 +40,14 @@ private[controller] object ControllerUtils {
       case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
     }
 
+  /**Obtains the 3D neighborhood policy from the constants available in [[Settings]].
+   * @return the 3D neighborhood policy */
+  def get3DNeighborhoodPolicy: EuclideanDistanceNbr = {
+    val radius = Settings.Sim_NbrRadius
+    Settings.Sim_NbrRadius = if(Settings.Sim_3D_Reduce_Sparsity) radius * 1.65 else radius
+    getNeighborhoodPolicy
+  }
+
   /**Adds to [[SensorEnum.sensors]] all the provided sensors.
    * @param sensors the sensors to parse and add
    * @return Unit, since it has the side effect of setting the sensors. */

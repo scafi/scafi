@@ -25,13 +25,17 @@ import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 /**
- * To convert a 2D simulation to 3D: set Settings.Sim_3D to true and use Settings.Movement_Activator_3D instead of
- * Settings.Movement_Activator.
+ * 3D version of BasicDemo.
+ * To convert a 2D simulation to 3D: simply set Settings.Sim_3D to true. You can also use Settings.Movement_Activator_3D
+ * to set a 3d movement, otherwise the 2d movement function will be used. Finally, Settings.Sim_3D_Reduce_Sparsity can
+ * be set to false to disable the adjustment that avoids the sparsity increase when converting from 2d
+ * to 3d. Leaving it to true lets the simulator increase Settings.Sim_NbrRadius.
  * Reduce window size if you need more FPS. This is very useful for screens with high resolutions.
  * */
 object Basic3DDemo extends Launcher {
   // Configuring simulation
   Settings.Sim_3D = true //enables the 3d renderer
+  //Settings.Sim_3D_Reduce_Sparsity = false
   //Settings.Size_Device_Relative = 80 //makes the nodes a bit bigger
   //Settings.Sim_Draw_Sensor_Radius = true
   //Settings.Sim_Sensor_Radius = 0.025
@@ -43,7 +47,7 @@ object Basic3DDemo extends Launcher {
   Settings.Color_device = Color.DARK_GRAY
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius, don't go too high if there are a lot of nodes
-  Settings.Sim_NumNodes = 300 // don't go too high
+  Settings.Sim_NumNodes = 100 // don't go too high
   Settings.ShowConfigPanel = false
   launch()
 }
