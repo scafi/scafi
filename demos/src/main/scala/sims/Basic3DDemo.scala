@@ -45,6 +45,7 @@ object Basic3DDemo extends Launcher {
   //Settings.Sim_Topology = Topologies.Grid_LoVar
   //Settings.Color_selection = new Color(30, 30, 180, 30)
   Settings.Color_device = Color.DARK_GRAY
+  Settings.Color_link = new Color(230, 230, 230)
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius, don't go too high if there are a lot of nodes
   Settings.Sim_NumNodes = 100 // don't go too high

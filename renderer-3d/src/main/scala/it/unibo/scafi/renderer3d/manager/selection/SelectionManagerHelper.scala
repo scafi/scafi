@@ -86,7 +86,7 @@ private[selection] object SelectionManagerHelper {
    * @param node the node to check
    * @return whether the specified node should be updated */
   def shouldUpdateNode(event: MouseEvent, node: Node): Boolean =
-    node.isVisible && (event.getScreenX + event.getScreenY) % 3 < 1
+    node.isVisible && (event.getScreenX + event.getScreenY) % 2 < 1
 
   /** Changes the length and height of selectVolume by the mouse movements.
    * @param selectVolume the node to modify

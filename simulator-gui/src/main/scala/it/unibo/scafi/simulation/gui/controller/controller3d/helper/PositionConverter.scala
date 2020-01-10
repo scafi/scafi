@@ -51,6 +51,6 @@ private[helper] object PositionConverter {
    * @return the converted position
    * */
   def viewToController(position: Product3[Double, Double, Double]): Product3[Double, Double, Double] =
-    (position._1/(SCENE_SIZE), position._2/(SCENE_SIZE), position._3/(SCENE_SIZE))
+    (position._1/SCENE_SIZE, position._2/SCENE_SIZE, position._3/SCENE_SIZE)
 
 }
