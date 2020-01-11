@@ -42,18 +42,10 @@ private[controller3d] object ControllerStarter {
     nodes.values
       .foreach(node => gui.getSimulationPanel.addNode(PositionConverter.controllerToView(node.position), node.id))
     simulationManager.simulation = simulation
-    val deltaRound: Int = getDeltaRound //call this after setSimulationSettings, since that can modify Sim_NbrRadius
-    simulationManager.setPauseFire(Math.max(Settings.Sim_DeltaRound, deltaRound)) //avoids javaFx thread flooding
+    simulationManager.setPauseFire(Settings.Sim_DeltaRound)
     enableMenus(gui)
     nodes.keys.toSet
   }
-
-  private def getDeltaRound: Int =
-    if (Settings.Movement_Activator_3D.isDefined || Settings.Movement_Activator((1d, 1d))._1 != 0) {
-      0
-    } else {
-      if (Settings.Sim_NumNodes * Settings.Sim_NbrRadius >= 90) 2 else 1
-    }
 
   private def setSimulationSettings(simulation: Simulation, nodes: Map[Int, Node]): Unit = {
     val policyNeighborhood = ControllerUtils.get3DNeighborhoodPolicy

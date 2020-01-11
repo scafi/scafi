@@ -27,12 +27,12 @@ import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.beans.{InvalidationListener, Observable}
-import javafx.scene.input.{MouseButton, MouseEvent}
+import javafx.scene.input.{KeyCode, KeyEvent, MouseButton, MouseEvent}
 import javafx.scene.paint.ImagePattern
 import javafx.stage.Window
 import org.scalafx.extras.onFX
 import scalafx.embed.swing.SwingFXUtils
-import scalafx.geometry.Point3D
+import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
 import scalafx.scene.{Group, Scene, SceneAntialiasing}
 
@@ -40,7 +40,6 @@ import scalafx.scene.{Group, Scene, SceneAntialiasing}
 private[manager] trait SceneManager {
   this: NodeManager with SelectionManager => //NodeManager and SelectionManager have to also be mixed in
 
-  private final val DEFAULT_SCENE_SIZE = 1000
   private final val simulationCamera: SimulationCamera = FpsCamera()
   protected val mainScene: Scene
   protected final var sceneSize = 1d
@@ -55,16 +54,14 @@ private[manager] trait SceneManager {
   final def setSceneSize(sceneSize: Double): Unit =
     onFX {this.sceneSize = sceneSize; mainScene.getCamera.setScale(sceneSize/10000)}
 
-  protected final def sceneScaleMultiplier: Double = sceneSize / DEFAULT_SCENE_SIZE
+  protected final def sceneScaleMultiplier: Double = {val DEFAULT_SCENE_SIZE = 1000; sceneSize / DEFAULT_SCENE_SIZE}
 
   /** Sets the background image of the scene.
    * @param image the image to set as background
    * @return Unit, since it has the side effect of setting the scene's background image */
-  final def setBackgroundImage(image: Image): Unit = onFX{
-    //scalastyle:off null
-    val javaFxImage = SwingFXUtils.toFXImage(toBufferedImage(image), null)
-    mainScene.setFill(new ImagePattern(javaFxImage))
-  }
+  //scalastyle:off null
+  final def setBackgroundImage(image: Image): Unit =
+    onFX {mainScene.setFill(new ImagePattern(SwingFXUtils.toFXImage(toBufferedImage(image), null)))}
 
   /** From https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage */
   private final def toBufferedImage(image: Image): BufferedImage = {
@@ -84,8 +81,7 @@ private[manager] trait SceneManager {
    * @return Unit, since it has the side effect of setting the scene's color */
   final def setBackgroundColor(color: Color): Unit = onFX {mainScene.setFill(color.toScalaFx)}
 
-  /** Resets the scene: this means deleting all the nodes and connections, obtaining an empty scene (the light and
-   *  camera will still exist, though)
+  /** Resets the scene: deletes all the nodes and connections, obtaining an empty scene with only a light and the camera
    * @return Unit, since it has the side effect of resetting the scene */
   final def resetScene(): Unit = onFX {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
@@ -106,6 +102,7 @@ private[manager] trait SceneManager {
       simulationCamera.initialize(this,
         () => if(System.currentTimeMillis()%2==0) rotateNodeLabelsIfNeeded())
       setMouseInteraction(this, simulationCamera)
+      setKeyboardInteraction(this, simulationCamera)
     }
 
   protected final def stopMovingOnFocusLoss(window: Window): Unit  = {//call after initialization, so window is != null
@@ -121,6 +118,18 @@ private[manager] trait SceneManager {
     scene.onMouseDragEntered = event => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event)
     scene.onMouseReleased = event => if(isPrimaryButton(event)) {endSelectionAndRotateSelectedLabels(event)}
   }
+
+  private[this] final def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: KeyEvent) => {
+      val movement = event.getCode match {
+        case KeyCode.H => Option(new Point2D(-1, 0))
+        case KeyCode.K => Option(new Point2D(1, 0))
+        case KeyCode.U => Option(new Point2D(0, 1))
+        case KeyCode.N => Option(new Point2D(0, -1))
+        case _ => None
+      }
+      movement.fold()(movement => changeSelectionVolumeSizesIfNeeded(camera, movement))
+    })
 
   private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
     scene.setOnMousePressed(event => if(isPrimaryButton(event)) {

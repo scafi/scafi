@@ -94,15 +94,30 @@ private[selection] object SelectionManagerHelper {
    * @param event the mouse event that caused this update
    * @param camera the camera in the scene */
   def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera) {
-    val cameraPosition = camera.getPosition
     val initialNodePosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
     val positionDifference = (event.getScreenPosition subtract initialNodePosition) multiply 4
-    if (cameraPosition.getX.abs > cameraPosition.getZ.abs) {
+    if (isCameraMoreOnXAxis(camera.getPosition)) {
       selectVolume.setScaleZ(positionDifference.getX)
     } else {
       selectVolume.setScaleX(positionDifference.getX)
     }
     selectVolume.setScaleY(positionDifference.getY)
+  }
+
+  private def isCameraMoreOnXAxis(cameraPosition: Point3D): Boolean = cameraPosition.getX.abs > cameraPosition.getZ.abs
+
+  /** Changes the length and height of selectVolume by the keyboard movements.
+   * @param selectVolume the node to modify
+   * @param vector the 2d vector specified by the user
+   * @param camera the camera in the scene */
+  def changeSelectVolumeSizes(selectVolume: Node, vector: Point2D, camera: Camera) {
+    val finalVector = vector.normalize() multiply  40
+    if (isCameraMoreOnXAxis(camera.getPosition)) {
+      selectVolume.setScaleZ(finalVector.getX + selectVolume.getScaleZ)
+    } else {
+      selectVolume.setScaleX(finalVector.getX + selectVolume.getScaleX)
+    }
+    selectVolume.setScaleY(finalVector.getY + selectVolume.getScaleY)
   }
 
   /** Calculates the movement vector to apply to the selected nodes. It moves them in relation to the view of the camera.
@@ -115,15 +130,11 @@ private[selection] object SelectionManagerHelper {
                         camera: PerspectiveCamera): Point3D = {
     val cameraRight = MathUtils.rotateVector(Rotate.XAxis, Rotate.YAxis, (-camera.getYRotationAngle - 90).toRadians)
     val mouseMovement = event.getScreenPosition subtract state.mousePosition.getOrElse(Point2D.Zero).delegate
-    val multiplier = getMovementMultiplier(new Point2D(mouseMovement), camera, state.initialNode, scene)
-    (cameraRight * multiplier.x) + Rotate.YAxis * multiplier.y
-  }
-
-  private final def getMovementMultiplier(movementVector: Point2D, camera: PerspectiveCamera,
-                                          initialNode: Option[NetworkNode], scene: Scene): Point2D = {
+    val movementVector = new Point2D(mouseMovement)
     val multiplier = camera.getFieldOfView / (60 * scene.getHeight)  *
-      camera.getPosition.distance(initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
-    new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
+      camera.getPosition.distance(state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero))
+    val movementMultiplier = new Point2D(multiplier * movementVector.getX, multiplier * movementVector.getY)
+    (cameraRight * movementMultiplier.x) + Rotate.YAxis * movementMultiplier.y
   }
 
   /** Submits to the provided executor the movement task that is inside the provided SelectionManagerState instance.

@@ -28,6 +28,7 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import org.scalafx.extras._
+import scalafx.geometry.Point2D
 import scalafx.scene.paint.Color
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
@@ -82,11 +83,14 @@ private[manager] trait SelectionManager {
   protected final def changeSelectionVolumeSizesIfNeeded(camera: Camera, event: MouseEvent): Unit =
     modifySelectionVolume(camera, event, changeSelectVolumeSizes)
 
+  protected final def changeSelectionVolumeSizesIfNeeded(camera: Camera, movement: Point2D): Unit =
+    {changeSelectVolumeSizes(selectVolume, movement, camera); updateSelection()}
+
   private final def modifySelectionVolume(camera: Camera, event: MouseEvent,
                                           action: (Node, SelectionManagerState, MouseEvent, Camera) => Unit): Unit =
-    onFX (if(shouldUpdateNode(event, selectVolume)) {action(selectVolume, state, event, camera); updateSelection(event)})
+    onFX (if(shouldUpdateNode(event, selectVolume)) {action(selectVolume, state, event, camera); updateSelection()})
 
-  private final def updateSelection(event: MouseEvent): Unit = {
+  private final def updateSelection(): Unit = {
     deselectSelectedNodes()
     state = state.copy(selectedNodes = getIntersectingNetworkNodes(selectVolume, getAllNetworkNodes))
     state.selectedNodes.foreach(_.select())
