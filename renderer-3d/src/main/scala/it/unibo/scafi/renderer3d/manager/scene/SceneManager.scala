@@ -18,16 +18,16 @@
 
 package it.unibo.scafi.renderer3d.manager.scene
 
-import java.awt.image.BufferedImage
 import java.awt.{Color, Image}
 
 import it.unibo.scafi.renderer3d.camera.{FpsCamera, SimulationCamera}
 import it.unibo.scafi.renderer3d.manager.node.NodeManager
+import it.unibo.scafi.renderer3d.manager.scene.SceneManagerHelper._
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.beans.{InvalidationListener, Observable}
-import javafx.scene.input.{KeyCode, KeyEvent, MouseButton, MouseEvent}
+import javafx.scene.input.{KeyCode, KeyEvent, MouseButton}
 import javafx.scene.paint.ImagePattern
 import javafx.stage.Window
 import org.scalafx.extras.onFX
@@ -63,19 +63,6 @@ private[manager] trait SceneManager {
   final def setBackgroundImage(image: Image): Unit =
     onFX {mainScene.setFill(new ImagePattern(SwingFXUtils.toFXImage(toBufferedImage(image), null)))}
 
-  /** From https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage */
-  private final def toBufferedImage(image: Image): BufferedImage = {
-    //scalastyle:off null
-    image match {case image: BufferedImage => image; case _ =>
-      val bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
-        BufferedImage.TYPE_INT_ARGB)
-      val graphics2D = bufferedImage.createGraphics
-      graphics2D.drawImage(image, 0, 0, null)
-      graphics2D.dispose()
-      bufferedImage
-    }
-  }
-
   /** Sets the background color of the scene.
    * @param color the color to set
    * @return Unit, since it has the side effect of setting the scene's color */
@@ -86,7 +73,8 @@ private[manager] trait SceneManager {
   final def resetScene(): Unit = onFX {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
     mainScene.getCamera.moveTo(Point3D.Zero)
-    mainScene.getCamera.lookAtOnXZPlane(Rotate.XAxis)
+    mainScene.getCamera.lookAtOnXZPlane(Rotate.ZAxis)
+    mainScene.getCamera.moveTo(Rotate.ZAxis*2*sceneSize + Rotate.XAxis*sceneSize/2 + Rotate.YAxis*sceneSize/2)
     endSelectionMovementIfNeeded(None) //forcing selection reset
   }
 
@@ -147,8 +135,4 @@ private[manager] trait SceneManager {
       changeSelectionVolumeSizesIfNeeded(camera, event)
     }
   }
-
-  private[this] final def isPrimaryButton(event: MouseEvent): Boolean = event.getButton == MouseButton.PRIMARY
-
-  private[this] final def isMiddleMouse(event: MouseEvent): Boolean = event.getButton == MouseButton.MIDDLE
 }

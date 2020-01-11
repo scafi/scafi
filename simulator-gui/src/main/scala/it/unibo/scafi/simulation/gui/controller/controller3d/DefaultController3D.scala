@@ -67,6 +67,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
 
   /** See [[Controller3D.startSimulation]] */
   override def startSimulation(): Unit = {
+    gui.reset() //this resets any accidental camera movement happened while ConfigPanel was open
     simulationManager.setUpdateNodeFunction(nodeUpdater.updateNode(_))
     nodeIds = ControllerStarter.setupSimulation(simulation, gui, simulationManager)
     simulationManager.start()

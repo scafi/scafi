@@ -119,7 +119,7 @@ class ControllerImpl() extends Controller {
     val deltaRound = Settings.Sim_DeltaRound
     val strategy = Settings.Sim_ExecStrategy
     val sensorValues = Settings.Sim_Sensors
-    val policyNeighborhood: NbrPolicy = getNeighborhoodPolicy
+    val policyNeighborhood: NbrPolicy = getNeighborhoodPolicy()
     val configurationSeed = Settings.ConfigurationSeed
     val simulationSeed = Settings.SimulationSeed
     val randomSensorSeed = Settings.RandomSensorSeed

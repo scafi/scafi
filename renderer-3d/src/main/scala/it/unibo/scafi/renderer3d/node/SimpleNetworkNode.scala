@@ -98,9 +98,9 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
       showMovement(show = true, node, cone, this)
       cone.lookAt(position, state.currentPosition)
     }
-    List[Shape3D](node, seeThroughSphere, filledSphere, cone).foreach(_.moveTo(position))
-    label.moveTo(getLabelPosition(position))
-    if(updateMovementDirection) cone.moveTo(position*2 - cone.getPosition) //this makes the cone position more precise
+    List[Shape3D](node, seeThroughSphere, filledSphere).foreach(_.moveTo(position))
+    label.moveTo(getLabelPosition(position))//TODO: if(label.isVisible) moveLabel(label, getLabelPosition(position))
+    if(updateMovementDirection) visuallyMoveNode(cone, position)
     state = state.copy(currentPosition = position)
   }
 

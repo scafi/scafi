@@ -34,18 +34,19 @@ import javax.swing.JMenuBar
 private[controller] object ControllerUtils {
 
   /**Obtains the neighborhood policy from the constants available in [[Settings]].
+   * @param radius the neighborhood radius
    * @return the neighborhood policy */
-  def getNeighborhoodPolicy: EuclideanDistanceNbr = Settings.Sim_Policy_Nbrhood match {
-      case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
-      case _ => EuclideanDistanceNbr(Settings.Sim_NbrRadius)
+  def getNeighborhoodPolicy(radius: Double = Settings.Sim_NbrRadius): EuclideanDistanceNbr =
+    Settings.Sim_Policy_Nbrhood match {
+      case NbrHoodPolicies.Euclidean => EuclideanDistanceNbr(radius)
+      case _ => EuclideanDistanceNbr(radius)
     }
 
   /**Obtains the 3D neighborhood policy from the constants available in [[Settings]].
    * @return the 3D neighborhood policy */
   def get3DNeighborhoodPolicy: EuclideanDistanceNbr = {
     val radius = Settings.Sim_NbrRadius
-    Settings.Sim_NbrRadius = if(Settings.Sim_3D_Reduce_Sparsity) radius * 1.65 else radius
-    getNeighborhoodPolicy
+    getNeighborhoodPolicy(if(Settings.Sim_3D_Reduce_Sparsity) radius * 1.65 else radius)
   }
 
   /**Adds to [[SensorEnum.sensors]] all the provided sensors.

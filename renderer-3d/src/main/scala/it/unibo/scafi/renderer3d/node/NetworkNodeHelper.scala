@@ -22,6 +22,8 @@ import javafx.scene.{Group, Node}
 import javafx.scene.shape.{MeshView, Sphere}
 import javafx.scene.text.Text
 import org.scalafx.extras.onFX
+import scalafx.geometry.Point3D
+import it.unibo.scafi.renderer3d.util.RichScalaFx._
 
 /** Helper object for [[SimpleNetworkNode]] with various utility methods. */
 private[node] object NetworkNodeHelper {
@@ -63,5 +65,21 @@ private[node] object NetworkNodeHelper {
     label.setVisible(true)
     group.getChildren.add(label)
   }
+
+  /** Optimized method to update the label's position, but also trying to be precise.
+   * @param label the label to move
+   * @param position the new position for the label */
+  def moveLabel(label: Text, position: Point3D): Unit =
+    if(label.getText.length>10) visuallyMoveNode(label, position) else label.moveTo(position)
+
+  /** Moves the node to the specified position, trying to be as precise as possible. Putting a JavaFx node in a new
+   *  position can seem visually imprecise for certain meshes. This moves the node so that it visually seems to be at
+   *  the specified place.
+   * @param node the node to move
+   * @param position the new position of the node */
+  def visuallyMoveNode(node: Node, position: Point3D): Unit =
+    {node.moveTo(position); visuallyAdjustPosition(node, position)}
+
+  private def visuallyAdjustPosition(node: Node, position: Point3D): Unit = node.moveTo(position * 2 - node.getPosition)
 
 }

@@ -44,6 +44,7 @@ object Basic3DDemo extends Launcher {
   //Settings.Sim_DrawConnections = false
   //Settings.Sim_Topology = Topologies.Grid_LoVar
   //Settings.Color_selection = new Color(30, 30, 180, 30)
+  Settings.Sim_DeltaRound = 1 // use this if Sim_NumNodes is very small
   Settings.Color_device = Color.DARK_GRAY
   Settings.Color_link = new Color(230, 230, 230)
   Settings.Sim_ProgramClass = "sims.Basic3DProgram"
