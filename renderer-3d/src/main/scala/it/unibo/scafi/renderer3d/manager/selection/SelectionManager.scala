@@ -27,6 +27,7 @@ import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
+import javafx.scene.shape.CullFace
 import org.scalafx.extras._
 import scalafx.geometry.Point2D
 import scalafx.scene.paint.Color
@@ -42,7 +43,7 @@ private[manager] trait SelectionManager {
   private[this] val movementExecutor = new ThreadPoolExecutor(1, 1, 1,
     TimeUnit.MINUTES, new LinkedBlockingQueue[Runnable]())
 
-  setupSelectVolume(selectVolume)
+  {selectVolume.setCullFace(CullFace.NONE); selectVolume.setVisible(false)} //setup of selectVolume
 
   protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = //use minByOption when using Scala 2.13
     onFX (state = state.copy(selectionComplete = false, initialNode = {
@@ -84,7 +85,7 @@ private[manager] trait SelectionManager {
     modifySelectionVolume(camera, event, changeSelectVolumeSizes)
 
   protected final def changeSelectionVolumeSizesIfNeeded(camera: Camera, movement: Point2D): Unit =
-    {changeSelectVolumeSizes(selectVolume, movement, camera); updateSelection()}
+    {changeSelectVolumeSizes(selectVolume, state, movement, camera); updateSelection()}
 
   private final def modifySelectionVolume(camera: Camera, event: MouseEvent,
                                           action: (Node, SelectionManagerState, MouseEvent, Camera) => Unit): Unit =
@@ -92,7 +93,7 @@ private[manager] trait SelectionManager {
 
   private final def updateSelection(): Unit = {
     deselectSelectedNodes()
-    state = state.copy(selectedNodes = getIntersectingNetworkNodes(selectVolume, getAllNetworkNodes))
+    state = state.copy(selectedNodes = getAllNetworkNodes.filter(_.nodeIntersectsWith(selectVolume)))
     state.selectedNodes.foreach(_.select())
   }
 

@@ -34,9 +34,9 @@ private[updater] class JavaFxWaiter(gui3d: NetworkRenderer3D) {
    * Blocks until the javaFx thread is free of requests, but only from time to time, This is ideal to be used in a loop.
    * */
   def waitForJavaFxIfNeeded(): Unit = synchronized {
-    val MIN_WAIT_COUNTER = 10
-    val MAX_WAIT_COUNTER = 50
-    if(waitCounterThreshold == -1){ //looking at the node count to find out the right value for waitCounterThreshold
+    val MIN_WAIT_COUNTER = 10 //minimum amount of iterations without waiting on javaFx
+    val MAX_WAIT_COUNTER = 40 //maximum amount of iterations without waiting on javaFx
+    if(waitCounterThreshold == -1){ //looking at the scene complexity to find out the value for waitCounterThreshold
       val counterThreshold = 1000000 / Math.pow(Settings.Sim_NumNodes*Settings.Sim_NbrRadius*20, 1.4)
       waitCounterThreshold = MathUtils.clamp(counterThreshold, MIN_WAIT_COUNTER, MAX_WAIT_COUNTER).toInt
     }

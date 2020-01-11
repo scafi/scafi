@@ -27,18 +27,12 @@ import javafx.concurrent.Task
 import javafx.scene
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
-import javafx.scene.shape.{CullFace, Shape3D}
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}
 
 /** Helper object for [[SelectionManager]] with various utility methods. */
 private[selection] object SelectionManagerHelper {
-  
-  /** Sets up the select volume, making it visible even when inside it and invisible at first.
-   * @param selectVolume the shape to be set */
-  final def setupSelectVolume(selectVolume: Shape3D): Unit =
-    {selectVolume.setCullFace(CullFace.NONE); selectVolume.setVisible(false)}
 
   /** Finds out if the mouse cursor is over the current selection.
    * @param event the mouse event to check
@@ -48,13 +42,6 @@ private[selection] object SelectionManagerHelper {
     val pickedNode = event.getPickResult.getIntersectedNode
     pickedNode != null && (pickedNode isIntersectingWith selectVolume)
   }
-
-  /** Retrieves the nodes intersecting with the 3D shape. ATTENTION: this is not accurate if the shape was rotated.
-   * @param shape the shape that will be used to check its intersection with the nodes
-   * @param networkNodes the set of networkNodes
-   * @return the set of nodes that intersect with the shape */
-  final def getIntersectingNetworkNodes(shape: Shape3D, networkNodes: Set[NetworkNode]): Set[NetworkNode] =
-    networkNodes.filter(_.nodeIntersectsWith(shape))
 
   /** Starts node selection, so that the user can select visible nodes. It shows a cube representing the selected area.
    * @param event the mouse event
@@ -90,13 +77,13 @@ private[selection] object SelectionManagerHelper {
 
   /** Changes the length and height of selectVolume by the mouse movements.
    * @param selectVolume the node to modify
-   * @param state        the current state of SelectionManager
+   * @param state the current state of SelectionManager
    * @param event the mouse event that caused this update
    * @param camera the camera in the scene */
   def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera) {
     val initialNodePosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
     val positionDifference = (event.getScreenPosition subtract initialNodePosition) multiply 4
-    if (isCameraMoreOnXAxis(camera.getPosition)) {
+    if (isCameraMoreOnXAxis(camera, state)) {
       selectVolume.setScaleZ(positionDifference.getX)
     } else {
       selectVolume.setScaleX(positionDifference.getX)
@@ -104,15 +91,19 @@ private[selection] object SelectionManagerHelper {
     selectVolume.setScaleY(positionDifference.getY)
   }
 
-  private def isCameraMoreOnXAxis(cameraPosition: Point3D): Boolean = cameraPosition.getX.abs > cameraPosition.getZ.abs
+  private def isCameraMoreOnXAxis(camera: Camera, state: SelectionManagerState): Boolean = {
+    val direction = camera.getPosition - state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero)
+    direction.getX.abs > direction.getZ.abs
+  }
 
   /** Changes the length and height of selectVolume by the keyboard movements.
    * @param selectVolume the node to modify
+   * @param state the current state of SelectionManager
    * @param vector the 2d vector specified by the user
    * @param camera the camera in the scene */
-  def changeSelectVolumeSizes(selectVolume: Node, vector: Point2D, camera: Camera) {
+  def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, vector: Point2D, camera: Camera) {
     val finalVector = vector.normalize() multiply  40
-    if (isCameraMoreOnXAxis(camera.getPosition)) {
+    if (isCameraMoreOnXAxis(camera, state)) {
       selectVolume.setScaleZ(finalVector.getX + selectVolume.getScaleZ)
     } else {
       selectVolume.setScaleX(finalVector.getX + selectVolume.getScaleX)
