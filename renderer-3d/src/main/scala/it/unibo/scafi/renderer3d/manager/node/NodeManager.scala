@@ -89,7 +89,8 @@ private[manager] trait NodeManager {
    * @param position the new position to set
    * @param showDirection whether the view should show the movement direction or not */
   final def moveNode(nodeUID: Int, position: Product3[Double, Double, Double], showDirection: Boolean): Unit =
-    findNodeAndAct(nodeUID, node => {changeNodePosition(position, showDirection, node); updateNodeConnections(nodeUID)})
+    findNodeAndAct(nodeUID, node => {node.moveNodeTo(position.toPoint3D, mainScene.getCamera.getPosition, showDirection)
+      updateNodeConnections(nodeUID)})
 
   /** Shows the node as a normal, non moving node.
    * @param nodeUID the unique id of the node to move */
@@ -98,14 +99,15 @@ private[manager] trait NodeManager {
   /** Sets the label text of the specified node to the new text
    * @param nodeUID the unique id of the node
    * @param text the new text to set */
-  final def setNodeText(nodeUID: Int, text: String): Unit = findNodeAndAct(nodeUID, _.setText(text, mainScene.getCamera))
+  final def setNodeText(nodeUID: Int, text: String): Unit =
+    findNodeAndAct(nodeUID, _.setText(text, mainScene.getCamera.getPosition))
 
   /** Sets the label text of the specified node to the position of that node in 2D, from the point of view of the camera
    * @param nodeUID the unique id of the node
    * @param positionFormatter the function used to format the position before setting it as the label's text */
   final def setNodeTextAsUIPosition(nodeUID: Int, positionFormatter: Product2[Double, Double] => String): Unit =
     findNodeAndAct(nodeUID, node => {val position = node.getScreenPosition
-      node.setText(positionFormatter(position.x, position.y), mainScene.getCamera)})
+      node.setText(positionFormatter(position.x, position.y), mainScene.getCamera.getPosition)})
 
   /** Sets the color of the specified node to a new one.
    * @param nodeUID the unique id of the node

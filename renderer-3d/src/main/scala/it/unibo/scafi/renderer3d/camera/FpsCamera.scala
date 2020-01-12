@@ -18,6 +18,7 @@
 
 package it.unibo.scafi.renderer3d.camera
 
+import it.unibo.scafi.renderer3d.camera.CameraHelper._
 import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirection}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.input
@@ -26,7 +27,7 @@ import org.fxyz3d.geometry.MathUtils
 import org.scalafx.extras._
 import scalafx.animation.AnimationTimer
 import scalafx.geometry.Point3D
-import scalafx.scene.transform.{Rotate, Translate}
+import scalafx.scene.transform.Rotate
 import scalafx.scene.{PerspectiveCamera, Scene}
 
 /** JavaFx 3D camera that moves with keyboard input and rotates with mouse or keyboard input.
@@ -37,18 +38,14 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   private[this] val INITIAL_FOV = 40
   private[this] val MIN_SENSITIVITY = 0.1
   private[this] val MAX_SENSITIVITY = 1d
-  private[this] val KEYBOARD_ARROW_SENSITIVITY = 1
   private[this] val MAX_ROTATION = 15
   private[this] val adjustedSensitivity = MathUtils.clamp(sensitivity, MIN_SENSITIVITY, MAX_SENSITIVITY)
   private[this] var state: CameraState = CameraState()
 
-  setup()
+  setupCamera(this, INITIAL_FOV, initialPosition)
+  setupMovementAndRotations()
 
-  private def setup(): Unit = {
-    this.setFieldOfView(INITIAL_FOV)
-    this.setFarClip(100000.0)
-    this.setNearClip(0.1)
-    this.moveTo(initialPosition)
+  private def setupMovementAndRotations(): Unit = {
     var previousTime = System.nanoTime()
     AnimationTimer(time => {
       val delay = (time - previousTime)/10000000
@@ -59,6 +56,9 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     }).start()
   }
 
+  private def rotateCamera(yAxisDegrees: Double): Unit =
+    this.rotateOnSelf(adjustedSensitivity * yAxisDegrees, Rotate.YAxis)
+
   /** See [[SimulationCamera.startMouseRotation()]] */
   override def startMouseRotation(mouseEvent: MouseEvent): Unit =
     onFX {state = state.copy(oldMousePosition = mouseEvent.getScreenPosition)}
@@ -66,32 +66,18 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   /** See [[SimulationCamera.rotateByMouseEvent()]] */
   override def rotateByMouseEvent(mouseEvent: MouseEvent): Unit = onFX {
     val newMousePosition = mouseEvent.getScreenPosition
-    this.rotateCamera(MathUtils.clamp((newMousePosition.x - state.oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
+    rotateCamera(MathUtils.clamp((newMousePosition.x - state.oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
     state = state.copy(oldMousePosition = newMousePosition)
   }
 
-  private def getKeyboardRotation(direction: RotateDirection.Value): Int = direction match {
-    case RotateDirection.left => -KEYBOARD_ARROW_SENSITIVITY
-    case RotateDirection.right => KEYBOARD_ARROW_SENSITIVITY
-  }
-
-  private def rotateCamera(yAxisDegrees: Double): Unit =
-    this.rotateOnSelf(adjustedSensitivity * yAxisDegrees, Rotate.YAxis)
-
   private def zoomByKeyboardEvent(keyEvent: input.KeyEvent): Unit = keyEvent.getCode match {
-      case KeyCode.ADD => addZoomAmount(1)
-      case KeyCode.SUBTRACT => addZoomAmount(-1)
-      case _ => ()
-    }
+    case KeyCode.ADD => addZoomAmount(1)
+    case KeyCode.SUBTRACT => addZoomAmount(-1)
+    case _ => ()
+  }
 
   private def addZoomAmount(amount: Int): Unit =
     onFX {this.setFieldOfView(MathUtils.clamp(this.getFieldOfView - amount, INITIAL_FOV/2, INITIAL_FOV))}
-
-  private def moveByDirections(directions: Set[MoveDirection.Value], delay: Double): Unit =
-    if(directions.nonEmpty){
-      val adjustedDelay = delay/Math.sqrt(directions.size)
-      directions.foreach(direction => moveCamera(direction, adjustedDelay))
-    }
 
   /** See [[SimulationCamera.initialize]] */
   override def initialize(scene: Scene, onCameraChangeAction: () => Unit): Unit = onFX {
@@ -110,16 +96,6 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
 
   /** See [[SimulationCamera.stopMovingAndRotating]] */
   override def stopMovingAndRotating(): Unit = onFX {state = state.copy(moveDirections = Set(), rotateDirection = None)}
-
-  private def moveCamera(cameraDirection: MoveDirection.Value, delay: Double): Unit = {
-    val SPEED = 100
-    val speedVector = cameraDirection.toVector * SPEED * delay
-    val translate = new Translate(speedVector.getX, speedVector.getY, speedVector.getZ)
-    this.getTransforms.add(translate)
-    val newPosition = this.getPosition
-    this.getTransforms.remove(translate) //this is needed, otherwise this.getTransforms grows bigger and bigger
-    this.moveTo(newPosition)
-  }
 
   /** See [[SimulationCamera.isEventAMovementOrRotation]] */
   override def isEventAMovementOrRotation(keyEvent: KeyEvent): Boolean =

@@ -63,15 +63,6 @@ private[node] object NodeManagerHelper {
   }
 
   /**
-   * Moves the node to the specified position and renders it as a moving node.
-   * @param position the position where the new node should be placed
-   * @param showDirection whether the node should be rendered as a moving node or not
-   * @param node the node to move
-   * */
-  def changeNodePosition(position: Product3[Double, Double, Double], showDirection: Boolean, node: NetworkNode): Unit =
-    node.moveNodeTo(position.toPoint3D, showDirection)
-
-  /**
    * Rotates all the labels so that they face the camera.
    * @param cameraPosition the position of the camera in the 3d space
    * @param state the current state of NodeManager

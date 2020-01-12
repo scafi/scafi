@@ -66,12 +66,6 @@ private[node] object NetworkNodeHelper {
     group.getChildren.add(label)
   }
 
-  /** Optimized method to update the label's position, but also trying to be precise.
-   * @param label the label to move
-   * @param position the new position for the label */
-  def moveLabel(label: Text, position: Point3D): Unit =
-    if(label.getText.length>10) visuallyMoveNode(label, position) else label.moveTo(position)
-
   /** Moves the node to the specified position, trying to be as precise as possible. Putting a JavaFx node in a new
    *  position can seem visually imprecise for certain meshes. This moves the node so that it visually seems to be at
    *  the specified place.

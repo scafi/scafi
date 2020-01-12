@@ -22,7 +22,7 @@ import it.unibo.scafi.renderer3d.node.NetworkNodeHelper._
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.shape.Shape3D
-import javafx.scene.{Camera, Group, Node}
+import javafx.scene.{Group, Node}
 import org.scalafx.extras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
@@ -49,12 +49,12 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
 
   /** See [[NetworkNode.setText]] */
-  override def setText(text: String, camera: Camera): Unit = onFX {
+  override def setText(text: String, cameraPosition: Point3D): Unit = onFX {
     if(text.length == 0) {
       if(label.isVisible) {label.setVisible(false); this.getChildren.remove(label)}
     } else if(!label.isVisible) {
       addAndSetLabel(text, label, this)
-      rotateTextToCamera(camera.getPosition)
+      rotateTextToCamera(cameraPosition)
     } else {
       label.setText(text)
     }
@@ -93,15 +93,18 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
   override def setFilledSphereRadius(radius: Double): Unit = setSphereRadius(filledSphere, radius, this)
 
   /** See [[NetworkNode.moveNodeTo]] */
-  override def moveNodeTo(position: Point3D, updateMovementDirection: Boolean = false): Unit = onFX {
-    if(updateMovementDirection) {
-      showMovement(show = true, node, cone, this)
-      cone.lookAt(position, state.currentPosition)
+  override def moveNodeTo(position: Point3D, cameraPosition: Point3D, updateMovementDirection: Boolean = false) {
+    onFX {
+      if (updateMovementDirection) {
+        showMovement(show = true, node, cone, this)
+        cone.lookAt(position, state.currentPosition)
+      }
+      List[Shape3D](node, seeThroughSphere, filledSphere).foreach(_.moveTo(position))
+      label.moveTo(getLabelPosition(position))
+      if((position.x + position.z).toInt%100==0) rotateTextToCamera(cameraPosition)
+      if (updateMovementDirection) visuallyMoveNode(cone, position)
+      state = state.copy(currentPosition = position)
     }
-    List[Shape3D](node, seeThroughSphere, filledSphere).foreach(_.moveTo(position))
-    label.moveTo(getLabelPosition(position))//TODO: if(label.isVisible) moveLabel(label, getLabelPosition(position))
-    if(updateMovementDirection) visuallyMoveNode(cone, position)
-    state = state.copy(currentPosition = position)
   }
 
   /** See [[NetworkNode.setNodeScale]] */

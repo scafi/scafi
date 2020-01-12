@@ -28,11 +28,11 @@ import scalafx.scene.paint.Color
  * */
 trait NetworkNode extends Node{
 
-  /** Sets the text of the node's label.
+  /** Sets the text of the node's label. Don't use very long strings if possible, to keep the label near the node.
    * @param text the new text to set
-   * @param camera the scene's camera. This is needed if the label is currently deactivated, so it can face the camera
+   * @param cameraPosition this is needed if the label is currently deactivated, so it can face the camera
    * @return Unit, since it has the side effect of setting the text of the node's label */
-  def setText(text: String, camera: Camera): Unit
+  def setText(text: String, cameraPosition: Point3D): Unit
 
   /** Rotates the label of the node so that the label faces the camera
    * @param cameraPosition the camera position
@@ -78,9 +78,10 @@ trait NetworkNode extends Node{
 
   /** Moves the node to the specified position in the 3d scene. IMPORTANT: don't use other methods to move this node
    * @param position the new position of the node
+   * @param cameraPosition the position of the scene's camera, since the label could also get rotated
    * @param updateMovementDirection whether the movement shown as a red arrow should be updated or not
    * @return Unit, since it has the side effect of moving the node */
-  def moveNodeTo(position: Point3D, updateMovementDirection: Boolean = false): Unit
+  def moveNodeTo(position: Point3D, cameraPosition: Point3D, updateMovementDirection: Boolean = false): Unit
 
   /** Sets the scale of the shape representing the node.
    * @param scale the new scale of the node
