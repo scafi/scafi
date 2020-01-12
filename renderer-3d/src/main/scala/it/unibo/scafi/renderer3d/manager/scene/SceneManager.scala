@@ -68,13 +68,13 @@ private[manager] trait SceneManager {
    * @return Unit, since it has the side effect of setting the scene's color */
   final def setBackgroundColor(color: Color): Unit = onFX {mainScene.setFill(color.toScalaFx)}
 
-  /** Resets the scene: deletes all the nodes and connections, obtaining an empty scene with only a light and the camera
+  /** Deletes all the nodes and connections, obtaining an empty scene with only a light and the camera facing the nodes.
    * @return Unit, since it has the side effect of resetting the scene */
   final def resetScene(): Unit = onFX {
     getAllNetworkNodes.foreach(node => removeNode(node.UID))
     mainScene.getCamera.moveTo(Point3D.Zero)
-    mainScene.getCamera.lookAtOnXZPlane(Rotate.ZAxis)
-    mainScene.getCamera.moveTo(Rotate.ZAxis*2*sceneSize + Rotate.XAxis*sceneSize/2 + Rotate.YAxis*sceneSize/2)
+    mainScene.getCamera.lookAtOnXZPlane(Rotate.ZAxis*(-1))
+    mainScene.getCamera.moveTo((Rotate.ZAxis*sceneSize*1.2 - Rotate.XAxis*sceneSize/2)*(-1) + Rotate.YAxis*sceneSize/2)
     endSelectionMovementIfNeeded(None) //forcing selection reset
   }
 
