@@ -51,7 +51,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
       val delay = (time - previousTime)/10000000
       if(state.rotateDirection.isDefined || state.moveDirections.nonEmpty) state.onCameraChange()
       state.rotateDirection.fold()(direction => rotateCamera(getKeyboardRotation(direction) * delay))
-      moveByDirections(state.moveDirections, delay)
+      moveByDirections(this, state.moveDirections, delay)
       previousTime = time
     }).start()
   }

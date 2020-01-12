@@ -55,7 +55,7 @@ private[camera] object CameraHelper {
   def moveByDirections(camera: SimulationCamera, directions: Set[MoveDirection.Value], delay: Double): Unit =
     if(directions.nonEmpty){
       val adjustedDelay = delay/Math.sqrt(directions.size)
-      directions.foreach(direction => moveCamera(direction, adjustedDelay))
+      directions.foreach(direction => moveCamera(camera, direction, adjustedDelay))
     }
 
   private def moveCamera(camera: SimulationCamera, cameraDirection: MoveDirection.Value, delay: Double): Unit = {
