@@ -27,7 +27,7 @@ import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.beans.{InvalidationListener, Observable}
-import javafx.scene.input.{KeyCode, KeyEvent, MouseButton}
+import javafx.scene.input._
 import javafx.scene.paint.ImagePattern
 import javafx.stage.Window
 import org.scalafx.extras.onFX
@@ -102,9 +102,11 @@ private[manager] trait SceneManager {
 
   private[this] final def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
     setMousePressedAndDragged(scene, camera)
-    scene.setOnDragDetected(_ => scene.startFullDrag())
-    scene.onMouseDragEntered = event => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event)
-    scene.onMouseReleased = event => if(isPrimaryButton(event)) endSelectionAndRotateSelectedLabels(event)
+    scene.addEventFilter(MouseEvent.DRAG_DETECTED, (_: MouseEvent) => scene.startFullDrag())
+    scene.addEventFilter(MouseDragEvent.MOUSE_DRAG_ENTERED,
+      (event: MouseDragEvent) => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event))
+    scene.addEventFilter(MouseEvent.MOUSE_RELEASED,
+      (event: MouseEvent) => if(isPrimaryButton(event)) endSelectionAndRotateSelectedLabels(event))
   }
 
   private[this] final def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
@@ -120,19 +122,19 @@ private[manager] trait SceneManager {
     })
 
   private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
-    scene.setOnMousePressed(event => if(isPrimaryButton(event)) {
+    scene.addEventFilter(MouseEvent.MOUSE_PRESSED, (event: MouseEvent) => if(isPrimaryButton(event)) {
       endSelectionMovementIfNeeded(Option(event))
       if(isSelectionComplete && !movementComplete) setMousePosition(event) else setSelectionVolumeCenter(event)
     } else if(isMiddleMouse(event)) {
       camera.startMouseRotation(event)
     })
-    scene.onMouseDragged = event =>
+    scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, (event: MouseEvent) =>
       if(isPrimaryButton(event)) {
         if(isSelectionComplete) moveSelectedNodesIfNeeded(camera, event) else scaleSelectionVolumeIfNeeded(camera, event)
     } else if(isMiddleMouse(event)) {
       camera.rotateByMouseEvent(event)
     } else if(event.getButton == MouseButton.SECONDARY) {
       changeSelectionVolumeSizesIfNeeded(camera, event)
-    }
+    })
   }
 }
