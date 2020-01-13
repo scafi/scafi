@@ -16,12 +16,9 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller
+package it.unibo.scafi.simulation.frontend.controller
 
-import it.unibo.scafi.simulation.gui.model.NodeValue
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.{MyPopupMenu, SensorOptionPane}
 import javax.swing.JOptionPane
 
 import scala.util.Try
@@ -32,10 +29,11 @@ import scala.util.Try
 object PopupMenuUtils {
 
   /**Adds the actions to execute whenever the appropriate observation event occurs.
-   * @param popupMenu the popup menu that will fire the events
+ *
+   * @param popupMenu        the popup menu that will fire the events
    * @param toggleNeighbours the function to call whenever the event "Toggle Neighbours" occurs
-   * @param controller an instance of [[Controller]] that will receive and handle most of the events */
-  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: Controller) {
+   * @param controller       an instance of [[GeneralController]] that will receive and handle most of the events */
+  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: GeneralController) {
     popupMenu.addObservation("Toggle Neighbours", _ => toggleNeighbours())
     popupMenu.addObservation("Id", _ => controller.setShowValue(NodeValue.ID))
     popupMenu.addObservation("Export", _ => controller.setShowValue(NodeValue.EXPORT))
@@ -45,7 +43,7 @@ object PopupMenuUtils {
     addSensorAndGenericPopupObservations(popupMenu, controller)
   }
 
-  private def addSensorAndGenericPopupObservations(popupMenu: MyPopupMenu, controller: Controller): Unit = {
+  private def addSensorAndGenericPopupObservations(popupMenu: MyPopupMenu, controller: GeneralController): Unit = {
     popupMenu.addObservation("Sensor", _ => Try {
       val sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
         SensorEnum.sensors.map(_.name).mkString(", ") + ")")
@@ -58,7 +56,7 @@ object PopupMenuUtils {
     })
   }
 
-  private def setGenericObservation(obs: String, controller: Controller): Unit = {
+  private def setGenericObservation(obs: String, controller: GeneralController): Unit = {
     val split = obs.trim.split(" ", 2)
     val (operatorStr, valueStr) = (split(0), split(1))
     val (valueType, value) = Utils.parseValue(valueStr)
@@ -90,9 +88,10 @@ object PopupMenuUtils {
     }
 
   /**Adds the actions to execute whenever a popup "Action" menu is pressed.
-   * @param controller an instance of [[Controller]] that will receive and handle most of the events
-   * @param popupMenu the popup menu that will fire the events */
-  def addPopupActions(controller: Controller, popupMenu: MyPopupMenu) {
+ *
+   * @param controller an instance of [[GeneralController]] that will receive and handle most of the events
+   * @param popupMenu  the popup menu that will fire the events */
+  def addPopupActions(controller: GeneralController, popupMenu: MyPopupMenu) {
     /* for(Action a :ActionEnum.values()){
                gui.getSimulationPanel().getPopUpMenu().addAction(a.getName(), e->{});
            }*/

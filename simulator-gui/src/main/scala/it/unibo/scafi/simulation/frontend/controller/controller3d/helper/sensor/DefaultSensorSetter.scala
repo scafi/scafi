@@ -16,11 +16,11 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper.sensor
+package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.sensor
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.Simulation
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.NodeUpdater
+import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater.NodeUpdater
 import it.unibo.scafi.simulation.gui.model.Node
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 
@@ -45,7 +45,7 @@ private[controller3d] class DefaultSensorSetter(simulationPanel: NetworkRenderer
   private def setNodesSensor(nodes: Iterable[Node], sensorName: String, value: Any): Unit =
     nodes.foreach(setNodeSensor(_, sensorName, value))
 
-  /** See [[it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D.handleNumberButtonPress]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D.handleNumberButtonPress]] */
   def handleNumberButtonPress(sensorIndex: Int): Unit = {
     getSensorName(sensorIndex).foreach(sensorName => {
       val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)

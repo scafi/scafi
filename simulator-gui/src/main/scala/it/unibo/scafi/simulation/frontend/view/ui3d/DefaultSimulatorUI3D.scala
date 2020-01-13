@@ -16,13 +16,13 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.view.ui3d
+package it.unibo.scafi.simulation.frontend.view.ui3d
 
 import java.awt.BorderLayout
 import java.awt.event.{KeyEvent, KeyListener, MouseEvent, MouseListener}
 
 import it.unibo.scafi.renderer3d.manager.{NetworkRenderer3D, NetworkRendering3DPanel}
-import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.gui.utility.Utils
 import it.unibo.scafi.simulation.gui.view.{MenuBarNorth, MyPopupMenu}
 import javax.swing._

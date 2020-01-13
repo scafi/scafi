@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper
+package it.unibo.scafi.simulation.frontend.controller.controller3d.helper
 
 /**
  * Utility object to convert the position of nodes from the controller to the view and back. This is needed because the

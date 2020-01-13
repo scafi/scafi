@@ -16,17 +16,17 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d
+package it.unibo.scafi.simulation.frontend.controller.controller3d
 
 import it.unibo.scafi.incarnations.BasicAbstractIncarnation
-import it.unibo.scafi.simulation.gui.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.gui.model.{Network, Node}
 import it.unibo.scafi.simulation.gui.model.NodeValue
 
 /**
- * Interface of the 3d controller. This is a normal [[Controller]] but it has some more methods.
+ * Interface of the 3d controller. This is a normal [[GeneralController]] but it has some more methods.
  * */
-trait Controller3D extends Controller{
+trait Controller3D extends GeneralController{
 
   /**
    * Handles a number button press on the keyboard and updates the enabled sensors and colors of the selected nodes.

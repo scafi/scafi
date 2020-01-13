@@ -16,17 +16,16 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller
+package it.unibo.scafi.simulation.frontend.controller
 
 import java.awt.Image
 
-import it.unibo.scafi.simulation.gui.model.NodeValue
 import javax.swing.JFrame
 
 /**
  * An interface with the main methods used by controllers.
  * */
-trait Controller {
+trait GeneralController {
   /**
    * Starts the simulation.
    * */

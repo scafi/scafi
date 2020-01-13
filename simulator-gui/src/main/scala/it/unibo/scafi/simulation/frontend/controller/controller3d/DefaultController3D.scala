@@ -16,17 +16,18 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d
+package it.unibo.scafi.simulation.frontend.controller.controller3d
 
 import java.awt.Image
 
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper._
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.sensor.DefaultSensorSetter
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.{DefaultNodeUpdater, NodeUpdater}
-import it.unibo.scafi.simulation.gui.controller.{ControllerUtils, PopupMenuUtils}
+import it.unibo.scafi.simulation.frontend.controller.PopupMenuUtils
+import it.unibo.scafi.simulation.frontend.controller.controller3d.helper._
+import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.sensor.DefaultSensorSetter
+import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater.{DefaultNodeUpdater, NodeUpdater}
+import it.unibo.scafi.simulation.gui.controller.ControllerUtils
 import it.unibo.scafi.simulation.gui.model._
 import it.unibo.scafi.simulation.gui.view.ConfigurationPanel
-import it.unibo.scafi.simulation.gui.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
+import it.unibo.scafi.simulation.frontend.view.ui3d.{DefaultSimulatorUI3D, SimulatorUI3D}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}
 import javax.swing.{JFrame, SwingUtilities}
 

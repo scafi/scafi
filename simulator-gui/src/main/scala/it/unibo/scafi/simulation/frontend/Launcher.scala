@@ -6,7 +6,7 @@
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.simulation.frontend.controller.Controller
-import it.unibo.scafi.simulation.gui.controller.controller3d.DefaultController3D
+import it.unibo.scafi.simulation.frontend.controller.controller3d.DefaultController3D
 
 class Launcher extends App {
   def parseCommandLine(): Unit = SimulationCmdLine.parse(args, Settings)

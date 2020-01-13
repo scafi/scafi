@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper
+package it.unibo.scafi.simulation.frontend.controller.controller3d.helper
 
 import it.unibo.scafi.config.{Grid3DSettings, SimpleRandomSettings}
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils

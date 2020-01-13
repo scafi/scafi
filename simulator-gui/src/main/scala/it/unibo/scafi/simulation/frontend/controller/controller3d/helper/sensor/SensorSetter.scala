@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper.sensor
+package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.sensor
 
 trait SensorSetter {
 
@@ -29,6 +29,6 @@ trait SensorSetter {
    * */
   def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit
 
-  /** See [[it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D.handleNumberButtonPress]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D.handleNumberButtonPress]] */
   def handleNumberButtonPress(sensorIndex: Int): Unit
 }

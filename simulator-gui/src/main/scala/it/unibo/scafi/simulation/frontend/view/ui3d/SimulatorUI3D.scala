@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.view.ui3d
+package it.unibo.scafi.simulation.frontend.view.ui3d
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.view.MyPopupMenu

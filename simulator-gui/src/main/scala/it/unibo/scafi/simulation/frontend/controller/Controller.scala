@@ -38,7 +38,7 @@ import scala.util.Try
   }
 }
 
-class Controller () {
+class Controller () extends GeneralController {
   private[frontend] var gui: SimulatorUI = null
   protected[frontend] var simManager: SimulationManager = null
   final private[controller] var nodes: Map[Int, (Node, GuiNode)] = Map[Int, (Node, GuiNode)]()

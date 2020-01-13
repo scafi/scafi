@@ -16,20 +16,14 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller
+package it.unibo.scafi.simulation.frontend.controller
 
-import it.unibo.scafi.simulation.gui.Settings
-import it.unibo.scafi.simulation.gui.SettingsSpace.NbrHoodPolicies
-import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies.{Grid, Grid_HighVar, Grid_LoVar, Grid_MedVar}
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.model.{EuclideanDistanceNbr, Sensor}
-import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.MyPopupMenu
 import it.unibo.scafi.space.{Point2D, Point3D}
 import javax.swing.JMenuBar
 
 /**
- * Utility object containing methods that are useful for any [[Controller]].
+ * Utility object containing methods that are useful for any [[GeneralController]].
  * */
 private[controller] object ControllerUtils {
 

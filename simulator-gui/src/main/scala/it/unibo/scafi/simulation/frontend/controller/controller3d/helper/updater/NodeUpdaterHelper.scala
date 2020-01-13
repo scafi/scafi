@@ -16,14 +16,14 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater
+package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater
 
 import java.awt.Color
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
-import it.unibo.scafi.simulation.gui.controller.controller3d.Controller3D
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.PositionConverter
+import it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D
+import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.PositionConverter
 import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
 import it.unibo.scafi.simulation.gui.{Settings, Simulation}

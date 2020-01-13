@@ -16,12 +16,12 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.simulation.gui.controller.controller3d.helper
+package it.unibo.scafi.simulation.frontend.controller.controller3d.helper
 
 import it.unibo.scafi.simulation.gui.controller.ControllerUtils
-import it.unibo.scafi.simulation.gui.controller.controller3d.helper.updater.NodeUpdater
+import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater.NodeUpdater
 import it.unibo.scafi.simulation.gui.model.SimulationManager
-import it.unibo.scafi.simulation.gui.view.ui3d.SimulatorUI3D
+import it.unibo.scafi.simulation.frontend.view.ui3d.SimulatorUI3D
 
 /**
  * Utility object that has methods to clear and reset DefaultController3D.
