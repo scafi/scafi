@@ -31,6 +31,7 @@ import javafx.scene.input._
 import javafx.scene.paint.ImagePattern
 import javafx.stage.Window
 import org.scalafx.extras.onFX
+import scalafx.application.Platform
 import scalafx.embed.swing.SwingFXUtils
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
@@ -87,11 +88,14 @@ private[manager] trait SceneManager {
     new Scene(0, 0, true, SceneAntialiasing.Balanced) {
       camera = simulationCamera
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
-      simulationCamera.initialize(this,
-        () => if(System.currentTimeMillis()%2==0) rotateNodeLabelsIfNeeded())
-      setMouseInteraction(this, simulationCamera)
-      setKeyboardInteraction(this, simulationCamera)
     }
+
+  protected def setupCameraAndListeners(): Unit =
+    Platform.runLater(() => {
+      simulationCamera.initialize(mainScene, () => if (System.currentTimeMillis() % 2 == 0) rotateNodeLabelsIfNeeded())
+      setMouseInteraction(mainScene, simulationCamera)
+      setKeyboardInteraction(mainScene, simulationCamera)
+    })
 
   protected final def stopMovingOnFocusLoss(window: Window): Unit  = {//call after initialization, so window is != null
     val listener = new InvalidationListener { //without this the camera would sometimes keep moving without user input

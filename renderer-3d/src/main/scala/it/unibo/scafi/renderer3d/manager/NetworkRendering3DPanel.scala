@@ -40,9 +40,10 @@ final class NetworkRendering3DPanel() extends NetworkRenderer3D with ConnectionM
 
   private val SHOW_FPS_COUNTER = false //use this when you want to check performance
   override protected val mainScene: Scene = new Scene(createScene())
-  
+
   mainScene.getChildren.add(connectionGroup)
   this.setScene(mainScene)
+  setupCameraAndListeners()
   Platform.runLater(stopMovingOnFocusLoss(mainScene.getWindow)) //runLater is needed, otherwise getWindow would be null
   if(SHOW_FPS_COUNTER) FPSCounter.addToScene(mainScene)
 
