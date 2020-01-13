@@ -1,4 +1,5 @@
 scalacOptions += "-target:jvm-1.11"
+javacOptions ++= Seq("-source", "1.11", "-target", "1.11")
 
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -68,11 +69,11 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
-  scalaVersion := "2.12.2",
+  scalaVersion := "2.12.10",
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
-  crossScalaVersions := Seq("2.11.12","2.12.2") // "2.13.0-M1"
+  crossScalaVersions := Seq("2.11.12","2.12.10") // "2.13.0-M1"
 )
 
 lazy val noPublishSettings = Seq(

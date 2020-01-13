@@ -70,27 +70,30 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     state = state.copy(oldMousePosition = newMousePosition)
   }
 
-  private def zoomByKeyboardEvent(keyEvent: input.KeyEvent): Unit = keyEvent.getCode match {
-    case KeyCode.ADD => addZoomAmount(1)
-    case KeyCode.SUBTRACT => addZoomAmount(-1)
-    case _ => ()
+  private def zoomByKeyboardEvent(keyEvent: input.KeyEvent): Unit = {
+    val zoomStep = 0.75
+    keyEvent.getCode match {
+      case KeyCode.ADD => addZoomAmount(zoomStep)
+      case KeyCode.SUBTRACT => addZoomAmount(-zoomStep)
+      case _ => ()
+    }
   }
 
-  private def addZoomAmount(amount: Int): Unit =
+  private def addZoomAmount(amount: Double): Unit =
     onFX {this.setFieldOfView(MathUtils.clamp(this.getFieldOfView - amount, INITIAL_FOV/2, INITIAL_FOV))}
 
   /** See [[SimulationCamera.initialize]] */
   override def initialize(scene: Scene, onCameraChangeAction: () => Unit): Unit = onFX {
-    scene.setOnKeyPressed(event => {
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: KeyEvent) => {
       MoveDirection.getDirection(event).fold()(direction => state = state.withAddedMoveDirection(direction))
       RotateDirection.getDirection(event).fold()(direction => state = state.copy(rotateDirection = Option(direction)))
+      zoomByKeyboardEvent(event)
     })
-    scene.setOnKeyReleased(event => {
+    scene.addEventFilter(KeyEvent.KEY_RELEASED, (event: KeyEvent) => {
       MoveDirection.getDirection(event).fold()(direction => state = state.withRemovedMoveDirection(direction))
       RotateDirection.getDirection(event).fold()(direction =>
         if (state.rotateDirection == Option(direction)) state = state.copy(rotateDirection = None))
     })
-    scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: KeyEvent) => zoomByKeyboardEvent(event))
     state = state.copy(onCameraChange = onCameraChangeAction)
   }
 
