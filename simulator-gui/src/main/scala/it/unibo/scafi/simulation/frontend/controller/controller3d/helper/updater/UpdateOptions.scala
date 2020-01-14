@@ -30,7 +30,7 @@ private[updater] case class UpdateOptions(isPositionNew: Boolean,
                                           stoppedMoving: Boolean,
                                           newConnections: Set[Int],
                                           removedConnections: Set[Int],
-                                          color: Option[Color] = None,
-                                          valueType: Option[NodeValue] = None)
+                                          color: Option[Color],
+                                          valueType: Option[NodeValue])
 
 

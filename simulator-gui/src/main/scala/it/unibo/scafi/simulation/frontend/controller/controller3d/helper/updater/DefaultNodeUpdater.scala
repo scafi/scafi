@@ -40,8 +40,8 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
       .map(node => (node._1, node._2, updateNodeConnections(node._1, simulation.network, gui3d)))
     nodesAndConnections.foreach(node => updateNodeInSimulation(simulation, gui3d, node._1, node._2))
     onFX (nodesAndConnections.foreach(node => { //without runLater it would cause many requests to javaFx
-      updateUI(node._2, updateLedStatus = true, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false,
-        stoppedMoving = false, node._3._1, node._3._2))
+      updateUI(node._2, updateLedStatus = false, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false,
+        stoppedMoving = false, node._3._1, node._3._2, None, None))
     }))
   })
 
@@ -58,7 +58,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     updateNodeInSimulation(simulation, gui3d, node, newPosition)
     val options = getUIUpdateOptions(node, newPosition, isPositionDifferent)
     if(isPositionDifferent) movingNodes += nodeId else movingNodes -= nodeId
-    updateUI(newPosition, !isPositionDifferent, node, options) //using Platform.runLater
+    updateUI(newPosition, updateLedStatus = true, node, options) //using Platform.runLater
   }
 
   private def getUIUpdateOptions(node: Node, newPosition: Option[Product3[Double, Double, Double]],
@@ -83,7 +83,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
       options.newConnections.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
       options.removedConnections.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deletes old connections
       options.color.fold()(color => gui3d.setNodeColor(nodeId, color))
-      updateLedActuatorStatus(node, controller, gui3d, !updateLedStatus)
+      if(updateLedStatus) updateLedActuatorStatus(node, controller, gui3d, options.isPositionNew)
     }
   }
 

@@ -30,6 +30,12 @@ import it.unibo.scafi.simulation.gui.{Launcher, Settings}
  * to set a 3d movement, otherwise the 2d movement function will be used. Finally, Settings.Sim_3D_Reduce_Sparsity can
  * be set to false to disable the adjustment that avoids the sparsity increase when converting from 2d
  * to 3d. Leaving it to true lets the simulator increase Settings.Sim_NbrRadius.
+ * Keys:
+ *  - WASD, space and c to move
+ *  - middle mouse button drag or left and right arrows to rotate,
+ *  - left mouse button drag to select
+ *  - right mouse drag or U, H, K, N to edit selection
+ *  - plus and minus to change focus
  * Reduce window size if you need more FPS. This can be useful for screens with high resolutions.
  * */
 object Basic3DDemo extends Launcher {
