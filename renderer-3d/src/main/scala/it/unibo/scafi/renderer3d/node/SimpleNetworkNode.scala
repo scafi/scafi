@@ -102,7 +102,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
       List[Shape3D](node, seeThroughSphere, filledSphere).foreach(_.moveTo(position))
       label.moveTo(getLabelPosition(position))
       if((position.x + position.z).toInt%100==0) rotateTextToCamera(cameraPosition)
-      if (updateMovementDirection) visuallyMoveNode(cone, position)
+      if (cone.isVisible) visuallyMoveNode(cone, position)
       state = state.copy(currentPosition = position)
     }
   }
