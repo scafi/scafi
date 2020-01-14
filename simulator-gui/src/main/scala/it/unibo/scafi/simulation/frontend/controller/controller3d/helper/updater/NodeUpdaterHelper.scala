@@ -106,10 +106,12 @@ private[updater] object NodeUpdaterHelper {
   /** Checks if the specified node has Led_Activator active, if it does it enables a 3D sphere in the UI.
    * @param node the node that has to be checked
    * @param controller the 3D controller
-   * @param gui3d the 3D network renderer */
-  def updateLedActuatorStatus(node: Node, controller: Controller3D, gui3d: NetworkRenderer3D): Unit =
+   * @param gui3d the 3D network renderer
+   * @param disable whether the led actuator should be forced to be disabled */
+  def updateLedActuatorStatus(node: Node, controller: Controller3D, gui3d: NetworkRenderer3D,
+                              disable: Boolean = false): Unit =
     if(controller.isLedActivatorSet){
-      val enableLed = Try(Settings.Led_Activator(node.export)).getOrElse(false)
+      val enableLed = if(disable) false else Try(Settings.Led_Activator(node.export)).getOrElse(false)
       gui3d.enableNodeFilledSphere(node.id, enableLed)
     }
 

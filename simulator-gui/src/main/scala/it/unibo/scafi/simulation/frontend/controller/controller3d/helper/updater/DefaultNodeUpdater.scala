@@ -40,8 +40,8 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
       .map(node => (node._1, node._2, updateNodeConnections(node._1, simulation.network, gui3d)))
     nodesAndConnections.foreach(node => updateNodeInSimulation(simulation, gui3d, node._1, node._2))
     onFX (nodesAndConnections.foreach(node => { //without runLater it would cause many requests to javaFx
-      updateUI(node._2, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false, stoppedMoving = false,
-        node._3._1, node._3._2, getUpdatedNodeColor(node._1, controller)))
+      updateUI(node._2, updateLedStatus = true, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false,
+        stoppedMoving = false, node._3._1, node._3._2, getUpdatedNodeColor(node._1, controller)))
     }))
   })
 
@@ -58,7 +58,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     updateNodeInSimulation(simulation, gui3d, node, newPosition)
     val options = getUIUpdateOptions(node, newPosition, isPositionDifferent)
     if(isPositionDifferent) movingNodes += nodeId else movingNodes -= nodeId
-    updateUI(newPosition, node, options) //using Platform.runLater
+    updateUI(newPosition, !isPositionDifferent, node, options) //using Platform.runLater
   }
 
   private def getUIUpdateOptions(node: Node, newPosition: Option[Product3[Double, Double, Double]],
@@ -74,7 +74,8 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     newPosition.fold(createNodeInSimulation(node, gui3d, simulation))(newPosition =>
       setSimulationNodePosition(node, newPosition, simulation))
 
-  private def updateUI(newPosition: Option[Product3[Double, Double, Double]], node: Node, options: UpdateOptions) {
+  private def updateUI(newPosition: Option[Product3[Double, Double, Double]], updateLedStatus: Boolean, node: Node,
+                       options: UpdateOptions) { //if updateLedStatus == false it forces the led status to false
     val nodeId = node.id
     onFX { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
       createOrMoveNode(newPosition, node, options, gui3d)
@@ -82,7 +83,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
       options.newConnections.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
       options.removedConnections.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deletes old connections
       options.color.fold()(color => gui3d.setNodeColor(nodeId, color))
-      updateLedActuatorStatus(node, controller, gui3d)
+      updateLedActuatorStatus(node, controller, gui3d, !updateLedStatus)
     }
   }
 
