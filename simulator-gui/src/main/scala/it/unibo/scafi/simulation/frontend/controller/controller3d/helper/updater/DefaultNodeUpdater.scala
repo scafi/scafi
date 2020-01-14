@@ -41,7 +41,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     nodesAndConnections.foreach(node => updateNodeInSimulation(simulation, gui3d, node._1, node._2))
     onFX (nodesAndConnections.foreach(node => { //without runLater it would cause many requests to javaFx
       updateUI(node._2, updateLedStatus = true, node._1, UpdateOptions(isPositionNew = true, showMoveDirection = false,
-        stoppedMoving = false, node._3._1, node._3._2, getUpdatedNodeColor(node._1, controller)))
+        stoppedMoving = false, node._3._1, node._3._2))
     }))
   })
 
@@ -65,8 +65,8 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
                                  isPositionDifferent: Boolean) = {
     val nodeStoppedMoving = !isPositionDifferent && movingNodes.contains(node.id)
     val (newConnections, oldConnections) = updateNodeConnections(node, simulation.network, gui3d)
-    UpdateOptions(isPositionNew = isPositionDifferent, showMoveDirection = true,
-      stoppedMoving = nodeStoppedMoving, newConnections, oldConnections,  getUpdatedNodeColor(node, controller))
+    UpdateOptions(isPositionNew = isPositionDifferent, showMoveDirection = true, stoppedMoving = nodeStoppedMoving,
+      newConnections, oldConnections,  getUpdatedNodeColor(node, controller), Option(controller.getNodeValueTypeToShow))
   }
 
   private def updateNodeInSimulation(simulation: Simulation, gui3d: NetworkRenderer3D, node: Node,
@@ -79,7 +79,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     val nodeId = node.id
     onFX { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
       createOrMoveNode(newPosition, node, options, gui3d)
-      updateNodeText(node, controller.getNodeValueTypeToShow)(gui3d)
+      options.valueType.fold()(valueType => updateNodeText(node, valueType)(gui3d))
       options.newConnections.foreach(otherNodeId => gui3d.connect(nodeId, otherNodeId)) //adding new connections
       options.removedConnections.foreach(otherNodeId => gui3d.disconnect(nodeId, otherNodeId)) //deletes old connections
       options.color.fold()(color => gui3d.setNodeColor(nodeId, color))

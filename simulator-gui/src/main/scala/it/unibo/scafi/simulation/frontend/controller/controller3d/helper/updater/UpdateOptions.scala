@@ -20,6 +20,8 @@ package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.update
 
 import java.awt.Color
 
+import it.unibo.scafi.simulation.gui.model.NodeValue
+
 /**
  * Simple type containing the options used to update a single node.
  * */
@@ -28,6 +30,7 @@ private[updater] case class UpdateOptions(isPositionNew: Boolean,
                                           stoppedMoving: Boolean,
                                           newConnections: Set[Int],
                                           removedConnections: Set[Int],
-                                          color: Option[Color])
+                                          color: Option[Color] = None,
+                                          valueType: Option[NodeValue] = None)
 
 
