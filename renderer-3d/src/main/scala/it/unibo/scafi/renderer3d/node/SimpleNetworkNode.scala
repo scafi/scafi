@@ -42,7 +42,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
   private[this] var state = NetworkNodeState(nodeColor, position)
 
   setLabelScale(labelScale)
-  List(label, cone).foreach(_.setVisible(false))
+  List(label, cone, seeThroughSphere, filledSphere).foreach(_.setVisible(false))
   this.getChildren.addAll(node) //label is not added by default for performance reasons, since it would show "" anyway
 
   private def getLabelPosition(nodePosition: Point3D, addedHeight: Double = LABEL_ADDED_HEIGHT): Point3D =

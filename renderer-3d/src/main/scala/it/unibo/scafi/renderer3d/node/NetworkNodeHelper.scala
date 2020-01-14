@@ -35,9 +35,15 @@ private[node] object NetworkNodeHelper {
    * @param group the group that should contain the provided sphere */
   def setSphereRadius(sphere: Sphere, radius: Double, group: Group): Unit = onFX {
     if(radius < 1){
-      group.getChildren.remove(sphere)
-    } else if(!group.getChildren.contains(sphere)) {
-      group.getChildren.add(sphere)
+      if(sphere.isVisible) {
+        group.getChildren.remove(sphere)
+        sphere.setVisible(false)
+      }
+    } else {
+      if(!sphere.isVisible) {
+        group.getChildren.add(sphere)
+        sphere.setVisible(true)
+      }
       sphere.setRadius(radius)
     }
   }
