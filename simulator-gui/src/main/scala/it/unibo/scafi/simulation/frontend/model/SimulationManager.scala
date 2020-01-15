@@ -7,6 +7,8 @@ trait SimulationManager {
 
   def setPauseFire(pauseFire: Double)
 
+  def setUpdateNodeFunction(updateNodeValue: Int => Unit): Unit
+
   def start()
 
   def resume()

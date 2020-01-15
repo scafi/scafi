@@ -6,15 +6,15 @@
 package it.unibo.scafi.simulation.frontend.view
 
 import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing._
 
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
+import javax.swing._
 
 /**
   * This class represent the SoimulationPanel pop menu
   * that contains all possible action and observation
   */
-class MyPopupMenu(controller: Controller) extends JPopupMenu {
+class MyPopupMenu(controller: GeneralController) extends JPopupMenu {
   final private val observations: JMenu = new JMenu("Observe")
   final private val actions: JMenu = new JMenu("Actions")
   val clear: JMenuItem = new JMenuItem("Clear")

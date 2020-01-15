@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
  * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
@@ -15,10 +16,10 @@ import it.unibo.scafi.simulation.frontend.view.{GuiNode, NodeInfoPanel, SensorOp
 import scala.language.implicitConversions
 
 /**
-  * This class is a wrapper for all private Controller methods.
-  */
+ * This class is a wrapper for all private Controller methods.
+ */
 class ControllerPrivate (val gui: SimulatorUI) {
-  final private val controller: ControllerImpl = ControllerImpl.getInstance
+  final private val controller: Controller = Controller.getInstance
 
   implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
     def actionPerformed(e: ActionEvent) { f(e) }
@@ -66,34 +67,34 @@ class ControllerPrivate (val gui: SimulatorUI) {
             g.setImageButton("node.png")
         }
         case ">" =>{
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) > Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) > Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case ">=" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) >= Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) >= Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case "<" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) < Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) < Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case "<=" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) <= Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) <= Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case "!=" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) != Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) != Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
       }
     })

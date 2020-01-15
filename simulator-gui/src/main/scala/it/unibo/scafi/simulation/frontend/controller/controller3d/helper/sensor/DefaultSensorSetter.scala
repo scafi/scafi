@@ -19,10 +19,10 @@
 package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.sensor
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
-import it.unibo.scafi.simulation.gui.Simulation
+import it.unibo.scafi.simulation.frontend.Simulation
 import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater.NodeUpdater
-import it.unibo.scafi.simulation.gui.model.Node
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.frontend.model.Node
+import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 
 /**
  * Helper class to set and update the node's sensors.

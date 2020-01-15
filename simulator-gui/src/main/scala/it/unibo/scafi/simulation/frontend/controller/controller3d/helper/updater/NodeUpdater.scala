@@ -19,7 +19,7 @@
 package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
-import it.unibo.scafi.simulation.gui.model.Node
+import it.unibo.scafi.simulation.frontend.model.Node
 
 /** Interface to update the scene in the view and the simulation from the simulation updates. */
 trait NodeUpdater {

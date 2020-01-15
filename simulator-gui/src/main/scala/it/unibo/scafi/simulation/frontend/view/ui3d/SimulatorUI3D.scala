@@ -19,7 +19,7 @@
 package it.unibo.scafi.simulation.frontend.view.ui3d
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
-import it.unibo.scafi.simulation.gui.view.MyPopupMenu
+import it.unibo.scafi.simulation.frontend.view.MyPopupMenu
 import javax.swing.{JFrame, JMenuBar}
 
 /**
@@ -50,14 +50,5 @@ trait SimulatorUI3D extends JFrame{
    * @return the menu bar
    * */
   def getJMenuBar: JMenuBar
-
-  def getUI: JFrame
-
-  def setShowValue(valueKind: NodeValue): Unit
-
-  def setObservation(observation: Any=>Boolean): Unit
-
-  def getObservation(): Any=>Boolean
-
-  def setSensor(sensorName: String, value: Any): Unit
 }
+

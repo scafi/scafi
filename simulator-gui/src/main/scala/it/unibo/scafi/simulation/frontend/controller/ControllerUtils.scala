@@ -18,7 +18,13 @@
 
 package it.unibo.scafi.simulation.frontend.controller
 
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.frontend.Settings
+import it.unibo.scafi.simulation.frontend.SettingsSpace.NbrHoodPolicies
+import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Sensor}
+import it.unibo.scafi.simulation.frontend.utility.Utils
+import it.unibo.scafi.simulation.frontend.view.MyPopupMenu
+import it.unibo.scafi.simulation.frontend.SettingsSpace.Topologies.{Grid, Grid_HighVar, Grid_LoVar, Grid_MedVar}
 import it.unibo.scafi.space.{Point2D, Point3D}
 import javax.swing.JMenuBar
 
@@ -54,7 +60,7 @@ private[controller] object ControllerUtils {
    * @param menuBar the menu bar to enable or disable
    * @param popupMenu the popup menu to enable or disable
    * @return Unit, since it has the side effect of enabling or disabling the menus. */
-  def enableMenu(enabled: Boolean, menuBar: JMenuBar, popupMenu: MyPopupMenu): Unit = {
+  def enableMenu(enabled: Boolean, menuBar: JMenuBar, popupMenu: MyPopupMenu) {
     popupMenu.getSubElements()(1).getComponent.setEnabled(enabled) //menu Observation
     popupMenu.getSubElements()(2).getComponent.setEnabled(enabled) //menu Action
     enableMenuBar(enabled, menuBar)

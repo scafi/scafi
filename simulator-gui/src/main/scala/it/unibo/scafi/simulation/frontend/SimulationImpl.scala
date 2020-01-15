@@ -6,16 +6,16 @@
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.simulation.frontend.BasicSpatialIncarnation._
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node}
-import it.unibo.scafi.space.{Point2D, Point3D}
+import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node, SimulationManager}
+import it.unibo.scafi.space.Point3D
 
 class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
                      val simulationSeed: Long = System.nanoTime(),
                      simulatorManager: SimulationManager) extends Simulation {
   //private Thread runProgram;  //should implements runnable
-  private var controller: Controller = null
+  private var controller: GeneralController = null
   private var net: SpaceAwareSimulator = null
   var network: model.Network = null
   var runProgram: Function0[(Int,Export)] = null
@@ -86,7 +86,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
     network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
 
-  override def setController(controller: Controller): Unit =
+  override def setController(controller: GeneralController): Unit =
     this.controller = controller
 }
 

@@ -24,7 +24,7 @@ class ValuesPanel private[view]() extends JPanel {
   this.setSize(Toolkit.getDefaultToolkit.getScreenSize)
   this.setOpaque(false)
   this.setVisible(true)
-  private[view] val controller: ControllerImpl = ControllerImpl.getInstance
+  private[view] val controller: Controller = Controller.getInstance
 
   override protected def paintComponent(g: Graphics) {
     super.paintComponent(g)
@@ -45,7 +45,7 @@ class ValuesPanel private[view]() extends JPanel {
                   if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else
                   if (n.getSensorValue(SensorEnum.SENS4.name)==true) Settings.Color_device4 else Settings.Color_device
 
-      if(controller.getObservation()(n.export)) color = Settings.Color_observation
+      if(controller.getObservation.apply(n.export)) color = Settings.Color_observation
 
       var dim = (getWidth/Settings.Size_Device_Relative).min(getHeight/Settings.Size_Device_Relative)
 

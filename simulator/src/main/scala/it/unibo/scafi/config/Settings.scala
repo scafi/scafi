@@ -16,7 +16,7 @@ case class GridSettings(nrows: Int = 10,
                         tolerance: Double = 0,
                         offsetx: Double = 0,
                         offsety: Double = 0,
-                        mapPos: (Int, Int, Double,Double) => (Double,Double) = (_,_,x,y) => (x,y)) extends ShapeSettings) extends ShapeSettings {
+                        mapPos: (Int, Int, Double,Double) => (Double,Double) = (_,_,x,y) => (x,y)) extends ShapeSettings {
 
   def to3DPlane: Grid3DSettings =
     Grid3DSettings(nrows, ncols, 1, stepx, stepy, (stepx + stepy)/2, tolerance, offsetx, offsety, (offsetx + offsety)/2)

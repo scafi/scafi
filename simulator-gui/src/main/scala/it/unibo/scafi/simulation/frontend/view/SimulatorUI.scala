@@ -17,8 +17,8 @@ import it.unibo.scafi.simulation.frontend.utility.Utils
   * This is the general frame that contains all panel
   */
 class SimulatorUI() extends JFrame("SCAFI Simulator") {
-  private[frontend] var center: SimulationPanel = new SimulationPanel(ControllerImpl.getInstance)
-  final private val menuBarNorth: JMenuBar = new MenuBarNorth(ControllerImpl.getInstance)
+  private[frontend] var center: SimulationPanel = new SimulationPanel(Controller.getInstance)
+  final private val menuBarNorth: JMenuBar = new MenuBarNorth(Controller.getInstance)
   private var oldDim: Dimension = null
 
   setSize(Utils.getFrameDimension)
@@ -31,7 +31,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
 
   val imap = panel.getInputMap()
   val amap = panel.getActionMap()
-  val ctrl = ControllerImpl.getInstance
+  val ctrl = Controller.getInstance
   imap.put(KeyStroke.getKeyStroke('1'), SensorEnum.SENS1.name)
   amap.put(SensorEnum.SENS1.name, createSensorAction[Boolean](SensorEnum.SENS1.name, default = false, map = !_))
   imap.put(KeyStroke.getKeyStroke('2'), SensorEnum.SENS2.name)
@@ -70,7 +70,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     override def componentResized(e: ComponentEvent) {
       super.componentResized(e)
       Utils.setDimensionFrame(getSize)
-      ControllerImpl.getInstance.updateNodePositions()
+      Controller.getInstance.updateNodePositions()
       center.getCaptureRect.setSize((center.getCaptureRect.getWidth * getWidth / oldDim.getWidth().round).toInt,
         (center.getCaptureRect.getHeight * getHeight / oldDim.getHeight.round).toInt)
       center.getCaptureRect.setLocation((center.getCaptureRect.getLocation.getX * getWidth / oldDim.getWidth().round).toInt,

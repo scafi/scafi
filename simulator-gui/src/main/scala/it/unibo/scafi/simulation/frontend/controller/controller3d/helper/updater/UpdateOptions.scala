@@ -20,7 +20,7 @@ package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.update
 
 import java.awt.Color
 
-import it.unibo.scafi.simulation.gui.model.NodeValue
+import it.unibo.scafi.simulation.frontend.model.NodeValue
 
 /**
  * Simple type containing the options used to update a single node.

@@ -21,12 +21,12 @@ package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.update
 import java.awt.Color
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
-import it.unibo.scafi.simulation.gui.controller.ControllerUtils._
+import it.unibo.scafi.simulation.frontend.controller.ControllerUtils._
 import it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.PositionConverter
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.gui.model.{Node, NodeValue}
-import it.unibo.scafi.simulation.gui.{Settings, Simulation}
+import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.frontend.model.{Node, NodeValue}
+import it.unibo.scafi.simulation.frontend.{Settings, Simulation}
 import it.unibo.scafi.space.Point3D
 
 import scala.util.Try
@@ -129,7 +129,7 @@ private[updater] object NodeUpdaterHelper {
    * @param controller the 3D controller
    * @return the new color for the node or None if the node's color is still up to date */
   def getUpdatedNodeColor(node: Node, controller: Controller3D): Option[Color] =
-    if(controller.getObservation()(node.export)){
+    if(controller.getObservation(node.export)){
       Option(Settings.Color_observation)
     } else if(controller.isObservationSet) {
       Option(getNodeColorBySensors(node))

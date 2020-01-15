@@ -18,7 +18,10 @@
 
 package it.unibo.scafi.simulation.frontend.controller
 
-import it.unibo.scafi.simulation.gui.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.frontend.model.NodeValue
+import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
+import it.unibo.scafi.simulation.frontend.utility.Utils
+import it.unibo.scafi.simulation.frontend.view.{MyPopupMenu, SensorOptionPane}
 import javax.swing.JOptionPane
 
 import scala.util.Try
@@ -29,7 +32,6 @@ import scala.util.Try
 object PopupMenuUtils {
 
   /**Adds the actions to execute whenever the appropriate observation event occurs.
- *
    * @param popupMenu        the popup menu that will fire the events
    * @param toggleNeighbours the function to call whenever the event "Toggle Neighbours" occurs
    * @param controller       an instance of [[GeneralController]] that will receive and handle most of the events */
@@ -88,7 +90,6 @@ object PopupMenuUtils {
     }
 
   /**Adds the actions to execute whenever a popup "Action" menu is pressed.
- *
    * @param controller an instance of [[GeneralController]] that will receive and handle most of the events
    * @param popupMenu  the popup menu that will fire the events */
   def addPopupActions(controller: GeneralController, popupMenu: MyPopupMenu) {

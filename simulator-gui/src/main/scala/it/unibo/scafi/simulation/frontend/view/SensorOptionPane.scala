@@ -7,12 +7,12 @@ package it.unibo.scafi.simulation.frontend.view
 
 import java.awt._
 import java.awt.event.ActionEvent
+
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
+import it.unibo.scafi.simulation.frontend.utility.Utils
 import javax.swing._
 
-import it.unibo.scafi.simulation.frontend.controller.Controller
-import it.unibo.scafi.simulation.frontend.utility.Utils
-
-class SensorOptionPane(title: String, controller: Controller) extends JDialog {
+class SensorOptionPane(title: String, controller: GeneralController) extends JDialog {
   final private val sensorsChoice: JComboBox[String] = new JComboBox[String]
   final private val operators: JComboBox[String] = new JComboBox[String]
 

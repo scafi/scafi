@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
  * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
@@ -6,25 +7,31 @@
 package it.unibo.scafi.simulation.frontend.controller
 
 import java.awt.{Image, Point, Rectangle}
-import javax.swing.SwingUtilities
 
 import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
-import it.unibo.scafi.simulation.frontend.SettingsSpace.NbrHoodPolicies
 import it.unibo.scafi.simulation.frontend.model._
-import it.unibo.scafi.simulation.frontend.model.implementation.{NetworkImpl, NodeImpl, SensorEnum, SimulationManagerImpl}
+import it.unibo.scafi.simulation.frontend.model.implementation.{NetworkImpl, NodeImpl, SimulationManagerImpl}
 import it.unibo.scafi.simulation.frontend.utility.Utils
 import it.unibo.scafi.simulation.frontend.view.{ConfigurationPanel, GuiNode, NodeInfoPanel, SimulationPanel, SimulatorUI}
 import it.unibo.scafi.simulation.frontend.{Settings, Simulation, SimulationImpl}
+import it.unibo.scafi.simulation.frontend.controller.ControllerUtils._
 import it.unibo.scafi.space.{Point2D, SpaceHelper}
+
+import javax.swing.SwingUtilities
 
 import scala.collection.immutable.List
 import scala.util.Try
 
-  def pauseSimulation(): Unit
+object Controller {
+  private var SINGLETON: Controller = null
+  private val gui = new SimulatorUI
 
-  def resumeSimulation(): Unit
+  def getInstance: Controller = {
+    if (SINGLETON == null) SINGLETON = new Controller
+    SINGLETON
+  }
 
-  def stepSimulation(stepCount: Int): Unit
+  def getUI: SimulatorUI = gui
 
   def startup: Unit = {
     SwingUtilities.invokeLater(() => {
@@ -32,7 +39,7 @@ import scala.util.Try
       val simulationManagerImpl = new SimulationManagerImpl()
       simulationManagerImpl.setUpdateNodeFunction(Controller.getInstance.updateNodeValue)
       Controller.getInstance.setSimManager(simulationManagerImpl)
-      if (Settings.ShowConfigPanel) new ConfigurationPanel(() => Controller.getInstance.startSimulation())
+      if (Settings.ShowConfigPanel) new ConfigurationPanel(Controller.getInstance)
       else Controller.getInstance.startSimulation()
     })
   }
@@ -48,7 +55,7 @@ class Controller () extends GeneralController {
   private var counter = 0
   private var observation: Any=>Boolean = (_)=>false
 
-  def setObservation(obs: Any=>Boolean): Unit = {
+  override def setObservation(obs: Any=>Boolean): Unit = {
     this.observation = obs
   }
 
@@ -66,12 +73,14 @@ class Controller () extends GeneralController {
     this.observation(nodes(id)._1.export)
   }
 
-  def getObservation(): Any=>Boolean = this.observation
+  override def getObservation: Any=>Boolean = this.observation
 
   def setGui(simulatorGui: SimulatorUI) {
     this.gui = simulatorGui
     this.controllerUtility = new ControllerPrivate(gui)
   }
+
+  override def getUI: SimulatorUI = gui
 
   def setSimManager(simManager: SimulationManager) {
     this.simManager = simManager
@@ -82,7 +91,7 @@ class Controller () extends GeneralController {
 
   def getNodes: Iterable[(Node,GuiNode)] = this.nodes.values
 
-  def startSimulation() {
+  override def startSimulation() {
     /* TODO println("Configuration: \n topology=" + Settings.Sim_Topology +
       "; \n nbr radius=" + Settings.Sim_NbrRadius +
       ";\n numNodes=" + Settings.Sim_NumNodes +
@@ -96,28 +105,23 @@ class Controller () extends GeneralController {
     val deltaRound = Settings.Sim_DeltaRound
     val strategy = Settings.Sim_ExecStrategy
     val sensorValues = Settings.Sim_Sensors
-    val policyNeighborhood: NbrPolicy = getNeighborhoodPolicy
+    val policyNeighborhood: NbrPolicy = ControllerUtils.getNeighborhoodPolicy()
     val configurationSeed = Settings.ConfigurationSeed
     val simulationSeed = Settings.SimulationSeed
     val randomSensorSeed = Settings.RandomSensorSeed
 
-    setupSensors(sensorValues)
+    ControllerUtils.setupSensors(sensorValues)
 
     val ncols: Long = Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
     import it.unibo.scafi.simulation.frontend.SettingsSpace.Topologies._
     if (List(Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar) contains topology) {
       val nPerSide = Math.sqrt(numNodes)
-      val tolerance = topology match {
-        case Grid => 0
-        case Grid_LoVar => Settings.Grid_LoVar_Eps
-        case Grid_MedVar => Settings.Grid_MedVar_Eps
-        case Grid_HighVar => Settings.Grid_HiVar_Eps
-      }
+      val tolerance = ControllerUtils.getTolerance(topology)
       val (stepx, stepy, offsetx, offsety) = (1.0/nPerSide, 1.0/nPerSide, 0.05, 0.05)
-      positions = SpaceHelper.gridLocations(new GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety), configurationSeed)
+      positions = SpaceHelper.gridLocations(GridSettings(nPerSide.toInt, nPerSide.toInt, stepx , stepy, tolerance, offsetx, offsety), configurationSeed)
     } else {
-      positions = SpaceHelper.randomLocations(new SimpleRandomSettings(0.05, 0.95), numNodes, configurationSeed)
+      positions = SpaceHelper.randomLocations(SimpleRandomSettings(), numNodes, configurationSeed)
     }
 
     var i: Int = 0
@@ -131,7 +135,7 @@ class Controller () extends GeneralController {
       i = i + 1
     })
 
-    val simulation: Simulation = SimulationImpl(this.simManager, () => this.selectionAttempted)
+    val simulation: Simulation = SimulationImpl(this.simManager)
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
     simulation.setRunProgram(runProgram)
@@ -140,35 +144,35 @@ class Controller () extends GeneralController {
     simManager.simulation = simulation
     simManager.setPauseFire(deltaRound)
     simManager.start()
-    ControllerUtils.addPopupObservations(gui.getSimulationPanel.getPopUpMenu,
-      () => gui.getSimulationPanel.toggleNeighbours(), setShowValue, setObservation)
-    controllerUtility.addAction()
-    controllerUtility.enableMenu(true)
+    PopupMenuUtils.addPopupObservations(gui.getSimulationPanel.getPopUpMenu,
+      () => gui.getSimulationPanel.toggleNeighbours(), this)
+    PopupMenuUtils.addPopupActions(this, gui.getSimulationPanel.getPopUpMenu)
+    ControllerUtils.enableMenu(enabled = true, gui.getMenuBarNorth, gui.getSimulationPanel.getPopUpMenu)
     // TODO: System.out.println("START")
   }
 
-  def resumeSimulation() {
+  override def resumeSimulation() {
     // TODO: System.out.println("RESUME")
     simManager.resume()
   }
 
-  def stopSimulation() {
+  override def stopSimulation() {
     // TODO: System.out.println("STOP")
     simManager.stop()
   }
 
-  def stepSimulation(n_step: Int) {
+  override def stepSimulation(n_step: Int) {
     simManager.step(n_step)
   }
 
-  def pauseSimulation() {
+  override def pauseSimulation() {
     simManager.pause()
   }
 
-  def clearSimulation() {
+  override def clearSimulation() {
     simManager.stop()
-    gui.setSimulationPanel(new SimulationPanel(() => clearSimulation()))
-    controllerUtility.enableMenu(false)
+    gui.setSimulationPanel(new SimulationPanel(this))
+    ControllerUtils.enableMenu(enabled = false, gui.getMenuBarNorth, gui.getSimulationPanel.getPopUpMenu)
     this.nodes = Map()
   }
 
@@ -193,7 +197,7 @@ class Controller () extends GeneralController {
   }
 
   /* Shows background image in the simulation */
-  def showImage(img: Image, showed: Boolean) {
+  override def showImage(img: Image, showed: Boolean) {
     if (showed) {
       gui.getSimulationPanel.setBackgroundImage(img)
     }
@@ -221,11 +225,11 @@ class Controller () extends GeneralController {
       controllerUtility.calculatedInfo(guiNode.getInfoPanel)
   }
 
-  def setShowValue(kind: NodeValue) {
+  override def setShowValue(kind: NodeValue) {
     this.valueShowed = kind
   }
 
-  def selectionAttempted = this.gui.center.getCaptureRect.width!=0
+  override def selectionAttempted: Boolean = this.gui.center.getCaptureRect.width!=0
 
   def updateNodeValue(nodeId: Int): Unit = {
     val (node, guiNode) = this.nodes(nodeId)
@@ -308,10 +312,13 @@ class Controller () extends GeneralController {
     })
   }
 
-  def setSensor(sensorName: String, value: Any) {
+  override def setSensor(sensorName: String, value: Any) {
     controllerUtility.setSensor(sensorName, value)
   }
 
-  def showImage(img: Image, showed: Boolean)
+  def getSensor(s: String): Option[Any] =
+    controllerUtility.getSensorValue(s)
 
+  def checkSensor(sensor: String, operator: String, value: String) =
+    controllerUtility.checkSensor(sensor, operator, value)
 }

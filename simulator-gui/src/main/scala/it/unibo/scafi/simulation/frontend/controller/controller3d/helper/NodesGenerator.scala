@@ -19,9 +19,9 @@
 package it.unibo.scafi.simulation.frontend.controller.controller3d.helper
 
 import it.unibo.scafi.config.{Grid3DSettings, SimpleRandomSettings}
-import it.unibo.scafi.simulation.gui.controller.ControllerUtils
-import it.unibo.scafi.simulation.gui.model.Node
-import it.unibo.scafi.simulation.gui.model.implementation.NodeImpl
+import it.unibo.scafi.simulation.frontend.controller.ControllerUtils
+import it.unibo.scafi.simulation.frontend.model.Node
+import it.unibo.scafi.simulation.frontend.model.implementation.NodeImpl
 import it.unibo.scafi.space.SpaceHelper
 
 /**

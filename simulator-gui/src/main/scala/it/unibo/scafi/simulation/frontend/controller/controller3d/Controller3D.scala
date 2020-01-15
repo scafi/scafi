@@ -18,10 +18,8 @@
 
 package it.unibo.scafi.simulation.frontend.controller.controller3d
 
-import it.unibo.scafi.incarnations.BasicAbstractIncarnation
 import it.unibo.scafi.simulation.frontend.controller.GeneralController
-import it.unibo.scafi.simulation.gui.model.{Network, Node}
-import it.unibo.scafi.simulation.gui.model.NodeValue
+import it.unibo.scafi.simulation.frontend.model.NodeValue
 
 /**
  * Interface of the 3d controller. This is a normal [[GeneralController]] but it has some more methods.

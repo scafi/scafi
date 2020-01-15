@@ -20,6 +20,7 @@ package it.unibo.scafi.simulation.frontend.controller
 
 import java.awt.Image
 
+import it.unibo.scafi.simulation.frontend.model.NodeValue
 import javax.swing.JFrame
 
 /**
@@ -89,7 +90,7 @@ trait GeneralController {
   /**
    * @return the observation function
    * */
-  def getObservation(): Any=>Boolean
+  def getObservation: Any=>Boolean
 
   /**
    * Sets the specified sensor value.

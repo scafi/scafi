@@ -9,16 +9,16 @@ import java.awt._
 import java.awt.event.ActionEvent
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.text.NumberFormat
-import javax.swing._
 
 import it.unibo.scafi.simulation.frontend.Settings
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.utility.Utils
+import javax.swing._
 
 /**
   * This class represent the panel where the user can configure a new simulation.
   */
-class ConfigurationPanel(controller: Controller) extends JDialog(controller.getUI) with PropertyChangeListener {
+class ConfigurationPanel(controller: GeneralController) extends JDialog(controller.getUI) with PropertyChangeListener {
   final private var err: JLabel = null
   final private var gbc: GridBagConstraints = null
 

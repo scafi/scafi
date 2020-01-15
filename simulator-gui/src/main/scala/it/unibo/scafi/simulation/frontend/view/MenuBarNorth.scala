@@ -8,15 +8,15 @@ package it.unibo.scafi.simulation.frontend.view
 import java.awt.event.ActionEvent
 import java.awt.{Color, GridBagConstraints, GridBagLayout, Insets}
 import java.text.NumberFormat
-import javax.swing._
 
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.utility.{ImageFilter, Utils}
+import javax.swing._
 
 /**
   * This class represent the Application menu
   */
-class MenuBarNorth(controller: Controller) extends JMenuBar {
+class MenuBarNorth(controller: GeneralController) extends JMenuBar {
   private var menus = Vector[JMenu]()
 
   val file: JMenu = new JMenu("File")

@@ -21,8 +21,7 @@ package sims
 import java.awt.Color
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import it.unibo.scafi.simulation.gui.SettingsSpace.Topologies
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 /**
  * 3D version of BasicDemo.

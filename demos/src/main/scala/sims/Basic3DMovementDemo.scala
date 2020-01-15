@@ -21,7 +21,7 @@ package sims
 import java.awt.Color
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, LSNS_RANDOM}
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.util.Random
 

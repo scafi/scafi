@@ -23,8 +23,8 @@ import java.awt.event.{KeyEvent, KeyListener, MouseEvent, MouseListener}
 
 import it.unibo.scafi.renderer3d.manager.{NetworkRenderer3D, NetworkRendering3DPanel}
 import it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D
-import it.unibo.scafi.simulation.gui.utility.Utils
-import it.unibo.scafi.simulation.gui.view.{MenuBarNorth, MyPopupMenu}
+import it.unibo.scafi.simulation.frontend.utility.Utils
+import it.unibo.scafi.simulation.frontend.view.{MenuBarNorth, MyPopupMenu}
 import javax.swing._
 
 /**

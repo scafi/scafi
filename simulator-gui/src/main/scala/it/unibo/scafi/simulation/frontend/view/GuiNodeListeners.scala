@@ -14,7 +14,7 @@ import it.unibo.scafi.simulation.frontend.controller.Controller
   * This class represent an ActionListener for a GuiNode
   */
 class GuiNodeListeners private[view](val node: GuiNode) extends MouseAdapter {
-  final private val controller: ControllerImpl = ControllerImpl.getInstance
+  final private val controller: Controller = Controller.getInstance
   final private val p: Point = new Point
 
   override def mouseClicked(e: MouseEvent) {
