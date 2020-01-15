@@ -21,7 +21,7 @@ package it.unibo.scafi.renderer3d.util
 import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.util.math.FastMath
 import javafx.scene.Group
-import org.scalafx.extras.{onFX, onFXAndWait}
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.transform.Rotate
 

@@ -28,7 +28,7 @@ import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.shape.CullFace
-import org.scalafx.extras._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.geometry.Point2D
 import scalafx.scene.paint.Color
 import scalafx.scene.{Camera, PerspectiveCamera, Scene}

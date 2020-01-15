@@ -24,7 +24,7 @@ import javafx.scene.shape.{Box, DrawMode, Shape3D, Sphere}
 import javafx.scene.text.Text
 import org.fxyz3d.geometry.{Point3D => FxPoint3D}
 import org.fxyz3d.shapes.primitives.{ConeMesh, FrustumMesh}
-import org.scalafx.extras._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.text.Font

@@ -30,7 +30,7 @@ import javafx.beans.{InvalidationListener, Observable}
 import javafx.scene.input._
 import javafx.scene.paint.ImagePattern
 import javafx.stage.Window
-import org.scalafx.extras.onFX
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.application.Platform
 import scalafx.embed.swing.SwingFXUtils
 import scalafx.geometry.{Point2D, Point3D}

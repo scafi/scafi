@@ -27,7 +27,7 @@ import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import org.fxyz3d.shapes.primitives.FrustumMesh
-import org.scalafx.extras._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.scene.Group
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify connections.*/

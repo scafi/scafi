@@ -23,7 +23,7 @@ import it.unibo.scafi.renderer3d.util.Rendering3DUtils.createMaterial
 import it.unibo.scafi.renderer3d.util.math.MathUtils
 import javafx.scene.PerspectiveCamera
 import javafx.scene.input.MouseEvent
-import org.scalafx.extras._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.geometry.{Point2D, Point3D}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color

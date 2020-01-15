@@ -23,7 +23,7 @@ import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.shape.Shape3D
 import javafx.scene.{Group, Node}
-import org.scalafx.extras._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.Color
 

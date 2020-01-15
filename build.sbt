@@ -19,7 +19,6 @@ val shapeless     = "com.chuusai"       %% "shapeless"   % "2.3.2"
 val playJson      = "com.typesafe.play" %% "play-json"   % "2.6.9"
 val scalafx       = "org.scalafx"       %% "scalafx"     % "8.0.144-R12"
 val scalafx12     = "org.scalafx"       %% "scalafx"     % "12.0.2-R18"
-val scalafxExtras = "org.scalafx"       %% "scalafx-extras" % "0.3.2"
 val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.26"
 val log4 = "log4j" % "log4j" % "1.2.17"
 
@@ -137,7 +136,7 @@ lazy val `renderer-3d` = project.
   settings(
     name := "scafi-3d-renderer",
     unmanagedJars in Compile += file("renderer-3d/lib/fxyz3d-0.5.2.jar"),
-    libraryDependencies ++= Seq(scalafx12, scalafxExtras, scalaLogging) ++
+    libraryDependencies ++= Seq(scalafx12, scalaLogging) ++
       javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % "12.0.2" classifier osName)
   )
 

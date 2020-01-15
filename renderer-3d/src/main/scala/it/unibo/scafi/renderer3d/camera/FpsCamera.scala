@@ -21,10 +21,10 @@ package it.unibo.scafi.renderer3d.camera
 import it.unibo.scafi.renderer3d.camera.CameraHelper._
 import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirection}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import javafx.scene.input
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import org.fxyz3d.geometry.MathUtils
-import org.scalafx.extras._
 import scalafx.animation.AnimationTimer
 import scalafx.geometry.Point3D
 import scalafx.scene.transform.Rotate

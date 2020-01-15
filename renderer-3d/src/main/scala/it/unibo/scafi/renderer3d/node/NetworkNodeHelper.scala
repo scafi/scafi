@@ -21,7 +21,7 @@ package it.unibo.scafi.renderer3d.node
 import javafx.scene.{Group, Node}
 import javafx.scene.shape.{MeshView, Sphere}
 import javafx.scene.text.Text
-import org.scalafx.extras.onFX
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.geometry.Point3D
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 

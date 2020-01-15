@@ -24,7 +24,7 @@ import it.unibo.scafi.renderer3d.manager.node.NodeManager
 import it.unibo.scafi.renderer3d.manager.scene.SceneManager
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import javafx.embed.swing.JFXPanel
-import org.scalafx.extras._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 import scalafx.application.Platform
 import scalafx.scene.Scene
 

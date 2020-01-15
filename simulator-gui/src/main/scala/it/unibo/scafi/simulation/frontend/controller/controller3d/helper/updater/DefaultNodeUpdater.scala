@@ -23,7 +23,7 @@ import it.unibo.scafi.simulation.frontend.Simulation
 import it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D
 import it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater.NodeUpdaterHelper._
 import it.unibo.scafi.simulation.frontend.model.{Network, Node}
-import org.scalafx.extras._
+import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
 
 /** Class used to update the scene in the view and the simulation, one node at a time, from the simulation updates. */
 private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: NetworkRenderer3D,
