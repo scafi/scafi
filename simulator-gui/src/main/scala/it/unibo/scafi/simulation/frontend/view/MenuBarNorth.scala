@@ -70,7 +70,7 @@ class MenuBarNorth(controller: GeneralController) extends JMenuBar {
   val step: JMenuItem = new JMenuItem("Step", Utils.getScaledImage("step.png", dim, dim))
   step.addActionListener((e:ActionEvent) => { new StepDialog(); () })
   val stop: JMenuItem = new JMenuItem("Stop", Utils.getScaledImage("stop.png", dim, dim))
-  stop.addActionListener((e:ActionEvent)  => controller.stopSimulation())
+  stop.addActionListener((e:ActionEvent)  => {start.setEnabled(false); controller.stopSimulation()})
   simConfig.add(close)
   simConfig.add(addImage)
   simConfig.add(removeImage)

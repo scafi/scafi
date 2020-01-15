@@ -138,8 +138,8 @@ lazy val `renderer-3d` = project.
   settings(
     name := "scafi-3d-renderer",
     unmanagedJars in Compile += file("renderer-3d/lib/fxyz3d-0.5.2.jar"),
-    libraryDependencies ++= Seq(scalafx12, scalafxExtras, slf4j, scalaLogging) ++ javaFXModules.map(m =>
-                     "org.openjfx" % s"javafx-$m" % "12.0.2" classifier osName)
+    libraryDependencies ++= Seq(scalafx12, scalafxExtras, slf4j, scalaLogging) ++
+      javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % "12.0.2" classifier osName)
   )
 
 lazy val spala = project.
