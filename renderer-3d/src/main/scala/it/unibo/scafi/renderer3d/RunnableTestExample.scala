@@ -20,7 +20,6 @@ package it.unibo.scafi.renderer3d
 
 import java.awt.event.{KeyEvent, KeyListener}
 import java.awt.{BorderLayout, Color}
-import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.manager.{NetworkRenderer3D, NetworkRendering3DPanel}
 import javax.swing.{JFrame, SwingUtilities, WindowConstants}
 
@@ -49,7 +48,6 @@ private[renderer3d] object RunnableTestExample extends App {
   private val FRAME_HEIGHT = 600
   private val NODE_COUNT = 500
   private val NODE_BRIGHTNESS = 50
-  private val logger = Logger("RunnableTestExample")
 
   SwingUtilities.invokeLater(() => {
     val frame = new JFrame()
@@ -109,7 +107,7 @@ private[renderer3d] object RunnableTestExample extends App {
     override def keyReleased(keyEvent: KeyEvent): Unit =
       if(keyEvent.getKeyCode == KeyEvent.VK_1) {
         networkRenderer.setCurrentSelectionColor(Color.YELLOW)
-        logger.info("Selected nodes: " + networkRenderer.getSelectedNodesIDs)
+        println("Selected nodes: " + networkRenderer.getSelectedNodesIDs)
       }
   })
 

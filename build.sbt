@@ -12,7 +12,6 @@ val akkaVersion = "2.5.0" // NOTE: Akka 2.4.0 REQUIRES Java 8!
 val akkaActor     = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
 val akkaRemote    = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel          = "org.apache.bcel"   % "bcel"         % "5.2"
-val slf4j          = "org.slf4j"                  % "slf4j-api"       % "1.7.30"
 val scalaLogging   = "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2"
 val scalatest     = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
 val scopt         = "com.github.scopt"  %% "scopt"       % "3.5.0"
@@ -138,7 +137,7 @@ lazy val `renderer-3d` = project.
   settings(
     name := "scafi-3d-renderer",
     unmanagedJars in Compile += file("renderer-3d/lib/fxyz3d-0.5.2.jar"),
-    libraryDependencies ++= Seq(scalafx12, scalafxExtras, slf4j, scalaLogging) ++
+    libraryDependencies ++= Seq(scalafx12, scalafxExtras, scalaLogging) ++
       javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % "12.0.2" classifier osName)
   )
 
