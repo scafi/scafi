@@ -136,6 +136,7 @@ class Controller () extends GeneralController {
     })
 
     val simulation: Simulation = SimulationImpl(this.simManager)
+    simulation.setController(this)
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
     simulation.setRunProgram(runProgram)
