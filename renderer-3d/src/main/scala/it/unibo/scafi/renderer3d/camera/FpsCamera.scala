@@ -22,10 +22,10 @@ import it.unibo.scafi.renderer3d.camera.CameraHelper._
 import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirection}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
+import it.unibo.scafi.renderer3d.util.math.MathUtils
 import javafx.event.EventHandler
 import javafx.scene.input
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
-import org.fxyz3d.geometry.MathUtils
 import scalafx.animation.AnimationTimer
 import scalafx.geometry.Point3D
 import scalafx.scene.transform.Rotate
@@ -60,11 +60,11 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   private def rotateCamera(yAxisDegrees: Double): Unit =
     this.rotateOnSelf(adjustedSensitivity * yAxisDegrees, Rotate.YAxis)
 
-  /** See [[SimulationCamera.startMouseRotation()]] */
+  /** See [[it.unibo.scafi.renderer3d.camera.SimulationCamera#startMouseRotation(javafx.scene.input.MouseEvent)]] */
   override def startMouseRotation(mouseEvent: MouseEvent): Unit =
     onFX {state = state.copy(oldMousePosition = mouseEvent.getScreenPosition)}
 
-  /** See [[SimulationCamera.rotateByMouseEvent()]] */
+  /** See [[it.unibo.scafi.renderer3d.camera.SimulationCamera#rotateByMouseEvent(javafx.scene.input.MouseEvent)]] */
   override def rotateByMouseEvent(mouseEvent: MouseEvent): Unit = onFX {
     val newMousePosition = mouseEvent.getScreenPosition
     rotateCamera(MathUtils.clamp((newMousePosition.x - state.oldMousePosition.x)/5, -MAX_ROTATION, MAX_ROTATION))
@@ -83,7 +83,7 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
   private def addZoomAmount(amount: Double): Unit =
     onFX {this.setFieldOfView(MathUtils.clamp(this.getFieldOfView - amount, INITIAL_FOV/2, INITIAL_FOV))}
 
-  /** See [[SimulationCamera.initialize]] */
+  /** See [[it.unibo.scafi.renderer3d.camera.SimulationCamera#initialize(scalafx.scene.Scene, scala.Function0)]] */
   override def initialize(scene: Scene, onCameraChangeAction: () => Unit): Unit = onFX {
     scene.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler[KeyEvent]{
       override def handle(event: KeyEvent): Unit = {
@@ -102,10 +102,10 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
     state = state.copy(onCameraChange = onCameraChangeAction)
   }
 
-  /** See [[SimulationCamera.stopMovingAndRotating]] */
+  /** See [[it.unibo.scafi.renderer3d.camera.SimulationCamera#stopMovingAndRotating()]] */
   override def stopMovingAndRotating(): Unit = onFX {state = state.copy(moveDirections = Set(), rotateDirection = None)}
 
-  /** See [[SimulationCamera.isEventAMovementOrRotation]] */
+  /** See [[it.unibo.scafi.renderer3d.camera.SimulationCamera#isEventAMovementOrRotation(javafx.scene.input.KeyEvent)]] */
   override def isEventAMovementOrRotation(keyEvent: KeyEvent): Boolean =
     MoveDirection.getDirection(keyEvent).isDefined || RotateDirection.getDirection(keyEvent).isDefined
 }

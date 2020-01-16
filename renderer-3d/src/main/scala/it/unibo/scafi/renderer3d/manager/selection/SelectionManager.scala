@@ -23,7 +23,7 @@ import java.util.concurrent.{LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 import it.unibo.scafi.renderer3d.manager.node.NodeManager
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManagerHelper._
 import it.unibo.scafi.renderer3d.node.NetworkNode
-import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
+import it.unibo.scafi.renderer3d.util.rendering.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.Node
 import javafx.scene.input.MouseEvent

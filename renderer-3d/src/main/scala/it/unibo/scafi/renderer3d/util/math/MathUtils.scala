@@ -45,4 +45,12 @@ object MathUtils {
     val zPrime = w * refactoredPart + z * angleCos + (-v * x + u * y) * angleSin
     new Point3D(xPrime, yPrime, zPrime)
   }
+
+  /** Clamps the value between the provided minimum and maximum
+   * @param input the value to clamp
+   * @param min the minimum value
+   * @param max the maximum value
+   * */
+  def clamp(input: Double, min: Double, max: Double): Double =
+    if (input < min) min else if (input > max) max else input
 }

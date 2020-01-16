@@ -19,7 +19,7 @@
 package it.unibo.scafi.renderer3d.node
 
 import it.unibo.scafi.renderer3d.node.NetworkNodeHelper._
-import it.unibo.scafi.renderer3d.util.Rendering3DUtils._
+import it.unibo.scafi.renderer3d.util.rendering.Rendering3DUtils._
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.scene.shape.Shape3D
 import javafx.scene.{Group, Node}
@@ -36,19 +36,19 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
   private[this] val LABEL_ADDED_HEIGHT = NODE_SIZE
   private[this] val node = createCube(NODE_SIZE, nodeColor, position)
   private[this] val label = createText("", LABEL_FONT_SIZE, getLabelPosition(position))
-  private[this] val cone = createCone(NODE_SIZE/2, NODE_SIZE*2, nodeColor, position)
+  private[this] val pyramid = createPyramid(NODE_SIZE, NODE_SIZE*1.6, nodeColor, position)
   private[this] val seeThroughSphere = createOutlinedSphere(1, position)
   private[this] val filledSphere = createFilledSphere(1, position)
   private[this] var state = NetworkNodeState(nodeColor, position)
 
   setLabelScale(labelScale)
-  List(label, cone, seeThroughSphere, filledSphere).foreach(_.setVisible(false))
+  List(label, pyramid, seeThroughSphere, filledSphere).foreach(_.setVisible(false))
   this.getChildren.addAll(node) //label is not added by default for performance reasons, since it would show "" anyway
 
   private def getLabelPosition(nodePosition: Point3D, addedHeight: Double = LABEL_ADDED_HEIGHT): Point3D =
     new Point3D(nodePosition.x, nodePosition.y - (NODE_SIZE + addedHeight), nodePosition.z)
 
-  /** See [[NetworkNode.setText]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#setText(java.lang.String, scalafx.geometry.Point3D)]] */
   override def setText(text: String, cameraPosition: Point3D): Unit = onFX {
     if(text.length == 0) {
       if(label.isVisible) {label.setVisible(false); this.getChildren.remove(label)}
@@ -60,65 +60,65 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
     }
   }
 
-  /** See [[NetworkNode.rotateTextToCamera]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#rotateTextToCamera(scalafx.geometry.Point3D)]] */
   override def rotateTextToCamera(cameraPosition: Point3D): Unit =
     onFX {if(label.isVisible) label.lookAtOnXZPlane(cameraPosition)}
 
-  /** See [[NetworkNode.setFilledSphereColor]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#setFilledSphereColor(scalafx.scene.paint.Color)]] */
   override def setFilledSphereColor(color: Color): Unit = onFX {filledSphere.setColor(new Color(color.opacity(0.1)))}
 
-  /** See [[NetworkNode.setNodeColor]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#setNodeColor(scalafx.scene.paint.Color)]] */
   override def setNodeColor(color: Color): Unit =
-    onFX {List(node, cone).foreach(_.setColor(color)); state = state.copy(currentColor = color)}
+    onFX {List(node, pyramid).foreach(_.setColor(color)); state = state.copy(currentColor = color)}
 
   private def isSelected: Boolean = node.getScaleX > this.state.scale
 
-  /** See [[NetworkNode.getNodePosition]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#getNodePosition()]] */
   override def getNodePosition: Point3D = state.currentPosition //not using node.getPosition to improve performance
 
-  /** See [[NetworkNode.select]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#select()]] */
   override def select(): Unit = node.setScale(2*this.state.scale)
 
-  /** See [[NetworkNode.deselect]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#deselect()]] */
   override def deselect(): Unit =
     onFX {if(isSelected) {node.setScale(this.state.scale); node.setColor(state.currentColor)}}
 
-  /** See [[NetworkNode.setLabelScale]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#setLabelScale(double)]] */
   override def setLabelScale(scale: Double): Unit = label.setScale(scale * NODE_SIZE/18)
 
-  /** See [[NetworkNode.setSeeThroughSphereRadius]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#setSeeThroughSphereRadius(double)]] */
   override def setSeeThroughSphereRadius(radius: Double): Unit = setSphereRadius(seeThroughSphere, radius, this)
 
-  /** See [[NetworkNode.setFilledSphereRadius]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#setFilledSphereRadius(double)]] */
   override def setFilledSphereRadius(radius: Double): Unit = setSphereRadius(filledSphere, radius, this)
 
-  /** See [[NetworkNode.moveNodeTo]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#moveNodeTo(scalafx.geometry.Point3D, scalafx.geometry.Point3D, boolean)]] */
   override def moveNodeTo(position: Point3D, cameraPosition: Point3D, updateMovementDirection: Boolean = false) {
     onFX {
       if (updateMovementDirection) {
-        showMovement(show = true, node, cone, this)
-        cone.lookAt(position, state.currentPosition)
+        showMovement(show = true, node, pyramid, this)
+        pyramid.lookAt(position, state.currentPosition)
       }
       List[Shape3D](node, seeThroughSphere, filledSphere).foreach(_.moveTo(position))
       label.moveTo(getLabelPosition(position))
       if((position.x + position.z).toInt%100==0) rotateTextToCamera(cameraPosition)
-      if (cone.isVisible) visuallyMoveNode(cone, position)
+      if (pyramid.isVisible) visuallyMoveNode(pyramid, position)
       state = state.copy(currentPosition = position)
     }
   }
 
-  /** See [[NetworkNode.setNodeScale]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#setNodeScale(double)]] */
   override def setNodeScale(newScale: Double): Unit = onFX {
     state = state.copy(scale = newScale)
-    List[Shape3D](node, filledSphere, cone).foreach(_.setScale(newScale))
+    List[Shape3D](node, filledSphere, pyramid).foreach(_.setScale(newScale))
     label.moveTo(getLabelPosition(state.currentPosition, LABEL_ADDED_HEIGHT*(1 + newScale/5)))
   }
 
-  /** See [[NetworkNode.nodeIntersectsWith]] */
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#nodeIntersectsWith(javafx.scene.Node)]] */
   override def nodeIntersectsWith(node: Node): Boolean = this.node.isIntersectingWith(node)
 
-  /** See [[NetworkNode.hideMovement]] */
-  override def hideMovement(): Unit = showMovement(show = false, node, cone, this)
+  /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#hideMovement()]] */
+  override def hideMovement(): Unit = showMovement(show = false, node, pyramid, this)
 }
 
 object SimpleNetworkNode {

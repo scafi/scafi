@@ -19,7 +19,7 @@
 package it.unibo.scafi.renderer3d.util
 
 import it.unibo.scafi.renderer3d.node.NetworkNode
-import it.unibo.scafi.renderer3d.util.Rendering3DUtils.createMaterial
+import it.unibo.scafi.renderer3d.util.rendering.Rendering3DUtils.createMaterial
 import it.unibo.scafi.renderer3d.util.math.MathUtils
 import javafx.scene.PerspectiveCamera
 import javafx.scene.input.MouseEvent
@@ -100,10 +100,10 @@ object RichScalaFx extends RichScalaFxHelper {
   }
 
   implicit class RichShape3D(shape: Shape3D) {
-    /** See [[RichJavaShape3D.setColor]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichJavaShape3D#setColor(java.awt.Color)]] */
     final def setColor(color: java.awt.Color): Unit = shape.delegate.setColor(color)
 
-    /** See [[RichJavaShape3D.setColor]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichJavaShape3D#setColor(java.awt.Color)]] */
     final def setColor(color: Color): Unit = shape.delegate.setColor(color)
   }
 

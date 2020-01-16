@@ -24,13 +24,13 @@ import it.unibo.scafi.renderer3d.camera.{FpsCamera, SimulationCamera}
 import it.unibo.scafi.renderer3d.manager.node.NodeManager
 import it.unibo.scafi.renderer3d.manager.scene.SceneManagerHelper._
 import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
-import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import javafx.beans.{InvalidationListener, Observable}
 import javafx.scene.input._
 import javafx.scene.paint.ImagePattern
 import javafx.stage.Window
 import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
+import it.unibo.scafi.renderer3d.util.rendering.Rendering3DUtils
 import javafx.event.{Event, EventHandler}
 import scalafx.application.Platform
 import scalafx.embed.swing.SwingFXUtils

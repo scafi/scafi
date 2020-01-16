@@ -16,21 +16,18 @@
  * limitations under the License.
 */
 
-package it.unibo.scafi.renderer3d.util
+package it.unibo.scafi.renderer3d.util.rendering
 
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import javafx.scene.Node
-import javafx.scene.shape.{Box, DrawMode, Shape3D, Sphere}
-import javafx.scene.text.Text
-import org.fxyz3d.geometry.{Point3D => FxPoint3D}
-import org.fxyz3d.shapes.primitives.{ConeMesh, FrustumMesh}
 import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
+import javafx.scene.Node
+import javafx.scene.shape._
+import javafx.scene.text.Text
 import scalafx.geometry.Point3D
 import scalafx.scene.paint.{Color, Material, PhongMaterial}
 import scalafx.scene.text.Font
+import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{AmbientLight, CacheHint}
-
-import scala.util.control.NonFatal
 
 /** This contains methods to create the elements of the 3d JavaFx scene such as labels, cubes, spheres, lines, etc. */
 object Rendering3DUtils {
@@ -65,15 +62,14 @@ object Rendering3DUtils {
   private def setColorAndPosition(shape: Shape3D, color: Color, position: Point3D): Unit =
     {shape.setColor(color); shape.moveTo(position)}
 
-  /** Creates a 3d cone.
-   * @param radius the radius of the cone
-   * @param height the height of the cone
-   * @param color the color of the cone
-   * @param position the position where the cone should be placed
-   * @return the cone */
-  def createCone(radius: Double, height: Double, color: Color, position: Point3D = Point3D.Zero): ConeMesh = {
-    val DIVISIONS = 4
-    val cone = new ConeMesh(DIVISIONS, radius, height)
+  /** Creates a 3d pyramid.
+   * @param radius the radius of the pyramid
+   * @param height the height of the pyramid
+   * @param color the color of the pyramid
+   * @param position the position where the pyramid should be placed
+   * @return the pyramid */
+  def createPyramid(radius: Double, height: Double, color: Color, position: Point3D = Point3D.Zero): PyramidMesh = {
+    val cone = new PyramidMesh(radius.toFloat, height.toFloat)
     setColorAndPosition(cone, color, position)
     optimize(cone)
   }
@@ -134,22 +130,19 @@ object Rendering3DUtils {
    * @param visible whether the line should be already visible or not
    * @param color the chosen color
    * @return the 3d line */
-  def createLine(points: (Point3D, Point3D), visible: Boolean, color: java.awt.Color,
-                 thickness: Double): FrustumMesh = {
-    val line = new FrustumMesh(thickness, thickness, 1, 0, toFXyzPoint(points._1), toFXyzPoint(points._2))
-    line.setColor(color)
+  def createLine(points: (Point3D, Point3D), visible: Boolean, color: Color, thickness: Double): Cylinder = {
+    val differenceVector = points._2.subtract(points._1)
+    val lineMiddle = points._2.midpoint(points._1)
+    val moveToMidpoint = new Translate(lineMiddle.getX, lineMiddle.getY, lineMiddle.getZ)
+    val axisOfRotation = differenceVector.crossProduct(Rotate.YAxis)
+    val angle = Math.acos(differenceVector.normalize.dotProduct(Rotate.YAxis))
+    val rotateAroundCenter = new Rotate(-Math.toDegrees(angle), new Point3D(axisOfRotation))
+    val line = new Cylinder(thickness, differenceVector.magnitude, 3)
+    line.getTransforms.addAll(moveToMidpoint, rotateAroundCenter)
     line.setVisible(visible)
+    line.setColor(color)
     optimize(line)
   }
-
-  /** Updates the position, rotation and height of the line so that it connects the two provided points.
-   * @param line the line to modify
-   * @param point1 the first point
-   * @param point2 the second point */
-  def connectLineToPoints(line: FrustumMesh, point1: Point3D, point2: Point3D): Unit =
-    try {line.setAxisOrigin(toFXyzPoint(point1)); line.setAxisEnd(toFXyzPoint(point2))} catch {case NonFatal(_) => ()}
-
-  private def toFXyzPoint(point: Point3D): org.fxyz3d.geometry.Point3D = new FxPoint3D(point.x, point.y, point.z)
 
   private final def optimize[A <: Node](node: A): A = {node.setCache(true); node.setCacheHint(CacheHint.Speed); node}
 }

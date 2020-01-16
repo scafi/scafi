@@ -84,13 +84,13 @@ class DefaultSimulatorUI3D(controller: Controller3D) extends JFrame("SCAFI 3D Si
     }
   }
 
-  /** See [[SimulatorUI3D.getSimulationPanel]] */
+  /** See [[it.unibo.scafi.simulation.frontend.view.ui3d.SimulatorUI3D#getSimulationPanel()]] */
   override def getSimulationPanel: NetworkRenderer3D = simulationPanel
 
-  /** See [[SimulatorUI3D.reset]] */
+  /** See [[it.unibo.scafi.simulation.frontend.view.ui3d.SimulatorUI3D#reset()]] */
   override def reset(): Unit = simulationPanel.resetScene()
 
-  /** See [[SimulatorUI3D.getJMenuBar]] */
+  /** See [[javax.swing.JFrame#getJMenuBar()]] */
   override def getJMenuBar: JMenuBar = this.northMenuBar
 }
 

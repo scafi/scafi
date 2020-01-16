@@ -30,7 +30,7 @@ import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 private[controller3d] class DefaultSensorSetter(simulationPanel: NetworkRenderer3D, simulation: Simulation,
                                                 nodeUpdater: NodeUpdater) extends SensorSetter {
 
-  /** See [[SensorSetter.setSensor]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.helper.sensor.SensorSetter#setSensor(java.lang.String, java.lang.Object, boolean)]] */
   def setSensor(sensorName: String, value: Any, selectionAttempted: Boolean): Unit = {
     val selectedNodes = getSelectedNodes(simulationPanel.getSelectedNodesIDs)
     if (selectedNodes.isEmpty && !selectionAttempted) {

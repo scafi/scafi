@@ -20,10 +20,6 @@ package it.unibo.scafi.renderer3d.manager
 
 import java.awt.{Color, Image}
 
-import it.unibo.scafi.renderer3d.manager.connection.ConnectionManager
-import it.unibo.scafi.renderer3d.manager.node.NodeManager
-import it.unibo.scafi.renderer3d.manager.scene.SceneManager
-import it.unibo.scafi.renderer3d.manager.selection.SelectionManager
 import javafx.embed.swing.JFXPanel
 
 /** Interface of the main entry point of this module. This renders all the nodes, the connections, etc.
@@ -32,94 +28,94 @@ import javafx.embed.swing.JFXPanel
 trait NetworkRenderer3D extends JFXPanel{
 
   //** connections API **
-  /** See [[ConnectionManager.setConnectionsColor]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.connection.ConnectionManager#setConnectionsColor(java.awt.Color)]] */
   def setConnectionsColor(color: Color): Unit
 
-  /** See [[ConnectionManager.connect]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.connection.ConnectionManager#connect(int, int)]] */
   def connect(node1UID: Int, node2UID: Int): Unit
 
-  /** See [[ConnectionManager.disconnect]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.connection.ConnectionManager#disconnect(int, int)]] */
   def disconnect(node1UID: Int, node2UID: Int): Unit
 
-  /** See [[ConnectionManager.toggleConnections]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.connection.ConnectionManager#toggleConnections()]] */
   def toggleConnections(): Unit
 
   //** nodes API **
-  /** See [[NodeManager.enableNodeFilledSphere]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#enableNodeFilledSphere(int, boolean)]] */
   def enableNodeFilledSphere(nodeUID: Int, enable: Boolean): Unit
 
-  /** See [[NodeManager.setSpheresRadius]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#setSpheresRadius(double, double)]] */
   def setSpheresRadius(seeThroughSpheresRadius: Double, filledSpheresRadius: Double): Unit
 
-  /** See [[NodeManager.addNode]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#addNode(scala.Product3, int)]] */
   def addNode(position: Product3[Double, Double, Double], UID: Int): Unit
 
-  /** See [[NodeManager.removeNode]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#removeNode(int)]] */
   def removeNode(nodeUID: Int): Unit
 
-  /** See [[NodeManager.moveNode]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#moveNode(int, scala.Product3, boolean)]] */
   def moveNode(nodeUID: Int, position: Product3[Double, Double, Double], showDirection: Boolean): Unit
 
-  /** See [[NodeManager.stopShowingNodeMovement]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#stopShowingNodeMovement(int)]] */
   def stopShowingNodeMovement(nodeUID: Int): Unit
 
-  /** See [[NodeManager.setNodeText]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#setNodeText(int, java.lang.String)]] */
   def setNodeText(nodeUID: Int, text: String): Unit
 
-  /** See [[NodeManager.setNodeTextAsUIPosition]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#setNodeTextAsUIPosition(int, scala.Function1)]] */
   def setNodeTextAsUIPosition(nodeUID: Int, positionFormatter: Product2[Double, Double] => String): Unit
 
-  /** See [[NodeManager.setNodeColor]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#setNodeColor(int, java.awt.Color)]] */
   def setNodeColor(nodeUID: Int, color: java.awt.Color): Unit
 
-  /** See [[NodeManager.setNodesColors]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#setNodesColor(java.awt.Color)]] */
   def setNodesColor(defaultColor: java.awt.Color): Unit
 
-  /** See [[NodeManager.setFilledSpheresColor]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#setFilledSpheresColor(java.awt.Color)]] */
   def setFilledSpheresColor(color: java.awt.Color): Unit
 
-  /** See [[NodeManager.setNodesScale]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#setNodesScale(double)]] */
   def setNodesScale(scale: Double): Unit
 
-  /** See [[NodeManager.increaseFontSize]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#increaseFontSize()]] */
   def increaseFontSize(): Unit
 
-  /** See [[NodeManager.decreaseFontSize]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.node.NodeManager#decreaseFontSize()]] */
   def decreaseFontSize(): Unit
 
   //** scene API **
-  /** See [[SceneManager.setSceneSize]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.scene.SceneManager#setSceneSize(double)]] */
   def setSceneSize(sceneSize: Double): Unit
 
-  /** See [[SceneManager.setBackgroundImage]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.scene.SceneManager#setBackgroundImage(java.awt.Image)]] */
   def setBackgroundImage(image: Image): Unit
 
-  /** See [[SceneManager.setBackgroundColor]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.scene.SceneManager#setBackgroundColor(java.awt.Color)]] */
   def setBackgroundColor(color: Color): Unit
 
-  /** See [[SceneManager.resetScene]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.scene.SceneManager#resetScene()]] */
   def resetScene(): Unit
 
   //** selection API **
-  /** See [[SelectionManager.setActionOnMovedNodes]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.selection.SelectionManager#setActionOnMovedNodes(scala.Function2)]] */
   def setActionOnMovedNodes(action: (Set[Int], Product3[Double, Double, Double]) => Unit): Unit
 
-  /** See [[SelectionManager.getSelectedNodesIDs]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.selection.SelectionManager#getSelectedNodesIDs()]] */
   def getSelectedNodesIDs: Set[Int]
 
-  /** See [[SelectionManager.getInitialSelectedNodeId]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.selection.SelectionManager#getInitialSelectedNodeId()]] */
   def getInitialSelectedNodeId: Option[Int]
 
-  /** See [[SelectionManager.setCurrentSelectionColor]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.selection.SelectionManager#setCurrentSelectionColor(java.awt.Color)]] */
   def setCurrentSelectionColor(color: java.awt.Color): Unit
 
-  /** See [[SelectionManager.isAttemptingSelection]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.selection.SelectionManager#isAttemptingSelection()]] */
   def isAttemptingSelection: Boolean
 
-  /** See [[SelectionManager.setSelectionColor]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.selection.SelectionManager#setSelectionColor(java.awt.Color)]] */
   def setSelectionColor(color: java.awt.Color): Unit
 
   //** rest of the API **
-  /** See [[NetworkRendering3DPanel.blockUntilThreadIsFree]] */
+  /** See [[it.unibo.scafi.renderer3d.manager.NetworkRendering3DPanel#blockUntilThreadIsFree()]] */
   def blockUntilThreadIsFree(): JFXPanel
 }

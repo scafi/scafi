@@ -71,7 +71,7 @@ private[util] trait RichScalaFxHelper {
   }
 
   implicit class RichJavaNode(node: javafx.scene.Node) {
-    /** See [[RichScalaFx.RichNode.lookAt]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#lookAt(scalafx.geometry.Point3D, scalafx.geometry.Point3D)]] */
     final def lookAt(point: Point3D, currentPosition: Point3D): Unit = onFX {
       node.lookAtOnXZPlane(point)
       val direction = point - currentPosition
@@ -81,18 +81,18 @@ private[util] trait RichScalaFxHelper {
       node.getTransforms.setAll(rotateOnX)
     }
 
-    /** See [[RichScalaFx.RichNode.lookAtOnXZPlane]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#lookAtOnXZPlane(scalafx.geometry.Point3D)]] */
     final def lookAtOnXZPlane(point: Point3D): Unit =
       onFX {node.setRotationAxis(Rotate.YAxis); node.setRotate(getLookAtAngleOnXZPlane(point))}
 
-    /** See [[RichScalaFx.RichNode.getLookAtAngleOnXZPlane]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#getLookAtAngleOnXZPlane(scalafx.geometry.Point3D)]] */
     final def getLookAtAngleOnXZPlane(point: Point3D): Double = {
       val nodePosition = node.getPosition
       val directionOnXZPlane = new Point2D(point.x - nodePosition.x, point.z - nodePosition.z)
       directionOnXZPlane.eulerAngleTo(X_AXIS_2D) - 90
     }
 
-    /** See [[RichScalaFx.RichNode.getPosition]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#getPosition()]] */
     final def getPosition: Point3D = {
       printIllegalCallIfNeeded("getPosition")
       val transform = onFXAndWait(node.getLocalToSceneTransform)
@@ -102,13 +102,13 @@ private[util] trait RichScalaFxHelper {
     private[this] def printIllegalCallIfNeeded(methodName: String): Unit = node match {
         case _: Group => logger.error("Illegal call of method " + methodName + " on Node of type Group"); case _ => ()}
 
-    /** See [[RichScalaFx.RichNode.getScreenPosition]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#getScreenPosition()]] */
     final def getScreenPosition: Point2D = {
       val screenBounds = onFXAndWait(node.localToScreen(node.getBoundsInLocal))
       new Point2D((screenBounds.getMinX + screenBounds.getMaxX)/2, (screenBounds.getMinY + screenBounds.getMaxY)/2)
     }
 
-    /** See [[RichScalaFx.RichNode.moveTo]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#moveTo(scalafx.geometry.Point3D)]] */
     final def moveTo(position: Point3D): Unit = onFX {
       printIllegalCallIfNeeded("moveTo")
       node.setTranslateX(position.x)
@@ -116,27 +116,27 @@ private[util] trait RichScalaFxHelper {
       node.setTranslateZ(position.z)
     }
 
-    /** See [[RichScalaFx.RichNode.rotateOnSelf]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#rotateOnSelf(double, scalafx.geometry.Point3D)]] */
     final def rotateOnSelf(angle: Double, axis: Point3D): Unit = onFX {
       node.setRotationAxis(axis)
       node.setRotate(node.getRotate + angle)
     }
 
-    /** See [[RichScalaFx.RichNode.setScale]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#setScale(double)]] */
     final def setScale(scale: Double): Unit = onFX {
       node.setScaleX(scale)
       node.setScaleY(scale)
       node.setScaleZ(scale)
     }
 
-    /** See [[RichScalaFx.RichNode.getYRotationAngle]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#getYRotationAngle()]] */
     final def getYRotationAngle: Double = {
       val zx = node.getLocalToSceneTransform.getMzx
       val zz = node.getLocalToSceneTransform.getMzz
       FastMath.atan2(-zz.toFloat, zx.toFloat).toDegrees
     }
 
-    /** See [[RichScalaFx.RichNode.isIntersectingWith]] */
+    /** See [[it.unibo.scafi.renderer3d.util.RichScalaFx.RichNode#isIntersectingWith(scalafx.scene.Node)]] */
     final def isIntersectingWith(otherNode: javafx.scene.Node): Boolean =
       otherNode!=null && node.getBoundsInParent.intersects(otherNode.getBoundsInParent)
   }

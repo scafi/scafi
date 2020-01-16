@@ -24,8 +24,8 @@ import it.unibo.scafi.renderer3d.manager.node.NodeManagerHelper._
 import it.unibo.scafi.renderer3d.manager.scene.SceneManager
 import it.unibo.scafi.renderer3d.node.NetworkNode
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import org.fxyz3d.geometry.MathUtils
 import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
+import it.unibo.scafi.renderer3d.util.math.MathUtils
 import scalafx.scene.Scene
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify nodes. */

@@ -115,7 +115,7 @@ private[updater] object NodeUpdaterHelper {
       gui3d.enableNodeFilledSphere(node.id, enableLed)
     }
 
-  /** See [[NodeUpdater.updateNodeColorBySensors]] */
+  /** See [[NodeUpdater#updateNodeColorBySensors(it.unibo.scafi.simulation.frontend.model.Node, it.unibo.scafi.renderer3d.manager.NetworkRenderer3D)]] */
   def updateNodeColorBySensors(node: Node, gui3d: NetworkRenderer3D): Unit =
     gui3d.setNodeColor(node.id, getNodeColorBySensors(node))
 

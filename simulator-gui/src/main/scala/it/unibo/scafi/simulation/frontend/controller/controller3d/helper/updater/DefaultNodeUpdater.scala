@@ -45,10 +45,10 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     }))
   })
 
-  /** See [[NodeUpdater.resetNodeCache]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater.NodeUpdater#resetNodeCache()]] */
   def resetNodeCache(): Unit = synchronized {connectionsInGUI = Map(); nodesInGUI = Set()}
 
-  /** See [[NodeUpdater.updateNode]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater.NodeUpdater#updateNode(int)]] */
   def updateNode(nodeId: Int): Unit = synchronized {
     javaFxWaiter.waitForJavaFxIfNeeded() //this waits from time to time for the javaFx to become less congested
     if(nodesInGUI.isEmpty) nodesInGUI = controller.getCreatedNodesID
@@ -125,7 +125,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
     })
   }
 
-  /** See [[NodeUpdater.updateNodeColorBySensors]] */
+  /** See [[NodeUpdater#updateNodeColorBySensors(it.unibo.scafi.simulation.frontend.model.Node, it.unibo.scafi.renderer3d.manager.NetworkRenderer3D)]] */
   def updateNodeColorBySensors(node: Node, gui3d: NetworkRenderer3D): Unit =
     NodeUpdaterHelper.updateNodeColorBySensors(node, gui3d)
 }

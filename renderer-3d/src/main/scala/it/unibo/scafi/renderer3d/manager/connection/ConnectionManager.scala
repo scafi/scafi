@@ -24,17 +24,17 @@ import com.typesafe.scalalogging.Logger
 import it.unibo.scafi.renderer3d.manager.node.NodeManager
 import it.unibo.scafi.renderer3d.manager.scene.SceneManager
 import it.unibo.scafi.renderer3d.node.NetworkNode
-import it.unibo.scafi.renderer3d.util.Rendering3DUtils
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
-import org.fxyz3d.shapes.primitives.FrustumMesh
 import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
+import it.unibo.scafi.renderer3d.util.rendering.Rendering3DUtils
+import javafx.scene.shape.Cylinder
 import scalafx.scene.Group
 
 /** Trait that contains some of the main API of the renderer-3d module: the methods that create or modify connections.*/
 private[manager] trait ConnectionManager {
   this: NodeManager with SceneManager => //NodeManager and SceneManager have to also be mixed in with ConnectionManager
 
-  private type Line = FrustumMesh //instead of Cylinder, for performance reasons
+  private type Line = Cylinder
   protected val connectionGroup = new Group() //implementations have to add this to the main scene
   private[this] val logger = Logger("ConnectionManager")
   private[this] var connectionsColor = Color.BLACK
@@ -112,15 +112,12 @@ private[manager] trait ConnectionManager {
   protected final def updateNodeConnections(nodeID: Int): Unit =
     onFX {actOnAllNodeConnections(nodeID, updateConnection(nodeID, _))}
 
-  private final def updateConnection(node1ID: Int, node2ID: Int): Unit = {
-    val line = connections(node1ID)(node2ID)
-    findNodes(node1ID, node2ID).fold()(nodes =>
-      Rendering3DUtils.connectLineToPoints(line, nodes._1.getNodePosition, nodes._2.getNodePosition))
-  }
+  private final def updateConnection(node1ID: Int, node2ID: Int): Unit =
+    onFX {disconnect(node1ID, node2ID); connect(node1ID, node2ID)}
 
   private final def createNodeConnection(originNode: NetworkNode, targetNode: NetworkNode): Line = {
       val points = (originNode.getNodePosition, targetNode.getNodePosition)
-      Rendering3DUtils.createLine(points, connectionsVisible, connectionsColor, sceneScaleMultiplier/3)
+      Rendering3DUtils.createLine(points, connectionsVisible, connectionsColor.toScalaFx, sceneScaleMultiplier/3)
     }
 
   /** Toggles the connections on or off, making them visible or invisible.

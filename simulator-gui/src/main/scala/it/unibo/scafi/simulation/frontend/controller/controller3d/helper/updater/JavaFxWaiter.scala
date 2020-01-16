@@ -19,8 +19,8 @@
 package it.unibo.scafi.simulation.frontend.controller.controller3d.helper.updater
 
 import it.unibo.scafi.renderer3d.manager.NetworkRenderer3D
+import it.unibo.scafi.renderer3d.util.math.MathUtils
 import it.unibo.scafi.simulation.frontend.Settings
-import org.fxyz3d.geometry.MathUtils
 
 /**
  * This class provides back pressure in case of the javaFx thread struggling to keep up with the requests.

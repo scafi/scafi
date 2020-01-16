@@ -38,7 +38,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   private var nodeIds: Set[Int] = Set()
   private var nodeUpdater: NodeUpdater = _
 
-  /** See [[Controller3D.startup]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#startup()]] */
   def startup(): Unit = {
     simulation.setController(this)
     startGUI()
@@ -58,16 +58,16 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     }
   })
 
-  /** See [[Controller3D.getUI]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#getUI()]] */
   override def getUI: JFrame = gui
 
-  /** See [[Controller3D.setShowValue]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#setShowValue(it.unibo.scafi.simulation.frontend.model.NodeValue)]] */
   override def setShowValue(valueType: NodeValue): Unit = {this.nodeValueTypeToShow = valueType}
 
-  /** See [[Controller3D.getNodeValueTypeToShow]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#getNodeValueTypeToShow()]] */
   override def getNodeValueTypeToShow: NodeValue = this.nodeValueTypeToShow
 
-  /** See [[Controller3D.startSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#startSimulation()]] */
   override def startSimulation(): Unit = {
     gui.reset() //this resets any accidental camera movement happened while ConfigPanel was open
     simulationManager.setUpdateNodeFunction(nodeUpdater.updateNode(_))
@@ -75,54 +75,54 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     simulationManager.start()
   }
 
-  /** See [[Controller3D.stopSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#stopSimulation()]] */
   override def stopSimulation(): Unit = simulationManager.stop()
 
-  /** See [[Controller3D.pauseSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#pauseSimulation()]] */
   override def pauseSimulation(): Unit = simulationManager.pause()
 
-  /** See [[Controller3D.resumeSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#resumeSimulation()]] */
   override def resumeSimulation(): Unit = simulationManager.resume()
 
-  /** See [[Controller3D.stepSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#stepSimulation(int)]] */
   override def stepSimulation(stepCount: Int): Unit = simulationManager.step(stepCount)
 
-  /** See [[Controller3D.clearSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#clearSimulation()]] */
   override def clearSimulation(): Unit = {
     this.nodeValueTypeToShow = NodeValue.EXPORT
     this.observation = None
     ControllerResetter.resetSimulation(simulationManager, nodeUpdater, gui)
   }
 
-  /** See [[Controller3D.handleNumberButtonPress]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#handleNumberButtonPress(int)]] */
   override def handleNumberButtonPress(sensorIndex: Int): Unit =
     DefaultSensorSetter(gui.getSimulationPanel, simulation, nodeUpdater).handleNumberButtonPress(sensorIndex)
 
-  /** See [[Controller3D.shutDown]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#shutDown()]] */
   override def shutDown(): Unit = System.exit(0)
 
-  /** See [[Controller3D.decreaseFontSize]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#decreaseFontSize()]] */
   override def decreaseFontSize(): Unit = gui.getSimulationPanel.decreaseFontSize()
 
-  /** See [[Controller3D.increaseFontSize]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#increaseFontSize()]] */
   override def increaseFontSize(): Unit = gui.getSimulationPanel.increaseFontSize()
 
-  /** See [[Controller3D.slowDownSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#slowDownSimulation()]] */
   override def slowDownSimulation(): Unit = simulationManager.simulation.setDeltaRound(getSimulationDeltaRound + 10)
 
   private def getSimulationDeltaRound: Double = simulationManager.simulation.getDeltaRound()
 
-  /** See [[Controller3D.speedUpSimulation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#speedUpSimulation()]] */
   override def speedUpSimulation(): Unit = {
     val currentDeltaRound = getSimulationDeltaRound
     val newValue = if (currentDeltaRound - 10 < 0) 0 else currentDeltaRound - 10
     simulationManager.simulation.setDeltaRound(newValue)
   }
 
-  /** See [[Controller3D.selectionAttempted]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#selectionAttempted()]] */
   override def selectionAttempted: Boolean = gui.getSimulationPanel.isAttemptingSelection
 
-  /** See [[Controller3D.showImage]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#showImage(java.awt.Image, boolean)]] */
   override def showImage(image: Image, showed: Boolean): Unit =
     if(showed){
       gui.getSimulationPanel.setBackgroundImage(image)
@@ -130,26 +130,26 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
       gui.getSimulationPanel.setBackgroundColor(Settings.Color_background)
     }
 
-  /** See [[Controller3D.setObservation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#setObservation(scala.Function1)]] */
   override def setObservation(observation: Any => Boolean): Unit = {this.observation = Option(observation)}
 
-  /** See [[Controller3D.getObservation]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#getObservation()]] */
   override def getObservation: Any => Boolean = observation match {
     case Some(observation) => observation;
     case None => _ => false
   }
 
-  /** See [[Controller3D.setSensor]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.GeneralController#setSensor(java.lang.String, java.lang.Object)]] */
   override def setSensor(sensorName: String, value: Any): Unit =
     DefaultSensorSetter(gui.getSimulationPanel, simulation, nodeUpdater).setSensor(sensorName, value, selectionAttempted)
 
-  /** See [[Controller3D.isObservationSet]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#isObservationSet()]] */
   override def isObservationSet: Boolean = observation.isDefined
 
-  /** See [[Controller3D.isLedActivatorSet]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#isLedActivatorSet()]] */
   override def isLedActivatorSet: Boolean = Settings.Led_Activator(true)
 
-  /** See [[Controller3D.getCreatedNodesID]] */
+  /** See [[it.unibo.scafi.simulation.frontend.controller.controller3d.Controller3D#getCreatedNodesID()]] */
   override def getCreatedNodesID: Set[Int] = nodeIds
 }
 
