@@ -49,20 +49,22 @@ private[renderer3d] object RunnableTestExample extends App {
   private val NODE_COUNT = 500
   private val NODE_BRIGHTNESS = 50
 
-  SwingUtilities.invokeLater(() => {
-    val frame = new JFrame()
-    val networkRenderer: NetworkRenderer3D = NetworkRendering3DPanel()
-    networkRenderer.setSceneSize(SCENE_SIZE)
-    frame.add(networkRenderer, BorderLayout.CENTER)
-    frame.setSize(FRAME_WIDTH, FRAME_HEIGHT)
-    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
-    frame.setVisible(true)
+  SwingUtilities.invokeLater(new Runnable {
+    override def run(): Unit = {
+      val frame = new JFrame()
+      val networkRenderer: NetworkRenderer3D = NetworkRendering3DPanel()
+      networkRenderer.setSceneSize(SCENE_SIZE)
+      frame.add(networkRenderer, BorderLayout.CENTER)
+      frame.setSize(FRAME_WIDTH, FRAME_HEIGHT)
+      frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
+      frame.setVisible(true)
 
-    testSceneAPI(networkRenderer) //this needs to be done first because it resets the scene
-    addNodes(networkRenderer, NODE_COUNT)
-    connectNodes(networkRenderer, NODE_COUNT)
-    setNodesLabel(networkRenderer)
-    testAPI(networkRenderer)
+      testSceneAPI(networkRenderer) //this needs to be done first because it resets the scene
+      addNodes(networkRenderer, NODE_COUNT)
+      connectNodes(networkRenderer, NODE_COUNT)
+      setNodesLabel(networkRenderer)
+      testAPI(networkRenderer)
+    }
   })
 
   private def addNodes(networkRenderer: NetworkRenderer3D, nodeCount: Int): Unit = (1 to nodeCount).foreach(index =>

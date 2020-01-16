@@ -1,6 +1,3 @@
-scalacOptions += "-target:jvm-1.11"
-javacOptions ++= Seq("-source", "1.11", "-target", "1.11")
-
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")

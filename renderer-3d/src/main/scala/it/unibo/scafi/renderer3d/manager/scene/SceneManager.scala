@@ -31,6 +31,7 @@ import javafx.scene.input._
 import javafx.scene.paint.ImagePattern
 import javafx.stage.Window
 import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
+import javafx.event.{Event, EventHandler}
 import scalafx.application.Platform
 import scalafx.embed.swing.SwingFXUtils
 import scalafx.geometry.{Point2D, Point3D}
@@ -90,12 +91,11 @@ private[manager] trait SceneManager {
       root = new Group(simulationCamera, Rendering3DUtils.createAmbientLight)
     }
 
-  protected def setupCameraAndListeners(): Unit =
-    Platform.runLater(() => {
-      simulationCamera.initialize(mainScene, () => if (System.currentTimeMillis() % 2 == 0) rotateNodeLabelsIfNeeded())
-      setMouseInteraction(mainScene, simulationCamera)
-      setKeyboardInteraction(mainScene, simulationCamera)
-    })
+  protected def setupCameraAndListeners(): Unit = {
+    simulationCamera.initialize(mainScene, () => if (System.currentTimeMillis() % 2 == 0) rotateNodeLabelsIfNeeded())
+    setMouseInteraction(mainScene, simulationCamera)
+    setKeyboardInteraction(mainScene, simulationCamera)
+  }
 
   protected final def stopMovingOnFocusLoss(window: Window): Unit  = {//call after initialization, so window is != null
     val listener = new InvalidationListener { //without this the camera would sometimes keep moving without user input
@@ -106,15 +106,18 @@ private[manager] trait SceneManager {
 
   private[this] final def setMouseInteraction(scene: Scene, camera: SimulationCamera): Unit = {
     setMousePressedAndDragged(scene, camera)
-    scene.addEventFilter(MouseEvent.DRAG_DETECTED, (_: MouseEvent) => scene.startFullDrag())
+    scene.addEventFilter(MouseEvent.DRAG_DETECTED, toHandler((_: MouseEvent) => scene.startFullDrag()))
     scene.addEventFilter(MouseDragEvent.MOUSE_DRAG_ENTERED,
-      (event: MouseDragEvent) => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event))
+      toHandler((event: MouseDragEvent) => if(isPrimaryButton(event) && !isSelectionComplete) startSelection(event)))
     scene.addEventFilter(MouseEvent.MOUSE_RELEASED,
-      (event: MouseEvent) => if(isPrimaryButton(event)) endSelectionAndRotateSelectedLabels(event))
+      toHandler((event: MouseEvent) => if(isPrimaryButton(event)) endSelectionAndRotateSelectedLabels(event)))
   }
 
+  private def toHandler[T<: Event](function: T => Unit): EventHandler[T] =
+    new EventHandler[T]{ override def handle(event: T): Unit = function(event)}
+
   private[this] final def setKeyboardInteraction(scene: Scene, camera: SimulationCamera): Unit =
-    scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: KeyEvent) => {
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, toHandler((event: KeyEvent) => {
       val movement = event.getCode match {
         case KeyCode.H => Option(new Point2D(-1, 0))
         case KeyCode.K => Option(new Point2D(1, 0))
@@ -123,22 +126,22 @@ private[manager] trait SceneManager {
         case _ => None
       }
       movement.fold()(movement => changeSelectionVolumeSizesIfNeeded(camera, movement))
-    })
+    }))
 
   private[this] final def setMousePressedAndDragged(scene: Scene, camera: SimulationCamera): Unit = {
-    scene.addEventFilter(MouseEvent.MOUSE_PRESSED, (event: MouseEvent) => if(isPrimaryButton(event)) {
+    scene.addEventFilter(MouseEvent.MOUSE_PRESSED, toHandler((event: MouseEvent) => if(isPrimaryButton(event)) {
       endSelectionMovementIfNeeded(Option(event))
       if(isSelectionComplete && !movementComplete) setMousePosition(event) else setSelectionVolumeCenter(event)
     } else if(isMiddleMouse(event)) {
       camera.startMouseRotation(event)
-    })
-    scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, (event: MouseEvent) =>
+    }))
+    scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, toHandler((event: MouseEvent) =>
       if(isPrimaryButton(event)) {
         if(isSelectionComplete) moveSelectedNodesIfNeeded(camera, event) else scaleSelectionVolumeIfNeeded(camera, event)
     } else if(isMiddleMouse(event)) {
       camera.rotateByMouseEvent(event)
     } else if(event.getButton == MouseButton.SECONDARY) {
       changeSelectionVolumeSizesIfNeeded(camera, event)
-    })
+    }))
   }
 }

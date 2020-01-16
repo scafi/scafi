@@ -18,6 +18,8 @@
 
 package it.unibo.scafi.simulation.frontend.controller
 
+import java.awt.event.{ActionEvent, ActionListener}
+
 import it.unibo.scafi.simulation.frontend.model.NodeValue
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.frontend.utility.Utils
@@ -36,26 +38,31 @@ object PopupMenuUtils {
    * @param toggleNeighbours the function to call whenever the event "Toggle Neighbours" occurs
    * @param controller       an instance of [[GeneralController]] that will receive and handle most of the events */
   def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: GeneralController) {
-    popupMenu.addObservation("Toggle Neighbours", _ => toggleNeighbours())
-    popupMenu.addObservation("Id", _ => controller.setShowValue(NodeValue.ID))
-    popupMenu.addObservation("Export", _ => controller.setShowValue(NodeValue.EXPORT))
-    popupMenu.addObservation("Position", _ => controller.setShowValue(NodeValue.POSITION))
-    popupMenu.addObservation("Position in GUI", _ => controller.setShowValue(NodeValue.POSITION_IN_GUI))
-    popupMenu.addObservation("Nothing", _ => controller.setShowValue(NodeValue.NONE))
+    popupMenu.addObservation("Toggle Neighbours", toListener(_ => toggleNeighbours()))
+    popupMenu.addObservation("Id", toListener(_ => controller.setShowValue(NodeValue.ID)))
+    popupMenu.addObservation("Export", toListener(_ => controller.setShowValue(NodeValue.EXPORT)))
+    popupMenu.addObservation("Position", toListener(_ => controller.setShowValue(NodeValue.POSITION)))
+    popupMenu.addObservation("Position in GUI",
+      toListener(_ => controller.setShowValue(NodeValue.POSITION_IN_GUI)))
+    popupMenu.addObservation("Nothing", toListener(_ => controller.setShowValue(NodeValue.NONE)))
     addSensorAndGenericPopupObservations(popupMenu, controller)
   }
 
+  private def toListener(action: ActionEvent => Unit): ActionListener = new ActionListener {
+    override def actionPerformed(actionEvent: ActionEvent): Unit = action(actionEvent)
+  }
+
   private def addSensorAndGenericPopupObservations(popupMenu: MyPopupMenu, controller: GeneralController): Unit = {
-    popupMenu.addObservation("Sensor", _ => Try {
+    popupMenu.addObservation("Sensor", toListener(_ => Try {
       val sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
         SensorEnum.sensors.map(_.name).mkString(", ") + ")")
       if(sensorName != null) controller.setShowValue(NodeValue.SENSOR(sensorName))
-    })
-    popupMenu.addObservation("Generic observation", _ => Try {
+    }))
+    popupMenu.addObservation("Generic observation", toListener(_ => Try {
       val observationStringRepr =
         JOptionPane.showInputDialog("Statement on export (e.g.: >= int 5)\nThe spaces in the middle are required")
       setGenericObservation(observationStringRepr, controller)
-    })
+    }))
   }
 
   private def setGenericObservation(obs: String, controller: GeneralController): Unit = {
@@ -96,15 +103,18 @@ object PopupMenuUtils {
     /* for(Action a :ActionEnum.values()){
                gui.getSimulationPanel().getPopUpMenu().addAction(a.getName(), e->{});
            }*/
-    popupMenu.addAction("Source", _ => controller.setSensor(SensorEnum.SOURCE.name, true))
-    popupMenu.addAction("Obstacle", _ => controller.setSensor(SensorEnum.OBSTACLE.name, true))
-    popupMenu.addAction("Not Source", _ => controller.setSensor(SensorEnum.SOURCE.name, false))
-    popupMenu.addAction("Not Obstacle", _ => controller.setSensor(SensorEnum.OBSTACLE.name, false))
-    popupMenu.addAction("Set Sensor", _ => {
+    popupMenu.addAction("Source", toListener(_ => controller.setSensor(SensorEnum.SOURCE.name, true)))
+    popupMenu.addAction("Obstacle",
+      toListener(_ => controller.setSensor(SensorEnum.OBSTACLE.name, true)))
+    popupMenu.addAction("Not Source",
+      toListener(_ => controller.setSensor(SensorEnum.SOURCE.name, false)))
+    popupMenu.addAction("Not Obstacle",
+      toListener(_ => controller.setSensor(SensorEnum.OBSTACLE.name, false)))
+    popupMenu.addAction("Set Sensor", toListener(_ => {
       val sensPane = new SensorOptionPane("Set Sensor", controller)
       sensPane.addOperator("=")
       for (s <- SensorEnum.sensors)  sensPane.addSensor(s.name)
-    })
+    }))
   }
 
 }

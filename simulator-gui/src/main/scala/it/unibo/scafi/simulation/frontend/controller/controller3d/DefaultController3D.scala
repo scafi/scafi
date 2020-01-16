@@ -50,10 +50,12 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
     if (!Settings.ShowConfigPanel) startSimulation()
   }
 
-  private def startGUI(): Unit = SwingUtilities.invokeAndWait(() => {
-    gui = DefaultSimulatorUI3D(this)
-    ControllerStarter.setupGUI(gui)
-    if (Settings.ShowConfigPanel) new ConfigurationPanel(this)
+  private def startGUI(): Unit = SwingUtilities.invokeAndWait(new Runnable {
+    override def run(): Unit = {
+      gui = DefaultSimulatorUI3D(DefaultController3D.this)
+      ControllerStarter.setupGUI(gui)
+      if (Settings.ShowConfigPanel) new ConfigurationPanel(DefaultController3D.this)
+    }
   })
 
   /** See [[Controller3D.getUI]] */
@@ -132,7 +134,7 @@ class DefaultController3D(simulation: Simulation, simulationManager: SimulationM
   override def setObservation(observation: Any => Boolean): Unit = {this.observation = Option(observation)}
 
   /** See [[Controller3D.getObservation]] */
-  override def getObservation(): Any => Boolean = observation match {
+  override def getObservation: Any => Boolean = observation match {
     case Some(observation) => observation;
     case None => _ => false
   }

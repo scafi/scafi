@@ -22,6 +22,7 @@ import it.unibo.scafi.renderer3d.camera.CameraHelper._
 import it.unibo.scafi.renderer3d.camera.Direction.{MoveDirection, RotateDirection}
 import it.unibo.scafi.renderer3d.util.RichScalaFx._
 import it.unibo.scafi.renderer3d.util.ScalaFxExtras._
+import javafx.event.EventHandler
 import javafx.scene.input
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import org.fxyz3d.geometry.MathUtils
@@ -84,15 +85,19 @@ final class FpsCamera(initialPosition: Point3D = Point3D.Zero, sensitivity: Doub
 
   /** See [[SimulationCamera.initialize]] */
   override def initialize(scene: Scene, onCameraChangeAction: () => Unit): Unit = onFX {
-    scene.addEventFilter(KeyEvent.KEY_PRESSED, (event: KeyEvent) => {
-      MoveDirection.getDirection(event).fold()(direction => state = state.withAddedMoveDirection(direction))
-      RotateDirection.getDirection(event).fold()(direction => state = state.copy(rotateDirection = Option(direction)))
-      zoomByKeyboardEvent(event)
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler[KeyEvent]{
+      override def handle(event: KeyEvent): Unit = {
+        MoveDirection.getDirection(event).fold()(direction => state = state.withAddedMoveDirection(direction))
+        RotateDirection.getDirection(event).fold()(direction => state = state.copy(rotateDirection = Option(direction)))
+        zoomByKeyboardEvent(event)
+      }
     })
-    scene.addEventFilter(KeyEvent.KEY_RELEASED, (event: KeyEvent) => {
-      MoveDirection.getDirection(event).fold()(direction => state = state.withRemovedMoveDirection(direction))
-      RotateDirection.getDirection(event).fold()(direction =>
-        if (state.rotateDirection == Option(direction)) state = state.copy(rotateDirection = None))
+    scene.addEventFilter(KeyEvent.KEY_RELEASED, new EventHandler[KeyEvent]{
+      override def handle(event: KeyEvent): Unit = {
+        MoveDirection.getDirection(event).fold()(direction => state = state.withRemovedMoveDirection(direction))
+        RotateDirection.getDirection(event).fold()(direction =>
+          if (state.rotateDirection == Option(direction)) state = state.copy(rotateDirection = None))
+      }
     })
     state = state.copy(onCameraChange = onCameraChangeAction)
   }

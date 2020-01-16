@@ -19,7 +19,9 @@ class MyPopupMenu(controller: GeneralController) extends JPopupMenu {
   final private val actions: JMenu = new JMenu("Actions")
   val clear: JMenuItem = new JMenuItem("Clear")
 
-  clear.addActionListener(_ => controller.clearSimulation())
+  clear.addActionListener(new ActionListener {
+    override def actionPerformed(actionEvent: ActionEvent): Unit = controller.clearSimulation()
+  })
   add(clear)
   addSeparator()
   add(observations)

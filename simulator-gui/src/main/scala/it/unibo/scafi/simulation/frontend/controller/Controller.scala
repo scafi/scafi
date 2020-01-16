@@ -33,16 +33,16 @@ object Controller {
 
   def getUI: SimulatorUI = gui
 
-  def startup: Unit = {
-    SwingUtilities.invokeLater(() => {
-      Controller.getInstance.setGui(gui)
-      val simulationManagerImpl = new SimulationManagerImpl()
-      simulationManagerImpl.setUpdateNodeFunction(Controller.getInstance.updateNodeValue)
-      Controller.getInstance.setSimManager(simulationManagerImpl)
-      if (Settings.ShowConfigPanel) new ConfigurationPanel(Controller.getInstance)
-      else Controller.getInstance.startSimulation()
+  def startup: Unit = SwingUtilities.invokeLater(new Runnable {
+      override def run(): Unit = {
+        Controller.getInstance.setGui(gui)
+        val simulationManagerImpl = new SimulationManagerImpl()
+        simulationManagerImpl.setUpdateNodeFunction(Controller.getInstance.updateNodeValue)
+        Controller.getInstance.setSimManager(simulationManagerImpl)
+        if (Settings.ShowConfigPanel) new ConfigurationPanel(Controller.getInstance)
+        else Controller.getInstance.startSimulation()
+      }
     })
-  }
 }
 
 class Controller () extends GeneralController {
