@@ -118,9 +118,8 @@ private[manager] trait ConnectionManager {
       Rendering3DUtils.connectLineToPoints(line, nodes._1.getNodePosition, nodes._2.getNodePosition))
   }
 
-  private final def createNodeConnection(originNode: javafx.scene.Node, targetNode: javafx.scene.Node): Line =
-    (originNode, targetNode) match {case (origin: NetworkNode, target: NetworkNode) =>
-      val points = (origin.getNodePosition, target.getNodePosition)
+  private final def createNodeConnection(originNode: NetworkNode, targetNode: NetworkNode): Line = {
+      val points = (originNode.getNodePosition, targetNode.getNodePosition)
       Rendering3DUtils.createLine(points, connectionsVisible, connectionsColor, sceneScaleMultiplier/3)
     }
 
