@@ -7,21 +7,22 @@ package it.unibo.scafi.simulation.frontend.view
 
 import java.awt._
 import java.awt.event.ActionEvent
+
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
+import it.unibo.scafi.simulation.frontend.utility.Utils
 import javax.swing._
 
-import it.unibo.scafi.simulation.frontend.controller.Controller
-import it.unibo.scafi.simulation.frontend.utility.Utils
-
-class SensorOptionPane(title: String) extends JDialog {
+class SensorOptionPane(title: String, controller: GeneralController) extends JDialog {
   final private val sensorsChoice: JComboBox[String] = new JComboBox[String]
   final private val operators: JComboBox[String] = new JComboBox[String]
-  final private val controller: Controller = Controller.getInstance
 
   val sensorNameField: JTextField = new JTextField(20)
   val valueField: JTextField = new JTextField(10)
   val enter: JButton = new JButton("OK")
   val cancel: JButton = new JButton("Cancel")
 
+  sensorNameField.setToolTipText("e.g.: sens1")
+  valueField.setToolTipText("The space in the middle is required, e.g.: int 5")
   setTitle(title)
   setSize(600, 300)
   this.setLocationRelativeTo(null)

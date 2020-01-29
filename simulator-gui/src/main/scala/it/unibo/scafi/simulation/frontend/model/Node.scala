@@ -1,13 +1,13 @@
 package it.unibo.scafi.simulation.frontend.model
 
-import it.unibo.scafi.space.Point2D
+import it.unibo.scafi.space.{Point2D, Point3D}
 
 trait Node {
   def id: Int
 
   var export: Any
 
-  var position: Point2D
+  var position: Point3D
 
   def neighbours: Set[Node]
 

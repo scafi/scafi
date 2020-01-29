@@ -1,4 +1,3 @@
-
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -7,16 +6,17 @@ resolvers += Resolver.typesafeRepo("releases")
 val akkaVersion = "2.5.0" // NOTE: Akka 2.4.0 REQUIRES Java 8!
 
 // Managed dependencies
-val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
-val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
-val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
-val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
-val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
-val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
-val playJson   = "com.typesafe.play" %% "play-json"   % "2.6.9"
-val scalafx = "org.scalafx" %% "scalafx" % "8.0.144-R12"
-val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.26"
-val log4 = "log4j" % "log4j" % "1.2.17"
+val akkaActor     = "com.typesafe.akka"          %% "akka-actor"    % akkaVersion
+val akkaRemote    = "com.typesafe.akka"          %% "akka-remote"   % akkaVersion
+val bcel          = "org.apache.bcel"             % "bcel"          % "5.2"
+val scalaLogging  = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
+val scalatest     = "org.scalatest"              %% "scalatest"     % "3.0.0"     % "test"
+val scopt         = "com.github.scopt"           %% "scopt"         % "3.5.0"
+val shapeless     = "com.chuusai"                %% "shapeless"     % "2.3.2"
+val playJson      = "com.typesafe.play"          %% "play-json"     % "2.6.9"
+val scalafx       = "org.scalafx"                %% "scalafx"       % "8.0.192-R14"
+val slf4jlog4  = "org.slf4j"                      % "slf4j-log4j12" % "1.7.26"
+val log4 = "log4j"                                % "log4j"         % "1.2.17"
 
 // Determine OS version of JavaFX binaries
 lazy val osName = System.getProperty("os.name") match {
@@ -28,6 +28,11 @@ lazy val osName = System.getProperty("os.name") match {
 
 // JavaFX dependencies (Java 11)
 lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "web")
+lazy val javaFX = if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11) {
+  javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % (jdkVersion+".0.2") classifier osName)
+} else {
+  Seq()
+}
 
 lazy val javaVersion = System.getProperty("java.version").stripPrefix("openjdk")
 lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
@@ -65,11 +70,11 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
-  scalaVersion := "2.12.2",
+  scalaVersion := "2.12.10",
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
-  crossScalaVersions := Seq("2.11.12","2.12.2") // "2.13.0-M1"
+  crossScalaVersions := Seq("2.11.12","2.12.10") // "2.13.0-M1"
 )
 
 lazy val noPublishSettings = Seq(
@@ -80,7 +85,8 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`).
+  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
+   `simulator-gui-new`, `demos-new`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
@@ -117,12 +123,20 @@ lazy val simulator = project.
   )
 
 lazy val `simulator-gui` = project.
-  dependsOn(core,simulator).
+  dependsOn(core,simulator,`renderer-3d`).
   settings(commonSettings: _*).
   settings(
     name := "scafi-simulator-gui",
     libraryDependencies ++= Seq(scopt),
     compileScalastyle := ()
+  )
+
+lazy val `renderer-3d` = project.
+  dependsOn().
+  settings(commonSettings: _*).
+  settings(
+    name := "scafi-3d-renderer",
+    libraryDependencies ++= Seq(scalafx, scalaLogging) ++ javaFX
   )
 
 lazy val spala = project.
@@ -165,11 +179,7 @@ lazy val `simulator-gui-new` = project.
   settings(commonSettings: _*).
   settings(
     name := "simulator-gui-new",
-    libraryDependencies ++= Seq(scopt,scalatest,scalafx),
-    if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11)
-      libraryDependencies ++= javaFXModules.map( m =>
-        "org.openjfx" % s"javafx-$m" % jdkVersion classifier osName
-      ) else libraryDependencies ++= Seq(),
+    libraryDependencies ++= Seq(scopt,scalatest,scalafx) ++ javaFX,
     compileScalastyle := ()
   )
 
