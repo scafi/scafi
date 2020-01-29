@@ -61,6 +61,4 @@ class NodeImpl(val id: Int, var position: Point3D) extends Node {
 
   def setSensor(sensorName: String, value: Any) =
     this.sensors += new Sensor(sensorName, value) -> value
-
-  override def position2d: Point2D = new Point2D(position.x, position.y)
 }

@@ -16,6 +16,7 @@ import it.unibo.scafi.simulation.frontend.view.{ConfigurationPanel, GuiNode, Nod
 import it.unibo.scafi.simulation.frontend.{Settings, Simulation, SimulationImpl}
 import it.unibo.scafi.simulation.frontend.controller.ControllerUtils._
 import it.unibo.scafi.space.{Point2D, SpaceHelper}
+import it.unibo.scafi.space.Point3D.toPoint2D
 
 import javax.swing.SwingUtilities
 
@@ -63,7 +64,7 @@ class Controller () extends GeneralController {
     this.nodes.foreach(x => {
       val (node,guiNode) = x._2
       val dim = Utils.getSizeGuiNode()
-      val pos = Utils.calculatedGuiNodePosition(node.position2d)
+      val pos = Utils.calculatedGuiNodePosition(node.position)
       guiNode.setNodeLocation(pos.x,pos.y)
       guiNode.setSize(dim)
     })
@@ -128,7 +129,7 @@ class Controller () extends GeneralController {
     positions.foreach(p =>  {
       val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
-      val pt = Utils.calculatedGuiNodePosition(node.position2d)
+      val pt = Utils.calculatedGuiNodePosition(node.position)
       guiNode.setNodeLocation(pt.x, pt.y)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
@@ -253,8 +254,8 @@ class Controller () extends GeneralController {
       valueShowed match {
         case NodeValue.ID => guiNode.setValueToShow(node.id.toString)
         case NodeValue.EXPORT => guiNode.setValueToShow(formatExport(node.export))
-        case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(node.position2d))
-        case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position2d)))
+        case NodeValue.POSITION => guiNode.setValueToShow(formatPosition(toPoint2D(node.position)))
+        case NodeValue.POSITION_IN_GUI => guiNode.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(node.position)))
         case NodeValue.SENSOR(name) => guiNode.setValueToShow(node.getSensorValue(name).toString)
         case _ => guiNode.setValueToShow("")
       }
@@ -274,9 +275,9 @@ class Controller () extends GeneralController {
       case NodeValue.EXPORT =>
         nodes.values.foreach { case (n, g) => g.setValueToShow(formatExport(n.export)) }
       case NodeValue.POSITION =>
-        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(n.position2d)) }
+        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(toPoint2D(n.position))) }
       case NodeValue.POSITION_IN_GUI =>
-        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(n.position2d))) }
+        nodes.values.foreach { case (n, g) => g.setValueToShow(formatPosition(Utils.calculatedGuiNodePosition(n.position))) }
       case NodeValue.SENSOR(name) =>
         nodes.values.foreach { case (n, g) => g.setValueToShow(n.getSensorValue(name).toString) }
       case _ => nodes.values.foreach{ case (n, g) => g.setValueToShow("") }

@@ -12,6 +12,7 @@ import it.unibo.scafi.simulation.frontend.Settings
 import it.unibo.scafi.simulation.frontend.controller.Controller
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.frontend.utility.Utils
+import it.unibo.scafi.space.Point3D.toPoint2D
 
 import scala.util.Try
 
@@ -34,7 +35,7 @@ class ValuesPanel private[view]() extends JPanel {
 
     controller.getNodes.foreach(ng => {
       val (n,gn) = ng
-      val p1 = Utils.calculatedGuiNodePosition(n.position2d)
+      val p1 = Utils.calculatedGuiNodePosition(n.position)
       val (dx,dy) = (Utils.getSizeGuiNode().getWidth() / 2, Utils.getSizeGuiNode().getHeight() / 160 * 71)
       val p1x = (p1.x + dx)
       val p1y = (p1.y + dy)

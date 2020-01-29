@@ -9,8 +9,6 @@ trait Node {
 
   var position: Point3D
 
-  def position2d: Point2D
-
   def neighbours: Set[Node]
 
   def addNeighbour(neighbour: Node): Boolean
