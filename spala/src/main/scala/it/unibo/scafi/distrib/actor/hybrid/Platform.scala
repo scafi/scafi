@@ -18,10 +18,10 @@ import scala.concurrent.duration.DurationInt
   */
 
 trait Platform extends BasePlatform
-  with PlatformAPIFacade
+  with PlatformDevices
   with PlatformServer
-  with PlatformDevices {
-
+  with PlatformAPIFacade
+{
   class SettingsFactoryHybrid extends SettingsFactory {
     override def defaultProfileSettings(): ProfileSettings = HybridActorSystemSettings()
     override def defaultSettings(): Settings = {

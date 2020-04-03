@@ -75,7 +75,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
     val Debug = "DEBUG"
   }
 
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
 
   object Settings {
     def fromConfig(path: String): Settings = {
@@ -140,7 +140,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   object PlatformSettings {
     def fromConfig(c: Config, base: PlatformSettings = PlatformSettings()): PlatformSettings = {
       val deploy = c.getObject("deployment").toConfig
-      val subsystems = if(c.hasPath("subsystems")) c.getObjectList("subsystems").toSet else Set()
+      val subsystems = if(c.hasPath("subsystems")) c.getObjectList("subsystems").asScala.toSet else Set()
 
       var ps = base.copy(
         subsystemDeployment = DeploymentSettings(host = deploy.getString("host"), port = deploy.getInt("port")),
@@ -153,7 +153,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
     def fromConfig(c: Config, base: SubsystemSettings = SubsystemSettings())
                   (implicit ev: Interop[UID]): SubsystemSettings = {
       val deploy = c.getObject("deployment").toConfig
-      val ids = if(c.hasPath("ids")) c.getStringList("ids").toSet else Set()
+      val ids = if(c.hasPath("ids")) c.getStringList("ids").asScala.toSet else Set()
 
       var ss = base.copy(
         subsystemDeployment = DeploymentSettings(host = deploy.getString("host"), port = deploy.getInt("port")),
@@ -165,13 +165,13 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   object DeviceConfigurationSettings {
     def fromConfig(c: Config, base: DeviceConfigurationSettings = DeviceConfigurationSettings())
                   (implicit ev: Interop[UID]): DeviceConfigurationSettings = {
-      val ids = if(c.hasPath("ids")) c.getStringList("ids").toSet else Set()
-      val idsWithNbs = if(c.hasPath("nbrs")) c.getObject("nbrs").keys else Set[String]()
+      val ids = if(c.hasPath("ids")) c.getStringList("ids").asScala.toSet else Set()
+      val idsWithNbs = if(c.hasPath("nbrs")) c.getObject("nbrs").asScala.keys else Set[String]()
 
       var ds = base.copy(
         ids = ids.map(ev.fromString(_)).toSet,
         nbs = idsWithNbs.map { id =>
-          val nbrs = c.getStringList(s"nbrs.${id}").toSet[String].map(ev.fromString(_))
+          val nbrs = c.getStringList(s"nbrs.${id}").asScala.toSet[String].map(ev.fromString(_))
           ev.fromString(id) -> nbrs
         }.toMap
       )
@@ -257,7 +257,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
           val xs = subsysDesc.split(":")
           val host = xs(0)
           val port = xs(1).toInt
-          val ids = xs.drop(2).map(interopUID.fromString(_)).toSet
+          val ids: Set[UID] = xs.toSeq.drop(2).map(interopUID.fromString(_)).toSet
 
           ss += SubsystemSettings(
             ids = ids,

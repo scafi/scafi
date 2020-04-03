@@ -30,7 +30,7 @@ trait StdLib_ExplicitFields {
       }
 
       def map[R](o: T=>R): Field[R] =
-        Field(m.mapValues(o))
+        Field(m.mapValues(o).toMap)
 
       def map2[R,S](f: Field[R])(o: (T,R)=>S): Field[S] =
         Field(m.map { case (i,v) => i -> o(v,f.m(i)) })
@@ -42,7 +42,7 @@ trait StdLib_ExplicitFields {
         Field(m.map { case (i,v) => i -> o(v,f.m.getOrElse(i,default)) })
 
       def map2u[R,S](f: Field[R])(dl: T, dr: R)(o: (T,R)=>S): Field[S] =
-        Field((m.keys ++ f.m.keys).map { k => k -> o(m.getOrElse(k, dl), f.m.getOrElse(k, dr)) } toMap)
+        Field((m.keys ++ f.m.keys).map { k => k -> o(m.getOrElse(k, dl), f.m.getOrElse(k, dr)) }.toMap)
 
       def fold[V>:T](z:V)(o: (V,V)=>V): V =
         restricted.m.values.fold(z)(o)

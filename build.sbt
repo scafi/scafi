@@ -4,17 +4,18 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
 
 // Constants
-val akkaVersion = "2.5.0" // NOTE: Akka 2.4.0 REQUIRES Java 8!
+val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.2","2.13.1")
+val akkaVersion = "2.5.23" // NOTE: Akka 2.4.0 REQUIRES Java 8!
 
 // Managed dependencies
 val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
-val scalatest  = "org.scalatest"     %% "scalatest"   % "3.0.0"     % "test"
-val scopt      = "com.github.scopt"  %% "scopt"       % "3.5.0"
-val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.2"
-val playJson   = "com.typesafe.play" %% "play-json"   % "2.6.9"
-val scalafx = "org.scalafx" %% "scalafx" % "8.0.144-R12"
+val scalatest  = "org.scalatest"     %% "scalatest"   % "3.1.1"     % "test"
+val scopt      = "com.github.scopt"  %% "scopt"       % "3.7.1"
+val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.3"
+val playJson   = "com.typesafe.play" %% "play-json"   % "2.8.1"
+val scalafx = "org.scalafx" %% "scalafx" % "12.0.2-R18"
 val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.26"
 val log4 = "log4j" % "log4j" % "1.2.17"
 
@@ -69,7 +70,7 @@ lazy val commonSettings = Seq(
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
-  crossScalaVersions := Seq("2.11.12","2.12.2") // "2.13.0-M1"
+  crossScalaVersions := scalaVersionsForCrossCompilation // "2.13.0-M1"
 )
 
 lazy val noPublishSettings = Seq(
@@ -130,7 +131,13 @@ lazy val spala = project.
   settings(commonSettings: _*).
   settings(
     name := "spala",
-    libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt, playJson, slf4jlog4, log4)
+    libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt,
+      scalaBinaryVersion.value match {
+        case "2.11" => "com.typesafe.play" %% "play-json"   % "2.6.9"
+        case "2.12" => "com.typesafe.play" %% "play-json"   % "2.8.1"
+        case "2.13" => "com.typesafe.play" %% "play-json"   % "2.8.1"
+      }
+      , slf4jlog4, log4)
   )
 
 lazy val distributed = project.

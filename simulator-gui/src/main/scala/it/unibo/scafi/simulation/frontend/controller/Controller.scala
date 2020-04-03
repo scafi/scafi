@@ -175,7 +175,7 @@ class Controller () {
     })
 
     val simulation: Simulation = new SimulationImpl
-    simulation.network = new NetworkImpl(this.nodes.mapValues(_._1), policyNeighborhood)
+    simulation.network = new NetworkImpl(this.nodes.mapValues(_._1).toMap, policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
     simulation.setRunProgram(runProgram)
     simulation.setStrategy(strategy)

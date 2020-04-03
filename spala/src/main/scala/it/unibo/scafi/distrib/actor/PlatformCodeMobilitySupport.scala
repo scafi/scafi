@@ -13,6 +13,7 @@ import it.unibo.scafi.distrib.actor.patterns.BasicActorBehavior
 import it.unibo.scafi.distrib.actor.serialization.CustomAkkaSerializer
 
 import scala.concurrent.duration._
+import scala.util.Success
 
 trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
 
@@ -116,10 +117,9 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
         } else {
           // Remote actor ref: the destination actor may not have the program
           val corr = aRef.hashCode() + "-" + System.currentTimeMillis()
-          (aRef ? MsgWithClasses(classes,Some(corr))).onSuccess {
-            case MsgAck(Some(corr)) => {
+          (aRef ? MsgWithClasses(classes,Some(corr))).onComplete {
+            case Success(MsgAck(Some(corr))) =>
               aRef ! msg
-            }
           }
         }
       }

@@ -21,7 +21,7 @@ trait PlatformServer extends PlatformBehaviors { self: Platform.Subcomponent =>
     }
   }
 
-  class ServerActor()
+  class HybridServerActor()
     extends ServerBaseServerActor
     with ObservableServerActor
     with MissingCodeManagementBehavior {
@@ -50,8 +50,8 @@ trait PlatformServer extends PlatformBehaviors { self: Platform.Subcomponent =>
     }
   }
 
-  object ServerActor extends Serializable {
-    def props(): Props = Props(classOf[ServerActor], self)
+  object HybridServerActor extends Serializable {
+    def props(): Props = Props(classOf[HybridServerActor], self)
   }
 }
 

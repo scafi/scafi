@@ -105,7 +105,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
     override def deviceGuiProps(dev: ActorRef): Props = profSettings.devGuiActorProps(dev).get
 
     override def deviceProps(id: UID, program: Option[ProgramContract]): Props =
-      profSettings.devActorProps(id, program, execScope, server).getOrElse(DeviceActor.props(id, program, execScope, server))
+      profSettings.devActorProps(id, program, execScope, server)
+        .getOrElse(DeviceActor.props(id, program, execScope, server))
 
     override def addNeighbor(id: UID, idn: UID): Unit = {
       server ! MsgNeighbor(id, idn)

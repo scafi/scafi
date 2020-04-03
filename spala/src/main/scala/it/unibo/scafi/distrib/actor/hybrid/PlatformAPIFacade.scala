@@ -27,7 +27,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                                        deviceGui: Boolean = false,
                                        serverGui: Boolean = false,
                                        devActorProps: (UID, Option[ProgramContract], ExecScope, ActorRef) => Option[Props] = (_,_,_,_) => None,
-                                       serverActorProps: Props = ServerActor.props(),
+                                       serverActorProps: Props = HybridServerActor.props(),
                                        devGuiActorProps: ActorRef => Option[Props] = _ => None,
                                        serverGuiActorProps: ActorRef => Option[Props] = _ => None)
     extends ConfigurableSettings[HybridActorSystemSettings] {
@@ -109,7 +109,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
     override def deviceGuiProps(dev: ActorRef): Props = profSettings.devGuiActorProps(dev).get
 
     override def deviceProps(id: UID, program: Option[ProgramContract]): Props =
-      profSettings.devActorProps(id, program, execScope, server).getOrElse(DeviceActor.props(id, program, execScope, server))
+      profSettings.devActorProps(id, program, execScope, server).getOrElse(HybridDeviceActor.props(id, program, execScope, server))
 
     override def start(): Unit = appRef ! MsgPropagate(GoOn)
 

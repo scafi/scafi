@@ -87,7 +87,7 @@ trait StdLib_TimeUtils {
 
   trait TimeUtils extends BlockT { self: FieldCalculusSyntax with StandardSensors =>
     def sharedTimer(period: FiniteDuration): FiniteDuration =
-      sharedTimerWithDecay(period.toMillis, deltaTime().toMillis) seconds
+      sharedTimerWithDecay(period.toMillis, deltaTime().toMillis).seconds
 
     def timerLocalTime(dur: Duration): Long =
       T(initial = dur.toNanos, dt = deltaTime().toNanos)

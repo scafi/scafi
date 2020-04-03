@@ -16,10 +16,10 @@ trait PlatformDevices extends PlatformBehaviors { self: Platform.Subcomponent =>
     *  peer-to-peer manner and as a part of a client/server system.
     * In particular, it needs to propagate each computed state to its neighbors.
     */
-  class DeviceActor(override val selfId: UID,
-                    override var aggregateExecutor: Option[ProgramContract],
-                    override var execScope: ExecScope,
-                    val server: ActorRef)
+  class HybridDeviceActor(override val selfId: UID,
+                          override var aggregateExecutor: Option[ProgramContract],
+                          override var execScope: ExecScope,
+                          val server: ActorRef)
     extends P2pBaseDeviceActor
     with MissingCodeManagementBehavior
     with ObservableDeviceActor {
@@ -37,12 +37,12 @@ trait PlatformDevices extends PlatformBehaviors { self: Platform.Subcomponent =>
     }
   }
 
-  object DeviceActor extends Serializable {
+  object HybridDeviceActor extends Serializable {
     def props(selfId: UID,
               program: Option[ProgramContract],
               execStrategy: ExecScope,
               server: ActorRef): Props =
-      Props(classOf[DeviceActor], self, selfId, program, execStrategy, server)
+      Props(classOf[HybridDeviceActor], self, selfId, program, execStrategy, server)
   }
 }
 

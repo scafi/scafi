@@ -28,7 +28,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   def setRunProgram(program: Any): Unit = {
 
-    val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D(n.position.x, n.position.y)) // Map id->position
+    val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D(n.position.x, n.position.y)).toMap // Map id->position
     net = new SpaceAwareSimulator(
       space = new Basic3DSpace(devsToPos,
         proximityThreshold = this.network.neighbourhoodPolicy match {

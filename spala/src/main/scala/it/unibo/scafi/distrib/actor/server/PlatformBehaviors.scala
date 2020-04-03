@@ -19,7 +19,7 @@ trait PlatformBehaviors { self: ActorPlatform =>
     override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse {
       // Neighborhood management
       case MsgNeighborhood(this.selfId, nbs) => updateNeighborhood(nbs, clear = true)
-      case MsgExports(exports) => updateNeighborsState(exports.mapValues(Some(_)), clear = true)
+      case MsgExports(exports) => updateNeighborsState(exports.mapValues(Some(_)).toMap, clear = true)
       case MsgNeighborhoodExports(this.selfId, exps) => updateNeighborsState(exps, clear = true)
     }
   }

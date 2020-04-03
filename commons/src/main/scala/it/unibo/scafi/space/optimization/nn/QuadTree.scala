@@ -37,10 +37,12 @@ private[nn] class QuadTree[A] private (
                                       minVec: Point3D,
                                       maxVec: Point3D,
                                       maxPerBox: Int) extends  NNIndex[A]{
+  val mmap: mutable.Map[Point3D,A] = mutable.Map.empty
+
   val root = new QuadNode((minVec + maxVec) * 0.5,
     maxVec - minVec, this, Seq.empty)
 
-  override def +=(elem : (Point3D,A)) : this.type = {
+  def +=(elem : (Point3D,A)) : this.type = {
     def insertRecur(elem: (Point3D,A), node: QuadNode[A]): Unit = {
       if (node.children.isEmpty) {
         if (node.nodeElements.length < maxPerBox) {
@@ -64,7 +66,7 @@ private[nn] class QuadTree[A] private (
   }
 
   override def ++=(points : Iterable[(Point3D,A)]) : this.type = {
-    points foreach {this.+=_}
+    points foreach {this.mmap+=_}
     this
   }
   /**
@@ -77,7 +79,8 @@ private[nn] class QuadTree[A] private (
       findPointContainsInNode(p,node.children(node.whichChild(p)))
     }
   }
-  override def -=(queryPoint: Point3D) : this.type = {
+
+  def -=(queryPoint: Point3D) : this.type = {
     val node = findPointContainsInNode(queryPoint,root).get
     val key = node.nodeElements.find(_._1 === queryPoint)
     if(key.isDefined) {
@@ -124,7 +127,7 @@ private[nn] class QuadTree[A] private (
     ret
   }
 
-  override def iterator: Iterator[(Point3D,A)] = elems.iterator
+  def iterator: Iterator[(Point3D,A)] = elems.iterator
 
   private def elems : mutable.Iterable[(Point3D,A)] = {
     def elemsRec(node : QuadNode[A]) : mutable.Iterable[(Point3D,A)] = {
