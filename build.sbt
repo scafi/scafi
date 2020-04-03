@@ -4,15 +4,15 @@ resolvers += Resolver.typesafeRepo("releases")
 
 // Constants
 val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.2","2.13.1")
-val akkaVersion = "2.5.23" // NOTE: Akka 2.4.0 REQUIRES Java 8!
+val akkaVersion = "2.5.31" // NOTE: Akka 2.4.0 REQUIRES Java 8!
 
 // Managed dependencies
 val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
-val bcel       = "org.apache.bcel"   % "bcel"         % "5.2"
+val bcel       = "org.apache.bcel"   % "bcel"         % "6.4.1"
 val scalaLogging  = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
 val scalatest  = "org.scalatest"     %% "scalatest"   % "3.1.1"     % "test"
-val scopt      = "com.github.scopt"  %% "scopt"       % "3.7.1"
+val scopt      = "com.github.scopt"  %% "scopt"       % "4.0.0-RC2"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.3"
 val playJson   = "com.typesafe.play" %% "play-json"   % "2.8.1"
 val scalafx = "org.scalafx" %% "scalafx" % "12.0.2-R18"
@@ -137,7 +137,12 @@ lazy val `renderer-3d` = project.
   settings(commonSettings: _*).
   settings(
     name := "scafi-3d-renderer",
-    libraryDependencies ++= Seq(scalafx, scalaLogging) ++ javaFX
+    libraryDependencies ++= Seq(
+      scalaBinaryVersion.value match {
+        case "2.13" => "org.scalafx" %% "scalafx" % "12.0.2-R18"
+        case _ => "org.scalafx" %% "scalafx" % "8.0.144-R12"
+      },
+      scalaLogging) ++ javaFX
   )
 
 lazy val spala = project.
@@ -186,7 +191,12 @@ lazy val `simulator-gui-new` = project.
   settings(commonSettings: _*).
   settings(
     name := "simulator-gui-new",
-    libraryDependencies ++= Seq(scopt,scalatest,scalafx) ++ javaFX,
+    libraryDependencies ++= Seq(scopt,scalatest,
+      scalaBinaryVersion.value match {
+        case "2.13" => "org.scalafx" %% "scalafx" % "12.0.2-R18"
+        case _ => "org.scalafx" %% "scalafx" % "8.0.144-R12"
+      }
+    ) ++ javaFX,
     compileScalastyle := ()
   )
 
