@@ -46,16 +46,20 @@ private[manager] trait SelectionManager {
   {selectVolume.setCullFace(CullFace.NONE); selectVolume.setVisible(false)} //setup of selectVolume
 
   protected final def setSelectionVolumeCenter(event: MouseEvent): Unit = //use minByOption when using Scala 2.13
-    onFX (state = state.copy(selectionComplete = false, initialNode = {
-      val pickedNode = Option(event.getPickResult.getIntersectedNode)
-      val networkNode = pickedNode.flatMap{case node: NetworkNode => Option(node); case node => node.getParent match {
-        case networkNode: NetworkNode => Option(networkNode); case _ => None}}
-      networkNode.fold(findClosestNodeOnScreen(event, mainScene, getAllNetworkNodes))(Option(_))
-    }))
+    onFX {
+      state = state.copy(selectionComplete = false, initialNode = {
+        val pickedNode = Option(event.getPickResult.getIntersectedNode)
+        val networkNode = pickedNode.flatMap{case node: NetworkNode => Option(node); case node => node.getParent match {
+          case networkNode: NetworkNode => Option(networkNode); case _ => None}}
+        networkNode.fold(findClosestNodeOnScreen(event, mainScene, getAllNetworkNodes))(Option(_))
+      })
+    }
 
   protected final def setMousePosition(event: MouseEvent, mouseOnSelectionCheck: Boolean = true): Unit =
-    onFX {state = state.copy(mousePosition =
-      if(!mouseOnSelectionCheck || isMouseOnSelection(event, selectVolume)) Option(event.getScreenPosition) else None)}
+    onFX {
+      state = state.copy(mousePosition =
+        if(!mouseOnSelectionCheck || isMouseOnSelection(event, selectVolume)) Option(event.getScreenPosition) else None)
+    }
 
   protected final def startSelection(event: MouseEvent): Unit =
     onFX {SelectionManagerHelper.startSelection(event, state, mainScene, selectVolume)}

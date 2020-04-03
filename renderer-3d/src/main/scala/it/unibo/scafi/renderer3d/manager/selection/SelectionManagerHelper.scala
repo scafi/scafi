@@ -132,7 +132,9 @@ private[selection] object SelectionManagerHelper {
    * @param executor the executor to work with
    * @param state the current state of SelectionManager */
   def submitMovementTaskToExecutor(executor: ThreadPoolExecutor, state: SelectionManagerState): Unit =
-    executor.submit(new Task[Unit]() {override def call(): Unit = state.movementTask.getOrElse(() => Unit)()})
+    executor.submit(new Task[Unit]() {
+      override def call(): Unit = state.movementTask.getOrElse(() => ())()
+    })
 
   /** Finds the NetworkNode in the screen closest to the mouse cursor.
    * @param event the mouse event
