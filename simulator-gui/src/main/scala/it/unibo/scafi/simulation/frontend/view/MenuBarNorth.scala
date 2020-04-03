@@ -8,21 +8,21 @@ package it.unibo.scafi.simulation.frontend.view
 import java.awt.event.ActionEvent
 import java.awt.{Color, GridBagConstraints, GridBagLayout, Insets}
 import java.text.NumberFormat
-import javax.swing._
 
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.utility.{ImageFilter, Utils}
+import javax.swing._
 
 /**
   * This class represent the Application menu
   */
-class MenuBarNorth() extends JMenuBar {
+class MenuBarNorth(controller: GeneralController) extends JMenuBar {
   private var menus = Vector[JMenu]()
 
   val file: JMenu = new JMenu("File")
   val newFile: JMenu = new JMenu("New")
   val simulation: JMenuItem = new JMenuItem("Scafi Simulation")
-  simulation.addActionListener((e:ActionEvent) => { new ConfigurationPanel(); () })
+  simulation.addActionListener((e:ActionEvent) => { new ConfigurationPanel(controller); () })
   newFile.add(simulation)
   val open: JMenuItem = new JMenuItem("Open")
   val save: JMenuItem = new JMenuItem("Save")
@@ -40,9 +40,12 @@ class MenuBarNorth() extends JMenuBar {
     choose.addChoosableFileFilter(new ImageFilter())
     choose.setAcceptAllFileFilterUsed(false)
     choose.showOpenDialog(this.getParent())
-    controller.showImage(new ImageIcon(choose.getSelectedFile().getPath()).getImage(), true)
-    removeImage.setEnabled(true)
-    addImage.setEnabled(false)
+    val selectedFile = choose.getSelectedFile()
+    if(selectedFile != null){
+      controller.showImage(new ImageIcon(selectedFile.getPath()).getImage(), true)
+      removeImage.setEnabled(true)
+      addImage.setEnabled(false)
+    }
   })
   removeImage.addActionListener((e:ActionEvent)  => {
     controller.showImage(new ImageIcon("").getImage(), false)
@@ -67,7 +70,7 @@ class MenuBarNorth() extends JMenuBar {
   val step: JMenuItem = new JMenuItem("Step", Utils.getScaledImage("step.png", dim, dim))
   step.addActionListener((e:ActionEvent) => { new StepDialog(); () })
   val stop: JMenuItem = new JMenuItem("Stop", Utils.getScaledImage("stop.png", dim, dim))
-  stop.addActionListener((e:ActionEvent)  => controller.stopSimulation())
+  stop.addActionListener((e:ActionEvent)  => {start.setEnabled(false); controller.stopSimulation()})
   simConfig.add(close)
   simConfig.add(addImage)
   simConfig.add(removeImage)
@@ -80,7 +83,6 @@ class MenuBarNorth() extends JMenuBar {
   menus = menus :+ file
   menus = menus :+ simConfig
   menus.foreach(m => add(m))
-  private[view] val controller: Controller = Controller.getInstance
 
   override def setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)

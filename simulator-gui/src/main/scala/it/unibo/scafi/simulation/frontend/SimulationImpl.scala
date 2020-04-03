@@ -6,29 +6,28 @@
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.simulation.frontend.BasicSpatialIncarnation._
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node}
-import it.unibo.scafi.space.Point2D
-
+import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node, SimulationManager}
+import it.unibo.scafi.space.Point3D
 
 class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
-                     val simulationSeed: Long = System.nanoTime()) extends Simulation {
+                     val simulationSeed: Long = System.nanoTime(),
+                     simulatorManager: SimulationManager) extends Simulation {
   //private Thread runProgram;  //should implements runnable
-
+  private var controller: GeneralController = null
   private var net: SpaceAwareSimulator = null
   var network: model.Network = null
   var runProgram: Function0[(Int,Export)] = null
   var deltaRound: Double = .0
   var strategy: Any = null
-  final private val controller: Controller = Controller.getInstance
 
   this.deltaRound = 0.00
   this.strategy = null
 
   def setRunProgram(program: Any): Unit = {
 
-    val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D(n.position.x, n.position.y)).toMap // Map id->position
+    val devsToPos: Map[Int, Point3D] = network.nodes.mapValues(n => new Point3D(n.position.x, n.position.y, n.position.z)).toMap // Map id->position
     net = new SpaceAwareSimulator(
       space = new Basic3DSpace(devsToPos,
         proximityThreshold = this.network.neighbourhoodPolicy match {
@@ -55,7 +54,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   def setDeltaRound(deltaRound: Double) {
     this.deltaRound = deltaRound
-    this.controller.simManager.setPauseFire(deltaRound)
+    simulatorManager.setPauseFire(deltaRound)
   }
 
   def getDeltaRound(): Double = this.deltaRound
@@ -83,7 +82,15 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
   }
 
   override def setPosition(n: Node): Unit = {
-    net.setPosition(n.id, new Point2D(n.position.x, n.position.y))
+    net.setPosition(n.id, new Point3D(n.position.x, n.position.y, n.position.z))
     network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
+
+  override def setController(controller: GeneralController): Unit =
+    this.controller = controller
+}
+
+object SimulationImpl {
+  def apply(simulatorManager: SimulationManager): SimulationImpl =
+    new SimulationImpl(System.nanoTime(), System.nanoTime(), simulatorManager)
 }

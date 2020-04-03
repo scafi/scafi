@@ -11,6 +11,7 @@ import javax.swing._
 import it.unibo.scafi.simulation.frontend.Settings
 import it.unibo.scafi.simulation.frontend.controller.Controller
 import it.unibo.scafi.simulation.frontend.utility.Utils
+import it.unibo.scafi.space.Point3D.toPoint2D
 
 /**
   * This is the panel where are represents the connection of neighbors.

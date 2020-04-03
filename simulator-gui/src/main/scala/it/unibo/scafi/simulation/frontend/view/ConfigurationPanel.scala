@@ -9,17 +9,16 @@ import java.awt._
 import java.awt.event.ActionEvent
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.text.NumberFormat
-import javax.swing._
 
 import it.unibo.scafi.simulation.frontend.Settings
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.utility.Utils
+import javax.swing._
 
 /**
   * This class represent the panel where the user can configure a new simulation.
   */
-class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeListener {
-  final private val controller: Controller = Controller.getInstance
+class ConfigurationPanel(controller: GeneralController) extends JDialog(controller.getUI) with PropertyChangeListener {
   final private var err: JLabel = null
   final private var gbc: GridBagConstraints = null
 
@@ -49,6 +48,7 @@ class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeLi
   var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
 
   topologyField = new JComboBox[String](vtop.toArray)
+  topologyField.setSelectedItem(Settings.Sim_Topology)
   topologyField.addPropertyChangeListener(this)
 
   deltaRoundField = new JFormattedTextField(NumberFormat.getNumberInstance)
@@ -114,7 +114,7 @@ class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeLi
   submitButton.addActionListener((e: ActionEvent) => {
     try {
       Settings.Sim_NumNodes = nodeNumberField.getText.toInt
-      Settings.Sim_NbrRadius = neinghborsAreaField.getText.toDouble
+      Settings.Sim_NbrRadius = neinghborsAreaField.getText.replaceAll(",", ".").toDouble
       Settings.Sim_DeltaRound = deltaRoundField.getText.toInt
       Settings.Sim_ProgramClass = runProgram.getText()
       Settings.Sim_ExecStrategy = strategy.getText()
