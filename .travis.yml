@@ -33,8 +33,9 @@ script:
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
   ]; then bash travis_build.sh; else bash travis_build_pullrequest.sh; fi
 before_deploy:
-- echo Preparing for deploy
-- ls -lR
+  - echo Preparing for deploy
+after_deploy:
+  - echo Done with deploy
 deploy:
 - provider: script
   skip_cleanup: true
