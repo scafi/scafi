@@ -66,7 +66,6 @@ inThisBuild(List(
   pgpPublicRing := file("./.travis/local.pubring.asc"),
   pgpSecretRing := file("./.travis/local.secring.asc"),
   scalaVersion := "2.12.10", // default version
-  (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   crossScalaVersions := scalaVersionsForCrossCompilation // "2.13.0-M1"
 ))
 
@@ -76,6 +75,7 @@ lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
+  (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
 )
 
 lazy val noPublishSettings = Seq(
