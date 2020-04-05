@@ -99,7 +99,7 @@ lazy val scafi = project.in(file(".")).
     // Prevents aggregated project (root) to be published
     packagedArtifacts := Map.empty,
     crossScalaVersions := Nil,
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos)
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos,`demos-new`,`demos-distributed`)
   )
 
 lazy val commons = project.
