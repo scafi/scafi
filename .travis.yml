@@ -19,9 +19,9 @@ jdk:
   - openjdk11
   - openjdk12
 scala:
-- 2.11.12
+#- 2.11.12
 - 2.12.10
-- 2.13.1
+#- 2.13.1
 before_install:
 - sudo apt-get -qq update
 - sudo apt-get install -y openjfx

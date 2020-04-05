@@ -1,3 +1,4 @@
 #!/bin/bash
 set -e
-sbt ++$TRAVIS_SCALA_VERSION releaseEarly;
+#sbt ++$TRAVIS_SCALA_VERSION releaseEarly
+sbt +releaseEarly
