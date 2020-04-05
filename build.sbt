@@ -76,6 +76,11 @@ lazy val commonSettings = Seq(
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
+  assemblyMergeStrategy in assembly := {
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
+  }
 )
 
 lazy val noPublishSettings = Seq(
