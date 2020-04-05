@@ -55,7 +55,7 @@ deploy:
     tags: true
 - provider: surge
   skip_cleanup: true
-  project: "./target/scala-${DOC_SCALA_VERSION_MAJOR}/unidoc/"
+  project: "./target/scala-2.12/unidoc/"
   domain: scafi-docs.surge.sh
   on:
     branch: master
@@ -63,7 +63,7 @@ deploy:
     condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
 - provider: surge
   skip_cleanup: true
-  project: "./target/scala-${DOC_SCALA_VERSION_MAJOR}/unidoc/"
+  project: "./target/scala-2.12/unidoc/"
   domain: scafi-docs-unstable.surge.sh
   on:
     branch: develop
