@@ -71,7 +71,6 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
   organization := "it.unibo.apice.scafiteam",
-  scalaVersion := "2.12.10",
   compileScalastyle := scalastyle.in(Compile).toTask("").value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
