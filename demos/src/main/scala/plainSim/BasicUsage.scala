@@ -1,4 +1,4 @@
-package examples
+package plainSim
 
 // import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.incarnations.BasicAbstractIncarnation

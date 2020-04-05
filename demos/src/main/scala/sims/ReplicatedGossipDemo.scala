@@ -24,7 +24,7 @@ class ReplicatedGossipProgram extends AggregateProgram with StateManagement with
   with HFCSpawn {
   def main: String = {
     val g = classic(sense1)
-    val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 2 second, considerAfter = 2 second)
+    val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 2.second, considerAfter = 2.second)
     f"$g%5.1f; ${grepl}%5.1f"
   }
 

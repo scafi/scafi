@@ -21,8 +21,8 @@ object AgereDemoMain extends Launcher {
 
 class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefinitions with TimeUtils {
   /* Parameters */
-  val t_fail = (15 seconds)     // Time w/o failures
-  val t_act = (5 seconds)     // Time for actuation
+  val t_fail = (15.seconds)   // Time w/o failures
+  val t_act = (5.seconds)     // Time for actuation
   val D_alert = 10.0          // People density threshold
   val radius = 20             // Radius of monitoring areas
   val meanDist = radius*2     // Mean distance between area leaders

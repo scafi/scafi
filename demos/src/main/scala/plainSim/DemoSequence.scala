@@ -3,7 +3,7 @@
  * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
-package examples
+package plainSim
 
 /**
  * This program is used to launch simulations on a grid-like network.

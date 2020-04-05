@@ -87,12 +87,13 @@ lazy val noPublishSettings = Seq(
 lazy val scafi = project.in(file(".")).
   enablePlugins(ScalaUnidocPlugin).
   aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
-   `simulator-gui-new`, `demos-new`).
+   `simulator-gui-new`, `demos-new`, `demos-distributed`).
   settings(commonSettings:_*).
   settings(noPublishSettings:_*).
   settings(
     // Prevents aggregated project (root) to be published
     packagedArtifacts := Map.empty,
+    crossScalaVersions := Nil,
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos)
   )
 
@@ -150,6 +151,7 @@ lazy val spala = project.
   settings(commonSettings: _*).
   settings(
     name := "spala",
+    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt,
       scalaBinaryVersion.value match {
         case "2.11" => "com.typesafe.play" %% "play-json"   % "2.6.9"
@@ -164,6 +166,7 @@ lazy val distributed = project.
   settings(commonSettings: _*).
   settings(
     name := "scafi-distributed",
+    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies += scalatest
   )
 
@@ -178,11 +181,21 @@ lazy val tests = project.
   )
 
 lazy val demos = project.
-  dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui`).
+  dependsOn(core, `stdlib-ext`, simulator, `simulator-gui`).
   settings(commonSettings: _*).
   settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos",
+    compileScalastyle := ()
+  )
+
+lazy val `demos-distributed` = project.
+  dependsOn(core, `stdlib-ext`, distributed).
+  settings(commonSettings: _*).
+  settings(noPublishSettings: _*).
+  settings(
+    name := "scafi-demos-distributed",
+    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     compileScalastyle := ()
   )
 
@@ -191,6 +204,7 @@ lazy val `simulator-gui-new` = project.
   settings(commonSettings: _*).
   settings(
     name := "simulator-gui-new",
+    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies ++= Seq(scopt,scalatest,
       scalaBinaryVersion.value match {
         case "2.13" => "org.scalafx" %% "scalafx" % "12.0.2-R18"
@@ -206,5 +220,6 @@ lazy val `demos-new` = project.
   settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos-new",
+    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     compileScalastyle := ()
   )
