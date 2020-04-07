@@ -57,13 +57,12 @@ inThisBuild(List(
   ),
   releaseEarlyWith := SonatypePublisher,
   releaseEarlyEnableLocalReleases := true,
-  /*publishTo := Some(
+  publishTo := Some(
     if (isSnapshot.value)
       Opts.resolver.sonatypeSnapshots
     else
       Opts.resolver.sonatypeStaging
-  ),*/
-  publishTo := sonatypePublishTo.value,
+  ),
   pgpPublicRing := file("./.travis/local.pubring.asc"),
   pgpSecretRing := file("./.travis/local.secring.asc"),
   crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
