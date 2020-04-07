@@ -63,6 +63,7 @@ inThisBuild(List(
     else
       Opts.resolver.sonatypeStaging
   ),
+  pgpPassphrase := sys.env.get("PGP_PASS").map(_.toArray),
   pgpPublicRing := file("./.travis/local.pubring.asc"),
   pgpSecretRing := file("./.travis/local.secring.asc"),
   crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
