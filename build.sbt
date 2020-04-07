@@ -43,7 +43,7 @@ inThisBuild(List(
   publishMavenStyle := true, // ensure POMs are generated and pushed
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
-  licenses := Seq("Apache 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+  licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://scafi.github.io/")),
   scmInfo := Some(
     ScmInfo(
