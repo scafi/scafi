@@ -9,7 +9,7 @@ import akka.actor.{ActorRef, Props}
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
-trait PlatformDevices extends PlatformBehaviors { self: Platform.Subcomponent =>
+trait PlatformDevices extends PlatformBehaviors { self: ServerPlatform.Subcomponent =>
 
   /**
    * Specializes a [[ComputationDeviceActor]] to work with a central

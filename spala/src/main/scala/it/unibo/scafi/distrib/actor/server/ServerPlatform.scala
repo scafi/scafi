@@ -14,7 +14,7 @@ import it.unibo.scafi.distrib.actor.{Platform => BasePlatform}
  *     neighborhood state.
  */
 
-trait Platform extends BasePlatform
+trait ServerPlatform extends BasePlatform
   with PlatformDevices
   with PlatformServer
   with PlatformAPIFacade
@@ -64,6 +64,6 @@ trait Platform extends BasePlatform
   }
 }
 
-object Platform {
-  type Subcomponent = Platform
+object ServerPlatform {
+  type Subcomponent = ServerPlatform
 }

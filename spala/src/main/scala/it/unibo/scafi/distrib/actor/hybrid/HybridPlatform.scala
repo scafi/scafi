@@ -17,7 +17,7 @@ import scala.concurrent.duration.DurationInt
   * It seems that, despite the architecture name, some centralization is needed.
   */
 
-trait Platform extends BasePlatform
+trait HybridPlatform extends BasePlatform
   with PlatformDevices
   with PlatformServer
   with PlatformAPIFacade
@@ -69,7 +69,7 @@ trait Platform extends BasePlatform
   }
 }
 
-object Platform {
-  type Subcomponent = Platform
+object HybridPlatform {
+  type Subcomponent = HybridPlatform
 }
 

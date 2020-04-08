@@ -160,7 +160,7 @@ lazy val spala = project.
   settings(commonSettings: _*).
   settings(
     name := "spala",
-    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
+    //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt,
       scalaBinaryVersion.value match {
         case "2.11" => "com.typesafe.play" %% "play-json"   % "2.6.9"
@@ -175,7 +175,7 @@ lazy val distributed = project.
   settings(commonSettings: _*).
   settings(
     name := "scafi-distributed",
-    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
+    //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies += scalatest
   )
 
@@ -204,7 +204,7 @@ lazy val `demos-distributed` = project.
   settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos-distributed",
-    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
+    //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     compileScalastyle := ()
   )
 
@@ -213,7 +213,7 @@ lazy val `simulator-gui-new` = project.
   settings(commonSettings: _*).
   settings(
     name := "simulator-gui-new",
-    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
+    //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies ++= Seq(scopt,scalatest,
       scalaBinaryVersion.value match {
         case "2.13" => "org.scalafx" %% "scalafx" % "12.0.2-R18"
@@ -229,6 +229,6 @@ lazy val `demos-new` = project.
   settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos-new",
-    crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
+    //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     compileScalastyle := ()
   )

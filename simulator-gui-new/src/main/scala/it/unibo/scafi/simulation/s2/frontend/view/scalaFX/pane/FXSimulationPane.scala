@@ -124,8 +124,8 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
       }
     }}
     val removing = nodeToRemove
-    val action = () => neighbourToRemove.append(removing:_*)
-    changes = action :: changes
+    val action = () => { neighbourToRemove.append(removing:_*) }
+    changes = (action.asInstanceOf[ACTION]) :: changes
   }
   override def outDevice(id: ID, dev : DEVICE): Unit = {
     //create new mutable map if no device is defined

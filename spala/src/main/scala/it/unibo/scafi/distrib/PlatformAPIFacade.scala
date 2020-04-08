@@ -19,6 +19,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   trait SystemMain extends App with Serializable {
     def programBuilder: Option[ProgramContract] = None
 
+    def mainProgram(args: Array[String]): Unit
+
     def setupSystem(settings: Settings): Unit = {
       val s = refineSettings(settings)
       val pc = self.platformFactory.buildPlatformConfigurator()
@@ -43,19 +45,19 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   }
 
   class CmdLineMain extends SystemMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       cmdLineParser.parse(args, Settings()) foreach (s => setupSystem(s))
     }
   }
 
   class BasicMain(val settings: Settings) extends SystemMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       setupSystem(settings)
     }
   }
 
   class FileMain(val configFile: String) extends SystemMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       setupSystem(Settings.fromConfig(configFile))
     }
   }
