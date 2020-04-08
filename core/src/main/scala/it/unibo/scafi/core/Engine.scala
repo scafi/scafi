@@ -24,9 +24,7 @@ trait Engine extends Semantics {
 
   override implicit val factory = new EngineFactory
 
-  class ExportImpl() extends Export with ExportOps with Equals { self: EXPORT =>
-    private var map = Map[Path,Any]()
-
+  class ExportImpl(private var map: Map[Path,Any] = Map()) extends Export with ExportOps with Equals { self: EXPORT =>
     override def put[A](path: Path, value: A) : A = { map += (path -> value); value }
     override def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
     override def root[A](): A = get[A](factory.emptyPath()).get

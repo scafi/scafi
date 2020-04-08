@@ -15,9 +15,10 @@ import it.unibo.scafi.distrib.actor.{Platform => BasePlatform}
  */
 
 trait Platform extends BasePlatform
-  with PlatformAPIFacade
+  with PlatformDevices
   with PlatformServer
-  with PlatformDevices {
+  with PlatformAPIFacade
+{
 
   class SettingsFactoryServer extends SettingsFactory {
     override def defaultProfileSettings(): ProfileSettings = ServerBasedActorSystemSettings()

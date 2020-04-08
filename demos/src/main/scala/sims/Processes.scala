@@ -93,6 +93,6 @@ class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpaw
   import scala.concurrent.duration._
 
   override def main() = {
-    replicated[Boolean,Double](classicGradient(_))(isSrc, (5 seconds).toNanos, 3)
+    replicated[Boolean,Double](classicGradient(_))(isSrc, (5.seconds).toNanos, 3)
   }
 }

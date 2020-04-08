@@ -54,7 +54,7 @@ trait Semantics extends Core with Language {
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
     def paths: Map[Path,Any]
-    def getMap[A]: Map[Path, A] = paths.mapValues(_.asInstanceOf[A])
+    def getMap[A]: Map[Path, A] = paths.mapValues(_.asInstanceOf[A]).toMap
   }
 
   trait ContextOps { self: CONTEXT =>

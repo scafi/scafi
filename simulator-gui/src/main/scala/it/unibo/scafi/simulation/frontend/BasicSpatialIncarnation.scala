@@ -6,10 +6,10 @@
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.incarnations.BasicAbstractSpatialSimulationIncarnation
-import it.unibo.scafi.space.Point2D
+import it.unibo.scafi.space.Point3D
 
 object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation {
-  override type P = Point2D
+  override type P = Point3D
 
   trait MyEuclideanStrategy extends EuclideanStrategy {
     this: Basic3DSpace[_] =>

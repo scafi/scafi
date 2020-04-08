@@ -12,6 +12,7 @@ import it.unibo.scafi.simulation.frontend.Settings
 import it.unibo.scafi.simulation.frontend.controller.Controller
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.frontend.utility.Utils
+import it.unibo.scafi.space.Point3D.toPoint2D
 
 import scala.util.Try
 
@@ -45,7 +46,7 @@ class ValuesPanel private[view]() extends JPanel {
                   if (n.getSensorValue(SensorEnum.SENS3.name)==true) Settings.Color_device3 else
                   if (n.getSensorValue(SensorEnum.SENS4.name)==true) Settings.Color_device4 else Settings.Color_device
 
-      if(controller.getObservation()(n.export)) color = Settings.Color_observation
+      if(controller.getObservation.apply(n.export)) color = Settings.Color_observation
 
       var dim = (getWidth/Settings.Size_Device_Relative).min(getHeight/Settings.Size_Device_Relative)
 

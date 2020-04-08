@@ -260,7 +260,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     def doJob(): Unit = aggregateExecutor.foreach { program =>
       rounds = rounds + 1
 
-      var nbrExports = nbrs.filter(_._2.export.isDefined).mapValues(_.export.get)
+      var nbrExports = nbrs.filter(_._2.export.isDefined).mapValues(_.export.get).toMap
       // Include the previous export for the current device
       lastExport.foreach(le => nbrExports += (selfId -> le))
 
@@ -423,7 +423,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
       // Trailing .map(identity) is needed because mapValues() results in a non-serializable object
       // See: http://stackoverflow.com/questions/17709995/notserializableexception-for-mapstring-string-alias
       notifyObservers(MsgExports(this.nbrs.filter(_._2.export.isDefined).
-        mapValues(_.export.get).map(identity)))
+        mapValues(_.export.get).map(identity).toMap))
     }
   }
 }

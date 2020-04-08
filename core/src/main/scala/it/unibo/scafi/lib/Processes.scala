@@ -166,7 +166,7 @@ trait StdLib_Processes {
       rep(Map[PUID,ProcessInstance[T]]())(currProcs => {
         // 1. Select process instances extended up to me from neighbours;
         //    when more neighbours run the same process, priority is given to the one closer to the process source
-        val nbrProcs = mergeHoodFirst { nbr(currProcs).filterValues(processWithinLimits(_)) }.mapValues(_.forNonGenerator)
+        val nbrProcs = mergeHoodFirst { nbr(currProcs).filterValues(processWithinLimits(_)) }.mapValues(_.forNonGenerator).toMap
 
         // 2. New processes to be spawn, based on a generation condition
         val newProcs = generators.view.filter(_.checkTrigger).map(_.generate).map(pi => pi.puid -> pi.forGenerator)

@@ -249,9 +249,9 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
 
     private def addNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) + e) }}}
     private def calculateNeighbours(e: E): Unit = {
-      val neigh: (E, Set[E]) = e -> (neighbourIndex neighbours (elemPositions(e), radius) map {
+      val neigh: (E, Set[E]) = e -> (neighbourIndex.neighbours(elemPositions(e), radius).map {
         _._2
-      } toSet)
+      }.toSet)
       this.nMap += neigh
     }
 

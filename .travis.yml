@@ -3,38 +3,51 @@ dist: xenial
 language: scala
 env:
   global:
-  - RELEASE_SCALA_VERSION=2.12.2
-  - secure: el3sbtuJrgt+tFYkWKfoNCZpRS2kI02VM4+s1noSDouMQc6SiXnaV93ITHCiXR7aKU9rY6KUfmXCFkxRyQMzfJJoT2blWR7erFv9JfKi5mS4UqLjCf/BKBqqLPiZD6mbgrdOVV2/AAEhtHSn77pVFsj5m6jCQILGdLAvMRFxD2bakcz9WOwCXaOQ5G5WPdN+36x40Du6Rh+b/31xsvtVtlA9xz9PEhHTjqrrz4mhtWLZDjU5jDCowVFCdylDoYrZFzekkaB4rXdQYi6BS/NO7l8d3QNtQfCP1hAQVOWeH4/+BNkpFI3NnIf+l0mjsWJ6bkPp0EW/nPutTvKRiekR/9bq8fLqXxh9irAUuOVPbMTKd0G+hvdDCr3y3aQ9sQglH0OUhod71F5KZ5I7uRQAiozquzuvELB55DUbQiCySyJ2oD8Ri/ZRkVHAQ4OAcv5uUwGZvzopGwzt1yLgiacFRjSwHdAHp9aTFPSSGQNg0Yd7vVKgMLVr3Da7DxR7uD11j1k/H90UAtKWDpXkaQDoSHip/YuC0mCL8LtpUrJklZLyTeUTWq/MnIl8zDON+pmIRyMJp4LpJUWcPyXw01vWaB1nuIhJOTOevGqVfmUDKSF2uzcZ+CXoVH7LrLDYwFchau3O7ceOzzpNj8FzMUUgfYnNwVv6spMJLSiya19qzII=
-  - secure: WwYUm0Oxwv023x3UOCBBlGtvFwb9zQdm9PjjtmaqyzxlY8T3iljrOg3MZPe1iyM+0R4d4/xtx8emZiJ5/sng1HqvoYQ7AgFqAYpEWMP633qV8xVfLDAeTKSYlFsd8mY5ORRsvXplme2OSVjWWIsmzY3dtK2HwhrhYy0f+h70BRMln4EvWFPVlFiUIZvK0UCWEoRc2gBsy728p3HGQ9WejqRWCfZTDwCHEzkjincItePhwyZKaj8TaxJhN3KV6uPjPabKfeyClKcekobW4SfUSDiZAZOuPZyUU1yAl3Z8tqcyzj4MAWqwJE7MSkgJ2pAZl84Ks4Omxo3rcrO8k4pT1FCdlO6zH3UC9sDCN/Sw5+bfYDNKLIR+xn+WKxyHwpH0yfYuALQuTC2rZ2l05scJ+kTLb+fbz2xVaTS8NlqeHo3qA0NrBmEU0u4SQlRLWGwJG7V+f7AHwv4SBE4rW9JBC71sl4rjKtwdG8TeBUjtv8qMTfZ9xTiRWurwI6U9188nfnZ6V2DH5+lcrLq7OeDj5LvjO1Vv61C/SsNVuX0WJ4NMvhICMGNHnZdZ8by878igf7Bs2yAS+pWfMd8zxW040LTwC+ZsLLlcxRumtt29oX150PPhPSBMGU2FIEI1RIpQJPKkOW25G5cbRxA3j21xzyxcxkiLmz4xwXhX/sdNOnA=
-  - secure: NclJGKNKBRwHssaZw2/4DBltiiIIOD72xkG/cxhOLeSg3lktDjEs/OLSmq5QYaNtsb+9/+XEa1fA8vpYt061Q2odqkyLctkrVJ3zMycT5lTtXjCkCZNkpsEWZ87YC8Apz3YUvYfBEXZ2QpHnG021wScAibb7tqbC9Ri4HN4PhFcaaw16tXI+UV1j5+1mguMcRf//PJNCyTB7s2DkM3zrzOtjeFiYfzsJjvcJUG2PjeRabLJYx8v3qWyxkAXwCsIoRsDQ1AM/r9yUkff4vNOGa4Iq3i6nNGaXBLqXOf+8vSF3+z2H5vaUX0NPfLkFzPTu+fFpwOhsPHbzg9L87+rvxOcrcnp4BlaHSebFQdg4nVua7SzwiNy7k+mE0KQbvI1hDp5uphlrkwynElEHAOzTtY5ZEKaCFUmZyPyPq67vVNjNjlk/KjxGc7cWQ5ffJeTbpidjdDE4eUjhrQVnDnZ/+bagWgUuL/S1StJfPUIEg0piUvetrkWMb/++cMq0kts7UeRTpHN6U0X7yRLw2jbNeopSutD/aOs7FrmeKSbXpvubfO7PlGXP1CwLsqKc9J/rIYFDgjanSerCvUPsjXDlUldotD2q1WVqU0Yxz5nOwiKu2FYZ6q5LP2wNfEt4tSnr1DL58W03TqXOG7G6D87d82xeXL4b4anfQX7cBM1ilp4=
-  - secure: r/z5CfZWrqx9lkh/ZShyc8v3z6JcvvMO0fU638melr57rx86BTLI0Au1/bjTFFUG+H5P2mh9u4YMJhcVOq68owxNHgAUx4DFmmpiNYe9va8gRE5lG8u6VSpabnFK/vPW1DJE8JqLvdLzgak/bdSIS8qx1vDbNd3nEeoJvjlYWq02yG1Q1W973cczgBoDa800HDToi2vAVj+KgD8Fn4bSuvZZZEBB35FFSdBOGyDgpaP90IcrRAYoscyLBn9XalmLpK2cVzeCgTAP02DPjyNpv0Bsc5nfySSc3jkYSayzi047MOJKKlFreUq/JM+vWAexBd5kH/WDSqLThzNd/TOTq5/ph3VR87PMVm6o5Vp0Vpa51GDnMGZSV2wHniFemSDgmWgtHNtmNnMtuh9SqF/KDG04ExVWYG7F0EPkbGPx2GU3E0RoVMTDDF/TbVcWiwSCJ0e0ZNqthNrPEpdfq6kQoC9IoCnchVRhwBXu/DTknPxp7t+LQKgpmbz2Fv5H3pTzhQO2O3u0B4pFU6q96aYZ+7qjQiR2LahZc6B1SXj+Nbtku6mgCD4EQUe69C30BPO7rS4c36Pt9fCwd9Shyj0RK3tJs6fQuqSGFdeLLG+To7yytXQDxwCrUPNgj9ny2Rpw3YxNfJGCHFH1FJJPDP3I1ysVFGK6aRRnIWb2JifVdXE=
-  - secure: ugl+SmQcJnUyluku2imgCD2SQ8meGKvP5fWwDo22VUXjLwZvMGELBKEl7xMjMyKLHnjmtTWtHYHuNPXnUA1gEgmVgIvKSzOTaCWTJg+h+HVhA7YAZpR4D3BJjyE3aaFxy0vCzOngOmjf++PbShZ+iavcoc+Dh8o8aZD+E8l1JeKB/GXpYy+i9nwX+xhzbSsZ7x30VW1C1Sq2wDttfDuXBH6sCD3KDR7cS1Kw66zoDagqb+aimKh3bKcrgM9bK77uUuouQJE6hbWVXAE9E/KKd4dzRnT2oU7jxSHNYJXnFfEfq7pll3pZPgiFNkCtK8wWsz9MHeS68JgH7bH3rxTCvlkZEF38vn9hLhgvanrRy4e9an0DMT5kZ8uQHeFlQJ1GMmGmLfpsz+u+HIQ+AefIYincXb0BGrM6GXw+SDjWXzWZvkHskoxoom7aNzqVzl1V+ySSAvEjnGVqk+ZseAtKs5AwiqhjIEEaVEHq+B/vN4Gjsx5IW/GkvQxSk0fBC2HSMcGkenOqz/OHOKbmt18i2dOAGKCsAWs/M9PFBzskuDmsXalNCnWBQNNPZRnHkOU+jiMDid8GZZt55E473RZfJD3UHtENfWNYMHLElFwSNd1qOdOyHiLedVoIDW3gDqldhLJolv7mqUUTRqLQi8EF34Qdtip9PFOPgLCkP4KrKPM=
+    - BUILD_SYSTEM=gradle
+    - DOC_SCALA_VERSION=2.12.10
+    - DOC_SCALA_VERSION_MAJOR=2.12
+    - JDK_DEPLOY=openjdk8
+    - BINTRAY_USER= # See: https://github.com/jvican/sbt-release-early/issues/34
+    - BINTRAY_PASS=
+    # SURGE_TOKEN
+    - secure: el3sbtuJrgt+tFYkWKfoNCZpRS2kI02VM4+s1noSDouMQc6SiXnaV93ITHCiXR7aKU9rY6KUfmXCFkxRyQMzfJJoT2blWR7erFv9JfKi5mS4UqLjCf/BKBqqLPiZD6mbgrdOVV2/AAEhtHSn77pVFsj5m6jCQILGdLAvMRFxD2bakcz9WOwCXaOQ5G5WPdN+36x40Du6Rh+b/31xsvtVtlA9xz9PEhHTjqrrz4mhtWLZDjU5jDCowVFCdylDoYrZFzekkaB4rXdQYi6BS/NO7l8d3QNtQfCP1hAQVOWeH4/+BNkpFI3NnIf+l0mjsWJ6bkPp0EW/nPutTvKRiekR/9bq8fLqXxh9irAUuOVPbMTKd0G+hvdDCr3y3aQ9sQglH0OUhod71F5KZ5I7uRQAiozquzuvELB55DUbQiCySyJ2oD8Ri/ZRkVHAQ4OAcv5uUwGZvzopGwzt1yLgiacFRjSwHdAHp9aTFPSSGQNg0Yd7vVKgMLVr3Da7DxR7uD11j1k/H90UAtKWDpXkaQDoSHip/YuC0mCL8LtpUrJklZLyTeUTWq/MnIl8zDON+pmIRyMJp4LpJUWcPyXw01vWaB1nuIhJOTOevGqVfmUDKSF2uzcZ+CXoVH7LrLDYwFchau3O7ceOzzpNj8FzMUUgfYnNwVv6spMJLSiya19qzII=
+    # SURGE_LOGIN
+    - secure: WwYUm0Oxwv023x3UOCBBlGtvFwb9zQdm9PjjtmaqyzxlY8T3iljrOg3MZPe1iyM+0R4d4/xtx8emZiJ5/sng1HqvoYQ7AgFqAYpEWMP633qV8xVfLDAeTKSYlFsd8mY5ORRsvXplme2OSVjWWIsmzY3dtK2HwhrhYy0f+h70BRMln4EvWFPVlFiUIZvK0UCWEoRc2gBsy728p3HGQ9WejqRWCfZTDwCHEzkjincItePhwyZKaj8TaxJhN3KV6uPjPabKfeyClKcekobW4SfUSDiZAZOuPZyUU1yAl3Z8tqcyzj4MAWqwJE7MSkgJ2pAZl84Ks4Omxo3rcrO8k4pT1FCdlO6zH3UC9sDCN/Sw5+bfYDNKLIR+xn+WKxyHwpH0yfYuALQuTC2rZ2l05scJ+kTLb+fbz2xVaTS8NlqeHo3qA0NrBmEU0u4SQlRLWGwJG7V+f7AHwv4SBE4rW9JBC71sl4rjKtwdG8TeBUjtv8qMTfZ9xTiRWurwI6U9188nfnZ6V2DH5+lcrLq7OeDj5LvjO1Vv61C/SsNVuX0WJ4NMvhICMGNHnZdZ8by878igf7Bs2yAS+pWfMd8zxW040LTwC+ZsLLlcxRumtt29oX150PPhPSBMGU2FIEI1RIpQJPKkOW25G5cbRxA3j21xzyxcxkiLmz4xwXhX/sdNOnA=
+    # SONATYPE_USER
+    - secure: NclJGKNKBRwHssaZw2/4DBltiiIIOD72xkG/cxhOLeSg3lktDjEs/OLSmq5QYaNtsb+9/+XEa1fA8vpYt061Q2odqkyLctkrVJ3zMycT5lTtXjCkCZNkpsEWZ87YC8Apz3YUvYfBEXZ2QpHnG021wScAibb7tqbC9Ri4HN4PhFcaaw16tXI+UV1j5+1mguMcRf//PJNCyTB7s2DkM3zrzOtjeFiYfzsJjvcJUG2PjeRabLJYx8v3qWyxkAXwCsIoRsDQ1AM/r9yUkff4vNOGa4Iq3i6nNGaXBLqXOf+8vSF3+z2H5vaUX0NPfLkFzPTu+fFpwOhsPHbzg9L87+rvxOcrcnp4BlaHSebFQdg4nVua7SzwiNy7k+mE0KQbvI1hDp5uphlrkwynElEHAOzTtY5ZEKaCFUmZyPyPq67vVNjNjlk/KjxGc7cWQ5ffJeTbpidjdDE4eUjhrQVnDnZ/+bagWgUuL/S1StJfPUIEg0piUvetrkWMb/++cMq0kts7UeRTpHN6U0X7yRLw2jbNeopSutD/aOs7FrmeKSbXpvubfO7PlGXP1CwLsqKc9J/rIYFDgjanSerCvUPsjXDlUldotD2q1WVqU0Yxz5nOwiKu2FYZ6q5LP2wNfEt4tSnr1DL58W03TqXOG7G6D87d82xeXL4b4anfQX7cBM1ilp4=
+    # SONATYPE_PASSWORD
+    - secure: r/z5CfZWrqx9lkh/ZShyc8v3z6JcvvMO0fU638melr57rx86BTLI0Au1/bjTFFUG+H5P2mh9u4YMJhcVOq68owxNHgAUx4DFmmpiNYe9va8gRE5lG8u6VSpabnFK/vPW1DJE8JqLvdLzgak/bdSIS8qx1vDbNd3nEeoJvjlYWq02yG1Q1W973cczgBoDa800HDToi2vAVj+KgD8Fn4bSuvZZZEBB35FFSdBOGyDgpaP90IcrRAYoscyLBn9XalmLpK2cVzeCgTAP02DPjyNpv0Bsc5nfySSc3jkYSayzi047MOJKKlFreUq/JM+vWAexBd5kH/WDSqLThzNd/TOTq5/ph3VR87PMVm6o5Vp0Vpa51GDnMGZSV2wHniFemSDgmWgtHNtmNnMtuh9SqF/KDG04ExVWYG7F0EPkbGPx2GU3E0RoVMTDDF/TbVcWiwSCJ0e0ZNqthNrPEpdfq6kQoC9IoCnchVRhwBXu/DTknPxp7t+LQKgpmbz2Fv5H3pTzhQO2O3u0B4pFU6q96aYZ+7qjQiR2LahZc6B1SXj+Nbtku6mgCD4EQUe69C30BPO7rS4c36Pt9fCwd9Shyj0RK3tJs6fQuqSGFdeLLG+To7yytXQDxwCrUPNgj9ny2Rpw3YxNfJGCHFH1FJJPDP3I1ysVFGK6aRRnIWb2JifVdXE=
+    # PGP_PASS
+    - secure: MO7euMoBbM1ugRMAT89fSPG1uAw1XHPeU7daDajcOAw8/+y7INfC6OwpFZ2Dz0cOUimxSiiPh/FEWPNwMtxH9pIGdEOaJ7wxzoYqzLtGQh8Q80H/dBsrwhfe+AN2KyT7zgbM+TrBtwWi0adDC4wekIGRiZkl9EAqEuIBF5rj1eay6QFE0r/buEiiFLghv4PjmKxWriNKxoMhhQaWpRRP5IBkTSKZbeLg6MVBbdX3qLwTj0PwtiPauGTfXBevYC/l17cMtXVAJuZ51ZDA8nJD/ZAvyd7Fwfbl5NGGSTrP0rgo7kCdLw5ZQPsSKOZf5tZNMNYUQDyAzmN8Lqblt3dN9fniajzX3r/fgHZiuzHihPv+x0ScI0YdCl9OW32V2Z8Gvheo9MIoTpQL0eeTfrSx6MdO4j+vrBxP2+TaxVWHNlGmUWtTcw6+tGfoCRvH9Ye9FWy89DSM6t+pQ3TPteTx74cakIY/K531+c3m3ECQSzTmDCc8XMCPwCA32QMGwpfUoVlNjKEnEtog+nK6MVSGJQfpP/4CuKzfrntXhkKoGSCEFTPMLu7wXrA1Jo2dtX+W+T9TGJa2wsGy82h5V8Br6C8RPxTujBvmOutPrVCN2PiEmHfaug/cQwdJvfkvyD5EUH8QubVZej7Z1j7YxJghYQKh7d4AiSL/90UyekcVX+g=
 jdk:
-#- openjdk7 # Expected feature release number in range of 9 to 13, but got: 7
-- openjdk8
-#- oraclejdk8 # Expected feature release number in range of 9 to 13, but got: 8
-#- openjdk9
-#- openjdk10
-- openjdk11
-- openjdk12
+  #- openjdk7 # Expected feature release number in range of 9 to 13, but got: 7
+  - openjdk8
+  #- oraclejdk8 # Expected feature release number in range of 9 to 13, but got: 8
+  #- openjdk9
+  #- openjdk10
+  - openjdk11
+  - openjdk12
 scala:
-- 2.11.12
-- "${RELEASE_SCALA_VERSION}"
+#- 2.11.12
+- 2.12.10
+#- 2.13.1
 before_install:
 - sudo apt-get -qq update
 - sudo apt-get install -y openjfx
-- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_356ce062086e_key
-  -iv $encrypted_356ce062086e_iv -in .travis/secrets.tar.enc -out .travis/local.secrets.tar
-  -d; tar xv -C .travis -f .travis/local.secrets.tar; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_adee94ab05d2_key -iv $encrypted_adee94ab05d2_iv -in .travis/secrets.tar.enc -out .travis/local.secrets.tar -d; tar xv -C .travis -f .travis/local.secrets.tar; fi
 script:
 - echo "java.version='$TRAVIS_JDK_VERSION'" >> project/build.properties
-- if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi"
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi" ] &&  [ "$BUILD_SYSTEM" = "gradle"]
   ]; then bash .travis/travis_gradle_build.sh; else bash .travis/travis_gradle_build_pullrequest.sh; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi" ] &&  [ "$BUILD_SYSTEM" = "sbt"]
+  ]; then bash .travis/travis_sbt_build.sh; else bash .travis/travis_sbt_build_pullrequest.sh; fi
 before_deploy:
-- echo Preparing for deploy
+  - echo Preparing for deploy
+  - ls -l ./target
+after_deploy:
+  - echo Done with deploy
 deploy:
-# DEPLOYMENT SCRIPT: uses SONATYPE_USERNAME, SONATYPE_PASSWORD
-#   and a secret pubring to sign artifacts
+# DEPLOYMENT SCRIPT: uses SONATYPE_USERNAME, SONATYPE_PASSWORD and a secret pubring to sign artifacts
 - provider: script
   skip_cleanup: true
   script: bash .travis/travis_gradle_deploy.sh
@@ -42,13 +55,14 @@ deploy:
     all_branches: true
     tags: true # runs iff tagged build
     condition: "$TRAVIS_PULL_REQUEST = false"
+    jdk: openjdk8
 # GITHUB RELEASES: uses a "github oauth token" to upload "file" on tagged builds
 - provider: releases
   skip_cleanup: true
   api_key:
-    secure: POLoNhB5BpUIXXdZeM9d46KYASzFl+RhWX7aSESqtSRI58GfqzSpLYDjN5gv6j11n1qLppZwklbYff790HGlSypxT+Z/l0Dom/GH+Qj2ucn3DX38tbP2Y6mb7FYXRs1vIYq9Cdo5CaU6X68VV+y35DzVovcW33N9YyQZgrBY1SNQaN6rwkk2OTLeGqDQe3LFKYj/+HSCHvTVi//xF+XPKYJ6U+vX9jE+5CwGNoaGkFfLDfHzQKqtuTujUjDyzjTH1dvIni/nxswc26/q/SBtNmXjnotPX5NtfP2vFA0RZI9gf3sDKmNc8aCvfHu5+/gwe/Hxaz2o+AuZycQoEgtN87Y/4HShJc4iC7+oV/gam6kDpJQI0yNqGuZYo6w9PUOPG10tMfdZRzsNxdvq9tiksULAh8SyE1fD4iQr1dsQ2RA8cA5e2VGgm4n72lvrVIBPqP0AW9jX6TcZGDOSTuZYfVNwr+ewLJ0Mvw7lFzb+u4PTNZM8r8vjVv5SLKjGQv/6AfrOOvouBzYFoA4jtKN1RYgeJDUVvkdwGj8XOId/pTG1jGa9Loy2bIeYCGSEd3cUYOh6DkAxCN9PRnd5mLJaI58cYZD3Nep9OIaQhvi0Vy3aPBkhOfJVHDDRwvyYfFwKcKiEEoCXu+b38ugtskYhd5yc29p/y+/BsFcaC9x1R6M=
+    secure: "Zdk+RFJYXswgekVlO+BCkx8/C5Q0Z6aZMzpcUmU7VQasTuc6G11T0p8FRFWJ1qQuBLM22I1AJHu84kVBquT22lEwlnzXUGlMGbAixaiPmGGKgxYUkJ9sKj0tQXzx9UAMQs39CfrvNPnsYH+fvPNR/wNdb9erhbN1K7/G0TjDmtG7sOo0VMmRr3BVyCaxix2hjDVT+51IJmiGJbOZQwyh+5sgath2FkZJ6m72RkxtYmBSIhCqwhl3l9cYWDq5CUS1vMSYht+ePQ4hICQ7/vM8owtiSpCiNDl7aQGDwcPD7a8Dquqf/RmIVksTv5kb1KNc1rWCx6AoNvHwQDuROAIBX71NYM3TPKUQyVgHww8Kf0vIwlJBr4YHU2do9EJD4AS3qgMqY77TcpHcHZc5bTb8r+i/wDw4J3R9VdRlDzA9eRxwf1M3tMGaYBKwm7OzfP+qxsMjP9pL+tMABhS+e4XLgfAWsBwGuOZ4cNOm69Ei3F2HO+Zi+y5yWSkMNcKNz9lo8lm2HbQPjssfxFV4i8HWPwCN2gmb3n+JkP2iUJumgXTww8eSz9NoXjhI0kbNVQkQiOQ30rYDrFdBvpvHeHG/oWEThXbzxDH21W60Xjk67tvlP6ZgOnndk0NH9+Fg/1Xpow/sEa4zuKJ3kHMzIkh7uBD6T3x3QzqTU8OUL7LPhIA="
   file_glob: true
-  file: "./core/target/scala-*/scafi-core-assembly-*.jar"
+  file: "./core/target/scala-*/scafi-core*assembly*.jar"
   on:
     branch: master
     tags: true
@@ -60,11 +74,11 @@ deploy:
   on:
     branch: master
     tags: true
-    condition: "$TRAVIS_SCALA_VERSION = ${RELEASE_SCALA_VERSION}"
+    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
 - provider: surge
   skip_cleanup: true
   project: "./target/scala-2.12/unidoc/"
   domain: scafi-docs-unstable.surge.sh
   on:
     branch: develop
-    condition: "$TRAVIS_SCALA_VERSION = ${RELEASE_SCALA_VERSION}"
+    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"

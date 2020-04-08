@@ -36,7 +36,7 @@ object BasicMovementDemo extends App {
   * 2 - behaviour2: select a set of node and mark it with sensor2. the selected set start to move in clockwise way. the node are not influenced by another
   * 3 - behaviour2: select a set of node and mark it with sensor2. the selected set start to move in clockwise way. the node are influenced by another
   */
-@Demo(simulationType = SimulationType.MOVEMENT)
+
 @Demo(simulationType = SimulationType.MOVEMENT)
 class BasicMovement extends AggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
 

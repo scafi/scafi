@@ -3,7 +3,7 @@
  * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
-package examples
+package plainSim
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicAbstractSpatialSimulationIncarnation

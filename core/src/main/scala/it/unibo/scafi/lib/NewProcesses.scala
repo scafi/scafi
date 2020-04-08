@@ -120,7 +120,7 @@ trait StdLib_NewProcesses {
           case POut(v, s@GeneratorStatus(ks)) => POut((v,ks.asInstanceOf[Set[K]]),s)
           case POut(v,s) => POut((v,Set.empty[K]),s)
         }.apply()
-        (out.flatMap(_._2._2).toSet, out.mapValues(_._1))
+        (out.flatMap(_._2._2).toSet, out.mapValues(_._1).toMap)
       }._2
     }
 

@@ -26,7 +26,7 @@ import scala.collection.mutable
   * </pre>
   * @tparam A the value ok key
   */
-trait NNIndex[A] extends mutable.Map[Point3D,A]{
+trait NNIndex[A] {
   /**
     * search the neighbours near a point p
     * @param p the center of search
@@ -40,6 +40,12 @@ trait NNIndex[A] extends mutable.Map[Point3D,A]{
     * @return the data structure
     */
   def ++=(elems : Iterable[(Point3D,A)]) : this.type
+
+  def +=(elem: (Point3D,A)) : this.type
+
+  def -=(elem: Point3D) : this.type
+
+  def get(elem: Point3D) : Option[A]
 }
 
 object NNIndex {

@@ -34,7 +34,7 @@ trait SpatialPlatform extends BasePlatform {
                            _aggregateExecutor: Option[ProgramContract],
                            _execScope: ExecScope,
                            override val server: ActorRef)
-    extends DeviceActor(selfId, _aggregateExecutor, _execScope, server) {
+    extends HybridDeviceActor(selfId, _aggregateExecutor, _execScope, server) {
 
     override def setLocalSensorValue(name: LSensorName, value: Any): Unit = {
       super.setLocalSensorValue(name, value)
@@ -49,7 +49,7 @@ trait SpatialPlatform extends BasePlatform {
       Props(classOf[SpatialDeviceActor], thisVery, selfId, program, execStrategy, serverActor)
   }
 
-  class SpatialServerActor(val space: MutableMetricSpace[UID]) extends ServerActor {
+  class SpatialServerActor(val space: MutableMetricSpace[UID]) extends HybridServerActor {
     override def neighborhood(id: UID): Set[UID] = {
       if(space.contains(id)) space.getNeighbors(id).toSet else Set()
     }

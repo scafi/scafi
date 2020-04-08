@@ -6,10 +6,19 @@
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.controller3d.DefaultController3D
+import it.unibo.scafi.simulation.frontend.model.implementation.SimulationManagerImpl
 
 class Launcher extends App {
   def parseCommandLine(): Unit = SimulationCmdLine.parse(args, Settings)
-  def launch(): Unit = Controller.startup
+  def launch(): Unit = {
+    if (Settings.Sim_3D) {
+      val simulatorManager = new SimulationManagerImpl()
+      DefaultController3D(SimulationImpl(simulatorManager), simulatorManager).startup()
+    } else {
+      Controller.startup
+    }
+  }
 }
 
 object DefaultLauncher extends Launcher {

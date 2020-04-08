@@ -14,6 +14,8 @@ object Settings {
 
   var Sim_ExecStrategy = ExecStrategies.Random
 
+  var Sim_3D = false
+  var Sim_3D_Reduce_Sparsity = true
   var Sim_Topology = Topologies.Random
   var Sim_Sensors = "someSensor bool true\nanotherSensor int 77"
   var Sim_ProgramClass = ""
@@ -48,6 +50,7 @@ object Settings {
 
   var Led_Activator: Any=>Boolean = (_)=>false
   var Movement_Activator: Any=>(Double, Double) = (_)=>(0.0, 0.0)
+  var Movement_Activator_3D: Option[Any=>(Double, Double, Double)] = None //if None: uses 2d Movement_Activator for x and y
   var To_String: Any=>String = x => x.toString
 
 }

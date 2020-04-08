@@ -17,8 +17,8 @@ import it.unibo.scafi.simulation.frontend.utility.Utils
   * This is the general frame that contains all panel
   */
 class SimulatorUI() extends JFrame("SCAFI Simulator") {
-  private[frontend] var center: SimulationPanel = new SimulationPanel
-  final private val menuBarNorth: JMenuBar = new MenuBarNorth
+  private[frontend] var center: SimulationPanel = new SimulationPanel(Controller.getInstance)
+  final private val menuBarNorth: JMenuBar = new MenuBarNorth(Controller.getInstance)
   private var oldDim: Dimension = null
 
   setSize(Utils.getFrameDimension)

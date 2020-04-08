@@ -6,6 +6,7 @@
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.incarnations.BasicAbstractIncarnation
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.model.{Network, Node}
 
 trait Simulation {
@@ -26,4 +27,6 @@ trait Simulation {
   def getSensorValue(s: String): Option[Any]
 
   def setPosition(n: Node)
+
+  def setController(controller: GeneralController): Unit
 }
