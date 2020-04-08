@@ -43,16 +43,20 @@ tasks.withType<ScalaCompile>().configureEach {
 }
 
 val scalaSuffix: String by project
+val scalaVersion: String by project
 
 val bcelVersion: String by project
 val akkaVersion: String by project
 val scalaTestVersion: String by project
 val scoptVersion: String by project
 val shapelessVersion: String by project
-val playJsonVersion: String by project
-val scalafxVersion: String by project
+val playJsonVersion211: String by project
+val playJsonVersion212: String by project
+val scalafxVersion212: String by project
+val scalafxVersion213: String by project
 val slf4jlog4Version: String by project
 val log4Version: String by project
+val scalaLoggingVersion: String by project
 
 val akkaActor  = "com.typesafe.akka:akka-actor_%%:$akkaVersion"
 val akkaRemote = "com.typesafe.akka:akka-remote_%%:$akkaVersion"
@@ -60,10 +64,13 @@ val bcel       = "org.apache.bcel:bcel:$bcelVersion"
 val scalatest  = "org.scalatest:scalatest_%%:$scalaTestVersion"
 val scopt      = "com.github.scopt:scopt_%%:$scoptVersion"
 val shapeless  = "com.chuusai:shapeless_%%:$shapelessVersion"
-val playJson   = "com.typesafe.play:play-json_%%:$playJsonVersion"
-val scalafx = "org.scalafx:scalafx_%%:$scalafxVersion"
+val playJson211 = "com.typesafe.play:play-json_%%:$playJsonVersion211"
+val playJson212 = "com.typesafe.play:play-json_%%:$playJsonVersion212"
+val scalafx212 = "org.scalafx:scalafx_%%:$scalafxVersion212"
+val scalafx213 = "org.scalafx:scalafx_%%:$scalafxVersion213"
 val slf4jlog4  = "org.slf4j:slf4j-log4j12:$slf4jlog4Version"
 val log4 = "log4j:log4j:$log4Version"
+val scalaLogging  = "com.typesafe.scala-logging:scala-logging_%%:$scalaLoggingVersion"
 
 val javaFXModules = kotlin.collections.listOf("base", "controls", "graphics", "media", "swing", "web")
 
@@ -109,7 +116,7 @@ allprojects {
         "testImplementation"("org.scalatest:scalatest_%%:${scalaTestVersion}")
     }
 
-    if(!listOf("scafi-demos","scafi-demos-new").contains(project.name)) {
+    if(!listOf("scafi-demos","scafi-demos-new","scafi-demos-distributed").contains(project.name)) {
         apply(plugin = "com.github.alisiikh.scalastyle")
 
         scalastyle {
@@ -117,6 +124,9 @@ allprojects {
             //includeTestSourceDirectory = true
             //source = "src/main/scala"
             //testSource = "src/test/scala"
+            //failOnViolation = true // default
+            //failOnWarning = false // default
+            //quiet = true
         }
     }
 
@@ -151,9 +161,9 @@ subprojects {
      */
 
     if(!listOf("scafi-demos","scafi-demos-new","scafi-tests").contains(project.name)){
-        extra["signing.keyId"] = "boh"
+        extra["signing.keyId"] = "DFA2FD661135C839AE3930EF6FAEDFFCD5FA9509"
         extra["signing.secretKeyRingFile"] = File("${project.rootProject.rootDir}/.travis/local.secring.asc")
-        extra["signing.password"] = ""
+        extra["signing.password"] = System.getenv("PGP_PASS")
 
         publishing {
             publications {
@@ -169,7 +179,7 @@ subprojects {
                         url.set("https://scafi.github.io")
                         licenses {
                             license {
-                                name.set("The Apache License, Version 2.0")
+                                name.set("Apache-2.0")
                                 url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
                             }
                         }
@@ -248,6 +258,7 @@ project(":scafi-simulator") {
 project(":scafi-simulator-gui") {
     dependencies {
         "api"(project(":scafi-simulator"))
+        "api"(project(":scafi-renderer-3d"))
         "api"(scopt)
     }
 }
@@ -262,7 +273,22 @@ project(":scafi-simulator-gui-new") {
     dependencies {
         "api"(project(":scafi-simulator"))
         "api"(project(":scafi-distributed"))
-        "api"(scalafx)
+        if(scalaVersion.startsWith("2.13")) {
+            "api"(scalafx213)
+        } else {
+            "api"(scalafx212)
+        }
+    }
+}
+
+project(":scafi-renderer-3d") {
+    dependencies {
+        if(scalaVersion.startsWith("2.13")) {
+            "api"(scalafx213)
+        } else {
+            "api"(scalafx212)
+        }
+        "api"(scalaLogging)
     }
 }
 
@@ -273,35 +299,48 @@ project(":spala") {
         "api"(akkaRemote)
         "api"(bcel)
         "api"(scopt)
-        "api"(playJson)
+        if(scalaVersion.startsWith("2.11")) {
+            "api"(playJson211)
+        } else {
+            "api"(playJson212)
+        }
         "api"(slf4jlog4)
         "api"(log4)
     }
 }
 
-project(":scafi-distributed") {
-    dependencies {
-        "api"(project(":spala"))
+if(!scalaVersion.startsWith("2.13")) {
+    project(":scafi-distributed") {
+        dependencies {
+            "api"(project(":spala"))
+        }
+    }
+
+    project(":scafi-demos") {
+        dependencies {
+            "implementation"(project(":scafi-stdlib-ext"))
+            "implementation"(project(":scafi-simulator-gui"))
+            "implementation"(project(":scafi-distributed"))
+        }
+    }
+
+    project(":scafi-demos-new") {
+        dependencies {
+            "implementation"(project(":scafi-stdlib-ext"))
+            "implementation"(project(":scafi-simulator-gui-new"))
+            "implementation"(project(":scafi-distributed"))
+        }
     }
 }
 
-project(":scafi-demos") {
+project(":scafi-demos-distributed") {
     dependencies {
         "implementation"(project(":scafi-stdlib-ext"))
-        "implementation"(project(":scafi-simulator-gui"))
         "implementation"(project(":scafi-distributed"))
     }
 }
 
-project(":scafi-demos-new") {
-    dependencies {
-        "implementation"(project(":scafi-stdlib-ext"))
-        "implementation"(project(":scafi-simulator-gui-new"))
-        "implementation"(project(":scafi-distributed"))
-    }
-}
-
-configure(subprojects.filter { listOf("scafi-simulator-gui-new", "scafi-demos-new").contains(it.name) }) {
+configure(subprojects.filter { listOf("scafi-simulator-gui", "scafi-simulator-gui-new", "scafi-demos-new", "scafi-renderer-3d").contains(it.name) }) {
     if(jdkVersion>8) {
         apply(plugin = "org.openjfx.javafxplugin")
 
