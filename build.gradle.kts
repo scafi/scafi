@@ -116,6 +116,11 @@ allprojects {
         "testImplementation"("org.scalatest:scalatest_%%:${scalaTestVersion}")
     }
 
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
     if(!listOf("scafi-demos","scafi-demos-new","scafi-demos-distributed").contains(project.name)) {
         apply(plugin = "com.github.alisiikh.scalastyle")
 
