@@ -166,8 +166,8 @@ subprojects {
 
     if(!listOf("scafi-demos","scafi-demos-new","scafi-tests").contains(project.name)){
         extra["signing.keyId"] = "D5FA9509"
-        extra["signing.secretKeyRingFile"] = File("${project.rootProject.rootDir}/.travis/local.secring.asc")
-        extra["signing.password"] = System.getenv("PGP_PASS")
+        //extra["signing.secretKeyRingFile"] = File("${project.rootProject.rootDir}/.travis/local.secring.asc")
+        //extra["signing.password"] = System.getenv("PGP_PASS")
 
         publishing {
             publications {
@@ -219,6 +219,9 @@ subprojects {
             }
         }
         signing {
+            useInMemoryPgpKeys(
+                    File("${project.rootProject.rootDir}/.travis/local.secring.asc").readText(Charsets.UTF_8),
+                    System.getenv("PGP_PASS"))
             sign(publishing.publications["scafi"])
         }
     }
