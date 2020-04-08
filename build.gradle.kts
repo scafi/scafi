@@ -219,9 +219,9 @@ subprojects {
             }
         }
         signing {
-            useInMemoryPgpKeys(
-                    File("${project.rootProject.rootDir}/.travis/local.secring.asc").readText(Charsets.UTF_8),
-                    System.getenv("PGP_PASS"))
+            val secringFile = File("${project.rootProject.rootDir}/.travis/local.secring.asc")
+            val defaultSecretKey = if(secringFile.exists()) { secringFile.readText() } else { "" }
+            useInMemoryPgpKeys(defaultSecretKey, System.getenv("PGP_PASS"))
             sign(publishing.publications["scafi"])
         }
     }
