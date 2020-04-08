@@ -6,7 +6,7 @@
 package it.unibo.scafi.incarnations
 
 import it.unibo.scafi.distrib.actor.p2p.{Platform => P2pActorPlatform}
-import it.unibo.scafi.distrib.actor.server.{Platform => ServerBasedActorPlatform, SpatialPlatform => SpatialServerBasedActorPlatform}
+import it.unibo.scafi.distrib.actor.server.{ServerPlatform => ServerBasedActorPlatform, SpatialPlatform => SpatialServerBasedActorPlatform}
 import it.unibo.scafi.distrib.actor.{Platform => ActorPlatform}
 import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 import play.api.libs.json._

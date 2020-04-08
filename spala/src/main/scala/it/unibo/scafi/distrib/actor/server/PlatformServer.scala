@@ -11,7 +11,7 @@ import it.unibo.scafi.distrib.actor.patterns.ObservableActorBehavior
 
 import scala.collection.mutable.{Map => MMap}
 
-trait PlatformServer extends PlatformBehaviors { self: Platform.Subcomponent =>
+trait PlatformServer extends PlatformBehaviors { self: ServerPlatform.Subcomponent =>
 
   /**
    * This actor represents the singleton, central server of a

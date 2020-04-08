@@ -11,7 +11,7 @@ import it.unibo.scafi.distrib.actor.server.PlatformBehaviors
 
 import scala.collection.mutable.{Map => MMap}
 
-trait PlatformServer extends PlatformBehaviors { self: Platform.Subcomponent =>
+trait PlatformServer extends PlatformBehaviors { self: HybridPlatform.Subcomponent =>
   trait ObservableServerActor extends ServerBaseServerActor with ObservableActorBehavior {
     override def receive: Receive = super.receive.orElse(observersManagementBehavior)
 

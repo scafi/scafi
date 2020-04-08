@@ -32,7 +32,7 @@ object ScafiWorldInitializer {
       val r = new RandomGenerator()
       //all nodes on the same 2d planes
       val z = 0
-      scafiWorld clear()
+      scafiWorld.clear()
       for (i <- 0 until node) {
         val randomPoint = Point3D(r.nextInt(width), r.nextInt(height), z)
         val addPoint = worldInfo.boundary match {
@@ -60,7 +60,7 @@ object ScafiWorldInitializer {
       scafiWorld.boundary = worldInfo.boundary
       val z = 0
       var nodes = 0
-      scafiWorld clear()
+      scafiWorld.clear()
       for (i <- 1 to row) {
         for (j <- 1 to column) {
           nodes += 1

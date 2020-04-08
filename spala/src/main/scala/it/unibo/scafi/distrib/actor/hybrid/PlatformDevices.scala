@@ -10,7 +10,7 @@ import it.unibo.scafi.distrib.actor.p2p.PlatformBehaviors
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-trait PlatformDevices extends PlatformBehaviors { self: Platform.Subcomponent =>
+trait PlatformDevices extends PlatformBehaviors { self: HybridPlatform.Subcomponent =>
   /**
     * Specializes a [[ComputationDeviceActor]] to work both in a decentralized,
     *  peer-to-peer manner and as a part of a client/server system.

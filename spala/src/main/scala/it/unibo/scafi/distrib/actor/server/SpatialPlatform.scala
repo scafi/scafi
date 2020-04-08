@@ -6,7 +6,7 @@
 package it.unibo.scafi.distrib.actor.server
 
 import akka.actor.{ActorRef, Props}
-import it.unibo.scafi.distrib.actor.server.{Platform => BasePlatform}
+import it.unibo.scafi.distrib.actor.server.{ServerPlatform => BasePlatform}
 import it.unibo.scafi.space.MetricSpatialAbstraction
 
 /**

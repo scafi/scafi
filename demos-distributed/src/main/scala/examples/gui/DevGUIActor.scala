@@ -7,18 +7,18 @@ package examples.gui
 
 import java.awt._
 import java.awt.event._
-import javax.swing._
 
+import javax.swing._
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.space.Point2D
 
 import scala.concurrent.duration._
-import scala.collection.mutable.{ Map => MMap }
-
-import akka.actor.{Props, Actor, ActorRef}
+import scala.collection.mutable.{Map => MMap}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.util.Timeout
-
 import it.unibo.scafi.distrib.actor._
+
+import scala.util.Success
 
 class DevGUIActor(val I: BasicAbstractActorIncarnation,
                   private var dev: ActorRef) extends Actor with ActionListener {
@@ -122,8 +122,8 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
       implicit val timeout: Timeout = 1.second
 
       if(registry!=null){
-        (registry ? I.MsgLookup(nbrId)).onSuccess {
-          case m:I.MsgDeviceLocation =>
+        (registry ? I.MsgLookup(nbrId)).onComplete {
+          case Success(m:I.MsgDeviceLocation) =>
             dev ! I.MsgDeviceLocation(m.id, m.ref)
         }
       }

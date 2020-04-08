@@ -13,7 +13,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
 
-trait PlatformAPIFacade { self: Platform.Subcomponent =>
+trait PlatformAPIFacade { self: ServerPlatform.Subcomponent =>
 
   /**************************/
   /******** SETTINGS ********/
@@ -46,6 +46,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   /****************************/
 
   trait ServerMain extends App with Serializable {
+    def mainProgram(args: Array[String]): Unit
+
     def setupServer(settings: Settings): Unit = {
       var s = refineSettings(settings)
       s = s.copy(profile = s.profile.copy(startServer = true))
@@ -66,7 +68,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   }
 
   class ServerCmdLineMain extends ServerMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       cmdLineParser.parse(args, Settings()) foreach (s => setupServer(s))
     }
   }
@@ -75,7 +77,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                         val aggregate: AggregateApplicationSettings,
                         val gui: Boolean = true)
     extends ServerMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       var s = Settings()
       s = s.copy(profile = s.profile.copy(
         startServer = true,
