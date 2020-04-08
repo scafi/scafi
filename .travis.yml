@@ -57,31 +57,31 @@ deploy:
     condition: "$TRAVIS_PULL_REQUEST = false"
     jdk: openjdk8
 # GITHUB RELEASES: uses a "github oauth token" to upload "file" on tagged builds
-- provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: "Zdk+RFJYXswgekVlO+BCkx8/C5Q0Z6aZMzpcUmU7VQasTuc6G11T0p8FRFWJ1qQuBLM22I1AJHu84kVBquT22lEwlnzXUGlMGbAixaiPmGGKgxYUkJ9sKj0tQXzx9UAMQs39CfrvNPnsYH+fvPNR/wNdb9erhbN1K7/G0TjDmtG7sOo0VMmRr3BVyCaxix2hjDVT+51IJmiGJbOZQwyh+5sgath2FkZJ6m72RkxtYmBSIhCqwhl3l9cYWDq5CUS1vMSYht+ePQ4hICQ7/vM8owtiSpCiNDl7aQGDwcPD7a8Dquqf/RmIVksTv5kb1KNc1rWCx6AoNvHwQDuROAIBX71NYM3TPKUQyVgHww8Kf0vIwlJBr4YHU2do9EJD4AS3qgMqY77TcpHcHZc5bTb8r+i/wDw4J3R9VdRlDzA9eRxwf1M3tMGaYBKwm7OzfP+qxsMjP9pL+tMABhS+e4XLgfAWsBwGuOZ4cNOm69Ei3F2HO+Zi+y5yWSkMNcKNz9lo8lm2HbQPjssfxFV4i8HWPwCN2gmb3n+JkP2iUJumgXTww8eSz9NoXjhI0kbNVQkQiOQ30rYDrFdBvpvHeHG/oWEThXbzxDH21W60Xjk67tvlP6ZgOnndk0NH9+Fg/1Xpow/sEa4zuKJ3kHMzIkh7uBD6T3x3QzqTU8OUL7LPhIA="
-  file_glob: true
-  file: "./core/target/scala-*/scafi-core*assembly*.jar"
-  on:
-    branch: master
-    tags: true
-    jdk: openjdk8
+#- provider: releases
+#  skip_cleanup: true
+#  api_key:
+#    secure: "Zdk+RFJYXswgekVlO+BCkx8/C5Q0Z6aZMzpcUmU7VQasTuc6G11T0p8FRFWJ1qQuBLM22I1AJHu84kVBquT22lEwlnzXUGlMGbAixaiPmGGKgxYUkJ9sKj0tQXzx9UAMQs39CfrvNPnsYH+fvPNR/wNdb9erhbN1K7/G0TjDmtG7sOo0VMmRr3BVyCaxix2hjDVT+51IJmiGJbOZQwyh+5sgath2FkZJ6m72RkxtYmBSIhCqwhl3l9cYWDq5CUS1vMSYht+ePQ4hICQ7/vM8owtiSpCiNDl7aQGDwcPD7a8Dquqf/RmIVksTv5kb1KNc1rWCx6AoNvHwQDuROAIBX71NYM3TPKUQyVgHww8Kf0vIwlJBr4YHU2do9EJD4AS3qgMqY77TcpHcHZc5bTb8r+i/wDw4J3R9VdRlDzA9eRxwf1M3tMGaYBKwm7OzfP+qxsMjP9pL+tMABhS+e4XLgfAWsBwGuOZ4cNOm69Ei3F2HO+Zi+y5yWSkMNcKNz9lo8lm2HbQPjssfxFV4i8HWPwCN2gmb3n+JkP2iUJumgXTww8eSz9NoXjhI0kbNVQkQiOQ30rYDrFdBvpvHeHG/oWEThXbzxDH21W60Xjk67tvlP6ZgOnndk0NH9+Fg/1Xpow/sEa4zuKJ3kHMzIkh7uBD6T3x3QzqTU8OUL7LPhIA="
+#  file_glob: true
+#  file: "./core/target/scala-*/scafi-core*assembly*.jar"
+#  on:
+#    branch: master
+#    tags: true
+#    jdk: openjdk8
 # SURGE: env vars SURGE_LOGIN (email) and SURGE_TOKEN
-- provider: surge
-  skip_cleanup: true
-  project: "./target/scala-2.12/unidoc/"
-  domain: scafi-docs.surge.sh
-  on:
-    branch: master
-    tags: true
-    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
-    jdk: openjdk8
-- provider: surge
-  skip_cleanup: true
-  project: "./target/scala-2.12/unidoc/"
-  domain: scafi-docs-unstable.surge.sh
-  on:
-    branch: develop
-    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
-    jdk: openjdk8
+#- provider: surge
+#  skip_cleanup: true
+#  # project: "./target/scala-2.12/unidoc/" # for sbt
+#  domain: scafi-docs.surge.sh
+#  on:
+#    branch: master
+#    tags: true
+#    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
+#    jdk: openjdk8
+#- provider: surge
+#  skip_cleanup: true
+#  # project: "./target/scala-2.12/unidoc/" # for sbt
+#  domain: scafi-docs-unstable.surge.sh
+#  on:
+#    branch: develop
+#    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
+#    jdk: openjdk8
