@@ -160,6 +160,10 @@ subprojects {
     }
      */
 
+    if(listOf("spala", "scafi-distributed", "scafi-demos", "scafi-demos-new").contains(project.name) && scalaVersion.startsWith("2.13")){
+        // TODO: disable this project
+    }
+
     if(!listOf("scafi-demos","scafi-demos-new","scafi-tests").contains(project.name)){
         extra["signing.keyId"] = "DFA2FD661135C839AE3930EF6FAEDFFCD5FA9509"
         extra["signing.secretKeyRingFile"] = File("${project.rootProject.rootDir}/.travis/local.secring.asc")
@@ -309,27 +313,25 @@ project(":spala") {
     }
 }
 
-if(!scalaVersion.startsWith("2.13")) {
-    project(":scafi-distributed") {
-        dependencies {
-            "api"(project(":spala"))
-        }
+project(":scafi-distributed") {
+    dependencies {
+        "api"(project(":spala"))
     }
+}
 
-    project(":scafi-demos") {
-        dependencies {
-            "implementation"(project(":scafi-stdlib-ext"))
-            "implementation"(project(":scafi-simulator-gui"))
-            "implementation"(project(":scafi-distributed"))
-        }
+project(":scafi-demos") {
+    dependencies {
+        "implementation"(project(":scafi-stdlib-ext"))
+        "implementation"(project(":scafi-simulator-gui"))
+        "implementation"(project(":scafi-distributed"))
     }
+}
 
-    project(":scafi-demos-new") {
-        dependencies {
-            "implementation"(project(":scafi-stdlib-ext"))
-            "implementation"(project(":scafi-simulator-gui-new"))
-            "implementation"(project(":scafi-distributed"))
-        }
+project(":scafi-demos-new") {
+    dependencies {
+        "implementation"(project(":scafi-stdlib-ext"))
+        "implementation"(project(":scafi-simulator-gui-new"))
+        "implementation"(project(":scafi-distributed"))
     }
 }
 
