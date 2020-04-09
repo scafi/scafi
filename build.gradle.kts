@@ -14,9 +14,6 @@ val gitVersion : groovy.lang.Closure<Any> by extra
 val versionDetails : groovy.lang.Closure<Any> by extra
 val verDetails = versionDetails()
 
-// Set project version
-version = gitVersion()
-
 buildscript {
     repositories {
         jcenter()
@@ -104,8 +101,11 @@ allprojects {
     apply(plugin = "scala")
     apply(plugin = "java-library")
     apply(plugin = "com.adtran.scala-multiversion-plugin")
+    apply(plugin = "com.palantir.git-version")
 
     group = "it.unibo.apice.scafiteam"
+
+    version = gitVersion()
 
     repositories {
         jcenter()
