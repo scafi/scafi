@@ -55,7 +55,6 @@ script:
   fi
 before_deploy:
   - echo Preparing for deploy
-  - ls -l ./target
 after_deploy:
   - echo Done with deploy
 deploy:
