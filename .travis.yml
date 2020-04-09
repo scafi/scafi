@@ -38,15 +38,16 @@ before_install:
 script:
 - echo "java.version='$TRAVIS_JDK_VERSION'" >> project/build.properties
 - set -e;
-  if [[ "$BUILD_SYSTEM" = "gradle"]]; then
-    if [[ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi" ]]; then
+  if [[ $BUILD_SYSTEM = "gradle"]]; then
+    if [[ $TRAVIS_PULL_REQUEST = "false" && $TRAVIS_REPO_SLUG = "scafi/scafi" ]]; then
       bash .travis/travis_gradle_build.sh;
     else
       bash .travis/travis_gradle_build_pullrequest.sh;
+    fi
   fi
 - set -e;
   if [[ "$BUILD_SYSTEM" = "sbt"]]; then
-    if [[ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_REPO_SLUG" = "scafi/scafi" ]]; then
+    if [[ "$TRAVIS_PULL_REQUEST" = "false" && $TRAVIS_REPO_SLUG = "scafi/scafi" ]]; then
       bash .travis/travis_sbt_build.sh;
     else
       bash .travis/travis_sbt_build_pullrequest.sh;
