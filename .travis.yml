@@ -6,7 +6,7 @@ env:
     - BUILD_SYSTEM=gradle
     - DOC_SCALA_VERSION=2.12.10
     - DOC_SCALA_VERSION_MAJOR=2.12
-    - JDK_DEPLOY=openjdk8
+    - JDK_DEPLOY=openjdk11
     - BINTRAY_USER= # See: https://github.com/jvican/sbt-release-early/issues/34
     - BINTRAY_PASS=
     # SURGE_TOKEN
@@ -21,7 +21,7 @@ env:
     - secure: MO7euMoBbM1ugRMAT89fSPG1uAw1XHPeU7daDajcOAw8/+y7INfC6OwpFZ2Dz0cOUimxSiiPh/FEWPNwMtxH9pIGdEOaJ7wxzoYqzLtGQh8Q80H/dBsrwhfe+AN2KyT7zgbM+TrBtwWi0adDC4wekIGRiZkl9EAqEuIBF5rj1eay6QFE0r/buEiiFLghv4PjmKxWriNKxoMhhQaWpRRP5IBkTSKZbeLg6MVBbdX3qLwTj0PwtiPauGTfXBevYC/l17cMtXVAJuZ51ZDA8nJD/ZAvyd7Fwfbl5NGGSTrP0rgo7kCdLw5ZQPsSKOZf5tZNMNYUQDyAzmN8Lqblt3dN9fniajzX3r/fgHZiuzHihPv+x0ScI0YdCl9OW32V2Z8Gvheo9MIoTpQL0eeTfrSx6MdO4j+vrBxP2+TaxVWHNlGmUWtTcw6+tGfoCRvH9Ye9FWy89DSM6t+pQ3TPteTx74cakIY/K531+c3m3ECQSzTmDCc8XMCPwCA32QMGwpfUoVlNjKEnEtog+nK6MVSGJQfpP/4CuKzfrntXhkKoGSCEFTPMLu7wXrA1Jo2dtX+W+T9TGJa2wsGy82h5V8Br6C8RPxTujBvmOutPrVCN2PiEmHfaug/cQwdJvfkvyD5EUH8QubVZej7Z1j7YxJghYQKh7d4AiSL/90UyekcVX+g=
 jdk:
   #- openjdk7 # Expected feature release number in range of 9 to 13, but got: 7
-  - openjdk8
+  #- openjdk8
   #- oraclejdk8 # Expected feature release number in range of 9 to 13, but got: 8
   #- openjdk9
   #- openjdk10
@@ -66,7 +66,7 @@ deploy:
     all_branches: true
     tags: true # runs iff tagged build
     condition: "$TRAVIS_PULL_REQUEST = false"
-    jdk: openjdk8
+    jdk: openjdk11
 # GITHUB RELEASES: uses a "github oauth token" to upload "file" on tagged builds
 #- provider: releases
 #  skip_cleanup: true
@@ -77,7 +77,7 @@ deploy:
 #  on:
 #    branch: master
 #    tags: true
-#    jdk: openjdk8
+#    jdk: openjdk11
 # SURGE: env vars SURGE_LOGIN (email) and SURGE_TOKEN
 #- provider: surge
 #  skip_cleanup: true
@@ -87,7 +87,7 @@ deploy:
 #    branch: master
 #    tags: true
 #    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
-#    jdk: openjdk8
+#    jdk: openjdk11
 #- provider: surge
 #  skip_cleanup: true
 #  # project: "./target/scala-2.12/unidoc/" # for sbt
@@ -95,4 +95,4 @@ deploy:
 #  on:
 #    branch: develop
 #    condition: "$TRAVIS_SCALA_VERSION = ${DOC_SCALA_VERSION}"
-#    jdk: openjdk8
+#    jdk: openjdk11
