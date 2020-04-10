@@ -107,22 +107,22 @@ lazy val scafi = project.in(file(".")).
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos,`demos-new`,`demos-distributed`)
   )
 
-lazy val commons = project.
+lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons")).
   settings(commonSettings: _*).
-  enablePlugins(ScalaJSPlugin).
   settings(
     name := "scafi-commons"
   )
+lazy val commons = commonsCross.jvm
 
-lazy val core = project.
-  dependsOn(commons).
-  enablePlugins(ScalaJSPlugin).
+lazy val coreCross = crossProject(JSPlatform, JVMPlatform).in(file("core")).
+  dependsOn(commonsCross).
   settings(commonSettings: _*).
   settings(
     name := "scafi-core",
     libraryDependencies += scalatest
   )
 
+lazy val core = coreCross.jvm
 
 lazy val `stdlib-ext` = project.
   dependsOn(core).
@@ -131,16 +131,18 @@ lazy val `stdlib-ext` = project.
     name := "scafi-lib-ext",
     libraryDependencies ++= Seq(scalatest, shapeless)
   )
-lazy val simulator = project.
-  dependsOn(core).
+
+lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform).in(file("simulator")).
+  dependsOn(coreCross).
   settings(commonSettings: _*).
-  enablePlugins(ScalaJSPlugin).
   settings(
     name := "scafi-simulator",
   )
 
+lazy val simulator = simulatorCross.jvm
+
 lazy val `simulator-gui` = project.
-  dependsOn(core,simulator,`renderer-3d`).
+  dependsOn(core, simulator, `renderer-3d`).
   settings(commonSettings: _*).
   settings(
     name := "scafi-simulator-gui",

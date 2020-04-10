@@ -165,6 +165,23 @@ subprojects {
     }
      */
 
+    sourceSets {
+        main {
+            withConvention(ScalaSourceSet::class) {
+                scala {
+                    srcDirs(listOf(
+                            "${project.projectDir}/src/main/scala",
+                            "${project.projectDir}/src/main/scala" + scalaSuffix.replace("_", "-"),
+                            "${project.projectDir}/shared/src/main/scala",
+                            "${project.projectDir}/shared/src/main/scala" + scalaSuffix.replace("_", "-"),
+                            "${project.projectDir}/jvm/src/main/scala",
+                            "${project.projectDir}/jvm/src/main/scala" + scalaSuffix.replace("_", "-")
+                    ))
+                }
+            }
+        }
+    }
+
     if(listOf("spala", "scafi-distributed", "scafi-demos", "scafi-demos-new").contains(project.name) && scalaVersion.startsWith("2.13")){
         // TODO: disable this project
     }
@@ -236,18 +253,6 @@ project(":scafi-commons") {
 }
 
 project(":scafi-core") {
-    sourceSets {
-        main {
-            withConvention(ScalaSourceSet::class) {
-                scala {
-                    srcDirs(listOf(
-                            "${project.projectDir}/src/main/scala",
-                            "${project.projectDir}/src/main/scala" + scalaSuffix.replace("_", "-")))
-                }
-            }
-        }
-    }
-
     dependencies {
         "api"(project(":scafi-commons"))
     }
