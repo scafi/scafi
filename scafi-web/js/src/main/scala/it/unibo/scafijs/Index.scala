@@ -12,8 +12,12 @@ import scala.collection.mutable.ArrayBuffer
 object Index {
   import org.scalajs.dom._
 
-  class FooProgram extends AggregateProgram {
-    override def main(): Any = rep(Math.random())(x => x)
+  class FooProgram extends AggregateProgram with StandardSensors {
+    override def main(): Any = rep(Double.PositiveInfinity){ case g =>
+      mux(sense[Boolean]("source")){ 0.0 }{
+        minHoodPlus { nbr(g) + nbrRange() }
+      }
+    }
   }
 
   def main(args: Array[String]): Unit = {

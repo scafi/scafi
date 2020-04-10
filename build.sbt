@@ -241,13 +241,10 @@ lazy val `demos-new` = project.
     compileScalastyle := { }
   )
 
-//SCAFI JS
-lazy val scafijs = project.
-  settings(commonSettings: _*).
-  dependsOn(commons, core, simulator).
-  enablePlugins(ScalaJSPlugin).
+lazy val `scafi-web` = crossProject(JSPlatform).
+  dependsOn(commonsCross, coreCross, simulatorCross).
   settings(
-    name := "scafijs" ,
-    scalaJSUseMainModuleInitializer := true,
+    name := "scafi-web" ,
+    scalaJSMainModuleInitializer := Some(org.scalajs.linker.interface.ModuleInitializer.mainMethod("it.unibo.scafijs.Index","Index")),
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.0.0"
   )
