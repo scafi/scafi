@@ -1,3 +1,4 @@
+import sbt.Keys.target
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -108,15 +109,20 @@ lazy val scafi = project.in(file(".")).
 
 lazy val commons = project.
   settings(commonSettings: _*).
-  settings(name := "scafi-commons")
+  enablePlugins(ScalaJSPlugin).
+  settings(
+    name := "scafi-commons"
+  )
 
 lazy val core = project.
   dependsOn(commons).
+  enablePlugins(ScalaJSPlugin).
   settings(commonSettings: _*).
   settings(
     name := "scafi-core",
     libraryDependencies += scalatest
   )
+
 
 lazy val `stdlib-ext` = project.
   dependsOn(core).
@@ -125,12 +131,12 @@ lazy val `stdlib-ext` = project.
     name := "scafi-lib-ext",
     libraryDependencies ++= Seq(scalatest, shapeless)
   )
-
 lazy val simulator = project.
   dependsOn(core).
   settings(commonSettings: _*).
+  enablePlugins(ScalaJSPlugin).
   settings(
-    name := "scafi-simulator"
+    name := "scafi-simulator",
   )
 
 lazy val `simulator-gui` = project.
@@ -231,4 +237,15 @@ lazy val `demos-new` = project.
     name := "scafi-demos-new",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     compileScalastyle := ()
+  )
+
+//SCAFI JS
+lazy val scafijs = project.
+  settings(commonSettings: _*).
+  dependsOn(commons, core, simulator).
+  enablePlugins(ScalaJSPlugin).
+  settings(
+    name := "scafijs" ,
+    scalaJSUseMainModuleInitializer := true,
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.0.0"
   )
