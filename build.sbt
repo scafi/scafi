@@ -90,8 +90,8 @@ lazy val commonSettings = Seq(
 
 lazy val noPublishSettings = Seq(
     publishArtifact := false,
-    publish := (),
-    publishLocal := ()
+    publish := { },
+    publishLocal := { }
   )
 
 lazy val scafi = project.in(file(".")).
@@ -145,7 +145,7 @@ lazy val `simulator-gui` = project.
   settings(
     name := "scafi-simulator-gui",
     libraryDependencies ++= Seq(scopt),
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
 lazy val `renderer-3d` = project.
@@ -201,7 +201,7 @@ lazy val demos = project.
   settings(noPublishSettings: _*).
   settings(
     name := "scafi-demos",
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
 lazy val `demos-distributed` = project.
@@ -211,7 +211,7 @@ lazy val `demos-distributed` = project.
   settings(
     name := "scafi-demos-distributed",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
 lazy val `simulator-gui-new` = project.
@@ -226,7 +226,7 @@ lazy val `simulator-gui-new` = project.
         case _ => "org.scalafx" %% "scalafx" % "8.0.144-R12"
       }
     ) ++ javaFX,
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
 lazy val `demos-new` = project.
@@ -236,7 +236,7 @@ lazy val `demos-new` = project.
   settings(
     name := "scafi-demos-new",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
 //SCAFI JS
