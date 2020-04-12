@@ -68,6 +68,12 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                        nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK
 
+    def simulator(idArray: MArray[ID] = MArray(),
+                  nbrMap: MMap[ID, Set[ID]] = MMap(),
+                  localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
+                  nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty
+                 ): NETWORK
+
     def gridLike(gsettings: GridSettings,
                  rng: Double,
                  lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
@@ -84,7 +90,14 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                         lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                         nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
                         ): NETWORK =
-      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.defaultRepr, SIM_SEED, RANDOM_SENSOR_SEED)
+      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.defaultRepr(_), SIM_SEED, RANDOM_SENSOR_SEED)
+
+    def simulator(idArray: MArray[ID] = MArray(),
+                  nbrMap: MMap[ID, Set[ID]] = MMap(),
+                  localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
+                  nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty
+                 ): NETWORK =
+      new NetworkSimulator(SIM_SEED, RANDOM_SENSOR_SEED, idArray, localSensors, nbrSensors, nbrMap, NetworkSimulator.defaultRepr(_))
 
     def gridLike(gsettings: GridSettings,
                  rng: Double,
@@ -118,7 +131,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       nsnsMap += (NBR_RANGE -> MMap(idArray.toList.map(i => i -> nbsExportsInGridFor(i)): _*))
 
       new NetworkSimulator(
-        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.gridRepr(rows),
+        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.gridRepr(rows)(_),
         seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
@@ -168,13 +181,13 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     }
   }
 
-  class NetworkSimulator(val idArray: MArray[ID] = MArray(),
+  class NetworkSimulator(val simulationSeed: Long = 0L,
+                         val randomSensorSeed: Long = 0L,
+                         val idArray: MArray[ID] = MArray(),
+                         val localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
+                         val nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty,
                          val nbrMap: MMap[ID, Set[ID]] = MMap(),
-                         val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                         val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
-                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
-                         val simulationSeed: Long,
-                         val randomSensorSeed: Long
+                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr
                          ) extends Network with SimulatorOps with SimpleSource {
     self: NETWORK =>
     override type O = SimulationObserver[ID,LSNS]
@@ -183,6 +196,29 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
 
+    val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap()
+    val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
+
+    def this(_idArray: MArray[ID] = MArray(),
+             _nbrsMap: MMap[ID, Set[ID]] = MMap(),
+             _lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
+             _nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
+             _toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
+             _simulationSeed: Long,
+             _randomSensorSeed: Long
+    ){
+      this (
+        _simulationSeed,
+        _randomSensorSeed,
+        _idArray,
+        Map.empty : PartialFunction[LSNS,PartialFunction[ID,Any]],
+        Map.empty : PartialFunction[NSNS,PartialFunction[(ID,ID),Any]],
+        _nbrsMap,
+        _toStr
+      )
+      this.lsnsMap ++= _lsnsMap
+      this.nsnsMap ++= _nsnsMap
+    }
     // *****************
     // Network interface
     // *****************
@@ -190,9 +226,11 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     val ids = idArray.toSet
     def neighbourhood(id: ID): Set[ID] = nbrMap.getOrElse(id, Set())
 
-    def localSensor[A](name: LSNS)(id: ID): A = lsnsMap(name)(id).asInstanceOf[A]
+    def localSensor[A](name: LSNS)(id: ID): A =
+      lsnsMap.get(name).flatMap(_.get(id)).getOrElse(localSensors(name)(id).asInstanceOf[A]).asInstanceOf[A]
 
-    def nbrSensor[A](name: NSNS)(id: ID)(idn: ID): A = nsnsMap(name)(id)(idn).asInstanceOf[A]
+    def nbrSensor[A](name: NSNS)(id: ID)(idn: ID): A =
+      nsnsMap.get(name).flatMap(_.get(id)).flatMap(_.get(idn)).getOrElse(nbrSensors(name)(id, idn).asInstanceOf[A]).asInstanceOf[A]
 
     def export(id: ID): Option[EXPORT] = eMap.get(id)
 
@@ -226,10 +264,10 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         nbrSensor = IMap()){
       import NetworkSimulator.Optionable
       def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
-        lsnsMap(lsns).get(id).map (_.asInstanceOf[T] )
+        lsnsMap.get(lsns).flatMap(_.get(id)).orElse(Some(localSensors(lsns)(id))).map (_.asInstanceOf[T] )
 
       def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
-        nsnsMap(nsns)(id).get(nbr).map(_.asInstanceOf[T])
+        nsnsMap.get(nsns).flatMap(_.get(id)).flatMap(_.get(nbr)).orElse(Some(nbrSensors(nsns)(id, nbr))).map(_.asInstanceOf[T])
 
       override def sense[T](lsns: LSNS): Option[T] = lsns match {
         case LSNS_RANDOM => randomSensor.some[T]
