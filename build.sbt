@@ -112,6 +112,9 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons")
   .settings(
     name := "scafi-commons"
   )
+  .jsSettings(
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
+  )
 
 lazy val commons = commonsCross.jvm
 
@@ -138,6 +141,9 @@ lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform).in(file("simulat
   .settings(commonSettings: _*)
   .settings(
     name := "scafi-simulator",
+  )
+  .jsSettings(
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
 
 lazy val simulator = simulatorCross.jvm
@@ -247,11 +253,10 @@ lazy val `scafi-web` = project
     .settings(
       name := "scafi-web" ,
       //mainClass in Compile := Some("it.unibo.scafi.js.Index"),
-      scalaJSMainModuleInitializer in Compile := Some(org.scalajs.linker.interface.ModuleInitializer.mainMethod("it.unibo.scafi.js.Index","main")),
+      //scalaJSMainModuleInitializer in Compile := Some(org.scalajs.linker.interface.ModuleInitializer.mainMethod("it.unibo.scafi.js.Index","main")),
       scalaJSUseMainModuleInitializer := true,
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % "1.0.0",
-        "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
       ),
       //webpackBundlingMode := BundlingMode.LibraryAndApplication() // https://scalacenter.github.io/scalajs-bundler/cookbook.html#several-entry-points
       //npmDependencies in Compile += "jsnetworkx" -> "0.3.4"
