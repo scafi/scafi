@@ -34,14 +34,19 @@ object Index {
   def main(args: Array[String]): Unit = {
     appendPar(document.body, "Hello Scala.js")
 
-    println("Index.main")
+    println("Index.main !!!")
 
     val nodes = ArrayBuffer((0 to 100):_*)
-    val net = BasicSimulationIncarnation.simulatorFactory.basicSimulator(
-      nodes,
-      mutable.Map(nodes.map(id => id->Set(id-1,id,id+1).filter(x => x>=0 && x<100)):_*)
+    val net = BasicSimulationIncarnation.simulatorFactory.simulator(
+      idArray = nodes,
+      nbrMap = mutable.Map(nodes.map(id => id->Set(id-1,id,id+1).filter(x => x>=0 && x<100)):_*),
+      nbrSensors = {
+        case NBR_RANGE => { case (id,idn) => 1 }
+      },
+      localSensors = {
+        case "source" => { case id => id<10 }
+      }
     )
-    net.addSensor("source", false)
     val elem : CONTEXT => EXPORT = new FooProgram()
     import scalajs.js.timers._
 
