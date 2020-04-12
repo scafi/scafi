@@ -1,4 +1,4 @@
-package it.unibo.scafijs
+package it.unibo.scafi.js
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, _}

@@ -1,4 +1,4 @@
-package it.unibo.scafijs
+package it.unibo.scafi.js
 
 import it.unibo.scafi.incarnations.Incarnation
 import it.unibo.scafi.simulation.Simulation
