@@ -261,6 +261,7 @@ lazy val `scafi-web` = project
       ),
       webpackBundlingMode := BundlingMode.LibraryAndApplication(), // https://scalacenter.github.io/scalajs-bundler/cookbook.html#several-entry-points
       npmDependencies in Compile ++= Seq(
+        "sigma" -> "2.0.0-alpha32",
         "jsnetworkx" -> "0.3.4",
         //"fsevents" -> "1.2.12",
         "d3" -> "3.5.5" // jsnetworkx leverages d3 v3 (i.e., do not upgrade to v4 or v5)

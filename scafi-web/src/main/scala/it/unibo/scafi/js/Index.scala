@@ -47,10 +47,13 @@ object Index {
     println("Index.main !!!")
 
     val div = document.createElement("div")
+    div.setAttribute("style", "width:1000px; height:1000px; border:5px solid #ababab;")
     div.id = "netDiv"
+
+    val g: Graph = Network.gnpRandomGraph(10,1)
+    div.textContent = "Content: " + g.toString
     document.body.appendChild(div)
 
-    val g: Graph = NetUtils.graph()
     Network.draw(g, DrawOptions("#netDiv"))
 
     val nodes = ArrayBuffer((0 to 100):_*)
