@@ -257,7 +257,12 @@ lazy val `scafi-web` = project
       scalaJSUseMainModuleInitializer := true,
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % "1.0.0",
+        // "org.singlespaced" %%% "scalajs-d3" % "0.3.4" // only ScalaJs 0.6
       ),
-      //webpackBundlingMode := BundlingMode.LibraryAndApplication() // https://scalacenter.github.io/scalajs-bundler/cookbook.html#several-entry-points
-      //npmDependencies in Compile += "jsnetworkx" -> "0.3.4"
+      webpackBundlingMode := BundlingMode.LibraryAndApplication(), // https://scalacenter.github.io/scalajs-bundler/cookbook.html#several-entry-points
+      npmDependencies in Compile ++= Seq(
+        "jsnetworkx" -> "0.3.4",
+        //"fsevents" -> "1.2.12",
+        "d3" -> "3.5.5" // jsnetworkx leverages d3 v3 (i.e., do not upgrade to v4 or v5)
+      )
     )

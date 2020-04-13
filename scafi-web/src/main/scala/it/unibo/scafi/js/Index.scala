@@ -7,6 +7,7 @@ import org.scalajs.dom
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+import scala.scalajs.js.timers.{SetIntervalHandle, clearInterval, setInterval}
 
 /**
   * from the main body, scala js produce a javascript file.
@@ -30,28 +31,46 @@ object Index {
     targetNode.appendChild(parNode)
   }
 
+  var handle: Option[SetIntervalHandle] = None
+  var net: NETWORK = _
+  var program: CONTEXT => EXPORT = _
+
   @JSExport
   def main(args: Array[String]): Unit = {
     appendPar(document.body, "Hello Scala.js")
 
+    val btn = document.createElement("button")
+    btn.setAttribute("onClick", "switchSimulation()")
+    btn.textContent = "Start simulation";
+    document.body.appendChild(btn)
+
     println("Index.main !!!")
 
+    val div = document.createElement("div")
+    div.id = "netDiv"
+    document.body.appendChild(div)
+
+    val g: Graph = NetUtils.graph()
+    Network.draw(g, DrawOptions("#netDiv"))
+
     val nodes = ArrayBuffer((0 to 100):_*)
-    val net = BasicSimulationIncarnation.simulatorFactory.simulator(
+    net = BasicSimulationIncarnation.simulatorFactory.simulator(
       idArray = nodes,
-      nbrMap = mutable.Map(nodes.map(id => id->Set(id-1,id,id+1).filter(x => x>=0 && x<100)):_*),
+      nbrMap = mutable.Map(nodes.map(id => id->(id-3 to id+3+1).toSet.filter(x => x>=0 && x<100)):_*),
       nbrSensors = {
         case NBR_RANGE => { case (id,idn) => 1 }
       },
       localSensors = {
-        case "source" => { case id => id<10 }
+        case "source" => { case id => id == 10 || id == 50 || id == 70 }
       }
     )
-    val elem : CONTEXT => EXPORT = new FooProgram()
+    program = new FooProgram()
     import scalajs.js.timers._
+  }
 
-    setInterval(1000) {
-      println(net.exec(elem))
-    }
+  @JSExportTopLevel("switchSimulation")
+  def addClickedMessage(): Unit = handle match {
+    case Some(h) => { clearInterval(h); handle = None }
+    case None => handle = Some(setInterval(100) { println(net.exec(program)) })
   }
 }
