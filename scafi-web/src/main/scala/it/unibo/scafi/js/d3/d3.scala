@@ -1,15 +1,18 @@
-package it.unibo.scafi.js
+package it.unibo.scafi.js.d3
 
 import org.scalajs.dom
 import org.scalajs.dom.Selection
 import org.scalajs.dom.ext.Color
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSExport, JSExportAll, JSImport, JSName}
+import scala.scalajs.js.annotation.{JSExportAll, JSImport}
 import scala.scalajs.js.|
 
 @js.native
 @JSImport("d3", JSImport.Namespace)
+/*
+ * From https://github.com/spaced/scala-js-d3 , which unfortunately targets only ScalaJs 0.6
+ */
 object d3facade extends js.Object  {
 
   type Primitive = Double | String | Boolean
@@ -159,7 +162,7 @@ object d3facade extends js.Object  {
 @js.native
 trait LayoutObject extends js.Object {
 
-  def force[Node, L <: Link[Node] ](): forceModule.Force[Node, L] = js.native
+  def force[Node, L <: Link[Node] ](): Force[Node, L] = js.native
 
   /*
   def bundle[Node <: bundleModule.Node](): Bundle[Node] = js.native
@@ -196,9 +199,7 @@ trait Link[Node] {
   def target:Node
 }
 
-package forceModule {
-
-  import scala.scalajs.js.annotation.JSExportAll
+import scala.scalajs.js.annotation.JSExportAll
 
   @JSExportAll
   trait Node {
@@ -284,5 +285,3 @@ package forceModule {
     def drag(selection: Selection[Node]): Unit = js.native
      */
   }
-
-}

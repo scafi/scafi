@@ -1,10 +1,11 @@
 package it.unibo.scafi.js
 
 import it.unibo.scafi.incarnations.Incarnation
-import it.unibo.scafi.simulation.Simulation
+import it.unibo.scafi.simulation.{Simulation, SpatialSimulation}
+import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 import it.unibo.utils.{Interop, Linearizable}
 
-object WebIncarnation extends Incarnation with Simulation {
+trait BasicWebIncarnation extends Incarnation with Simulation {
   override type LSNS = String
   override type NSNS = String
   override type ID = String
@@ -36,4 +37,19 @@ object WebIncarnation extends Incarnation with Simulation {
     def toString(nsns: NSNS): String = nsns.toString
     def fromString(str: String): NSNS = str
   }
+}
+
+object WebIncarnation extends BasicWebIncarnation
+  with SpatialSimulation
+  with BasicSpatialAbstraction {
+  override type P = Point2D
+
+  override def buildNewSpace[E](elems: Iterable[(E,P)]): SPACE[E] =
+    buildSpatialContainer(elems, EuclideanStrategy.DefaultProximityThreshold)
+
+  def buildSpatialContainer[E](elems: Iterable[(E,P)] = Iterable.empty,
+                               range: Double = EuclideanStrategy.DefaultProximityThreshold): SPACE[E] =
+    new Basic3DSpace(elems.toMap) with EuclideanStrategy {
+      override val proximityThreshold = range
+    }
 }

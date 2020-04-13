@@ -1,11 +1,15 @@
 package it.unibo.scafi.js
 
+import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.js.{WebIncarnation => web}
+import it.unibo.scafi.space.Point3D
 import org.scalajs.dom
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scala.scalajs.js.timers.{SetIntervalHandle, clearInterval, setInterval}
 
@@ -31,6 +35,14 @@ object Index {
     targetNode.appendChild(parNode)
   }
 
+  def appendCanvas(target: dom.Node, id: String): Element = {
+    val div = document.createElement("div")
+    div.setAttribute("style", "width:1000px; height:1000px; border:5px solid #ababab;")
+    div.id = "netDiv"
+    target.appendChild(div)
+    div
+  }
+
   var handle: Option[SetIntervalHandle] = None
   var net: NETWORK = _
   var program: CONTEXT => EXPORT = _
@@ -46,16 +58,46 @@ object Index {
 
     println("Index.main !!!")
 
-    val div = document.createElement("div")
-    div.setAttribute("style", "width:1000px; height:1000px; border:5px solid #ababab;")
-    div.id = "netDiv"
+    val spatialSim = web.simulatorFactory.gridLike(
+      GridSettings(),
+      rng = 50
+    )
 
-    val g: Graph = Network.gnpRandomGraph(10,1)
-    div.textContent = "Content: " + g.toString
-    document.body.appendChild(div)
+    val spatialGraph = NetUtils.graph()
+    var k = 0
+    for(i <- 1 to 10;
+        j <- 1 to 10){
+      spatialGraph.addNode(""+k, new js.Object {
+        val position = Point3D(i*2, j*2, 0.0)
+      })
+      k += 1
+    }
 
-    Network.draw(g, DrawOptions("#netDiv"))
+    /*
+    val devsToPos: Map[Int, Point3D] = g.nodes.mapValues(n => new Point3D(n.position.x, n.position.y, n.position.z)).toMap // Map id->position
+    val net = new web.SpaceAwareSimulator(
+      space = new Basic3DSpace(devsToPos,
+        proximityThreshold = 50.0
+      ),
+      devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
+        Map.empty,
+        nsns => nbr => null)
+      },
+      simulationSeed = simulationSeed,
+      randomSensorSeed = configurationSeed
+    )
 
+    network.setNeighbours(net.getAllNeighbours)
+     */
+
+    //val s: sigma.Sigma = sigma.Sigma("#sigmaDiv")
+    // s.graph.addNode(new sigma.Node("1"))
+
+    val nxDiv = appendCanvas(dom.document.body, "netDiv")
+    val g: jsnetworkx.Graph = jsnetworkx.Network.gnpRandomGraph(10,0.4)
+    jsnetworkx.Network.draw(g, jsnetworkx.DrawOptions("#netDiv"))
+
+    // Plain simulation
     val nodes = ArrayBuffer((0 to 100):_*)
     net = BasicSimulationIncarnation.simulatorFactory.simulator(
       idArray = nodes,
@@ -68,7 +110,6 @@ object Index {
       }
     )
     program = new FooProgram()
-    import scalajs.js.timers._
   }
 
   @JSExportTopLevel("switchSimulation")
