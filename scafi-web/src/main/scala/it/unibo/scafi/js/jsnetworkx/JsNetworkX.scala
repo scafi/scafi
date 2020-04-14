@@ -34,5 +34,6 @@ object DrawOptions {
 @JSImport("jsnetworkx", "Graph")
 class Graph extends js.Object {
   def addNode(node: String, data: Any): Unit = js.native
+  def addEdge(from: String, to: String): Unit = js.native
   def nodes(): Iterator[String] = js.native
 }

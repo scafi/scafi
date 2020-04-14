@@ -47,6 +47,9 @@ object Index {
   var net: NETWORK = _
   var program: CONTEXT => EXPORT = _
 
+  var spatialNet: web.NETWORK = _
+  var spatialProgram: web.CONTEXT => web.EXPORT = _
+
   @JSExport
   def main(args: Array[String]): Unit = {
     appendPar(document.body, "Hello Scala.js")
@@ -54,28 +57,46 @@ object Index {
 
     configurePage()
 
+    spatialSim()
+
+    sigma()
+
+    jnetworkx()
+
+    plainSimulation()
+  }
+
+  def spatialSim() = {
     val spatialSim = web.simulatorFactory.gridLike(
       GridSettings(),
-      rng = 50
-    )
+      rng = 150.0
+    ).asInstanceOf[web.SpaceAwareSimulator]
+    spatialSim.addSensor("source", false)
+    spatialSim.chgSensorValue("source", Set("1", "55", "86"), true)
 
     val spatialGraph = NetUtils.graph()
-    var k = 0
-    for(i <- 1 to 10;
-        j <- 1 to 10){
-      spatialGraph.addNode(""+k, new js.Object {
-        val position = Point3D(i*2, j*2, 0.0)
+
+    for((id,pos@Point3D(x,y,z)) <- spatialSim.space.elemPositions){
+      spatialGraph.addNode(id, new js.Object {
+        val position = (x,y,z)
       })
-      k += 1
+      for(nbr <- spatialSim.space.getNeighbors(id)){
+        spatialGraph.addEdge(id,nbr)
+      }
     }
 
+    val nxDiv = appendCanvas(dom.document.getElementById("canvasContainer"), "netDiv")
+    jsnetworkx.Network.draw(spatialGraph, jsnetworkx.DrawOptions("#netDiv"))
+
+    spatialNet = spatialSim
+
     /*
-    val devsToPos: Map[Int, Point3D] = g.nodes.mapValues(n => new Point3D(n.position.x, n.position.y, n.position.z)).toMap // Map id->position
+    val devsToPos: Map[Int, Point3D] = spatialSim.map(n => new Point3D(n.position.x, n.position.y, n.position.z)).toMap // Map id->position
     val net = new web.SpaceAwareSimulator(
       space = new Basic3DSpace(devsToPos,
         proximityThreshold = 50.0
       ),
-      devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
+      devs = devsToPos.map { case (d, p) => d -> new web.DevInfo(d, p,
         Map.empty,
         nsns => nbr => null)
       },
@@ -85,12 +106,6 @@ object Index {
 
     network.setNeighbours(net.getAllNeighbours)
      */
-
-    sigma()
-
-    jnetworkx()
-
-    plainSimulation()
   }
 
   def sigma() = {
@@ -99,9 +114,9 @@ object Index {
   }
 
   def jnetworkx() = {
-    val nxDiv = appendCanvas(dom.document.getElementById("canvasContainer"), "netDiv")
+    //val nxDiv = appendCanvas(dom.document.getElementById("canvasContainer"), "netDiv")
     val g: jsnetworkx.Graph = jsnetworkx.Network.gnpRandomGraph(10,0.4)
-    jsnetworkx.Network.draw(g, jsnetworkx.DrawOptions("#netDiv"))
+    //jsnetworkx.Network.draw(g, jsnetworkx.DrawOptions("#netDiv"))
   }
 
   def plainSimulation() = {
@@ -131,32 +146,75 @@ object Index {
                       [dsl, f]
     """
     println(s"Evaluating: ${programText}")
+
     val programFunctionAndProgram = js.eval(programText).asInstanceOf[js.Array[Any]]
     val aggregateProgram = programFunctionAndProgram(0).asInstanceOf[ScafiDsl]
     val programFunction = programFunctionAndProgram(1).asInstanceOf[js.Function0[Any]]
     // TODO: use aggregateProgram for running simulation
-    program = aggregateProgram.asInstanceOf[CONTEXT => EXPORT]
+    //program = aggregateProgram.asInstanceOf[CONTEXT => EXPORT]
+    spatialProgram = aggregateProgram.asInstanceOf[web.CONTEXT => web.EXPORT]
   }
 
   @JSExportTopLevel("switchSimulation")
   def switchSimulation(): Unit = {
     handle match {
       case Some(h) => { clearInterval(h); handle = None }
-      case None => handle = Some(setInterval(100) { println(net.exec(program)) })
+      case None => handle = Some(setInterval(100) { println(spatialNet.exec(spatialProgram)) })
     }
   }
 
+  @JSExportTopLevel("onSelectProgram")
+  def onSelectProgram(): Unit = {
+    val p = selectProgram.asInstanceOf[html.Input].value
+    println(s"Selected ${p}")
+    document.getElementById("program").innerHTML = programs(p)
+    loadNewProgram()
+  }
+
+  val programs = Map(
+    "hello scafi" -> "\"hello scafi\"",
+    "round counter" -> "rep(0, (k) => k+1)",
+    "gradient" ->
+      """
+        | rep(Infinity, (d) => {
+        |  return mux(sense("source"), 0.0,
+        |    foldhoodPlus(() => Infinity, Math.min, () => nbr(() => d) + nbrvar("nbrRange"))
+        |  )
+        | })
+        |""".stripMargin
+  )
+
+  var selectProgram: Element = _
+
   def configurePage(): Unit = {
+    // Add button to set the program
+    selectProgram = document.createElement("select")
+    selectProgram.setAttribute("onchange", "if(this.selectedIndex) onSelectProgram()")
+    var k = 0
+    for(p <- programs.keySet){
+      val c = document.createElement("option")
+      c.setAttribute("value",p)
+      c.innerHTML = p
+      if(k==0) {
+        c.setAttribute("selected","selected")
+        selectProgram.asInstanceOf[html.Input].value = p
+      }
+      selectProgram.appendChild(c)
+      k+=1
+    }
+    onSelectProgram()
+    document.getElementById("config").appendChild(selectProgram)
+
     // Add button to set the program
     val loadProgramBtn = document.createElement("button")
     loadProgramBtn.setAttribute("onClick", "loadNewProgram()")
     loadProgramBtn.textContent = "Load new program";
-    document.body.appendChild(loadProgramBtn)
+    document.getElementById("config").appendChild(loadProgramBtn)
 
     // Add button to start/stop simulation
     val runSimBtn = document.createElement("button")
     runSimBtn.setAttribute("onClick", "switchSimulation()")
-    runSimBtn.textContent = "Start simulation";
-    document.body.appendChild(runSimBtn)
+    runSimBtn.textContent = "Start/stop simulation";
+    document.getElementById("config").appendChild(runSimBtn)
   }
 }
