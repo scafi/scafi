@@ -104,11 +104,17 @@ object Index {
   }
 
   def plainSimulation() = {
+    // Add button to set the program
+    val loadProgramBtn = document.createElement("button")
+    loadProgramBtn.setAttribute("onClick", "loadNewProgram()")
+    loadProgramBtn.textContent = "Load new program";
+    document.body.appendChild(loadProgramBtn)
+
     // Add button to start/stop simulation
-    val btn = document.createElement("button")
-    btn.setAttribute("onClick", "switchSimulation()")
-    btn.textContent = "Start simulation";
-    document.body.appendChild(btn)
+    val runSimBtn = document.createElement("button")
+    runSimBtn.setAttribute("onClick", "switchSimulation()")
+    runSimBtn.textContent = "Start simulation";
+    document.body.appendChild(runSimBtn)
 
     // Plain simulation
     val nodes = ArrayBuffer((0 to 100):_*)
@@ -125,9 +131,29 @@ object Index {
     program = new FooProgram()
   }
 
+  @JSExportTopLevel("loadNewProgram")
+  def loadNewProgram(): Unit = {
+    val programText = s"""var dsl = new ScafiDsl();
+                      var f = () => { with(dsl){
+                        var res = ${document.getElementById("program").asInstanceOf[html.Input].value};
+                        return res;
+                      }; };
+                      dsl.programExpression = f;
+                      [dsl, f]
+    """
+    println(s"Evaluating: ${programText}")
+    val programFunctionAndProgram = js.eval(programText).asInstanceOf[js.Array[Any]]
+    val aggregateProgram = programFunctionAndProgram(0).asInstanceOf[ScafiDsl]
+    val programFunction = programFunctionAndProgram(1).asInstanceOf[js.Function0[Any]]
+    // TODO: use aggregateProgram for running simulation
+    program = aggregateProgram.asInstanceOf[CONTEXT => EXPORT]
+  }
+
   @JSExportTopLevel("switchSimulation")
-  def addClickedMessage(): Unit = handle match {
-    case Some(h) => { clearInterval(h); handle = None }
-    case None => handle = Some(setInterval(100) { println(net.exec(program)) })
+  def switchSimulation(): Unit = {
+    handle match {
+      case Some(h) => { clearInterval(h); handle = None }
+      case None => handle = Some(setInterval(100) { println(net.exec(program)) })
+    }
   }
 }

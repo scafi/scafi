@@ -33,6 +33,13 @@ object ScafiFacade {
   def round(program: AggregateProgram, context: CONTEXT): EXPORT =
     program.round(context)
 
+
+  @JSExport
+  def round(program: AggregateProgram, context: CONTEXT, expr: js.Function0[Any]): EXPORT = {
+    val scalaExpr: () => Any = expr
+    program.round(context, scalaExpr())
+  }
+
   @JSExportTopLevel("GradientProgram")
   class GradientProgram extends AggregateProgram with StandardSensors {
     override def main(): Any = rep(Double.PositiveInfinity){ case g =>
@@ -50,21 +57,29 @@ object ScafiFacade {
   */
 @JSExportTopLevel("ScafiDsl")
 @JSExportAll
-class ScafiDsl {
-  val p = new AggregateProgram {
-    override def main(): Any =
-      throw new IllegalStateException("This method should not be called as the aggregate program only works as API provider.")
-  }
+class ScafiDsl(val p: AggregateProgram = new AggregateProgram {
+  override def main(): Any =
+    throw new IllegalStateException("This method should not be called as the aggregate program only works as API provider.")
+}) extends (CONTEXT => EXPORT) {
+  var programExpression: js.Function0[Any] = _
 
   def run(c: CONTEXT, f: js.Function0[Any]): EXPORT = {
     val fScala: () => Any = f
     p.round(c, fScala())
   }
 
+  @JSExport("apply")
+  override def apply(ctx: CONTEXT): EXPORT = {
+    run(ctx, programExpression)
+  }
+
   def nbr[A](expr: js.Function0[A]): A = {
     val exprFun: () => A = expr
     p.nbr(exprFun())
   }
+
+  def mux[A](cond: Boolean, ifTrue: A, ifFalse: A) =
+    p.mux(cond){ ifTrue }{ ifFalse }
 
   // TODO: init should by by-name
   def rep[A](init: A, fun: js.Function1[A,A]): A = {
@@ -79,6 +94,13 @@ class ScafiDsl {
     p.foldhood(initS())(aggrS)(exprS())
   }
 
+  def foldhoodPlus[A](init: js.Function0[A], aggr: js.Function2[A,A,A], expr: js.Function0[A]): A = {
+    val initS: () => A = init
+    val aggrS: (A,A) => A = aggr
+    val exprS: () => A = expr
+    p.foldhoodPlus(initS())(aggrS)(exprS())
+  }
+
   def aggregate[A](f: js.Function0[A]): A = {
     val scalaF: () => A = f
     p.aggregate(scalaF())
@@ -91,4 +113,11 @@ class ScafiDsl {
   def sense[A](name: String): A = p.sense(name)
 
   def nbrvar[A](name: String): A = p.nbrvar(name)
+}
+
+class FromJavaScriptFunctionToAggregateProgram(jsf: js.Function1[AggregateProgram,Any]) extends AggregateProgram {
+  override def main(): Any = {
+    val f: (AggregateProgram) => Any = jsf
+    f(this)
+  }
 }

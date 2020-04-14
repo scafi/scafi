@@ -17,7 +17,14 @@
     <!-- Include Scala.js compiled code -->
     <div class="container-fluid">
       <div class="row">
-        <div class="col-6 bg-dark" id="config"></div>
+        <div class="col-6 bg-dark" id="config">
+<textarea cols="60" rows="20" class="center" id="program">
+rep(Infinity, (d) => {
+  return mux(sense("source"), 0.0,
+    foldhoodPlus(Infinity, Math.min, () => nbr(() => d) + nbrRange("NBR_RANGE")))
+})
+</textarea>
+        </div>
         <div class="col-6 bg-light" id="canvasContainer" style="height:600px;"></div>
       </div>
     </div>
