@@ -11,14 +11,15 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   </head>
   <body>
-    <nav>
-      <h1> Apri la console, il simulatore è in esecuzione in background</h1>
+    <nav class="navbar navbar-dark bg-dark" style="background-color: #469;">
+        <span class="navbar-brand"><h1 class="text-light">ScaFi on Web</h1></span>
+        <span class="navbar-text">Discover the power of the collective</span>
     </nav>
     <!-- Include Scala.js compiled code -->
     <div class="container-fluid">
       <div class="row">
         <div class="col-6 bg-dark" id="config">
-<textarea cols="60" rows="20" class="center" id="program">
+<textarea id="program" style="width:80%; margin-left: auto; margin-right:auto; height:80%; font-family:courier new; background-color:#ddd;">
 rep(Infinity, (d) => {
   return mux(sense("source"), 0.0,
     foldhoodPlus(() => Infinity, Math.min, () => nbr(() => d) + nbrvar("nbrRange"))
@@ -26,7 +27,7 @@ rep(Infinity, (d) => {
 })
 </textarea>
         </div>
-        <div class="col-6 bg-light" id="canvasContainer" style="height:600px;"></div>
+        <div class="col-6 bg-light" id="canvasContainer" style="width: 100%; height: 500px;"></div>
       </div>
     </div>
     <script type="text/javascript" src="../../../target/scala-2.11/scalajs-bundler/main/scafi-web-fastopt-bundle.js"></script>

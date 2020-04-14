@@ -50,8 +50,9 @@ object Index {
   @JSExport
   def main(args: Array[String]): Unit = {
     appendPar(document.body, "Hello Scala.js")
-
     println("Index.main !!!")
+
+    configurePage()
 
     val spatialSim = web.simulatorFactory.gridLike(
       GridSettings(),
@@ -104,18 +105,6 @@ object Index {
   }
 
   def plainSimulation() = {
-    // Add button to set the program
-    val loadProgramBtn = document.createElement("button")
-    loadProgramBtn.setAttribute("onClick", "loadNewProgram()")
-    loadProgramBtn.textContent = "Load new program";
-    document.body.appendChild(loadProgramBtn)
-
-    // Add button to start/stop simulation
-    val runSimBtn = document.createElement("button")
-    runSimBtn.setAttribute("onClick", "switchSimulation()")
-    runSimBtn.textContent = "Start simulation";
-    document.body.appendChild(runSimBtn)
-
     // Plain simulation
     val nodes = ArrayBuffer((0 to 100):_*)
     net = BasicSimulationIncarnation.simulatorFactory.simulator(
@@ -155,5 +144,19 @@ object Index {
       case Some(h) => { clearInterval(h); handle = None }
       case None => handle = Some(setInterval(100) { println(net.exec(program)) })
     }
+  }
+
+  def configurePage(): Unit = {
+    // Add button to set the program
+    val loadProgramBtn = document.createElement("button")
+    loadProgramBtn.setAttribute("onClick", "loadNewProgram()")
+    loadProgramBtn.textContent = "Load new program";
+    document.body.appendChild(loadProgramBtn)
+
+    // Add button to start/stop simulation
+    val runSimBtn = document.createElement("button")
+    runSimBtn.setAttribute("onClick", "switchSimulation()")
+    runSimBtn.textContent = "Start simulation";
+    document.body.appendChild(runSimBtn)
   }
 }

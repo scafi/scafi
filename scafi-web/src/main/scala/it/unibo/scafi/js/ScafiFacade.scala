@@ -40,7 +40,8 @@ object ScafiFacade {
     program.round(context, scalaExpr())
   }
 
-  @JSExportTopLevel("GradientProgram")
+  //@JSExportTopLevel("GradientProgram")
+  // NOTE: trying to extend a non-JS class exported from Scala.js is undefined behaviour
   class GradientProgram extends AggregateProgram with StandardSensors {
     override def main(): Any = rep(Double.PositiveInfinity){ case g =>
       mux(sense[Boolean]("source")){ 0.0 }{
