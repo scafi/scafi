@@ -51,11 +51,6 @@ object Index {
   def main(args: Array[String]): Unit = {
     appendPar(document.body, "Hello Scala.js")
 
-    val btn = document.createElement("button")
-    btn.setAttribute("onClick", "switchSimulation()")
-    btn.textContent = "Start simulation";
-    document.body.appendChild(btn)
-
     println("Index.main !!!")
 
     val spatialSim = web.simulatorFactory.gridLike(
@@ -90,12 +85,30 @@ object Index {
     network.setNeighbours(net.getAllNeighbours)
      */
 
+    sigma()
+
+    jnetworkx()
+
+    plainSimulation()
+  }
+
+  def sigma() = {
     //val s: sigma.Sigma = sigma.Sigma("#sigmaDiv")
     // s.graph.addNode(new sigma.Node("1"))
+  }
 
+  def jnetworkx() = {
     val nxDiv = appendCanvas(dom.document.body, "netDiv")
     val g: jsnetworkx.Graph = jsnetworkx.Network.gnpRandomGraph(10,0.4)
     jsnetworkx.Network.draw(g, jsnetworkx.DrawOptions("#netDiv"))
+  }
+
+  def plainSimulation() = {
+    // Add button to start/stop simulation
+    val btn = document.createElement("button")
+    btn.setAttribute("onClick", "switchSimulation()")
+    btn.textContent = "Start simulation";
+    document.body.appendChild(btn)
 
     // Plain simulation
     val nodes = ArrayBuffer((0 to 100):_*)
