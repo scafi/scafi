@@ -37,8 +37,8 @@ object Index {
 
   def appendCanvas(target: dom.Node, id: String): Element = {
     val div = document.createElement("div")
-    div.setAttribute("style", "width:1000px; height:1000px; border:5px solid #ababab;")
-    div.id = "netDiv"
+    div.setAttribute("style", "width:100%; height:100%; border:5px solid #ababab;")
+    div.id = id
     target.appendChild(div)
     div
   }
@@ -98,7 +98,7 @@ object Index {
   }
 
   def jnetworkx() = {
-    val nxDiv = appendCanvas(dom.document.body, "netDiv")
+    val nxDiv = appendCanvas(dom.document.getElementById("canvasContainer"), "netDiv")
     val g: jsnetworkx.Graph = jsnetworkx.Network.gnpRandomGraph(10,0.4)
     jsnetworkx.Network.draw(g, jsnetworkx.DrawOptions("#netDiv"))
   }
