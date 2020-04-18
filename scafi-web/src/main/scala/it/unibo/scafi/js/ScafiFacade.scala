@@ -7,6 +7,13 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation
 
 import scala.collection.mutable.ArrayBuffer
 
+/**
+  * p = new GradientProgram();
+  * s = scafi.simulator(p);
+  * c = scafi.context("0", {}, {"source":true}, { "nbrRange": { "0": 0.0, "1": 1.0 } });
+  * e = scafi.round(p, c)
+  * e.toString()
+  */
 @JSExportTopLevel("scafi")
 object ScafiFacade {
 
@@ -21,6 +28,12 @@ object ScafiFacade {
   @JSExport
   def path(slots: js.Array[Slot]): Path =
     factory.path(slots:_*)
+
+  @JSExport def slotNbr(index: Int) = Nbr[Any](index)
+  @JSExport def slotRep(index: Int) = Rep[Any](index)
+  @JSExport def slotFold(index: Int) = FoldHood[Any](index)
+  @JSExport def slotAlign(index: Int) = Scope[Any](index)
+  @JSExport def slotFunCall(index: Int, funId: String) = FunCall[Any](index,funId)
 
   @JSExport
   def simulator(program: AggregateProgram): NETWORK = {
@@ -40,7 +53,7 @@ object ScafiFacade {
     program.round(context, scalaExpr())
   }
 
-  //@JSExportTopLevel("GradientProgram")
+  @JSExportTopLevel("GradientProgram")
   // NOTE: trying to extend a non-JS class exported from Scala.js is undefined behaviour
   class GradientProgram extends AggregateProgram with StandardSensors {
     override def main(): Any = rep(Double.PositiveInfinity){ case g =>
