@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.core
@@ -31,24 +18,31 @@ import scala.collection.mutable.{Map => MMap}
 
 trait Engine extends Semantics {
 
-  override type EXPORT = Export with ExportOps with Serializable
+  override type EXPORT = Export with ExportOps
   override type CONTEXT = Context with ContextOps
   override type FACTORY = Factory
 
   override implicit val factory = new EngineFactory
 
-  class ExportImpl() extends Export with ExportOps with Serializable { self: EXPORT =>
-    private val map = MMap[Path,Any]()
-    def put[A](path: Path, value: A) : A = { map += (path -> value); value }
-    def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
-    def root[A](): A = get[A](factory.emptyPath()).get
+  class ExportImpl(private var map: Map[Path,Any] = Map()) extends Export with ExportOps with Equals { self: EXPORT =>
+    override def put[A](path: Path, value: A) : A = { map += (path -> value); value }
+    override def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
+    override def root[A](): A = get[A](factory.emptyPath()).get
+    override def paths : Map[Path,Any] = map
+
+    override def equals(o: Any): Boolean = o match {
+      case x: ExportOps => x.paths == map
+      case _ => false
+    }
+
+    override def canEqual(that: Any): Boolean = that.isInstanceOf[Export]
+
+    override def hashCode(): Int = map.hashCode()
 
     override def toString: String = map.toString
-
-    override def getAll: scala.collection.Map[Path, Any] = map
   }
 
-  class PathImpl(val path: List[Slot]) extends Path with Equals with Serializable {
+  class PathImpl(val path: List[Slot]) extends Path with Equals {
     def push(s: Slot): Path = new PathImpl(s :: path)
     def pull(): Path = path match {
       case s :: p => new PathImpl(p)
@@ -61,26 +55,25 @@ trait Engine extends Semantics {
 
     def matches(p: Path): Boolean = this == p
 
-    def canEqual(other: Any): Boolean = {
-      other.isInstanceOf[Engine.this.PathImpl]
-    }
+    def canEqual(other: Any): Boolean = other.isInstanceOf[Path]
 
     override def equals(other: Any): Boolean = {
       other match {
-        case that: Engine.this.PathImpl => that.canEqual(PathImpl.this) && path == that.path
+        case that: Path => path == that.path
         case _ => false
       }
     }
 
     override def hashCode(): Int = path.hashCode
+
+    override def head: Slot = path.head
   }
 
   abstract class BaseContextImpl(val selfId: ID,
                                  _exports: Iterable[(ID, EXPORT)])
-    extends Context with ContextOps with Serializable { self: CONTEXT =>
+    extends Context with ContextOps { self: CONTEXT =>
 
     private var exportsMap : Map[ID,EXPORT] = _exports.toMap
-
     def updateExport(id: ID, export:EXPORT): Unit = exportsMap += id -> export
 
     override def exports(): Iterable[(ID, EXPORT)] = exportsMap
@@ -104,7 +97,7 @@ trait Engine extends Semantics {
     override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nbrSensor.get(nsns).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
   }
 
-  class EngineFactory extends Factory with Serializable { self: FACTORY =>
+  class EngineFactory extends Factory { self: FACTORY =>
     def /(): Path = emptyPath()
     def /(s: Slot): Path = path(s)
     def emptyPath(): Path = new PathImpl(List())

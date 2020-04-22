@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.distrib
@@ -31,6 +18,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
   trait SystemMain extends App with Serializable {
     def programBuilder: Option[ProgramContract] = None
+
+    def mainProgram(args: Array[String]): Unit
 
     def setupSystem(settings: Settings): Unit = {
       val s = refineSettings(settings)
@@ -56,19 +45,19 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   }
 
   class CmdLineMain extends SystemMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       cmdLineParser.parse(args, Settings()) foreach (s => setupSystem(s))
     }
   }
 
   class BasicMain(val settings: Settings) extends SystemMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       setupSystem(settings)
     }
   }
 
   class FileMain(val configFile: String) extends SystemMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       setupSystem(Settings.fromConfig(configFile))
     }
   }

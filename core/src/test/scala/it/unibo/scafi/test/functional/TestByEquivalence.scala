@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.test.functional
@@ -22,7 +9,6 @@ import it.unibo.scafi.test.CoreTestIncarnation._
 import it.unibo.scafi.test.CoreTestUtils
 import org.scalatest._
 
-import scala.collection.Map
 import scala.util.Random
 
 class TestByEquivalence extends FunSpec with Matchers {
@@ -30,9 +16,8 @@ class TestByEquivalence extends FunSpec with Matchers {
   val checkThat = new ItWord
 
   implicit val node = new BasicAggregateInterpreter
-  import factory._
-  import node._
   import CoreTestUtils._
+  import node._
 
   class Fixture {
     val random = new Random(0)
@@ -159,4 +144,19 @@ class TestByEquivalence extends FunSpec with Matchers {
     }
   }
 
+  checkThat("fold.nbr(f)() is to be ignored") {
+    val fixture = new Fixture
+
+    assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
+      foldhood("")(_+_){
+        nbr(mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          nbr(mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+      }
+    }{
+      foldhood("")(_+_){
+        (mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          (mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+      }
+    }
+  }
 }

@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.test.functional
@@ -36,11 +23,15 @@ class TestNewProcesses extends FlatSpec with Matchers {
   // Network constants
   val (stepx, stepy) = (1.0, 1.0)
   // Simulation constants
-  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
+  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 25000)
+
+  import SpawnInterface._
 
   private[this] trait SimulationContextFixture {
     implicit val net: NetworkSimulator =
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
+    val largeNet: NetworkSimulator =
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(20, 20, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
     val program = new Program
   }
 
@@ -56,14 +47,14 @@ class TestNewProcesses extends FlatSpec with Matchers {
     override def main(): Any = {
       val k = countChanges(gen1, gen1 || false)
       val procs1 = sspawn[Pid,Unit,String](pid => args => {
-        (""+distanceTo(gen1), if(stop) Spawn.Terminated else Spawn.Output)
+        (""+distanceTo(gen1), if(stop) Terminated else Output)
       }, if(k._2) Set(Pid(mid,k._1)) else Set.empty, ())
 
       val j = countChanges(gen2, gen2 || false)
       val procs2 = sspawn[Pid,Boolean,String](pid => args => {
         val maxExpansion = distanceTo(pid.dev==mid)
         val g = distanceTo(args)
-        (""+g, if(maxExpansion>2.5) Spawn.External else Spawn.Output)
+        (""+g, if(maxExpansion>2.5) External else Output)
       }, if(j._2) Set(Pid(mid,j._1)) else Set.empty, src)
 
       (procs1 ++ procs2)
@@ -137,22 +128,24 @@ class TestNewProcesses extends FlatSpec with Matchers {
   }
 
   Processes can "be extinguished when stopped being generated" in new SimulationContextFixture {
+    implicit val network = largeNet
+
     // ARRANGE: activate process 1 from node 0
     setSensor(Gen1, true).inDevices(0)
 
     // ACT (process activation)
-    exec(program, ntimes = someRounds)(net)
+    exec(program, ntimes = manyManyRounds)(largeNet)
 
     // ASSERT
     val p011 = Pid(0,1)
-    assertForAllNodes[ProcsMap]{ (_,m) => m.contains(p011) && m.size==1}(net)
+    assertForAllNodes[ProcsMap]{ (_,m) => m.contains(p011) && m.size==1}(largeNet)
 
     // ACT (process deactivation and garbage collection)
     setSensor(STOP, true).inDevices(0)
-    exec(program, ntimes = manyRounds)(net)
+    exec(program, ntimes = manyManyRounds)(largeNet)
 
     // ASSERT
-    assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
+    assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(largeNet)
   }
 
   ManyProcesses must "coexist without interference" in new SimulationContextFixture {

@@ -1,34 +1,39 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import Builtins._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings, SettingsSpace}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object CollectionDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.CollectionIds" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.CollectAndBranch" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
   launch()
+}
+
+/**
+  * Collection using an 'information propagation subnetwork'
+  * Only devices with sense2 active will
+  */
+class CollectAndBranch extends AggregateProgram with SensorDefinitions with BlockC with BlockS with BlockG {
+  override def main() = {
+    val leader = sense1 // S(10, nbrRange)
+    val potential = branch(sense2){ distanceTo(leader) }{ Double.PositiveInfinity }
+    val coll = C[Double,Set[ID]](potential, _++_, Set(mid), Set()).toList.sorted
+    val bcoll = broadcast(leader, coll)
+    (mid, coll, bcoll)
+  }
+
+  def broadcastAlong[V](potential: Double, field: V, metric: Metric = nbrRange): V =
+    G_along(potential, metric, field, (v: V) => v)
+
 }
 
 class Collection extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
@@ -45,9 +50,7 @@ class CExample extends AggregateProgram with SensorDefinitions with BlockC with 
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
   def p = distanceTo(sense1)
-
-  import SettingsSpace.ToStrings.Default_Double
-  override def main() = s"${Default_Double(p)}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
+  override def main() = s"${p}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
 }
 
 class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {

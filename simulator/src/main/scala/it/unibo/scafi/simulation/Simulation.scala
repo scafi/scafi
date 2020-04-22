@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation
@@ -24,8 +11,9 @@ import java.util.concurrent.TimeUnit
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.platform.SimulationPlatform
+import it.unibo.utils.observer.{SimpleSource, Source}
 
-import scala.collection.immutable.{Map => IMap}
+import scala.collection.immutable.{Queue, Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Random
@@ -103,7 +91,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                  lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                  nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
-      val GridSettings(rows, cols, stepx, stepy, tolerance, offsx, offsy) = gsettings
+      val GridSettings(rows, cols, stepx, stepy, tolerance, offsx, offsy, mapPos) = gsettings
       val configRandom = new Random(seeds.configSeed)
 
       def rnd(): Double = configRandom.nextDouble() * 2 * tolerance - tolerance
@@ -115,7 +103,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val grid = ofDim[(Double, Double)](rows, cols)
       for (i <- 0 until rows;
            j <- 0 until cols) {
-        grid(i)(j) = (offsx + i.toDouble * stepx + rnd(), offsy + j.toDouble * stepy + rnd())
+        grid(i)(j) = mapPos(i, j, offsx + i.toDouble * stepx + rnd(), offsy + j.toDouble * stepy + rnd())
       }
       val idArray = MArray() ++= (0 until rows * cols) map lId.fromNum
 
@@ -187,12 +175,11 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                          val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
                          val simulationSeed: Long,
                          val randomSensorSeed: Long
-                         ) extends Network with SimulatorOps {
+                         ) extends Network with SimulatorOps with SimpleSource {
     self: NETWORK =>
-
-    protected val eMap: MMap[ID, EXPORT] = MMap()
+    override type O = SimulationObserver[ID,LSNS]
+    protected val eMap: MMap[ID,EXPORT] = MMap()
     protected var lastRound: Map[ID,LocalDateTime] = Map()
-
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
 
@@ -201,7 +188,6 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     // *****************
 
     val ids = idArray.toSet
-
     def neighbourhood(id: ID): Set[ID] = nbrMap.getOrElse(id, Set())
 
     def localSensor[A](name: LSNS)(id: ID): A = lsnsMap(name)(id).asInstanceOf[A]
@@ -225,16 +211,13 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       lsnsMap += (name -> MMap(idArray.map((_: ID) -> value).toSeq: _*))
     }
 
-    def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A) {
-      ids.foreach { id => lsnsMap(name) += id -> value }
-    }
+    def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A) = ids.foreach { id => lsnsMap(name) += id -> value }
+
 
     override def clearExports(): Unit = eMap.clear()
 
-    private def getExports(id: ID): Iterable[(ID,EXPORT)] = {
-       val nhood = neighbourhood(id) + id
-       eMap.filter(kv => nhood.contains(kv._1))
-    }
+    private def getExports(id: ID): Iterable[(ID,EXPORT)] =
+      (neighbourhood(id) + id).intersect(eMap.keySet).toList.map{x => { x -> eMap(x)}}
 
     class SimulatorContextImpl(id: ID)
       extends ContextImpl(
@@ -242,9 +225,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         exports = getExports(id),
         localSensor = IMap(),
         nbrSensor = IMap()){
-
       import NetworkSimulator.Optionable
-
       def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
         lsnsMap(lsns).get(id).map (_.asInstanceOf[T] )
 
@@ -258,7 +239,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         case LSNS_DELTA_TIME => FiniteDuration(
           lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalDateTime.now())).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]
-        case _ => localSensorRetrieve(lsns, id)
+        case _ => this.localSensorRetrieve(lsns, id)
       }
 
       override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
@@ -307,7 +288,6 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val idToRun = idArray(simulationRandom.nextInt(idArray.size))
       val c = context(idToRun)
       val (_,exp) = idToRun -> ap(c)
-      lastRound += idToRun -> LocalDateTime.now()
       eMap += idToRun -> exp
       idToRun -> exp
     }

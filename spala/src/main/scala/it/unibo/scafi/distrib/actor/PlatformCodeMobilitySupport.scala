@@ -1,38 +1,26 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.distrib.actor
 
 import it.unibo.scafi.distrib.actor.extensions.CodeMobilityExtension
 import it.unibo.scafi.distrib.{CustomClassLoader, CustomClassLoaderRegistry, LoadClassBytes}
-
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Actor, ActorRef}
 import akka.util.Timeout
 import it.unibo.scafi.distrib.actor.patterns.BasicActorBehavior
+import it.unibo.scafi.distrib.actor.serialization.CustomAkkaSerializer
 
 import scala.concurrent.duration._
+import scala.util.Success
 
 trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
 
   /**
    * Behavior that should support the retrieval of missing class dependencies.
    * - Missing classes are identified through a [[SystemMsgClassNotFound]] msg
-   *   which is produced by the [[CustomSerializer]] when deserialization
+   *   which is produced by the [[CustomAkkaSerializer]] when deserialization
    *   fails due to ClassNotFoundException, and replaces the original message
    * - Then, requests for dependencies are carried out via [[MsgRequestClass]] messages
    * - Finally, responses for dependency requests consist in [[MsgWithClass]]
@@ -129,10 +117,9 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
         } else {
           // Remote actor ref: the destination actor may not have the program
           val corr = aRef.hashCode() + "-" + System.currentTimeMillis()
-          (aRef ? MsgWithClasses(classes,Some(corr))).onSuccess {
-            case MsgAck(Some(corr)) => {
+          (aRef ? MsgWithClasses(classes,Some(corr))).onComplete {
+            case Success(MsgAck(Some(corr))) =>
               aRef ! msg
-            }
           }
         }
       }

@@ -1,31 +1,18 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 object ReplicatedGossipDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.ReplicatedGossip" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.ReplicatedGossipProgram" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.25 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
@@ -33,11 +20,11 @@ object ReplicatedGossipDemo extends Launcher {
   launch()
 }
 
-class ReplicatedGossip extends AggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
+class ReplicatedGossipProgram extends AggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
   with HFCSpawn {
   def main: String = {
     val g = classic(sense1)
-    val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 2 second, considerAfter = 2 second)
+    val grepl = replicatedGossip2(sense1, numActiveProcs = 5, startEvery = 2.second, considerAfter = 2.second)
     f"$g%5.1f; ${grepl}%5.1f"
   }
 

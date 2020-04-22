@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.test.functional
@@ -82,7 +69,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
       }{
         fnbr(-1.0)
       }.fold(0.0)(_ + _)
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -110,7 +97,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
         val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
         (f1.map2d(f2)("x")(_ + _)).toMap
       }
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -128,7 +115,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
         val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
         (f1.map2u(f2)("x","w")(_ + _)).toMap
       }
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
@@ -159,7 +146,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
         ((mux(mid%3==0){ f1 }{ f2 })(phi),
           (mux(mid%3==0){ f1 }{ f2 })(phi2))
       }
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(

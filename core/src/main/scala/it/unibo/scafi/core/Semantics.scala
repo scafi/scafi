@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.core
@@ -23,15 +10,15 @@ import it.unibo.scafi.PlatformDependentConstants
 import scala.util.control.Exception._
 
 /**
- * This trait defines a component that extends Core and Language
- * It starts concretising the framework by implementing the key element of field-calculus semantics, namely:
- * - An export is a map from paths to values, and a value is a list of slots
- * - An Execution template implementing the whole operational semantics
- * - A basic Factory
- * - Additional ops to Context and Export, realised by family polymorphism
- *
- * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
- */
+  * This trait defines a component that extends Core and Language
+  * It starts concretising the framework by implementing the key element of field-calculus semantics, namely:
+  * - An export is a map from paths to values, and a value is a list of slots
+  * - An Execution template implementing the whole operational semantics
+  * - A basic Factory
+  * - Additional ops to Context and Export, realised by family polymorphism
+  *
+  * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
+  */
 
 trait Semantics extends Core with Language {
 
@@ -42,21 +29,23 @@ trait Semantics extends Core with Language {
 
   implicit val factory: Factory
 
-  trait Slot extends Serializable{
+  sealed trait Slot {
     def ->(v: Any): (Path,Any) = (factory.path(this), v)
     def /(s: Slot): Path = factory.path(this, s)
   }
-  sealed case class Nbr[A](index: Int) extends Slot
-  sealed case class Rep[A](index: Int) extends Slot
-  sealed case class FunCall[A](index: Int, funId: Any) extends Slot
-  sealed case class FoldHood[A](index: Int) extends Slot
-  sealed case class Scope[K](key: K) extends Slot
+  final case class Nbr[A](index: Int) extends Slot
+  final case class Rep[A](index: Int) extends Slot
+  final case class FunCall[A](index: Int, funId: Any) extends Slot
+  final case class FoldHood[A](index: Int) extends Slot
+  final case class Scope[K](key: K) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
     def pull(): Path
     def matches(path: Path): Boolean
     def isRoot: Boolean
+    def head: Slot
+    def path: List[Slot]
 
     def /(slot: Slot): Path = push(slot)
   }
@@ -64,7 +53,8 @@ trait Semantics extends Core with Language {
   trait ExportOps { self: EXPORT =>
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
-    def getAll: scala.collection.Map[Path,Any]
+    def paths: Map[Path,Any]
+    def getMap[A]: Map[Path, A] = paths.mapValues(_.asInstanceOf[A]).toMap
   }
 
   trait ContextOps { self: CONTEXT =>
@@ -88,8 +78,8 @@ trait Semantics extends Core with Language {
   }
 
   /**
-   * It implements the whole operational semantics.
-   */
+    * It implements the whole operational semantics.
+    */
   trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with ProgramSchema {
 
     var vm: RoundVM = _
@@ -112,7 +102,7 @@ trait Semantics extends Core with Language {
     override def mid(): ID = vm.self
 
     override def rep[A](init: =>A)(fun: (A) => A): A = {
-      vm.nest(Rep[A](vm.index))(true) {
+      vm.nest(Rep[A](vm.index))(write = vm.unlessFoldingOnOthers) {
         vm.locally {
           fun(vm.previousRoundVal.getOrElse(init))
         }
@@ -120,7 +110,7 @@ trait Semantics extends Core with Language {
     }
 
     override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      vm.nest(FoldHood[A](vm.index))(true) {
+      vm.nest(FoldHood[A](vm.index))(write = true) { // write export always for performance reason on nesting
         val nbrField = vm.alignedNeighbours
           .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
         vm.isolate { nbrField.fold(vm.locally { init })((x,y) => aggr(x,y) ) }
@@ -128,7 +118,7 @@ trait Semantics extends Core with Language {
     }
 
     override def nbr[A](expr: => A): A =
-      vm.nest(Nbr[A](vm.index))(vm.neighbour.map(_==vm.self).getOrElse(false)) {
+      vm.nest(Nbr[A](vm.index))(write = vm.onlyWhenFoldingOnSelf) {
         vm.neighbour match {
           case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
           case _  => expr
@@ -136,19 +126,22 @@ trait Semantics extends Core with Language {
       }
 
     override def aggregate[T](f: => T): T =
-      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(!vm.neighbour.isDefined) {
-        f
+      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(write = vm.unlessFoldingOnOthers) {
+        vm.neighbour match {
+          case Some(nbr) if nbr != vm.self => vm.loadFunction()()
+          case Some(nbr) if nbr==vm.self => vm.saveFunction(f); f
+          case _ => f
+        }
       }
 
     override def align[K,V](key: K)(proc: K => V): V =
-      vm.nest[V](Scope[K](key))(true, inc = false){
+      vm.nest[V](Scope[K](key))(write = vm.unlessFoldingOnOthers, inc = false){
         proc(key)
       }
 
     def sense[A](name: LSNS): A = vm.localSense(name)
 
     def nbrvar[A](name: NSNS): A = vm.neighbourSense(name)
-
   }
 
   trait RoundVM {
@@ -187,13 +180,21 @@ trait Semantics extends Core with Language {
     def newExportStack: Any
     def discardExport: Any
     def mergeExport: Any
+
+    def saveFunction[T](f: => T): Unit
+    def loadFunction[T](): ()=>T
+
+    def unlessFoldingOnOthers: Boolean = neighbour.map(_==self).getOrElse(true)
+    def onlyWhenFoldingOnSelf: Boolean = neighbour.map(_==self).getOrElse(false)
   }
 
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
     import RoundVMImpl.{ensure, Status, StatusImpl}
 
+    var aggregateFunctions: Map[Path,()=>Any] = Map.empty
+
     var exportStack: List[EXPORT] = List(factory.emptyExport)
-    def export = exportStack.head
+    def export: EXPORT = exportStack.head
 
     var status: Status = Status()
     var isolated = false // When true, neighbours are scoped out
@@ -263,8 +264,10 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag():Any =
-      Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    override def elicitAggregateFunctionTag(): Any = Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    // Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition) // Bad performance
+    // sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition) // Better performance but not available in Java 11
+    // Since Java 9, use StackWalker
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated
@@ -276,12 +279,21 @@ trait Semantics extends Core with Language {
       }
     }
 
+    override def saveFunction[T](f: => T): Unit =
+      aggregateFunctions += localFunctionSlot -> (() => f )
+
+    override def loadFunction[T](): () => T =
+      () => aggregateFunctions(localFunctionSlot)().asInstanceOf[T]
+
+    private def localFunctionSlot[T] = status.path.pull().push(FunCall[T](status.path.head.asInstanceOf[FunCall[_]].index, FunctionIdPlaceholder))
+    private val FunctionIdPlaceholder = "f"
+
     override def newExportStack: Any = exportStack = factory.emptyExport() :: exportStack
     override def discardExport: Any = exportStack = exportStack.tail
     override def mergeExport: Any = {
       val toMerge = export
       exportStack = exportStack.tail
-      toMerge.getAll.foreach(tp => export.put(tp._1, tp._2))
+      toMerge.paths.foreach(tp => export.put(tp._1, tp._2))
     }
   }
 
@@ -293,7 +305,7 @@ trait Semantics extends Core with Language {
       }
     }
 
-    trait Status extends Serializable {
+    trait Status {
       val path: Path
       val index: Int
       val neighbour: Option[ID]

@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.lib
@@ -43,7 +30,7 @@ trait StdLib_ExplicitFields {
       }
 
       def map[R](o: T=>R): Field[R] =
-        Field(m.mapValues(o))
+        Field(m.mapValues(o).toMap)
 
       def map2[R,S](f: Field[R])(o: (T,R)=>S): Field[S] =
         Field(m.map { case (i,v) => i -> o(v,f.m(i)) })
@@ -55,7 +42,7 @@ trait StdLib_ExplicitFields {
         Field(m.map { case (i,v) => i -> o(v,f.m.getOrElse(i,default)) })
 
       def map2u[R,S](f: Field[R])(dl: T, dr: R)(o: (T,R)=>S): Field[S] =
-        Field((m.keys ++ f.m.keys).map { k => k -> o(m.getOrElse(k, dl), f.m.getOrElse(k, dr)) } toMap)
+        Field((m.keys ++ f.m.keys).map { k => k -> o(m.getOrElse(k, dl), f.m.getOrElse(k, dr)) }.toMap)
 
       def fold[V>:T](z:V)(o: (V,V)=>V): V =
         restricted.m.values.fold(z)(o)
@@ -64,20 +51,20 @@ trait StdLib_ExplicitFields {
         restricted.m.values.reduce(o)
 
       def minHood[V>:T](implicit ev: Bounded[V]): V  =
-        fold[V](ev.top) { case (a: V, b: V) => ev.min(a, b) }
+        fold[V](ev.top) { case (a, b) => ev.min(a, b) }
 
       def minHoodPlus[V>:T](implicit ev: Bounded[V]): V =
         withoutSelf.minHood(ev)
 
       def withoutSelf: Field[T] = Field[T](m - mid)
 
-      def toMap = m
+      def toMap: Map[ID,T] = m
 
       override def toString: String = s"Field[$m]"
     }
 
     object Field {
-      def apply[T](m: Map[ID,T]) = new Field(m)
+      def apply[T](m: Map[ID,T]): Field[T] = new Field(m)
 
       implicit def localToField[T](lv: T): Field[T] =
         fnbr(mid).map(_ => lv)

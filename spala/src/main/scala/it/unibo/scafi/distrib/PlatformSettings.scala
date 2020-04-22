@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.distrib
@@ -88,7 +75,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
     val Debug = "DEBUG"
   }
 
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
 
   object Settings {
     def fromConfig(path: String): Settings = {
@@ -105,21 +92,24 @@ trait PlatformSettings { self: Platform.Subcomponent =>
         platform = PlatformSettings.fromConfig(c.getObject("aggregate").toConfig, s.platform),
         deviceConfig = DeviceConfigurationSettings.fromConfig(c.getObject("aggregate.devices").toConfig, s.deviceConfig),
         profile =
-          if(c.hasPath("aggregate.profile"))
+          if(c.hasPath("aggregate.profile")) {
             settingsFactory.defaultProfileSettings().fromConfig(c.getObject("aggregate.profile").toConfig)
-          else
-            s.profile
+          } else s.profile
       )
       s
     }
   }
+
+  type ProgramType
+  implicit def adaptAggregateProgram(program: ProgramType): ProgramContract
+
   object AggregateApplicationSettings {
     def fromConfig(c: Config, base: AggregateApplicationSettings = AggregateApplicationSettings()): AggregateApplicationSettings = {
       val programClass = if(c.hasPath("program-class")) Some(c.getString("program-class")) else None
       var aas = base.copy(name = c.getString("name"))
       programClass.foreach { programClassName =>
         val klass = Class.forName(programClassName)
-        aas = base.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramContract]))
+        aas = base.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramType]))
       }
       aas
     }
@@ -150,7 +140,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   object PlatformSettings {
     def fromConfig(c: Config, base: PlatformSettings = PlatformSettings()): PlatformSettings = {
       val deploy = c.getObject("deployment").toConfig
-      val subsystems = if(c.hasPath("subsystems")) c.getObjectList("subsystems").toSet else Set()
+      val subsystems = if(c.hasPath("subsystems")) c.getObjectList("subsystems").asScala.toSet else Set()
 
       var ps = base.copy(
         subsystemDeployment = DeploymentSettings(host = deploy.getString("host"), port = deploy.getInt("port")),
@@ -163,7 +153,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
     def fromConfig(c: Config, base: SubsystemSettings = SubsystemSettings())
                   (implicit ev: Interop[UID]): SubsystemSettings = {
       val deploy = c.getObject("deployment").toConfig
-      val ids = if(c.hasPath("ids")) c.getStringList("ids").toSet else Set()
+      val ids = if(c.hasPath("ids")) c.getStringList("ids").asScala.toSet else Set()
 
       var ss = base.copy(
         subsystemDeployment = DeploymentSettings(host = deploy.getString("host"), port = deploy.getInt("port")),
@@ -175,13 +165,13 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   object DeviceConfigurationSettings {
     def fromConfig(c: Config, base: DeviceConfigurationSettings = DeviceConfigurationSettings())
                   (implicit ev: Interop[UID]): DeviceConfigurationSettings = {
-      val ids = if(c.hasPath("ids")) c.getStringList("ids").toSet else Set()
-      val idsWithNbs = if(c.hasPath("nbrs")) c.getObject("nbrs").keys else Set[String]()
+      val ids = if(c.hasPath("ids")) c.getStringList("ids").asScala.toSet else Set()
+      val idsWithNbs = if(c.hasPath("nbrs")) c.getObject("nbrs").asScala.keys else Set[String]()
 
       var ds = base.copy(
         ids = ids.map(ev.fromString(_)).toSet,
         nbs = idsWithNbs.map { id =>
-          val nbrs = c.getStringList(s"nbrs.${id}").toSet[String].map(ev.fromString(_))
+          val nbrs = c.getStringList(s"nbrs.${id}").asScala.toSet[String].map(ev.fromString(_))
           ev.fromString(id) -> nbrs
         }.toMap
       )
@@ -213,7 +203,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
 
       opt[String]("program") valueName ("<FULLY QUALIFIED CLASS NAME>") action { (x, c) =>
         val klass = Class.forName(x)
-        c.copy(aggregate = c.aggregate.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramContract])))
+        c.copy(aggregate = c.aggregate.copy(program = () => Some(klass.newInstance().asInstanceOf[ProgramType])))
       } text ("Aggregate program")
 
       opt[String]('h', "host") valueName ("<HOST>") action { (x, c) =>
@@ -267,7 +257,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
           val xs = subsysDesc.split(":")
           val host = xs(0)
           val port = xs(1).toInt
-          val ids = xs.drop(2).map(interopUID.fromString(_)).toSet
+          val ids: Set[UID] = xs.toSeq.drop(2).map(interopUID.fromString(_)).toSet
 
           ss += SubsystemSettings(
             ids = ids,
@@ -300,6 +290,22 @@ trait PlatformSettings { self: Platform.Subcomponent =>
             case (k, v) => interopUID.fromString(k) -> v.map(interopUID.fromString(_))
           }))
       } } text ("Neighbors")
+
+      opt[String]('r', "elements-range") valueName
+        ("<ID1>to<IDn>") action { (x, c) => {
+        var parsedIds = Set[String]()
+        val edges: Array[String] = x.split("to")
+        val start: Int = edges(0).toInt
+        val end: Int = edges(1).toInt
+
+        for (i <- start to end) {
+          parsedIds = parsedIds + i.toString
+        }
+
+        c.copy(deviceConfig = c.deviceConfig.copy(
+          ids = parsedIds.map(interopUID.fromString(_))
+        ))
+      } } text ("Elements range")
 
       //note("some notes.\n")
       help("help") text ("prints this usage text")
