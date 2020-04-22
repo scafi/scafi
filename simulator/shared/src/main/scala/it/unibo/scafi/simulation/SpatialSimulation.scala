@@ -76,8 +76,9 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
         this.setPosition(id,Point3D(currentPosition.x + dt._1, currentPosition.y + dt._2, currentPosition.z).asInstanceOf[P])
       case MultiNodeMovement(map) => map.foreach {x => this.setPosition(x._1,x._2)}
       case NodeChangeSensor(id, sensor,value) => this.chgSensorValue(sensor,Set(id),value)
-      case _ =>
+      case _ => throw new IllegalArgumentException(s"Meta action ${meta} not supported by the spatial simulator.")
     }
+
     override def process(): Unit = {
       var toProcess : List[MetaAction] = List.empty
       while(actionQueue.nonEmpty) {
@@ -183,7 +184,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       val devs: Map[ID,DevInfo] = ((ids map lId.fromNum) zip positions).map {
         case (id, pos) => (id, new DevInfo(id, pos.asInstanceOf[P], lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns)))
       }.toMap
-      val space = buildNewSpace(devs mapValues(v => v.pos))
+      val space = new Basic3DSpace(devs.mapValues(v => v.pos).toMap, rng)
       new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.gridRepr(gsettings.nrows), seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
