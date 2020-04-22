@@ -1,11 +1,13 @@
-# scafi (**sca**la **fi**elds) #
+# ScaFi (**Sca**la **Fi**elds) #
 
-**scafi** is a Scala-based library and framework for Aggregate Programming.
+**ScaFi** is a Scala-based library and framework for Aggregate Programming.
 It implements a variant of the Higher-Order Field Calculus (HOFC) operational semantics,
  which is made available as a usable domain-specific language (DSL),
 and provides a platform and API for simulating and executing Aggregate Computing systems and applications.
 
-Please refer to [the scafi main website](https://scafi.github.io/) for further information.
+Please refer to [the ScaFi main website](https://scafi.github.io/) 
+ and [ScaFi Documentation](https://scafi.github.io/docs) the for further information.
+
 
 ## Overview
 
@@ -26,7 +28,7 @@ Please refer to [the scafi main website](https://scafi.github.io/) for further i
 Add the dependency to scafi in your project (e.g., via sbt or Gradle)
 
 ```scala
-val scafi_version = "0.3.2"
+val scafi_version = "0.3.3"
 
 val scafi_core  = "it.unibo.apice.scafiteam" %% "scafi-core"  % scafi_version
 val scafi_simulator  = "it.unibo.apice.scafiteam" %% "scafi-simulator"  % scafi_version
@@ -37,6 +39,15 @@ libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 ```
 
 ### Release Highlights
+
+**v0.3.3** (2020-04-10)
+
+* Cross-compilation to **Scala 2.13** (in addition to 2.11 and 2.12)
+* **Gradle build** in addition to the sbt build
+* 3D Renderer (by @AleGnucci)
+* New simulator GUI (by @cric96)
+* Handle serialization in *spala* and *scafi-distributed* (contribution by @manuelperuzzi)
+* Various library fixes and adjustments
 
 **0.3.2** (2018-10-19)
 
@@ -55,7 +66,7 @@ libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
 
 * Several important adjustments to the core operational semantics (and more tests)
 * Refactoring of the field calculus interpreter
-* A basic graphical simulator has been added as a separate module `simulator-gui`
+* A basic graphical simulator (contribution by C. Varini) has been added as a separate module `simulator-gui`
 * Cross compilation for Scala 2.11 and 2.12
 
 ## People
