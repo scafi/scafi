@@ -103,7 +103,7 @@ allprojects {
     apply(plugin = "com.adtran.scala-multiversion-plugin")
     apply(plugin = "com.palantir.git-version")
 
-    group = "it.unibo.apice.scafiteam"
+    group = "it.unibo.scafi"
 
     version = gitVersion()
 
