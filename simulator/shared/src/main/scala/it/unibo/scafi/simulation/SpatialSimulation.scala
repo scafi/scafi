@@ -17,7 +17,7 @@ import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
 trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
   self: SimulationPlatform.PlatformDependency with BasicSpatialAbstraction =>
 
-  class DevInfo(val id: ID, var pos: P, var lsns: Map[LSNS,Any] = Map.empty, var nsns: (NSNS)=>(ID)=>Any){
+  class DevInfo(val id: ID, var pos: P, var lsns: Map[CNAME,Any] = Map.empty, var nsns: (CNAME)=>(ID)=>Any){
     override def toString: String = s"Device[id: $id, pos: $pos]"
   }
 
@@ -54,7 +54,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       * @param sensor the sensor name
       * @param value the new value of sensor
       */
-    case class NodeChangeSensor(id : ID, sensor : LSNS, value : Any) extends MetaAction
+    case class NodeChangeSensor(id : ID, sensor : CNAME, value : Any) extends MetaAction
 
     /**
       * meta action used to move a set of node
@@ -68,7 +68,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       * @param sensor the sensor changed
       * @param value the new sensor value
       */
-    case class MultiNodeChangeSensor(ids : Set[ID], sensor : LSNS, value : Any) extends MetaAction
+    case class MultiNodeChangeSensor(ids : Set[ID], sensor : CNAME, value : Any) extends MetaAction
 
     private def computeAction(meta : MetaAction) : Unit = meta match {
       case NodeMovement(id,point) => this.setPosition(id,point)
@@ -102,13 +102,13 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     def getAllNeighbours(): Map[ID, Iterable[ID]] =
       ids.iterator.map(id => id -> space.getNeighbors(id)).toMap
 
-    override def localSensor[A](name: LSNS)(id: ID): A = devs(id).lsns(name).asInstanceOf[A]
-    override def addSensor[A](name: LSNS, value: A): Unit = {
+    override def localSensor[A](name: CNAME)(id: ID): A = devs(id).lsns(name).asInstanceOf[A]
+    override def addSensor[A](name: CNAME, value: A): Unit = {
       sensors += name -> value
       chgSensorValue(name, devs.keySet, value)
     }
 
-    override def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A): Unit = {
+    override def chgSensorValue[A](name: CNAME, ids: Set[ID], value: A): Unit = {
       ids.foreach(x => {
         devs(x).lsns += name -> value
         this.notify(SensorChangedEvent(x,name))
@@ -119,17 +119,17 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
 
       import NetworkSimulator.Optionable
 
-      override def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =  devs.get(id).flatMap{x => x.lsns.get(lsns)}.map{_.asInstanceOf[T]}
+      override def localSensorRetrieve[T](lsns: CNAME, id: ID): Option[T] =  devs.get(id).flatMap{ x => x.lsns.get(lsns)}.map{_.asInstanceOf[T]}
 
-      override def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
+      override def nbrSensorRetrieve[T](nsns: CNAME, id: ID, nbr: ID): Option[T] =
         devs.get(id).map(_.nsns(nsns)(nbr)).map(_.asInstanceOf[T])
 
-      override def sense[T](lsns: LSNS): Option[T] = lsns match {
+      override def sense[T](lsns: CNAME): Option[T] = lsns match {
         case LSNS_POSITION => space.getLocation(id).some[T]
         case _ => super.sense(lsns)
       }
 
-      override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
+      override def nbrSense[T](nsns: CNAME)(nbr: ID): Option[T] = nsns match {
         case NBR_RANGE =>
           space.getDistance(space.getLocation(selfId), space.getLocation(nbr)).some[T]
         case NBR_VECTOR => {
@@ -167,13 +167,13 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
   override def simulatorFactory: SimulatorFactory = new BasicSimulatorFactory {
     override def gridLike(gsettings: GridSettings,
                           rng: Double,
-                          lsnsMap: MMap[LSNS,MMap[ID,Any]] = MMap(),
-                          nsnsMap: MMap[NSNS,MMap[ID,MMap[ID,Any]]] = MMap(),
+                          lsnsMap: MMap[CNAME,MMap[ID,Any]] = MMap(),
+                          nsnsMap: MMap[CNAME,MMap[ID,MMap[ID,Any]]] = MMap(),
                           seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
       val positions = SpaceHelper.gridLocations(gsettings, seeds.configSeed)
       val ids = for(i <- 1 to gsettings.nrows * gsettings.ncols) yield i
-      var lsnsById = Map[ID, Map[LSNS,Any]]()
-      var nsnsById = Map[ID, Map[NSNS,Any]]()
+      var lsnsById = Map[ID, Map[CNAME,Any]]()
+      var nsnsById = Map[ID, Map[CNAME,Any]]()
       for(lsn <- lsnsMap.keys; (dev,v) <- lsnsMap(lsn)) {
         lsnsById += dev -> (lsnsById.getOrElse(dev, Map()) + (lsn -> v))
       }
@@ -191,12 +191,12 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     // TODO: basicSimulator shouldn't use randomness!!! fix it!!!
     override def basicSimulator(idArray: MArray[ID] = MArray(),
                                 nbrMap: MMap[ID, Set[ID]] = MMap(),
-                                lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                                nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
+                                lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap(),
+                                nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
       val positions = SpaceHelper.randomLocations(SimpleRandomSettings(), idArray.length)
 
-      var lsnsById = Map[ID, Map[LSNS,Any]]()
-      var nsnsById = Map[ID, Map[NSNS,Any]]()
+      var lsnsById = Map[ID, Map[CNAME,Any]]()
+      var nsnsById = Map[ID, Map[CNAME,Any]]()
       for(lsn <- lsnsMap.keys; (dev,v) <- lsnsMap(lsn)) {
         lsnsById += dev -> (lsnsById.getOrElse(dev, Map()) + (lsn -> v))
       }

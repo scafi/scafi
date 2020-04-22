@@ -139,9 +139,9 @@ trait Semantics extends Core with Language {
         proc(key)
       }
 
-    def sense[A](name: LSNS): A = vm.localSense(name)
+    def sense[A](name: CNAME): A = vm.localSense(name)
 
-    def nbrvar[A](name: NSNS): A = vm.neighbourSense(name)
+    def nbrvar[A](name: CNAME): A = vm.neighbourSense(name)
   }
 
   trait RoundVM {
@@ -163,9 +163,9 @@ trait Semantics extends Core with Language {
 
     def foldedEval[A](expr: => A)(id: ID): Option[A]
 
-    def localSense[A](name: LSNS): A
+    def localSense[A](name: CNAME): A
 
-    def neighbourSense[A](name: NSNS): A
+    def neighbourSense[A](name: CNAME): A
 
     def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A
 
@@ -224,11 +224,11 @@ trait Semantics extends Core with Language {
         }
       }
 
-    override def localSense[A](name: LSNS): A = context
+    override def localSense[A](name: CNAME): A = context
       .sense[A](name)
       .getOrElse(throw new SensorUnknownException(self, name))
 
-    override def neighbourSense[A](name: NSNS): A = {
+    override def neighbourSense[A](name: CNAME): A = {
       ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
       context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
     }
@@ -346,11 +346,11 @@ trait Semantics extends Core with Language {
     override def toString: String = s"OutOfDomainException: $selfId , $nbr, $path"
   }
 
-  case class SensorUnknownException(selfId: ID, name: LSNS) extends Exception() {
+  case class SensorUnknownException(selfId: ID, name: CNAME) extends Exception() {
     override def toString: String = s"SensorUnknownException: $selfId , $name"
   }
 
-  case class NbrSensorUnknownException(selfId: ID, name: NSNS, nbr: ID) extends Exception() {
+  case class NbrSensorUnknownException(selfId: ID, name: CNAME, nbr: ID) extends Exception() {
     override def toString: String = s"NbrSensorUnknownException: $selfId , $name, $nbr"
   }
 

@@ -18,7 +18,7 @@ import scala.concurrent.duration.FiniteDuration
 trait Platform {
   self: Platform.PlatformDependency =>
 
-  val LSNS_RANDOM: LSNS
+  val LSNS_RANDOM: CNAME
 }
 
 object Platform {
@@ -39,11 +39,11 @@ trait TimeAwarePlatform extends Platform {
     def nbrLag(): FiniteDuration
   }
 
-  val LSNS_TIME: LSNS
-  val LSNS_TIMESTAMP: LSNS
-  val LSNS_DELTA_TIME: LSNS
-  val NBR_LAG: NSNS
-  val NBR_DELAY: NSNS
+  val LSNS_TIME: CNAME
+  val LSNS_TIMESTAMP: CNAME
+  val LSNS_DELTA_TIME: CNAME
+  val NBR_LAG: CNAME
+  val NBR_DELAY: CNAME
 }
 
 trait SpaceAwarePlatform extends Platform {
@@ -56,9 +56,9 @@ trait SpaceAwarePlatform extends Platform {
     def nbrVector(): P
   }
 
-  val LSNS_POSITION: LSNS
-  val NBR_VECTOR: NSNS
-  val NBR_RANGE: NSNS
+  val LSNS_POSITION: CNAME
+  val NBR_VECTOR: CNAME
+  val NBR_RANGE: CNAME
 }
 
 trait SpaceTimeAwarePlatform extends SpaceAwarePlatform with TimeAwarePlatform {
@@ -81,8 +81,8 @@ trait SimulationPlatform extends SpaceTimeAwarePlatform {
   trait Network {
     def ids: Set[ID]
     def neighbourhood(id: ID): Set[ID]
-    def localSensor[A](name: LSNS)(id: ID): A
-    def nbrSensor[A](name: NSNS)(id: ID)(idn: ID): A
+    def localSensor[A](name: CNAME)(id: ID): A
+    def nbrSensor[A](name: CNAME)(id: ID)(idn: ID): A
     def export(id: ID): Option[EXPORT]
     def exports(): Map[ID, Option[EXPORT]]
   }

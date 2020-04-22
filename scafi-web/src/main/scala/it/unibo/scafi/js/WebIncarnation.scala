@@ -6,8 +6,7 @@ import it.unibo.scafi.space.{BasicSpatialAbstraction, Point2D}
 import it.unibo.utils.{Interop, Linearizable}
 
 trait BasicWebIncarnation extends Incarnation with Simulation {
-  override type LSNS = String
-  override type NSNS = String
+  override type CNAME = String
   override type ID = String
   override type EXECUTION = AggregateInterpreter
 
@@ -29,13 +28,9 @@ trait BasicWebIncarnation extends Incarnation with Simulation {
     def toString(id: ID): String = id
     def fromString(str: String): ID = str
   }
-  @transient implicit override val interopLSNS: Interop[LSNS] = new Interop[LSNS] {
-    def toString(lsns: LSNS): String = lsns.toString
-    def fromString(str: String): LSNS = str
-  }
-  @transient implicit override val interopNSNS: Interop[NSNS] = new Interop[NSNS] {
-    def toString(nsns: NSNS): String = nsns.toString
-    def fromString(str: String): NSNS = str
+  @transient implicit override val interopCNAME: Interop[CNAME] = new Interop[CNAME] {
+    def toString(lsns: CNAME): String = lsns.toString
+    def fromString(str: String): CNAME = str
   }
 }
 

@@ -19,8 +19,7 @@ import it.unibo.utils.{Interop, Linearizable}
  */
 
 trait BasicAbstractIncarnation extends Incarnation {
-  override type LSNS = String
-  override type NSNS = String
+  override type CNAME = String
   override type ID = Int
   override type EXECUTION = AggregateInterpreter
 
@@ -42,13 +41,9 @@ trait BasicAbstractIncarnation extends Incarnation {
     def toString(id: ID): String = id.toString
     def fromString(str: String) = str.toInt
   }
-  @transient implicit override val interopLSNS: Interop[LSNS] = new Interop[LSNS] {
-    def toString(lsns: LSNS): String = lsns.toString
-    def fromString(str: String): LSNS = str
-  }
-  @transient implicit override val interopNSNS: Interop[NSNS] = new Interop[NSNS] {
-    def toString(nsns: NSNS): String = nsns.toString
-    def fromString(str: String): NSNS = str
+  @transient implicit override val interopCNAME: Interop[CNAME] = new Interop[CNAME] {
+    def toString(lsns: CNAME): String = lsns.toString
+    def fromString(str: String): CNAME = str
   }
 }
 
