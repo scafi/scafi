@@ -184,7 +184,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       val devs: Map[ID,DevInfo] = ((ids map lId.fromNum) zip positions).map {
         case (id, pos) => (id, new DevInfo(id, pos.asInstanceOf[P], lsnsById.getOrElse(id, Map()), sns => nbr => nsnsById.getOrElse(id, Map())(sns)))
       }.toMap
-      val space = new Basic3DSpace(devs mapValues(v => v.pos), rng)
+      val space = new Basic3DSpace(devs.mapValues(v => v.pos).toMap, rng)
       new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.gridRepr(gsettings.nrows), seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
