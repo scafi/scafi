@@ -124,7 +124,7 @@ object Index {
     val nodes = ArrayBuffer((0 to 100):_*)
     net = BasicSimulationIncarnation.simulatorFactory.simulator(
       idArray = nodes,
-      nbrMap = mutable.Map(nodes.map(id => id->(id-3 to id+3+1).toSet.filter(x => x>=0 && x<100)):_*),
+      nbrMap = mutable.Map(nodes.map((id: Int) => id->(id-3 to id+3+1).filter(x => x>=0 && x<100).toSet).toSeq:_*),
       nbrSensors = {
         case NBR_RANGE => { case (id,idn) => 1 }
       },

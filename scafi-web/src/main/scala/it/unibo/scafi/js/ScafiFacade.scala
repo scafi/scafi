@@ -23,11 +23,11 @@ object ScafiFacade {
 
   @JSExport
   def export(paths: js.Array[(Path,Any)]): EXPORT =
-    factory.`export`(paths:_*)
+    factory.`export`(paths.toArray:_*)
 
   @JSExport
   def path(slots: js.Array[Slot]): Path =
-    factory.path(slots:_*)
+    factory.path(slots.toArray:_*)
 
   @JSExport def slotNbr(index: Int) = Nbr[Any](index)
   @JSExport def slotRep(index: Int) = Rep[Any](index)
