@@ -59,7 +59,7 @@ As another example, consider the following steps.
 
 **Step 1:** Import or define an **incarnation** (a family of types),
 from which you can import types like `AggregateProgram`
-```
+```scala
 package experiments
 
 // Method #1: Use an incarnation which is already defined
@@ -72,7 +72,7 @@ import MyIncarnation._
 
 **Step 2:** Define an `AggregateProgram` which expresses the global behaviour of an ensemble.
 
-```
+```scala
 // An "aggregate program" can be seen as a function from a Context to an Export
 // The Context is the input for a local computation: includes state 
 //  from previous computations, sensor data, and exports from neighbours.
@@ -108,7 +108,7 @@ object MyAggregateProgram extends AggregateProgram {
 
 **Step 3:** Use the ScaFi internal simulator to run the program on a predefined network of devices.
 
-```
+```scala
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
 
 object SimulationRunner extends Launcher {
