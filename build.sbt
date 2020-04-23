@@ -1,3 +1,4 @@
+import sbt.Keys.target
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -43,7 +44,7 @@ lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion
  * - Through sbt-dynver (via sbt-release-early), project version is dynamically set based on commit
  */
 inThisBuild(List(
-  sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
+  sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
@@ -89,63 +90,77 @@ lazy val commonSettings = Seq(
 
 lazy val noPublishSettings = Seq(
     publishArtifact := false,
-    publish := (),
-    publishLocal := ()
+    publish := { },
+    publishLocal := { }
   )
 
-lazy val scafi = project.in(file(".")).
-  enablePlugins(ScalaUnidocPlugin).
-  aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
-   `simulator-gui-new`, `demos-new`, `demos-distributed`).
-  settings(commonSettings:_*).
-  settings(noPublishSettings:_*).
-  settings(
+lazy val scafi = project.in(file("."))
+  .enablePlugins(ScalaUnidocPlugin)
+  .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
+   `simulator-gui-new`, `demos-new`, `demos-distributed`)
+  .settings(commonSettings:_*)
+  .settings(noPublishSettings:_*)
+  .settings(
     // Prevents aggregated project (root) to be published
     packagedArtifacts := Map.empty,
     crossScalaVersions := Nil, // NB: Nil to prevent double publishing!
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos,`demos-new`,`demos-distributed`)
   )
 
-lazy val commons = project.
-  settings(commonSettings: _*).
-  settings(name := "scafi-commons")
+lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "scafi-commons"
+  )
+  .jsSettings(
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
+  )
 
-lazy val core = project.
-  dependsOn(commons).
-  settings(commonSettings: _*).
-  settings(
+lazy val commons = commonsCross.jvm
+
+lazy val coreCross = crossProject(JSPlatform, JVMPlatform).in(file("core"))
+  .dependsOn(commonsCross)
+  .settings(commonSettings: _*)
+  .settings(
     name := "scafi-core",
     libraryDependencies += scalatest
   )
 
-lazy val `stdlib-ext` = project.
-  dependsOn(core).
-  settings(commonSettings: _*).
-  settings(
+lazy val core = coreCross.jvm
+
+lazy val `stdlib-ext` = project
+  .dependsOn(core)
+  .settings(commonSettings: _*)
+  .settings(
     name := "scafi-lib-ext",
     libraryDependencies ++= Seq(scalatest, shapeless)
   )
 
-lazy val simulator = project.
-  dependsOn(core).
-  settings(commonSettings: _*).
-  settings(
-    name := "scafi-simulator"
+lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform).in(file("simulator"))
+  .dependsOn(coreCross)
+  .settings(commonSettings: _*)
+  .settings(
+    name := "scafi-simulator",
+  )
+  .jsSettings(
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
 
-lazy val `simulator-gui` = project.
-  dependsOn(core,simulator,`renderer-3d`).
-  settings(commonSettings: _*).
-  settings(
+lazy val simulator = simulatorCross.jvm
+
+lazy val `simulator-gui` = project
+  .dependsOn(core, simulator, `renderer-3d`)
+  .settings(commonSettings: _*)
+  .settings(
     name := "scafi-simulator-gui",
     libraryDependencies ++= Seq(scopt),
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
-lazy val `renderer-3d` = project.
-  dependsOn().
-  settings(commonSettings: _*).
-  settings(
+lazy val `renderer-3d` = project
+  .dependsOn()
+  .settings(commonSettings: _*)
+  .settings(
     name := "scafi-3d-renderer",
     libraryDependencies ++= Seq(
       scalaBinaryVersion.value match {
@@ -155,10 +170,10 @@ lazy val `renderer-3d` = project.
       scalaLogging) ++ javaFX
   )
 
-lazy val spala = project.
-  dependsOn(commons).
-  settings(commonSettings: _*).
-  settings(
+lazy val spala = project
+  .dependsOn(commons)
+  .settings(commonSettings: _*)
+  .settings(
     name := "spala",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies ++= Seq(akkaActor, akkaRemote, bcel, scopt,
@@ -170,48 +185,47 @@ lazy val spala = project.
       , slf4jlog4, log4)
   )
 
-lazy val distributed = project.
-  dependsOn(core, spala).
-  settings(commonSettings: _*).
-  settings(
+lazy val distributed = project
+  .dependsOn(core, spala)
+  .settings(commonSettings: _*)
+  .settings(
     name := "scafi-distributed",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies += scalatest
   )
 
-
-lazy val tests = project.
-  dependsOn(core, simulator).
-  settings(commonSettings: _*).
-  settings(noPublishSettings: _*).
-  settings(
+lazy val tests = project
+  .dependsOn(core, simulator)
+  .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
+  .settings(
     name := "scafi-tests",
     libraryDependencies += scalatest
   )
 
-lazy val demos = project.
-  dependsOn(core, `stdlib-ext`, simulator, `simulator-gui`).
-  settings(commonSettings: _*).
-  settings(noPublishSettings: _*).
-  settings(
+lazy val demos = project
+  .dependsOn(core, `stdlib-ext`, simulator, `simulator-gui`)
+  .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
+  .settings(
     name := "scafi-demos",
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
-lazy val `demos-distributed` = project.
-  dependsOn(core, `stdlib-ext`, distributed).
-  settings(commonSettings: _*).
-  settings(noPublishSettings: _*).
-  settings(
+lazy val `demos-distributed` = project
+  .dependsOn(core, `stdlib-ext`, distributed)
+  .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
+  .settings(
     name := "scafi-demos-distributed",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
-lazy val `simulator-gui-new` = project.
-  dependsOn(core,simulator,distributed).
-  settings(commonSettings: _*).
-  settings(
+lazy val `simulator-gui-new` = project
+  .dependsOn(core,simulator,distributed)
+  .settings(commonSettings: _*)
+  .settings(
     name := "simulator-gui-new",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     libraryDependencies ++= Seq(scopt,scalatest,
@@ -220,15 +234,36 @@ lazy val `simulator-gui-new` = project.
         case _ => "org.scalafx" %% "scalafx" % "8.0.144-R12"
       }
     ) ++ javaFX,
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
 
-lazy val `demos-new` = project.
-  dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui-new`).
-  settings(commonSettings: _*).
-  settings(noPublishSettings: _*).
-  settings(
+lazy val `demos-new` = project
+  .dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui-new`)
+  .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
+  .settings(
     name := "scafi-demos-new",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
-    compileScalastyle := ()
+    compileScalastyle := { }
   )
+
+lazy val `scafi-web` = project
+    .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
+    .dependsOn(commonsCross.js, coreCross.js, simulatorCross.js)
+    .settings(
+      name := "scafi-web" ,
+      //mainClass in Compile := Some("it.unibo.scafi.js.Index"),
+      //scalaJSMainModuleInitializer in Compile := Some(org.scalajs.linker.interface.ModuleInitializer.mainMethod("it.unibo.scafi.js.Index","main")),
+      scalaJSUseMainModuleInitializer := true,
+      libraryDependencies ++= Seq(
+        "org.scala-js" %%% "scalajs-dom" % "1.0.0",
+        // "org.singlespaced" %%% "scalajs-d3" % "0.3.4" // only ScalaJs 0.6
+      ),
+      webpackBundlingMode := BundlingMode.LibraryAndApplication(), // https://scalacenter.github.io/scalajs-bundler/cookbook.html#several-entry-points
+      npmDependencies in Compile ++= Seq(
+        "sigma" -> "2.0.0-alpha32",
+        "jsnetworkx" -> "0.3.4",
+        //"fsevents" -> "1.2.12",
+        "d3" -> "3.5.5" // jsnetworkx leverages d3 v3 (i.e., do not upgrade to v4 or v5)
+      )
+    )

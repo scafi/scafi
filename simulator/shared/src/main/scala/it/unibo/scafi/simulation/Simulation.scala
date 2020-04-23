@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.simulation
 
-import java.time.LocalDateTime
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
@@ -68,6 +68,12 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                        nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK
 
+    def simulator(idArray: MArray[ID] = MArray(),
+                  nbrMap: MMap[ID, Set[ID]] = MMap(),
+                  localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
+                  nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty
+                 ): NETWORK
+
     def gridLike(gsettings: GridSettings,
                  rng: Double,
                  lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
@@ -84,7 +90,14 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                         lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
                         nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
                         ): NETWORK =
-      new NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.defaultRepr, SIM_SEED, RANDOM_SENSOR_SEED)
+      NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.defaultRepr(_), SIM_SEED, RANDOM_SENSOR_SEED)
+
+    def simulator(idArray: MArray[ID] = MArray(),
+                  nbrMap: MMap[ID, Set[ID]] = MMap(),
+                  localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
+                  nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty
+                 ): NETWORK =
+      new NetworkSimulator(SIM_SEED, RANDOM_SENSOR_SEED, idArray, localSensors, nbrSensors, nbrMap, NetworkSimulator.defaultRepr(_))
 
     def gridLike(gsettings: GridSettings,
                  rng: Double,
@@ -117,8 +130,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       ): _*)
       nsnsMap += (NBR_RANGE -> MMap(idArray.toList.map(i => i -> nbsExportsInGridFor(i)): _*))
 
-      new NetworkSimulator(
-        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.gridRepr(rows),
+      NetworkSimulator(
+        idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.gridRepr(rows)(_),
         seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
@@ -148,40 +161,23 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     */
   }
 
-  object NetworkSimulator extends Serializable {
-    implicit class Optionable[T](obj: T) {
-      def some[U]: Option[U] = Option[U](obj.asInstanceOf[U])
-    }
-
-    def defaultRepr(net: NetworkSimulator): String = {
-      net.idArray.map {
-        i => net.export(i).map { e => e.root().toString }.getOrElse("_")
-      }.mkString("", "\t", "")
-    }
-
-    def gridRepr(numCols: Int)(net: NetworkSimulator): String = {
-      net.idArray.map {
-        i => net.export(i).map { e => e.root().toString }.getOrElse("_")
-      }.zipWithIndex
-       .map(z => (if (z._2 % numCols == 0) "\n" else "") + z._1)
-       .mkString("", "\t", "")
-    }
-  }
-
-  class NetworkSimulator(val idArray: MArray[ID] = MArray(),
+  class NetworkSimulator(val simulationSeed: Long = 0L,
+                         val randomSensorSeed: Long = 0L,
+                         val idArray: MArray[ID] = MArray(),
+                         val localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
+                         val nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty,
                          val nbrMap: MMap[ID, Set[ID]] = MMap(),
-                         val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                         val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
-                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
-                         val simulationSeed: Long,
-                         val randomSensorSeed: Long
+                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr
                          ) extends Network with SimulatorOps with SimpleSource {
     self: NETWORK =>
     override type O = SimulationObserver[ID,LSNS]
     protected val eMap: MMap[ID,EXPORT] = MMap()
-    protected var lastRound: Map[ID,LocalDateTime] = Map()
+    protected var lastRound: Map[ID,Instant] = Map()
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
+
+    val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap()
+    val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
 
     // *****************
     // Network interface
@@ -190,9 +186,11 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     val ids = idArray.toSet
     def neighbourhood(id: ID): Set[ID] = nbrMap.getOrElse(id, Set())
 
-    def localSensor[A](name: LSNS)(id: ID): A = lsnsMap(name)(id).asInstanceOf[A]
+    def localSensor[A](name: LSNS)(id: ID): A =
+      lsnsMap.get(name).flatMap(_.get(id)).getOrElse(localSensors(name)(id).asInstanceOf[A]).asInstanceOf[A]
 
-    def nbrSensor[A](name: NSNS)(id: ID)(idn: ID): A = nsnsMap(name)(id)(idn).asInstanceOf[A]
+    def nbrSensor[A](name: NSNS)(id: ID)(idn: ID): A =
+      nsnsMap.get(name).flatMap(_.get(id)).flatMap(_.get(idn)).getOrElse(nbrSensors(name)(id, idn).asInstanceOf[A]).asInstanceOf[A]
 
     def export(id: ID): Option[EXPORT] = eMap.get(id)
 
@@ -213,7 +211,6 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A) = ids.foreach { id => lsnsMap(name) += id -> value }
 
-
     override def clearExports(): Unit = eMap.clear()
 
     private def getExports(id: ID): Iterable[(ID,EXPORT)] =
@@ -227,31 +224,31 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         nbrSensor = IMap()){
       import NetworkSimulator.Optionable
       def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
-        lsnsMap(lsns).get(id).map (_.asInstanceOf[T] )
+        lsnsMap.get(lsns).flatMap(_.get(id)).orElse(Some(localSensors(lsns)(id))).map (_.asInstanceOf[T] )
 
       def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
-        nsnsMap(nsns)(id).get(nbr).map(_.asInstanceOf[T])
+        nsnsMap.get(nsns).flatMap(_.get(id)).flatMap(_.get(nbr)).orElse(Some(nbrSensors(nsns)(id, nbr))).map(_.asInstanceOf[T])
 
       override def sense[T](lsns: LSNS): Option[T] = lsns match {
         case LSNS_RANDOM => randomSensor.some[T]
-        case LSNS_TIME => LocalDateTime.now().some[T]
+        case LSNS_TIME => Instant.now().some[T]
         case LSNS_TIMESTAMP => System.currentTimeMillis().some[T]
         case LSNS_DELTA_TIME => FiniteDuration(
-          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalDateTime.now())).getOrElse(0L),
+          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, Instant.now())).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]
         case _ => this.localSensorRetrieve(lsns, id)
       }
 
       override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
         case NBR_LAG => lastRound.get(nbr).map(nbrLast =>
-          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, LocalDateTime.now()), TimeUnit.NANOSECONDS)
+          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, Instant.now()), TimeUnit.NANOSECONDS)
         ).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case NBR_DELAY => lastRound.get(nbr).map(nbrLast =>
           FiniteDuration(
             ChronoUnit.NANOS.between(
               nbrLast.plusNanos(
-                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, LocalDateTime.now())).getOrElse(0L)),
-              LocalDateTime.now()),
+                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, Instant.now())).getOrElse(0L)),
+              Instant.now()),
           TimeUnit.NANOSECONDS
         )).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case _ => nbrSensorRetrieve(nsns, id, nbr)
@@ -263,7 +260,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     def exec(node: EXECUTION, exp: => Any, id: ID): Unit = {
       val c = context(id)
       eMap += (id -> node.round(c, exp))
-      lastRound += id -> LocalDateTime.now()
+      lastRound += id -> Instant.now()
     }
 
     /**
@@ -300,5 +297,46 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     }
 
     override def toString: String = toStr(this)
+  }
+  object NetworkSimulator extends Serializable {
+    def apply(_idArray: MArray[ID] = MArray(),
+              _nbrsMap: MMap[ID, Set[ID]] = MMap(),
+              _lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
+              _nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
+              _toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
+              _simulationSeed: Long,
+              _randomSensorSeed: Long
+             ): NETWORK = {
+      new NetworkSimulator (
+        _simulationSeed,
+        _randomSensorSeed,
+        _idArray,
+        Map.empty : PartialFunction[LSNS,PartialFunction[ID,Any]],
+        Map.empty : PartialFunction[NSNS,PartialFunction[(ID,ID),Any]],
+        _nbrsMap,
+        _toStr
+      ) {
+        this.lsnsMap ++= _lsnsMap
+        this.nsnsMap ++= _nsnsMap
+      }
+    }
+
+    implicit class Optionable[T](obj: T) {
+      def some[U]: Option[U] = Option[U](obj.asInstanceOf[U])
+    }
+
+    def defaultRepr(net: NetworkSimulator): String = {
+      net.idArray.map {
+        i => net.export(i).map { e => e.root().toString }.getOrElse("_")
+      }.mkString("", "\t", "")
+    }
+
+    def gridRepr(numCols: Int)(net: NetworkSimulator): String = {
+      net.idArray.map {
+        i => net.export(i).map { e => e.root().toString }.getOrElse("_")
+      }.zipWithIndex
+        .map(z => (if (z._2 % numCols == 0) "\n" else "") + z._1)
+        .mkString("", "\t", "")
+    }
   }
 }

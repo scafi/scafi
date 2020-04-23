@@ -5,7 +5,7 @@
 
 package frontend.sims.standard
 
-import java.time.LocalDateTime
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 import frontend.sims.SensorDefinitions
@@ -94,8 +94,8 @@ class ShortestPathProgram extends AggregateProgram with Gradients with SensorDef
 @Demo
 class CheckSpeed extends AggregateProgram
     with Gradients with BlockG with SensorDefinitions with GenericUtils with StateManagement {
-  implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
-    override def default: LocalDateTime = LocalDateTime.now()
+  implicit val deftime = new Builtins.Defaultable[Instant] {
+    override def default: Instant = Instant.now()
   }
 
   override def main(): Any =  {
@@ -103,7 +103,7 @@ class CheckSpeed extends AggregateProgram
     val frequency = 1000000
 
     val meanTimeToReach = meanCounter(
-      ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
+      ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: Instant)=>x, nbrRange()), currentTime()),
       frequency).toLong
     val distance = G[Double](sense1, 0, _ + nbrRange(), () => nbrRange())
     val speed = distance / meanTimeToReach

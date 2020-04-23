@@ -5,12 +5,12 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.lib.LibExtTypeClasses
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
@@ -90,8 +90,8 @@ class ShortestPathProgram extends AggregateProgram with GradientAlgorithms with 
 
 class CheckSpeed extends AggregateProgram
     with GradientAlgorithms with BlockG with SensorDefinitions with GenericUtils with StateManagement {
-  implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
-    override def default: LocalDateTime = LocalDateTime.now()
+  implicit val deftime = new Builtins.Defaultable[Instant] {
+    override def default: Instant = Instant.now()
   }
 
   override def main(): Any =  {
@@ -99,7 +99,7 @@ class CheckSpeed extends AggregateProgram
     val frequency = 1000000
 
     val meanTimeToReach = meanCounter(
-      ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
+      ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: Instant)=>x, nbrRange()), currentTime()),
       frequency).toLong
     val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange)
     val speed = distance / meanTimeToReach
@@ -172,7 +172,6 @@ trait GradientAlgorithms extends Gradients
   with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
 
   val typeclasses = new LibExtTypeClasses(it.unibo.scafi.incarnations.BasicSimulationIncarnation).BoundedTypeClasses
-  import typeclasses._
 
   def ShortestPath(source: Boolean, gradient: Double): Boolean =
     rep(false)(

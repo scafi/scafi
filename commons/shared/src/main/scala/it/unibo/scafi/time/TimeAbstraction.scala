@@ -10,5 +10,5 @@ trait TimeAbstraction {
 }
 
 trait BasicTimeAbstraction extends TimeAbstraction {
-  type Time = java.time.LocalDateTime
+  type Time = java.time.Instant
 }
