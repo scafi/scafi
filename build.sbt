@@ -44,7 +44,7 @@ lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion
  * - Through sbt-dynver (via sbt-release-early), project version is dynamically set based on commit
  */
 inThisBuild(List(
-  sonatypeProfileName := "it.unibo.apice.scafiteam", // Your profile name of the sonatype account
+  sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file

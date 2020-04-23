@@ -186,7 +186,7 @@ subprojects {
         // TODO: disable this project
     }
 
-    if(!listOf("scafi-demos","scafi-demos-new","scafi-tests").contains(project.name)){
+    if(!listOf("scafi-demos","scafi-demos-new","scafi-tests","scafi-demos-distributed").contains(project.name)){
         extra["signing.keyId"] = "D5FA9509"
         //extra["signing.secretKeyRingFile"] = File("${project.rootProject.rootDir}/.travis/local.secring.asc")
         //extra["signing.password"] = System.getenv("PGP_PASS")
