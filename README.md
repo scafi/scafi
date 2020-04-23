@@ -63,6 +63,7 @@ from which you can import types like `AggregateProgram`
 package experiments
 
 // Method #1: Use an incarnation which is already defined
+// (Note: BasicSimulationIncarnation is defined in module 'scafi-simulator')
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
 
 // Method #2: Define a custom incarnation and import stuff from it
@@ -106,7 +107,9 @@ object MyAggregateProgram extends AggregateProgram {
 }
 ```
 
-**Step 3:** Use the ScaFi internal simulator to run the program on a predefined network of devices.
+**Step 3:** Use ScaFi's internal simulator and GUI 
+(modules **`scafi-simulator`** and **`scafi-simulator-gui`**, respectively) 
+to run the program on a predefined network of devices.
 
 ```scala
 import it.unibo.scafi.simulation.gui.{Launcher, Settings}
