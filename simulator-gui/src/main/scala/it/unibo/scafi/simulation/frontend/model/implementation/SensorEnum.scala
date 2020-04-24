@@ -1,24 +1,16 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation.frontend.model.implementation
 
+import java.awt.Color
+
+import it.unibo.scafi.simulation.frontend.Settings
 import it.unibo.scafi.simulation.frontend.model.Sensor
+
+import scala.util.{Success, Try}
 
 object SensorEnum {
   val SOURCE = Sensor("Source", false)
@@ -30,5 +22,54 @@ object SensorEnum {
   val SENS3 = Sensor("sens3", false)
   val SENS4 = Sensor("sens4", false)
 
+  //scalastyle:off magic.number
+  private val SOURCE_COLOR = new Color(42, 58, 139)
+  private val DESTINATION_COLOR = new Color(139, 58, 42)
+  private val OBSTACLE_COLOR = new Color(58, 139, 42)
   var sensors = Set(SOURCE, DESTINATION, TEMPERATURE, OBSTACLE, SENS1, SENS2, SENS3, SENS4)
+
+  // scalastyle:off magic.number
+  /**
+   * Gets the sensor that corresponds to the provided integer.
+   * @param sensorIndex the integer value to use
+   * @return the sensor related to the integer value, None if it could not be found
+   * */
+  def fromInt(sensorIndex: Int): Option[Sensor] = sensorIndex match {
+    case 1 => Option(SensorEnum.SENS1)
+    case 2 => Option(SensorEnum.SENS2)
+    case 3 => Option(SensorEnum.SENS3)
+    case 4 => Option(SensorEnum.SENS4)
+    case _ => None
+  }
+
+  /**
+   * Gets the color that corresponds to the provided integer.
+   * @param sensorIndex the integer value to use
+   * @return the color related to the integer value, None if it could not be found
+   * */
+  def getColor(sensorIndex: Int): Option[Color] = sensorIndex match {
+    case 1 => Option(Settings.Color_device1)
+    case 2 => Option(Settings.Color_device2)
+    case 3 => Option(Settings.Color_device3)
+    case 4 => Option(Settings.Color_device4)
+    case _ => None
+  }
+
+  /**
+   * Gets the color that corresponds to the provided sensor.
+   * @param sensor the provided sensor
+   * @return the color related to the sensor, None if it could not be found
+   * */
+  def getColor(sensor: Sensor): Option[Color] = {
+    val sensorIndex = Try(sensor.name.replace("sens", "").toInt)
+    sensorIndex match {
+      case Success(index) => getColor(index)
+      case _ => sensor match {
+        case SOURCE => Option(SOURCE_COLOR)
+        case DESTINATION => Option(DESTINATION_COLOR)
+        case OBSTACLE => Option(OBSTACLE_COLOR)
+        case _ => None
+      }
+    }
+  }
 }

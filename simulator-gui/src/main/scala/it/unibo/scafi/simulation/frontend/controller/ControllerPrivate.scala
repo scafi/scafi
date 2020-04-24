@@ -1,19 +1,7 @@
+
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation.frontend.controller
@@ -28,8 +16,8 @@ import it.unibo.scafi.simulation.frontend.view.{GuiNode, NodeInfoPanel, SensorOp
 import scala.language.implicitConversions
 
 /**
-  * This class is a wrapper for all private Controller methods.
-  */
+ * This class is a wrapper for all private Controller methods.
+ */
 class ControllerPrivate (val gui: SimulatorUI) {
   final private val controller: Controller = Controller.getInstance
 
@@ -79,34 +67,34 @@ class ControllerPrivate (val gui: SimulatorUI) {
             g.setImageButton("node.png")
         }
         case ">" =>{
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) > Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) > Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case ">=" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) >= Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) >= Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case "<" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) < Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) < Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case "<=" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) <= Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) <= Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
         case "!=" => {
-        if (Integer.valueOf(n.getSensorValue(sensor).toString()) != Integer.valueOf(value))
-          g.setImageButton("sensorOk.png")
-        else
-          g.setImageButton("node.png")
+          if (Integer.valueOf(n.getSensorValue(sensor).toString()) != Integer.valueOf(value))
+            g.setImageButton("sensorOk.png")
+          else
+            g.setImageButton("node.png")
         }
       }
     })
@@ -126,62 +114,6 @@ class ControllerPrivate (val gui: SimulatorUI) {
         idNeighbour.append("]")
         infoPanel.addInfo("Neighbours", idNeighbour.toString())
       }
-    })
-  }
-
-  def enableMenu(enabled: Boolean) {
-    gui.getSimulationPanel.getPopUpMenu.getSubElements()(1).getComponent.setEnabled(enabled) //menu Observation
-    gui.getSimulationPanel.getPopUpMenu.getSubElements()(2).getComponent.setEnabled(enabled) //menu Action
-    gui.getJMenuBar.getMenu(1).setEnabled(enabled) //Simulation
-    gui.getJMenuBar.getMenu(1).getItem(0).getComponent.setEnabled(enabled)
-    gui.getJMenuBar.getMenu(1).getItem(1).getComponent.setEnabled(!enabled)
-    gui.getMenuBarNorth.getMenu(0).getSubElements()(0).getSubElements()(0).getComponent.setEnabled(!enabled) //new Simulation
-  }
-
-  def addObservation() {
-    //network.getObservableValue().forEach( s -> gui.getSimulationPanel().getPopUpMenu().addObservation(s, e->{}));
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Toggle Neighbours", (e:ActionEvent) => gui.getSimulationPanel.toggleNeighbours())
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Id", (e:ActionEvent) => controller.setShowValue(NodeValue.ID))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Export", (e:ActionEvent) => controller.setShowValue(NodeValue.EXPORT))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Position", (e:ActionEvent) => controller.setShowValue(NodeValue.POSITION))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Position in GUI", (e:ActionEvent) => controller.setShowValue(NodeValue.POSITION_IN_GUI))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Nothing", (e:ActionEvent) => controller.setShowValue(NodeValue.NONE))
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Sensor", (e:ActionEvent) => {
-      try {
-        var sensorName = JOptionPane.showInputDialog("Sensor to be shown (e.g.: " +
-          SensorEnum.sensors.map(_.name).mkString(", ") + ")")
-        controller.setShowValue(NodeValue.SENSOR(sensorName))
-      } catch { case _: Throwable => () }
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addObservation("Generic observation", (e:ActionEvent) => {
-      try {
-        var observationStringRepr = JOptionPane.showInputDialog("Statement on export (e.g.: >= 5)")
-        controller.setObservation(observationStringRepr)
-      } catch { case _: Throwable => () }
-    })
-  }
-
-  def addAction() {
-    /* for(Action a :ActionEnum.values()){
-               gui.getSimulationPanel().getPopUpMenu().addAction(a.getName(), e->{});
-           }*/
-
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Source", (e:ActionEvent) => {
-      setSensor(SensorEnum.SOURCE.name, true);
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Obstacle", (e:ActionEvent) => {
-      setSensor(SensorEnum.OBSTACLE.name, true)
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Not Source", (e:ActionEvent) => {
-      setSensor(SensorEnum.SOURCE.name, false)
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Not Obstacle", (e:ActionEvent) => {
-      setSensor(SensorEnum.OBSTACLE.name, false)
-    })
-    this.gui.getSimulationPanel.getPopUpMenu.addAction("Set Sensor", (e:ActionEvent) => {
-      val sensPane = new SensorOptionPane("Set Sensor")
-      sensPane.addOperator("=")
-      for (s <- SensorEnum.sensors)  sensPane.addSensor(s.name)
     })
   }
 

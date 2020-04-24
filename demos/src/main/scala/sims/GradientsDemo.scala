@@ -1,29 +1,16 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.lib.LibExtTypeClasses
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 import it.unibo.scafi.space.Point3D
 import sims.DoubleUtils.Precision
 
@@ -103,8 +90,8 @@ class ShortestPathProgram extends AggregateProgram with GradientAlgorithms with 
 
 class CheckSpeed extends AggregateProgram
     with GradientAlgorithms with BlockG with SensorDefinitions with GenericUtils with StateManagement {
-  implicit val deftime = new Builtins.Defaultable[LocalDateTime] {
-    override def default: LocalDateTime = LocalDateTime.now()
+  implicit val deftime = new Builtins.Defaultable[Instant] {
+    override def default: Instant = Instant.now()
   }
 
   override def main(): Any =  {
@@ -112,7 +99,7 @@ class CheckSpeed extends AggregateProgram
     val frequency = 1000000
 
     val meanTimeToReach = meanCounter(
-      ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: LocalDateTime)=>x, nbrRange()), currentTime()),
+      ChronoUnit.MILLIS.between(G_v2(sense1, currentTime(), (x: Instant)=>x, nbrRange()), currentTime()),
       frequency).toLong
     val distance = G[Double](sense1, 0, _ + nbrRange(), nbrRange)
     val speed = distance / meanTimeToReach
@@ -185,7 +172,6 @@ trait GradientAlgorithms extends Gradients
   with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
 
   val typeclasses = new LibExtTypeClasses(it.unibo.scafi.incarnations.BasicSimulationIncarnation).BoundedTypeClasses
-  import typeclasses._
 
   def ShortestPath(source: Boolean, gradient: Double): Boolean =
     rep(false)(

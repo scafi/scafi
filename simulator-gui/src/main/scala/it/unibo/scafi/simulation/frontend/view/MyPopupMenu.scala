@@ -1,40 +1,26 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation.frontend.view
 
 import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing._
 
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
+import javax.swing._
 
 /**
   * This class represent the SoimulationPanel pop menu
   * that contains all possible action and observation
   */
-class MyPopupMenu() extends JPopupMenu {
-  final private val controller: Controller = Controller.getInstance
+class MyPopupMenu(controller: GeneralController) extends JPopupMenu {
   final private val observations: JMenu = new JMenu("Observe")
   final private val actions: JMenu = new JMenu("Actions")
   val clear: JMenuItem = new JMenuItem("Clear")
 
-  clear.addActionListener((e:ActionEvent) => {
-    controller.clearSimulation()
+  clear.addActionListener(new ActionListener {
+    override def actionPerformed(actionEvent: ActionEvent): Unit = controller.clearSimulation()
   })
   add(clear)
   addSeparator()

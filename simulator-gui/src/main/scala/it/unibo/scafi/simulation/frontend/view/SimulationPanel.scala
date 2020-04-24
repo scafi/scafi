@@ -1,39 +1,27 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation.frontend.view
 
 import java.awt._
 import java.awt.event.MouseEvent
+
 import javax.swing._
 import javax.swing.border.LineBorder
-
 import it.unibo.scafi.simulation.frontend.Settings
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 
 /**
   * This is the most important panel in which the simulation will be executed.
   */
-class SimulationPanel() extends JDesktopPane {
+class SimulationPanel(controller: GeneralController) extends JDesktopPane {
   final private val neighborsPanel: NeighborsPanel = new NeighborsPanel
   final private val valuesPanel: ValuesPanel = new ValuesPanel
   private var bkgImage: Image = null
   final private val captureRect: Rectangle = new Rectangle
-  final private val popup: MyPopupMenu = new MyPopupMenu
+  final private val popup: MyPopupMenu = new MyPopupMenu(controller)
 
   this.setBackground(Settings.Color_background)
   setBorder(new LineBorder(Color.black))

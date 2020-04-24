@@ -1,25 +1,12 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.distrib.actor.server
 
 import akka.actor.{ActorRef, Props}
-import it.unibo.scafi.distrib.actor.server.{Platform => BasePlatform}
+import it.unibo.scafi.distrib.actor.server.{ServerPlatform => BasePlatform}
 import it.unibo.scafi.space.MetricSpatialAbstraction
 
 /**
@@ -43,10 +30,8 @@ trait SpatialPlatform extends BasePlatform {
 
   @transient override val settingsFactory = new SettingsFactorySpatial
 
-  class SpatialServerActor(val space: MutableMetricSpace[UID],
-                           val scheduler: Option[ActorRef])
-    extends AbstractServerActor
-    with ObservableServerActor {
+  class SpatialServerActor(val space: MutableMetricSpace[UID], override val scheduler: Option[ActorRef])
+    extends ServerActor(scheduler) {
 
     override def neighborhood(id: UID): Set[UID] = {
       if(space.contains(id)) space.getNeighbors(id).toSet else Set()

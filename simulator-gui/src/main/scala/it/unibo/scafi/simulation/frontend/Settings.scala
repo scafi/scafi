@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation.frontend
@@ -27,6 +14,8 @@ object Settings {
 
   var Sim_ExecStrategy = ExecStrategies.Random
 
+  var Sim_3D = false
+  var Sim_3D_Reduce_Sparsity = true
   var Sim_Topology = Topologies.Random
   var Sim_Sensors = "someSensor bool true\nanotherSensor int 77"
   var Sim_ProgramClass = ""
@@ -61,6 +50,7 @@ object Settings {
 
   var Led_Activator: Any=>Boolean = (_)=>false
   var Movement_Activator: Any=>(Double, Double) = (_)=>(0.0, 0.0)
+  var Movement_Activator_3D: Option[Any=>(Double, Double, Double)] = None //if None: uses 2d Movement_Activator for x and y
   var To_String: Any=>String = x => x.toString
 
 }

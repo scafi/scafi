@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation.frontend.view
@@ -22,17 +9,16 @@ import java.awt._
 import java.awt.event.ActionEvent
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.text.NumberFormat
-import javax.swing._
 
 import it.unibo.scafi.simulation.frontend.Settings
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.utility.Utils
+import javax.swing._
 
 /**
   * This class represent the panel where the user can configure a new simulation.
   */
-class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeListener {
-  final private val controller: Controller = Controller.getInstance
+class ConfigurationPanel(controller: GeneralController) extends JDialog(controller.getUI) with PropertyChangeListener {
   final private var err: JLabel = null
   final private var gbc: GridBagConstraints = null
 
@@ -62,6 +48,7 @@ class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeLi
   var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
 
   topologyField = new JComboBox[String](vtop.toArray)
+  topologyField.setSelectedItem(Settings.Sim_Topology)
   topologyField.addPropertyChangeListener(this)
 
   deltaRoundField = new JFormattedTextField(NumberFormat.getNumberInstance)
@@ -127,7 +114,7 @@ class ConfigurationPanel extends JDialog(Controller.getUI) with PropertyChangeLi
   submitButton.addActionListener((e: ActionEvent) => {
     try {
       Settings.Sim_NumNodes = nodeNumberField.getText.toInt
-      Settings.Sim_NbrRadius = neinghborsAreaField.getText.toDouble
+      Settings.Sim_NbrRadius = neinghborsAreaField.getText.replaceAll(",", ".").toDouble
       Settings.Sim_DeltaRound = deltaRoundField.getText.toInt
       Settings.Sim_ProgramClass = runProgram.getText()
       Settings.Sim_ExecStrategy = strategy.getText()

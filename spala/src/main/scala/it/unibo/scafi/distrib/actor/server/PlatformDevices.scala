@@ -1,39 +1,15 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.distrib.actor.server
 
-import akka.actor.{Actor, Props, ActorRef}
-import scala.concurrent.duration.DurationInt
+import akka.actor.{ActorRef, Props}
 
-trait PlatformDevices { self: Platform.Subcomponent =>
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
-  /**
-   * Neighbourhood management for devices in a server-based platform.
-   */
-  trait DeviceNbrManagementBehavior extends BaseDeviceActor with BaseNbrManagementBehavior { selfActor: Actor =>
-    override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse {
-      // Neighborhood management
-      case MsgNeighborhood(this.selfId, nbs) => updateNeighborhood(nbs, clear = true)
-      case MsgExports(exports) => updateNeighborsState(exports.mapValues(Some(_)), clear = true)
-      case MsgNeighborhoodExports(this.selfId, exps) => updateNeighborsState(exps, clear = true)
-    }
-  }
+trait PlatformDevices extends PlatformBehaviors { self: ServerPlatform.Subcomponent =>
 
   /**
    * Specializes a [[ComputationDeviceActor]] to work with a central
@@ -48,27 +24,24 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   class DeviceActor(override val selfId: UID,
                     override var aggregateExecutor: Option[ProgramContract],
                     override var execScope: ExecScope,
-                    val server: ActorRef)
-    extends DynamicComputationDeviceActor
+                    override val server: ActorRef)
+    extends ServerBaseDeviceActor
     with MissingCodeManagementBehavior
-    with ObservableDeviceActor
-    with QueryableDeviceActorBehavior
-    with DeviceNbrManagementBehavior {
-    val NEIGHBORHOOD_LOOKUP_INTERVAL = 2.seconds
-
-    override def afterJob(): Unit = {
-      super.afterJob()
-      lastExport.foreach(server ! MsgExport(selfId, _))
-    }
+    with ObservableDeviceActor {
 
     override def preStart(): Unit = {
       super.preStart()
       import context.dispatcher
+      val NEIGHBORHOOD_LOOKUP_INTERVAL: FiniteDuration = 2.seconds
       context.system.scheduler.schedule(NEIGHBORHOOD_LOOKUP_INTERVAL,
         NEIGHBORHOOD_LOOKUP_INTERVAL,
         server,
         MsgGetNeighborhoodExports(selfId))
-      server ! MsgRegistration(selfId)
+    }
+
+    override def afterJob(): Unit = {
+      super.afterJob()
+      lastExport.foreach(server ! MsgExport(selfId, _))
     }
 
     override def updateSensorValues(): Unit = {
@@ -83,11 +56,8 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     def notifySensorValueToServer(name: LSensorName, value: Any): Unit = {
       server ! MsgSensorValue(selfId, name, value)
-      logger.debug(s"\nSENSOR ${name} => ${value}")
+      logger.debug(s"\nSENSOR $name => $value")
     }
-
-    override def propagateExportToNeighbors(export: ComputationExport): Unit =
-      server ! MsgExport(selfId, export)
   }
 
   object DeviceActor extends Serializable {

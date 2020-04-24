@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.distrib.actor.server
@@ -26,7 +13,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
 
-trait PlatformAPIFacade { self: Platform.Subcomponent =>
+trait PlatformAPIFacade { self: ServerPlatform.Subcomponent =>
 
   /**************************/
   /******** SETTINGS ********/
@@ -38,7 +25,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                                             startServer: Boolean = false,
                                             deviceGui: Boolean = false,
                                             serverGui: Boolean = false,
-                                            devActorProps: UID => Option[Props] = _ => None,
+                                            devActorProps: (UID, Option[ProgramContract], ExecScope, ActorRef) => Option[Props] = (_,_,_,_) => None,
                                             serverActorProps: Option[ActorRef]=>Props = ServerActor.props(_),
                                             devGuiActorProps: ActorRef => Option[Props] = _ => None,
                                             serverGuiActorProps: ActorRef => Option[Props] = _ => None)
@@ -59,6 +46,8 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   /****************************/
 
   trait ServerMain extends App with Serializable {
+    def mainProgram(args: Array[String]): Unit
+
     def setupServer(settings: Settings): Unit = {
       var s = refineSettings(settings)
       s = s.copy(profile = s.profile.copy(startServer = true))
@@ -79,7 +68,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
   }
 
   class ServerCmdLineMain extends ServerMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       cmdLineParser.parse(args, Settings()) foreach (s => setupServer(s))
     }
   }
@@ -88,7 +77,7 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
                         val aggregate: AggregateApplicationSettings,
                         val gui: Boolean = true)
     extends ServerMain {
-    override def main(args: Array[String]): Unit = {
+    override def mainProgram(args: Array[String]): Unit = {
       var s = Settings()
       s = s.copy(profile = s.profile.copy(
         startServer = true,
@@ -117,9 +106,9 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
     override def deviceGuiProps(dev: ActorRef): Props = profSettings.devGuiActorProps(dev).get
 
-    override def deviceProps(id: UID, program: Option[ProgramContract]): Props = {
-      DeviceActor.props(id, program, execScope, server)
-    }
+    override def deviceProps(id: UID, program: Option[ProgramContract]): Props =
+      profSettings.devActorProps(id, program, execScope, server)
+        .getOrElse(DeviceActor.props(id, program, execScope, server))
 
     override def addNeighbor(id: UID, idn: UID): Unit = {
       server ! MsgNeighbor(id, idn)

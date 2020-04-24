@@ -1,47 +1,33 @@
 /*
- * Copyright (C) 2016-2017, Roberto Casadei, Mirko Viroli, and contributors.
- * See the LICENCE.txt file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2016-2019, Roberto Casadei, Mirko Viroli, and contributors.
+ * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
 package it.unibo.scafi.simulation.frontend
 
 import it.unibo.scafi.simulation.frontend.BasicSpatialIncarnation._
-import it.unibo.scafi.simulation.frontend.controller.Controller
+import it.unibo.scafi.simulation.frontend.controller.GeneralController
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node}
-import it.unibo.scafi.space.Point2D
-
+import it.unibo.scafi.simulation.frontend.model.{EuclideanDistanceNbr, Node, SimulationManager}
+import it.unibo.scafi.space.Point3D
 
 class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
-                     val simulationSeed: Long = System.nanoTime()) extends Simulation {
+                     val simulationSeed: Long = System.nanoTime(),
+                     simulatorManager: SimulationManager) extends Simulation {
   //private Thread runProgram;  //should implements runnable
-
+  private var controller: GeneralController = null
   private var net: SpaceAwareSimulator = null
   var network: model.Network = null
   var runProgram: Function0[(Int,Export)] = null
   var deltaRound: Double = .0
   var strategy: Any = null
-  final private val controller: Controller = Controller.getInstance
 
   this.deltaRound = 0.00
   this.strategy = null
 
   def setRunProgram(program: Any): Unit = {
 
-    val devsToPos: Map[Int, Point2D] = network.nodes.mapValues(n => new Point2D(n.position.x, n.position.y)) // Map id->position
+    val devsToPos: Map[Int, Point3D] = network.nodes.mapValues(n => new Point3D(n.position.x, n.position.y, n.position.z)).toMap // Map id->position
     net = new SpaceAwareSimulator(
       space = new Basic3DSpace(devsToPos,
         proximityThreshold = this.network.neighbourhoodPolicy match {
@@ -68,7 +54,7 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
 
   def setDeltaRound(deltaRound: Double) {
     this.deltaRound = deltaRound
-    this.controller.simManager.setPauseFire(deltaRound)
+    simulatorManager.setPauseFire(deltaRound)
   }
 
   def getDeltaRound(): Double = this.deltaRound
@@ -96,7 +82,15 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
   }
 
   override def setPosition(n: Node): Unit = {
-    net.setPosition(n.id, new Point2D(n.position.x, n.position.y))
+    net.setPosition(n.id, new Point3D(n.position.x, n.position.y, n.position.z))
     network.setNodeNeighbours(n.id, net.neighbourhood(n.id))
   }
+
+  override def setController(controller: GeneralController): Unit =
+    this.controller = controller
+}
+
+object SimulationImpl {
+  def apply(simulatorManager: SimulationManager): SimulationImpl =
+    new SimulationImpl(System.nanoTime(), System.nanoTime(), simulatorManager)
 }
