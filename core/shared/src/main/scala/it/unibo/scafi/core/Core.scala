@@ -48,7 +48,7 @@ trait Core {
     /**
       * The root of the export
       * @tparam A
-      * @return
+      * @return the root of the export structure, cast to type A
       */
     def root[A](): A
   }
