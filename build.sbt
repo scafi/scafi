@@ -95,9 +95,9 @@ lazy val noPublishSettings = Seq(
   )
 
 lazy val scafi = project.in(file("."))
-  .enablePlugins(ScalaUnidocPlugin)
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
    `simulator-gui-new`, `demos-new`, `demos-distributed`)
+  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
   .settings(
@@ -205,6 +205,7 @@ lazy val tests = project
 
 lazy val demos = project
   .dependsOn(core, `stdlib-ext`, simulator, `simulator-gui`)
+  .enablePlugins(ClassDiagramPlugin)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
@@ -214,6 +215,7 @@ lazy val demos = project
 
 lazy val `demos-distributed` = project
   .dependsOn(core, `stdlib-ext`, distributed)
+  .enablePlugins(ClassDiagramPlugin)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
@@ -239,6 +241,7 @@ lazy val `simulator-gui-new` = project
 
 lazy val `demos-new` = project
   .dependsOn(core, `stdlib-ext`, distributed, simulator, `simulator-gui-new`)
+  .enablePlugins(ClassDiagramPlugin)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
