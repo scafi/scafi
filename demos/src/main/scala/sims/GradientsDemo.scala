@@ -31,10 +31,10 @@ class GGradientComparison extends AggregateProgram with SensorDefinitions with G
     f"${classicGradient(sense1)}%3.2f,${dist1(sense1)}%3.2f,${dist2(sense1)}%3.2f"
 
   def dist1(source: Boolean, metric: Metric = nbrRange): Double =
-    G2(source)(0.0)(_ + metric())()
+    Gcurried(source)(0.0)(_ + metric())()
 
   def dist2(source: Boolean, metric: Metric = nbrRange): Double =
-    G2(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
+    Gcurried(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
 }
 
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with GradientAlgorithms {

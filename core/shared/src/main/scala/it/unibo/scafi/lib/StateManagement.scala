@@ -11,11 +11,29 @@ trait StdLib_StateManagement{
   trait StateManagement {
     self: FieldCalculusSyntax with StandardSensors =>
 
+    /**
+      * Counts the number of rounds, refreshing each time the computation is re-entered.
+      * TODO: consider boundedness as a limitation for long-lived/eternal systems
+      * @return the number of the round
+      */
     def roundCounter(): Long =
       rep(0L)(_ + 1)
 
+    /**
+      * Remembers the provided value
+      */
     def remember[T](value: T): T =
       rep(value)(identity)
+
+    /**
+      * Remembers the provided optional value, unless empty
+      */
+    def keep[T](expr: => Option[T]): Option[T] = rep[Option[T]](None){ _.orElse(expr) }
+
+    /**
+      * Remembers the occurrence of some condition or event
+      */
+    def keep(expr: => Boolean): Boolean = rep(false)(b => if(b) b else expr)
 
     /**
       * @return true only when a discontinuity (i.e., a change) is observed on `x` (you may choose how to handle the first observation)
@@ -52,5 +70,12 @@ trait StdLib_StateManagement{
       rep(value){ old => res = old; value }
       res
     }
+
+    private def none[T]: Option[T] = None
+
+    /**
+      * Returns a non-empty optional with the provided value just once, then None
+      */
+    def once[T](expr: => T): Option[T] = rep((true,none[T])){ case (first,value) => (false, if(first) Some(expr)  else None) }._2
   }
 }
