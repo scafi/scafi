@@ -66,6 +66,10 @@ trait Semantics extends Core with Language {
     def emptyExport(): EXPORT
     def path(slots: Slot*): Path
     def export(exps: (Path,Any)*): EXPORT
+    def context(selfId: ID,
+                exports: Map[ID,EXPORT],
+                lsens: Map[CNAME,Any] = Map(),
+                nbsens: Map[CNAME,Map[ID,Any]] = Map()): CONTEXT
   }
 
   trait ProgramSchema {

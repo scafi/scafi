@@ -98,17 +98,18 @@ trait Engine extends Semantics {
   }
 
   class EngineFactory extends Factory { self: FACTORY =>
-    def /(): Path = emptyPath()
-    def /(s: Slot): Path = path(s)
-    def emptyPath(): Path = new PathImpl(List())
-    def emptyExport(): EXPORT = new ExportImpl
-    def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
-    def export(exps: (Path,Any)*): EXPORT = {
+    override def emptyPath(): Path = new PathImpl(List())
+    override def emptyExport(): EXPORT = new ExportImpl
+    override def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
+    override def export(exps: (Path,Any)*): EXPORT = {
       val exp = new ExportImpl()
       exps.foreach { case (p,v) => exp.put(p,v) }
       exp
     }
-    def context(selfId: ID, exports: Map[ID,EXPORT], lsens: Map[CNAME,Any] = Map(), nbsens: Map[CNAME,Map[ID,Any]] = Map()): CONTEXT =
+    override def context(selfId: ID,
+                         exports: Map[ID,EXPORT],
+                         lsens: Map[CNAME,Any] = Map(),
+                         nbsens: Map[CNAME,Map[ID,Any]] = Map()): CONTEXT =
       new ContextImpl(selfId, exports, lsens, nbsens)
   }
 
