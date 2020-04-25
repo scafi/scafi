@@ -59,17 +59,47 @@ trait StdLib_BlockC {
     /**
       * @return the collection of the number of devices for which `predicate` is true
       */
-    def collectCount(predicate: Boolean, alongPotentialField: Double): Long =
+    def collectCount(alongPotentialField: Double, predicate: Boolean): Long =
       C[Double,Long](alongPotentialField, _+_, if(predicate) 1 else 0, 0)
 
     /**
       * @return the collect field of the mean of the `value` field
       */
-    def collectMean(value: Double, alongPotentialField: Double): Double = {
-      val numNodesInArea = collectCount(true, alongPotentialField)
+    def collectMean(alongPotentialField: Double, value: Double): Double = {
+      val numNodesInArea = collectCount(alongPotentialField, true)
       val collectedValue = C[Double,Double](alongPotentialField, _+_, value, 0)
       collectedValue/numNodesInArea
     }
+
+    /**
+      * Collects a map by merging map entries
+      * @param downTo potential field
+      * @param local maps to be merged
+      * @param merge function specifying how to merge entries with the same key
+      * @return the collect field of the merged maps
+      */
+    def collectMaps[K,V](downTo: Double, local: Map[K,V], merge: (K,V,V)=>V = (k: K, v1: V, v2: V) => v1) =
+      C[Double, Map[K,V]](downTo, (m1,m2) => {
+        (m1 ++ m2) ++ (m1.keySet.intersect(m2.keySet)).map(k => k -> merge(k,m1(k),m2(k)))
+      }, local, Map.empty)
+
+    /**
+      * Collects a set by merging sets
+      */
+    def collectSets[T](downTo: Double, local: Set[T]): Set[T] =
+      C[Double, Set[T]](downTo, _.union(_), local, Set.empty)
+
+    /**
+      * Collects a set by merging values
+      */
+    def collectIntoSet[T](downTo: Double, local: T): Set[T] =
+      collectSets(downTo, Set(local))
+
+    /**
+      * Collects values as a map by preserving the sources of those values
+      */
+    def collectValuesByDevices[T](downTo: Double, local: T): Map[ID,T] =
+      collectSets(downTo, Set(mid -> local)).toMap
 
     private def smaller[V: Bounded](a: V, b: V): Boolean =
       implicitly[Bounded[V]].compare(a, b) < 0
