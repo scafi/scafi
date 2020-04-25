@@ -81,7 +81,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK
   }
 
-  class BasicSimulatorFactory extends SimulatorFactory {
+  class BasicSimulatorFactory extends SimulatorFactory with StandardSpatialSensorNames {
     protected val lId = linearID
 
     def basicSimulator(
@@ -221,7 +221,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         selfId = id,
         exports = getExports(id),
         localSensor = IMap(),
-        nbrSensor = IMap()){
+        nbrSensor = IMap())
+    with StandardTemporalSensorNames with StandardPlatformSensorNames {
       import NetworkSimulator.Optionable
       def localSensorRetrieve[T](lsns: CNAME, id: ID): Option[T] =
         lsnsMap.get(lsns).flatMap(_.get(id)).orElse(Some(localSensors(lsns)(id))).map (_.asInstanceOf[T] )

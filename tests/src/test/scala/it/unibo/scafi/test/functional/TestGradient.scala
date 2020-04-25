@@ -22,7 +22,7 @@ class TestGradient extends FlatSpec with Matchers {
     implicit val node = new Node
   }
 
-  private[this] class Node extends AggregateProgram {
+  private[this] class Node extends AggregateProgram with StandardSensorNames {
     override type MainResult = Any
     override def main() = ???
 

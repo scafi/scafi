@@ -18,7 +18,9 @@ import scala.concurrent.duration.FiniteDuration
 trait Platform {
   self: Platform.PlatformDependency =>
 
-  val LSNS_RANDOM: CNAME
+  trait StandardPlatformSensorNames {
+    val LSNS_RANDOM: CNAME = CNAMEfromString("LSNS_RANDOM")
+  }
 }
 
 object Platform {
@@ -39,11 +41,13 @@ trait TimeAwarePlatform extends Platform {
     def nbrLag(): FiniteDuration
   }
 
-  val LSNS_TIME: CNAME
-  val LSNS_TIMESTAMP: CNAME
-  val LSNS_DELTA_TIME: CNAME
-  val NBR_LAG: CNAME
-  val NBR_DELAY: CNAME
+  trait StandardTemporalSensorNames {
+    val LSNS_TIME: CNAME = CNAMEfromString("LSNS_TIME")
+    val LSNS_TIMESTAMP: CNAME = CNAMEfromString("LSNS_TIMESTAMP")
+    val LSNS_DELTA_TIME: CNAME = CNAMEfromString("LSNS_DELTA_TIME")
+    val NBR_LAG: CNAME = CNAMEfromString("NBR_LAG")
+    val NBR_DELAY: CNAME = CNAMEfromString("NBR_DELAY")
+  }
 }
 
 trait SpaceAwarePlatform extends Platform {
@@ -56,9 +60,11 @@ trait SpaceAwarePlatform extends Platform {
     def nbrVector(): P
   }
 
-  val LSNS_POSITION: CNAME
-  val NBR_VECTOR: CNAME
-  val NBR_RANGE: CNAME
+  trait StandardSpatialSensorNames {
+    val LSNS_POSITION: CNAME = CNAMEfromString("LSNS_POSITION")
+    val NBR_VECTOR: CNAME = CNAMEfromString("NBR_VECTOR")
+    val NBR_RANGE: CNAME = CNAMEfromString("NBR_RANGE")
+  }
 }
 
 trait SpaceTimeAwarePlatform extends SpaceAwarePlatform with TimeAwarePlatform {

@@ -19,6 +19,8 @@ trait Core {
     */
   type CNAME
 
+  def CNAMEfromString(s: String): CNAME
+
   /**
    *  The unique identifier of a node
    */

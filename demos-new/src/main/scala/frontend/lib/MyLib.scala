@@ -8,9 +8,7 @@ package frontend.lib
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.Builtins._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
-trait MyLib { self: Constructs with Builtins =>
-  def nbrRange():Double = nbrvar[Double](NBR_RANGE)
-
+trait MyLib extends StandardSensors { self: Constructs with Builtins =>
   /**
    * Gradient cast.
    * @param source represents the source field. Locally, it indicates if

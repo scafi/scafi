@@ -8,7 +8,7 @@ package lib
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.Builtins._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
-trait MyLib { self: Constructs with Builtins =>
+trait MyLib extends StandardSpatialSensorNames { self: Constructs with Builtins =>
   def nbrRange():Double = nbrvar[Double](NBR_RANGE)
 
   /**

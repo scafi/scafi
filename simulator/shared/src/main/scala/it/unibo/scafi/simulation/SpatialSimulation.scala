@@ -32,7 +32,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       toStr = toStr,
       simulationSeed = simulationSeed,
       randomSensorSeed = randomSensorSeed
-    )  with MetaActionManager {
+    )  with MetaActionManager with StandardSpatialSensorNames {
 
     /**
       * meta action used to move a node into another position
@@ -115,7 +115,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       })
     }
 
-    class SpatialSimulatorContextImpl(id: ID) extends SimulatorContextImpl(id){
+    class SpatialSimulatorContextImpl(id: ID) extends SimulatorContextImpl(id) with StandardSpatialSensorNames {
 
       import NetworkSimulator.Optionable
 

@@ -23,15 +23,19 @@ trait BasicAbstractIncarnation extends Incarnation {
   override type ID = Int
   override type EXECUTION = AggregateInterpreter
 
-  override val LSNS_POSITION: String = "position"
-  override val LSNS_TIME: String = "currentTime"
-  override val LSNS_TIMESTAMP: String = "timestamp"
-  override val LSNS_DELTA_TIME: String = "deltaTime"
-  override val LSNS_RANDOM: String = "randomGenerator"
-  override val NBR_RANGE: String = "nbrRange"
-  override val NBR_DELAY: String = "nbrDelay"
-  override val NBR_LAG: String = "nbrLag"
-  override val NBR_VECTOR: String = "nbrVector"
+  trait BasicStandardSensorNames extends StandardSensorNames {
+    override val LSNS_POSITION: String = "position"
+    override val LSNS_TIME: String = "currentTime"
+    override val LSNS_TIMESTAMP: String = "timestamp"
+    override val LSNS_DELTA_TIME: String = "deltaTime"
+    override val LSNS_RANDOM: String = "randomGenerator"
+    override val NBR_RANGE: String = "nbrRange"
+    override val NBR_DELAY: String = "nbrDelay"
+    override val NBR_LAG: String = "nbrLag"
+    override val NBR_VECTOR: String = "nbrVector"
+  }
+
+  override def CNAMEfromString(s: String): CNAME = s
 
   @transient implicit override val linearID: Linearizable[ID] = new Linearizable[ID] {
     override def toNum(v: ID): Int = v
