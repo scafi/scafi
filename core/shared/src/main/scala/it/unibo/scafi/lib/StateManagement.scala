@@ -22,8 +22,13 @@ trait StdLib_StateManagement{
     /**
       * Remembers the provided value
       */
-    def remember[T](value: T): T =
+    def remember[T](value: => T): T =
       rep(value)(identity)
+
+    /**
+      * Alias for [[remember()]]
+      */
+    def constant[T](value: => T): T = remember(value)
 
     /**
       * Remembers the provided optional value, unless empty
