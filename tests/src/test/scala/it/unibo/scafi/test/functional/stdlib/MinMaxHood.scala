@@ -3,13 +3,14 @@
  * See the LICENSE file distributed with this work for additional information regarding copyright ownership.
 */
 
-package it.unibo.scafi.test.functional
+package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
 
-class TestStandardLibrary extends FlatSpec with Matchers {
+class MinMaxHood extends FlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 
