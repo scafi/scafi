@@ -120,6 +120,29 @@ class FieldUtils extends FlatSpec {
     )).toMap)(net)
   }
 
+  Field_Utils should "support sumHood - mid" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      override def main(): Any = (
+        excludingSelf.sumHood(mid()),
+        includingSelf.sumHood(mid())
+      )
+    }, ntimes = fewRounds)(net)
+
+    //ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      (net.neighbourhood(0).sum, net.neighbourhood(0).sum),
+      (net.neighbourhood(1).sum, net.neighbourhood(1).sum + 1),
+      (net.neighbourhood(2).sum, net.neighbourhood(2).sum + 2),
+      (net.neighbourhood(3).sum, net.neighbourhood(3).sum + 3),
+      (net.neighbourhood(4).sum, net.neighbourhood(4).sum + 4),
+      (net.neighbourhood(5).sum, net.neighbourhood(5).sum + 5),
+      (net.neighbourhood(6).sum, net.neighbourhood(6).sum + 6),
+      (net.neighbourhood(7).sum, net.neighbourhood(7).sum + 7),
+      (net.neighbourhood(8).sum, net.neighbourhood(8).sum + 8)
+    )).toMap)(net)
+  }
+
   Field_Utils should "support unionHood" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
