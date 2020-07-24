@@ -87,7 +87,7 @@ class FieldUtils extends FlatSpec {
     /*
       * def everyHood(expr: => Boolean): Boolean = foldhoodTemplate(true)(_&&_)(expr)
       * everyHood is initialized to true.
-      * Since the last device is alone it has no neighborhood no fold operation is perfomend
+      * Since the last device is alone it has no neighborhood no fold operation is performed
       *   resulting in a final true vale
       */
     assertNetworkValues((0 to 8).zip(List(
@@ -118,8 +118,8 @@ class FieldUtils extends FlatSpec {
     // ACT
     exec(new TestProgram {
       override def main(): Any = (
-        excludingSelf.sumHood(mid()),
-        includingSelf.sumHood(mid())
+        excludingSelf.sumHood(nbr(mid())),
+        includingSelf.sumHood(nbr(mid()))
       )
     }, ntimes = fewRounds)(net)
 
@@ -135,21 +135,12 @@ class FieldUtils extends FlatSpec {
     // ACT
     exec(new TestProgram {
       override def main(): Any = (
-        excludingSelf.unionHood(mid()),
-        includingSelf.unionHood(mid())
+        excludingSelf.unionHood(nbr(mid())),
+        includingSelf.unionHood(nbr(mid()))
       )
     }, ntimes = fewRounds)(net)
 
     //ASSERT
-    /*
-      Actual network:
-      (Set(0),Set(0))	(Set(1),Set(1))	(Set(2),Set(2))
-      (Set(3),Set(3))	(Set(4),Set(4))	(Set(5),Set(5))
-      (Set(6),Set(6))	(Set(7),Set(7))	(Set(),Set(8))
-
-      Expected:
-      a behavior similar to sum hood, but with an union instead of a sum
-     */
     assertNetworkValues((0 to 8).zip(List(
       (net.neighbourhood(0), net.neighbourhood(0) + 0), (net.neighbourhood(1), net.neighbourhood(1) + 1), (net.neighbourhood(2), net.neighbourhood(2) + 2),
       (net.neighbourhood(3), net.neighbourhood(3) + 3), (net.neighbourhood(4), net.neighbourhood(4) + 4), (net.neighbourhood(5), net.neighbourhood(5) + 5),
