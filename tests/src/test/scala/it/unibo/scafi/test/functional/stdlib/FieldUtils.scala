@@ -163,15 +163,15 @@ class FieldUtils extends FlatSpec {
       a behavior similar to sum hood, but with an union instead of a sum
      */
     assertNetworkValues((0 to 8).zip(List(
-      (net.neighbourhood(0).toSet, net.neighbourhood(0).toSet + 0),
-      (net.neighbourhood(1).toSet, net.neighbourhood(1).toSet + 1),
-      (net.neighbourhood(2).toSet, net.neighbourhood(2).toSet + 2),
-      (net.neighbourhood(3).toSet, net.neighbourhood(3).toSet + 3),
-      (net.neighbourhood(4).toSet, net.neighbourhood(4).toSet + 4),
-      (net.neighbourhood(5).toSet, net.neighbourhood(5).toSet + 5),
-      (net.neighbourhood(6).toSet, net.neighbourhood(6).toSet + 6),
-      (net.neighbourhood(7).toSet, net.neighbourhood(7).toSet + 7),
-      (net.neighbourhood(8).toSet, net.neighbourhood(8).toSet + 8)
+      (net.neighbourhood(0), net.neighbourhood(0) + 0),
+      (net.neighbourhood(1), net.neighbourhood(1) + 1),
+      (net.neighbourhood(2), net.neighbourhood(2) + 2),
+      (net.neighbourhood(3), net.neighbourhood(3) + 3),
+      (net.neighbourhood(4), net.neighbourhood(4) + 4),
+      (net.neighbourhood(5), net.neighbourhood(5) + 5),
+      (net.neighbourhood(6), net.neighbourhood(6) + 6),
+      (net.neighbourhood(7), net.neighbourhood(7) + 7),
+      (net.neighbourhood(8), net.neighbourhood(8) + 8)
     )).toMap)(net)
   }
 }
