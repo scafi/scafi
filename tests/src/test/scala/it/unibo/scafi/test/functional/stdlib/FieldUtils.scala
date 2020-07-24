@@ -119,4 +119,33 @@ class FieldUtils extends FlatSpec {
       (net.neighbourhood(8).size, net.neighbourhood(8).size + 1)
     )).toMap)(net)
   }
+
+  Field_Utils should "support unionHood" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      override def main(): Any = (
+        excludingSelf.unionHood(mid()),
+        includingSelf.unionHood(mid())
+      )
+    }, ntimes = fewRounds)(net)
+
+    //ASSERT
+    /*
+      Actual network:
+      (Set(0),Set(0))	(Set(1),Set(1))	(Set(2),Set(2))
+      (Set(3),Set(3))	(Set(4),Set(4))	(Set(5),Set(5))
+      (Set(6),Set(6))	(Set(7),Set(7))	(Set(),Set(8))
+     */
+    assertNetworkValues((0 to 8).zip(List(
+      ((0 to 7).toSet, (0 to 7).toSet),
+      ((0 to 7).toSet, (0 to 7).toSet),
+      ((0 to 7).toSet, (0 to 7).toSet),
+      ((0 to 7).toSet, (0 to 7).toSet),
+      ((0 to 7).toSet, (0 to 7).toSet),
+      ((0 to 7).toSet, (0 to 7).toSet),
+      ((0 to 7).toSet, (0 to 7).toSet),
+      ((0 to 7).toSet, (0 to 7).toSet),
+      (Set(), Set(8))
+    )).toMap)(net)
+  }
 }
