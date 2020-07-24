@@ -164,4 +164,21 @@ class FieldUtils extends FlatSpec {
       (net.neighbourhood(6).map(e => (e,e)).toMap, (net.neighbourhood(6) + 6).map(e => (e,e)).toMap), (net.neighbourhood(7).map(e => (e,e)).toMap, (net.neighbourhood(7) + 7).map(e => (e,e)).toMap), (net.neighbourhood(8).map(e => (e,e)).toMap, (net.neighbourhood(8) + 8).map(e => (e,e)).toMap)
     )).toMap)(net)
   }
+
+  Field_Utils should "support minHoodLoc" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      override def main(): Any = (
+        excludingSelf.minHoodLoc(Int.MaxValue)(nbr(mid())),
+        includingSelf.minHoodLoc(Int.MaxValue)(nbr(mid()))
+      )
+    }, ntimes = fewRounds)(net)
+
+    //ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      (1, 0), (0, 0), (1, 1),
+      (0, 0), (0,0), (1, 1),
+      (3, 3), (3, 3), (Int.MaxValue, 8)
+    )).toMap)(net)
+  }
 }
