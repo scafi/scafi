@@ -147,4 +147,21 @@ class FieldUtils extends FlatSpec {
       (net.neighbourhood(6), net.neighbourhood(6) + 6), (net.neighbourhood(7), net.neighbourhood(7) + 7), (net.neighbourhood(8), net.neighbourhood(8) + 8)
     )).toMap)(net)
   }
+
+  Field_Utils should "support mergeHoodFirst" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      override def main(): Any = (
+        excludingSelf.mergeHoodFirst(nbr(Map(mid() -> mid()))),
+        includingSelf.mergeHoodFirst(nbr(Map(mid() -> mid())))
+      )
+    }, ntimes = fewRounds)(net)
+
+    //ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      (net.neighbourhood(0).map(e => (e,e)).toMap, (net.neighbourhood(0) + 0).map(e => (e,e)).toMap), (net.neighbourhood(1).map(e => (e,e)).toMap, (net.neighbourhood(1) + 1).map(e => (e,e)).toMap), (net.neighbourhood(2).map(e => (e,e)).toMap, (net.neighbourhood(2) + 2).map(e => (e,e)).toMap),
+      (net.neighbourhood(3).map(e => (e,e)).toMap, (net.neighbourhood(3) + 3).map(e => (e,e)).toMap), (net.neighbourhood(4).map(e => (e,e)).toMap, (net.neighbourhood(4) + 4).map(e => (e,e)).toMap), (net.neighbourhood(5).map(e => (e,e)).toMap, (net.neighbourhood(5) + 5).map(e => (e,e)).toMap),
+      (net.neighbourhood(6).map(e => (e,e)).toMap, (net.neighbourhood(6) + 6).map(e => (e,e)).toMap), (net.neighbourhood(7).map(e => (e,e)).toMap, (net.neighbourhood(7) + 7).map(e => (e,e)).toMap), (net.neighbourhood(8).map(e => (e,e)).toMap, (net.neighbourhood(8) + 8).map(e => (e,e)).toMap)
+    )).toMap)(net)
+  }
 }
