@@ -158,6 +158,9 @@ class FieldUtils extends FlatSpec {
       (Set(0),Set(0))	(Set(1),Set(1))	(Set(2),Set(2))
       (Set(3),Set(3))	(Set(4),Set(4))	(Set(5),Set(5))
       (Set(6),Set(6))	(Set(7),Set(7))	(Set(),Set(8))
+
+      Expected:
+      a behavior similar to sum hood, but with an union instead of a sum
      */
     assertNetworkValues((0 to 8).zip(List(
       ((0 to 7).toSet, (0 to 7).toSet),
