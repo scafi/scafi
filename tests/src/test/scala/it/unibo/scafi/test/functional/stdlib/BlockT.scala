@@ -1,17 +1,13 @@
 package it.unibo.scafi.test.functional.stdlib
 
-import it.unibo.scafi.config.GridSettings
-import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.ScafiTestUtils
 import it.unibo.utils.StatisticsUtils._
 import org.scalatest._
 
-import scala.concurrent.duration.FiniteDuration
 
 /*
-
 Not yet tested:
 - cyclicTimerWithDecay
 - clock
@@ -21,21 +17,12 @@ class BlockT extends FlatSpec{
   import ScafiTestUtils._
 
   val Block_T = new ItWord
-  val stepx: Double = 1.0
-  val stepy: Double = 1.0
-  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy,
-        mapPos = (a,b,px,py) => if(a==2 && b==2) (100,100) else (px,py)), rng = 1.5))
+    val net: Network with SimulatorOps = ScafiTestUtils.standardNetwork()
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
-
-  def SetupNetwork(n: Network with SimulatorOps): FunctionalTestIncarnation.Network with FunctionalTestIncarnation.SimulatorOps = {
-    n
-  }
 
   def unitaryDecay: Int => Int = _ - 1
   def halving: Int => Int = _ / 2

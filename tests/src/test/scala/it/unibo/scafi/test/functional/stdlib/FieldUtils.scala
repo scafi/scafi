@@ -1,7 +1,5 @@
 package it.unibo.scafi.test.functional.stdlib
 
-import it.unibo.scafi.config.GridSettings
-import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
@@ -12,21 +10,13 @@ class FieldUtils extends FlatSpec {
   import ScafiTestUtils._
 
   val Field_Utils = new ItWord
-  val stepx: Double = 1.0
-  val stepy: Double = 1.0
-  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
+
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy,
-        mapPos = (a,b,px,py) => if(a==2 && b==2) (100,100) else (px,py)), rng = 1.5))
+    val net: Network with SimulatorOps = standardNetwork()
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG
-
-  def SetupNetwork(n: Network with SimulatorOps): FunctionalTestIncarnation.Network with FunctionalTestIncarnation.SimulatorOps = {
-    n
-  }
 
   Field_Utils should "support min/maxHoodSelectors" in new SimulationContextFixture {
     // ACT
