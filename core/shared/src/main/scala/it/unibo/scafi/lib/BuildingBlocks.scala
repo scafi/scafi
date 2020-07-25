@@ -9,7 +9,7 @@ trait StdLib_BuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
   trait BuildingBlocks extends Gradients with FieldUtils
-    with BlockG with BlockC with BlockS with BlockT with BlocksWithGC {
+    with BlockG with BlockC with BlockS with BlockT with TimeUtils with BlocksWithGC {
     self: FieldCalculusSyntax with StandardSensors =>
   }
 
