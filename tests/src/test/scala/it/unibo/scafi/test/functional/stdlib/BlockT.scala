@@ -68,6 +68,18 @@ class BlockT extends FlatSpec{
     )).toMap)(net)
   }
 
+  Block_T should("support timer operation") in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = timer(10)
+    }, ntimes = someRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      0, 0, 0,
+      0, 0, 0,
+      0, 0, 0
+    )).toMap)(net)
+  }
+
 
 
 }
