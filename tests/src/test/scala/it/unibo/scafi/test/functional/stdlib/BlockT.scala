@@ -5,6 +5,7 @@ import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.ScafiTestUtils
+import it.unibo.utils.StatisticsUtils._
 import org.scalatest._
 
 class BlockT extends FlatSpec{
@@ -107,6 +108,16 @@ class BlockT extends FlatSpec{
       expValue, expValue, expValue
 
     )).toMap)(net)
+  }
+
+  Block_T should("support sharedTimerWithDecay") in new SimulationContextFixture {
+    val maxStdDev: Int = 2
+    exec(new TestProgram {
+      override def main(): Any = sharedTimerWithDecay(1, 1)
+    }, ntimes = manyManyRounds)(net)
+
+    //standard deviation inside the same
+    assert(stdDev((0 to 7).map(i => net.exports()(i).get.root().asInstanceOf[Int])) < maxStdDev)
   }
 
 
