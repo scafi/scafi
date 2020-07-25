@@ -8,6 +8,8 @@ import it.unibo.scafi.test.functional.ScafiTestUtils
 import it.unibo.utils.StatisticsUtils._
 import org.scalatest._
 
+import scala.concurrent.duration.FiniteDuration
+
 /*
 
 Not yet tested:
@@ -123,6 +125,6 @@ class BlockT extends FlatSpec{
     }, ntimes = manyManyRounds)(net)
 
     //standard deviation inside the same group should be low
-    assert(stdDev((0 to 7).map(i => net.exports()(i).get.root().asInstanceOf[Int])) < maxStdDev)
+    assert(stdDev(net.valueMap[Int]().filterKeys(_ != 8).values) < maxStdDev)
   }
 }
