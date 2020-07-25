@@ -41,4 +41,12 @@ class TimeUtils extends FlatSpec{
       0, 0, 0
     )).toMap)(net)
   }
+
+  Time_Utils should "support impulsesEvery" in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = rep(0)(_ + (if (impulsesEvery(1 nanosecond)) 1 else 0) )
+    }, ntimes = manyManyRounds)(net)
+
+    assert(net.valueMap[Int]().forall(e => e._2 > 0))
+  }
 }
