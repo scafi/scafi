@@ -5,7 +5,9 @@ import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.ScafiTestUtils
+import it.unibo.utils.StatisticsUtils.stdDev
 import org.scalatest._
+
 import scala.concurrent.duration._
 
 
@@ -48,5 +50,14 @@ class TimeUtils extends FlatSpec{
     }, ntimes = manyManyRounds)(net)
 
     assert(net.valueMap[Int]().forall(e => e._2 > 0))
+  }
+
+  Time_Utils should "support sharedTimer" in new SimulationContextFixture {
+    val maxStdDev: Int = 2
+    exec(new TestProgram {
+      override def main(): Any = sharedTimer(10 seconds)
+    }, ntimes = manyManyRounds)(net)
+
+    assert(stdDev(net.valueMap[FiniteDuration]().values.map(_.toSeconds)) < maxStdDev)
   }
 }
