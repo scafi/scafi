@@ -14,6 +14,8 @@ import scala.util.Random
 
 object ScafiTestUtils {
 
+  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
+
   object NetworkDsl {
     case class SensorActivation[T](val name: LSNS, val value: T){
       def inDevices(devs: ID*)(implicit net: Network with SimulatorOps) = net.chgSensorValue(name, devs.toSet, value)
