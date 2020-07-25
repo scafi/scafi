@@ -8,6 +8,13 @@ import it.unibo.scafi.test.functional.ScafiTestUtils
 import it.unibo.utils.StatisticsUtils._
 import org.scalatest._
 
+/*
+
+Not yet tested:
+- cyclicTimerWithDecay
+- clock
+- impulsesEvery
+ */
 class BlockT extends FlatSpec{
   import ScafiTestUtils._
 
@@ -106,7 +113,6 @@ class BlockT extends FlatSpec{
       expValue, expValue, expValue,
       expValue, expValue, expValue,
       expValue, expValue, expValue
-
     )).toMap)(net)
   }
 
@@ -119,7 +125,4 @@ class BlockT extends FlatSpec{
     //standard deviation inside the same group should be low
     assert(stdDev((0 to 7).map(i => net.exports()(i).get.root().asInstanceOf[Int])) < maxStdDev)
   }
-
-
-
 }
