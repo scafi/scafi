@@ -42,6 +42,32 @@ class BlockT extends FlatSpec{
     )).toMap)(net)
   }
 
+  Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture {
+    val floorValue = 1
+    exec(new TestProgram {
+      override def main(): Any = T(10, floorValue, unitaryDecay)
+    }, ntimes = someRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      floorValue, floorValue, floorValue,
+      floorValue, floorValue, floorValue,
+      floorValue, floorValue, floorValue
+    )).toMap)(net)
+  }
+
+  Block_T should "support T with unitary decay and negative floor value" in new SimulationContextFixture {
+    val floorValue: Int = -10
+    exec(new TestProgram {
+      override def main(): Any = T(10, floorValue, unitaryDecay)
+    }, ntimes = someRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      floorValue, floorValue, floorValue,
+      floorValue, floorValue, floorValue,
+      floorValue, floorValue, floorValue
+    )).toMap)(net)
+  }
+
 
 
 }
