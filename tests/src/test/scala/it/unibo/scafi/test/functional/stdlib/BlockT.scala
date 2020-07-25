@@ -116,7 +116,7 @@ class BlockT extends FlatSpec{
       override def main(): Any = sharedTimerWithDecay(1, 1)
     }, ntimes = manyManyRounds)(net)
 
-    //standard deviation inside the same
+    //standard deviation inside the same group should be low
     assert(stdDev((0 to 7).map(i => net.exports()(i).get.root().asInstanceOf[Int])) < maxStdDev)
   }
 
