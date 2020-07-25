@@ -53,11 +53,11 @@ class TimeUtils extends FlatSpec{
   }
 
   Time_Utils should "support sharedTimer" in new SimulationContextFixture {
-    val maxStdDev: Int = 2
+    val maxStdDev: Int = 1
     exec(new TestProgram {
       override def main(): Any = sharedTimer(10 seconds)
     }, ntimes = manyManyRounds)(net)
 
-    assert(stdDev(net.valueMap[FiniteDuration]().values.map(_.toSeconds)) < maxStdDev)
+    assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
   }
 }
