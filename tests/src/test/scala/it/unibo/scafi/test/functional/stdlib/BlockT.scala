@@ -81,7 +81,7 @@ class BlockT extends FlatSpec{
     )).toMap)(net)
   }
 
-  Block_T should("support limited operation - without expiration") in new SimulationContextFixture {
+  Block_T should("support limitedMemory - without expiration") in new SimulationContextFixture {
     val value: Int = 10
     val expValue: Int = -1
     exec(new TestProgram {
@@ -95,7 +95,7 @@ class BlockT extends FlatSpec{
     )).toMap)(net)
   }
 
-  Block_T should("support limited operation - with expiration") in new SimulationContextFixture {
+  Block_T should("support limitedMemory - with expiration") in new SimulationContextFixture {
     val value: Int = 10
     val expValue: Int = -1
     exec(new TestProgram {
