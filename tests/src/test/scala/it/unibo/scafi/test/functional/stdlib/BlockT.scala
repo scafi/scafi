@@ -30,7 +30,7 @@ class BlockT extends FlatSpec{
   def unitaryDecay: Int => Int = _ - 1
   def halving: Int => Int = _ / 2
 
-  Block_T should "support T with custom decay and floor value" in new SimulationContextFixture {
+  Block_T should "support T with unitary decay and 0 floor value" in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Any = T(10, 0, unitaryDecay)
     }, ntimes = someRounds)(net)
