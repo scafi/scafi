@@ -5,6 +5,8 @@
 
 package it.unibo.scafi.test.functional
 
+import it.unibo.scafi.config.GridSettings
+import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 
 import scala.collection.Map
@@ -88,5 +90,10 @@ object ScafiTestUtils {
   def until[T](pred: T => Boolean)(expr: => T): T = {
     val res = expr
     if(pred(res)) res else until(pred)(expr)
+  }
+
+  def standardNetwork(): Network with SimulatorOps = {
+    simulatorFactory.gridLike(GridSettings(3, 3, 1, 1,
+      mapPos = (a,b,px,py) => if(a==2 && b==2) (100,100) else (px,py)), rng = 1.5)
   }
 }
