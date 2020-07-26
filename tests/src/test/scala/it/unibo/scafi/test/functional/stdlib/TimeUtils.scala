@@ -8,14 +8,10 @@ import org.scalatest._
 
 import scala.concurrent.duration._
 
-
 class TimeUtils extends FlatSpec{
   import ScafiTestUtils._
 
   val Time_Utils = new ItWord
-  val stepx: Double = 1.0
-  val stepy: Double = 1.0
-
 
   private[this] trait SimulationContextFixture {
     val net: Network with SimulatorOps = standardNetwork()
@@ -50,5 +46,20 @@ class TimeUtils extends FlatSpec{
     }, ntimes = manyManyRounds)(net)
 
     assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
+  }
+
+  Time_Utils should "support recentlyTrue" in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = (
+        recentlyTrue(1 second, cond = true),
+        recentlyTrue(1 seconds, cond = false)
+      )
+    }, ntimes = fewRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      (true, false), (true, false), (true, false),
+      (true, false), (true, false), (true, false),
+      (true, false), (true, false), (true, false)
+    )).toMap)(net)
   }
 }
