@@ -130,12 +130,25 @@ class BlockT extends FlatSpec{
   Block_T should("support evaporation - with custom decay") in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Any = evaporation(1000000, halving,"hello")
-    }, ntimes = someRounds)(net)
+    }, ntimes = fewRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       ("hello", 0), ("hello", 0), ("hello", 0),
       ("hello", 0), ("hello", 0), ("hello", 0),
       ("hello", 0), ("hello", 0), ("hello", 0)
+    )).toMap)(net)
+  }
+
+  Block_T should("supprt exponentialBackoffFilter") in new SimulationContextFixture {
+    //https://github.com/Protelis/Protelis/blob/master/protelis/protelis-lang/src/test/resources/exponentialBackoffFilter.pt
+    exec(new TestProgram {
+      override def main(): Any = exponentialBackoffFilter(1, 0.1)
+    }, ntimes = fewRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      1, 1, 1,
+      1, 1, 1,
+      1, 1, 1
     )).toMap)(net)
   }
 }
