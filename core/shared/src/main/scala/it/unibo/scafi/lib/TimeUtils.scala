@@ -171,27 +171,26 @@ trait StdLib_TimeUtils {
     /**
       * Periodically invoke a function.
       *
-      * @param length num, timeout
+      * @param length FiniteDuratrion, timeout
       * @param f      () -> T, function to be invoked
-      * @param default   T, default value
-      * @return       T, apply f if the timeout is expired, null otherwise
+      * @param NULL   T, default value
+      * @return       T, apply f if the timeout is expired, NULL otherwise
       */
-
-    def cyclicFunction[T](length: FiniteDuration, f:  => T, NULL: T): T =
+    def cyclicFunction[T](length: FiniteDuration, f:  () => T, NULL: T): T =
       cyclicFunctionWithDecay(length.toNanos, deltaTime().toNanos, f, NULL)
 
     /**
       * Periodically invoke a function.
       *
-      * @param length  num, timeout
-      * @param decay   num, decay rate
-      * @param f       () -> T, function to be invoked
-      * @param default T, default value
-      * @return T, apply f if the timeout is expired, null otherwise
+      * @param length  T, timeout
+      * @param decay   T, decay rate
+      * @param f       () -> V, function to be invoked
+      * @param NULL V, default value
+      * @return V, apply f if the timeout is expired, NULL otherwise
       */
-    def cyclicFunctionWithDecay[T, V](length: T, decay: T, f: => V, NULL: V)(implicit ev: Numeric[T]): V =
+    def cyclicFunctionWithDecay[T, V](length: T, decay: T, f: () => V, NULL: V)(implicit ev: Numeric[T]): V =
       if (cyclicTimerWithDecay(length, decay)) {
-        f
+        f()
       } else {
         NULL
       }
