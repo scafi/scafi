@@ -19,6 +19,9 @@ class TimeUtils extends FlatSpec{
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
 
+  def unitaryDecay: Int => Int = _ - 1
+  def halving: Int => Int = _ / 2
+
   Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Any = timerLocalTime(1 millisecond)
@@ -60,6 +63,30 @@ class TimeUtils extends FlatSpec{
       (true, false), (true, false), (true, false),
       (true, false), (true, false), (true, false),
       (true, false), (true, false), (true, false)
+    )).toMap)(net)
+  }
+
+  Time_Utils should("support evaporation") in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = evaporation(10, "hello")
+    }, ntimes = someRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0)
+    )).toMap)(net)
+  }
+
+  Time_Utils should("support evaporation - with custom decay") in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = evaporation(1000000, halving,"hello")
+    }, ntimes = fewRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0)
     )).toMap)(net)
   }
 }

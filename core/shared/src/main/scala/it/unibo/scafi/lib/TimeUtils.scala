@@ -86,7 +86,7 @@ trait StdLib_TimeUtils {
     def cyclicTimer[T](length: T)(implicit ev: Numeric[T]): Boolean = {
       cyclicTimerWithDecay(length, ev.one)
     }
-    
+
     def clock[T](length: T, decay: T)
                 (implicit ev: Numeric[T]): Long =
       rep((0L, length)) { case (k, left) =>
@@ -105,31 +105,6 @@ trait StdLib_TimeUtils {
           timer(d) == 0
         }
       }
-
-    /**
-      * Evaporation pattern.
-      * Starting from [lenght, info] descends to [0, info] with a custom decay
-      * (The floor values depends on length's type)
-      *
-      * @param length T, duration
-      * @param info   V, information
-      * @param decay  T => T, decay rate
-      * @return [V, T]
-      */
-    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (V, T) =
-      (info, T(length, decay))
-
-    /**
-      * Evaporation pattern.
-      * Starting from [lenght, info] descends to [0, info] with a predefined unitary decay
-      * (The floor values depends on length's type)
-      *
-      * @param length T, duration
-      * @param info   V, information
-      * @return [V, T]
-      */
-    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (V, T) =
-      (info, T(length))
 
     /**
       * Exponential back-off filter.
@@ -167,6 +142,31 @@ trait StdLib_TimeUtils {
           }
         }
       }
+
+    /**
+      * Evaporation pattern.
+      * Starting from [lenght, info] descends to [0, info] with a custom decay
+      * (The floor values depends on length's type)
+      *
+      * @param length T, duration
+      * @param info   V, information
+      * @param decay  T => T, decay rate
+      * @return [V, T]
+      */
+    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (V, T) =
+      (info, T(length, decay))
+
+    /**
+      * Evaporation pattern.
+      * Starting from [lenght, info] descends to [0, info] with a predefined unitary decay
+      * (The floor values depends on length's type)
+      *
+      * @param length T, duration
+      * @param info   V, information
+      * @return [V, T]
+      */
+    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (V, T) =
+      (info, T(length))
   }
 
 }
