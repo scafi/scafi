@@ -86,9 +86,28 @@ trait StdLib_TimeUtils {
         branch(impulse) { false } { timer(d)==0 }
       }
 
+    /**
+      * Evaporation pattern.
+      * Starting from [lenght, info] descends to [0, info] with a custom decay
+      * (The floor values depends on length's type)
+      *
+      * @param length T, duration
+      * @param info   V, information
+      * @param decay  T => T, decay rate
+      * @return       [V, T]
+      */
     def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (V, T) =
       (info, T(length, decay))
 
+    /**
+      * Evaporation pattern.
+      * Starting from [lenght, info] descends to [0, info] with a predefined unitary decay
+      * (The floor values depends on length's type)
+      *
+      * @param length T, duration
+      * @param info   V, information
+      * @return       [V, T]
+      */
     def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (V, T) =
       (info, T(length))
   }
