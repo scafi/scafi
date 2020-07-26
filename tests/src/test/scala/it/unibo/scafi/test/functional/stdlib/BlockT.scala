@@ -10,6 +10,7 @@ import org.scalatest._
 /*
 Not yet tested:
 - cyclicTimerWithDecay
+- cyclicTimer
 - clock
 - impulsesEvery
  */

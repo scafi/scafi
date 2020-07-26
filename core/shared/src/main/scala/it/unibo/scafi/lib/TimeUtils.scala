@@ -77,6 +77,16 @@ trait StdLib_TimeUtils {
         }
       } == length
 
+    /**
+      * Cyclic timer with a default unitary decay
+      *
+      * @param length timeout
+      * @return true if the timeout is expired, false otherwise
+      */
+    def cyclicTimer[T](length: T)(implicit ev: Numeric[T]): Boolean = {
+      cyclicTimerWithDecay(length, ev.one)
+    }
+    
     def clock[T](length: T, decay: T)
                 (implicit ev: Numeric[T]): Long =
       rep((0L, length)) { case (k, left) =>
@@ -130,6 +140,7 @@ trait StdLib_TimeUtils {
       */
     def exponentialBackoffFilter[T](signal: T, a: T)(implicit ev: Numeric[T]): T =
       rep(signal)(s => ev.plus(ev.times(s, a), ev.times(s, ev.minus(ev.one, a))))
+
   }
 
   trait TimeUtils extends BlockT { self: FieldCalculusSyntax with StandardSensors =>
