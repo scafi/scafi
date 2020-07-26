@@ -114,4 +114,28 @@ class BlockT extends FlatSpec{
     //standard deviation inside the same group should be low
     assert(stdDev(net.valueMap[Int]().filterKeys(_ != 8).values) < maxStdDev)
   }
+
+  Block_T should("support evaporation") in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = evaporation(10, "hello")
+    }, ntimes = someRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0)
+    )).toMap)(net)
+  }
+
+  Block_T should("support evaporation - with custom decay") in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = evaporation(1000000, halving,"hello")
+    }, ntimes = someRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0)
+    )).toMap)(net)
+  }
 }
