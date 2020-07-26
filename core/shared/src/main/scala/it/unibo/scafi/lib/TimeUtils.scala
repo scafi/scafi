@@ -5,6 +5,8 @@
 
 package it.unibo.scafi.lib
 
+import sun.security.util.Length
+
 import scala.concurrent.duration._
 
 trait StdLib_TimeUtils {
@@ -43,7 +45,7 @@ trait StdLib_TimeUtils {
     }
 
     /*
-    * Returns an value representing the current clock
+    * Returns an value rep(time, info) => (ev.minus(time, decay), info))resenting the current clock
     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
@@ -83,6 +85,12 @@ trait StdLib_TimeUtils {
       rep(false){ impulse =>
         branch(impulse) { false } { timer(d)==0 }
       }
+
+    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (V, T) =
+      (info, T(length, decay))
+
+    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (V, T) =
+      (info, T(length))
   }
 
   trait TimeUtils extends BlockT { self: FieldCalculusSyntax with StandardSensors =>
