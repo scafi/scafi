@@ -167,6 +167,35 @@ trait StdLib_TimeUtils {
       */
     def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (V, T) =
       (info, T(length))
+
+    /**
+      * Periodically invoke a function.
+      *
+      * @param length num, timeout
+      * @param f      () -> T, function to be invoked
+      * @param default   T, default value
+      * @return       T, apply f if the timeout is expired, null otherwise
+      */
+
+    def cyclicFunction[T](length: FiniteDuration, f:  => T, NULL: T): T =
+      cyclicFunctionWithDecay(length.toNanos, deltaTime().toNanos, f, NULL)
+
+    /**
+      * Periodically invoke a function.
+      *
+      * @param length  num, timeout
+      * @param decay   num, decay rate
+      * @param f       () -> T, function to be invoked
+      * @param default T, default value
+      * @return T, apply f if the timeout is expired, null otherwise
+      */
+    def cyclicFunctionWithDecay[T, V](length: T, decay: T, f: => V, NULL: V)(implicit ev: Numeric[T]): V =
+      if (cyclicTimerWithDecay(length, decay)) {
+        f
+      } else {
+        NULL
+      }
+
   }
 
 }

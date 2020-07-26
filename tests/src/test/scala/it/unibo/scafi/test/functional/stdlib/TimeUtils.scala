@@ -8,6 +8,11 @@ import org.scalatest._
 
 import scala.concurrent.duration._
 
+/*
+Still to test:
+- cyclicFunction
+- cyclicFunctionWithDecay
+ */
 class TimeUtils extends FlatSpec{
   import ScafiTestUtils._
 
@@ -82,7 +87,7 @@ class TimeUtils extends FlatSpec{
     exec(new TestProgram {
       override def main(): Any = evaporation(1000000, halving,"hello")
     }, ntimes = fewRounds)(net)
-
+    
     assertNetworkValues((0 to 8).zip(List(
       ("hello", 0), ("hello", 0), ("hello", 0),
       ("hello", 0), ("hello", 0), ("hello", 0),
