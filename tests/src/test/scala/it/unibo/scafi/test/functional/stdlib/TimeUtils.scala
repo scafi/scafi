@@ -86,7 +86,7 @@ class TimeUtils extends FlatSpec{
   Time_Utils should("support evaporation - with custom decay") in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Any = evaporation(1000000, halving,"hello")
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
     
     assertNetworkValues((0 to 8).zip(List(
       ("hello", 0), ("hello", 0), ("hello", 0),
