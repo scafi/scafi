@@ -25,6 +25,9 @@ trait StdLib_Gradients {
       rep(Double.PositiveInfinity){ case d =>
         mux(source){ 0.0 }{ minHoodPlus(nbr(d) + metric()) }
       }
+
+    def hopGradient(source: Boolean): Int = ???
+
   }
 
 }
