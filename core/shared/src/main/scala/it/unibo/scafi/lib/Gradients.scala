@@ -26,8 +26,7 @@ trait StdLib_Gradients {
         mux(source){ 0.0 }{ minHoodPlus(nbr(d) + metric()) }
       }
 
-    def hopGradient(source: Boolean): Int = ???
-
+    def hopGradient(source: Boolean): Double = ???
   }
 
 }

@@ -74,36 +74,36 @@ class TestGradient extends FunSpec with BeforeAndAfterAll {
       it("Should be possible to build a gradient of distances on node 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Int = hopGradient(sense("source"))
+          override def main(): Double = hopGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
-          0, 1, 2,
-          1, 2, 3,
-          2, 3, Int.MaxValue
+          0.0, 1.0, 2.0,
+          1.0, 2.0, 3.0,
+          2.0, 3.0, infinity
         )).toMap)(stdNet)
       }
       it("Should be possible to build a gradient of distances on node 4") {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
-          override def main(): Int = hopGradient(sense("source"))
+          override def main(): Double = hopGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
-          2, 1, 2,
-          1, 0.0, 1,
-          2, 1, Int.MaxValue
+          2.0, 1.0, 2.0,
+          1.0, 0.0, 1.0,
+          2.0, 1.0, infinity
         )).toMap)(stdNet)
       }
       it("Should return a constant field if no source is selected") {
         exec(new TestProgram {
-          override def main(): Int = hopGradient(sense("source"))
+          override def main(): Double = hopGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
-          Int.MaxValue,  Int.MaxValue,  Int.MaxValue,
-          Int.MaxValue,  Int.MaxValue,  Int.MaxValue,
-          Int.MaxValue,  Int.MaxValue,  Int.MaxValue
+          infinity, infinity, infinity,
+          infinity, infinity, infinity,
+          infinity, infinity, infinity
         )).toMap)(stdNet)
       }
       it("Should build a gradient for each source, node 0 and 4"){
@@ -113,9 +113,9 @@ class TestGradient extends FunSpec with BeforeAndAfterAll {
         }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
-          0, 1, 2,
-          1, 0, 1,
-          2, 1, infinity
+          0.0, 1.0, 2.0,
+          1.0, 0.0, 1.0,
+          2.0, 1.0, infinity
         )).toMap)(stdNet)
       }
     }
