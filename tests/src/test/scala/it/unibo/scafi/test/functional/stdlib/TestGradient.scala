@@ -4,14 +4,14 @@ import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
 
-class TestGradient extends FunSpec with BeforeAndAfterAll {
+class TestGradient extends FunSpec with BeforeAndAfterEach {
   import ScafiAssertions._
   import ScafiTestUtils._
 
   var stdNet: Network with SimulatorOps = standardNetwork()
   val infinity: Double = Double.PositiveInfinity
 
-  override protected def beforeAll(): Unit = {
+  override protected def beforeEach(): Unit = {
     stdNet = standardNetwork()
     stdNet.addSensor(name = "source", value = false)
   }
@@ -79,8 +79,8 @@ class TestGradient extends FunSpec with BeforeAndAfterAll {
 
         assertNetworkValues((0 to 8).zip(List(
           0.0, 1.0, 2.0,
-          1.0, 2.0, 3.0,
-          2.0, 3.0, infinity
+          1.0, 1.0, 2.0,
+          2.0, 2.0, infinity
         )).toMap)(stdNet)
       }
       it("Should be possible to build a gradient of distances on node 4") {
@@ -90,9 +90,9 @@ class TestGradient extends FunSpec with BeforeAndAfterAll {
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
-          2.0, 1.0, 2.0,
+          1.0, 1.0, 1.0,
           1.0, 0.0, 1.0,
-          2.0, 1.0, infinity
+          1.0, 1.0, infinity
         )).toMap)(stdNet)
       }
       it("Should return a constant field if no source is selected") {
@@ -113,9 +113,9 @@ class TestGradient extends FunSpec with BeforeAndAfterAll {
         }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
+          0.0, 1.0, 1.0,
           1.0, 0.0, 1.0,
-          2.0, 1.0, infinity
+          1.0, 1.0, infinity
         )).toMap)(stdNet)
       }
     }
