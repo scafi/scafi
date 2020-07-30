@@ -16,7 +16,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
     stdNet.addSensor(name = "source", value = false)
   }
 
-  private[this] trait TestProgram extends AggregateProgram with StandardSensors with Gradients
+  private[this] trait TestProgram extends AggregateProgram with StandardSensors with Gradients with GenericUtils
 
   describe("Classic Gradient") {
     describe("On the standard network") {

@@ -11,25 +11,61 @@ trait StdLib_Gradients {
   type Metric = ()=>Double
 
   trait Gradients {
-    self: FieldCalculusSyntax with StandardSensors =>
+    self: FieldCalculusSyntax with StandardSensors with GenericUtils =>
 
-    case class Gradient(algorithm: (Boolean,()=>Double)=>Double, source: Boolean=false, metric: Metric = nbrRange) {
+    case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
+
       def withMetric(m: Metric): Gradient = this.copy(metric = m)
+
       def run(): Double = algorithm(source, metric)
     }
 
-    val ClassicGradient = Gradient(classicGradient(_,_), false, nbrRange)
+    val ClassicGradient = Gradient(classicGradient(_, _), false, nbrRange)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
-      rep(Double.PositiveInfinity){ case d =>
-        mux(source){ 0.0 }{ minHoodPlus(nbr(d) + metric()) }
+      rep(Double.PositiveInfinity) { case d =>
+        mux(source) {
+          0.0
+        } {
+          minHoodPlus(nbr(d) + metric())
+        }
       }
 
     def hopGradient(source: Boolean): Double =
-      rep(Double.PositiveInfinity){
-        hops => { mux(source) { 0.0 } { 1 + minHood(nbr { hops }) } }
+      rep(Double.PositiveInfinity) {
+        hops => {
+          mux(source) {
+            0.0
+          } {
+            1 + minHood(nbr {
+              hops
+            })
+          }
+        }
       }
-  }
 
+    def BISGradient(source: Boolean): Double = {
+      val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
+      val speed = 1.0 / avgFireInterval
+      val commRadius = 0.2
+
+      rep((Double.PositiveInfinity, Double.PositiveInfinity)) { case (spatialDist: Double, tempDist: Double) =>
+        mux(source) {
+          (0.0, 0.0)
+        } {
+          minHoodPlus {
+            val newEstimate = Math.max(nbr {
+              spatialDist
+            } + nbrRange(), speed * nbr {
+              tempDist
+            } - commRadius)
+            (newEstimate, nbr {
+              tempDist
+            } + nbrLag.toMillis / 1000.0)
+          }
+        }
+      }._1
+    }
+  }
 }
