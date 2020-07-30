@@ -26,7 +26,10 @@ trait StdLib_Gradients {
         mux(source){ 0.0 }{ minHoodPlus(nbr(d) + metric()) }
       }
 
-    def hopGradient(source: Boolean): Double = ???
+    def hopGradient(source: Boolean): Double =
+      rep(Double.PositiveInfinity){
+        hops => { mux(source) { 0.0 } { 1 + minHood(nbr { hops }) } }
+      }
   }
 
 }
