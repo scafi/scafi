@@ -67,6 +67,24 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
           1.41, 1.0, infinity
         )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
       }
+      it("Should be able to react to a change of source"){
+        stdNet.chgSensorValue("source", Set(0), true)
+        exec(new TestProgram {
+          override def main(): Double = classicGradient(sense("source"))
+        }, ntimes = fewRounds)(stdNet)
+
+        stdNet.chgSensorValue("source", Set(0), false)
+        stdNet.chgSensorValue("source", Set(4), true)
+        exec(new TestProgram {
+          override def main(): Double = classicGradient(sense("source"))
+        }, ntimes = fewRounds)(stdNet)
+
+        assertNetworkValues((0 to 8).zip(List(
+          1.41, 1.0, 1.41,
+          1.0, 0.0, 1.0,
+          1.41, 1.0, infinity
+        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
+      }
     }
   }
   describe("Hop Gradient"){
@@ -117,6 +135,24 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
           1.0, 0.0, 1.0,
           1.0, 1.0, infinity
         )).toMap)(stdNet)
+      }
+      it("Should be able to react to a change of source"){
+        stdNet.chgSensorValue("source", Set(0), true)
+        exec(new TestProgram {
+          override def main(): Double = hopGradient(sense("source"))
+        }, ntimes = fewRounds)(stdNet)
+
+        stdNet.chgSensorValue("source", Set(0), false)
+        stdNet.chgSensorValue("source", Set(4), true)
+        exec(new TestProgram {
+          override def main(): Double = hopGradient(sense("source"))
+        }, ntimes = fewRounds)(stdNet)
+
+        assertNetworkValues((0 to 8).zip(List(
+          1.0, 1.0, 1.0,
+          1.0, 0.0, 1.0,
+          1.0, 1.0, infinity
+        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
       }
     }
   }
