@@ -13,7 +13,7 @@ Not yet tested:
 - clock
 - impulsesEvery
  */
-class BlockT extends FlatSpec{
+class TestBlockT extends FlatSpec{
   import ScafiTestUtils._
 
   val Block_T = new ItWord
