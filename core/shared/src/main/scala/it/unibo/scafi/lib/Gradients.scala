@@ -16,7 +16,7 @@ trait StdLib_Gradients {
   type Metric = ()=>Double
 
   trait Gradients {
-    self: FieldCalculusSyntax with StandardSensors with GenericUtils with StateManagement with BlockG with RichLanguage =>
+    self: FieldCalculusSyntax with StandardSensors with GenericUtils with StateManagement with BlockG =>
 
     case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
@@ -174,7 +174,8 @@ trait StdLib_Gradients {
       val defaultDist = if(source) 0.0 else Double.PositiveInfinity
       val loc = (defaultDist, defaultDist, mid(), false)
       // REP tuple: (spatial distance estimate, temporal distance estimate, source ID, obsolete value detected flag)
-      rep[(Double,Double,Int,Boolean)](loc) {
+      // TODO: rep[(Double,Double,ID,Boolean)](loc) {
+      rep[(Double,Double,Any,Boolean)](loc) {
         case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
           // (1) Let's calculate new values for spaceDistEst and sourceId
           import Builtins.Bounded._
@@ -214,7 +215,9 @@ trait StdLib_Gradients {
                 nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
               }
 
-          List[(Double,Double,Int,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
+          //TODO:
+          //List[(Double,Double,Int,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
+          ???
         }
       }._1 // Selects estimated distance
     }
