@@ -21,7 +21,7 @@ trait StdLib_Gradients {
       def run(): Double = algorithm(source, metric)
     }
 
-    val ClassicGradient = Gradient(classicGradient(_, _), false, nbrRange)
+    val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
       rep(Double.PositiveInfinity) { case d =>
