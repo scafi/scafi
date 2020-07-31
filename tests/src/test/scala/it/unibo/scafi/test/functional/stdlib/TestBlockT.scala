@@ -138,4 +138,29 @@ class TestBlockT extends FlatSpec{
     //standard deviation inside the same group should be low
     assert(stdDev(net.valueMap[Int]().filterKeys(_ != 8).values) < maxStdDev)
   }
+
+  Block_T should("T should restart after branch switch") in new SimulationContextFixture {
+    var count = 0
+
+    exec(new TestProgram {
+      net.addSensor[Boolean]("sensor", false)
+      net.chgSensorValue("sensor", Set(0), true)
+
+      override def main(): Unit =
+        branch(sense[Boolean]("sensor"))
+        {
+          if (rep(0)(_ + 1) == 10) {
+            net.chgSensorValue[Boolean]("sensor", Set(0), false)
+          }
+        }
+        {
+          if (T(10, 0, unitaryDecay) == 0) {
+            net.chgSensorValue[Boolean]("sensor", Set(0), true)
+            count = count + 1
+          }
+        }
+    }, ntimes = someRounds)(net)
+
+    assert(count > 20)
+  }
 }
