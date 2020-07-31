@@ -22,10 +22,10 @@ class FieldUtils extends FlatSpec {
     // ACT
     exec(new TestProgram {
       override def main(): Any = (
-        excludingSelf.minHoodSelector(nbr(mid))(nbr(mid)),
-        includingSelf.minHoodSelector(nbr(mid))(nbr(mid)),
-        excludingSelf.maxHoodSelector(nbr(mid))(nbr(mid)),
-        includingSelf.maxHoodSelector(nbr(mid))(nbr(mid))
+        excludingSelf.minHoodSelector(nbr(mid()))(nbr(mid())),
+        includingSelf.minHoodSelector(nbr(mid()))(nbr(mid())),
+        excludingSelf.maxHoodSelector(nbr(mid()))(nbr(mid())),
+        includingSelf.maxHoodSelector(nbr(mid()))(nbr(mid()))
       )
     }, ntimes = fewRounds)(net)
 
@@ -36,15 +36,6 @@ class FieldUtils extends FlatSpec {
       (Some(3),3,Some(7),7), (Some(3),3,Some(6),7), (None,8,None,8)
     )).toMap)(net)
 
-    // Assert this does not throw exception
-    exec(new TestProgram {
-      override def main(): Any = (
-        excludingSelf.minHoodSelector(Double.PositiveInfinity)(1),
-        includingSelf.minHoodSelector(Int.MaxValue)(1),
-        excludingSelf.maxHoodSelector(Double.NegativeInfinity)(1),
-        includingSelf.maxHoodSelector(Int.MinValue)(1)
-      )
-    }, ntimes = fewRounds)(net)
   }
 
   Field_Utils should "support anyHood" in new SimulationContextFixture {
