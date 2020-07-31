@@ -90,5 +90,48 @@ trait StdLib_Gradients {
             }
           }
       }._1
+
+    /**
+      * Idea: a device should change its estimate only for significant errors.
+      * Useful when devices far from the source need only coarse estimates.
+      * Flex gradient provides tunable trade-off between precision and communication cost.
+      *
+      * @param source Source fields of devices from which the gradient is calculated
+      * @param epsilon Parameter expressing tolerance wrt changes
+      * @param delta Distortion into the distance measure, such that neighbor distance is
+      *              never considered to be less than delta * communicationRadius.
+      * @param communicationRadius
+      * @return
+    */
+    def FlexGradient(source: Boolean,
+             epsilon: Double = 0.5,
+             delta: Double = 1.0,
+             communicationRadius: Double = 1.0
+            ): Double =
+      rep(Double.PositiveInfinity){ g =>
+        def distance = Math.max(nbrRange(), delta * communicationRadius)
+
+        import Builtins.Bounded._ // for min/maximizing over tuples
+        val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
+        /*maxHood {
+          ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
+        }*/
+        val constraint = minHoodPlus{ (nbr{g} + distance) }
+
+        mux(source){ 0.0 }{
+          if(Math.max(communicationRadius, 2*constraint) < g) {
+            constraint
+          }
+          else if(maxLocalSlope._1 > 1 + epsilon) {
+            maxLocalSlope._3 + (1 + epsilon)*Math.max(delta * communicationRadius, maxLocalSlope._4)
+          }
+          else if(maxLocalSlope._1 < 1 - epsilon){
+            maxLocalSlope._3 + (1 - epsilon)*Math.max(delta * communicationRadius, maxLocalSlope._4)
+          } else {
+            g
+          }
+        }
+      }
+
   }
 }
