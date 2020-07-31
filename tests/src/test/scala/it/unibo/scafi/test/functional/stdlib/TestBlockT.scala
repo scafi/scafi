@@ -39,6 +39,18 @@ class TestBlockT extends FlatSpec{
     )).toMap)(net)
   }
 
+  Block_T should "T should initialize as specified" in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = T(10, 0, identity[Int])
+    }, ntimes = fewRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      10, 10, 10,
+      10, 10, 10,
+      10, 10, 10
+    )).toMap)(net)
+  }
+
   Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture {
     val floorValue = 1
     exec(new TestProgram {
