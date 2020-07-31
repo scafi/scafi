@@ -29,7 +29,7 @@ class TestBlockT extends FlatSpec{
 
   Block_T should "support T with unitary decay and 0 floor value" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = T(10, 0, unitaryDecay)
+      override def main(): Int = T(10, 0, unitaryDecay)
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -41,7 +41,7 @@ class TestBlockT extends FlatSpec{
 
   Block_T should "T should initialize as specified" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = T(10, 0, identity[Int])
+      override def main(): Int = T(10, 0, identity[Int])
     }, ntimes = fewRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -59,14 +59,14 @@ class TestBlockT extends FlatSpec{
         rep(0)(_ + 1)
       )
     }, ntimes = fewRounds)(net)
-    
+
     assert(net.valueMap[(Int, Int)]().forall { case (_, (done: Int, todo: Int)) => done + todo == manyManyRounds })
   }
 
   Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture {
     val floorValue = 1
     exec(new TestProgram {
-      override def main(): Any = T(10, floorValue, unitaryDecay)
+      override def main(): Int = T(10, floorValue, unitaryDecay)
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -79,7 +79,7 @@ class TestBlockT extends FlatSpec{
   Block_T should "support T with unitary decay and negative floor value" in new SimulationContextFixture {
     val floorValue: Int = -10
     exec(new TestProgram {
-      override def main(): Any = T(10, floorValue, unitaryDecay)
+      override def main(): Int = T(10, floorValue, unitaryDecay)
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -91,7 +91,7 @@ class TestBlockT extends FlatSpec{
 
   Block_T should("support timer operation") in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = timer(10)
+      override def main(): Int = timer(10)
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -105,7 +105,7 @@ class TestBlockT extends FlatSpec{
     val value: Int = 10
     val expValue: Int = -1
     exec(new TestProgram {
-      override def main(): Any = limitedMemory(value, expValue, manyManyRounds)._1
+      override def main(): Int = limitedMemory(value, expValue, manyManyRounds)._1
     }, ntimes = fewRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -119,7 +119,7 @@ class TestBlockT extends FlatSpec{
     val value: Int = 10
     val expValue: Int = -1
     exec(new TestProgram {
-      override def main(): Any = limitedMemory(value, expValue, 10)._1
+      override def main(): Int = limitedMemory(value, expValue, 10)._1
     }, ntimes = manyRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -132,7 +132,7 @@ class TestBlockT extends FlatSpec{
   Block_T should("support sharedTimerWithDecay") in new SimulationContextFixture {
     val maxStdDev: Int = 2
     exec(new TestProgram {
-      override def main(): Any = sharedTimerWithDecay(1, 1)
+      override def main(): Int = sharedTimerWithDecay(1, 1)
     }, ntimes = manyManyRounds)(net)
 
     //standard deviation inside the same group should be low
