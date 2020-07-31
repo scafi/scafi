@@ -5,6 +5,8 @@
 
 package it.unibo.scafi.lib
 
+import scala.concurrent.duration.FiniteDuration
+
 trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
 
@@ -67,5 +69,26 @@ trait StdLib_Gradients {
         }
       }._1
     }
+
+    def CRFGradient(source: Boolean, raisingSpeed: Double = 5): Double =
+      rep((Double.PositiveInfinity, 0.0)) {
+        case (g, speed) =>
+          mux(source){ (0.0, 0.0) }{
+            implicit def durationToDouble(fd: FiniteDuration): Double = fd.toMillis.toDouble / 1000.0
+            //TODO: remove Any
+            case class Constraint(nbr: Any, gradient: Double, nbrDistance: Double)
+
+            val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
+              val (nbrg, d) = (nbr{g}, nbrRange())
+              mux(nbrg + d + speed * nbrLag() <= g){ List(Constraint(nbr{mid()}, nbrg, d)) }{ List() }
+            }
+
+            if(constraints.isEmpty){
+              (g + raisingSpeed * deltaTime(), raisingSpeed)
+            } else {
+              (constraints.map(c => c.gradient + c.nbrDistance).min, 0.0)
+            }
+          }
+      }._1
   }
 }
