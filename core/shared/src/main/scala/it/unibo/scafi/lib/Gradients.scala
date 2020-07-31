@@ -45,10 +45,10 @@ trait StdLib_Gradients {
         }
       }
 
-    def BISGradient(source: Boolean): Double = {
+    def BISGradient(source: Boolean, commRadius: Double = 0.2): Double = {
+      //meanCounter returns NaN
       val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
       val speed = 1.0 / avgFireInterval
-      val commRadius = 0.2
 
       rep((Double.PositiveInfinity, Double.PositiveInfinity)) { case (spatialDist: Double, tempDist: Double) =>
         mux(source) {
@@ -62,7 +62,7 @@ trait StdLib_Gradients {
             } - commRadius)
             (newEstimate, nbr {
               tempDist
-            } + nbrLag.toMillis / 1000.0)
+            } + nbrLag().toMillis / 1000.0)
           }
         }
       }._1
