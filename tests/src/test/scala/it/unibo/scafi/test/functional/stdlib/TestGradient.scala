@@ -295,7 +295,6 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       }
     }
   }
-
   describe("Flex Gradient"){
     describe("On the standard network") {
       it("Should be possible to build a gradient of distances on node 0") {
@@ -366,5 +365,5 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       }
     }
   }
-
+  
 }
