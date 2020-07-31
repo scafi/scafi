@@ -51,6 +51,18 @@ class TestBlockT extends FlatSpec{
     )).toMap)(net)
   }
 
+  Block_T should "T should be consistent in intermediate tests" in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): (Int, Int) = (
+        T(manyManyRounds, 0, unitaryDecay),
+        //this can be seen as a round counter
+        rep(0)(_ + 1)
+      )
+    }, ntimes = fewRounds)(net)
+    
+    assert(net.valueMap[(Int, Int)]().forall { case (_, (done: Int, todo: Int)) => done + todo == manyManyRounds })
+  }
+
   Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture {
     val floorValue = 1
     exec(new TestProgram {
