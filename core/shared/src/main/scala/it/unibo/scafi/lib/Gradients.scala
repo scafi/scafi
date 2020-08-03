@@ -7,9 +7,7 @@ package it.unibo.scafi.lib
 
 import scala.concurrent.duration.FiniteDuration
 import scala.math.Numeric.DoubleIsFractional
-import it.unibo.scafi.core.RichLanguage
-import it.unibo.scafi.incarnations
-import it.unibo.scafi.incarnations.Incarnation
+
 
 trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
@@ -51,7 +49,7 @@ trait StdLib_Gradients {
         }
       }
 
-    def BISGradient(source: Boolean, commRadius: Double = 0.2): Double = {
+    def bisGradient(source: Boolean, commRadius: Double = 0.2): Double = {
       //meanCounter returns NaN
       val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
       val speed = 1.0 / avgFireInterval
@@ -74,7 +72,7 @@ trait StdLib_Gradients {
       }._1
     }
 
-    def CRFGradient(source: Boolean, raisingSpeed: Double = 5): Double =
+    def crfGradient(source: Boolean, raisingSpeed: Double = 5): Double =
       rep((Double.PositiveInfinity, 0.0)) {
         case (g, speed) =>
           mux(source){ (0.0, 0.0) }{
@@ -107,10 +105,10 @@ trait StdLib_Gradients {
       * @param communicationRadius
       * @return
     */
-    def FlexGradient(source: Boolean,
-             epsilon: Double = 0.5,
-             delta: Double = 1.0,
-             communicationRadius: Double = 1.0
+    def flexGradient(source: Boolean,
+                     epsilon: Double = 0.5,
+                     delta: Double = 1.0,
+                     communicationRadius: Double = 1.0
             ): Double =
       rep(Double.PositiveInfinity){ g =>
         def distance = Math.max(nbrRange(), delta * communicationRadius)
@@ -143,7 +141,7 @@ trait StdLib_Gradients {
         }
       }
 
-    def SVDGradient(source: Boolean, metric: => Double = nbrRange(), lagMetric: => Double = nbrLag().toMillis): Double = {
+    def svdGradient(source: Boolean, metric: => Double = nbrRange(), lagMetric: => Double = nbrLag().toMillis): Double = {
 
       /**
         * At the heart of SVD algorithm. This function is responsible to kick-start the reconfiguration process.

@@ -161,7 +161,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = BISGradient(sense("source"))
+          override def main(): Double = bisGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -173,7 +173,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 4") {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
-          override def main(): Double = BISGradient(sense("source"))
+          override def main(): Double = bisGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -184,7 +184,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       }
       it("Should return a constant field if no source is selected") {
         exec(new TestProgram {
-          override def main(): Double = BISGradient(sense("source"))
+          override def main(): Double = bisGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -196,7 +196,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should build a gradient for each source, node 0 and 4"){
         stdNet.chgSensorValue("source", Set(0, 4), true)
         exec(new TestProgram {
-          override def main(): Double = BISGradient(sense("source"))
+          override def main(): Double = bisGradient(sense("source"))
         }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -208,13 +208,13 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be able to react to a change of source"){
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = BISGradient(sense("source"))
+          override def main(): Double = bisGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         stdNet.chgSensorValue("source", Set(0), false)
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
-          override def main(): Double = BISGradient(sense("source"))
+          override def main(): Double = bisGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -230,7 +230,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = CRFGradient(sense("source"))
+          override def main(): Double = crfGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -242,7 +242,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 4") {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
-          override def main(): Double = CRFGradient(sense("source"))
+          override def main(): Double = crfGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -253,7 +253,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       }
       it("Should return a constant field if no source is selected") {
         exec(new TestProgram {
-          override def main(): Double = CRFGradient(sense("source"))
+          override def main(): Double = crfGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -265,7 +265,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should build a gradient for each source, node 0 and 4"){
         stdNet.chgSensorValue("source", Set(0, 4), true)
         exec(new TestProgram {
-          override def main(): Double = CRFGradient(sense("source"))
+          override def main(): Double = crfGradient(sense("source"))
         }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -277,14 +277,14 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be able to react to a change of source"){
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = CRFGradient(sense("source"))
+          override def main(): Double = crfGradient(sense("source"))
         }, ntimes = manyRounds)(stdNet)
 
         stdNet.chgSensorValue("source", Set(0), false)
         stdNet.chgSensorValue("source", Set(4), true)
         //Note: requires more iterations than the the others
         exec(new TestProgram {
-          override def main(): Double = CRFGradient(sense("source"))
+          override def main(): Double = crfGradient(sense("source"))
         }, ntimes = manyManyRounds * 10)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -300,7 +300,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = FlexGradient(sense("source"))
+          override def main(): Double = flexGradient(sense("source"))
         }, ntimes = manyManyRounds * 10)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -312,7 +312,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 4") {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
-          override def main(): Double = FlexGradient(sense("source"))
+          override def main(): Double = flexGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -323,7 +323,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       }
       it("Should return a constant field if no source is selected") {
         exec(new TestProgram {
-          override def main(): Double = FlexGradient(sense("source"))
+          override def main(): Double = flexGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -335,7 +335,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should build a gradient for each source, node 0 and 4"){
         stdNet.chgSensorValue("source", Set(0, 4), true)
         exec(new TestProgram {
-          override def main(): Double = FlexGradient(sense("source"))
+          override def main(): Double = flexGradient(sense("source"))
         }, ntimes = manyRounds)(stdNet)
         assertNetworkValues((0 to 8).zip(List(
           0.0, 1.0, 1.41,
@@ -346,14 +346,14 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be able to react to a change of source"){
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = FlexGradient(sense("source"))
+          override def main(): Double = flexGradient(sense("source"))
         }, ntimes = manyManyRounds)(stdNet)
 
         stdNet.chgSensorValue("source", Set(0), false)
         stdNet.chgSensorValue("source", Set(4), true)
         //Note: requires more iterations than the the others
         exec(new TestProgram {
-          override def main(): Double = FlexGradient(sense("source"))
+          override def main(): Double = flexGradient(sense("source"))
         }, ntimes = manyManyRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -369,7 +369,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = SVDGradient(sense("source"))
+          override def main(): Double = svdGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -381,7 +381,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be possible to build a gradient of distances on node 4") {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
-          override def main(): Double = SVDGradient(sense("source"))
+          override def main(): Double = svdGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -392,7 +392,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       }
       it("Should return a constant field if no source is selected") {
         exec(new TestProgram {
-          override def main(): Double = SVDGradient(sense("source"))
+          override def main(): Double = svdGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -404,7 +404,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should build a gradient for each source, node 0 and 4"){
         stdNet.chgSensorValue("source", Set(0, 4), true)
         exec(new TestProgram {
-          override def main(): Double = SVDGradient(sense("source"))
+          override def main(): Double = svdGradient(sense("source"))
         }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
@@ -416,14 +416,14 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should be able to react to a change of source"){
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
-          override def main(): Double = SVDGradient(sense("source"))
+          override def main(): Double = svdGradient(sense("source"))
         }, ntimes = fewRounds)(stdNet)
 
         stdNet.chgSensorValue("source", Set(0), false)
         stdNet.chgSensorValue("source", Set(4), true)
         //Note: requires more iterations than the the others
         exec(new TestProgram {
-          override def main(): Double = SVDGradient(sense("source"))
+          override def main(): Double = svdGradient(sense("source"))
         }, ntimes = manyRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
