@@ -5,10 +5,11 @@
 
 package it.unibo.scafi.lib
 
-import it.unibo.scafi.core.RichLanguage
-
 import scala.concurrent.duration.FiniteDuration
 import scala.math.Numeric.DoubleIsFractional
+import it.unibo.scafi.core.RichLanguage
+import it.unibo.scafi.incarnations
+import it.unibo.scafi.incarnations.Incarnation
 
 trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
@@ -113,12 +114,18 @@ trait StdLib_Gradients {
             ): Double =
       rep(Double.PositiveInfinity){ g =>
         def distance = Math.max(nbrRange(), delta * communicationRadius)
+        //def distance = nbrRange()
 
-        import Builtins.Bounded._ // for min/maximizing over tuples
-        val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
-        /*maxHood {
-          ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
-        }*/
+        val max: Double = {
+          maxHood {
+            //??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
+            //((g - nbr{g})/distance, nbr{mid()}, nbr{g}, nbrRange())
+            g - nbr{g}/distance
+          }
+        }
+
+        val maxLocalSlope =  (maxHood{(g - nbr{g})/distance}, nbr{mid()}, nbr{g}, maxHood{nbrRange()})
+
         val constraint = minHoodPlus{ (nbr{g} + distance) }
 
         mux(source){ 0.0 }{
@@ -176,7 +183,7 @@ trait StdLib_Gradients {
       // REP tuple: (spatial distance estimate, temporal distance estimate, source ID, obsolete value detected flag)
       // TODO: rep[(Double,Double,ID,Boolean)](loc) {
       rep[(Double,Double,Any,Boolean)](loc) {
-        case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
+        case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) =>
           // (1) Let's calculate new values for spaceDistEst and sourceId
           import Builtins.Bounded._
           val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
@@ -218,7 +225,6 @@ trait StdLib_Gradients {
           //TODO:
           //List[(Double,Double,Int,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
           ???
-        }
       }._1 // Selects estimated distance
     }
   }
