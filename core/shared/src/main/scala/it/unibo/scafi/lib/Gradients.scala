@@ -228,7 +228,11 @@ trait StdLib_Gradients {
       }._1 // Selects estimated distance
     }
 
-    def ultGradient(source: Boolean, metric: () => Double = nbrRange, radius: Double, factor: Double): Double = {
+    def ultGradient(
+                     source: Boolean,
+                     metric: () => Double = nbrRange,
+                     radius: Double = 0.2,
+                     factor: Double = 0.1): Double = {
       def svd: Double = svdGradient(source, metric)
       def bis: Double = bisGradient(source, metric, radius)
       def inertialFilter(value: Double, factor: Double): Double = {
