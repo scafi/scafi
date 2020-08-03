@@ -49,7 +49,7 @@ trait StdLib_Gradients {
         }
       }
 
-    def bisGradient(source: Boolean, commRadius: Double = 0.2): Double = {
+    def bisGradient(source: Boolean, metric: () => Double = nbrRange, commRadius: Double = 0.2): Double = {
       //meanCounter returns NaN
       val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
       val speed = 1.0 / avgFireInterval
@@ -61,7 +61,7 @@ trait StdLib_Gradients {
           minHoodPlus {
             val newEstimate = Math.max(nbr {
               spatialDist
-            } + nbrRange(), speed * nbr {
+            } + metric(), speed * nbr {
               tempDist
             } - commRadius)
             (newEstimate, nbr {
@@ -72,7 +72,7 @@ trait StdLib_Gradients {
       }._1
     }
 
-    def crfGradient(source: Boolean, raisingSpeed: Double = 5): Double =
+    def crfGradient(source: Boolean, metric: () => Double = nbrRange, raisingSpeed: Double = 5): Double =
       rep((Double.PositiveInfinity, 0.0)) {
         case (g, speed) =>
           mux(source){ (0.0, 0.0) }{
@@ -81,7 +81,7 @@ trait StdLib_Gradients {
             case class Constraint(nbr: Any, gradient: Double, nbrDistance: Double)
 
             val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
-              val (nbrg, d) = (nbr{g}, nbrRange())
+              val (nbrg, d) = (nbr{g}, metric())
               mux(nbrg + d + speed * nbrLag() <= g){ List(Constraint(nbr{mid()}, nbrg, d)) }{ List() }
             }
 
@@ -106,6 +106,7 @@ trait StdLib_Gradients {
       * @return
     */
     def flexGradient(source: Boolean,
+                     metric: () => Double = nbrRange,
                      epsilon: Double = 0.5,
                      delta: Double = 1.0,
                      communicationRadius: Double = 1.0
@@ -122,7 +123,7 @@ trait StdLib_Gradients {
           }
         }
 
-        val maxLocalSlope =  (maxHood{(g - nbr{g})/distance}, nbr{mid()}, nbr{g}, maxHood{nbrRange()})
+        val maxLocalSlope =  (maxHood{(g - nbr{g})/distance}, nbr{mid()}, nbr{g}, maxHood{metric()})
 
         val constraint = minHoodPlus{ (nbr{g} + distance) }
 
