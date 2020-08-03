@@ -7,7 +7,8 @@ package it.unibo.scafi.lib
 
 import scala.concurrent.duration.FiniteDuration
 import scala.math.Numeric.DoubleIsFractional
-
+import it.unibo.utils.Filters
+import it.unibo.utils.Filters.expFilter
 
 trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
@@ -142,7 +143,7 @@ trait StdLib_Gradients {
         }
       }
 
-    def svdGradient(source: Boolean, metric: () => Double = nbrRange(), lagMetric: => Double = nbrLag().toMillis): Double = {
+    def svdGradient(source: Boolean, metric: () => Double = nbrRange, lagMetric: => Double = nbrLag().toMillis): Double = {
 
       /**
         * At the heart of SVD algorithm. This function is responsible to kick-start the reconfiguration process.
@@ -225,6 +226,21 @@ trait StdLib_Gradients {
           //List[(Double,Double,Int,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
           ???
       }._1 // Selects estimated distance
+    }
+
+    def ultGradient(source: Boolean, metric: () => Double = nbrRange, radius: Double, factor: Double): Double = {
+      def svd: Double = svdGradient(source, metric)
+      def bis: Double = bisGradient(source, metric, radius)
+      def inertialFilter(value: Double, factor: Double): Double = {
+        val dt: Double = deltaTime().toNanos
+        val at: Double = expFilter(dt, factor)
+        val ad: Double = expFilter(Math.abs(value - delay(value)), factor)
+        rep (value) {old => {
+          val v: Double = Math.signum(old) * Math.min( Math.abs(value - old)/dt, ad/at)
+          old + v * dt
+        }}
+      }
+      inertialFilter(Math.max(svd, bis), factor)
     }
   }
 }
