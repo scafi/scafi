@@ -142,7 +142,7 @@ trait StdLib_Gradients {
         }
       }
 
-    def svdGradient(source: Boolean, metric: => Double = nbrRange(), lagMetric: => Double = nbrLag().toMillis): Double = {
+    def svdGradient(source: Boolean, metric: () => Double = nbrRange(), lagMetric: => Double = nbrLag().toMillis): Double = {
 
       /**
         * At the heart of SVD algorithm. This function is responsible to kick-start the reconfiguration process.
