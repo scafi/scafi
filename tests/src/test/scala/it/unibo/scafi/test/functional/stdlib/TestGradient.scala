@@ -2,6 +2,7 @@ package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
+import org.scalatest.Assertions.assert
 import org.scalatest._
 
 class TestGradient extends FunSpec with BeforeAndAfterEach {
@@ -11,22 +12,21 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   var stdNet: Network with SimulatorOps = standardNetwork()
   val infinity: Double = Double.PositiveInfinity
 
-  override protected def beforeEach(): Unit = {
+  def restartNetwork(): Unit = {
     stdNet = standardNetwork()
     stdNet.addSensor(name = "source", value = false)
   }
+  override protected def beforeEach(): Unit = restartNetwork()
 
-  private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG with StateManagement with Gradients with GenericUtils
+  private[this] trait TestProgram extends AggregateProgram with ConstructsSemantics with StandardSensors with BlockG with StateManagement with Gradients with GenericUtils
 
-  def sameAsClassic(prog: () => Double,
+  def sameAsClassic(prog: TestProgram,
                     net: Network with SimulatorOps,
                     sourceSensor: String = "source",
                     rounds: Int = manyRounds,
                     tolerance: Double = 0.01
                    ): Boolean = {
-    exec(new TestProgram {
-      override def main(): (Double, Double) = (prog(), classicGradient(sense(sourceSensor)))
-    })(net)
+    exec(prog)(net)
 
     //le coppie devono essere uguali
     println(net.valueMap())
@@ -172,361 +172,83 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       }
     }
   }
-  describe("BIS Gradient"){
+
+  describe("BIS Gradient - refactor") {
     describe("On the standard network") {
-      it("Should be possible to build a gradient of distances on node 0") {
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
-          1.0, 1.41, 2.41,
-          2.0, 2.42, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be possible to build a gradient of distances on node 4") {
-        stdNet.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = manyManyRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should return a constant field if no source is selected") {
-        exec(new TestProgram {
-          override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          infinity, infinity, infinity,
-          infinity, infinity, infinity,
-          infinity, infinity, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should build a gradient for each source, node 0 and 4"){
-        stdNet.chgSensorValue("source", Set(0, 4), true)
-        exec(new TestProgram {
-          override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be able to react to a change of source"){
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        stdNet.chgSensorValue("source", Set(0), false)
-        stdNet.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
+      testBasicBehaviour(new TestProgram {
+        override def main(): (Double, Double) = (bisGradient(sense("source")), classicGradient(sense("source")))
+      }, ntimes = manyRounds)
     }
   }
-  describe("CRF Gradient"){
+  describe("CRF Gradient - refactor") {
     describe("On the standard network") {
-      it("Should be possible to build a gradient of distances on node 0") {
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = crfGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
-          1.0, 1.41, 2.41,
-          2.0, 2.42, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be possible to build a gradient of distances on node 4") {
-        stdNet.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Double = crfGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should return a constant field if no source is selected") {
-        exec(new TestProgram {
-          override def main(): Double = crfGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          infinity, infinity, infinity,
-          infinity, infinity, infinity,
-          infinity, infinity, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should build a gradient for each source, node 0 and 4"){
-        stdNet.chgSensorValue("source", Set(0, 4), true)
-        exec(new TestProgram {
-          override def main(): Double = crfGradient(sense("source"))
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be able to react to a change of source"){
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = crfGradient(sense("source"))
-        }, ntimes = manyRounds)(stdNet)
-
-        stdNet.chgSensorValue("source", Set(0), false)
-        stdNet.chgSensorValue("source", Set(4), true)
-        //Note: requires more iterations than the the others
-        exec(new TestProgram {
-          override def main(): Double = crfGradient(sense("source"))
-        }, ntimes = manyManyRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
+      testBasicBehaviour(new TestProgram {
+        override def main(): (Double, Double) = (crfGradient(sense("source")), classicGradient(sense("source")))
+      }, ntimes = manyManyRounds, tolerance = 0.2)
     }
   }
-  describe("Flex Gradient"){
+  describe("Flex Gradient - refactor") {
     describe("On the standard network") {
-      it("Should be possible to build a gradient of distances on node 0") {
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05)
-        }, ntimes = manyManyRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
-          1.0, 1.41, 2.41,
-          2.0, 2.42, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.1))(stdNet)
-      }
-      it("Should be possible to build a gradient of distances on node 4") {
-        stdNet.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Double = flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05)
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.1))(stdNet)
-      }
-      it("Should return a constant field if no source is selected") {
-        exec(new TestProgram {
-          override def main(): Double = flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05)
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          infinity, infinity, infinity,
-          infinity, infinity, infinity,
-          infinity, infinity, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.1))(stdNet)
-      }
-      it("Should build a gradient for each source, node 0 and 4"){
-        stdNet.chgSensorValue("source", Set(0, 4), true)
-        exec(new TestProgram {
-          override def main(): Double = flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05)
-        }, ntimes = manyRounds)(stdNet)
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.1))(stdNet)
-      }
-      it("Should be able to react to a change of source"){
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05)
-        }, ntimes = someRounds)(stdNet)
-
-        stdNet.chgSensorValue("source", Set(0), false)
-        stdNet.chgSensorValue("source", Set(4), true)
-        //Note: requires more iterations than the the others
-        exec(new TestProgram {
-          override def main(): Double = flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05)
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.1))(stdNet)
-      }
+      testBasicBehaviour(new TestProgram {
+        override def main(): (Double, Double) = (flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05), classicGradient(sense("source")))
+      })
     }
   }
-  describe("SVD Gradient"){
+  describe("SVD Gradient - refactor") {
     describe("On the standard network") {
-      it("Should be possible to build a gradient of distances on node 0") {
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = svdGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
-          1.0, 1.41, 2.41,
-          2.0, 2.42, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be possible to build a gradient of distances on node 4") {
-        stdNet.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Double = svdGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should return a constant field if no source is selected") {
-        exec(new TestProgram {
-          override def main(): Double = svdGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          infinity, infinity, infinity,
-          infinity, infinity, infinity,
-          infinity, infinity, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should build a gradient for each source, node 0 and 4"){
-        stdNet.chgSensorValue("source", Set(0, 4), true)
-        exec(new TestProgram {
-          override def main(): Double = svdGradient(sense("source"))
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be able to react to a change of source"){
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = svdGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
-
-        stdNet.chgSensorValue("source", Set(0), false)
-        stdNet.chgSensorValue("source", Set(4), true)
-        //Note: requires more iterations than the the others
-        exec(new TestProgram {
-          override def main(): Double = svdGradient(sense("source"))
-        }, ntimes = manyRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
+      testBasicBehaviour(new TestProgram {
+        override def main(): (Double, Double) = (svdGradient(sense("source")), classicGradient(sense("source")))
+      }, ntimes = manyRounds)
     }
   }
-  describe("ULT Gradient"){
+  describe("ULT Gradient - refactor") {
     describe("On the standard network") {
-      it("Should be possible to build a gradient of distances on node 0") {
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = manyManyRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
-          1.0, 1.41, 2.41,
-          2.0, 2.42, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be possible to build a gradient of distances on node 4") {
-        stdNet.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should return a constant field if no source is selected") {
-        exec(new TestProgram {
-          override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          infinity, infinity, infinity,
-          infinity, infinity, infinity,
-          infinity, infinity, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should build a gradient for each source, node 0 and 4"){
-        stdNet.chgSensorValue("source", Set(0, 4), true)
-        exec(new TestProgram {
-          override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = someRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
-      it("Should be able to react to a change of source"){
-        stdNet.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = manyManyRounds)(stdNet)
-
-        stdNet.chgSensorValue("source", Set(0), false)
-        stdNet.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = manyManyRounds)(stdNet)
-
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
-      }
+      testBasicBehaviour(new TestProgram {
+        override def main(): (Double, Double) = (ultGradient(sense("source")), classicGradient(sense("source")))
+      })
     }
   }
 
-  /*
-  describe("test refactor"){
-    it("bis same as classic") {
-      //sameAsClassic(bisGradient(sense("source")))
+  def testBasicBehaviour(v: TestProgram, ntimes: Int = someRounds, tolerance: Double = 0.1): Unit  = {
+    it("Should be possible to build a gradient of distances on node 0") {
+      stdNet.chgSensorValue("source", Set(0), true)
+      exec(v, ntimes = ntimes)(stdNet)
+      assert(comparePairResult(stdNet.valueMap[(Double, Double)](), tolerance))
     }
-    it
-  }
-  */
+    it("Should be possible to build a gradient of distances on node 4") {
+      stdNet.chgSensorValue("source", Set(4), true)
+      exec(v, ntimes = ntimes)(stdNet)
+      assert(comparePairResult(stdNet.valueMap[(Double, Double)](), tolerance))
+    }
+    it("Should return a constant field if no source is selected") {
+      exec(v, ntimes = ntimes)(stdNet)
+      assert(comparePairResult(stdNet.valueMap[(Double, Double)](), tolerance))
+    }
+    it("Should build a gradient for each source, node 0 and 4"){
+      stdNet.chgSensorValue("source", Set(0, 4), true)
+      exec(v, ntimes = ntimes)(stdNet)
+      assert(comparePairResult(stdNet.valueMap[(Double, Double)](), tolerance))
+    }
+    it("Should be able to react to a change of source"){
+      stdNet.chgSensorValue("source", Set(0), true)
+      exec(v, ntimes = ntimes)(stdNet)
+      assert(comparePairResult(stdNet.valueMap[(Double, Double)](), tolerance))
+      stdNet.chgSensorValue("source", Set(0), false)
+      stdNet.chgSensorValue("source", Set(4), true)
+      exec(v, ntimes = ntimes)(stdNet)
+      assert(comparePairResult(stdNet.valueMap[(Double, Double)](), tolerance))
+    }
 
+  }
+
+  def comparePairResult(valueMap:Map[ID, (Double, Double)], tolerance: Double): Boolean = {
+    valueMap.forall(e => {
+      if (e._2._1 === e._2._2 +- tolerance) {
+        true
+      } else {
+        println(valueMap)
+        fail(s"Error on ${e._1}: expected ${e._2._2} but got ${e._2._1}" )
+      }
+    })
+  }
 }
