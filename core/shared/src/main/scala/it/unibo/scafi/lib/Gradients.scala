@@ -15,6 +15,10 @@ trait StdLib_Gradients {
 
   type Metric = ()=>Double
 
+  import Builtins.Bounded
+
+  implicit val idBounded: Bounded[ID]
+
   trait Gradients {
     self: FieldCalculusSyntax with StandardSensors with GenericUtils with StateManagement with BlockG =>
 
@@ -122,18 +126,12 @@ trait StdLib_Gradients {
             ): Double =
       rep(Double.PositiveInfinity){ g =>
         def distance = Math.max(nbrRange(), delta * communicationRadius)
-        //def distance = nbrRange()
 
-        val max: Double = {
-          maxHood {
-            //??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
-            //((g - nbr{g})/distance, nbr{mid()}, nbr{g}, nbrRange())
-            g - nbr{g}/distance
-          }
+        import Builtins.Bounded._ // for min/maximizing over tuples
+        val maxLocalSlope: (Double,ID,Double,Double) = //??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
+        maxHood {
+          ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
         }
-
-        val maxLocalSlope =  (maxHood{(g - nbr{g})/distance}, nbr{mid()}, nbr{g}, maxHood{metric()})
-
         val constraint = minHoodPlus{ (nbr{g} + distance) }
 
         mux(source){ 0.0 }{
