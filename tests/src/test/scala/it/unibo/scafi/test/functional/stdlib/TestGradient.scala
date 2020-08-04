@@ -178,7 +178,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
           override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
+        }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
           0.0, 1.0, 2.0,
@@ -190,7 +190,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
           override def main(): Double = bisGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
+        }, ntimes = manyManyRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
           1.41, 1.0, 1.41,
@@ -301,7 +301,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
         //Note: requires more iterations than the the others
         exec(new TestProgram {
           override def main(): Double = crfGradient(sense("source"))
-        }, ntimes = manyManyRounds * 10)(stdNet)
+        }, ntimes = manyManyRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
           1.41, 1.0, 1.41,
@@ -456,7 +456,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
           override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
+        }, ntimes = manyManyRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
           0.0, 1.0, 2.0,
@@ -468,7 +468,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
           override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
+        }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
           1.41, 1.0, 1.41,
@@ -479,7 +479,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       it("Should return a constant field if no source is selected") {
         exec(new TestProgram {
           override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
+        }, ntimes = someRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
           infinity, infinity, infinity,
@@ -503,14 +503,13 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
           override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = fewRounds)(stdNet)
+        }, ntimes = manyManyRounds)(stdNet)
 
         stdNet.chgSensorValue("source", Set(0), false)
         stdNet.chgSensorValue("source", Set(4), true)
-        //Note: requires more iterations than the the others
         exec(new TestProgram {
           override def main(): Double = ultGradient(sense("source"))
-        }, ntimes = manyRounds)(stdNet)
+        }, ntimes = manyManyRounds)(stdNet)
 
         assertNetworkValues((0 to 8).zip(List(
           1.41, 1.0, 1.41,
