@@ -79,6 +79,7 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
 
 object ScafiBridge {
 
+  var Instance: Option[ScafiBridge] = None
   /**
     * implicit class used to compute the path level in the tree
     * @param path the path passed

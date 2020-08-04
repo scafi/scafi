@@ -7,7 +7,7 @@ package it.unibo.scafi.simulation
 
 import it.unibo.scafi.config.{GridSettings, SimpleRandomSettings}
 import it.unibo.scafi.platform.{SimulationPlatform, SpaceAwarePlatform}
-import it.unibo.scafi.simulation.MetaActionManager.MetaAction
+import it.unibo.scafi.simulation.MetaActionManager.{EmptyAction, MetaAction}
 import it.unibo.scafi.simulation.SimulationObserver.{MovementEvent, SensorChangedEvent}
 import it.unibo.scafi.space._
 
@@ -76,6 +76,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
         this.setPosition(id,Point3D(currentPosition.x + dt._1, currentPosition.y + dt._2, currentPosition.z).asInstanceOf[P])
       case MultiNodeMovement(map) => map.foreach {x => this.setPosition(x._1,x._2)}
       case NodeChangeSensor(id, sensor,value) => this.chgSensorValue(sensor,Set(id),value)
+      case EmptyAction =>
       case _ => throw new IllegalArgumentException(s"Meta action ${meta} not supported by the spatial simulator.")
     }
 

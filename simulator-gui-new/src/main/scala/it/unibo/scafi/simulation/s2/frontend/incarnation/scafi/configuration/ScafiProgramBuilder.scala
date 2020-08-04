@@ -8,10 +8,9 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.{Program, ProgramBuil
 import it.unibo.scafi.simulation.s2.frontend.controller.presenter.SimulationPresenter
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.ScafiCommandBinding.StandardBinding
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.ScafiProgramEnvironment
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{ScafiSimulationInitializer, SimulationInfo}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{ScafiBridge, ScafiSimulationInitializer, SimulationInfo}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.{ScafiLikeWorld, ScafiWorldInitializer, scafiWorld}
-import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.ScalaFXEnvironment
-import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.{FXOutputPolicy, StandardFXOutput}
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.StandardFXOutput
 import it.unibo.scafi.simulation.s2.frontend.view.{OutputPolicy, SimulationView, ViewSetting}
 
 /*
@@ -29,6 +28,7 @@ private class ScafiProgramBuilder(override val configuration: ScafiConfiguration
     configuration.worldInitializer.init(configuration.scafiWorldInfo)
     val bridged = configuration.simulationInitializer.create(configuration.scafiSimulationInformation)
     val programEnv = new ScafiProgramEnvironment(presenter,bridged,configuration.performance,configuration.logConfiguration)
+    ScafiBridge.Instance = Some(bridged)
     new Program[ScafiLikeWorld,SimulationView](programEnv, viewEnv,configuration.commandMapping)
   }
 }
