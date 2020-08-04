@@ -255,16 +255,22 @@ trait StdLib_Gradients {
                      factor: Double = 0.1): Double = {
       def svd: Double = svdGradient(source, metric)
       def bis: Double = bisGradient(source, metric, radius)
-      def inertialFilter(value: Double, factor: Double): Double = {
-        val dt: Double = deltaTime().toNanos
+      def inertialFilter(value: Double, factor: Double) = {
+        val dt: Double = deltaTime().toMillis
         val at: Double = expFilter(dt, factor)
         val ad: Double = expFilter(Math.abs(value - delay(value)), factor)
         rep (value) {old => {
-          val v: Double = Math.signum(old) * Math.min( Math.abs(value - old)/dt, ad/at)
-          old + v * dt
+          if (!old.isInfinite) {
+            val v: Double = Math.signum(old) * Math.min( Math.abs(value - old)/dt, ad/at)
+            val r = old + v * dt
+            if (r.isNaN) value else r
+          } else {
+            value
+          }
         }}
       }
       inertialFilter(Math.max(svd, bis), factor)
+      //expFilter(Math.max(svd, bis), factor)
     }
   }
 }
