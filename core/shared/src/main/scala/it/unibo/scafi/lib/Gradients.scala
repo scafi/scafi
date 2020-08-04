@@ -190,13 +190,12 @@ trait StdLib_Gradients {
       val defaultDist = if(source) 0.0 else Double.PositiveInfinity
       val loc = (defaultDist, defaultDist, mid(), false)
       // REP tuple: (spatial distance estimate, temporal distance estimate, source ID, obsolete value detected flag)
-      // TODO: rep[(Double,Double,ID,Boolean)](loc) {
-      rep[(Double,Double,Any,Boolean)](loc) {
-        case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) =>
+      rep[(Double,Double,ID,Boolean)](loc) {
+        case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
           // (1) Let's calculate new values for spaceDistEst and sourceId
           import Builtins.Bounded._
-          val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
-          /* minHood {
+          val (newSpaceDistEst: Double, newSourceId: ID) = //(???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
+          minHood {
             mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
             { // let's discard neighbours where 'obsolete' flag is true
               // (unless 'obsolete' flag is true for all the neighbours)
@@ -204,9 +203,9 @@ trait StdLib_Gradients {
             } {
               // if info is not obsolete OR all nbrs have obsolete info
               // let's use classic gradient calculation
-              (nbr{spaceDistEst} + metric, nbr{sourceId})
+              (nbr{spaceDistEst} + metric(), nbr{sourceId})
             }
-          }*/
+          }
 
           // (2) The most recent timeDistEst for the newSourceId is retrieved
           // by minimising nbrs' values for timeDistEst + their relative time distance
@@ -231,9 +230,21 @@ trait StdLib_Gradients {
                 nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
               }
 
-          //TODO:
-          //List[(Double,Double,Int,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
-          ???
+          //List[(Double,Double,ID,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
+          if (newSpaceDistEst >= loc._1) {
+            if (newTimeDistEst >= loc._2)  {
+              if (newObsolete >= loc._4) {
+                loc
+              } else {
+                (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)
+              }
+            } else {
+              (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)
+            }
+          }  else {
+            (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)
+          }
+        }
       }._1 // Selects estimated distance
     }
 
