@@ -51,6 +51,30 @@ class TestBlockC extends FunSpec {
         )).toMap)(net)
       }
     }
+    describe("should support findParent"){
+      it("should work with a constant value") {
+        exec(new TestProgram {
+          override def main(): ID = findParent(1)
+        }, ntimes = defaultNtimes)(net)
+
+        assertNetworkValues((0 to 8).zip(List(
+          Int.MaxValue,  Int.MaxValue,  Int.MaxValue,
+          Int.MaxValue,  Int.MaxValue,  Int.MaxValue,
+          Int.MaxValue,  Int.MaxValue,  Int.MaxValue
+        )).toMap)(net)
+      }
+      it("should work with mid"){
+        exec(new TestProgram {
+          override def main(): ID = findParent(mid())
+        }, ntimes = defaultNtimes)(net)
+
+        assertNetworkValues((0 to 8).zip(List(
+          Int.MaxValue,  0,  1,
+          0, 0, 1,
+          3, 3,  Int.MaxValue
+        )).toMap)(net)
+      }
+    }
   }
 
 }
