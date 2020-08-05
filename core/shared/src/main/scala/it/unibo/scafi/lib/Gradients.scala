@@ -7,7 +7,6 @@ package it.unibo.scafi.lib
 
 import scala.concurrent.duration.FiniteDuration
 import scala.math.Numeric.DoubleIsFractional
-import it.unibo.utils.Filters
 import it.unibo.utils.Filters.expFilter
 
 trait StdLib_Gradients {
@@ -56,10 +55,9 @@ trait StdLib_Gradients {
 
     def bisGradient(
                      source: Boolean,
-                     metric: () => Double = nbrRange,
+                     metric: Metric = nbrRange,
                      commRadius: Double = 0.2,
                      lagMetric: => Double = nbrLag().toMillis): Double = {
-      //meanCounter returns NaN
       val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
       val speed = 1.0 / avgFireInterval
 
@@ -83,15 +81,14 @@ trait StdLib_Gradients {
 
     def crfGradient(
                      source: Boolean,
-                     metric: () => Double = nbrRange,
+                     metric: Metric = nbrRange,
                      raisingSpeed: Double = 5,
                      lagMetric: => Double = nbrLag().toMillis): Double =
       rep((Double.PositiveInfinity, 0.0)) {
         case (g, speed) =>
           mux(source){ (0.0, 0.0) }{
             implicit def durationToDouble(fd: FiniteDuration): Double = fd.toMillis.toDouble / 1000.0
-            //TODO: remove Any
-            case class Constraint(nbr: Any, gradient: Double, nbrDistance: Double)
+            case class Constraint(nbr: ID, gradient: Double, nbrDistance: Double)
 
             val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
               val (nbrg, d) = (nbr{g}, metric())
@@ -119,7 +116,7 @@ trait StdLib_Gradients {
       * @return
     */
     def flexGradient(source: Boolean,
-                     metric: () => Double = nbrRange,
+                     metric: Metric = nbrRange,
                      epsilon: Double = 0.5,
                      delta: Double = 1.0,
                      communicationRadius: Double = 1.0
@@ -130,7 +127,7 @@ trait StdLib_Gradients {
         import Builtins.Bounded._ // for min/maximizing over tuples
         val maxLocalSlope: (Double,ID,Double,Double) = //??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
         maxHood {
-          ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
+          ((g - nbr{g})/distance, nbr{mid}, nbr{g}, metric())
         }
         val constraint = minHoodPlus{ (nbr{g} + distance) }
 
@@ -151,7 +148,7 @@ trait StdLib_Gradients {
 
     def svdGradient(
                      source: Boolean,
-                     metric: () => Double = nbrRange,
+                     metric: Metric = nbrRange,
                      lagMetric: => Double = nbrLag().toMillis): Double = {
 
       /**
@@ -250,7 +247,7 @@ trait StdLib_Gradients {
 
     def ultGradient(
                      source: Boolean,
-                     metric: () => Double = nbrRange,
+                     metric: Metric = nbrRange,
                      radius: Double = 0.2,
                      factor: Double = 0.1): Double = {
       def svd: Double = svdGradient(source, metric)

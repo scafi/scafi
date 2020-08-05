@@ -20,20 +20,6 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
 
   private[this] trait TestProgram extends AggregateProgram with ConstructsSemantics with StandardSensors with BlockG with StateManagement with Gradients with GenericUtils
 
-  def sameAsClassic(prog: TestProgram,
-                    net: Network with SimulatorOps,
-                    sourceSensor: String = "source",
-                    rounds: Int = manyRounds,
-                    tolerance: Double = 0.01
-                   ): Boolean = {
-    exec(prog)(net)
-
-    //le coppie devono essere uguali
-    println(net.valueMap())
-
-    true
-  }
-
   describe("Classic Gradient") {
     describe("On the standard network") {
       it("Should be possible to build a gradient of distances on node 0") {
