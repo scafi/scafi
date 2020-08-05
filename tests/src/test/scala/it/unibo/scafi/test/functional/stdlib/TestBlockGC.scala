@@ -71,6 +71,30 @@ class TestBlockGC extends FunSpec with BeforeAndAfterEach {
         )).toMap)(net)
       }
     }
+    describe("should support average") {
+      it("average constant") {
+        exec(new TestProgram {
+          override def main(): Double = average(mid() == 0, 7)
+        }, ntimes = defaultNtimes)(net)
+
+        assertNetworkValues((0 to 8).zip(List(
+          7, 7, 7,
+          7, 7, 7,
+          7, 7, 7
+        )).toMap)(net)
+      }
+      it("average id") {
+        exec(new TestProgram {
+          override def main(): Double = average(mid() == 0, mid())
+        }, ntimes = defaultNtimes)(net)
+
+        assertNetworkValues((0 to 8).zip(List(
+          3.5, 3.5, 3.5,
+          3.5, 3.5, 3.5,
+          3.5, 3.5, 8
+        )).toMap)(net)
+      }
+    }
   }
 
 
