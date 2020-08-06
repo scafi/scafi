@@ -60,7 +60,7 @@ class TestBlockT extends FlatSpec{
       )
     }, ntimes = someRounds)(net)
 
-    assert(net.valueMap[(Int, Int)]().forall { case (_, (done: Int, todo: Int)) => done + todo == manyManyRounds })
+    assert(net.valueMap[(Int, Int)]().forall { case (_, (todo: Int, done: Int)) => todo + done == manyManyRounds })
   }
 
   Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture {
