@@ -19,7 +19,7 @@ class TestTimeUtils extends FlatSpec{
   val Time_Utils = new ItWord
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(side = 3, southWestDetached = true)
+    val net: Network with SimulatorOps = manhattanNet(side = 3, southEastDetached = true)
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
