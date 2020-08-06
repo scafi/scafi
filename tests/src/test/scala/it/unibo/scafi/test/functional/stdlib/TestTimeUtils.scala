@@ -8,7 +8,7 @@ import org.scalatest._
 
 import scala.concurrent.duration._
 
-class TimeUtils extends FlatSpec{
+class TestTimeUtils extends FlatSpec{
   import ScafiTestUtils._
 
   val Time_Utils = new ItWord
