@@ -13,7 +13,7 @@ class TestFieldUtils extends FlatSpec {
 
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(side = 3, southWestDetached = true)
+    val net: Network with SimulatorOps = manhattanNet(side = 3, southEastDetached = true)
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG
@@ -39,62 +39,39 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support anyHood" in new SimulationContextFixture {
+    val privateNet: Network with SimulatorOps = manhattanNet(
+      side = 3,
+      southEastDetached = true,
+      southWestDetached = true
+    )
     // ACT
+    privateNet.addSensor[Boolean]("sensor", false)
+    privateNet.chgSensorValue("sensor", Set(0, 1, 8), true)
+
     exec(new TestProgram {
       override def main(): Any = (
-        excludingSelf.anyHood(mid() == nbr(mid())),
-        includingSelf.anyHood(mid() == nbr(mid()))
-      )
-    }, ntimes = fewRounds)(net)
+        includingSelf.anyHood(nbr{sense[Boolean]("sensor")}),
+        excludingSelf.anyHood(nbr{sense[Boolean]("sensor")}))
+    }, ntimes = fewRounds)(privateNet)
+
+    assert(privateNet.neighbourhood(2) == Set(1,4,5))
 
     //ASSERT
+    /*
+    * 2 -> has only one neighbour with true
+    * 3 -> has 2+ neighbours with true
+    * 6 -> isolated device with false
+    * 7 -> every neighbour is false
+    * 8 -> isolated device with true
+    */
     assertNetworkValues((0 to 8).zip(List(
-      (false, true), (false, true), (false, true),
-      (false, true), (false, true), (false, true),
-      (false, true), (false, true), (false, true)
-    )).toMap)(net)
+      (true, true), (true, true), (true, true),
+      (true, true), (true, true), (true, true),
+      (false, false), (false, false), (true, false)
+    )).toMap)(privateNet)
+
   }
 
-  Field_Utils should "support anyHood, one neighbour with true value" in new SimulationContextFixture {
-    // ACT
-    net.addSensor[Boolean](name = "sensorZero", value = false)
-    net.chgSensorValue("sensorZero", Set(0), true)
-    exec(new TestProgram {
-      override def main(): Any = (
-        excludingSelf.anyHood(nbr(sense[Boolean]("sensorZero"))),
-        includingSelf.anyHood(nbr(sense[Boolean]("sensorZero")))
-      )
-    }, ntimes = fewRounds)(net)
-    net.chgSensorValue("sensorZero", Set(0), false)
-
-    //ASSERT
-    assertNetworkValues((0 to 8).zip(List(
-      (false, true), (true, true), (false, false),
-      (true, true), (true, true), (false, false),
-      (false, false), (false, false), (false, false)
-    )).toMap)(net)
-  }
-
-  Field_Utils should "support anyHood, more neighbours with true value" in new SimulationContextFixture {
-    // ACT
-    net.addSensor[Boolean](name = "sensorZero", value = false)
-    net.chgSensorValue("sensorZero", Set(0,3), true)
-    exec(new TestProgram {
-      override def main(): Any = (
-        excludingSelf.anyHood(nbr(sense[Boolean]("sensorZero"))),
-        includingSelf.anyHood(nbr(sense[Boolean]("sensorZero")))
-      )
-    }, ntimes = fewRounds)(net)
-    net.chgSensorValue("sensorZero", Set(0, 3), false)
-
-    //ASSERT
-    assertNetworkValues((0 to 8).zip(List(
-      (true, true), (true, true), (false, false),
-      (true, true), (true, true), (false, false),
-      (true, true), (true, true), (false, false)
-    )).toMap)(net)
-  }
-  
   Field_Utils should "support everyHood" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
