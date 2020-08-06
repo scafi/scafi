@@ -69,7 +69,7 @@ class Gradient extends AggregateProgram with StandardSensors {
 class GradientHop extends AggregateProgram with SensorDefinitions with BlockG  {
   def isSource = sense[Boolean](SensorName.sensor1)
 
-  def hopGradientByG(src: Boolean): Double = G2(src)(0)(_ + 1)(() =>1)
+  def hopGradientByG(src: Boolean): Double = Gcurried(src)(0)(_ + 1)(() =>1)
 
   override def main(): Int = hopGradientByG(isSource).toInt
 }
