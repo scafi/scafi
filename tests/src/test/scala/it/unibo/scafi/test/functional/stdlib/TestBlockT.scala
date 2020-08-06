@@ -140,27 +140,50 @@ class TestBlockT extends FlatSpec{
   }
 
   Block_T should("T should restart after branch switch") in new SimulationContextFixture {
-    var count = 0
+    net.addSensor[Boolean]("snsT", false)
 
-    exec(new TestProgram {
-      net.addSensor[Boolean]("sensor", false)
-      net.chgSensorValue("sensor", Set(0), true)
-
-      override def main(): Unit =
-        branch(sense[Boolean]("sensor"))
-        {
-          if (rep(0)(_ + 1) == 10) {
-            net.chgSensorValue[Boolean]("sensor", Set(0), false)
-          }
+    val testProgram: TestProgram = new TestProgram {
+      override def main(): Int =
+        branch(sense[Boolean]("snsT")) {
+          if (T(fewRounds, 0, unitaryDecay) == 0) {10} else {20}
+        } {
+          -1
         }
-        {
-          if (T(10, 0, unitaryDecay) == 0) {
-            net.chgSensorValue[Boolean]("sensor", Set(0), true)
-            count = count + 1
-          }
-        }
-    }, ntimes = someRounds)(net)
+    }
 
-    assert(count > 20)
+    //checks if floor has been hit
+    net.chgSensorValue("snsT", Set(0), true)
+    exec(testProgram, ntimes = manyManyRounds)(net)
+    assertNetworkValues((0 to 8).zip(List(
+      10, -1, -1,
+      -1, -1, -1,
+      -1, -1, -1
+    )).toMap)(net)
+
+    //run one more round without change sns value, the floor is still reached
+    exec(testProgram, ntimes = 1)(net)
+    assertNetworkValues((0 to 8).zip(List(
+      10, -1, -1,
+      -1, -1, -1,
+      -1, -1, -1
+    )).toMap)(net)
+
+    //change sns to false, check if the value is the default one
+    net.chgSensorValue("snsT", Set(0), false)
+    exec(testProgram, ntimes = someRounds)(net)
+    assertNetworkValues((0 to 8).zip(List(
+      -1, -1, -1,
+      -1, -1, -1,
+      -1, -1, -1
+    )).toMap)(net)
+
+    //change sns to false, check if the value is the default one
+    net.chgSensorValue("snsT", Set(0), true)
+    exec(testProgram, ntimes = 10)(net)
+    assertNetworkValues((0 to 8).zip(List(
+      20, -1, -1,
+      -1, -1, -1,
+      -1, -1, -1
+    )).toMap)(net)
   }
 }
