@@ -13,7 +13,7 @@ class TestFieldUtils extends FlatSpec {
 
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = standardNetwork()
+    val net: Network with SimulatorOps = manhattanNet(side = 3, southWestDetached = true)
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG

@@ -94,8 +94,8 @@ object ScafiTestUtils {
     if(pred(res)) res else until(pred)(expr)
   }
 
-  def standardNetwork(): Network with SimulatorOps = {
-    simulatorFactory.gridLike(GridSettings(3, 3, 1, 1,
-      mapPos = (a,b,px,py) => if(a==2 && b==2) (100,100) else (px,py)), rng = 1.5)
+  def manhattanNet(side: Int = 3, southWestDetached: Boolean = false): Network with SimulatorOps = {
+    simulatorFactory.gridLike(GridSettings(side, side, 1, 1,
+      mapPos = (a,b,px,py) => if(southWestDetached && a==side-1 && b==side-1) (Int.MaxValue, Int.MaxValue) else (px,py)), rng = 1.5)
   }
 }
