@@ -8,6 +8,11 @@ import org.scalatest._
 
 import scala.concurrent.duration._
 
+/*
+Still to test:
+- cyclicFunction
+- cyclicFunctionWithDecay
+ */
 class TestTimeUtils extends FlatSpec{
   import ScafiTestUtils._
 
@@ -18,6 +23,9 @@ class TestTimeUtils extends FlatSpec{
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
+
+  def unitaryDecay: Int => Int = _ - 1
+  def halving: Int => Int = _ / 2
 
   Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
     exec(new TestProgram {
@@ -60,6 +68,30 @@ class TestTimeUtils extends FlatSpec{
       (true, false), (true, false), (true, false),
       (true, false), (true, false), (true, false),
       (true, false), (true, false), (true, false)
+    )).toMap)(net)
+  }
+
+  Time_Utils should("support evaporation") in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = evaporation(10, "hello")
+    }, ntimes = someRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0)
+    )).toMap)(net)
+  }
+
+  Time_Utils should("support evaporation - with custom decay") in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Any = evaporation(1000000, halving,"hello")
+    }, ntimes = someRounds)(net)
+    
+    assertNetworkValues((0 to 8).zip(List(
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0),
+      ("hello", 0), ("hello", 0), ("hello", 0)
     )).toMap)(net)
   }
 }

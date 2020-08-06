@@ -58,7 +58,7 @@ class TestBlockT extends FlatSpec{
         //this can be seen as a round counter
         rep(0)(_ + 1)
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assert(net.valueMap[(Int, Int)]().forall { case (_, (done: Int, todo: Int)) => done + todo == manyManyRounds })
   }
