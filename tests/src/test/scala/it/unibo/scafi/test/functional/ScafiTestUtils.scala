@@ -109,11 +109,11 @@ object ScafiTestUtils {
       GridSettings(
         side, side, 1, 1,
         mapPos = (a,b,px,py) => (a,b,px,py) match {
-          case (0, 0, _, _) if northWestDetached => (Int.MinValue, Int.MaxValue)
-          case (0, `sideAdj`, _ , _) if northEastDetached => (Int.MaxValue, Int.MaxValue)
-          case (`sideAdj`, 0, _, _) if southEastDetached => (Int.MinValue, Int.MinValue)
-          case (`sideAdj`, `sideAdj`, _, _) if southWestDetached => (Int.MaxValue, Int.MinValue)
-          case _ => (px,py)
+          case (0, 0, _, _) if northWestDetached => (100,100)
+          case (`sideAdj`, 0, _, _) if northEastDetached => (200, 200)
+          case (0, `sideAdj`, _ , _) if southWestDetached => (300, 300)
+          case (`sideAdj`, `sideAdj`, _, _) if southEastDetached => (400, 400)
+          case _ => (px, py)
         }), rng = 1.5)
   }
 }
