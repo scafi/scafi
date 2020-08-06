@@ -112,20 +112,43 @@ class TestFieldUtils extends FlatSpec {
     )).toMap)(net)
   }
 
-  Field_Utils should "support sumHood - mid" in new SimulationContextFixture {
+  Field_Utils should "support sumHood - simplified" in new SimulationContextFixture {
     // ACT
+    net.addSensor[Int]("snsSumHood", 0)
+    net.chgSensorValue("snsSumHood", Set(0,1,2), 10)
+
     exec(new TestProgram {
       override def main(): Any = (
-        excludingSelf.sumHood(nbr(mid())),
-        includingSelf.sumHood(nbr(mid()))
+        excludingSelf.sumHood(nbr{sense[Int]("snsSumHood")}),
+        includingSelf.sumHood(nbr{sense[Int]("snsSumHood")})
       )
     }, ntimes = fewRounds)(net)
 
     //ASSERT
     assertNetworkValues((0 to 8).zip(List(
-      (net.neighbourhood(0).sum, net.neighbourhood(0).sum), (net.neighbourhood(1).sum, net.neighbourhood(1).sum + 1), (net.neighbourhood(2).sum, net.neighbourhood(2).sum + 2),
-      (net.neighbourhood(3).sum, net.neighbourhood(3).sum + 3), (net.neighbourhood(4).sum, net.neighbourhood(4).sum + 4), (net.neighbourhood(5).sum, net.neighbourhood(5).sum + 5),
-      (net.neighbourhood(6).sum, net.neighbourhood(6).sum + 6), (net.neighbourhood(7).sum, net.neighbourhood(7).sum + 7), (net.neighbourhood(8).sum, net.neighbourhood(8).sum + 8)
+      (10,20), (20,30), (10,20),
+      (20,20), (30,30), (20,20),
+      (0,0), (0,0), (0,0)
+    )).toMap)(net)
+
+    /*Sensor value changes*/
+
+    net.addSensor[Int]("snsSumHood", 0)
+    net.chgSensorValue("snsSumHood", Set(0,1,2), 15)
+    net.chgSensorValue("snsSumHood", Set(4), -20)
+
+    exec(new TestProgram {
+      override def main(): Any = (
+        excludingSelf.sumHood(nbr{sense[Int]("snsSumHood")}),
+        includingSelf.sumHood(nbr{sense[Int]("snsSumHood")})
+      )
+    }, ntimes = fewRounds)(net)
+
+    //ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      (-5,10), (10,25), (-5,10),
+      (10,10), (45,25), (10,10),
+      (-20,-20), (-20,-20), (0,0)
     )).toMap)(net)
   }
 
