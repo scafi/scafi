@@ -5,7 +5,7 @@ import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
 
 
-class FieldUtils extends FlatSpec {
+class TestFieldUtils extends FlatSpec {
   import ScafiAssertions._
   import ScafiTestUtils._
 
