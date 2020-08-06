@@ -94,8 +94,26 @@ object ScafiTestUtils {
     if(pred(res)) res else until(pred)(expr)
   }
 
-  def manhattanNet(side: Int = 3, southWestDetached: Boolean = false): Network with SimulatorOps = {
-    simulatorFactory.gridLike(GridSettings(side, side, 1, 1,
-      mapPos = (a,b,px,py) => if(southWestDetached && a==side-1 && b==side-1) (Int.MaxValue, Int.MaxValue) else (px,py)), rng = 1.5)
+  def manhattanNet(
+                    side: Int = 3,
+                    northWestDetached: Boolean = false,
+                    northEastDetached: Boolean = false,
+                    southWestDetached: Boolean = false,
+                    southEastDetached: Boolean = false
+                  ): Network with SimulatorOps = {
+    /*simulatorFactory.gridLike(GridSettings(side, side, 1, 1,
+    mapPos = (a,b,px,py) => if(southWestDetached && a==side-1 && b==side-1) (Int.MaxValue, Int.MaxValue) else (px,py)), rng = 1.5)
+     */
+    val sideAdj = side - 1
+    simulatorFactory.gridLike(
+      GridSettings(
+        side, side, 1, 1,
+        mapPos = (a,b,px,py) => (a,b,px,py) match {
+          case (0, 0, _, _) if northWestDetached => (Int.MinValue, Int.MaxValue)
+          case (0, `sideAdj`, _ , _) if northEastDetached => (Int.MaxValue, Int.MaxValue)
+          case (`sideAdj`, 0, _, _) if southEastDetached => (Int.MinValue, Int.MinValue)
+          case (`sideAdj`, `sideAdj`, _, _) if southWestDetached => (Int.MaxValue, Int.MinValue)
+          case _ => (px,py)
+        }), rng = 1.5)
   }
 }
