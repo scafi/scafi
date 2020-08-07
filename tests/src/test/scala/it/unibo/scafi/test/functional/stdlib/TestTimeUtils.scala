@@ -49,7 +49,7 @@ class TestTimeUtils extends FlatSpec{
   }
 
   Time_Utils should "support sharedTimer" in new SimulationContextFixture {
-    val maxStdDev: Int = 5
+    val maxStdDev: Int = 10
 
     val testProgram: TestProgram = new TestProgram {
       override def main(): Any = sharedTimer(1 seconds)
@@ -63,17 +63,46 @@ class TestTimeUtils extends FlatSpec{
   }
 
   Time_Utils should "support recentlyTrue" in new SimulationContextFixture {
-    exec(new TestProgram {
-      override def main(): Any = (
-        recentlyTrue(1 second, cond = true),
-        recentlyTrue(1 seconds, cond = false)
-      )
-    }, ntimes = fewRounds)(net)
+    net.addSensor[Boolean]("rtSense", false)
 
+    val testProgram: TestProgram = new TestProgram {
+      override def main(): Boolean =
+        recentlyTrue(0.05 second, cond = sense[Boolean]("rtSense"))
+    }
+
+    //initially the sensor is set to false -> everyone is false
+    exec(testProgram, ntimes = someRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
-      (true, false), (true, false), (true, false),
-      (true, false), (true, false), (true, false),
-      (true, false), (true, false), (true, false)
+      false, false, false,
+      false, false, false,
+      false, false, false
+    )).toMap)(net)
+
+    //the sensor is set to true on node 0 -> node 0 should be true
+    net.chgSensorValue("rtSense", Set(0), value = true)
+    exec(testProgram, ntimes = someRounds)(net)
+    assertNetworkValues((0 to 8).zip(List(
+      true, false, false,
+      false, false, false,
+      false, false, false
+    )).toMap)(net)
+
+    //sensor is set to false on node 0 -> should still be true for some time
+    net.chgSensorValue("rtSense", Set(0), value = false)
+    exec(testProgram, ntimes = fewRounds)(net)
+    assertNetworkValues((0 to 8).zip(List(
+      true, false, false,
+      false, false, false,
+      false, false, false
+    )).toMap)(net)
+
+    //after some time has passed id0 should return false
+    net.chgSensorValue("rtSense", Set(0), value = false)
+    exec(testProgram, ntimes = manyManyRounds)(net)
+    assertNetworkValues((0 to 8).zip(List(
+      false, false, false,
+      false, false, false,
+      false, false, false
     )).toMap)(net)
   }
 
