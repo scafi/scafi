@@ -7,6 +7,7 @@ import it.unibo.utils.StatisticsUtils.stdDev
 import org.scalatest._
 
 import scala.concurrent.duration._
+import scala.math.Numeric.BigDecimalAsIfIntegral.mkOrderingOps
 
 /*
 Still to test:
@@ -28,15 +29,15 @@ class TestTimeUtils extends FlatSpec{
   def halving: Int => Int = _ / 2
 
   Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
-    exec(new TestProgram {
-      override def main(): Any = timerLocalTime(1 millisecond)
-    }, ntimes = manyManyRounds)(net)
+    val testProgram: TestProgram = new TestProgram {
+      override def main(): Any = timerLocalTime(1 second)
+    }
 
-    assertNetworkValues((0 to 8).zip(List(
-      0, 0, 0,
-      0, 0, 0,
-      0, 0, 0
-    )).toMap)(net)
+    exec(testProgram, ntimes = someRounds)(net)
+    net.valueMap[Long]().forall(e => e._2 > 0)
+
+    exec(testProgram, ntimes = manyManyRounds)(net)
+    net.valueMap[Long]().forall(e => e._2 == 0)
   }
 
   Time_Utils should "support impulsesEvery" in new SimulationContextFixture {
@@ -48,11 +49,16 @@ class TestTimeUtils extends FlatSpec{
   }
 
   Time_Utils should "support sharedTimer" in new SimulationContextFixture {
-    val maxStdDev: Int = 1
-    exec(new TestProgram {
-      override def main(): Any = sharedTimer(10 seconds)
-    }, ntimes = manyManyRounds)(net)
+    val maxStdDev: Int = 5
 
+    val testProgram: TestProgram = new TestProgram {
+      override def main(): Any = sharedTimer(1 seconds)
+    }
+
+    exec(testProgram, ntimes = someRounds)(net)
+    assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
+
+    exec(testProgram, ntimes = manyManyRounds)(net)
     assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
   }
 
@@ -72,10 +78,16 @@ class TestTimeUtils extends FlatSpec{
   }
 
   Time_Utils should("support evaporation") in new SimulationContextFixture {
-    exec(new TestProgram {
-      override def main(): Any = evaporation(10, "hello")
-    }, ntimes = someRounds)(net)
+    val ceiling: Int = someRounds
 
+    val testProgram: TestProgram = new TestProgram {
+      override def main(): (String, Int) = evaporation(ceiling, "hello")
+    }
+
+    exec(testProgram, ntimes = manyRounds)(net)
+    net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
+
+    exec(testProgram, ntimes = manyManyRounds * 3)(net)
     assertNetworkValues((0 to 8).zip(List(
       ("hello", 0), ("hello", 0), ("hello", 0),
       ("hello", 0), ("hello", 0), ("hello", 0),
@@ -84,10 +96,16 @@ class TestTimeUtils extends FlatSpec{
   }
 
   Time_Utils should("support evaporation - with custom decay") in new SimulationContextFixture {
-    exec(new TestProgram {
+    val ceiling: Int = 1000000
+
+    val testProgram: TestProgram = new TestProgram {
       override def main(): Any = evaporation(1000000, halving,"hello")
-    }, ntimes = someRounds)(net)
-    
+    }
+
+    exec(testProgram, ntimes = fewRounds)(net)
+    net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
+
+    exec(testProgram, ntimes = manyManyRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
       ("hello", 0), ("hello", 0), ("hello", 0),
       ("hello", 0), ("hello", 0), ("hello", 0),
