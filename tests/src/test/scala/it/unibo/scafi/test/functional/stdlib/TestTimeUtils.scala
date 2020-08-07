@@ -114,7 +114,11 @@ class TestTimeUtils extends FlatSpec{
     }
 
     exec(testProgram, ntimes = manyRounds)(net)
-    net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
+    //    net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
+    net.valueMap[(String, Int)]().forall {
+      case (_, ("hello", n)) if n > 0 => true
+      case _ => false
+    }
 
     exec(testProgram, ntimes = manyManyRounds * 3)(net)
     assertNetworkValues((0 to 8).zip(List(
@@ -132,9 +136,18 @@ class TestTimeUtils extends FlatSpec{
     }
 
     exec(testProgram, ntimes = fewRounds)(net)
-    net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
+    //net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
+    net.valueMap[(String, Int)]().forall {
+      case (_, ("hello", n)) if n > 0 => true
+      case _ => false
+    }
 
     exec(testProgram, ntimes = manyManyRounds)(net)
+    net.valueMap[(String, Int)]().forall {
+      case (_, ("hello", 0)) => true
+      case _ => false
+    }
+
     assertNetworkValues((0 to 8).zip(List(
       ("hello", 0), ("hello", 0), ("hello", 0),
       ("hello", 0), ("hello", 0), ("hello", 0),
