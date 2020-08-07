@@ -52,15 +52,26 @@ class TestBlockT extends FlatSpec{
   }
 
   Block_T should "T should be consistent in intermediate tests" in new SimulationContextFixture {
-    exec(new TestProgram {
+
+    val ceiling: Int = someRounds
+    val testProgram: TestProgram = new TestProgram {
       override def main(): (Int, Int) = (
-        T(manyManyRounds, 0, unitaryDecay),
+        T(ceiling, 0, unitaryDecay),
         //this can be seen as a round counter
         rep(0)(_ + 1)
       )
-    }, ntimes = someRounds)(net)
+    }
+    exec(testProgram, ntimes = someRounds)(net)
+    assert(net.valueMap[(Int, Int)]().forall { case (_, (decayTimer: Int, roundsPerformed: Int)) => decayTimer + roundsPerformed <= ceiling + 1})
 
-    assert(net.valueMap[(Int, Int)]().forall { case (_, (todo: Int, done: Int)) => todo + done == manyManyRounds })
+    for(_ <- 1 to 20) {
+      exec(testProgram, ntimes = fewRounds)(net)
+      assert(net.valueMap[(Int, Int)]().forall { case (_, (decayTimer: Int, roundsPerformed: Int)) => decayTimer + roundsPerformed <= ceiling + 1})
+    }
+
+    exec(testProgram, ntimes = manyManyRounds * 2)(net)
+    assert(net.valueMap[(Int, Int)]().forall { case (_, (decayTimer: Int, roundsPerformed: Int)) => decayTimer + roundsPerformed >= ceiling + 1})
+    assert(net.valueMap[(Int, Int)]().forall { case (_, (decayTimer: Int, roundsPerformed: Int)) => println(decayTimer); decayTimer == 0})
   }
 
   Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture {
