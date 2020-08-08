@@ -66,7 +66,7 @@ private[nn] class QuadTree[A] private (
   }
 
   override def ++=(points : Iterable[(Point3D,A)]) : this.type = {
-    points foreach {this.mmap+=_}
+    points foreach {this += _}
     this
   }
   /**

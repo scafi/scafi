@@ -5,6 +5,7 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.logger.LogConfigurati
 import it.unibo.scafi.simulation.s2.frontend.controller.input.{InputCommandController, InputController}
 import it.unibo.scafi.simulation.s2.frontend.controller.logical.{ExternalSimulation, LogicController}
 import it.unibo.scafi.simulation.s2.frontend.controller.presenter.Presenter
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiBridge
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.{ScafiLikeWorld, scafiWorld}
 import it.unibo.scafi.simulation.s2.frontend.view.SimulationView
 
@@ -16,7 +17,7 @@ import it.unibo.scafi.simulation.s2.frontend.view.SimulationView
   * @param controller the controller
   */
 class ScafiProgramEnvironment(val presenter : Presenter[ScafiLikeWorld,SimulationView],
-                              val simulation : ExternalSimulation[ScafiLikeWorld],
+                              val simulation : ScafiBridge,
                               val policy : ProgramEnvironment.PerformancePolicy,
                               val logConfiguration : LogConfiguration,
                               val controller : LogicController[ScafiLikeWorld]*)
