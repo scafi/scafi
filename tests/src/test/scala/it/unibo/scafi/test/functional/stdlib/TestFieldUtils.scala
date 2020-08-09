@@ -25,7 +25,7 @@ class TestFieldUtils extends FlatSpec {
         excludingSelf.maxHoodSelector(nbr(mid()))(nbr(mid())),
         includingSelf.maxHoodSelector(nbr(mid()))(nbr(mid()))
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       (Some(1),0,Some(4),4), (Some(0),0,Some(5),5), (Some(1),1,Some(5),5),
@@ -41,10 +41,10 @@ class TestFieldUtils extends FlatSpec {
     privateNet.chgSensorValue("sensor", Set(0, 1, 8), true)
 
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main(): (Boolean, Boolean) = (
         includingSelf.anyHood(nbr{sense[Boolean]("sensor")}),
         excludingSelf.anyHood(nbr{sense[Boolean]("sensor")}))
-    }, ntimes = fewRounds)(privateNet)
+    }, ntimes = someRounds)(privateNet)
 
     assert(privateNet.neighbourhood(2) == Set(1,4,5))
 
@@ -65,11 +65,11 @@ class TestFieldUtils extends FlatSpec {
 
   Field_Utils should "support everyHood" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main(): (Boolean, Boolean) = (
         excludingSelf.everyHood(mid() == nbr(mid())),
         includingSelf.everyHood(mid() == nbr(mid()))
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     /*
       * def everyHood(expr: => Boolean): Boolean = foldhoodTemplate(true)(_&&_)(expr)
@@ -86,11 +86,11 @@ class TestFieldUtils extends FlatSpec {
 
   Field_Utils should "support sumHood" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main(): (Int, Int) = (
         excludingSelf.sumHood(1),
         includingSelf.sumHood(1)
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       (net.neighbourhood(0).size, net.neighbourhood(0).size + 1), (net.neighbourhood(1).size, net.neighbourhood(1).size + 1), (net.neighbourhood(2).size, net.neighbourhood(2).size + 1),
@@ -104,11 +104,11 @@ class TestFieldUtils extends FlatSpec {
     net.chgSensorValue("snsSumHood", Set(0,1,2), 10)
 
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main(): (Int, Int) = (
         excludingSelf.sumHood(nbr{sense[Int]("snsSumHood")}),
         includingSelf.sumHood(nbr{sense[Int]("snsSumHood")})
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       (10,20), (20,30), (10,20),
@@ -121,11 +121,11 @@ class TestFieldUtils extends FlatSpec {
     net.chgSensorValue("snsSumHood", Set(4), -20)
 
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main(): (Int, Int) = (
         excludingSelf.sumHood(nbr{sense[Int]("snsSumHood")}),
         includingSelf.sumHood(nbr{sense[Int]("snsSumHood")})
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       (-5,10), (10,25), (-5,10),
@@ -136,11 +136,11 @@ class TestFieldUtils extends FlatSpec {
 
   Field_Utils should "support unionHood" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main():(Set[ID], Set[ID]) = (
         excludingSelf.unionHood(nbr(mid())),
         includingSelf.unionHood(nbr(mid()))
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       (net.neighbourhood(0), net.neighbourhood(0) + 0), (net.neighbourhood(1), net.neighbourhood(1) + 1), (net.neighbourhood(2), net.neighbourhood(2) + 2),
@@ -151,11 +151,11 @@ class TestFieldUtils extends FlatSpec {
 
   Field_Utils should "support mergeHoodFirst" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main():(Map[ID, ID], Map[ID, ID]) = (
         excludingSelf.mergeHoodFirst(nbr(Map(mid() -> mid()))),
         includingSelf.mergeHoodFirst(nbr(Map(mid() -> mid())))
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       (net.neighbourhood(0).map(e => (e,e)).toMap, (net.neighbourhood(0) + 0).map(e => (e,e)).toMap), (net.neighbourhood(1).map(e => (e,e)).toMap, (net.neighbourhood(1) + 1).map(e => (e,e)).toMap), (net.neighbourhood(2).map(e => (e,e)).toMap, (net.neighbourhood(2) + 2).map(e => (e,e)).toMap),
@@ -167,7 +167,7 @@ class TestFieldUtils extends FlatSpec {
   Field_Utils should "support mergeHoodFirst - merge" in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Map[Int, ID] = includingSelf.mergeHoodFirst(nbr(Map(1 -> mid())))
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       Map(1 -> 0), Map(1 -> 1), Map(1 -> 2),
@@ -177,7 +177,7 @@ class TestFieldUtils extends FlatSpec {
 
     exec(new TestProgram {
       override def main(): Map[Int, ID] = excludingSelf.mergeHoodFirst(nbr(Map(1 -> mid())))
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assert(net.valueMap[Map[Int, ID]]().forall {
       case (id, map) if id == 8 => map.isEmpty
@@ -209,11 +209,11 @@ class TestFieldUtils extends FlatSpec {
 
   Field_Utils should "support minHoodLoc" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = (
+      override def main(): (Int, Int) = (
         excludingSelf.minHoodLoc(Int.MaxValue)(nbr(mid())),
         includingSelf.minHoodLoc(Int.MaxValue)(nbr(mid()))
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       (1, 0), (0, 0), (1, 1),
