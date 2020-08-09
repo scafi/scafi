@@ -11,7 +11,6 @@ import org.scalatest._
 Not yet tested:
 - cyclicTimerWithDecay
 - clock
-- impulsesEvery
  */
 class TestBlockT extends FlatSpec{
   import ScafiTestUtils._
