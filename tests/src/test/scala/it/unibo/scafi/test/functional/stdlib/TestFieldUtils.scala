@@ -12,7 +12,7 @@ class TestFieldUtils extends FlatSpec {
   val Field_Utils = new ItWord
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((0,2)))
+    val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG
