@@ -11,7 +11,6 @@ class TestFieldUtils extends FlatSpec {
 
   val Field_Utils = new ItWord
 
-
   private[this] trait SimulationContextFixture {
     val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((0,2)))
   }
@@ -19,7 +18,6 @@ class TestFieldUtils extends FlatSpec {
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG
 
   Field_Utils should "support min/maxHoodSelectors" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         excludingSelf.minHoodSelector(nbr(mid()))(nbr(mid())),
@@ -29,7 +27,6 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (Some(1),0,Some(4),4), (Some(0),0,Some(5),5), (Some(1),1,Some(5),5),
       (Some(0),0,Some(7),7), (Some(0),0,Some(7),7), (Some(1),1,Some(7),7),
@@ -40,7 +37,6 @@ class TestFieldUtils extends FlatSpec {
 
   Field_Utils should "support anyHood" in new SimulationContextFixture {
     val privateNet: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((0,2), (2,2)))
-    // ACT
     privateNet.addSensor[Boolean]("sensor", false)
     privateNet.chgSensorValue("sensor", Set(0, 1, 8), true)
 
@@ -52,7 +48,6 @@ class TestFieldUtils extends FlatSpec {
 
     assert(privateNet.neighbourhood(2) == Set(1,4,5))
 
-    //ASSERT
     /*
     * 2 -> has only one neighbour with true
     * 3 -> has 2+ neighbours with true
@@ -69,7 +64,6 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support everyHood" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         excludingSelf.everyHood(mid() == nbr(mid())),
@@ -77,7 +71,6 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    //ASSERT
     /*
       * def everyHood(expr: => Boolean): Boolean = foldhoodTemplate(true)(_&&_)(expr)
       * everyHood is initialized to true.
@@ -92,7 +85,6 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support sumHood" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         excludingSelf.sumHood(1),
@@ -100,7 +92,6 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    //ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (net.neighbourhood(0).size, net.neighbourhood(0).size + 1), (net.neighbourhood(1).size, net.neighbourhood(1).size + 1), (net.neighbourhood(2).size, net.neighbourhood(2).size + 1),
       (net.neighbourhood(3).size, net.neighbourhood(3).size + 1), (net.neighbourhood(4).size, net.neighbourhood(4).size + 1), (net.neighbourhood(5).size, net.neighbourhood(5).size + 1),
@@ -109,7 +100,6 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support sumHood - simplified" in new SimulationContextFixture {
-    // ACT
     net.addSensor[Int]("snsSumHood", 0)
     net.chgSensorValue("snsSumHood", Set(0,1,2), 10)
 
@@ -120,14 +110,11 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    //ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (10,20), (20,30), (10,20),
       (20,20), (30,30), (20,20),
       (0,0), (0,0), (0,0)
     )).toMap)(net)
-
-    /*Sensor value changes*/
 
     net.addSensor[Int]("snsSumHood", 0)
     net.chgSensorValue("snsSumHood", Set(0,1,2), 15)
@@ -140,7 +127,6 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    //ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (-5,10), (10,25), (-5,10),
       (10,10), (45,25), (10,10),
@@ -149,7 +135,6 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support unionHood" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         excludingSelf.unionHood(nbr(mid())),
@@ -157,7 +142,6 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    //ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (net.neighbourhood(0), net.neighbourhood(0) + 0), (net.neighbourhood(1), net.neighbourhood(1) + 1), (net.neighbourhood(2), net.neighbourhood(2) + 2),
       (net.neighbourhood(3), net.neighbourhood(3) + 3), (net.neighbourhood(4), net.neighbourhood(4) + 4), (net.neighbourhood(5), net.neighbourhood(5) + 5),
@@ -166,7 +150,6 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support mergeHoodFirst" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         excludingSelf.mergeHoodFirst(nbr(Map(mid() -> mid()))),
@@ -174,7 +157,6 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    //ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (net.neighbourhood(0).map(e => (e,e)).toMap, (net.neighbourhood(0) + 0).map(e => (e,e)).toMap), (net.neighbourhood(1).map(e => (e,e)).toMap, (net.neighbourhood(1) + 1).map(e => (e,e)).toMap), (net.neighbourhood(2).map(e => (e,e)).toMap, (net.neighbourhood(2) + 2).map(e => (e,e)).toMap),
       (net.neighbourhood(3).map(e => (e,e)).toMap, (net.neighbourhood(3) + 3).map(e => (e,e)).toMap), (net.neighbourhood(4).map(e => (e,e)).toMap, (net.neighbourhood(4) + 4).map(e => (e,e)).toMap), (net.neighbourhood(5).map(e => (e,e)).toMap, (net.neighbourhood(5) + 5).map(e => (e,e)).toMap),
@@ -183,7 +165,6 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support minHoodLoc" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         excludingSelf.minHoodLoc(Int.MaxValue)(nbr(mid())),
@@ -191,7 +172,6 @@ class TestFieldUtils extends FlatSpec {
       )
     }, ntimes = fewRounds)(net)
 
-    //ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (1, 0), (0, 0), (1, 1),
       (0, 0), (0,0), (1, 1),

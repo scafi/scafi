@@ -7,7 +7,6 @@ import it.unibo.utils.StatisticsUtils.stdDev
 import org.scalatest._
 
 import scala.concurrent.duration._
-import scala.math.Numeric.BigDecimalAsIfIntegral.mkOrderingOps
 
 /*
 Still to test:
@@ -70,7 +69,6 @@ class TestTimeUtils extends FlatSpec{
         recentlyTrue(0.05 second, cond = sense[Boolean]("rtSense"))
     }
 
-    //initially the sensor is set to false -> everyone is false
     exec(testProgram, ntimes = someRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
       false, false, false,
@@ -78,7 +76,6 @@ class TestTimeUtils extends FlatSpec{
       false, false, false
     )).toMap)(net)
 
-    //the sensor is set to true on node 0 -> node 0 should be true
     net.chgSensorValue("rtSense", Set(0), value = true)
     exec(testProgram, ntimes = someRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
@@ -87,7 +84,6 @@ class TestTimeUtils extends FlatSpec{
       false, false, false
     )).toMap)(net)
 
-    //sensor is set to false on node 0 -> should still be true for some time
     net.chgSensorValue("rtSense", Set(0), value = false)
     exec(testProgram, ntimes = fewRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
@@ -96,7 +92,6 @@ class TestTimeUtils extends FlatSpec{
       false, false, false
     )).toMap)(net)
 
-    //after some time has passed id0 should return false
     net.chgSensorValue("rtSense", Set(0), value = false)
     exec(testProgram, ntimes = manyManyRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
@@ -114,7 +109,6 @@ class TestTimeUtils extends FlatSpec{
     }
 
     exec(testProgram, ntimes = manyRounds)(net)
-    //    net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
     net.valueMap[(Int, String)]().forall {
       case (_, (n, "hello")) if n > 0 => true
       case _ => false
@@ -132,7 +126,7 @@ class TestTimeUtils extends FlatSpec{
     val ceiling: Int = 1000000
 
     val testProgram: TestProgram = new TestProgram {
-      override def main(): (Int, String) = evaporation(1000000, halving,"hello")
+      override def main(): (Int, String) = evaporation(ceiling, halving,"hello")
     }
 
     exec(testProgram, ntimes = fewRounds)(net)

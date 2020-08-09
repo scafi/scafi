@@ -51,7 +51,6 @@ class TestBlockT extends FlatSpec{
   }
 
   Block_T should "T should be consistent in intermediate tests" in new SimulationContextFixture {
-
     val ceiling: Int = someRounds
     val testProgram: TestProgram = new TestProgram {
       override def main(): (Int, Int) = (
@@ -140,7 +139,7 @@ class TestBlockT extends FlatSpec{
   }
 
   Block_T should("support sharedTimerWithDecay") in new SimulationContextFixture {
-    val maxStdDev: Int = 2
+    val maxStdDev: Int = 10
     exec(new TestProgram {
       override def main(): Int = sharedTimerWithDecay(1, 1)
     }, ntimes = manyManyRounds)(net)
@@ -161,7 +160,6 @@ class TestBlockT extends FlatSpec{
         }
     }
 
-    //checks if floor has been hit
     net.chgSensorValue("snsT", Set(0), true)
     exec(testProgram, ntimes = manyManyRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
@@ -170,7 +168,6 @@ class TestBlockT extends FlatSpec{
       -1, -1, -1
     )).toMap)(net)
 
-    //run one more round without change sns value, the floor is still reached
     exec(testProgram, ntimes = 1)(net)
     assertNetworkValues((0 to 8).zip(List(
       10, -1, -1,
@@ -178,7 +175,6 @@ class TestBlockT extends FlatSpec{
       -1, -1, -1
     )).toMap)(net)
 
-    //change sns to false, check if the value is the default one
     net.chgSensorValue("snsT", Set(0), false)
     exec(testProgram, ntimes = someRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
@@ -187,7 +183,6 @@ class TestBlockT extends FlatSpec{
       -1, -1, -1
     )).toMap)(net)
 
-    //change sns to false, check if the value is the default one
     net.chgSensorValue("snsT", Set(0), true)
     exec(testProgram, ntimes = 10)(net)
     assertNetworkValues((0 to 8).zip(List(
