@@ -13,7 +13,7 @@ class TestFieldUtils extends FlatSpec {
 
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(side = 3, southEastDetached = true)
+    val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((0,2)))
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG
@@ -39,11 +39,7 @@ class TestFieldUtils extends FlatSpec {
   }
 
   Field_Utils should "support anyHood" in new SimulationContextFixture {
-    val privateNet: Network with SimulatorOps = manhattanNet(
-      side = 3,
-      southEastDetached = true,
-      southWestDetached = true
-    )
+    val privateNet: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((0,2), (2,2)))
     // ACT
     privateNet.addSensor[Boolean]("sensor", false)
     privateNet.chgSensorValue("sensor", Set(0, 1, 8), true)

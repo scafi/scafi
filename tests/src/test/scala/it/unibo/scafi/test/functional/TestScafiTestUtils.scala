@@ -6,16 +6,12 @@ import org.scalatest._
 class TestScafiTestUtils extends FlatSpec {
   import ScafiTestUtils._
 
-
   val ManhattanNet = new ItWord
 
   ManhattanNet should "Support every possible detachment" in {
     val net: Network with SimulatorOps = manhattanNet(
-      side = 3,
-      northWestDetached = true,
-      northEastDetached = true,
-      southEastDetached = true,
-      southWestDetached = true)
+      detachedNodesCords = Set((0,0), (2,0), (0,2), (2,2))
+    )
 
     assert(net.neighbourhood(0).isEmpty)
     assert(net.neighbourhood(1) == Set(3,4,5))
@@ -29,11 +25,8 @@ class TestScafiTestUtils extends FlatSpec {
   }
   ManhattanNet should "Support south detached" in {
     val net: Network with SimulatorOps = manhattanNet(
-      side = 3,
-      northWestDetached = false,
-      northEastDetached = false,
-      southEastDetached = true,
-      southWestDetached = true)
+      detachedNodesCords = Set((0,2), (2,2))
+    )
 
     assert(net.neighbourhood(0) == Set(1,3,4))
     assert(net.neighbourhood(1) == Set(0,2,3,4,5))
@@ -49,11 +42,8 @@ class TestScafiTestUtils extends FlatSpec {
 
   ManhattanNet should "Support south east detached" in {
     val net: Network with SimulatorOps = manhattanNet(
-      side = 3,
-      northWestDetached = false,
-      northEastDetached = false,
-      southEastDetached = true,
-      southWestDetached = false)
+      detachedNodesCords = Set((2,2))
+    )
 
     assert(net.neighbourhood(0) == Set(1,3,4))
     assert(net.neighbourhood(1) == Set(0,2,3,4,5))
@@ -67,12 +57,7 @@ class TestScafiTestUtils extends FlatSpec {
   }
 
   ManhattanNet should "Support south west detached" in {
-    val net: Network with SimulatorOps = manhattanNet(
-      side = 3,
-      northWestDetached = false,
-      northEastDetached = false,
-      southEastDetached = false,
-      southWestDetached = true)
+    val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((0,2)))
 
     assert(net.neighbourhood(0) == Set(1,3,4))
     assert(net.neighbourhood(1) == Set(0,2,3,4,5))
