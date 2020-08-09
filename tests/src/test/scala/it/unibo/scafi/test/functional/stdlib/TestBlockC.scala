@@ -21,43 +21,8 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
     def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) { hops => {mux(source) {0.0} {1 + minHood(nbr {hops})}}}
   }
-  
+
   describe("BlockC") {
-    describe("should support smaller") {
-      it("should work in basic scenario - all true") {
-        exec(new TestProgram {
-          override def main(): Boolean = smaller(1, 2)
-        }, ntimes = defaultNtimes)(net)
-
-        assertNetworkValues((0 to 8).zip(List(
-          true, true, true,
-          true, true, true,
-          true, true, true
-        )).toMap)(net)
-      }
-      it("should work in basic scenario - all false") {
-        exec(new TestProgram {
-          override def main(): Boolean = smaller(2, 1)
-        }, ntimes = defaultNtimes)(net)
-
-        assertNetworkValues((0 to 8).zip(List(
-          false, false, false,
-          false, false, false,
-          false, false, false
-        )).toMap)(net)
-      }
-      it("should work with nbr operations") {
-        exec(new TestProgram {
-          override def main(): Boolean = smaller(mid(), minHoodPlus(nbr(mid())))
-        }, ntimes = defaultNtimes)(net)
-
-        assertNetworkValues((0 to 8).zip(List(
-          true, false, false,
-          false, false, false,
-          false, false, true
-        )).toMap)(net)
-      }
-    }
     describe("should support findParent") {
       it("should work with a constant value") {
         exec(new TestProgram {
