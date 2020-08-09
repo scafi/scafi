@@ -29,7 +29,9 @@ trait StdLib_Gradients {
       def run(): Double = algorithm(source, metric)
     }
 
-    val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
+
+    val ClassicGradient = Gradient(classicGradient(_,_), false, nbrRange)
+    val ClassicHopGradient = Gradient((src,metric) => hopGradient(src), false, () => 1)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
       rep(Double.PositiveInfinity) { case d =>

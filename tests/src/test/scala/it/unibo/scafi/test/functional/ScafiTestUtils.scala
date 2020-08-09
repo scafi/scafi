@@ -94,8 +94,34 @@ object ScafiTestUtils {
     if(pred(res)) res else until(pred)(expr)
   }
 
-  def standardNetwork(): Network with SimulatorOps = {
-    simulatorFactory.gridLike(GridSettings(3, 3, 1, 1,
-      mapPos = (a,b,px,py) => if(a==2 && b==2) (100,100) else (px,py)), rng = 1.5)
+  def manhattanNet(
+                    side: Int = 3,
+                    step: Int = 1,
+                    rng: Double = 1.5,
+                    detachedNodesCords: Set[(Int, Int)] = Set()
+                  ): Network with SimulatorOps = {
+    var lastDetachedPosition: (Double, Double) = (Int.MaxValue, Int.MaxValue)
+    simulatorFactory.gridLike(
+      GridSettings(
+        side, side, step, step,
+        mapPos = (a,b,px,py) => {
+          if (detachedNodesCords contains (a,b)) {
+            lastDetachedPosition = (lastDetachedPosition._1 - rng, lastDetachedPosition._2 - rng)
+            lastDetachedPosition
+          } else {
+            (px, py)
+          }
+        }), rng = rng)
   }
 }
+
+
+/*
+
+mapPos = (a,b,px,py) => (a,b,px,py) match {
+          case (0, 0, _, _) if northWestDetached => (100,100)
+          case (`sideAdj`, 0, _, _) if northEastDetached => (200, 200)
+          case (0, `sideAdj`, _ , _) if southWestDetached => (300, 300)
+          case (`sideAdj`, `sideAdj`, _, _) if southEastDetached => (400, 400)
+          case _ => (px, py)
+ */
