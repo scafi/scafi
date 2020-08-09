@@ -19,7 +19,7 @@ class TestTimeUtils extends FlatSpec{
   val Time_Utils = new ItWord
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((0,2)))
+    val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
@@ -29,14 +29,14 @@ class TestTimeUtils extends FlatSpec{
 
   Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
     val testProgram: TestProgram = new TestProgram {
-      override def main(): Any = timerLocalTime(1 second)
+      override def main(): Any = timerLocalTime(0.25 second)
     }
 
     exec(testProgram, ntimes = someRounds)(net)
-    net.valueMap[Long]().forall(e => e._2 > 0)
+    assert(net.valueMap[Long]().forall(e => e._2 > 0))
 
     exec(testProgram, ntimes = manyManyRounds)(net)
-    net.valueMap[Long]().forall(e => e._2 == 0)
+    assert(net.valueMap[Long]().forall(e => e._2 == 0))
   }
 
   Time_Utils should "support impulsesEvery" in new SimulationContextFixture {
@@ -109,10 +109,10 @@ class TestTimeUtils extends FlatSpec{
     }
 
     exec(testProgram, ntimes = manyRounds)(net)
-    net.valueMap[(Int, String)]().forall {
+    assert(net.valueMap[(Int, String)]().forall {
       case (_, (n, "hello")) if n > 0 => true
       case _ => false
-    }
+    })
 
     exec(testProgram, ntimes = manyManyRounds * 3)(net)
     assertNetworkValues((0 to 8).zip(List(
@@ -130,11 +130,10 @@ class TestTimeUtils extends FlatSpec{
     }
 
     exec(testProgram, ntimes = fewRounds)(net)
-    //net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
-    net.valueMap[(Int, String)]().forall {
+    assert(net.valueMap[(Int, String)]().forall {
       case (_, (n, "hello")) if n > 0 => true
       case _ => false
-    }
+    })
 
     exec(testProgram, ntimes = manyManyRounds)(net)
     net.valueMap[(Int, String)]().forall {
