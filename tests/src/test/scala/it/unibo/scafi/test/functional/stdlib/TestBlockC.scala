@@ -35,6 +35,12 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
           Int.MaxValue, Int.MaxValue, Int.MaxValue
         )).toMap)(net)
       }
+      /*
+        mid() induces a gradient field
+        ( 0  1  2
+          3  4  5
+          6  7  8 )
+      * */
       it("should work with mid") {
         exec(new TestProgram {
           override def main(): ID = findParent(mid())
@@ -49,7 +55,6 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
     }
     describe("should support C") {
       def sum: (Int, Int) => Int = _ + _
-
       it("should produce a constant filed if every has the same potential") {
         exec(new TestProgram {
           override def main(): ID = C(1, sum, Int.MaxValue, 0)
@@ -98,7 +103,6 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
           1, 3, 1
         )).toMap)(net)
       }
-
     }
   }
 }
