@@ -21,7 +21,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
 
   describe("Classic Gradient") {
     describe("On a manhattan network with SW node detached") {
-      it("Should be possible to build a gradient of distances on node 0") {
+      it("Should be possible to build a gradient of distances from node 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
           override def main(): Double = classicGradient(sense("source"))
@@ -33,7 +33,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
           2.0, 2.42, infinity
         )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(stdNet)
       }
-      it("Should be possible to build a gradient of distances on node 4") {
+      it("Should be possible to build a gradient of distances from node 4") {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
           override def main(): Double = classicGradient(sense("source"))
@@ -90,7 +90,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   }
   describe("Hop Gradient"){
     describe("On Standard Network"){
-      it("Should be possible to build a gradient of distances on node 0") {
+      it("Should be possible to build a gradient of distances from 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
           override def main(): Double = hopGradient(sense("source"))
@@ -102,7 +102,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
           2.0, 2.0, infinity
         )).toMap)(stdNet)
       }
-      it("Should be possible to build a gradient of distances on node 4") {
+      it("Should be possible to build a gradient of distances from node 4") {
         stdNet.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
           override def main(): Double = hopGradient(sense("source"))
