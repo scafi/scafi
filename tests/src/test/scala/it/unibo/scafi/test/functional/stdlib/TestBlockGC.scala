@@ -2,12 +2,12 @@ package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
-import it.unibo.scafi.test.functional.ScafiTestUtils.{exec, someRounds, standardNetwork}
+import it.unibo.scafi.test.functional.ScafiTestUtils.{exec, manhattanNet, someRounds}
 import org.scalatest._
 
 class TestBlockGC extends FunSpec with BeforeAndAfterEach {
 
-  val net: Network with SimulatorOps = standardNetwork()
+  val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
 
   val defaultNtimes: Int = someRounds
 
