@@ -2,18 +2,17 @@ package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
-import org.scalatest.Assertions.assert
 import org.scalatest._
 
 class TestGradient extends FunSpec with BeforeAndAfterEach {
   import ScafiAssertions._
   import ScafiTestUtils._
 
-  var stdNet: Network with SimulatorOps = standardNetwork()
+  var stdNet: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
   val infinity: Double = Double.PositiveInfinity
 
   def restartNetwork(): Unit = {
-    stdNet = standardNetwork()
+    stdNet = manhattanNet(detachedNodesCords = Set((2,2)))
     stdNet.addSensor(name = "source", value = false)
   }
   override protected def beforeEach(): Unit = restartNetwork()
@@ -21,7 +20,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   private[this] trait TestProgram extends AggregateProgram with ConstructsSemantics with StandardSensors with BlockG with StateManagement with Gradients with GenericUtils
 
   describe("Classic Gradient") {
-    describe("On the standard network") {
+    describe("On a manhattan network with SW node detached") {
       it("Should be possible to build a gradient of distances on node 0") {
         stdNet.chgSensorValue("source", Set(0), true)
         exec(new TestProgram {
@@ -160,35 +159,35 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   }
 
   describe("BIS Gradient - refactor") {
-    describe("On the standard network") {
+    describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
         override def main(): (Double, Double) = (bisGradient(sense("source")), classicGradient(sense("source")))
       }, ntimes = manyRounds)
     }
   }
   describe("CRF Gradient - refactor") {
-    describe("On the standard network") {
+    describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
         override def main(): (Double, Double) = (crfGradient(sense("source")), classicGradient(sense("source")))
       }, ntimes = manyManyRounds, tolerance = 0.2)
     }
   }
   describe("Flex Gradient - refactor") {
-    describe("On the standard network") {
+    describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
         override def main(): (Double, Double) = (flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05), classicGradient(sense("source")))
       })
     }
   }
   describe("SVD Gradient - refactor") {
-    describe("On the standard network") {
+    describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
         override def main(): (Double, Double) = (svdGradient(sense("source")), classicGradient(sense("source")))
       }, ntimes = manyRounds)
     }
   }
   describe("ULT Gradient - refactor") {
-    describe("On the standard network") {
+    describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
         override def main(): (Double, Double) = (ultGradient(sense("source")), classicGradient(sense("source")))
       })
