@@ -110,21 +110,21 @@ class TestTimeUtils extends FlatSpec{
     val ceiling: Int = someRounds
 
     val testProgram: TestProgram = new TestProgram {
-      override def main(): (String, Int) = evaporation(ceiling, "hello")
+      override def main(): (Int, String) = evaporation(ceiling, "hello")
     }
 
     exec(testProgram, ntimes = manyRounds)(net)
     //    net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
-    net.valueMap[(String, Int)]().forall {
-      case (_, ("hello", n)) if n > 0 => true
+    net.valueMap[(Int, String)]().forall {
+      case (_, (n, "hello")) if n > 0 => true
       case _ => false
     }
 
     exec(testProgram, ntimes = manyManyRounds * 3)(net)
     assertNetworkValues((0 to 8).zip(List(
-      ("hello", 0), ("hello", 0), ("hello", 0),
-      ("hello", 0), ("hello", 0), ("hello", 0),
-      ("hello", 0), ("hello", 0), ("hello", 0)
+      (0, "hello"), (0, "hello"), (0, "hello"),
+      (0, "hello"), (0, "hello"), (0, "hello"),
+      (0, "hello"), (0, "hello"), (0, "hello")
     )).toMap)(net)
   }
 
@@ -132,26 +132,26 @@ class TestTimeUtils extends FlatSpec{
     val ceiling: Int = 1000000
 
     val testProgram: TestProgram = new TestProgram {
-      override def main(): Any = evaporation(1000000, halving,"hello")
+      override def main(): (Int, String) = evaporation(1000000, halving,"hello")
     }
 
     exec(testProgram, ntimes = fewRounds)(net)
     //net.valueMap[(String, Int)]().forall(e => e._2._1 == "hello" && e._2._2 > 0)
-    net.valueMap[(String, Int)]().forall {
-      case (_, ("hello", n)) if n > 0 => true
+    net.valueMap[(Int, String)]().forall {
+      case (_, (n, "hello")) if n > 0 => true
       case _ => false
     }
 
     exec(testProgram, ntimes = manyManyRounds)(net)
-    net.valueMap[(String, Int)]().forall {
-      case (_, ("hello", 0)) => true
+    net.valueMap[(Int, String)]().forall {
+      case (_, (0, "hello")) => true
       case _ => false
     }
 
     assertNetworkValues((0 to 8).zip(List(
-      ("hello", 0), ("hello", 0), ("hello", 0),
-      ("hello", 0), ("hello", 0), ("hello", 0),
-      ("hello", 0), ("hello", 0), ("hello", 0)
+      (0, "hello"), (0, "hello"), (0, "hello"),
+      (0, "hello"), (0, "hello"), (0, "hello"),
+      (0, "hello"), (0, "hello"), (0, "hello")
     )).toMap)(net)
   }
 }

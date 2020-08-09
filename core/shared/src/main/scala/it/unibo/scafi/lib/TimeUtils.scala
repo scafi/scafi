@@ -154,8 +154,8 @@ trait StdLib_TimeUtils {
       * @param decay  T => T, decay rate
       * @return [V, T]
       */
-    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (V, T) =
-      (info, T(length, decay))
+    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (T, V) =
+      ( T(length, decay), info)
 
     /**
       * Evaporation pattern.
@@ -166,8 +166,9 @@ trait StdLib_TimeUtils {
       * @param info   V, information
       * @return [V, T]
       */
-    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (V, T) =
-      (info, T(length))
+    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (T, V) = {
+      (T(length), info)
+    }
 
     /**
       * Periodically invoke a function.
