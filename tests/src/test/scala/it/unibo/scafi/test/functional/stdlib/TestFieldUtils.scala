@@ -164,6 +164,27 @@ class TestFieldUtils extends FlatSpec {
     )).toMap)(net)
   }
 
+  Field_Utils should "support mergeHoodFirst - merge" in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Map[Int, ID] = includingSelf.mergeHoodFirst(nbr(Map(1 -> mid())))
+    }, ntimes = fewRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      Map(1 -> 0), Map(1 -> 1), Map(1 -> 2),
+      Map(1 -> 3), Map(1 -> 4), Map(1 -> 5),
+      Map(1 -> 6), Map(1 -> 7), Map(1 -> 8)
+    )).toMap)(net)
+
+    exec(new TestProgram {
+      override def main(): Map[Int, ID] = excludingSelf.mergeHoodFirst(nbr(Map(1 -> mid())))
+    }, ntimes = fewRounds)(net)
+
+    assert(net.valueMap[Map[Int, ID]]().forall {
+      case (id, map) if id == 8 => map.isEmpty
+      case (id, map) => map.size == 1 && map.forall(p => net.neighbourhood(id).contains(p._2))
+    })
+  }
+
   Field_Utils should "support minHoodLoc" in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Any = (
