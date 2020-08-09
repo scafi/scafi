@@ -42,8 +42,9 @@ trait StdLib_TimeUtils {
       (if (ev.gt(t, ev.zero)) value else expValue, t)
     }
 
-    /*
-    * Returns an value rep(time, info) => (ev.minus(time, decay), info))resenting the current clock
+    /**
+    * Timer synchronized within a neighborhood
+      *
     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
@@ -153,8 +154,8 @@ trait StdLib_TimeUtils {
       * @param decay  T => T, decay rate
       * @return [V, T]
       */
-    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (V, T) =
-      (info, T(length, decay))
+    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (T, V) =
+      (T(length, decay), info)
 
     /**
       * Evaporation pattern.
@@ -165,8 +166,9 @@ trait StdLib_TimeUtils {
       * @param info   V, information
       * @return [V, T]
       */
-    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (V, T) =
-      (info, T(length))
+    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (T, V) = {
+      (T(length), info)
+    }
 
     /**
       * Periodically invoke a function.
@@ -189,9 +191,9 @@ trait StdLib_TimeUtils {
       * @return V, apply f if the timeout is expired, NULL otherwise
       */
     def cyclicFunctionWithDecay[T, V](length: T, decay: T, f: () => V, NULL: V)(implicit ev: Numeric[T]): V =
-      if (cyclicTimerWithDecay(length, decay)) {
+      branch(cyclicTimerWithDecay(length, decay)) {
         f()
-      } else {
+      } {
         NULL
       }
 

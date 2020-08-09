@@ -20,11 +20,15 @@ trait StdLib_Gradients {
     }
 
     val ClassicGradient = Gradient(classicGradient(_,_), false, nbrRange)
+    val ClassicHopGradient = Gradient((src,metric) => hopGradient(src), false, () => 1)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
       rep(Double.PositiveInfinity){ case d =>
         mux(source){ 0.0 }{ minHoodPlus(nbr(d) + metric()) }
       }
+
+    def hopGradient(src: Boolean): Long =
+      classicGradient(src, () => 1).toLong
   }
 
 }
