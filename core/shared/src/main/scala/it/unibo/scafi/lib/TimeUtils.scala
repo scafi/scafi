@@ -42,8 +42,9 @@ trait StdLib_TimeUtils {
       (if (ev.gt(t, ev.zero)) value else expValue, t)
     }
 
-    /*
-    * Returns an value rep(time, info) => (ev.minus(time, decay), info))resenting the current clock
+    /**
+    * Timer synchronized within a neighborhood
+      *
     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
