@@ -155,7 +155,7 @@ trait StdLib_TimeUtils {
       * @return [V, T]
       */
     def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (T, V) =
-      ( T(length, decay), info)
+      (T(length, decay), info)
 
     /**
       * Evaporation pattern.
@@ -191,9 +191,9 @@ trait StdLib_TimeUtils {
       * @return V, apply f if the timeout is expired, NULL otherwise
       */
     def cyclicFunctionWithDecay[T, V](length: T, decay: T, f: () => V, NULL: V)(implicit ev: Numeric[T]): V =
-      if (cyclicTimerWithDecay(length, decay)) {
+      branch(cyclicTimerWithDecay(length, decay)) {
         f()
-      } else {
+      } {
         NULL
       }
 
