@@ -185,6 +185,28 @@ class TestFieldUtils extends FlatSpec {
     })
   }
 
+  Field_Utils should "support mergeHood - merge" in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Map[Int, ID] = excludingSelf.mergeHood(nbr(Map(1 -> mid())))((_, y) => y)
+    }, ntimes = someRounds)(net)
+
+    assert(net.valueMap[Map[Int, ID]]().forall {
+      case (id, map) if id == 8 => map.isEmpty
+      case (id, map) => map.size == 1 && map.forall(p => net.neighbourhood(id).contains(p._2))
+    })
+  }
+
+  Field_Utils should "support mergeHood - merge including" in new SimulationContextFixture {
+    exec(new TestProgram {
+      override def main(): Map[Int, ID] = includingSelf.mergeHood(nbr(Map(1 -> mid())))((_, y) => y)
+    }, ntimes = someRounds)(net)
+
+    assert(net.valueMap[Map[Int, ID]]().forall {
+      case (id, map) if id == 8 => map.size == 1 && map(1) == 8
+      case (id, map) => map.size == 1 && map.forall(p => net.neighbourhood(id).contains(p._2))
+    })
+  }
+
   Field_Utils should "support minHoodLoc" in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Any = (
