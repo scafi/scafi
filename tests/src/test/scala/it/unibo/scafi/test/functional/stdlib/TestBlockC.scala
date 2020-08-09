@@ -21,8 +21,7 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
     def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) { hops => {mux(source) {0.0} {1 + minHood(nbr {hops})}}}
   }
-
-
+  
   describe("BlockC") {
     describe("should support smaller") {
       it("should work in basic scenario - all true") {
