@@ -44,14 +44,7 @@ trait StdLib_Gradients {
 
     def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) {
-        hops => {
-          mux(source) {
-            0.0
-          } {
-            1 + minHood(nbr {
-              hops
-            })
-          }
+        hops => mux(source) {0.0} {1 + minHood(nbr {hops})
         }
       }
 
