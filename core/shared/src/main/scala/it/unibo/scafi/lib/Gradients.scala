@@ -32,6 +32,16 @@ trait StdLib_Gradients {
 
     val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
     val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => 1)
+    def BisGradient(commRadius: Double = 0.2,
+                    lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(bisGradient(commRadius, lagMetric), source = false, nbrRange)
+    def CrfGradient(raisingSpeed: Double = 5,
+                    lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(crfGradient(raisingSpeed, lagMetric), source = false, nbrRange)
+    def FlexGradient(epsilon: Double = 0.5,
+                     delta: Double = 1.0,
+                     communicationRadius: Double = 1.0): Gradient = Gradient(flexGradient(epsilon, delta, communicationRadius), source = false, nbrRange)
+    def SvdGradient(lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(svdGradient(lagMetric), source = false, nbrRange)
+    def UltGradient(radius: Double = 0.2,
+                    factor: Double = 0.1): Gradient = Gradient(ultGradient(radius, factor), source = false, nbrRange)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
       rep(Double.PositiveInfinity) { case d =>
@@ -48,11 +58,11 @@ trait StdLib_Gradients {
         }
       }
 
-    def bisGradient(
-                     source: Boolean,
-                     metric: Metric = nbrRange,
-                     commRadius: Double = 0.2,
-                     lagMetric: => Double = nbrLag().toMillis): Double = {
+    def bisGradient(commRadius: Double = 0.2,
+                    lagMetric: => Double = nbrLag().toMillis)
+                   (source: Boolean,
+                    metric: Metric = nbrRange
+                   ): Double = {
       val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
       val speed = 1.0 / avgFireInterval
 
@@ -74,11 +84,11 @@ trait StdLib_Gradients {
       }._1
     }
 
-    def crfGradient(
-                     source: Boolean,
-                     metric: Metric = nbrRange,
-                     raisingSpeed: Double = 5,
-                     lagMetric: => Double = nbrLag().toMillis): Double =
+    def crfGradient(raisingSpeed: Double = 5,
+                    lagMetric: => Double = nbrLag().toMillis)
+                   (source: Boolean,
+                     metric: Metric = nbrRange
+                   ): Double =
       rep((Double.PositiveInfinity, 0.0)) {
         case (g, speed) =>
           mux(source){ (0.0, 0.0) }{
@@ -110,12 +120,12 @@ trait StdLib_Gradients {
       * @param communicationRadius
       * @return
     */
-    def flexGradient(source: Boolean,
-                     metric: Metric = nbrRange,
-                     epsilon: Double = 0.5,
+    def flexGradient(epsilon: Double = 0.5,
                      delta: Double = 1.0,
-                     communicationRadius: Double = 1.0
-            ): Double =
+                     communicationRadius: Double = 1.0)
+                    (source: Boolean,
+                     metric: Metric = nbrRange
+                    ): Double =
       rep(Double.PositiveInfinity){ g =>
         def distance = Math.max(nbrRange(), delta * communicationRadius)
 
@@ -141,10 +151,10 @@ trait StdLib_Gradients {
         }
       }
 
-    def svdGradient(
+    def svdGradient(lagMetric: => Double = nbrLag().toMillis)(
                      source: Boolean,
-                     metric: Metric = nbrRange,
-                     lagMetric: => Double = nbrLag().toMillis): Double = {
+                     metric: Metric = nbrRange
+                     ): Double = {
 
       /**
         * At the heart of SVD algorithm. This function is responsible to kick-start the reconfiguration process.
@@ -240,13 +250,13 @@ trait StdLib_Gradients {
       }._1 // Selects estimated distance
     }
 
-    def ultGradient(
+    def ultGradient(radius: Double = 0.2,
+                    factor: Double = 0.1)(
                      source: Boolean,
-                     metric: Metric = nbrRange,
-                     radius: Double = 0.2,
-                     factor: Double = 0.1): Double = {
-      def svd: Double = svdGradient(source, metric)
-      def bis: Double = bisGradient(source, metric, radius)
+                     metric: Metric = nbrRange)
+                     : Double = {
+      //def svd: Double = svdGradient(source, metric)
+      //def bis: Double = bisGradient(commRadius = radius)(source, metric)
       def inertialFilter(value: Double, factor: Double) = {
         val dt: Double = deltaTime().toMillis
         val at: Double = expFilter(dt, factor)
@@ -261,8 +271,7 @@ trait StdLib_Gradients {
           }
         }}
       }
-      inertialFilter(Math.max(svd, bis), factor)
-      //expFilter(Math.max(svd, bis), factor)
+      inertialFilter(Math.max(SvdGradient().from(source).withMetric(metric).run(), BisGradient(radius).from(source).withMetric(metric).run()), factor)
     }
   }
 }

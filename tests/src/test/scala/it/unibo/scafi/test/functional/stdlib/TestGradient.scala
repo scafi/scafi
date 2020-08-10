@@ -17,7 +17,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   }
   override protected def beforeEach(): Unit = restartNetwork()
 
-  private[this] trait TestProgram extends AggregateProgram with ConstructsSemantics with StandardSensors with Gradients with BlockG
+  private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG with Gradients
 
   describe("Classic Gradient") {
     describe("On a manhattan network with SW node detached") {
@@ -161,40 +161,49 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   describe("BIS Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
-        override def main(): (Double, Double) = (bisGradient(sense("source")), classicGradient(sense("source")))
-      }, ntimes = manyRounds)
-    }
-  }
-  describe("CRF Gradient - refactor") {
-    describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgram {
-        override def main(): (Double, Double) = (crfGradient(sense("source")), classicGradient(sense("source")))
-      }, ntimes = manyManyRounds, tolerance = 0.2)
-    }
-  }
-  describe("Flex Gradient - refactor") {
-    describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgram {
-        override def main(): (Double, Double) = (flexGradient(sense("source"), metric = nbrRange, epsilon = 0.05), classicGradient(sense("source")))
+        override def main(): (Double, Double) = (BisGradient().from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
       })
     }
   }
+
+  describe("CRF Gradient - refactor") {
+    describe("On a manhattan network with SW node detached") {
+      testBasicBehaviour(new TestProgram {
+        //notice the use of an high raisingSpeed
+        override def main(): (Double, Double) = (CrfGradient(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      })
+    }
+  }
+
+  describe("Flex Gradient - refactor") {
+    describe("On a manhattan network with SW node detached") {
+      testBasicBehaviour(new TestProgram {
+        override def main(): (Double, Double) = (FlexGradient(epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      })
+    }
+  }
+
   describe("SVD Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
-        override def main(): (Double, Double) = (svdGradient(sense("source")), classicGradient(sense("source")))
-      }, ntimes = manyRounds)
+        override def main(): (Double, Double) = (SvdGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      })
     }
   }
   describe("ULT Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
       testBasicBehaviour(new TestProgram {
-        override def main(): (Double, Double) = (ultGradient(sense("source")), classicGradient(sense("source")))
+        override def main(): (Double, Double) = (UltGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
       })
     }
   }
 
-  def testBasicBehaviour(v: TestProgram, ntimes: Int = someRounds, tolerance: Double = 0.1): Unit  = {
+  /*TODO
+  def testBasicBehaviour(gradient: Gradient, ntimes: Int = manyRounds, tolerance: Double = 0.1): Unit  = {
+    val v: TestProgram = new TestProgram {
+      override def main(): (Double, Double) = (gradient.from(sense("source")).run(), classicGradient(sense("source")))
+    }*/
+  def testBasicBehaviour(v: TestProgram, ntimes: Int = manyManyRounds, tolerance: Double = 0.1): Unit  = {
     it("Should be possible to build a gradient of distances on node 0") {
       stdNet.chgSensorValue("source", Set(0), true)
       exec(v, ntimes = ntimes)(stdNet)
