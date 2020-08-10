@@ -9,7 +9,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
   import ScafiAssertions._
   import ScafiTestUtils._
 
-  var net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
+  implicit var net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
   val infinity: Double = Double.PositiveInfinity
 
   def restartNetwork(): Unit = {
@@ -23,10 +23,14 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
 
   describe("BlockG") {
     describe("Should support distanceTo - hop") {
-      it("Should work if no source is specified") {
+      def executeDistanceToSource(implicit net: Network with SimulatorOps): Network = {
         exec(new TestProgram {
-          override def main(): Any = distanceTo(sense[Boolean]("source"), () => 1)
+          override def main(): Double = distanceTo(sense[Boolean]("source"), () => 1)
         }, ntimes = manyRounds)(net)
+      }
+
+      it("Should work if no source is specified") {
+        executeDistanceToSource
 
         assertNetworkValues((0 to 8).zip(List(
           infinity, infinity, infinity,
@@ -37,9 +41,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       it("Should work with multiple sources") {
         net.chgSensorValue("source", Set(0, 4), true)
 
-        exec(new TestProgram {
-          override def main(): Any = distanceTo(sense[Boolean]("source"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceToSource
 
         assertNetworkValues((0 to 8).zip(List(
           0, 1, 1,
@@ -50,9 +52,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       it("Should react to a source change") {
         net.chgSensorValue("source", Set(0), true)
 
-        exec(new TestProgram {
-          override def main(): Any = distanceTo(sense[Boolean]("source"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceToSource
 
         assertNetworkValues((0 to 8).zip(List(
           0, 1, 2,
@@ -63,10 +63,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         net.chgSensorValue("source", Set(0), false)
         net.chgSensorValue("source", Set(4), true)
 
-
-        exec(new TestProgram {
-          override def main(): Any = distanceTo(sense[Boolean]("source"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceToSource
 
         assertNetworkValues((0 to 8).zip(List(
           1, 1, 1,
@@ -76,11 +73,15 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       }
     }
     describe("Should support broadcast - hop") {
+      def executeBroadcastFromSource(implicit net: Network with SimulatorOps): Network = {
+        exec(new TestProgram {
+          override def main(): Double = broadcast(sense[Boolean]("source"), mid(), () => 1)
+        }, ntimes = manyRounds)(net)
+      }
+
       it("The source should broadcast its value") {
         net.chgSensorValue("source", Set(4), true)
-        exec(new TestProgram {
-          override def main(): Any = broadcast(sense[Boolean]("source"), mid(), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeBroadcastFromSource
 
         assertNetworkValues((0 to 8).zip(List(
           4, 4, 4,
@@ -90,15 +91,11 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       }
       it("Should react to a source change") {
         net.chgSensorValue("source", Set(0), true)
-        exec(new TestProgram {
-          override def main(): Any = (broadcast(sense[Boolean]("source"), mid(), () => 1), hopGradient((sense[Boolean]("source"))))
-        }, ntimes = manyManyRounds)(net)
+        executeBroadcastFromSource
 
         net.chgSensorValue("source", Set(0), false)
         net.chgSensorValue("source", Set(7), true)
-        exec(new TestProgram {
-          override def main(): Any = broadcast(sense[Boolean]("source"), mid(), () => 1)
-        }, ntimes = manyManyRounds)(net)
+        executeBroadcastFromSource
 
         assertNetworkValues((0 to 8).zip(List(
           7, 7, 7,
@@ -108,28 +105,29 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       }
       it("Should work with multiple sources") {
         net.chgSensorValue("source", Set(0, 7), true)
-        exec(new TestProgram {
-          override def main(): ID = broadcast(sense[Boolean]("source"), mid(), () => 1)
-        }, ntimes = manyManyRounds)(net)
+        executeBroadcastFromSource
 
         //2 and 4 are equidistant from the sources -> they can assume both value
-        assert(net.valueMap[ID]().forall {
-          case (mid, r) if Set(2, 4) contains mid => r == 0 || r == 7
-          case (mid, r) if Set(0, 1, 3) contains mid => r == 0
-          case (mid, r) if Set(5, 6, 7) contains mid => r == 7
-          case (8, 8) => true
+        assert(net.valueMap[Double]().forall {
+          case (mid, r) if Set(2, 4) contains mid => r == 0.0 || r == 7.0
+          case (mid, r) if Set(0, 1, 3) contains mid => r == 0.0
+          case (mid, r) if Set(5, 6, 7) contains mid => r == 7.0
+          case (8, 8.0) => true
           case _ => false
         })
       }
     }
     describe("Should support distanceBetween - hop") {
+      def executeDistanceBetween(implicit net: Network with SimulatorOps): Network = {
+        exec(new TestProgram {
+          override def main(): Double = distanceBetween(sense("source"), sense("destination"), () => 1)
+        }, ntimes = manyRounds)(net)
+      }
       it("should work in a basic scenario (single source single destination") {
         net.chgSensorValue("source", Set(0), true)
         net.chgSensorValue("destination", Set(1), true)
 
-        exec(new TestProgram {
-          override def main(): Any = distanceBetween(sense("source"), sense("destination"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceBetween
 
         assertNetworkValues((0 to 8).zip(List(
           1, 1, 1,
@@ -142,9 +140,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         net.chgSensorValue("destination", Set(1), true)
         net.chgSensorValue("destination", Set(7), true)
 
-        exec(new TestProgram {
-          override def main(): Any = distanceBetween(sense("source"), sense("destination"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceBetween
 
         assertNetworkValues((0 to 8).zip(List(
           1, 1, 1,
@@ -156,9 +152,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         net.chgSensorValue("source", Set(0), true)
         net.chgSensorValue("destination", Set(8), true)
 
-        exec(new TestProgram {
-          override def main(): Any = distanceBetween(sense("source"), sense("destination"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceBetween
 
         assertNetworkValues((0 to 8).zip(List(
           infinity, infinity, infinity,
@@ -170,16 +164,12 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         net.chgSensorValue("source", Set(0), true)
         net.chgSensorValue("destination", Set(1), true)
 
-        exec(new TestProgram {
-          override def main(): Any = distanceBetween(sense("source"), sense("destination"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceBetween
 
         net.chgSensorValue("destination", Set(1), false)
         net.chgSensorValue("destination", Set(6), true)
 
-        exec(new TestProgram {
-          override def main(): Any = distanceBetween(sense("source"), sense("destination"), () => 1)
-        }, ntimes = manyRounds)(net)
+        executeDistanceBetween
 
         assertNetworkValues((0 to 8).zip(List(
           2, 2, 2,
@@ -189,14 +179,17 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       }
     }
     describe("Channel") {
-      val smallChannelWidth = 0.1
+      val smallChannelWidth: Double = 0.1
+      def executeChannel(implicit net: Network with SimulatorOps): Network = {
+        exec(new TestProgram {
+          override def main(): Boolean = channel(sense("source"), sense("destination"), smallChannelWidth)
+        }, ntimes = manyRounds)(net)
+      }
       it("should mark as true the devices on the shortest path") {
         net.chgSensorValue("source", Set(0), true)
         net.chgSensorValue("destination", Set(2), true)
 
-        exec(new TestProgram {
-          override def main(): Any = channel(sense("source"), sense("destination"), smallChannelWidth)
-        }, ntimes = manyRounds)(net)
+        executeChannel
 
         assertNetworkValues((0 to 8).zip(List(
           true, true, true,
@@ -208,9 +201,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         net.chgSensorValue("source", Set(0,6), true)
         net.chgSensorValue("destination", Set(2,7), true)
 
-        exec(new TestProgram {
-          override def main(): Any = channel(sense("source"), sense("destination"), smallChannelWidth)
-        }, ntimes = manyRounds)(net)
+        executeChannel
 
         assertNetworkValues((0 to 8).zip(List(
           true, true, true,
@@ -219,9 +210,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         )).toMap)(net)
       }
       it("every device should compute false if there is no channel") {
-        exec(new TestProgram {
-          override def main(): Any = channel(sense("source"), sense("destination"), smallChannelWidth)
-        }, ntimes = manyRounds)(net)
+        executeChannel
 
         assertNetworkValues((0 to 8).zip(List(
           false, false, false,
@@ -233,16 +222,12 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         net.chgSensorValue("source", Set(0), true)
         net.chgSensorValue("destination", Set(2), true)
 
-        exec(new TestProgram {
-          override def main(): Any = channel(sense("source"), sense("destination"), smallChannelWidth)
-        }, ntimes = manyRounds)(net)
+        executeChannel
 
         net.chgSensorValue("destination", Set(2), false)
         net.chgSensorValue("destination", Set(6), true)
 
-        exec(new TestProgram {
-          override def main(): Any = channel(sense("source"), sense("destination"), smallChannelWidth)
-        }, ntimes = manyRounds)(net)
+        executeChannel
 
         assertNetworkValues((0 to 8).zip(List(
           true, false, false,
@@ -253,12 +238,15 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
     }
     describe("G[V]") {
       def unitaryIncrement: Int => Int = _ + 1
+      def executeG(implicit net: Network with SimulatorOps): Network = {
+        exec(new TestProgram {
+          override def main(): Int = G(sense("source"),  mux(sense("source")){0}{1}, unitaryIncrement, () => 1)
+        }, ntimes = manyRounds)(net)
+      }
       it("should accumulate over a gradient") {
         net.chgSensorValue("source", Set(0), true)
 
-        exec(new TestProgram {
-          override def main(): Any = G(sense("source"),  mux(sense("source")){0}{1}, unitaryIncrement, () => 1)
-        }, ntimes = manyRounds)(net)
+        executeG
 
         assertNetworkValues((0 to 8).zip(List(
           0, 1, 2,
@@ -269,16 +257,12 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       it("should react to a source change") {
         net.chgSensorValue("source", Set(0), true)
 
-        exec(new TestProgram {
-          override def main(): Any = G(sense("source"),  mux(sense("source")){0}{1}, unitaryIncrement, () => 1)
-        }, ntimes = manyRounds)(net)
+        executeG
 
         net.chgSensorValue("source", Set(0), false)
         net.chgSensorValue("source", Set(7), true)
 
-        exec(new TestProgram {
-          override def main(): Any = G(sense("source"),  mux(sense("source")){0}{1}, unitaryIncrement, () => 1)
-        }, ntimes = manyRounds)(net)
+        executeG
 
         assertNetworkValues((0 to 8).zip(List(
           2, 2, 2,
