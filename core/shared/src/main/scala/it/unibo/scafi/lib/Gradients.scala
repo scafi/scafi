@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.math.Numeric.DoubleIsFractional
 import it.unibo.utils.Filters.expFilter
 
@@ -63,7 +63,7 @@ trait StdLib_Gradients {
                    (source: Boolean,
                     metric: Metric = nbrRange
                    ): Double = {
-      val avgFireInterval = meanCounter(deltaTime().toMillis, 1000000)
+      val avgFireInterval = meanCounter(deltaTime().toMillis, 1.second.toMicros)
       val speed = 1.0 / avgFireInterval
 
       rep((Double.PositiveInfinity, Double.PositiveInfinity)) { case (spatialDist: Double, tempDist: Double) =>
@@ -130,7 +130,7 @@ trait StdLib_Gradients {
         def distance = Math.max(nbrRange(), delta * communicationRadius)
 
         import Builtins.Bounded._ // for min/maximizing over tuples
-        val maxLocalSlope: (Double,ID,Double,Double) = //??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
+        val maxLocalSlope: (Double,ID,Double,Double) =
         maxHood {
           ((g - nbr{g})/distance, nbr{mid}, nbr{g}, metric())
         }
@@ -162,18 +162,18 @@ trait StdLib_Gradients {
         * @param time
         * @return
         */
-      def detect(time: Double): Boolean = {
+      def detect(time: Double, threshold: Double = 0.0001): Boolean = {
         // Let's keep track into repCount of how much time is elapsed since the first time
         // the current info (originated from the source in time 'time') reached the current device
         val repCount = rep(0.0) { old =>
-          if (Math.abs(time - delay(time)) < 0.0001) {
+          if (Math.abs(time - delay(time)) < threshold) {
             old + deltaTime().toMillis
           } else {
             0.0
           }
         }
 
-        val obsolete = repCount > rep[(Double, Double, Double)](2, 8, 16) { case (avg, sqa, bound) =>
+        val obsolete = repCount > rep[(Double, Double, Double)](2, 8, 16) { case (avg, sqa, _) =>
           // Estimate of the average peak value for repCount, obtained by exponentially filtering
           // with a factor 0.1 the peak values of repCount
           val newAvg = 0.9 * avg + 0.1 * delay(repCount)
@@ -196,7 +196,7 @@ trait StdLib_Gradients {
         case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
           // (1) Let's calculate new values for spaceDistEst and sourceId
           import Builtins.Bounded._
-          val (newSpaceDistEst: Double, newSourceId: ID) = //(???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
+          val (newSpaceDistEst: Double, newSourceId: ID) = 
           minHood {
             mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
             { // let's discard neighbours where 'obsolete' flag is true
