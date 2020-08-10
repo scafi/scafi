@@ -9,7 +9,7 @@ trait StdLib_StateManagement{
   self: StandardLibrary.Subcomponent =>
 
   trait StateManagement {
-    self: FieldCalculusSyntax with StandardSensors =>
+    self: FieldCalculusSyntax =>
 
     /**
       * Counts the number of rounds, refreshing each time the computation is re-entered.

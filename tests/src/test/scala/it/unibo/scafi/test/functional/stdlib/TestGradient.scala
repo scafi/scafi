@@ -17,7 +17,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   }
   override protected def beforeEach(): Unit = restartNetwork()
 
-  private[this] trait TestProgram extends AggregateProgram with ConstructsSemantics with StandardSensors with BlockG with StateManagement with Gradients with GenericUtils
+  private[this] trait TestProgram extends AggregateProgram with ConstructsSemantics with StandardSensors with Gradients with BlockG
 
   describe("Classic Gradient") {
     describe("On a manhattan network with SW node detached") {

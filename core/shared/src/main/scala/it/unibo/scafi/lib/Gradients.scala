@@ -18,8 +18,8 @@ trait StdLib_Gradients {
 
   implicit val idBounded: Bounded[ID]
 
-  trait Gradients {
-    self: FieldCalculusSyntax with StandardSensors with GenericUtils with StateManagement with BlockG =>
+  trait Gradients extends GenericUtils with StateManagement {
+    self: FieldCalculusSyntax with StandardSensors with BlockG =>
 
     case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
@@ -30,8 +30,8 @@ trait StdLib_Gradients {
     }
 
 
-    val ClassicGradient = Gradient(classicGradient(_,_), false, nbrRange)
-    val ClassicHopGradient = Gradient((src,metric) => hopGradient(src), false, () => 1)
+    val ClassicGradient = Gradient(classicGradient, source = false, nbrRange)
+    val ClassicHopGradient = Gradient((src, _) => hopGradient(src), source = false, () => 1)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
       rep(Double.PositiveInfinity) { case d =>
