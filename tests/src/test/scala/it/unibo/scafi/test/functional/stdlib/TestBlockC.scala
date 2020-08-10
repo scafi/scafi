@@ -55,7 +55,7 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
     }
     describe("should support C") {
       def sum: (Int, Int) => Int = _ + _
-      it("should produce a constant filed if every has the same potential") {
+      it("should produce a constant filed if every node has the same potential") {
         exec(new TestProgram {
           override def main(): ID = C(1, sum, Int.MaxValue, 0)
         }, ntimes = defaultNtimes)(net)
