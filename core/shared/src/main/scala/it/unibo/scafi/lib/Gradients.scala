@@ -30,8 +30,8 @@ trait StdLib_Gradients {
     }
 
 
-    val ClassicGradient = Gradient(classicGradient, source = false, nbrRange)
-    val ClassicHopGradient = Gradient((src, _) => hopGradient(src), source = false, () => 1)
+    val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
+    val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => 1)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
       rep(Double.PositiveInfinity) { case d =>
