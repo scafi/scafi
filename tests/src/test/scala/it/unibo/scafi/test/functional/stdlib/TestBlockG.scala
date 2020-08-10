@@ -21,7 +21,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG
 
   describe("BlockG") {
-    describe("Should support distanceTo") {
+    describe("Should support distanceTo - hop") {
       it("Should work if no source is specified") {
         exec(new TestProgram {
           override def main(): Any = distanceTo(sense[Boolean]("source"), () => 1)
@@ -74,7 +74,6 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         )).toMap)(net)
       }
     }
-
   }
 
 }
