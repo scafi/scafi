@@ -33,6 +33,19 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
           infinity, infinity, infinity
         )).toMap)(net)
       }
+      it("Should work with multiple sources"){
+        net.chgSensorValue("source", Set(0,4), true)
+
+        exec(new TestProgram {
+          override def main(): Any = distanceTo(sense[Boolean]("source"), () => 1)
+        }, ntimes = manyRounds)(net)
+
+        assertNetworkValues((0 to 8).zip(List(
+          0, 1, 1,
+          1, 0, 1,
+          1, 1, infinity
+        )).toMap)(net)
+      }
     }
 
   }
