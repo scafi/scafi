@@ -74,7 +74,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         )).toMap)(net)
       }
     }
-    describe("Should support distanceBetween - hop") {
+    describe("Should support broadcast - hop") {
       it("The source should broadcast its value") {
         net.chgSensorValue("source", Set(4), true)
         exec(new TestProgram {
@@ -121,6 +121,4 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         })
       }
     }
-  }
-
 }
