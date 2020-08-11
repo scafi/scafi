@@ -98,14 +98,14 @@ object ScafiTestUtils {
                     side: Int = 3,
                     step: Int = 1,
                     rng: Double = 1.5,
-                    detachedNodesCords: Set[(Int, Int)] = Set()
+                    detachedNodesCoords: Set[(Int, Int)] = Set()
                   ): Network with SimulatorOps = {
     var lastDetachedPosition: (Double, Double) = (Int.MaxValue, Int.MaxValue)
     simulatorFactory.gridLike(
       GridSettings(
         side, side, step, step,
         mapPos = (a,b,px,py) => {
-          if (detachedNodesCords contains (a,b)) {
+          if (detachedNodesCoords contains (a,b)) {
             lastDetachedPosition = (lastDetachedPosition._1 - rng, lastDetachedPosition._2 - rng)
             lastDetachedPosition
           } else {
