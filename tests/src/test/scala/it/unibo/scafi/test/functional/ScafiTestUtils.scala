@@ -104,13 +104,14 @@ object ScafiTestUtils {
     simulatorFactory.gridLike(
       GridSettings(
         side, side, step, step,
-        mapPos = (a,b,px,py) => {
-          if (detachedNodesCoords contains (a,b)) {
-            lastDetachedPosition = (lastDetachedPosition._1 - rng, lastDetachedPosition._2 - rng)
-            lastDetachedPosition
-          } else {
-            (px, py)
-          }
-        }), rng = rng)
+        mapPos = (a,b,px,py) =>
+          detachedNodesCoords
+            .find(_ == (a,b))
+            .map{_ =>
+              lastDetachedPosition = (lastDetachedPosition._1 - rng, lastDetachedPosition._2 - rng)
+              lastDetachedPosition
+            }
+            .getOrElse[(Double, Double)](px, py)
+        ), rng = rng)
   }
 }
