@@ -18,7 +18,7 @@ class TestBlockT extends FlatSpec{
   val Block_T = new ItWord
 
   private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCords = Set((2,2)))
+    val net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
