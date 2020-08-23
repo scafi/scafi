@@ -8,9 +8,9 @@ import org.scalatest._
 class TestBlockC extends FunSpec with BeforeAndAfterEach {
   import ScafiTestUtils._
 
-  var net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCords = Set((2,2)))
+  var net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))
   def restartNetwork(): Unit = {
-    net = ScafiTestUtils.manhattanNet(detachedNodesCords = Set((2,2)))
+    net = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))
     net.addSensor(name = "source", value = false)
   }
   override protected def beforeEach(): Unit = restartNetwork()

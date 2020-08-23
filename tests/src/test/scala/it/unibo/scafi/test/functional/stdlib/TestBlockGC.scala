@@ -7,7 +7,7 @@ import org.scalatest._
 
 class TestBlockGC extends FunSpec with BeforeAndAfterEach {
 
-  val net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
+  val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
 
   val defaultNtimes: Int = someRounds
 
