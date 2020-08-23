@@ -44,7 +44,6 @@ trait StdLib_TimeUtils {
 
     /**
     * Timer synchronized within a neighborhood
-      *
     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
