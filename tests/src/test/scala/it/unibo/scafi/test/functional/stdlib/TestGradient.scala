@@ -8,11 +8,11 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   import ScafiAssertions._
   import ScafiTestUtils._
 
-  var net: Network with SimulatorOps = manhattanNet(detachedNodesCords = Set((2,2)))
+  var net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
   val infinity: Double = Double.PositiveInfinity
 
   def restartNetwork(): Unit = {
-    net = manhattanNet(detachedNodesCords = Set((2,2)))
+    net = manhattanNet(detachedNodesCoords = Set((2,2)))
     net.addSensor(name = "source", value = false)
   }
   override protected def beforeEach(): Unit = restartNetwork()
