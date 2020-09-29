@@ -110,7 +110,7 @@ class TestBlockT extends FlatSpec{
     )).toMap)(net)
   }
 
-  Block_T should("support limitedMemory") in new SimulationContextFixture {
+  Block_T should "support limitedMemory" in new SimulationContextFixture {
     val value: Int = 10
     val expValue: Int = -1
     exec(new TestProgram {
@@ -124,7 +124,7 @@ class TestBlockT extends FlatSpec{
     )).toMap)(net)
   }
 
-  Block_T should("support sharedTimerWithDecay") in new SimulationContextFixture {
+  Block_T should "support sharedTimerWithDecay" in new SimulationContextFixture {
     val maxStdDev: Int = 10
     exec(new TestProgram {
       override def main(): Int = sharedTimerWithDecay(1, 1)
@@ -134,7 +134,7 @@ class TestBlockT extends FlatSpec{
     assert(stdDev(net.valueMap[Int]().filterKeys(_ != 8).values) < maxStdDev)
   }
 
-  Block_T should("T should restart after branch switch") in new SimulationContextFixture {
+  Block_T should "T should restart after branch switch" in new SimulationContextFixture {
     net.addSensor[Boolean]("snsT", false)
 
     val testProgram: TestProgram = new TestProgram {
