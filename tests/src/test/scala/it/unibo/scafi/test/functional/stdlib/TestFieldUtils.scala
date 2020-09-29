@@ -13,9 +13,11 @@ class TestFieldUtils extends FlatSpec {
 
   private[this] trait SimulationContextFixture {
     val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
+    val n: Int => Set[Int] = net.neighbourhood
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockG
+
 
   Field_Utils should "support min/maxHoodSelectors" in new SimulationContextFixture {
     exec(new TestProgram {
@@ -91,9 +93,9 @@ class TestFieldUtils extends FlatSpec {
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
-      (net.neighbourhood(0).size, net.neighbourhood(0).size + 1), (net.neighbourhood(1).size, net.neighbourhood(1).size + 1), (net.neighbourhood(2).size, net.neighbourhood(2).size + 1),
-      (net.neighbourhood(3).size, net.neighbourhood(3).size + 1), (net.neighbourhood(4).size, net.neighbourhood(4).size + 1), (net.neighbourhood(5).size, net.neighbourhood(5).size + 1),
-      (net.neighbourhood(6).size, net.neighbourhood(6).size + 1), (net.neighbourhood(7).size, net.neighbourhood(7).size + 1), (net.neighbourhood(8).size, net.neighbourhood(8).size + 1)
+      (n(0).size, n(0).size + 1), (n(1).size, n(1).size + 1), (n(2).size, n(2).size + 1),
+      (n(3).size, n(3).size + 1), (n(4).size, n(4).size + 1), (n(5).size, n(5).size + 1),
+      (n(6).size, n(6).size + 1), (n(7).size, n(7).size + 1), (n(8).size, n(8).size + 1)
     )).toMap)(net)
   }
 
@@ -141,9 +143,9 @@ class TestFieldUtils extends FlatSpec {
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
-      (net.neighbourhood(0), net.neighbourhood(0) + 0), (net.neighbourhood(1), net.neighbourhood(1) + 1), (net.neighbourhood(2), net.neighbourhood(2) + 2),
-      (net.neighbourhood(3), net.neighbourhood(3) + 3), (net.neighbourhood(4), net.neighbourhood(4) + 4), (net.neighbourhood(5), net.neighbourhood(5) + 5),
-      (net.neighbourhood(6), net.neighbourhood(6) + 6), (net.neighbourhood(7), net.neighbourhood(7) + 7), (net.neighbourhood(8), net.neighbourhood(8) + 8)
+      (n(0), n(0) + 0), (n(1), n(1) + 1), (n(2), n(2) + 2),
+      (n(3), n(3) + 3), (n(4), n(4) + 4), (n(5), n(5) + 5),
+      (n(6), n(6) + 6), (n(7), n(7) + 7), (n(8), n(8) + 8)
     )).toMap)(net)
   }
 
@@ -156,9 +158,9 @@ class TestFieldUtils extends FlatSpec {
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
-      (net.neighbourhood(0).map(e => (e,e)).toMap, (net.neighbourhood(0) + 0).map(e => (e,e)).toMap), (net.neighbourhood(1).map(e => (e,e)).toMap, (net.neighbourhood(1) + 1).map(e => (e,e)).toMap), (net.neighbourhood(2).map(e => (e,e)).toMap, (net.neighbourhood(2) + 2).map(e => (e,e)).toMap),
-      (net.neighbourhood(3).map(e => (e,e)).toMap, (net.neighbourhood(3) + 3).map(e => (e,e)).toMap), (net.neighbourhood(4).map(e => (e,e)).toMap, (net.neighbourhood(4) + 4).map(e => (e,e)).toMap), (net.neighbourhood(5).map(e => (e,e)).toMap, (net.neighbourhood(5) + 5).map(e => (e,e)).toMap),
-      (net.neighbourhood(6).map(e => (e,e)).toMap, (net.neighbourhood(6) + 6).map(e => (e,e)).toMap), (net.neighbourhood(7).map(e => (e,e)).toMap, (net.neighbourhood(7) + 7).map(e => (e,e)).toMap), (net.neighbourhood(8).map(e => (e,e)).toMap, (net.neighbourhood(8) + 8).map(e => (e,e)).toMap)
+      (n(0).map(e => (e,e)).toMap, (n(0) + 0).map(e => (e,e)).toMap), (n(1).map(e => (e,e)).toMap, (n(1) + 1).map(e => (e,e)).toMap), (n(2).map(e => (e,e)).toMap, (n(2) + 2).map(e => (e,e)).toMap),
+      (n(3).map(e => (e,e)).toMap, (n(3) + 3).map(e => (e,e)).toMap), (n(4).map(e => (e,e)).toMap, (n(4) + 4).map(e => (e,e)).toMap), (n(5).map(e => (e,e)).toMap, (n(5) + 5).map(e => (e,e)).toMap),
+      (n(6).map(e => (e,e)).toMap, (n(6) + 6).map(e => (e,e)).toMap), (n(7).map(e => (e,e)).toMap, (n(7) + 7).map(e => (e,e)).toMap), (n(8).map(e => (e,e)).toMap, (n(8) + 8).map(e => (e,e)).toMap)
     )).toMap)(net)
   }
 
@@ -179,7 +181,7 @@ class TestFieldUtils extends FlatSpec {
 
     assert(net.valueMap[Map[Int, ID]]().forall {
       case (id, map) if id == 8 => map.isEmpty
-      case (id, map) => map.size == 1 && map.forall(p => net.neighbourhood(id).contains(p._2))
+      case (id, map) => map.size == 1 && map.forall(p => n(id).contains(p._2))
     })
   }
 
@@ -190,7 +192,7 @@ class TestFieldUtils extends FlatSpec {
 
     assert(net.valueMap[Map[Int, ID]]().forall {
       case (id, map) if id == 8 => map.isEmpty
-      case (id, map) => map.size == 1 && map.forall(p => net.neighbourhood(id).contains(p._2))
+      case (id, map) => map.size == 1 && map.forall(p => n(id).contains(p._2))
     })
   }
 
@@ -201,7 +203,7 @@ class TestFieldUtils extends FlatSpec {
 
     assert(net.valueMap[Map[Int, ID]]().forall {
       case (id, map) if id == 8 => map.size == 1 && map(1) == 8
-      case (id, map) => map.size == 1 && map.forall(p => net.neighbourhood(id).contains(p._2))
+      case (id, map) => map.size == 1 && map.forall(p => n(id).contains(p._2))
     })
   }
 
