@@ -168,13 +168,6 @@ class TestBlockT extends FlatSpec{
       -1, -1, -1
     )).toMap)(net)
 
-    exec(testProgram, ntimes = 1)(net)
-    assertNetworkValues((0 to 8).zip(List(
-      10, -1, -1,
-      -1, -1, -1,
-      -1, -1, -1
-    )).toMap)(net)
-
     net.chgSensorValue("snsT", Set(0), false)
     exec(testProgram, ntimes = someRounds)(net)
     assertNetworkValues((0 to 8).zip(List(
