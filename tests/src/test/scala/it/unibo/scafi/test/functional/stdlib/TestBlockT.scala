@@ -110,31 +110,17 @@ class TestBlockT extends FlatSpec{
     )).toMap)(net)
   }
 
-  Block_T should("support limitedMemory - without expiration") in new SimulationContextFixture {
+  Block_T should("support limitedMemory") in new SimulationContextFixture {
     val value: Int = 10
     val expValue: Int = -1
     exec(new TestProgram {
-      override def main(): Int = limitedMemory(value, expValue, manyManyRounds)._1
-    }, ntimes = fewRounds)(net)
-
-    assertNetworkValues((0 to 8).zip(List(
-      value, value, value,
-      value, value, value,
-      value, value, value
-    )).toMap)(net)
-  }
-
-  Block_T should("support limitedMemory - with expiration") in new SimulationContextFixture {
-    val value: Int = 10
-    val expValue: Int = -1
-    exec(new TestProgram {
-      override def main(): Int = limitedMemory(value, expValue, 10)._1
+      override def main(): (Int, Int) = (limitedMemory(value, expValue, 10)._1, limitedMemory(value, expValue, manyManyRounds)._1)
     }, ntimes = manyRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
-      expValue, expValue, expValue,
-      expValue, expValue, expValue,
-      expValue, expValue, expValue
+      (expValue, value), (expValue, value), (expValue, value),
+      (expValue, value), (expValue, value), (expValue, value),
+      (expValue, value), (expValue, value), (expValue, value)
     )).toMap)(net)
   }
 
