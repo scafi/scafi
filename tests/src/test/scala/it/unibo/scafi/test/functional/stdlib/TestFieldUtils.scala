@@ -72,11 +72,9 @@ class TestFieldUtils extends FlatSpec {
     }, ntimes = someRounds)(net)
 
     /*
-      * def everyHood(expr: => Boolean): Boolean = foldhoodTemplate(true)(_&&_)(expr)
-      * everyHood is initialized to true.
-      * Since the last device is alone it has no neighborhood no fold operation is performed
-      *   resulting in a final true vale
-      */
+     * Since the last device has no neighborhood no fold operation is performed.
+     * This results in its final value to be true.
+     */
     assertNetworkValues((0 to 8).zip(List(
       (false, false), (false, false), (false, false),
       (false, false), (false, false), (false, false),
