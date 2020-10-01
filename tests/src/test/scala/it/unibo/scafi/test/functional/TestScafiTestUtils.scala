@@ -38,8 +38,7 @@ class TestScafiTestUtils extends FlatSpec {
     assert(net.neighbourhood(7) == Set(3,4,5))
     assert(net.neighbourhood(8).isEmpty)
   }
-
-
+  
   ManhattanNet should "Support south east detached" in {
     val net: Network with SimulatorOps = manhattanNet(
       detachedNodesCoords = Set((2,2))
@@ -69,6 +68,4 @@ class TestScafiTestUtils extends FlatSpec {
     assert(net.neighbourhood(7) == Set(3,4,5,8))
     assert(net.neighbourhood(8) == Set(4,5,7))
   }
-
-
 }
