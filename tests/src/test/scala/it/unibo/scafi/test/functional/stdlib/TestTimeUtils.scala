@@ -24,8 +24,8 @@ class TestTimeUtils extends FlatSpec{
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
 
-  def unitaryDecay: Int => Int = _ - 1
-  def halving: Int => Int = _ / 2
+  val unitaryDecay: Int => Int = _ - 1
+  val halving: Int => Int = _ / 2
 
   Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
     val testProgram: TestProgram = new TestProgram {
