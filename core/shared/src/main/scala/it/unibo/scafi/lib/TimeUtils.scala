@@ -42,15 +42,19 @@ trait StdLib_TimeUtils {
       (if (ev.gt(t, ev.zero)) value else expValue, t)
     }
 
-    /*
-    * Returns an value representing the current clock
+    /**
+    * Timer synchronized within a neighborhood
     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
         val clockPerceived = foldhood(clock)(ev.max)(nbr(clock))
-        branch (ev.compare(clockPerceived, clock) <= 0) {
+        branch(ev.compare(clockPerceived, clock) <= 0) {
           // I'm currently as fast as the fastest device in the neighborhood, so keep on counting time
-          ev.plus(clock, (if(cyclicTimerWithDecay(period, dt)) { ev.one } else { ev.zero }))
+          ev.plus(clock, (if (cyclicTimerWithDecay(period, dt)) {
+            ev.one
+          } else {
+            ev.zero
+          }))
         } {
           // Someone else's faster, take his time, and restart counting
           clockPerceived
@@ -62,27 +66,56 @@ trait StdLib_TimeUtils {
       *
       * @param length timeout
       * @param decay  decay rate
-      * @return       true if the timeout is expired, false otherwise
+      * @return true if the timeout is expired, false otherwise
       */
     def cyclicTimerWithDecay[T](length: T, decay: T)(implicit ev: Numeric[T]): Boolean =
-      rep(length){ left =>
-        branch (left == ev.zero) {
+      rep(length) { left =>
+        branch(left == ev.zero) {
           length
         } {
           T(length, decay)
         }
       } == length
 
+    /**
+      * Cyclic timer with a default unitary decay
+      *
+      * @param length timeout
+      * @return true if the timeout is expired, false otherwise
+      */
+    def cyclicTimer[T](length: T)(implicit ev: Numeric[T]): Boolean = {
+      cyclicTimerWithDecay(length, ev.one)
+    }
+
     def clock[T](length: T, decay: T)
                 (implicit ev: Numeric[T]): Long =
-      rep((0L,length)){ case (k,left) =>
-        branch (left == ev.zero){ (k + 1,length) }{ (k,T(length, decay)) }
+      rep((0L, length)) { case (k, left) =>
+        branch(left == ev.zero) {
+          (k + 1, length)
+        } {
+          (k, T(length, decay))
+        }
       }._1
 
-    def impulsesEvery[T : Numeric](d: T): Boolean =
-      rep(false){ impulse =>
-        branch(impulse) { false } { timer(d)==0 }
+    def impulsesEvery[T: Numeric](d: T): Boolean =
+      rep(false) { impulse =>
+        branch(impulse) {
+          false
+        } {
+          timer(d) == 0
+        }
       }
+
+    /**
+      * Exponential back-off filter.
+      *
+      * @param signal T, signal to be filtered
+      * @param a      T, alpha value
+      * @return T, filtered signal
+      */
+    def exponentialBackoffFilter[T](signal: T, a: T)(implicit ev: Numeric[T]): T =
+      rep(signal)(s => ev.plus(ev.times(s, a), ev.times(s, ev.minus(ev.one, a))))
+
   }
 
   trait TimeUtils extends BlockT { self: FieldCalculusSyntax with StandardSensors =>
@@ -109,6 +142,60 @@ trait StdLib_TimeUtils {
           }
         }
       }
+
+    /**
+      * Evaporation pattern.
+      * Starting from [lenght, info] descends to [0, info] with a custom decay
+      * (The floor values depends on length's type)
+      *
+      * @param length T, duration
+      * @param info   V, information
+      * @param decay  T => T, decay rate
+      * @return [V, T]
+      */
+    def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (T, V) =
+      (T(length, decay), info)
+
+    /**
+      * Evaporation pattern.
+      * Starting from [lenght, info] descends to [0, info] with a predefined unitary decay
+      * (The floor values depends on length's type)
+      *
+      * @param length T, duration
+      * @param info   V, information
+      * @return [V, T]
+      */
+    def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (T, V) = {
+      (T(length), info)
+    }
+
+    /**
+      * Periodically invoke a function.
+      *
+      * @param length FiniteDuratrion, timeout
+      * @param f      () -> T, function to be invoked
+      * @param NULL   T, default value
+      * @return       T, apply f if the timeout is expired, NULL otherwise
+      */
+    def cyclicFunction[T](length: FiniteDuration, f:  () => T, NULL: T): T =
+      cyclicFunctionWithDecay(length.toNanos, deltaTime().toNanos, f, NULL)
+
+    /**
+      * Periodically invoke a function.
+      *
+      * @param length  T, timeout
+      * @param decay   T, decay rate
+      * @param f       () -> V, function to be invoked
+      * @param NULL V, default value
+      * @return V, apply f if the timeout is expired, NULL otherwise
+      */
+    def cyclicFunctionWithDecay[T, V](length: T, decay: T, f: () => V, NULL: V)(implicit ev: Numeric[T]): V =
+      branch(cyclicTimerWithDecay(length, decay)) {
+        f()
+      } {
+        NULL
+      }
+
   }
 
 }

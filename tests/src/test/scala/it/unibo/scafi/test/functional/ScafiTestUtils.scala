@@ -5,12 +5,16 @@
 
 package it.unibo.scafi.test.functional
 
+import it.unibo.scafi.config.GridSettings
+import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 
 import scala.collection.Map
 import scala.util.Random
 
 object ScafiTestUtils {
+
+  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
   object NetworkDsl {
     case class SensorActivation[T](val name: LSNS, val value: T){
@@ -88,5 +92,26 @@ object ScafiTestUtils {
   def until[T](pred: T => Boolean)(expr: => T): T = {
     val res = expr
     if(pred(res)) res else until(pred)(expr)
+  }
+
+  def manhattanNet(
+                    side: Int = 3,
+                    step: Int = 1,
+                    rng: Double = 1.5,
+                    detachedNodesCoords: Set[(Int, Int)] = Set()
+                  ): Network with SimulatorOps = {
+    var lastDetachedPosition: (Double, Double) = (Int.MaxValue, Int.MaxValue)
+    simulatorFactory.gridLike(
+      GridSettings(
+        side, side, step, step,
+        mapPos = (a,b,px,py) =>
+          detachedNodesCoords
+            .find(_ == (a,b))
+            .map{_ =>
+              lastDetachedPosition = (lastDetachedPosition._1 - rng, lastDetachedPosition._2 - rng)
+              lastDetachedPosition
+            }
+            .getOrElse[(Double, Double)](px, py)
+        ), rng = rng)
   }
 }
