@@ -12,7 +12,7 @@ trait StdLib_BlockG {
 
   import Builtins._
 
-  trait BlockG extends Gradients with FieldUtils {
+  trait BlockG extends Gradients with FieldUtils with GenericUtils with StateManagement {
     self: FieldCalculusSyntax with StandardSensors =>
 
     /**
