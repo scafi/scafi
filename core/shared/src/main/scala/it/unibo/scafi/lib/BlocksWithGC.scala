@@ -15,8 +15,6 @@ trait StdLib_BlocksWithGC {
       broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
     def average(sink: Boolean, value: Double): Double =
-      summarize(sink, (a, b) => {
-        a + b
-      }, value, 0.0) / summarize(sink, (a, b) => a + b, 1, 0.0)
+      summarize(sink, _ + _, value, 0.0) / summarize(sink, _ + _, 1, 0.0)
   }
 }
