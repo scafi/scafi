@@ -11,9 +11,6 @@ trait SimulationExecutor extends ScafiBridge {
   protected var exportProduced: Map[ID,EXPORT] = Map()
   override protected val maxDelta: Option[Int] = None
   private val indexToName = (i: Int) => "output" + (i + 1)
-
-  SimulationExecutor.Instance = Some(this)
-
   override def onTick(float: Float): Unit = {()
     //get the modification of simulation logic world
     val simulationMoved = simulationObserver.idMoved
@@ -52,8 +49,4 @@ trait SimulationExecutor extends ScafiBridge {
       simulationSensor.foreach(nodeChanged => nodeChanged._2.foreach(name => world.changeSensorValue(nodeChanged._1,name,bridge.localSensor(name)(nodeChanged._1))))
     }
   }
-}
-
-object SimulationExecutor {
-  var Instance: Option[SimulationExecutor] = None
 }

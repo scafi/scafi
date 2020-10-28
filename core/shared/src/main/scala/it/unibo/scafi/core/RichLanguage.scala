@@ -92,6 +92,18 @@ trait RichLanguage extends Language { self: Core =>
             if (of1.compare(a._1, b._1) == 0) of2.compare(a._2, b._2) else of1.compare(a._1, b._1)
         }
 
+      implicit def tupleBounded4[T1, T2, T3, T4](implicit of1: Bounded[T1], of2: Bounded[T2], of3: Bounded[T3], of4: Bounded[T4]): Bounded[(T1, T2, T3, T4)] =
+        new Bounded[(T1, T2, T3, T4)] {
+          def top: (T1, T2, T3, T4) = (of1.top, of2.top, of3.top, of4.top)
+          def bottom: (T1, T2, T3, T4) = (of1.bottom, of2.bottom, of3.top, of4.top)
+          override def compare(a: (T1, T2, T3, T4), b: (T1, T2, T3, T4)): Int = {
+            List(of1.compare(a._1,b._1), of2.compare(a._2,b._2), of3.compare(a._3, b._3), of4.compare(a._4, b._4))
+              .filter(_ != 0)
+              .lift(0)
+              .getOrElse(0)
+          }
+        }
+
       implicit def tupleOnFirstBounded[T1, T2](implicit of1: Bounded[T1], of2: Defaultable[T2]): Bounded[(T1, T2)] =
         new Bounded[(T1, T2)] {
           def top: (T1, T2) = (of1.top, of2.default)

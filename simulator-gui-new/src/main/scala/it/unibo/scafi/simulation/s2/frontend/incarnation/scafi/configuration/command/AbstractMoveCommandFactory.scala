@@ -3,7 +3,7 @@ package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.co
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.Command.command
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, CommandFactory}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{SimulationExecutor, scafiSimulationExecutor}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{ScafiBridge, SimulationExecutor, scafiSimulationExecutor}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.s2.frontend.util.Result
 import it.unibo.scafi.simulation.s2.frontend.util.Result.{Fail, Success}
@@ -23,7 +23,7 @@ abstract class AbstractMoveCommandFactory extends CommandFactory {
     */
   protected def move(movedMap : Map[ID,P]) : Command = {
     import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiBridge._
-    val bridged = SimulationExecutor.Instance.get.contract.simulation.get // scafiSimulationExecutor.contract.simulation.get
+    val bridged = ScafiBridge.Instance.get.contract.simulation.get // scafiSimulationExecutor.contract.simulation.get
     //create old position map for the unmake method into command
     val oldMap = movedMap map {x => x._1 -> scafiWorld(x._1).get.position}
     command( () => {

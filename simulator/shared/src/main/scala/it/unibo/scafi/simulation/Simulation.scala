@@ -52,6 +52,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     def execInOrderAndReturn(node: EXECUTION, exp: => Any, firingSeq: Seq[ID]): NETWORK
 
     def exec(ap: CONTEXT=>EXPORT): (ID,EXPORT)
+
+    def valueMap[T](): Map[ID, T] = this.exports().mapValues(_.get.root().asInstanceOf[T])
   }
 
   case class Seeds(configSeed: Long = System.currentTimeMillis(),

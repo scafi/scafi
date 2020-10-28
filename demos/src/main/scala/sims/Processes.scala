@@ -28,7 +28,7 @@ object ProcessesMain extends Launcher {
   * - There are no 'fence nodes': the separation between internal and external nodes is sharp
   */
 class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients
-  with TimeUtils with StateManagement {
+  with TimeUtils with StateManagement with GenericUtils with StandardSensors with BlockG {
 
   override def main() = {
     val inf = Double.PositiveInfinity
@@ -53,8 +53,8 @@ class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn wit
   }
 }
 
-class MultiGradient extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients
-  with TimeUtils with StateManagement {
+class MultiGradient extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients with GenericUtils
+  with TimeUtils with StateManagement with StandardSensors with BlockG {
 
   def isSrc = sense1 || sense2 || sense3 || sense4
 
@@ -85,7 +85,7 @@ class MultiGradient extends AggregateProgram with SensorDefinitions with CustomS
   }
 }
 
-class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip with Gradients {
+class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip with Gradients with GenericUtils with StandardSensors with StateManagement with BlockG {
 
   def isSrc = sense1 || sense2 || sense3 || sense4
 

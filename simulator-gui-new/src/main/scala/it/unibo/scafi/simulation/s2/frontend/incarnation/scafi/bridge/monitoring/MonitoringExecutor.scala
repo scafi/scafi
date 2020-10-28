@@ -35,4 +35,6 @@ object MonitoringExecutor extends SimulationExecutor {
       }
     }
   }
+
+  override def toString: String = "actor bridge"
 }
