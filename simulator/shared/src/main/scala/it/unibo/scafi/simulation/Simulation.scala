@@ -186,7 +186,14 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     // *****************
 
     val ids = idArray.toSet
+
     def neighbourhood(id: ID): Set[ID] = nbrMap.getOrElse(id, Set())
+
+    def sensorState(filter: (CNAME,ID) => Boolean = (s,n) => true): Map[CNAME, collection.Map[ID,Any]] =
+      lsnsMap.toMap
+
+    def neighbouringSensorState(filter: (CNAME,ID,ID) => Boolean = (s,n,nbr) => true): collection.Map[CNAME, collection.Map[ID, collection.Map[ID, Any]]] =
+      nsnsMap.toMap
 
     def localSensor[A](name: CNAME)(id: ID): A =
       lsnsMap.get(name).flatMap(_.get(id)).getOrElse(localSensors(name)(id).asInstanceOf[A]).asInstanceOf[A]
@@ -233,6 +240,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         nsnsMap.get(nsns).flatMap(_.get(id)).flatMap(_.get(nbr)).orElse(Some(nbrSensors(nsns)(id, nbr))).map(_.asInstanceOf[T])
 
       override def sense[T](lsns: CNAME): Option[T] = lsns match {
+        case _ if !lsnsMap.get(lsns).flatMap(_.get(id)).isEmpty => lsnsMap(lsns).get(id).map(_.asInstanceOf[T])
         case LSNS_RANDOM => randomSensor.some[T]
         case LSNS_TIME => Instant.now().some[T]
         case LSNS_TIMESTAMP => System.currentTimeMillis().some[T]

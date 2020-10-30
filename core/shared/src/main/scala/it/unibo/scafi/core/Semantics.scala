@@ -135,7 +135,7 @@ trait Semantics extends Core with Language {
       vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(write = vm.unlessFoldingOnOthers) {
         vm.neighbour match {
           case Some(nbr) if nbr != vm.self => vm.loadFunction()()
-          case Some(nbr) if nbr==vm.self => vm.saveFunction(f); f
+          case Some(nbr) if nbr == vm.self => vm.saveFunction(f); f
           case _ => f
         }
       }

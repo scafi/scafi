@@ -91,6 +91,8 @@ trait SimulationPlatform extends SpaceTimeAwarePlatform {
     def nbrSensor[A](name: CNAME)(id: ID)(idn: ID): A
     def export(id: ID): Option[EXPORT]
     def exports(): Map[ID, Option[EXPORT]]
+    def sensorState(filter: (CNAME,ID) => Boolean = (s,n) => true): collection.Map[CNAME, collection.Map[ID,Any]]
+    def neighbouringSensorState(filter: (CNAME,ID,ID) => Boolean = (s,n,nbr) => true): collection.Map[CNAME, collection.Map[ID, collection.Map[ID, Any]]]
   }
 }
 

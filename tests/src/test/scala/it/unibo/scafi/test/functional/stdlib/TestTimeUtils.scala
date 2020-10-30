@@ -2,7 +2,7 @@ package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
-import it.unibo.scafi.test.functional.ScafiTestUtils
+import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import it.unibo.utils.StatisticsUtils.stdDev
 import org.scalatest._
 
@@ -29,14 +29,19 @@ class TestTimeUtils extends FlatSpec{
 
   Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
     val testProgram: TestProgram = new TestProgram {
-      override def main(): Any = timerLocalTime(0.25 second)
+      override def main(): Long = timerLocalTime(1.second)
     }
 
     exec(testProgram, ntimes = someRounds)(net)
-    assert(net.valueMap[Long]().forall(e => e._2 > 0))
 
-    exec(testProgram, ntimes = manyManyRounds)(net)
-    assert(net.valueMap[Long]().forall(e => e._2 == 0))
+    ScafiAssertions.assertNetworkValuesWithPredicate[Long]((id, v) => v > 0.0, "Check timer didn't hit zero yet")()(net)
+
+    val deltaTimeSensor = new StandardTemporalSensorNames {}.LSNS_DELTA_TIME
+    net.addSensor[FiniteDuration](deltaTimeSensor, 0.2.second)
+
+    exec(testProgram, ntimes = someRounds)(net)
+
+    ScafiAssertions.assertNetworkValuesWithPredicate[Long]((id,v) => v == 0.0, "Check timer hit zero")()(net)
   }
 
   Time_Utils should "support impulsesEvery" in new SimulationContextFixture {
@@ -62,43 +67,45 @@ class TestTimeUtils extends FlatSpec{
   }
 
   Time_Utils should "support recentlyTrue" in new SimulationContextFixture {
+    val deltaTimeSensor = new StandardTemporalSensorNames {}.LSNS_DELTA_TIME
     net.addSensor[Boolean]("rtSense", false)
+    net.addSensor[FiniteDuration](deltaTimeSensor, 1.second)
 
     val testProgram: TestProgram = new TestProgram {
       override def main(): Boolean =
-        recentlyTrue(0.05 second, cond = sense[Boolean]("rtSense"))
+        recentlyTrue(1.second, cond = sense[Boolean]("rtSense"))
     }
 
-    exec(testProgram, ntimes = someRounds)(net)
+    runProgramInOrder((0 to 8).toSeq, testProgram)(net)
     assertNetworkValues((0 to 8).zip(List(
       false, false, false,
       false, false, false,
       false, false, false
-    )).toMap)(net)
+    )).toMap, None, "Assert everything false")(net)
 
     net.chgSensorValue("rtSense", Set(0), value = true)
-    exec(testProgram, ntimes = someRounds)(net)
+    net.chgSensorValue(deltaTimeSensor, Set(0), 0.3.seconds)
+    runProgramInOrder(Seq(0,0), testProgram)(net)
     assertNetworkValues((0 to 8).zip(List(
       true, false, false,
       false, false, false,
       false, false, false
-    )).toMap)(net)
+    )).toMap, None, "Assert true in ID=0")(net)
 
     net.chgSensorValue("rtSense", Set(0), value = false)
-    exec(testProgram, ntimes = fewRounds)(net)
+    runProgramInOrder(Seq(0,0,0), testProgram)(net)
     assertNetworkValues((0 to 8).zip(List(
       true, false, false,
       false, false, false,
       false, false, false
-    )).toMap)(net)
+    )).toMap, None, "Assert still true in ID=0")(net)
 
-    net.chgSensorValue("rtSense", Set(0), value = false)
-    exec(testProgram, ntimes = manyManyRounds)(net)
+    runProgramInOrder(Seq(0), testProgram)(net)
     assertNetworkValues((0 to 8).zip(List(
       false, false, false,
       false, false, false,
       false, false, false
-    )).toMap)(net)
+    )).toMap, None, "Assert back to false in ID=0 (and in the rest of the network)")(net)
   }
 
   Time_Utils should("support evaporation") in new SimulationContextFixture {

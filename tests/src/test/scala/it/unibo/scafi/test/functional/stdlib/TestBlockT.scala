@@ -12,7 +12,7 @@ Not yet tested:
 - cyclicTimerWithDecay
 - clock
  */
-class TestBlockT extends FlatSpec{
+class TestBlockT extends FlatSpec {
   import ScafiTestUtils._
 
   val Block_T = new ItWord
@@ -38,7 +38,7 @@ class TestBlockT extends FlatSpec{
     )).toMap)(net)
   }
 
-  Block_T should "T should initialize as specified" in new SimulationContextFixture {
+  Block_T should "initialize as specified" in new SimulationContextFixture {
     exec(new TestProgram {
       override def main(): Int = T(10, 0, identity[Int])
     }, ntimes = fewRounds)(net)
@@ -50,7 +50,7 @@ class TestBlockT extends FlatSpec{
     )).toMap)(net)
   }
 
-  Block_T should "T should be consistent in intermediate tests" in new SimulationContextFixture {
+  Block_T should "be consistent in intermediate tests" in new SimulationContextFixture {
     val ceiling: Int = someRounds
     val testProgram: TestProgram = new TestProgram {
       override def main(): (Int, Int) = (
@@ -140,7 +140,7 @@ class TestBlockT extends FlatSpec{
     val testProgram: TestProgram = new TestProgram {
       override def main(): Int =
         branch(sense[Boolean]("snsT")) {
-          if (T(fewRounds, 0, unitaryDecay) == 0) {10} else {20}
+          if (T(fewRounds, 0, unitaryDecay) == 0) { 10 } else { 20 }
         } {
           -1
         }
