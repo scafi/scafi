@@ -84,36 +84,36 @@ trait Engine extends Semantics {
   }
 
   class ContextImpl(
-      selfId: ID,
-      exports: Iterable[(ID,EXPORT)],
-      val localSensor: GMap[LSNS,Any],
-      val nbrSensor: GMap[NSNS,GMap[ID,Any]])
+                     selfId: ID,
+                     exports: Iterable[(ID,EXPORT)],
+                     val localSensor: GMap[CNAME,Any],
+                     val nbrSensor: GMap[CNAME,GMap[ID,Any]])
     extends BaseContextImpl(selfId, exports) { self: CONTEXT =>
 
     override def toString(): String = s"C[\n\tI:$selfId,\n\tE:$exports,\n\tS1:$localSensor,\n\tS2:$nbrSensor\n]"
 
-    override def sense[T](lsns: LSNS): Option[T] = localSensor.get(lsns).map(_.asInstanceOf[T])
+    override def sense[T](localSensorName: CNAME): Option[T] = localSensor.get(localSensorName).map(_.asInstanceOf[T])
 
-    override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nbrSensor.get(nsns).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
+    override def nbrSense[T](nbrSensorName: CNAME)(nbr: ID): Option[T] = nbrSensor.get(nbrSensorName).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
   }
 
   class EngineFactory extends Factory { self: FACTORY =>
-    def /(): Path = emptyPath()
-    def /(s: Slot): Path = path(s)
-    def emptyPath(): Path = new PathImpl(List())
-    def emptyExport(): EXPORT = new ExportImpl
-    def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
-    def export(exps: (Path,Any)*): EXPORT = {
+    override def emptyPath(): Path = new PathImpl(List())
+    override def emptyExport(): EXPORT = new ExportImpl
+    override def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
+    override def export(exps: (Path,Any)*): EXPORT = {
       val exp = new ExportImpl()
       exps.foreach { case (p,v) => exp.put(p,v) }
       exp
     }
-    def context(selfId: ID, exports: Map[ID,EXPORT], lsens: Map[LSNS,Any] = Map(), nbsens: Map[NSNS,Map[ID,Any]] = Map()): CONTEXT =
+    override def context(selfId: ID,
+                         exports: Map[ID,EXPORT],
+                         lsens: Map[CNAME,Any] = Map(),
+                         nbsens: Map[CNAME,Map[ID,Any]] = Map()): CONTEXT =
       new ContextImpl(selfId, exports, lsens, nbsens)
   }
 
   implicit val linearID: Linearizable[ID]
   implicit val interopID: Interop[ID]
-  implicit val interopLSNS: Interop[LSNS]
-  implicit val interopNSNS: Interop[NSNS]
+  implicit val interopCNAME: Interop[CNAME]
 }

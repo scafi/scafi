@@ -92,8 +92,8 @@ trait BasicAbstractActorIncarnation
 
   implicit def adaptContext(ctx: CONTEXT): ComputationContext =
     new BaseContextImpl(ctx.selfId, ctx.exports()) with ComputationContextContract {
-      override def sense[T](lsns: String): Option[T] = ctx.sense(lsns)
-      override def nbrSense[T](nsns: String)(nbr: Int): Option[T] = ctx.nbrSense(nsns)(nbr)
+      override def sense[T](localSensorName: String): Option[T] = ctx.sense(localSensorName)
+      override def nbrSense[T](nbrSensorName: String)(nbr: Int): Option[T] = ctx.nbrSense(nbrSensorName)(nbr)
     }
 
   override val dataFactory = new DataFactoryContract {

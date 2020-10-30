@@ -13,14 +13,13 @@ package it.unibo.scafi.core
 trait Core {
 
   /**
-   *  Name of local sensors (sensors receiving information from a node)
-   */
-  type LSNS
+    *  Name of a capability, including
+    *  - local sensors (sensors receiving information from a node)
+    *  - neighbourhood sensors (sensors receiving information from neighbours, like estimated distances)
+    */
+  type CNAME
 
-  /**
-   *  Name of neighbourhood sensors (sensors receiving information from neighbours, like estimated distances)
-   */
-  type NSNS
+  def CNAMEfromString(s: String): CNAME
 
   /**
    *  The unique identifier of a node
@@ -44,14 +43,25 @@ trait Core {
    */
   type EXECUTION <: (CONTEXT => EXPORT)
 
+  /**
+    * A generic "export", i.e., a coordination message to be emitted.
+    */
   trait Export {
+    /**
+      * The root of the export
+      * @tparam A
+      * @return the root of the export structure, cast to type A
+      */
     def root[A](): A
   }
 
+  /**
+    * A generic "context" affecting device-local execution of a ScaFi program.
+    */
   trait Context {
     def selfId: ID
     def exports(): Iterable[(ID,EXPORT)]
-    def sense[T](lsns: LSNS): Option[T]
-    def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T]
+    def sense[T](localSensorName: CNAME): Option[T]
+    def nbrSense[T](nbrSensorName: CNAME)(nbr: ID): Option[T] = sense[ID=>T](nbrSensorName).map(_(nbr))
   }
 }

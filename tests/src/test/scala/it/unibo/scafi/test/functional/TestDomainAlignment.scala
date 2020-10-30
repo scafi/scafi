@@ -48,7 +48,7 @@ class TestDomainAlignment extends FlatSpec with Matchers {
             branch(s>0)(nbr("c"+mid))(nbr("d"+mid))
         }
       )
-    }, ntimes = fewRounds)(net)
+    }, ntimes = someRounds)(net)
 
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(

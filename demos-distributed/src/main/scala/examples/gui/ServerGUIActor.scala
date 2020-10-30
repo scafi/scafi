@@ -23,11 +23,11 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
   val height = 400
 
   type ID = I.ID
-  type LSNS = I.LSNS
+  type LSNS = I.CNAME
   type EXPORT = I.EXPORT
 
   val interopId = I.interopID
-  val interopLsns = I.interopLSNS
+  val interopLsns = I.interopCNAME
 
   tm ! MsgAddObserver(self)
 

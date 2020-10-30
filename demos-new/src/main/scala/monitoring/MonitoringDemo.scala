@@ -88,14 +88,15 @@ object MonitoringDemo_Inputs {
     )
   )
 
-  class MonitoringDemoMain(override val settings: Platform.Settings) extends Platform.BasicMain(settings) {
+  class MonitoringDemoMain(override val settings: Platform.Settings) extends Platform.BasicMain(settings)
+   with Platform.StandardSensorNames {
     override def onDeviceStarted(dm: Platform.DeviceManager, sys: Platform.SystemFacade): Unit = {
       dm.addSensorValue(SensorName.sensor1, false)
       dm.addSensorValue(SensorName.sensor2, false)
       dm.addSensorValue(SensorName.sensor3, false)
       val devPosition = nodes.filter(n => n.devices.contains(dm.selfId)).head.devices(dm.selfId)._1
       dm.addSensorValue(Platform.LocationSensorName, devPosition)
-      dm.actorRef ! Platform.MsgNbrSensorValue(Platform.NBR_RANGE,
+      dm.actorRef ! Platform.MsgNbrSensorValue(NBR_RANGE,
         nodes.flatMap(n => n.devices).map(n => n._1 -> devPosition.distance(n._2._1)).toMap)
       dm.start
     }

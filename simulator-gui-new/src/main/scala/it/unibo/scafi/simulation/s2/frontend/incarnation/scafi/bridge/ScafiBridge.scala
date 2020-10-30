@@ -13,7 +13,7 @@ abstract class ScafiBridge extends ExternalSimulation[ScafiLikeWorld]("scafi-bri
   override type SIMULATION_PROTOTYPE = () => EXTERNAL_SIMULATION
   override type SIMULATION_CONTRACT = ExternalSimulationContract
   protected var idsObserved : Set[world.ID] = Set.empty
-  protected var simulationObserver = new SimulationObserver[ID,LSNS]
+  protected var simulationObserver = new SimulationObserver[ID,CNAME]
   val world : ScafiLikeWorld = scafiWorld
   /**
     * current simulation prototype, at begging no prototype defined

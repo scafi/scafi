@@ -17,10 +17,10 @@ object ScafiTestUtils {
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
   object NetworkDsl {
-    case class SensorActivation[T](val name: LSNS, val value: T){
+    case class SensorActivation[T](val name: CNAME, val value: T){
       def inDevices(devs: ID*)(implicit net: Network with SimulatorOps) = net.chgSensorValue(name, devs.toSet, value)
     }
-    def setSensor[T](name: LSNS, value: T): SensorActivation[T] = SensorActivation(name, value)
+    def setSensor[T](name: CNAME, value: T): SensorActivation[T] = SensorActivation(name, value)
   }
 
   def partNodes(nodes: Set[ID], net: NetworkSimulator): Map[ID,Set[ID]] = {
@@ -80,6 +80,11 @@ object ScafiTestUtils {
   def exec(ap: AggregateProgram, ntimes: Int = 500)
           (net: Network with SimulatorOps): Network = {
     runProgram(ap.main(), ntimes)(net)(ap)
+  }
+
+  def runProgramInOrder(firingSeq: Seq[ID], ap: AggregateProgram)
+                       (net: Network with SimulatorOps): Network ={
+    net.execInOrderAndReturn(ap, ap.main(), firingSeq)
   }
 
   def runProgramInOrder(firingSeq: Seq[ID])

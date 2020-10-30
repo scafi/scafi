@@ -19,7 +19,7 @@ class TestNeighbors extends FlatSpec with Matchers {
   private[this] trait SimulationContextFixture {
     var net: Network with SimulatorOps =
       simulatorFactory.gridLike(GridSettings(3, 3, 1, 1), rng = 1.5)
-    implicit val node = new BasicAggregateInterpreter
+    implicit val node = new BasicAggregateInterpreter with StandardSensorNames
   }
 
   it should "be possible to count neighbors" in new SimulationContextFixture {
@@ -86,7 +86,7 @@ class TestNeighbors extends FlatSpec with Matchers {
     // ACT
     implicit var endNet: Network = runProgram{
       foldhood (Double.MaxValue) ((x,y)=>if (x<y) x else y){
-          if (mid()==nbr(mid())) Double.MaxValue else nbrvar[Double]("nbrRange")
+          if (mid()==nbr(mid())) Double.MaxValue else nbrvar[Double](NBR_RANGE)
         }
     } (net)
     // ASSERT

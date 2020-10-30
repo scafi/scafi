@@ -40,9 +40,20 @@ object ScafiAssertions extends Matchers {
    * Asserts the value of all the nodes of the network.
    */
   def assertNetworkValues[T](vals: Map[ID, T],
-                             customEq:Option[(T,T)=>Boolean] = None)
+                             customEq: Option[(T,T)=>Boolean] = None,
+                             msg: String = "Assert Network Values")
                             (implicit net: Network): Unit ={
-    withClue("Actual network: " + net + "\n\n Sample exports:\n" + net.export(0) + "\n" + net.export(1) + "\n\nExpected values:"+vals) {
+    withClue(s"""
+              | ${msg}
+              | Actual network: ${net}
+              | Sensor state: ${net.sensorState()}
+              | Neighborhoods: ${net.ids.map(id => id -> net.neighbourhood(id))}
+              | Sample exports
+              | ID=0 => ${net.export(0)}
+              | ID=1 => ${net.export(1)}
+              |
+              | Expected values: ${vals}
+              """.stripMargin) {
       net.ids.forall(id => {
         val actualExport = net.export(id)
         var expected = vals.get(id)
@@ -57,10 +68,19 @@ object ScafiAssertions extends Matchers {
     }
   }
 
-  def assertNetworkValuesWithPredicate[T](pred: (ID,T)=>Boolean)
+  def assertNetworkValuesWithPredicate[T](pred: (ID,T)=>Boolean, msg: String = "Assert network values with predicate")
                                          (passNotComputed: Boolean = true)
                                          (implicit net: Network): Unit ={
-    withClue("Actual network: " + net) {
+    withClue(
+      s"""
+         | ${msg}
+         | Actual network: ${net}
+         | Sensor state: ${net.sensorState()}
+         | Neighborhoods: ${net.ids.map(id => id -> net.neighbourhood(id))}
+         | Sample exports
+         | ID=0 => ${net.export(0)}
+         | ID=1 => ${net.export(1)}
+        |""".stripMargin) {
       net.ids.forall(id => {
         val actualExport = net.export(id)
         actualExport match {

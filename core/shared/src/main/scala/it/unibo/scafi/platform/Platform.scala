@@ -18,7 +18,9 @@ import scala.concurrent.duration.FiniteDuration
 trait Platform {
   self: Platform.PlatformDependency =>
 
-  val LSNS_RANDOM: LSNS
+  trait StandardPlatformSensorNames {
+    val LSNS_RANDOM: CNAME = CNAMEfromString("LSNS_RANDOM")
+  }
 }
 
 object Platform {
@@ -39,11 +41,13 @@ trait TimeAwarePlatform extends Platform {
     def nbrLag(): FiniteDuration
   }
 
-  val LSNS_TIME: LSNS
-  val LSNS_TIMESTAMP: LSNS
-  val LSNS_DELTA_TIME: LSNS
-  val NBR_LAG: NSNS
-  val NBR_DELAY: NSNS
+  trait StandardTemporalSensorNames {
+    val LSNS_TIME: CNAME = CNAMEfromString("LSNS_TIME")
+    val LSNS_TIMESTAMP: CNAME = CNAMEfromString("LSNS_TIMESTAMP")
+    val LSNS_DELTA_TIME: CNAME = CNAMEfromString("LSNS_DELTA_TIME")
+    val NBR_LAG: CNAME = CNAMEfromString("NBR_LAG")
+    val NBR_DELAY: CNAME = CNAMEfromString("NBR_DELAY")
+  }
 }
 
 trait SpaceAwarePlatform extends Platform {
@@ -56,9 +60,11 @@ trait SpaceAwarePlatform extends Platform {
     def nbrVector(): P
   }
 
-  val LSNS_POSITION: LSNS
-  val NBR_VECTOR: NSNS
-  val NBR_RANGE: NSNS
+  trait StandardSpatialSensorNames {
+    val LSNS_POSITION: CNAME = CNAMEfromString("LSNS_POSITION")
+    val NBR_VECTOR: CNAME = CNAMEfromString("NBR_VECTOR")
+    val NBR_RANGE: CNAME = CNAMEfromString("NBR_RANGE")
+  }
 }
 
 trait SpaceTimeAwarePlatform extends SpaceAwarePlatform with TimeAwarePlatform {
@@ -81,10 +87,12 @@ trait SimulationPlatform extends SpaceTimeAwarePlatform {
   trait Network {
     def ids: Set[ID]
     def neighbourhood(id: ID): Set[ID]
-    def localSensor[A](name: LSNS)(id: ID): A
-    def nbrSensor[A](name: NSNS)(id: ID)(idn: ID): A
+    def localSensor[A](name: CNAME)(id: ID): A
+    def nbrSensor[A](name: CNAME)(id: ID)(idn: ID): A
     def export(id: ID): Option[EXPORT]
     def exports(): Map[ID, Option[EXPORT]]
+    def sensorState(filter: (CNAME,ID) => Boolean = (s,n) => true): collection.Map[CNAME, collection.Map[ID,Any]]
+    def neighbouringSensorState(filter: (CNAME,ID,ID) => Boolean = (s,n,nbr) => true): collection.Map[CNAME, collection.Map[ID, collection.Map[ID, Any]]]
   }
 }
 

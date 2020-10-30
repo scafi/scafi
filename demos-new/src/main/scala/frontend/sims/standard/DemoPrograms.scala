@@ -8,7 +8,7 @@ package frontend.sims.standard
 import java.util.concurrent.TimeUnit
 
 import frontend.sims.SensorDefinitions
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{NBR_RANGE, _}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
 
@@ -51,10 +51,9 @@ class MaxId extends AggregateProgram {
 }
 
 @Demo
-class Gradient extends AggregateProgram {
+class Gradient extends AggregateProgram with StandardSensors {
   def isSource = sense[Boolean](SensorName.sensor1)
   def isObstacle = sense[Boolean](SensorName.sensor2)
-  def nbrRange = nbrvar[Double](NBR_RANGE)
 
   override def main(): Double =
     branch (isObstacle) { Double.MaxValue } {

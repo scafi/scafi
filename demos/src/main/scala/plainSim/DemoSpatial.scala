@@ -24,7 +24,7 @@ object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation
 import BasicSpatialIncarnation._
 
 object DemoSpatialLauncher extends App {
-  object DemoSpatial extends AggregateProgram {
+  object DemoSpatial extends AggregateProgram with StandardSensors {
     def mySensor():Int = sense[Int]("sensor")
     def gradient(source: Boolean): Double = rep(Double.MaxValue){
       distance => mux(source) { 0.0 } {
