@@ -41,8 +41,8 @@ class TestDomainAlignment extends FlatSpec with Matchers {
     // ACT
     exec(new TestProgram {
       override def main(): Any = (
-        excludingSelf.sumHood(branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) +0),
-        includingSelf.sumHood(branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) +0),
+        excludingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 }),
+        includingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 } ),
         excludingSelf.unionHood {
           branch(s<4)(nbr("a"+mid))(nbr("b"+mid)) +
             branch(s>0)(nbr("c"+mid))(nbr("d"+mid))
