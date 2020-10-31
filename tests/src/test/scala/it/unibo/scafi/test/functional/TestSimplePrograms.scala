@@ -31,7 +31,7 @@ class TestSimplePrograms extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram{ mid() } (net)
+    implicit val (endNet, _) = runProgram{ mid() } (net)
     // ASSERT
     assertNetworkValues((0 to 8).zip(0 to 8).toMap)
   }
@@ -40,7 +40,7 @@ class TestSimplePrograms extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram{
+    implicit val (endNet, _) = runProgram{
       Tuple2(sense[Int]("sensor1"),sense[String]("sensor2"))
     } (net)
     // ASSERT

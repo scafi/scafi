@@ -58,7 +58,7 @@ class TestFunctionCall extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    var endNet = runProgram({
+    var (endNet, _) = runProgram({
       mux(isObstacle)(() => aggregate { -numOfNeighbors } )(() => aggregate { numOfNeighbors })()
     }, ntimes = 1000)(net)
     // ASSERT
@@ -77,14 +77,14 @@ class TestFunctionCall extends FlatSpec with Matchers {
     val aggregateLambdaForNormalNodes = () => aggregate { numOfNeighbors }
     endNet = runProgram({
       mux(isObstacle)(aggregateLambdaForObstacles)(aggregateLambdaForNormalNodes)()
-    }, ntimes = 1000)(net)
+    }, ntimes = 1000)(net)._1
     assertNetworkValues(expectedNet)(endNet)
 
     def aggregateMethodForObstacles = () => aggregate { -numOfNeighbors }
     def aggregateMethodForNormalNodes = () => aggregate { numOfNeighbors }
     endNet = runProgram({
       mux(isObstacle)(aggregateLambdaForObstacles)(aggregateLambdaForNormalNodes)()
-    }, ntimes = 1000)(net)
+    }, ntimes = 1000)(net)._1
     assertNetworkValues(expectedNet)(endNet)
   }
 
@@ -93,7 +93,7 @@ class TestFunctionCall extends FlatSpec with Matchers {
     import node._
     val max = Int.MaxValue
     // ACT
-    implicit val endNet = runProgram({
+    implicit val (endNet, _) = runProgram({
       mux(isObstacle)(() => aggregate { max } )(() => aggregate { hopGradient(isSource) })()
     }, ntimes = 1000)(net)
     // ASSERT

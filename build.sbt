@@ -19,6 +19,7 @@ val playJson   = "com.typesafe.play" %% "play-json"   % "2.8.1"
 val scalafx = "org.scalafx" %% "scalafx" % "12.0.2-R18"
 val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.26"
 val log4 = "log4j" % "log4j" % "1.2.17"
+val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
 
 // Determine OS version of JavaFX binaries
 lazy val osName = System.getProperty("os.name") match {
@@ -200,7 +201,7 @@ lazy val tests = project
   .settings(noPublishSettings: _*)
   .settings(
     name := "scafi-tests",
-    libraryDependencies += scalatest
+    libraryDependencies ++= Seq(scalatest, apacheCommonsMath)
   )
 
 lazy val demos = project

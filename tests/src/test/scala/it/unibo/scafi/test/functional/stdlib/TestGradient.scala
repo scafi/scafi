@@ -23,7 +23,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   describe("Classic Gradient") {
     def executeOnNet(net: Network with SimulatorOps): Network = exec(new TestProgram {
       override def main(): Double = classicGradient(sense("source"))
-    }, ntimes = manyRounds)(net)
+    }, ntimes = manyRounds)(net)._1
 
     describe("On a manhattan network with SW node detached") {
       it("Should be possible to build a gradient of distances from node 0") {
@@ -84,7 +84,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   describe("Hop Gradient"){
     def executeOnNet(net: Network with SimulatorOps): Network = exec(new TestProgram {
       override def main(): Double = hopGradient(sense[Boolean]("source"))
-    }, ntimes = manyRounds)(net)
+    }, ntimes = manyRounds)(net)._1
 
     describe("On Standard Network"){
       it("Should be possible to build a gradient of distances from 0") {

@@ -8,9 +8,13 @@ package it.unibo.scafi.test.functional
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import org.apache.commons.math3.random.{RandomDataGenerator, RandomGenerator}
 
+import scala.annotation.tailrec
 import scala.collection.Map
 import scala.util.Random
+
+case class TestingSeed(seed: Long)
 
 object ScafiTestUtils {
 
@@ -51,9 +55,10 @@ object ScafiTestUtils {
 
   def runProgram(exp: => Any, ntimes: Int = 500)
                 (net: Network with SimulatorOps)
-                (implicit node: AggregateInterpreter): Network ={
+                (implicit node: AggregateInterpreter): (Network, Seq[ID]) ={
     var endNet: Network = null
-    net.execMany(
+    val executionSeq =
+      net.execMany(
       node = node,
       exp = exp,
       size = ntimes,
@@ -61,24 +66,25 @@ object ScafiTestUtils {
         if (i % ntimes == 0) {
           endNet = net
         }})
-    endNet
+    (endNet, executionSeq)
   }
 
   def execProgramFor(ap: AggregateProgram, ntimes: Int = 500)
                     (net: Network with SimulatorOps)
-                    (when: ID => Boolean, devs: Vector[ID] = net.ids.toVector, rnd: Random = new Random(0)): Network = {
-    if (ntimes <= 0) net
-    else {
-      val nextToRun = until(when) {
-        devs(rnd.nextInt(devs.size))
-      }
+                    (when: ID => Boolean, devs: Vector[ID] = net.ids.toVector, rnd: Random = new Random(0)): (Network, Seq[ID]) = {
+    var k = ntimes
+    var executionSeq = Seq[ID]()
+    while(k>0) {
+      val nextToRun: ID = until(when) { devs(rnd.nextInt(devs.size)) }
+      executionSeq :+= nextToRun
       net.exec(ap, ap.main, nextToRun)
-      execProgramFor(ap, ntimes - 1)(net)(when, devs, rnd)
+      k -= 1
     }
+    (net, executionSeq)
   }
 
   def exec(ap: AggregateProgram, ntimes: Int = 500)
-          (net: Network with SimulatorOps): Network = {
+          (net: Network with SimulatorOps): (Network, Seq[ID]) = {
     runProgram(ap.main(), ntimes)(net)(ap)
   }
 
@@ -94,6 +100,7 @@ object ScafiTestUtils {
     net.execInOrderAndReturn(node, exp, firingSeq)
   }
 
+  @tailrec
   def until[T](pred: T => Boolean)(expr: => T): T = {
     val res = expr
     if(pred(res)) res else until(pred)(expr)
@@ -118,5 +125,42 @@ object ScafiTestUtils {
             }
             .getOrElse[(Double, Double)](px, py)
         ), rng = rng)
+  }
+
+  def schedulingSequence(ids: Set[ID], sampleSize: Int, minOccurrences: Map[ID,Int] = Map())(implicit seed: TestingSeed = TestingSeed(System.currentTimeMillis())): Seq[ID] = {
+    import scala.collection.JavaConverters._
+    val rg = new RandomDataGenerator()
+    rg.reSeed(seed.seed)
+    var seq = Seq[ID]()
+    for(_ <- 1 to sampleSize) {
+      seq ++= rg.nextSample(ids.asJavaCollection, 1).toSeq.asInstanceOf[Seq[ID]]
+    }
+    seq
+  }
+
+  implicit class SchedulingSeq(seq: Seq[ID]) {
+    def ensureAtLeast(id: ID, k: Int): Seq[ID] = {
+      var outSeq = seq
+      val occurrences = seq.count(_ == id)
+      if (occurrences < k) {
+        val toAdd = k - occurrences
+        for (i <- 1 to toAdd) {
+          outSeq :+= id
+        }
+      }
+      outSeq
+    }
+
+    def ensureLessOrEqualThan(id: ID, k: Int): Seq[ID] = {
+      var remaining = k
+      seq.filter { v => if (v == id) {
+        remaining -= 1
+      }; v != id || v == id && remaining >= 0
+      }
+    }
+
+    def ensureWithin(id: ID, bottom: Int, top: Int): Seq[ID] = {
+      ensureAtLeast(id, bottom).ensureLessOrEqualThan(id, top)
+    }
   }
 }

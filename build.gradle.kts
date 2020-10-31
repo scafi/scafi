@@ -68,6 +68,7 @@ val scalafx213 = "org.scalafx:scalafx_%%:$scalafxVersion213"
 val slf4jlog4  = "org.slf4j:slf4j-log4j12:$slf4jlog4Version"
 val log4 = "log4j:log4j:$log4Version"
 val scalaLogging  = "com.typesafe.scala-logging:scala-logging_%%:$scalaLoggingVersion"
+val apacheCommonsMath = "org.apache.commons:commons-math3:$apacheCommonsMathVersion"
 
 val javaFXModules = kotlin.collections.listOf("base", "controls", "graphics", "media", "swing", "web")
 

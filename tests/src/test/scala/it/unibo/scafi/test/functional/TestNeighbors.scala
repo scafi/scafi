@@ -26,7 +26,7 @@ class TestNeighbors extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram{ foldhood(0)(_+_){1} } (net)
+    implicit val (endNet, _) = runProgram{ foldhood(0)(_+_){1} } (net)
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(4,6,4,6,9,6,4,6,4)).toMap)
   }
@@ -35,7 +35,7 @@ class TestNeighbors extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram{
+    implicit val (endNet, _) = runProgram{
       foldhood(0)(_+_){if (nbr[Int](mid())==mid()) 0 else 1}
     } (net)
     // ASSERT
@@ -46,7 +46,7 @@ class TestNeighbors extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit var endNet = runProgram{
+    implicit var (endNet, _) = runProgram{
       foldhood(List[Int]())(_++_){List(nbr[Int](mid()))}
     } (net)
     // ASSERT
@@ -64,7 +64,7 @@ class TestNeighbors extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit var endNet = runProgram{
+    implicit var (endNet, _) = runProgram{
       foldhood(List[Int]())(_++_){
         mux[List[Int]](nbr[Int](mid())==mid()) { List() } { List(nbr[Int](mid())) }
       }
@@ -84,7 +84,7 @@ class TestNeighbors extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit var endNet: Network = runProgram{
+    implicit var (endNet, _) = runProgram{
       foldhood (Double.MaxValue) ((x,y)=>if (x<y) x else y){
           if (mid()==nbr(mid())) Double.MaxValue else nbrvar[Double](NBR_RANGE)
         }
@@ -119,7 +119,7 @@ class TestNeighbors extends FlatSpec with Matchers {
           3->55, 2->11, 1->0, 4->0
         ))))
     // ACT
-    implicit var endNet: Network = runProgram{
+    implicit val (endNet, _) = runProgram{
       foldhood (Double.MaxValue) ((x,y)=>if (x<y) x else y){
         if (mid()==nbr(mid())) Int.MaxValue else nbrvar[Int]("nbrRange")
       }

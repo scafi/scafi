@@ -53,7 +53,7 @@ class TestGradient extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram { hopGradient(mySensor()==1) } (net)
+    implicit val (endNet, _) = runProgram { hopGradient(mySensor()==1) } (net)
     // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       4, 3, 2,
@@ -66,7 +66,7 @@ class TestGradient extends FlatSpec with Matchers {
     // ARRANGE
     import node._
     // ACT
-    implicit val endNet = runProgram { gradient(mySensor()==1) } (net)
+    implicit val (endNet, _) = runProgram { gradient(mySensor()==1) } (net)
     // ASSERT
     assertNetworkValues((0 to 8).zip(List[Double](
       34, 27, 20,

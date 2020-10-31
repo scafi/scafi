@@ -27,7 +27,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         exec(new TestProgram {
           override def main(): Double = distanceTo(sense[Boolean]("source"), () => 1)
         }, ntimes = manyRounds)(net)
-      }
+      }._1
 
       it("Should work if no source is specified") {
         executeDistanceToSource
@@ -77,7 +77,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         exec(new TestProgram {
           override def main(): Double = broadcast(sense[Boolean]("source"), mid(), () => 1)
         }, ntimes = manyRounds)(net)
-      }
+      }._1
 
       it("The source should broadcast its value") {
         net.chgSensorValue("source", Set(4), true)
@@ -121,7 +121,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
       def executeDistanceBetween(implicit net: Network with SimulatorOps): Network = {
         exec(new TestProgram {
           override def main(): Double = distanceBetween(sense("source"), sense("destination"), () => 1)
-        }, ntimes = manyRounds)(net)
+        }, ntimes = manyRounds)(net)._1
       }
       it("should work in a basic scenario (single source single destination") {
         net.chgSensorValue("source", Set(0), true)
@@ -184,7 +184,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         exec(new TestProgram {
           override def main(): Boolean = channel(sense("source"), sense("destination"), smallChannelWidth)
         }, ntimes = manyRounds)(net)
-      }
+      }._1
       it("should mark as true the devices on the shortest path") {
         net.chgSensorValue("source", Set(0), true)
         net.chgSensorValue("destination", Set(2), true)
@@ -242,7 +242,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
         exec(new TestProgram {
           override def main(): Int = G(sense("source"),  mux(sense("source")){0}{1}, unitaryIncrement, () => 1)
         }, ntimes = manyRounds)(net)
-      }
+      }._1
       it("should accumulate over a gradient") {
         net.chgSensorValue("source", Set(0), true)
 

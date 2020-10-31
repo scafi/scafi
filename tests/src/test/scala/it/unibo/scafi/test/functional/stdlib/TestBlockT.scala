@@ -136,38 +136,41 @@ class TestBlockT extends FlatSpec {
 
   Block_T should "T should restart after branch switch" in new SimulationContextFixture {
     net.addSensor[Boolean]("snsT", false)
+    val timeToEstinguish = 10
 
     val testProgram: TestProgram = new TestProgram {
       override def main(): Int =
         branch(sense[Boolean]("snsT")) {
-          if (T(fewRounds, 0, unitaryDecay) == 0) { 10 } else { 20 }
+          if (T(timeToEstinguish, 0, unitaryDecay) == 0) { 10 } else { 20 }
         } {
           -1
         }
     }
 
     net.chgSensorValue("snsT", Set(0), true)
-    exec(testProgram, ntimes = manyManyRounds)(net)
+    val s1 = schedulingSequence((0 to 8).toSet, someRounds).ensureAtLeast(id=0, timeToEstinguish)
+    runProgramInOrder(s1, testProgram)(net)
     assertNetworkValues((0 to 8).zip(List(
       10, -1, -1,
       -1, -1, -1,
       -1, -1, -1
-    )).toMap)(net)
+    )).toMap, None, s"Assert ID=0 (for which snsT=true) yields 10\n Scheduling: $s1")(net)
 
     net.chgSensorValue("snsT", Set(0), false)
-    exec(testProgram, ntimes = someRounds)(net)
+    runProgramInOrder(schedulingSequence((0 to 8).toSet, someRounds), testProgram)(net)
     assertNetworkValues((0 to 8).zip(List(
       -1, -1, -1,
       -1, -1, -1,
       -1, -1, -1
-    )).toMap)(net)
+    )).toMap, None, "Assert ID=0 (for which snsT=false) yields -1")(net)
 
+    import ScafiTestUtils.SchedulingSeq
     net.chgSensorValue("snsT", Set(0), true)
-    exec(testProgram, ntimes = 10)(net)
+    runProgramInOrder(schedulingSequence((0 to 8).toSet[ID], someRounds).ensureLessOrEqualThan(id = 0, timeToEstinguish-1), testProgram)(net)
     assertNetworkValues((0 to 8).zip(List(
       20, -1, -1,
       -1, -1, -1,
       -1, -1, -1
-    )).toMap)(net)
+    )).toMap, None, "Assert ID=0 (for which snsT=true) reenters the branch and re-evaluates T")(net)
   }
 }

@@ -37,17 +37,17 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     self: Network =>
     def context(id: ID): CONTEXT
 
-    def addSensor[A](name: CNAME, value: A)
+    def addSensor[A](name: CNAME, value: A): Unit
 
-    def chgSensorValue[A](name: CNAME, ids: Set[ID], value: A)
+    def chgSensorValue[A](name: CNAME, ids: Set[ID], value: A): Unit
 
-    def clearExports()
+    def clearExports(): Unit
 
-    def exec(node: EXECUTION, exp: => Any, id: ID)
+    def exec(node: EXECUTION, exp: => Any, id: ID): Unit
 
-    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit)
+    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit): Seq[ID]
 
-    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit)
+    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit): Seq[ID]
 
     def execInOrderAndReturn(node: EXECUTION, exp: => Any, firingSeq: Seq[ID]): NETWORK
 
@@ -280,15 +280,18 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
      * @param size The number of executions to be performed
      * @param action An optional action launched after each execution
      */
-    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Unit = {
+    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Seq[ID] = {
+      var executedNodes = Seq[ID]()
       for (i <- 0 until size) {
         val nextIdToRun = idArray(simulationRandom.nextInt(idArray.size))
+        executedNodes :+= nextIdToRun
         exec(node, exp, nextIdToRun)
         action(this, i)
       }
+      executedNodes
     }
 
-    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Unit = {
+    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Seq[ID] = {
       execMany(node, node.main(), size, action)
     }
 
