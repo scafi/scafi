@@ -54,6 +54,7 @@ val scalafxVersion213: String by project
 val slf4jlog4Version: String by project
 val log4Version: String by project
 val scalaLoggingVersion: String by project
+val apacheCommonsMathVersion: String by project
 
 val akkaActor  = "com.typesafe.akka:akka-actor_%%:$akkaVersion"
 val akkaRemote = "com.typesafe.akka:akka-remote_%%:$akkaVersion"
