@@ -285,6 +285,7 @@ project(":scafi-simulator-gui") {
 project(":scafi-tests") {
     dependencies {
         "api"(project(":scafi-simulator"))
+        "implementation"(apacheCommonsMath)
     }
 }
 
