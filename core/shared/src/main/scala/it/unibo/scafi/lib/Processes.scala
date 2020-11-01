@@ -25,7 +25,7 @@ trait StdLib_Processes {
   }
 
   trait HFCSpawn extends FieldUtils {
-    self: FieldCalculusSyntax =>
+    self: ScafiStandardLanguage =>
 
     trait Status
     case object External extends Status // External to the bubble
@@ -59,7 +59,7 @@ trait StdLib_Processes {
   }
 
   trait Processes {
-    self: FieldCalculusSyntax with StandardSensors with FieldUtils =>
+    self: ScafiStandardLanguage with StandardSensors with FieldUtils =>
     import excludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
 
     val TimeGC: Long = 20

@@ -10,10 +10,10 @@ trait StdLib_BlockS {
 
   // scalastyle:off method.name
 
-  import Builtins._
+  import it.unibo.scafi.languages.TypesInfo._
 
   trait BlockS extends BlockG {
-    self: FieldCalculusSyntax with StandardSensors =>
+    self: ScafiStandardLanguage with StandardSensors =>
 
     def S(grain: Double, metric: Metric): Boolean =
       breakUsingUids(randomUid, grain, metric)

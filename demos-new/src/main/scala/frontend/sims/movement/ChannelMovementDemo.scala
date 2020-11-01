@@ -2,7 +2,7 @@ package frontend.sims.movement
 
 import frontend.lib.{FlockingLib, Movement2DSupport}
 import frontend.sims.{SensorDefinitions, SizeConversion}
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ExportEvaluation.EXPORT_EVALUATION
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation.EXPORT
@@ -34,7 +34,7 @@ object ChannelMovementDemo extends App {
   * @see ChannelDemo to see how to interact with this program
   * you can enable random movement with select a set of nodes and mark it with sensor4
   */
-class ChannelMovement  extends AggregateProgram with SensorDefinitions with BlockG with FlockingLib with Movement2DSupport  {
+class ChannelMovement  extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG with FlockingLib with Movement2DSupport  {
   private val scale = 5
   def customChannel(source: Boolean, target: Boolean, width: Double): Boolean =
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width

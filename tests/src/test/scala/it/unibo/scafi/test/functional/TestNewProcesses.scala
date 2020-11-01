@@ -37,7 +37,7 @@ class TestNewProcesses extends FlatSpec with Matchers {
 
   case class Pid(dev: ID, k: Long)
 
-  private[this] class Program extends AggregateProgram
+  private[this] class Program extends ScafiStandardAggregateProgram
     with CustomSpawn with FieldUtils with StandardSensors with BlockG with StateManagement {
     def src = sense[Boolean](SRC)
     def stop = sense[Boolean](STOP)

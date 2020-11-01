@@ -8,7 +8,7 @@ import it.unibo.utils.{Interop, Linearizable}
 trait BasicWebIncarnation extends Incarnation with Simulation {
   override type CNAME = String
   override type ID = String
-  override type EXECUTION = AggregateInterpreter
+  override type EXECUTION = ScafiStandardAggregateInterpreter
 
   override val LSNS_POSITION: String = "position"
   override val LSNS_TIME: String = "currentTime"

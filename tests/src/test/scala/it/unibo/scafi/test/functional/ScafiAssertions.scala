@@ -91,7 +91,7 @@ object ScafiAssertions extends Matchers {
     }
   }
 
-  def assertAlways[T](ap: AggregateProgram, ntimes: Int)
+  def assertAlways[T](ap: ScafiStandardAggregateProgram, ntimes: Int)
                      (pred: (ID,T)=>Boolean)
                      (net: Network with SimulatorOps) = {
     for(i <- 1 to ntimes){

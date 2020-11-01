@@ -27,7 +27,7 @@ class TestDomainAlignment extends FlatSpec with Matchers {
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.5))
   }
 
-  private[this] trait TestProgram extends AggregateProgram with StandardSensors with FieldUtils {
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
     def s = if(mid<=2 || mid==4) -1 else if(mid%3==0) 2 else 5
   }
 

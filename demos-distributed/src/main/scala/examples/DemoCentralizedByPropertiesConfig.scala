@@ -19,7 +19,7 @@ import it.unibo.scafi.incarnations.BasicActorServerBased._
 object DemoCentralizedByPropertiesConfigMain extends App {
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA (OPTIONAL)
   // NOTE: it MUST be a class (not a trait!) -- unless you manually specify the program builder
-  class MyAggregateProgram extends AggregateProgram with Serializable {
+  class MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
     override def main(): Any = foldhood(0){_+_}(1)
   }
 

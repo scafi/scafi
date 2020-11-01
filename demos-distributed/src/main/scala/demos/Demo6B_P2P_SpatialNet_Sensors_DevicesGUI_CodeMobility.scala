@@ -36,7 +36,7 @@ object Demo6B_Platform extends Demo6_Platform with SpatialP2PActorPlatform {
 
 import demos.{Demo6B_Platform => Platform}
 
-class Demo6B_AggregateProgram extends Platform.AggregateProgram {
+class Demo6B_AggregateProgram extends Platform.ScafiStandardAggregateProgram {
   override def main(): String = "ready"
 }
 

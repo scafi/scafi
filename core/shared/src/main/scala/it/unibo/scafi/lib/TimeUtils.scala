@@ -13,7 +13,7 @@ trait StdLib_TimeUtils {
   // scalastyle:off method.name
 
   trait BlockT {
-    self: FieldCalculusSyntax =>
+    self: ScafiStandardLanguage =>
 
     def T[V](initial: V, floor: V, decay: V => V)
             (implicit ev: Numeric[V]): V =
@@ -118,7 +118,7 @@ trait StdLib_TimeUtils {
 
   }
 
-  trait TimeUtils extends BlockT { self: FieldCalculusSyntax with StandardSensors =>
+  trait TimeUtils extends BlockT { self: ScafiStandardLanguage with StandardSensors =>
     def sharedTimer(period: FiniteDuration): FiniteDuration =
       sharedTimerWithDecay(period.toMillis, deltaTime().toMillis).seconds
 

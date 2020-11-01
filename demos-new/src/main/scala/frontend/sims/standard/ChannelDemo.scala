@@ -6,7 +6,8 @@
 package frontend.sims.standard
 
 import frontend.sims.SensorDefinitions
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG, Builtins}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG, ScafiStandard_Builtins}
+import it.unibo.scafi.languages.TypesInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -40,7 +41,7 @@ object ChannelDemo extends App {
   * network recomputes the channel.
   */
 @Demo
-class Channel extends AggregateProgram with SensorDefinitions with BlockG {
+class Channel extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG {
 
   def channel1(source: Boolean, target: Boolean, width: Double): Boolean =
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
@@ -50,10 +51,10 @@ class Channel extends AggregateProgram with SensorDefinitions with BlockG {
 
 
 @Demo
-class SelfContainedChannel extends AggregateProgram with SensorDefinitions {
+class SelfContainedChannel extends ScafiStandardAggregateProgram with SensorDefinitions {
   override def main() = branch(sense3){false}{channel(sense1, sense2, 5)}
 
-  type OB[T] = Builtins.Bounded[T]
+  type OB[T] = TypesInfo.Bounded[T]
   def G[V:OB](src: Boolean, field: V, acc: V=>V, metric: =>Double): V =
     rep( (Double.MaxValue, field) ){ dv =>
       mux(src) { (0.0, field) } {

@@ -5,10 +5,10 @@
 
 package lib
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.Builtins._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.languages.TypesInfo.Bounded
 
-trait MyLib extends StandardSpatialSensorNames { self: Constructs with Builtins =>
+trait MyLib extends StandardSpatialSensorNames { self: ScafiStandard_Constructs with ScafiStandard_Builtins =>
   def nbrRange():Double = nbrvar[Double](NBR_RANGE)
 
   /**

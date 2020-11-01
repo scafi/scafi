@@ -13,7 +13,7 @@ import sims.SensorDefinitions
 /**
   * This program is used to launch simulations on a grid-like network.
   */
-object DemoAlignment extends AggregateProgram with SensorDefinitions with DomainAlignmentLib {
+object DemoAlignment extends ScafiStandardAggregateProgram with SensorDefinitions with DomainAlignmentLib {
   def isSource = sense[Boolean]("source")
 
   //def main() = hopGradientByG(isSource) //

@@ -28,7 +28,7 @@ trait StdLib_NewProcesses {
   }
 
   trait CustomSpawn extends SpawnInterface with FieldUtils {
-    self: AggregateProgram =>
+    self: ScafiStandardAggregateProgram =>
 
     import SpawnInterface._
 
@@ -309,8 +309,8 @@ trait StdLib_NewProcesses {
     private def none[T]: Option[T] = None
   }
 
-  trait ReplicatedGossip extends CustomSpawn with FieldCalculusSyntax with StandardSensors with TimeUtils with StateManagement {
-    self: AggregateProgram =>
+  trait ReplicatedGossip extends CustomSpawn with StandardSensors with TimeUtils with StateManagement {
+    self: ScafiStandardAggregateProgram =>
 
     def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
@@ -340,7 +340,7 @@ trait StdLib_NewProcesses {
     *   }.withArgs(1000)
     */
   trait ProcessDSL {
-    self: AggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
+    self: ScafiStandardAggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
 
     import SpawnInterface._
 

@@ -10,7 +10,7 @@ trait StdLib_BuildingBlocks {
 
   trait BuildingBlocks extends Gradients with FieldUtils
     with BlockG with BlockC with BlockS with BlockT with TimeUtils with BlocksWithGC with StateManagement {
-    self: FieldCalculusSyntax with StandardSensors =>
+    self: ScafiStandardLanguage with StandardSensors =>
   }
 
 }

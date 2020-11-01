@@ -10,10 +10,10 @@ trait StdLib_BlockG {
 
   // scalastyle:off method.name
 
-  import Builtins._
+  import it.unibo.scafi.languages.TypesInfo._
 
   trait BlockG extends Gradients with FieldUtils with GenericUtils with StateManagement {
-    self: FieldCalculusSyntax with StandardSensors =>
+    self: ScafiStandardLanguage with StandardSensors =>
 
     /**
       * Version of G (Gradient-Cast) that takes a Gradient algorithm as input.

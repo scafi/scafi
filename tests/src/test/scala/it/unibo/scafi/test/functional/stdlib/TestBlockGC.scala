@@ -11,7 +11,7 @@ class TestBlockGC extends FunSpec with BeforeAndAfterEach {
 
   val defaultNtimes: Int = someRounds
 
-  private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockC with BlocksWithGC
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BlockC with BlocksWithGC
 
   describe("BlockGC") {
     describe("should support summarize"){

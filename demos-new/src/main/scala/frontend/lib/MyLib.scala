@@ -5,10 +5,10 @@
 
 package frontend.lib
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.Builtins._
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.languages.TypesInfo._
 
-trait MyLib extends StandardSensors { self: Constructs with Builtins =>
+trait MyLib extends StandardSensors { self: ScafiStandard_Constructs with ScafiStandard_Builtins =>
   /**
    * Gradient cast.
    * @param source represents the source field. Locally, it indicates if

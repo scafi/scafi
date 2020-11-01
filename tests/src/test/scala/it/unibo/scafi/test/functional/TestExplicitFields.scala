@@ -26,7 +26,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.6))
   }
 
-  private[this] trait TestLib { self: AggregateProgram with ExplicitFields with StandardSensors =>
+  private[this] trait TestLib { self: ScafiStandardAggregateProgram with ExplicitFields with StandardSensors =>
     import scala.math.Numeric._
 
     def gradient(source: Field[Boolean]): Field[Double] =
@@ -37,7 +37,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
       }
   }
 
-  private[this] trait TestProgram extends AggregateProgram with ExplicitFields with StandardSensors with TestLib
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with ExplicitFields with StandardSensors with TestLib
 
   def SetupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(SRC, false)

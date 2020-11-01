@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
@@ -33,7 +33,7 @@ object DroneRescue extends Launcher {
   *   - Sense2: survivors
   *   - Sense3: obstacles
   */
-class DroneRescueDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG  {
+class DroneRescueDemo extends ScafiStandardAggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG  {
 
   private val attractionForce: Double = 2.0
   private val alignmentForce: Double = 80.0

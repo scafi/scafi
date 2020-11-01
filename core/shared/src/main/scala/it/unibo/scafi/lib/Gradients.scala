@@ -14,12 +14,12 @@ trait StdLib_Gradients {
 
   type Metric = ()=>Double
 
-  import Builtins.Bounded
+  import it.unibo.scafi.languages.TypesInfo.Bounded
 
   implicit val idBounded: Bounded[ID]
 
   trait Gradients extends GenericUtils with StateManagement {
-    self: FieldCalculusSyntax with StandardSensors with BlockG =>
+    self: ScafiStandardLanguage with StandardSensors with BlockG =>
 
     case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
@@ -129,7 +129,7 @@ trait StdLib_Gradients {
       rep(Double.PositiveInfinity){ g =>
         def distance = Math.max(nbrRange(), delta * communicationRadius)
 
-        import Builtins.Bounded._ // for min/maximizing over tuples
+        import it.unibo.scafi.languages.TypesInfo.Bounded._ // for min/maximizing over tuples
         val maxLocalSlope: (Double,ID,Double,Double) =
         maxHood {
           ((g - nbr{g})/distance, nbr{mid}, nbr{g}, metric())
@@ -195,7 +195,7 @@ trait StdLib_Gradients {
       rep[(Double,Double,ID,Boolean)](loc) {
         case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
           // (1) Let's calculate new values for spaceDistEst and sourceId
-          import Builtins.Bounded._
+          import it.unibo.scafi.languages.TypesInfo.Bounded._
           val (newSpaceDistEst: Double, newSourceId: ID) = 
           minHood {
             mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })

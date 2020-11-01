@@ -30,7 +30,7 @@ object Demo2_Platform extends BasicAbstractActorIncarnation
 }
 
 // STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-class Demo2_AggregateProgram extends Demo2_Platform.AggregateProgram {
+class Demo2_AggregateProgram extends Demo2_Platform.ScafiStandardAggregateProgram {
   override def main(): Any = foldhood(0){_ + _}(1)
 }
 

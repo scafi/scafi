@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
@@ -33,7 +33,7 @@ object BlobDroneSystemExploration extends Launcher {
   *   - Sense2: obstacles
   *   - Sense3: base
   */
-class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
+class BlobDroneSystemExplorationDemo extends ScafiStandardAggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
 
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0

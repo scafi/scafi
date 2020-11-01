@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ExplicitFields}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ExplicitFields}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object ExplicitFieldsRun extends Launcher {
@@ -16,7 +16,7 @@ object ExplicitFieldsRun extends Launcher {
   launch()
 }
 
-class GradientWithExplicitFields extends AggregateProgram with SensorDefinitions with ExplicitFields {
+class GradientWithExplicitFields extends ScafiStandardAggregateProgram with SensorDefinitions with ExplicitFields {
   override def main() = gradient(sense1)
 
   def gradient(src: Boolean) = rep(Double.PositiveInfinity)(d => {

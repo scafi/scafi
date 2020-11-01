@@ -3,6 +3,7 @@ package it.unibo.scafi.js
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.js.WebIncarnation.NBR_RANGE
 import it.unibo.scafi.js.{WebIncarnation => web}
 import it.unibo.scafi.space.Point3D
 import org.scalajs.dom
@@ -21,7 +22,7 @@ import scala.scalajs.js.timers.{SetIntervalHandle, clearInterval, setInterval}
 object Index {
   import org.scalajs.dom._
 
-  class FooProgram extends AggregateProgram with StandardSensors {
+  class FooProgram extends ScafiStandardAggregateProgram with StandardSensors {
     override def main(): Any = rep(Double.PositiveInfinity){ case g =>
       mux(sense[Boolean]("source")){ 0.0 }{
         minHoodPlus { nbr(g) + nbrRange() }

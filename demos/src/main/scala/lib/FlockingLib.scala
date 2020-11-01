@@ -11,7 +11,7 @@ import it.unibo.scafi.space.Point3D
 import scala.util.Random
 
 trait FlockingLib extends FieldUtils with StandardSensors {
-  self: AggregateProgram =>
+  self: ScafiStandardAggregateProgram =>
   import includingSelf._
 
   lazy val r: Random = sense[Random](LSNS_RANDOM)

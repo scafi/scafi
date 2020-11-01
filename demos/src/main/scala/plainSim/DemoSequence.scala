@@ -13,7 +13,7 @@ import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import lib.MyLib
 
-object DemoSequence extends AggregateProgram with MyLib {
+object DemoSequence extends ScafiStandardAggregateProgram with MyLib {
   def mySensor():Int = sense[Int]("sensor")
 
   def rep2(f: Double=>Double): Double = rep(0.0){f}

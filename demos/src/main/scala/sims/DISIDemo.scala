@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, Builtins}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ScafiStandard_Builtins}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object DISIDemo extends Launcher {
@@ -16,7 +16,7 @@ object DISIDemo extends Launcher {
   launch()
 }
 
-abstract class DISIDemoAggregateProgram extends AggregateProgram {
+abstract class DISIDemoAggregateProgram extends ScafiStandardAggregateProgram {
   def sense1 = sense[Boolean]("sens1")
   def sense2 = sense[Boolean]("sens2")
   def sense3 = sense[Boolean]("sens3")
@@ -74,7 +74,7 @@ class Main11 extends DISIDemoAggregateProgram {
 }
 
 class Main12 extends DISIDemoAggregateProgram {
-  import Builtins.Bounded.of_i
+  import it.unibo.scafi.languages.TypesInfo.Bounded.of_i
 
   override def main() = maxHoodPlus(boolToInt(nbr{sense1}))
 }
@@ -84,7 +84,7 @@ class Main13 extends DISIDemoAggregateProgram {
 }
 
 class Main14 extends DISIDemoAggregateProgram {
-  import Builtins.Bounded.of_i
+  import it.unibo.scafi.languages.TypesInfo.Bounded.of_i
 
   override def main() = rep(0){ x => boolToInt(sense1) max maxHoodPlus( nbr{x}) }
 }

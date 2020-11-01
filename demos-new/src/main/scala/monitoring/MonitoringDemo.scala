@@ -7,6 +7,7 @@ package monitoring
 
 import it.unibo.scafi.distrib.actor.p2p.SpatialPlatform
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
+import it.unibo.scafi.languages.TypesInfo
 import it.unibo.scafi.lib.StandardLibrary
 import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.monitoring.MonitoringInitializer.RadiusSimulation
@@ -19,7 +20,7 @@ import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldI
 
 object MonitoringDemoPlatform extends SpatialPlatform with BasicAbstractActorIncarnation with StandardLibrary {
   override val LocationSensorName: LSensorName = "LocationSensor"
-  override implicit val idBounded: MonitoringDemoPlatform.Builtins.Bounded[Int] = Builtins.Bounded.of_i
+  override implicit val idBounded:TypesInfo.Bounded[Int] = TypesInfo.Bounded.of_i
 }
 import monitoring.{MonitoringDemoPlatform => Platform}
 
@@ -44,13 +45,13 @@ object MonitoringDemo_Inputs {
   )
   val platformName: String = "MonitoringDemo"
 
-  trait MonitoringSensorDefinitions extends Platform.StandardSensors { self: Platform.AggregateProgram =>
+  trait MonitoringSensorDefinitions extends Platform.StandardSensors { self: Platform.ScafiStandardAggregateProgram =>
     def sense1: Boolean = sense[Boolean](SensorName.sensor1)
     def sense2: Boolean = sense[Boolean](SensorName.sensor2)
     def sense3: Boolean = sense[Boolean](SensorName.sensor3)
   }
 
-  class MonitoringDemoProgram extends Platform.AggregateProgram with Platform.BlockG with MonitoringSensorDefinitions {
+  class MonitoringDemoProgram extends Platform.ScafiStandardAggregateProgram with Platform.BlockG with MonitoringSensorDefinitions {
     def channel1(source: Boolean, target: Boolean, width: Double): Boolean =
       distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 

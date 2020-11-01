@@ -10,12 +10,12 @@ trait StdLib_BlockC {
 
   // scalastyle:off method.name
 
-  import Builtins.Bounded
+  import it.unibo.scafi.languages.TypesInfo.Bounded
 
   implicit val idBounded: Bounded[ID]
 
   trait BlockC {
-    self: FieldCalculusSyntax with StandardSensors =>
+    self: ScafiStandardLanguage with StandardSensors =>
 
     /**
       * Collects values down a potential field.

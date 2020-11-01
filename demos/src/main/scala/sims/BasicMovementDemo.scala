@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
@@ -26,7 +26,7 @@ object BasicMovementDemo extends Launcher {
   launch()
 }
 
-class BasicMovement extends AggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
+class BasicMovement extends ScafiStandardAggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0
   private val repulsionForce: Double = 80.0

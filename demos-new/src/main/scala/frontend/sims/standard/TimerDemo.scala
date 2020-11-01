@@ -6,7 +6,7 @@
 package frontend.sims.standard
 
 import frontend.sims.SensorDefinitions
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockT}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiProgramBuilder
@@ -27,6 +27,6 @@ object TimerDemo extends App {
   * and the number remain in the same value. if click you 6 the simulation continue in
   * the same state. if you click 7 the simulation restart (each node show 10000).
   */
-class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT {
+class SimpleTimer extends ScafiStandardAggregateProgram with SensorDefinitions with BlockT {
   override def main() = branch(sense1){timer(10000)}{0}
 }

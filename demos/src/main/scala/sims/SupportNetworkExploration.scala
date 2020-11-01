@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 import lib.{FlockingLib, Movement2DSupport}
 
@@ -35,7 +35,7 @@ object SupportNetworkExploration extends Launcher {
   *   - sense3: base of operations;
   *   - sense4: explorer nodes, connected to the network.
   */
-class SupportNetworkExplorationDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
+class SupportNetworkExplorationDemo extends ScafiStandardAggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
 
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0

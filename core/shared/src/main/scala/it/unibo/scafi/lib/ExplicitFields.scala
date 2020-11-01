@@ -7,10 +7,10 @@ package it.unibo.scafi.lib
 
 trait StdLib_ExplicitFields {
   self: StandardLibrary.Subcomponent =>
-  import Builtins.Bounded
+  import it.unibo.scafi.languages.TypesInfo.Bounded
 
   trait ExplicitFields extends FieldUtils {
-    self: FieldCalculusSyntax =>
+    self: ScafiStandardLanguage =>
 
     def fnbr[A](e: => A): Field[A] =
       Field[A](includingSelf.reifyField(nbr(e)))

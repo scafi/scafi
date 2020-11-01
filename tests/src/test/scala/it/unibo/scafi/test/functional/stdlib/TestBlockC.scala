@@ -17,7 +17,7 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
 
   val defaultNtimes: Int = someRounds
 
-  private[this] trait TestProgram extends AggregateProgram with StandardSensors with BlockC {
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BlockC {
     def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) { hops => {mux(source) {0.0} {1 + minHood(nbr {hops})}}}
   }

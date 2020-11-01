@@ -14,7 +14,7 @@ class TestConstantFields extends FlatSpec with Matchers {
   import ScafiTestUtils._
 
   private[this] trait SimulationContextFixture {
-    implicit val node = new AggregateInterpreter {
+    implicit val node = new ScafiStandardAggregateInterpreter {
       override type MainResult = Any
       override def main() = ???
     }

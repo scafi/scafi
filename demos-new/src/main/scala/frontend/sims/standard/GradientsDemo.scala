@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit
 import frontend.sims.SensorDefinitions
 import frontend.sims.standard.DoubleUtils.Precision
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import it.unibo.scafi.languages.TypesInfo
 import it.unibo.scafi.simulation.s2.frontend.configuration.environment.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
@@ -40,7 +41,7 @@ object GradientsDemo extends App {
   * a set of number, if you use GradientFXOutput you see a map of color).
   */
 @Demo
-class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
+class GradientWithObstacle extends ScafiStandardAggregateProgram with SensorDefinitions with Gradients {
   def main = g2(sense1, sense2)
 
   def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
@@ -56,7 +57,7 @@ class GradientWithObstacle extends AggregateProgram with SensorDefinitions with 
   }
 }
 @Demo
-class SteeringProgram extends AggregateProgram with SensorDefinitions {
+class SteeringProgram extends ScafiStandardAggregateProgram with SensorDefinitions {
   def main = steering(sense1)
 
   def steering(source: Boolean): Point3D = {
@@ -84,7 +85,7 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
   }
 }
 @Demo
-class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
+class ShortestPathProgram extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   def main = {
     val g = classic(sense1)
     ShortestPath(sense2, g)
@@ -92,9 +93,9 @@ class ShortestPathProgram extends AggregateProgram with Gradients with SensorDef
 }
 
 @Demo
-class CheckSpeed extends AggregateProgram
+class CheckSpeed extends ScafiStandardAggregateProgram
     with Gradients with BlockG with SensorDefinitions with GenericUtils with StateManagement {
-  implicit val deftime = new Builtins.Defaultable[Instant] {
+  implicit val deftime = new TypesInfo.Defaultable[Instant] {
     override def default: Instant = Instant.now()
   }
 
@@ -115,57 +116,57 @@ class CheckSpeed extends AggregateProgram
 }
 
 @Demo
-class GradientComparison extends AggregateProgram with Gradients with SensorDefinitions {
+class GradientComparison extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
 
 @Demo
-class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class BISGradient extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradientBIS(sense1)
 }
 
 @Demo
-class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class SVDGradient extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradientSVD(sense1)
 }
 
 @Demo
-class FlexGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class FlexGradient extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = flex(sense1)
 }
 
 @Demo
-class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class CrfGradient extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = crf(sense1)
 }
 
 @Demo
-class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class BasicGradient extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = gradient(sense1)
 }
 
 @Demo
-class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradient extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = classic(sense1)
 }
 
 @Demo
-class ClassicGradientWithG extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithG extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithG(sense1)
 }
 
 @Demo
-class ClassicGradientWithGv2 extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithGv2 extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithGv2(sense1)
 }
 
 @Demo
-class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with SensorDefinitions {
+class ClassicGradientWithUnboundedG extends ScafiStandardAggregateProgram with Gradients with SensorDefinitions {
   override def main() = classicWithUnboundedG(sense1)
 }
 
 @Demo
-class DistanceBetween extends AggregateProgram with SensorDefinitions with BlockG {
+class DistanceBetween extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG {
   def isSource: Boolean = sense1
   def isTarget: Boolean = sense2
 
@@ -183,7 +184,7 @@ trait Gradients extends BlockG
   with FieldUtils
   with TimeUtils
   with StateManagement
-  with GenericUtils { self: AggregateProgram with SensorDefinitions with StandardSensors =>
+  with GenericUtils { self: ScafiStandardAggregateProgram with SensorDefinitions with StandardSensors =>
 
 
   def ShortestPath(source: Boolean, gradient: Double): Boolean =
@@ -243,7 +244,7 @@ trait Gradients extends BlockG
     rep(Double.PositiveInfinity){ g =>
       def distance = Math.max(nbrRange(), delta * communicationRadius)
 
-      import Builtins.Bounded._ // for min/maximizing over tuples
+      import it.unibo.scafi.languages.TypesInfo.Bounded._ // for min/maximizing over tuples
       val maxLocalSlope: (Double,ID,Double,Double) = ??? // TODO: typeclass resolution for tuple (Double,ID,Double,Double) broke
       /*maxHood {
         ((g - nbr{g})/distance, nbr{mid}, nbr{g}, nbrRange())
@@ -304,7 +305,7 @@ trait Gradients extends BlockG
   def classicWithG(source: Boolean): Double = G(source, if(source) 0.0 else Double.PositiveInfinity, (_:Double) + nbrRange, nbrRange)
 
   def classicWithGv2(source: Boolean): Double = {
-    implicit val defValue = Builtins.Defaultable.apply(Double.PositiveInfinity)
+    implicit val defValue = TypesInfo.Defaultable.apply(Double.PositiveInfinity)
     G_v2(source, 0.0, (_:Double) + nbrRange, nbrRange)
   }
 
@@ -314,12 +315,12 @@ trait Gradients extends BlockG
   def classicWithUnboundedG2(source: Boolean): Double =
     unboundedG[Double](source, if(source) 0.0 else Double.PositiveInfinity, (_:Double) + nbrRange, nbrRange, Math.min(_:Double, _:Double))
 
-  def G_v2[V : Builtins.Defaultable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
+  def G_v2[V : TypesInfo.Defaultable](source: Boolean, field: V, acc: V => V, metric: => Double): V =
     rep((Double.MaxValue, field)) { case (dist, value) =>
       mux(source) {
         (0.0, field)
       } {
-        import Builtins.Bounded.tupleOnFirstBounded
+        import it.unibo.scafi.languages.TypesInfo.Bounded.tupleOnFirstBounded
         minHoodPlus { (nbr {dist} + metric, acc(nbr {value})) }
       }
     }._2
@@ -416,7 +417,7 @@ trait Gradients extends BlockG
     rep[(Double,Double,Int,Boolean)](loc) {
       case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
         // (1) Let's calculate new values for spaceDistEst and sourceId
-        import Builtins.Bounded._
+        import it.unibo.scafi.languages.TypesInfo.Bounded._
         val (newSpaceDistEst: Double, newSourceId: Int) = (???.asInstanceOf[Double],???.asInstanceOf[Int]) // TODO: implicit resolution broke
         /* minHood {
           mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })

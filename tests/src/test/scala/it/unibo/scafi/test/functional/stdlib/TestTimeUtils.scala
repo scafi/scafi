@@ -22,7 +22,7 @@ class TestTimeUtils extends FlatSpec{
     val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
   }
 
-  private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BuildingBlocks
 
   val unitaryDecay: Int => Int = _ - 1
   val halving: Int => Int = _ / 2

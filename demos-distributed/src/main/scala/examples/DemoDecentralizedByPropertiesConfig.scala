@@ -19,7 +19,7 @@ import it.unibo.scafi.incarnations.BasicActorP2P._
 object DemoDecentralizedByPropertiesConfigMain extends App {
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA (OPTIONAL)
   // NOTE: MUST be a class (not a trait!) -- unless you provide a custom program builder
-  class MyAggregateProgram extends AggregateProgram with Serializable {
+  class MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
     override def main(): Any = foldhood(0){_+_}(1)
   }
 

@@ -17,7 +17,7 @@ object LayerExampleMain extends Launcher {
   launch()
 }
 
-trait Layers { self: AggregateProgram =>
+trait Layers { self: ScafiStandardAggregateProgram =>
   class LayerSpec(var variations: Seq[Variation] = Seq.empty) {
     def befores = variations.filter(_.kind==Before)
     def afters = variations.filter(_.kind==After)
@@ -84,7 +84,7 @@ trait Layers { self: AggregateProgram =>
   }
 }
 
-class LayerExampleProgram extends AggregateProgram with SensorDefinitions with Layers with BlockS {
+class LayerExampleProgram extends ScafiStandardAggregateProgram with SensorDefinitions with Layers with BlockS {
   def lowPower = sense1
 
   object L { // Layers

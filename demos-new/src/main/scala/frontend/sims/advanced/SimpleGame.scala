@@ -4,7 +4,7 @@ import javafx.scene.shape.Circle
 
 import frontend.lib.{FlockingLib, Movement2DSupport}
 import frontend.sims.{SensorDefinitions, SizeConversion}
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.MetaActionManager
 import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, CommandBinding, CommandFactory}
@@ -163,7 +163,7 @@ object SimpleGame extends App {
   simulation.chgSensorValue("other",Set(gameId),false)
 }
 
-class Game extends AggregateProgram with SensorDefinitions with BlockG with FlockingLib with Movement2DSupport {
+class Game extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG with FlockingLib with Movement2DSupport {
   import SimpleGame._
   //velocity of player
   private val dt = 0.4

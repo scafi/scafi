@@ -20,7 +20,7 @@ object ReplicatedGossipDemo extends Launcher {
   launch()
 }
 
-class ReplicatedGossipProgram extends AggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
+class ReplicatedGossipProgram extends ScafiStandardAggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
   with HFCSpawn {
   def main: String = {
     val g = classic(sense1)

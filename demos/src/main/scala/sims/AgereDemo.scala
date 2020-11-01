@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BuildingBlocks, TimeUtils}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BuildingBlocks, TimeUtils}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.concurrent.duration._
@@ -19,7 +19,7 @@ object AgereDemoMain extends Launcher {
   launch()
 }
 
-class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefinitions with TimeUtils {
+class AgereDemo extends ScafiStandardAggregateProgram with BuildingBlocks with SensorDefinitions with TimeUtils {
   /* Parameters */
   val t_fail = (15.seconds)   // Time w/o failures
   val t_act = (5.seconds)     // Time for actuation

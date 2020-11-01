@@ -7,7 +7,7 @@ package frontend.sims.movement
 
 import frontend.lib.{FlockingLib, Movement2DSupport}
 import frontend.sims.{SensorDefinitions, SizeConversion}
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo}
@@ -37,7 +37,7 @@ object SupportNetworkExploration extends App {
   * if you choose another set and mark it as sense4 it moves randomly trying to keep linking to the network.
   */
 @Demo(simulationType = SimulationType.MOVEMENT)
-class SupportNetworkExplorationDemo extends AggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
+class SupportNetworkExplorationDemo extends ScafiStandardAggregateProgram with SensorDefinitions with FlockingLib with Movement2DSupport with BlockG {
 
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0

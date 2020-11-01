@@ -17,7 +17,7 @@ object SerializationTestsIncarnation extends BasicAbstractActorIncarnation {
 
 import SerializationTestsIncarnation._
 
-class SerializationTestProgram extends AggregateProgram  {
+class SerializationTestProgram extends ScafiStandardAggregateProgram  {
   override def main(): Any = rep(0)(_+1)
 }
 

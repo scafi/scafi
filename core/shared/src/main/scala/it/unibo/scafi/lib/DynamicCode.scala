@@ -9,7 +9,7 @@ trait StdLib_DynamicCode {
   self: StandardLibrary.Subcomponent =>
 
   trait DynamicCode extends FieldUtils {
-    self: FieldCalculusSyntax =>
+    self: ScafiStandardLanguage =>
 
     /**
       * Mobile functions `fun` should be transferable (i.e., no closures etc), aggregate functions.
@@ -29,7 +29,7 @@ trait StdLib_DynamicCode {
       foldhood(injecter())((f1,f2) => if(f1.ver>=f2.ver) f1 else f2)(nbr{f})
     }
 
-    import Builtins.Bounded
+    import it.unibo.scafi.languages.TypesInfo.Bounded
 
     def exec[T,R:Bounded](procs: List[Fun[T,R]], arg: T, maxVer: Int, curVer: Int, numNbrs: Int, Null: R): (R,Int) = {
       val Fun(headVer,headFun) = procs.head

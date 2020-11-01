@@ -21,7 +21,7 @@ import it.unibo.utils.{Interop, Linearizable}
 trait BasicAbstractIncarnation extends Incarnation {
   override type CNAME = String
   override type ID = Int
-  override type EXECUTION = AggregateInterpreter
+  override type EXECUTION = ScafiStandardAggregateInterpreter
 
   trait BasicStandardSensorNames extends StandardSensorNames {
     override val LSNS_POSITION: String = "position"

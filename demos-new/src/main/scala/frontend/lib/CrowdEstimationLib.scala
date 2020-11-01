@@ -8,7 +8,7 @@ package frontend.lib
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import frontend.sims.SensorDefinitions
 
-trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with SensorDefinitions =>
+trait CrowdEstimationLib extends BuildingBlocks { self: ScafiStandardAggregateProgram with SensorDefinitions =>
   /***********************************/
   /* IEEE Computer: Crowd estimation */
   /***********************************/

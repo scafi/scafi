@@ -6,7 +6,8 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import Builtins._
+import it.unibo.scafi.languages.TypesInfo
+import it.unibo.scafi.languages.TypesInfo._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object CollectionDemo extends Launcher {
@@ -22,7 +23,7 @@ object CollectionDemo extends Launcher {
   * Collection using an 'information propagation subnetwork'
   * Only devices with sense2 active will
   */
-class CollectAndBranch extends AggregateProgram with SensorDefinitions with BlockC with BlockS with BlockG {
+class CollectAndBranch extends ScafiStandardAggregateProgram with SensorDefinitions with BlockC with BlockS with BlockG {
   override def main() = {
     val leader = sense1 // S(10, nbrRange)
     val potential = branch(sense2){ distanceTo(leader) }{ Double.PositiveInfinity }
@@ -36,7 +37,7 @@ class CollectAndBranch extends AggregateProgram with SensorDefinitions with Bloc
 
 }
 
-class Collection extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
+class Collection extends ScafiStandardAggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
@@ -44,7 +45,7 @@ class Collection extends AggregateProgram with SensorDefinitions with BlockC wit
   override def main() = summarize(sense1, _ + _, if (sense2) 1.0 else 0.0, 0.0)
 }
 
-class CExample extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
+class CExample extends ScafiStandardAggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
@@ -53,7 +54,7 @@ class CExample extends AggregateProgram with SensorDefinitions with BlockC with 
   override def main() = s"${p}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
 }
 
-class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
+class CollectionIds extends ScafiStandardAggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize[V](sink: Boolean, acc:(V,V)=>V, local:V, Null:V): V =
     C[Double, V](distanceTo3(sink), acc, local, Null)
@@ -73,7 +74,7 @@ class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC 
       }
     }._2
 
-  implicit val ofset = new Builtins.Bounded[Set[ID]] {
+  implicit val ofset = new TypesInfo.Bounded[Set[ID]] {
     override def top: Set[ID] = Set()
 
     override def bottom: Set[ID] = Set()

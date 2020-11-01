@@ -5,7 +5,9 @@
 
 package it.unibo.scafi.incarnations
 
-import it.unibo.scafi.core.{Core, Engine, RichLanguage}
+import it.unibo.scafi.core.{Core, Engine}
+import it.unibo.scafi.languages.FieldCalculusLanguages
+import it.unibo.scafi.languages.scafistandard.RichLanguage
 import it.unibo.scafi.platform.SpaceTimeAwarePlatform
 import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
@@ -18,21 +20,30 @@ trait Incarnation extends Core
   with RichLanguage
   with SpaceTimeAwarePlatform
   with BasicSpatialAbstraction
-  with TimeAbstraction {
+  with TimeAbstraction
+  with FieldCalculusLanguages {
 
-  trait FieldCalculusSyntax extends Constructs with Builtins
-
-  trait AggregateComputation[T] extends ExecutionTemplate with FieldCalculusSyntax with Serializable {
+  trait AggregateComputation[T] extends ExecutionTemplate with Serializable {
+    self: LanguageSemantics =>
     type MainResult = T
   }
 
-  trait AggregateInterpreter extends ExecutionTemplate with FieldCalculusSyntax with Serializable {
+  trait ScafiStandardAggregateComputation[T] extends AggregateComputation[T] with ScafiStandardLanguage
+
+  trait AggregateInterpreter extends ExecutionTemplate with Serializable {
+    self: LanguageSemantics =>
     type MainResult = Any
   }
 
-  trait AggregateProgram extends AggregateInterpreter
+  trait ScafiStandardAggregateInterpreter extends AggregateInterpreter with ScafiStandardLanguage
 
-  class BasicAggregateInterpreter extends AggregateInterpreter {
+  trait AggregateProgram extends AggregateInterpreter {
+    self: LanguageSemantics =>
+  }
+
+  trait ScafiStandardAggregateProgram extends ScafiStandardAggregateInterpreter with AggregateProgram
+
+  class BasicAggregateInterpreter extends ScafiStandardAggregateInterpreter {
     override def main(): MainResult = ???
   }
 
@@ -41,7 +52,7 @@ trait Incarnation extends Core
     with StandardSpatialSensorNames
 
   trait StandardSensors extends StandardSensorNames {
-    self: Constructs =>
+    self: ScafiStandard_Constructs =>
 
     /**
       * Time forward view: expected time from the device computation to neighbor's next computation

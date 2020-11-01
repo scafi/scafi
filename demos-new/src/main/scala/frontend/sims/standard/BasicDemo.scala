@@ -5,7 +5,7 @@
 
 package frontend.sims.standard
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ScafiStandardAggregateProgram
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -23,6 +23,6 @@ object BasicDemo extends App {
   ).launch()
 }
 @Demo
-class BasicProgram extends AggregateProgram {
+class BasicProgram extends ScafiStandardAggregateProgram {
   override def main() = rep(0)(_ + 1) // the aggregate program to run
 }

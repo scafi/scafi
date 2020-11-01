@@ -7,7 +7,7 @@ package frontend.sims.movement
 
 import frontend.lib.{FlockingLib, Movement2DSupport}
 import frontend.sims.{SensorDefinitions, SizeConversion}
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
 import it.unibo.scafi.simulation.s2.frontend.configuration.environment.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.{Demo, SimulationType}
@@ -38,7 +38,7 @@ object BasicMovementDemo extends App {
   */
 
 @Demo(simulationType = SimulationType.MOVEMENT)
-class BasicMovement extends AggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
+class BasicMovement extends ScafiStandardAggregateProgram with SensorDefinitions with FlockingLib with BlockG with Movement2DSupport {
 
   private val attractionForce: Double = 10.0
   private val alignmentForce: Double = 40.0

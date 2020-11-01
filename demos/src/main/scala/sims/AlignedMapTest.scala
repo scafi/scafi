@@ -15,7 +15,7 @@ object AlignedMapRunner extends Launcher {
   launch()
 }
 
-class AlignedMapTest extends AggregateProgram with SensorDefinitions with GradientAlgorithms with BlockG {
+class AlignedMapTest extends ScafiStandardAggregateProgram with SensorDefinitions with GradientAlgorithms with BlockG {
   override def main() = test1
 
   def test1 = {

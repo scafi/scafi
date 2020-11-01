@@ -21,11 +21,11 @@ trait DevViewActor extends Actor {
   protected var devComponent, componentSpot: JComponent = _
   protected var lId, lExport: JLabel = _
 
-  val programs: Map[String, () => I.AggregateProgram] = I.getClass
+  val programs: Map[String, () => I.ScafiStandardAggregateProgram] = I.getClass
     .getDeclaredFields
     .map(f => { f.setAccessible(true); f.getName -> f.get(I) })
-    .filter(f => f._2.isInstanceOf[() => I.AggregateProgram])
-    .map(f => f._1 -> f._2.asInstanceOf[() => I.AggregateProgram])
+    .filter(f => f._2.isInstanceOf[() => I.ScafiStandardAggregateProgram])
+    .map(f => f._1 -> f._2.asInstanceOf[() => I.ScafiStandardAggregateProgram])
     .toMap
 
   dev ! MsgAddObserver(self)

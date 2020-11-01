@@ -36,26 +36,26 @@ object ScafiFacade {
   @JSExport def slotFunCall(index: Int, funId: String) = FunCall[Any](index,funId)
 
   @JSExport
-  def simulator(program: AggregateProgram): NETWORK = {
+  def simulator(program: ScafiStandardAggregateProgram): NETWORK = {
     val nodes = ArrayBuffer((0 to 100):_*).map(_.toString)
     val net = simulatorFactory.basicSimulator(nodes)
     net
   }
 
   @JSExport
-  def round(program: AggregateProgram, context: CONTEXT): EXPORT =
+  def round(program: ScafiStandardAggregateProgram, context: CONTEXT): EXPORT =
     program.round(context)
 
 
   @JSExport
-  def round(program: AggregateProgram, context: CONTEXT, expr: js.Function0[Any]): EXPORT = {
+  def round(program: ScafiStandardAggregateProgram, context: CONTEXT, expr: js.Function0[Any]): EXPORT = {
     val scalaExpr: () => Any = expr
     program.round(context, scalaExpr())
   }
 
   @JSExportTopLevel("GradientProgram")
   // NOTE: trying to extend a non-JS class exported from Scala.js is undefined behaviour
-  class GradientProgram extends AggregateProgram with StandardSensors {
+  class GradientProgram extends ScafiStandardAggregateProgram with StandardSensors {
     override def main(): Any = rep(Double.PositiveInfinity){ case g =>
       mux(sense[Boolean]("source")){ 0.0 }{
         minHoodPlus { nbr(g) + nbrRange() }
@@ -71,7 +71,7 @@ object ScafiFacade {
   */
 @JSExportTopLevel("ScafiDsl")
 @JSExportAll
-class ScafiDsl(val p: AggregateProgram = new AggregateProgram {
+class ScafiDsl(val p: ScafiStandardAggregateProgram = new ScafiStandardAggregateProgram {
   override def main(): Any =
     throw new IllegalStateException("This method should not be called as the aggregate program only works as API provider.")
 }) extends (CONTEXT => EXPORT) {
@@ -129,9 +129,9 @@ class ScafiDsl(val p: AggregateProgram = new AggregateProgram {
   def nbrvar[A](name: String): A = p.nbrvar(name)
 }
 
-class FromJavaScriptFunctionToAggregateProgram(jsf: js.Function1[AggregateProgram,Any]) extends AggregateProgram {
+class FromJavaScriptFunctionToAggregateProgram(jsf: js.Function1[ScafiStandardAggregateProgram,Any]) extends ScafiStandardAggregateProgram {
   override def main(): Any = {
-    val f: (AggregateProgram) => Any = jsf
+    val f: (ScafiStandardAggregateProgram) => Any = jsf
     f(this)
   }
 }

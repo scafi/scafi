@@ -9,7 +9,7 @@ trait StdLib_BlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
   trait BlocksWithGC extends BlockG with BlockC {
-    self: FieldCalculusSyntax with StandardSensors =>
+    self: ScafiStandardLanguage with StandardSensors =>
 
     def summarize(sink: Boolean, acc: (Double, Double) => Double, local: Double, Null: Double): Double =
       broadcast(sink, C(distanceTo(sink), acc, local, Null))
