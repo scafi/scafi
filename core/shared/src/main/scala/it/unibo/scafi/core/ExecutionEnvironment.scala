@@ -112,6 +112,8 @@ trait ExecutionEnvironment extends Core with Language {
 
     def neighbourVal[A]: A
 
+    def neighbourValOrExpr[A](expr: => A): A
+
     def foldedEval[A](expr: => A)(id: ID): Option[A]
 
     def localSense[A](name: CNAME): A
@@ -163,6 +165,12 @@ trait ExecutionEnvironment extends Core with Language {
     override def neighbourVal[A]: A = context
       .readSlot[A](neighbour.get, status.path)
       .getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+
+    def neighbourValOrExpr[A](expr: => A): A =
+      neighbour match {
+        case Some(nbr) if nbr != self => neighbourVal
+        case _  => expr
+      }
 
     override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
       handling(classOf[OutOfDomainException]) by (_ => None) apply {
@@ -305,10 +313,16 @@ trait ExecutionEnvironment extends Core with Language {
     override def toString: String = s"NbrSensorUnknownException: $selfId , $name, $nbr"
   }
 
+  /**
+   * Defines the capability of reading local sensors
+   */
   trait LocalSensorReader {
     def readLocalSensor[A](name: CNAME): A
   }
 
+  /**
+   * Defines the capability of reading neighbourhood sensors
+   */
   trait NeighbourhoodSensorReader {
     /**
      * Type for the reading of a neighbourhood sensor.

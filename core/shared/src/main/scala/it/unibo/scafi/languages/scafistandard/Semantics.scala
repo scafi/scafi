@@ -26,10 +26,7 @@ trait Semantics extends FieldCalculusLanguage with Language with BaseSemantics {
 
     override def nbr[A](expr: => A): A =
       vm.nest(Nbr[A](vm.index))(write = vm.onlyWhenFoldingOnSelf) {
-        vm.neighbour match {
-          case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
-          case _  => expr
-        }
+        vm.neighbourValOrExpr(expr)
       }
 
     override def nbrvar[A](name: CNAME): A = vm.neighbourSense(name)

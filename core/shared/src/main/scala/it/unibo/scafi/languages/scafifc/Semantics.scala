@@ -20,10 +20,7 @@ trait Semantics extends FieldCalculusLanguage with Language with BaseSemantics {
     override def nbrField[A](expr: => A): Field[A] =
       neighbouringField[A](
         vm.nest(NbrFieldLocal[A](vm.index))(write = vm.onlyWhenFoldingOnSelf) {
-          vm.neighbour match {
-            case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
-            case _  => expr
-          }
+          vm.neighbourValOrExpr(expr)
         }
       )
 
