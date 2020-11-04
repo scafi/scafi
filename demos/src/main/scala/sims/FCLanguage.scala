@@ -5,23 +5,23 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ExplicitFields}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ScafiFCLanguage}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
-object ExplicitFieldsRun extends Launcher {
-  Settings.Sim_ProgramClass = "sims.GradientWithExplicitFields"
+object FCRun extends Launcher {
+  Settings.Sim_ProgramClass = "sims.FCGradient"
   Settings.ShowConfigPanel = false
   Settings.Sim_NbrRadius = 0.15
   Settings.Sim_NumNodes = 100
   launch()
 }
 
-class GradientWithExplicitFields extends ScafiStandardAggregateProgram with SensorDefinitions with ExplicitFields {
+class FCGradient extends AggregateProgram with ScafiFCLanguage with SensorDefinitions {
   override def main() = gradient(sense1)
 
   def gradient(src: Boolean) = rep(Double.PositiveInfinity)(d => {
     mux(src){ 0.0 }{
-      (fnbr(d) + fsns(nbrRange)).minHoodPlus
+      (nbrField(d) + nbrRange).minHoodPlus
     }
   })
 }

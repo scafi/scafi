@@ -55,7 +55,7 @@ object ScafiTestUtils {
 
   def runProgram(exp: => Any, ntimes: Int = 500)
                 (net: Network with SimulatorOps)
-                (implicit node: ScafiStandardAggregateInterpreter): (Network, Seq[ID]) ={
+                (implicit node: AggregateInterpreter): (Network, Seq[ID]) ={
     var endNet: Network = null
     val executionSeq =
       net.execMany(
@@ -69,7 +69,7 @@ object ScafiTestUtils {
     (endNet, executionSeq)
   }
 
-  def execProgramFor(ap: ScafiStandardAggregateProgram, ntimes: Int = 500)
+  def execProgramFor(ap: AggregateProgram, ntimes: Int = 500)
                     (net: Network with SimulatorOps)
                     (when: ID => Boolean, devs: Vector[ID] = net.ids.toVector, rnd: Random = new Random(0)): (Network, Seq[ID]) = {
     var k = ntimes
@@ -83,12 +83,12 @@ object ScafiTestUtils {
     (net, executionSeq)
   }
 
-  def exec(ap: ScafiStandardAggregateProgram, ntimes: Int = 500)
+  def exec(ap: AggregateProgram, ntimes: Int = 500)
           (net: Network with SimulatorOps): (Network, Seq[ID]) = {
     runProgram(ap.main(), ntimes)(net)(ap)
   }
 
-  def runProgramInOrder(firingSeq: Seq[ID], ap: ScafiStandardAggregateProgram)
+  def runProgramInOrder(firingSeq: Seq[ID], ap: AggregateProgram)
                        (net: Network with SimulatorOps): Network ={
     net.execInOrderAndReturn(ap, ap.main(), firingSeq)
   }
@@ -96,7 +96,7 @@ object ScafiTestUtils {
   def runProgramInOrder(firingSeq: Seq[ID])
                        (exp: => Any)
                        (net: Network with SimulatorOps)
-                       (implicit node: ScafiStandardAggregateInterpreter): Network ={
+                       (implicit node: AggregateInterpreter): Network ={
     net.execInOrderAndReturn(node, exp, firingSeq)
   }
 

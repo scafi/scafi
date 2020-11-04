@@ -317,5 +317,11 @@ trait ExecutionEnvironment extends Core with Language {
     type NbrSensorRead[A]
 
     def readNbrSensor[A](name: CNAME): NbrSensorRead[A]
+
+    implicit def withOps[A](base: NbrSensorRead[A]): NbrSensorReadWithOps[A]
+
+    trait NbrSensorReadWithOps[A] {
+      def map[B](mappingFunction: A => B): NbrSensorRead[B]
+    }
   }
 }

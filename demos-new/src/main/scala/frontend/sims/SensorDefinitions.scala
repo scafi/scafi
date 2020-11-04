@@ -7,12 +7,12 @@ package frontend.sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 
-trait SensorDefinitions extends StandardSensors { self: ScafiStandardAggregateProgram =>
+trait SensorDefinitions extends StandardSensors { self: LocalSensorReader with NeighbourhoodSensorReader =>
   import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName._
-  def sense1 = sense[Boolean](sensor1)
-  def sense2 = sense[Boolean](sensor2)
-  def sense3 = sense[Boolean](sensor3)
-  def sense4 = sense[Boolean](sensor4)
+  def sense1 = readLocalSensor[Boolean](sensor1)
+  def sense2 = readLocalSensor[Boolean](sensor2)
+  def sense3 = readLocalSensor[Boolean](sensor3)
+  def sense4 = readLocalSensor[Boolean](sensor4)
   override def nbrRange() = super.nbrRange()
 }
 

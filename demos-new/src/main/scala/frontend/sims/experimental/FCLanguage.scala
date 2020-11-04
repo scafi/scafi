@@ -6,7 +6,7 @@
 package frontend.sims.experimental
 
 import frontend.sims.SensorDefinitions
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ExplicitFields}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ScafiFCLanguage}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiProgramBuilder
@@ -21,12 +21,12 @@ object ExplicitFieldsRun extends App {
   ).launch()
 }
 
-class GradientWithExplicitFields extends ScafiStandardAggregateProgram with SensorDefinitions with ExplicitFields {
+class GradientWithExplicitFields extends AggregateProgram with SensorDefinitions with ScafiFCLanguage {
   override def main() = gradient(sense1)
 
   def gradient(src: Boolean) = rep(Double.PositiveInfinity)(d => {
     mux(src){ 0.0 }{
-      (fnbr(d) + fsns(nbrRange)).minHoodPlus
+      (nbrField(d) + nbrRange).minHoodPlus
     }
   })
 }

@@ -11,10 +11,15 @@ trait FieldCalculusLanguage {
 }
 
 trait FieldCalculusLanguages
-  extends scafistandard.Semantics with scafistandard.RichLanguage {
+  extends scafistandard.Semantics with scafistandard.RichLanguage
+  with scafifc.Semantics {
   self: ExecutionEnvironment =>
 
   trait ScafiStandardLanguage extends ScafiStandard_ConstructSemantics with ScafiStandard_Builtins {
+    self: ExecutionTemplate =>
+  }
+
+  trait ScafiFCLanguage extends ScafiFC_ConstructSemantics with ScafiBase_Builtins {
     self: ExecutionTemplate =>
   }
 }

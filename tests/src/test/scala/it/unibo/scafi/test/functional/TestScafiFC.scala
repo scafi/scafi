@@ -8,13 +8,14 @@ package it.unibo.scafi.test.functional
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
-import scala.collection.{Map=>M}
 
-class TestExplicitFields extends FlatSpec with Matchers {
+import scala.collection.{Map => M}
+
+class TestScafiFC extends FlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 
-  val ExplicitFields = new ItWord
+  val ScafiFCLanguage = new ItWord
   val stepx: Double = 1.0
   val stepy: Double = 1.5
   val SRC = "source"
@@ -26,18 +27,18 @@ class TestExplicitFields extends FlatSpec with Matchers {
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.6))
   }
 
-  private[this] trait TestLib { self: ScafiStandardAggregateProgram with ExplicitFields with StandardSensors =>
+  private[this] trait TestLib { self: AggregateProgram with ScafiFCLanguage with StandardSensors =>
     import scala.math.Numeric._
 
     def gradient(source: Field[Boolean]): Field[Double] =
       rep(Double.MaxValue){ // automatic local-to-field conversion
         d => mux(source) { 0.0 } {
-          (fnbr(d) + fsns(nbrRange)).minHoodPlus
+          (nbrField(d) + nbrRange).minHoodPlus
         }
       }
   }
 
-  private[this] trait TestProgram extends ScafiStandardAggregateProgram with ExplicitFields with StandardSensors with TestLib
+  private[this] trait TestProgram extends AggregateProgram with ScafiFCLanguage with StandardSensors with TestLib
 
   def SetupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(SRC, false)
@@ -47,7 +48,7 @@ class TestExplicitFields extends FlatSpec with Matchers {
     n
   }
 
-  ExplicitFields should "support construction of gradients" in new SimulationContextFixture {
+  ScafiFCLanguage should "support construction of gradients" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       override def main(): Double = gradient(sense[Boolean](SRC)) + 1
@@ -61,13 +62,13 @@ class TestExplicitFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-  ExplicitFields should "allow going from smaller to larger domains" in new SimulationContextFixture {
+  ScafiFCLanguage should "allow going from smaller to larger domains" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       override def main() = branch(sense[Boolean](FLAG)){
-        fnbr(1.0).withoutSelf
+        nbrField(1.0).withoutSelf
       }{
-        fnbr(-1.0)
+        nbrField(-1.0)
       }.fold(0.0)(_ + _)
     }, ntimes = someRounds)(net)
 
@@ -79,22 +80,22 @@ class TestExplicitFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-  ExplicitFields should "deal with domain mismatches" in new SimulationContextFixture {
+  ScafiFCLanguage should "deal with domain mismatches" in new SimulationContextFixture {
     an [Exception] should be thrownBy exec(new TestProgram {
       override def main(): Double = {
-        val f1 = branch(sense[Boolean](FLAG)){ fnbr(1.0).withoutSelf }{ fnbr(-1.0) }
-        val f2 = branch(sense[Boolean](SRC)){ fnbr(10.0) }{ fnbr(0.0) }
+        val f1 = branch(sense[Boolean](FLAG)){ nbrField(1.0).withoutSelf }{ nbrField(-1.0) }
+        val f2 = branch(sense[Boolean](SRC)){ nbrField(10.0) }{ nbrField(0.0) }
         (f1.map2(f2)(_ + _)).fold(0.0)(_ + _)
       }
     }, ntimes = someRounds)(net)
   }
 
-  ExplicitFields should "support defaults to deal with domain mismatches" in new SimulationContextFixture {
+  ScafiFCLanguage should "support defaults to deal with domain mismatches" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       override def main(): Map[ID,String] = {
-        val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
-        val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
+        val f1: Field[String] = branch(sense[Boolean](FLAG)){ nbrField("a").withoutSelf }{ nbrField("b") }
+        val f2: Field[String] = branch(!sense[Boolean](SRC)){ nbrField("c") }{ nbrField("d") }
         (f1.map2d(f2)("x")(_ + _)).toMap
       }
     }, ntimes = someRounds)(net)
@@ -107,12 +108,12 @@ class TestExplicitFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-  ExplicitFields should "support defaults on both sides to deal with domain mismatches" in new SimulationContextFixture {
+  ScafiFCLanguage should "support defaults on both sides to deal with domain mismatches" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       override def main(): Map[ID,String] = {
-        val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
-        val f2: Field[String] = branch(!sense[Boolean](SRC)){ fnbr("c") }{ fnbr("d") }
+        val f1: Field[String] = branch(sense[Boolean](FLAG)){ nbrField("a").withoutSelf }{ nbrField("b") }
+        val f2: Field[String] = branch(!sense[Boolean](SRC)){ nbrField("c") }{ nbrField("d") }
         (f1.map2u(f2)("x","w")(_ + _)).toMap
       }
     }, ntimes = someRounds)(net)
@@ -125,15 +126,15 @@ class TestExplicitFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-  ExplicitFields should "support restriction by going from larger to smaller domains" in new SimulationContextFixture {
+  ScafiFCLanguage should "support restriction by going from larger to smaller domains" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       override def main(): Any = {
-        val phi: Field[String] = fnbr(if(sense[Boolean](FLAG)) "a" else "b")
+        val phi: Field[String] = nbrField(if(sense[Boolean](FLAG)) "a" else "b")
         val f1 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted }
         val f2 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted.toUpperCase }
 
-        val numphi: Field[Int] = fnbr(if(sense[Boolean](FLAG)) 1 else 2)
+        val numphi: Field[Int] = nbrField(if(sense[Boolean](FLAG)) 1 else 2)
         val phi2: Field[String] = branch(mid<=3){ numphi+0 }{ numphi+5 }.map(_.toString)
 
         // 1+0  |  1+0    1+0
@@ -156,3 +157,4 @@ class TestExplicitFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 }
+

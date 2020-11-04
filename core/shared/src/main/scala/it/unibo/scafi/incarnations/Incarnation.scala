@@ -77,7 +77,7 @@ trait Incarnation extends Core
     /**
      * @return the duration since the last round of execution
      */
-    def deltaTime(): FiniteDuration]= readLocalSensor[FiniteDuration](LSNS_DELTA_TIME)
+    def deltaTime(): FiniteDuration= readLocalSensor[FiniteDuration](LSNS_DELTA_TIME)
 
     /**
      * @return a random double from 0 to 1
