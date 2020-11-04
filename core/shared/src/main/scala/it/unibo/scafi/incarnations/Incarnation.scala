@@ -13,6 +13,7 @@ import it.unibo.scafi.space.BasicSpatialAbstraction
 import it.unibo.scafi.time.TimeAbstraction
 
 import scala.concurrent.duration.FiniteDuration
+import scala.language.higherKinds
 import scala.util.Random
 
 trait Incarnation extends Core
@@ -51,8 +52,46 @@ trait Incarnation extends Core
     with StandardTemporalSensorNames
     with StandardSpatialSensorNames
 
-  trait StandardSensors extends StandardSensorNames {
-    self: ScafiStandard_Constructs =>
+  trait StandardSensors extends StandardLocalSensors with StandardNeighbourhoodSensors {
+    self: LocalSensorReader with NeighbourhoodSensorReader =>
+  }
+
+  trait StandardLocalSensors extends StandardSensorNames {
+    self: LocalSensorReader =>
+
+    /**
+     * @return the current position in space
+     */
+    def currentPosition(): P = readLocalSensor[P](LSNS_POSITION)
+
+    /**
+     * @return the current local time
+     */
+    def currentTime(): Time = readLocalSensor[Time](LSNS_TIME)
+
+    /**
+     * @return the current time in milliseconds since epoch
+     */
+    def timestamp(): Long = readLocalSensor[Long](LSNS_TIMESTAMP)
+
+    /**
+     * @return the duration since the last round of execution
+     */
+    def deltaTime(): FiniteDuration]= readLocalSensor[FiniteDuration](LSNS_DELTA_TIME)
+
+    /**
+     * @return a random double from 0 to 1
+     */
+    def randomGenerator(): Random = readLocalSensor[Random](LSNS_RANDOM)
+
+    /**
+     * @return a random double from 0 to 1
+     */
+    def nextRandom(): Double = randomGenerator().nextDouble()
+  }
+
+  trait StandardNeighbourhoodSensors extends StandardSensorNames {
+    self: NeighbourhoodSensorReader =>
 
     /**
       * Time forward view: expected time from the device computation to neighbor's next computation
@@ -70,7 +109,7 @@ trait Incarnation extends Core
       *                          ================deltatime==============
       *              $$$$delay$$$$                          $$$delay$$$$
       */
-    def nbrDelay(): FiniteDuration = nbrvar[FiniteDuration](NBR_DELAY)
+    def nbrDelay(): NbrSensorRead[FiniteDuration] = readNbrSensor[FiniteDuration](NBR_DELAY)
 
     /**
       * Time backward view: how long ago information from neighbors was received.
@@ -78,47 +117,17 @@ trait Incarnation extends Core
       * Dropped packets temporarily increase nbrLag.
       * For the current device, it is like deltaTime().
       */
-    def nbrLag(): FiniteDuration = nbrvar[FiniteDuration](NBR_LAG)
+    def nbrLag(): NbrSensorRead[FiniteDuration] = readNbrSensor[FiniteDuration](NBR_LAG)
 
     /**
       * Get the distance between the current device and its neighbors.
       */
-    def nbrRange(): D = nbrvar[D](NBR_RANGE)
+    def nbrRange(): NbrSensorRead[D] = readNbrSensor[D](NBR_RANGE)
 
     /**
       * Get the direction vectors towards neighbours.
       * @return a point of type P, assuming the currently executing device is the origin
       */
-    def nbrVector(): P = nbrvar[P](NBR_VECTOR)
-
-    /**
-      * @return the current position in space
-      */
-    def currentPosition(): P = sense[P](LSNS_POSITION)
-
-    /**
-      * @return the current local time
-      */
-    def currentTime(): Time = sense[Time](LSNS_TIME)
-
-    /**
-      * @return the current time in milliseconds since epoch
-      */
-    def timestamp(): Long = sense[Long](LSNS_TIMESTAMP)
-
-    /**
-      * @return the duration since the last round of execution
-      */
-    def deltaTime(): FiniteDuration = sense[FiniteDuration](LSNS_DELTA_TIME)
-
-    /**
-      * @return a random double from 0 to 1
-      */
-    def randomGenerator(): Random = sense[Random](LSNS_RANDOM)
-
-    /**
-      * @return a random double from 0 to 1
-      */
-    def nextRandom(): Double = randomGenerator().nextDouble()
+    def nbrVector(): NbrSensorRead[P] = readNbrSensor[P](NBR_VECTOR)
   }
 }

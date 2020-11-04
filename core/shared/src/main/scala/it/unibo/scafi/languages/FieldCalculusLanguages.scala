@@ -7,7 +7,6 @@ trait FieldCalculusLanguage {
 
   trait LanguageSemantics {
     self: ExecutionTemplate =>
-    def vm: RoundVM
   }
 }
 

@@ -30,15 +30,11 @@ trait ExecutionEnvironment extends Core with Language {
 
   implicit val factory: Factory
 
-  sealed trait Slot {
+  trait Slot {
     def ->(v: Any): (Path,Any) = (factory.path(this), v)
     def /(s: Slot): Path = factory.path(this, s)
   }
-  final case class Nbr[A](index: Int) extends Slot
-  final case class Rep[A](index: Int) extends Slot
   final case class FunCall[A](index: Int, funId: Any) extends Slot
-  final case class FoldHood[A](index: Int) extends Slot
-  final case class Scope[K](key: K) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
@@ -84,18 +80,18 @@ trait ExecutionEnvironment extends Core with Language {
     * It implements the whole operational semantics.
     */
   trait ExecutionTemplate extends (CONTEXT => EXPORT) with ProgramSchema {
-
-    var vm: RoundVM = _
+    def vm: RoundVM = _vm
+    private var _vm: RoundVM = _
 
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-      vm = new RoundVMImpl(c)
+      _vm = new RoundVMImpl(c)
       val result = e
-      vm.registerRoot(result)
-      vm.export
+      _vm.registerRoot(result)
+      _vm.export
     }
   }
 
@@ -309,4 +305,17 @@ trait ExecutionEnvironment extends Core with Language {
     override def toString: String = s"NbrSensorUnknownException: $selfId , $name, $nbr"
   }
 
+  trait LocalSensorReader {
+    def readLocalSensor[A](name: CNAME): A
+  }
+
+  trait NeighbourhoodSensorReader {
+    /**
+     * Type for the reading of a neighbourhood sensor.
+     * @tparam A The type of the value read at a single point
+     */
+    type NbrSensorRead[A]
+
+    def readNbrSensor[A](name: CNAME): NbrSensorRead[A]
+  }
 }
