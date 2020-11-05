@@ -53,7 +53,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def exec(ap: CONTEXT=>EXPORT): (ID,EXPORT)
 
-    def valueMap[T](): Map[ID, T] = this.exports().mapValues(_.get.root().asInstanceOf[T])
+    def valueMap[T](): Map[ID, T] = this.exports().mapValues(_.get.root().asInstanceOf[T]).toMap
   }
 
   case class Seeds(configSeed: Long = System.currentTimeMillis(),
