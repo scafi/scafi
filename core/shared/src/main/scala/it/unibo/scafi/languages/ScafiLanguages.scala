@@ -2,7 +2,7 @@ package it.unibo.scafi.languages
 
 import it.unibo.scafi.core.ExecutionEnvironment
 
-trait FieldCalculusLanguage {
+trait ScafiLanguage {
   self: ExecutionEnvironment =>
 
   trait LanguageSemantics {
@@ -10,16 +10,20 @@ trait FieldCalculusLanguage {
   }
 }
 
-trait FieldCalculusLanguages
+trait ScafiLanguages
   extends scafistandard.Semantics with scafistandard.RichLanguage
   with scafifc.Semantics {
   self: ExecutionEnvironment =>
 
-  trait ScafiStandardLanguage extends ScafiStandard_ConstructSemantics with ScafiStandard_Builtins {
+  trait ScafiStandardLanguage extends ScafiBaseLanguage with ScafiStandard_ConstructSemantics with ScafiStandard_Builtins {
     self: ExecutionTemplate =>
   }
 
-  trait ScafiFCLanguage extends ScafiFC_ConstructSemantics with ScafiBase_Builtins {
+  trait ScafiFCLanguage extends ScafiBaseLanguage with  ScafiFC_ConstructSemantics {
+    self: ExecutionTemplate =>
+  }
+
+  trait ScafiBaseLanguage extends ScafiBase_ConstructSemantics with ScafiBase_Builtins {
     self: ExecutionTemplate =>
   }
 }

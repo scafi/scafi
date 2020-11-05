@@ -6,7 +6,7 @@
 package it.unibo.scafi.incarnations
 
 import it.unibo.scafi.core.{Core, Engine}
-import it.unibo.scafi.languages.FieldCalculusLanguages
+import it.unibo.scafi.languages.ScafiLanguages
 import it.unibo.scafi.languages.scafistandard.RichLanguage
 import it.unibo.scafi.platform.SpaceTimeAwarePlatform
 import it.unibo.scafi.space.BasicSpatialAbstraction
@@ -22,7 +22,7 @@ trait Incarnation extends Core
   with SpaceTimeAwarePlatform
   with BasicSpatialAbstraction
   with TimeAbstraction
-  with FieldCalculusLanguages {
+  with ScafiLanguages {
 
   trait AggregateComputation[T] extends ExecutionTemplate with Serializable {
     self: LanguageSemantics =>

@@ -1,9 +1,9 @@
 package it.unibo.scafi.languages.scafibase
 
 import it.unibo.scafi.core.ExecutionEnvironment
-import it.unibo.scafi.languages.FieldCalculusLanguage
+import it.unibo.scafi.languages.ScafiLanguage
 
-trait Semantics extends FieldCalculusLanguage with Language {
+trait Semantics extends ScafiLanguage with Language {
   self: ExecutionEnvironment =>
 
   final case class Rep[A](index: Int) extends Slot

@@ -1,12 +1,12 @@
 package it.unibo.scafi.languages.scafifc
 
 import it.unibo.scafi.core.ExecutionEnvironment
-import it.unibo.scafi.languages.FieldCalculusLanguage
+import it.unibo.scafi.languages.ScafiLanguage
 import it.unibo.scafi.languages.scafibase.{Semantics => BaseSemantics}
 
 import scala.language.implicitConversions
 
-trait Semantics extends FieldCalculusLanguage with Language with BaseSemantics {
+trait Semantics extends ScafiLanguage with Language with BaseSemantics {
   self: ExecutionEnvironment =>
 
   final case class NbrField[A](index: Int) extends Slot
