@@ -9,7 +9,7 @@ import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.languages.TypesInfo.Bounded
 import sims.SensorDefinitions
 
-class MobilityLib extends BuildingBlocks { self: ScafiStandardAggregateProgram with SensorDefinitions =>
+class MobilityLib extends BuildingBlocks { self: ScafiStandardAggregateProgram with ScafiStandardLanguageLibraries with SensorDefinitions =>
   /*****************************************/
   /* FORTE15: Code Mobility Meets Self-Org */
   /*****************************************/

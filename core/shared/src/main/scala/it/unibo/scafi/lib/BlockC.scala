@@ -5,8 +5,11 @@
 
 package it.unibo.scafi.lib
 
+import it.unibo.scafi.languages.ScafiLanguages
+
 trait StdLib_BlockC {
-  selfcomp: StandardLibrary.Subcomponent =>
+  //with FieldCalculusLanguages not necessary but fixes wrong error highlighting from IntelliJ
+  selfcomp: StandardLibrary.Subcomponent with ScafiLanguages =>
 
   // scalastyle:off method.name
 
@@ -15,7 +18,12 @@ trait StdLib_BlockC {
   implicit val idBounded: Bounded[ID]
 
   trait BlockC {
-    self: ScafiStandardLanguage with StandardSensors =>
+    self: ScafiBaseLanguage with StandardSensors with BlockC_LanguageDependant =>
+    /* HOW
+     * implicitly given language-dependant constructs
+     * Multiple standard library classes
+     * When using e.g. BlockC: with ScafiStandardLibraries with BlockC
+     */
 
     /**
       * Collects values down a potential field.
@@ -29,9 +37,7 @@ trait StdLib_BlockC {
       */
     def C[P: Bounded, V](potential: P, acc: (V, V) => V, local: V, Null: V): V =
       rep(local) { v =>
-        acc(local, foldhood(Null)(acc) {
-          mux(nbr(findParent(potential)) == mid()) { nbr(v) } { nbr(Null) }
-        })
+        acc(local, collectFromChildren(findParent(potential), acc, v, Null))
       }
 
     /**
@@ -39,7 +45,7 @@ trait StdLib_BlockC {
       * the neighbour with the smallest value of the potential field.
       */
     def findParent[V: Bounded](potential: V): ID = {
-      val (minPotential,devIdWithMinPotential) = minHood { nbr{ (potential, mid) } }
+      val (minPotential,devIdWithMinPotential) = nbrWithMinPotential(potential)
       mux(smaller(minPotential, potential)) {
         devIdWithMinPotential
       } {
@@ -52,7 +58,7 @@ trait StdLib_BlockC {
       *         or None if no such a parent is there (so that the device is parent of itself).
       */
     def findParentOpt[V: Bounded](potential: V): Option[ID] = {
-      val minPotential = minHood { nbr{ (potential, mid) } }
+      val minPotential = nbrWithMinPotential(potential)
       Some(minPotential).filter(p => smaller(p._1, potential)).map(_._2)
     }
 
@@ -78,7 +84,7 @@ trait StdLib_BlockC {
       * @param merge function specifying how to merge entries with the same key
       * @return the collect field of the merged maps
       */
-    def collectMaps[K,V](downTo: Double, local: Map[K,V], merge: (K,V,V)=>V = (k: K, v1: V, v2: V) => v1) =
+    def collectMaps[K,V](downTo: Double, local: Map[K,V], merge: (K,V,V)=>V = (k: K, v1: V, v2: V) => v1): Map[K, V] =
       C[Double, Map[K,V]](downTo, (m1,m2) => {
         (m1 ++ m2) ++ (m1.keySet.intersect(m2.keySet)).map(k => k -> merge(k,m1(k),m2(k)))
       }, local, Map.empty)
@@ -105,4 +111,35 @@ trait StdLib_BlockC {
       implicitly[Bounded[V]].compare(a, b) < 0
   }
 
+  private[lib] trait BlockC_LanguageDependant {
+    private[StdLib_BlockC] def nbrWithMinPotential[V: Bounded](potential: V): (V, ID)
+
+    private[StdLib_BlockC] def collectFromChildren[V](findParent: => ID, acc: (V, V) => V, v: V, Null: V): V
+  }
+
+  private[lib] trait BlockC_ScafiStandard extends BlockC_LanguageDependant {
+    self: ScafiStandardLanguage =>
+
+    private[StdLib_BlockC] override def nbrWithMinPotential[V: Bounded](potential: V): (V, ID) =
+      minHood { nbr{ (potential, mid) } }
+
+    private[StdLib_BlockC] override def collectFromChildren[V](findParent: => ID, acc: (V, V) => V, v: V, Null: V): V =
+      foldhood(Null)(acc) {
+        mux(nbr(findParent) == mid()) { nbr(v) } { nbr(Null) }
+      }
+  }
+
+  private[lib] trait BlockC_ScafiFC extends BlockC_LanguageDependant {
+    self: ScafiFCLanguage =>
+
+    private[StdLib_BlockC] override def nbrWithMinPotential[V: Bounded](potential: V): (V, ID) =
+      nbrField[(V, ID)]{(potential, mid)}.minHood
+
+    private[StdLib_BlockC] override def collectFromChildren[V](findParent: => ID, acc: (V, V) => V, v: V, Null: V): V =
+      nbrField(findParent).conditionalMap(_ == mid()) {
+        nbrField(v)
+      } {
+        nbrField(Null)
+      }.fold(Null)(acc)
+  }
 }

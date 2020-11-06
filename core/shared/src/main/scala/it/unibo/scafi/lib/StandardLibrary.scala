@@ -20,7 +20,22 @@ trait StandardLibrary extends
     with StdLib_GenericUtils
     with StdLib_Processes
     with StdLib_NewProcesses
-    with StdLib_DynamicCode { self: Incarnation => }
+    with StdLib_DynamicCode { self: Incarnation =>
+
+  trait ScafiStandardLanguageLibraries extends
+         BlockC_ScafiStandard
+    with BlocksWithGC_ScafiStandard
+    with BuildingBlocks_ScafiStandard {
+    self: ScafiStandardLanguage =>
+  }
+
+  trait ScafiFCLanguageLibraries extends
+         BlockC_ScafiFC
+    with BlocksWithGC_ScafiFC
+    with BuildingBlocks_ScafiFC {
+    self: ScafiFCLanguage =>
+  }
+}
 
 object StandardLibrary {
   type Subcomponent = StandardLibrary with Incarnation

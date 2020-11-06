@@ -19,7 +19,7 @@ trait StdLib_Gradients {
   implicit val idBounded: Bounded[ID]
 
   trait Gradients extends GenericUtils with StateManagement {
-    self: ScafiStandardLanguage with StandardSensors with BlockG =>
+    self: ScafiStandardLanguage with StandardSensors with FieldUtils =>
 
     case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)

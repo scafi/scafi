@@ -9,7 +9,7 @@ trait StdLib_GenericUtils {
   self: StandardLibrary.Subcomponent =>
 
   trait GenericUtils {
-    self: ScafiStandardLanguage with StandardSensors =>
+    self: ScafiBaseLanguage with StandardSensors =>
 
     def meanCounter(value: Double, frequency: Long): Double = {
       val time = timestamp()

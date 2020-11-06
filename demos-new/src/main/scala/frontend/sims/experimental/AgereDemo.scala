@@ -6,7 +6,7 @@
 package frontend.sims.experimental
 
 import frontend.sims.SensorDefinitions
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BuildingBlocks, TimeUtils}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -24,7 +24,7 @@ object AgereDemoMain extends App {
   ).launch()
 }
 @Demo
-class AgereDemo extends ScafiStandardAggregateProgram with BuildingBlocks with SensorDefinitions with TimeUtils {
+class AgereDemo extends ScafiStandardAggregateProgram with ScafiStandardLanguageLibraries with BuildingBlocks with SensorDefinitions with TimeUtils {
   /* Parameters */
   val t_fail = (15.seconds)     // Time w/o failures
   val t_act = (5.seconds)     // Time for actuation

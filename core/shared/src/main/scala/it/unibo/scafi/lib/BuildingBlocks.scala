@@ -10,7 +10,22 @@ trait StdLib_BuildingBlocks {
 
   trait BuildingBlocks extends Gradients with FieldUtils
     with BlockG with BlockC with BlockS with BlockT with TimeUtils with BlocksWithGC with StateManagement {
-    self: ScafiStandardLanguage with StandardSensors =>
+    self: ScafiStandardLanguage with StandardSensors with BuildingBlocks_LanguageDependant =>
   }
 
+  private[lib] trait BuildingBlocks_LanguageDependant extends
+         BlockC_LanguageDependant
+    with BlocksWithGC_LanguageDependant
+
+  private[lib] trait BuildingBlocks_ScafiStandard extends BuildingBlocks_LanguageDependant
+    with BlockC_ScafiStandard
+    with BlocksWithGC_ScafiStandard {
+    self: ScafiStandardLanguage =>
+  }
+
+  private[lib] trait BuildingBlocks_ScafiFC extends BuildingBlocks_LanguageDependant
+    with BlockC_ScafiFC
+    with BlocksWithGC_ScafiFC {
+    self: ScafiFCLanguage =>
+  }
 }
