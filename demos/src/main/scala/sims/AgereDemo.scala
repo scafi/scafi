@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BuildingBlocks, TimeUtils}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.concurrent.duration._

@@ -9,8 +9,7 @@ trait StdLib_BuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
   trait BuildingBlocks extends Gradients with FieldUtils
-    with BlockG with BlockC with BlockS with BlockT with TimeUtils with BlocksWithGC with StateManagement {
+    with BlockG with BlockC_ScafiStandard with BlockS with BlockT with TimeUtils with BlocksWithGC with StateManagement {
     self: ScafiStandardLanguage with StandardSensors =>
   }
-
 }

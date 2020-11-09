@@ -21,7 +21,8 @@ class TestBlockT extends FlatSpec {
     val net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))
   }
 
-  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BuildingBlocks
+  private[this] trait TestProgram extends AggregateProgram with ScafiStandardLanguage
+    with StandardSensors with BuildingBlocks
 
   def unitaryDecay: Int => Int = _ - 1
   def halving: Int => Int = _ / 2

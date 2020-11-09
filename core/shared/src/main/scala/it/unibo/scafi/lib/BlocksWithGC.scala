@@ -8,7 +8,7 @@ package it.unibo.scafi.lib
 trait StdLib_BlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
-  trait BlocksWithGC extends BlockG with BlockC {
+  trait BlocksWithGC extends BlockG with BlockC_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
 
     def summarize(sink: Boolean, acc: (Double, Double) => Double, local: Double, Null: Double): Double =

@@ -5,7 +5,8 @@
 
 package frontend.sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockC, BlockG, BlockS, BlocksWithGC, FieldUtils, ID}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo

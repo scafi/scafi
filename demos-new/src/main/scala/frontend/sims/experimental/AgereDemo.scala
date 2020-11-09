@@ -6,7 +6,7 @@
 package frontend.sims.experimental
 
 import frontend.sims.SensorDefinitions
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BuildingBlocks, TimeUtils}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
