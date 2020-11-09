@@ -9,6 +9,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.languages.TypesInfo
 import it.unibo.scafi.lib.LibExtTypeClasses
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}

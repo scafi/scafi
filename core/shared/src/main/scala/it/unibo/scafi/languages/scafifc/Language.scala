@@ -47,12 +47,10 @@ trait Language extends BaseLanguage {
        * @param falseField values to use where the condition doesn't hold
        * @return the combination of trueField and falseField
        */
-      def conditionalMap[B](condition: T => Boolean)(trueField: Field[B])(falseField: Field[B]): Field[B] = {
-        Field.ensureSameArea(this, trueField, falseField)
-        Field(this.m.map{case (id, ownValue) =>
-          (id, if (condition(ownValue)) trueField.m(id) else falseField.m(id))
-        })
-      }
+      def conditionalMap[B](condition: T => Boolean)(trueField: Field[B])(falseField: Field[B]): Field[B] =
+        (this zip (trueField zip falseField)) map {case (ownValue, (trueValue, falseValue)) =>
+          if (condition(ownValue)) trueValue else falseValue
+        }
 
       def minHood[V>:T](implicit ev: Bounded[V]): V  =
         fold[V](ev.top) { case (a, b) => ev.min(a, b) }
@@ -67,6 +65,19 @@ trait Language extends BaseLanguage {
         withoutSelf.maxHood(ev)
 
       def withoutSelf: Field[T] = Field[T](m - mid)
+
+      /**
+       * Zips together the value of two fields on the same area
+       * @param other the field to zip with this
+       * @tparam V the type of values of the other field
+       * @return a field with both this field values and the other field values
+       */
+      def zip[V](other: Field[V]): Field[(T,V)] = {
+        Field.ensureSameArea(this, other)
+        Field(this.m.map{ case (id, ownValue) =>
+          (id, (ownValue, other.m(id)))
+        })
+      }
 
       def toMap: Map[ID,T] = m
 

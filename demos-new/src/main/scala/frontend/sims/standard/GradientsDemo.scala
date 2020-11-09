@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit
 import frontend.sims.SensorDefinitions
 import frontend.sims.standard.DoubleUtils.Precision
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.languages.TypesInfo
 import it.unibo.scafi.simulation.s2.frontend.configuration.environment.ProgramEnvironment.NearRealTimePolicy
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation

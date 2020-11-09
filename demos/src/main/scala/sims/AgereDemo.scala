@@ -6,6 +6,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.concurrent.duration._

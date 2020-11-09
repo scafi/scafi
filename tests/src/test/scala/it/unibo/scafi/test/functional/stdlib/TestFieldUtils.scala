@@ -16,7 +16,7 @@ class TestFieldUtils extends FlatSpec {
     val n: Int => Set[Int] = net.neighbourhood
   }
 
-  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BlockG
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils
 
 
   Field_Utils should "support min/maxHoodSelectors" in new SimulationContextFixture {

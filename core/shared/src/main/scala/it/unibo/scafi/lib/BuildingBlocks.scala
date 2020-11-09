@@ -11,7 +11,7 @@ trait StdLib_BuildingBlocks {
   trait BuildingBlocks extends
          SimpleGradients_ScafiStandard
     with FieldUtils
-    with BlockG
+    with BlockG_ScafiStandard
     with BlockC_ScafiStandard
     with BlockS
     with TimeUtilsInterface

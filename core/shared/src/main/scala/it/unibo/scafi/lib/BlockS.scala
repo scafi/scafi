@@ -12,7 +12,7 @@ trait StdLib_BlockS {
 
   import it.unibo.scafi.languages.TypesInfo._
 
-  trait BlockS extends BlockG {
+  trait BlockS extends BlockG_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
 
     def S(grain: Double, metric: Metric): Boolean =

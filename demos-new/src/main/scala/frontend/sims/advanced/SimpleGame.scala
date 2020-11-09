@@ -4,7 +4,8 @@ import javafx.scene.shape.Circle
 
 import frontend.lib.{FlockingLib, Movement2DSupport}
 import frontend.sims.{SensorDefinitions, SizeConversion}
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ScafiStandardLibraries}
+import ScafiStandardLibraries.BlockG
 import it.unibo.scafi.simulation.MetaActionManager
 import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, CommandBinding, CommandFactory}

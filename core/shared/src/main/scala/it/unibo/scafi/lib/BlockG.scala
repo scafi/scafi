@@ -12,8 +12,8 @@ trait StdLib_BlockG {
 
   import it.unibo.scafi.languages.TypesInfo._
 
-  trait BlockG extends SimpleGradients_ScafiStandard with FieldUtils with GenericUtils with StateManagement {
-    self: ScafiStandardLanguage with StandardSensors =>
+  trait BlockGInterface extends SimpleGradientsInterface with GenericUtils with StateManagement {
+    self: ScafiBaseLanguage with StandardSensors with NeighbourhoodSensorReader with LanguageDependant =>
 
     /**
       * Version of G (Gradient-Cast) that takes a Gradient algorithm as input.
@@ -31,9 +31,16 @@ trait StdLib_BlockG {
       * @tparam V type of the value to be accumulated
       * @return a field that locally provides the value of the gradient-cast (`field` at sources, and an accumulation value along the way)
       */
-    def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V = {
+    def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V =
+      G_along_withAccumulator[V](g, metric, field, simpleAccFromLowestPotential(_, _, _, _, acc))
+
+    private def G_along_withAccumulator[V](g: Double, metric: Metric, field: V, accumulator: (Double, V, Metric, V) => V): V = {
       rep(field) { case (value) =>
-        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g} + metric())(acc(nbr{value})).getOrElse(field) }
+        mux(g==0.0) {
+          field
+        } {
+          accumulator(g, value, metric, field)
+        }
       }
     }
 
@@ -50,12 +57,17 @@ trait StdLib_BlockG {
       * A field of distance (i.e., a gradient) from a `source`, based on a given `metric`
       */
     def distanceTo(source: Boolean, metric: Metric = nbrRange): Double =
-      Gcurried(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
+      G_along_withAccumulator[Double](
+        ClassicGradient.from(source).withMetric(nbrRange).run(),
+        nbrRange,
+        mux(source){0.0}{Double.PositiveInfinity},
+        metricAccFromLowestPotential(_, _, _, _, metric)
+      )
 
     /**
       * Hop distance
       */
-    def hopDistance(source: Boolean): Double = distanceTo(source, () =>1)
+    def hopDistance(source: Boolean): Double = distanceTo(source, () => constantRead(1))
 
     /**
       * Broadcast information outward from a source field.
@@ -85,6 +97,38 @@ trait StdLib_BlockG {
       val db = distanceBetween(source, target)
       !(ds + dt == Double.PositiveInfinity && db == Double.PositiveInfinity) && ds + dt <= db + width
     }
+
+    private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V
+    private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double
   }
 
+  trait BlockG_ScafiStandard extends BlockGInterface with FieldUtils with SimpleGradients_ScafiStandard {
+    self: ScafiStandardLanguage with StandardSensors =>
+
+    override private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
+      excludingSelf
+        .minHoodSelector[Double,V](nbr{g} + metric())(acc(nbr{value}))
+        .getOrElse(field)
+
+    override private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double =
+      simpleAccFromLowestPotential[Double](g, value, metric, field, _ + accMetric())
+  }
+
+  trait BlockG_ScafiFC extends BlockGInterface with SimpleGradients_ScafiFC {
+    self: ScafiFCLanguage with StandardSensors =>
+
+    override private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
+      doAcc[V](g, value, metric, field, _.map(acc))
+
+    override private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double =
+      doAcc[Double](g, value, metric, field, _ + accMetric())
+
+    private[this] def doAcc[V](g: Double, value: V, metric: Metric, field: V, fieldAcc: Field[V] => Field[V]): V =
+      (metric() + nbrField(g)).zip(fieldAcc(nbrField(value))).withoutSelf.fold((Double.MaxValue, field)){case (a, b) =>
+        if (b._1 < a._1)
+          b
+        else
+          a
+      }._2
+  }
 }

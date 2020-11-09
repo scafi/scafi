@@ -8,6 +8,7 @@ package sims
 import java.util.concurrent.TimeUnit
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 
 import scala.concurrent.duration.Duration

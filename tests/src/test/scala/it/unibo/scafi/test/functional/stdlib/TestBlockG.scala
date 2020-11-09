@@ -19,7 +19,7 @@ class TestBlockG extends FunSpec with BeforeAndAfterEach {
   }
   override protected def beforeEach(): Unit = restartNetwork()
 
-  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BlockG
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with ScafiStandardLibraries.BlockG
 
   describe("BlockG") {
     describe("Should support distanceTo - hop") {

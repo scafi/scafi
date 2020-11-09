@@ -5,7 +5,8 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG, BlockS, BlocksWithGC, FieldUtils, ID}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ScafiStandardLibraries, BlockS, BlocksWithGC, FieldUtils, ID}
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object TargetCounting extends Launcher {

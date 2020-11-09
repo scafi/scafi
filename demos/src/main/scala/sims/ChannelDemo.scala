@@ -5,7 +5,8 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, BlockG, ScafiStandard_Builtins}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ScafiStandardLibraries, ScafiStandard_Builtins}
+import ScafiStandardLibraries.BlockG
 import it.unibo.scafi.languages.TypesInfo
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 

@@ -51,7 +51,7 @@ object MonitoringDemo_Inputs {
     def sense3: Boolean = sense[Boolean](SensorName.sensor3)
   }
 
-  class MonitoringDemoProgram extends Platform.ScafiStandardAggregateProgram with Platform.BlockG with MonitoringSensorDefinitions {
+  class MonitoringDemoProgram extends Platform.ScafiStandardAggregateProgram with Platform.ScafiStandardLibraries.BlockG with MonitoringSensorDefinitions {
     def channel1(source: Boolean, target: Boolean, width: Double): Boolean =
       distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 

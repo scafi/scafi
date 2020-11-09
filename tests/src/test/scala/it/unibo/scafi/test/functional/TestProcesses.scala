@@ -7,6 +7,7 @@ package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import ScafiStandardLibraries._
 import org.scalatest._
 
 class TestProcesses extends FlatSpec with Matchers {

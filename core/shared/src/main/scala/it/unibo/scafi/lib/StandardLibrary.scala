@@ -28,6 +28,7 @@ trait StandardLibrary extends
     type TimeUtils <: TimeUtilsInterface
     type BlockT <: BlockTInterface
     type SimpleGradients <: SimpleGradientsInterface
+    type BlockG <: BlockGInterface
   }
 
   object ScafiStandardLibraries extends Libraries {
@@ -36,6 +37,7 @@ trait StandardLibrary extends
     override type BlockT = BlockT_ScafiStandard
     override type SimpleGradients = SimpleGradients_ScafiStandard
     type Gradients = Gradients_ScafiStandard
+    override type BlockG = BlockG_ScafiStandard
   }
 
   object ScafiFCLibraries extends Libraries {
@@ -43,6 +45,7 @@ trait StandardLibrary extends
     override type TimeUtils = TimeUtils_ScafiFC
     override type BlockT = BlockT_ScafiFC
     override type SimpleGradients = SimpleGradients_ScafiFC
+    override type BlockG = BlockG_ScafiFC
   }
 }
 
