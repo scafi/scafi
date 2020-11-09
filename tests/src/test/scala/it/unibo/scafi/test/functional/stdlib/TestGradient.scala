@@ -18,134 +18,232 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   override protected def beforeEach(): Unit = restartNetwork()
 
 
-  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BlockG with Gradients
+  private[this] trait TestProgramStandard extends AggregateProgram with ScafiStandardLanguage with StandardSensors with ScafiStandardLibraries.Gradients with FieldUtils
+  private[this] trait TestProgramFC extends AggregateProgram with ScafiFCLanguage with StandardSensors with ScafiFCLibraries.SimpleGradients
 
   describe("Classic Gradient") {
-    def executeOnNet(net: Network with SimulatorOps): Network = exec(new TestProgram {
+    trait ProgramMain extends AggregateProgram {
+      self: SimpleGradientsInterface with ScafiBaseLanguage =>
       override def main(): Double = classicGradient(sense("source"))
-    }, ntimes = manyRounds)(net)._1
+    }
+
+    def executeOnNet(program: AggregateProgram, net: Network with SimulatorOps): Network = exec(program, ntimes = manyRounds)(net)._1
 
     describe("On a manhattan network with SW node detached") {
-      it("Should be possible to build a gradient of distances from node 0") {
-        net.chgSensorValue("source", Set(0), true)
-        executeOnNet(net)
+      describe("Should be possible to build a gradient of distances from node 0") {
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(0), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
-          1.0, 1.41, 2.41,
-          2.0, 2.42, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(net)
+          assertNetworkValues((0 to 8).zip(List(
+            0.0, 1.0, 2.0,
+            1.0, 1.41, 2.41,
+            2.0, 2.42, infinity
+          )).toMap, Some((d1: Double, d2: Double) => d1 === d2 +- 0.01))(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should be possible to build a gradient of distances from node 4") {
-        net.chgSensorValue("source", Set(4), true)
-        executeOnNet(net)
+      describe("Should be possible to build a gradient of distances from node 4") {
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(4), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(net)
+          assertNetworkValues((0 to 8).zip(List(
+            1.41, 1.0, 1.41,
+            1.0, 0.0, 1.0,
+            1.41, 1.0, infinity
+          )).toMap, Some((d1: Double, d2: Double) => d1 === d2 +- 0.01))(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should return a constant field if no source is selected") {
-        executeOnNet(net)
+      describe("Should return a constant field if no source is selected") {
+        def doTest(program: AggregateProgram) {
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          infinity, infinity, infinity,
-          infinity, infinity, infinity,
-          infinity, infinity, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(net)
+          assertNetworkValues((0 to 8).zip(List(
+            infinity, infinity, infinity,
+            infinity, infinity, infinity,
+            infinity, infinity, infinity
+          )).toMap, Some((d1: Double, d2: Double) => d1 === d2 +- 0.01))(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should build a gradient for each source, node 0 and 4"){
-        net.chgSensorValue("source", Set(0, 4), true)
-        executeOnNet(net)
+      describe("Should build a gradient for each source, node 0 and 4"){
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(0, 4), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(net)
+          assertNetworkValues((0 to 8).zip(List(
+            0.0, 1.0, 1.41,
+            1.0, 0.0, 1.0,
+            1.41, 1.0, infinity
+          )).toMap, Some((d1: Double, d2: Double) => d1 === d2 +- 0.01))(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should be able to react to a change of source"){
-        net.chgSensorValue("source", Set(0), true)
-        executeOnNet(net)
+      describe("Should be able to react to a change of source"){
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(0), true)
+          executeOnNet(program, net)
 
-        net.chgSensorValue("source", Set(0), false)
-        net.chgSensorValue("source", Set(4), true)
-        executeOnNet(net)
+          net.chgSensorValue("source", Set(0), false)
+          net.chgSensorValue("source", Set(4), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          1.41, 1.0, 1.41,
-          1.0, 0.0, 1.0,
-          1.41, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(net)
+          assertNetworkValues((0 to 8).zip(List(
+            1.41, 1.0, 1.41,
+            1.0, 0.0, 1.0,
+            1.41, 1.0, infinity
+          )).toMap, Some((d1: Double, d2: Double) => d1 === d2 +- 0.01))(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
     }
   }
   describe("Hop Gradient"){
-    def executeOnNet(net: Network with SimulatorOps): Network = exec(new TestProgram {
+    def executeOnNet(program: AggregateProgram, net: Network with SimulatorOps): Network =
+      exec(program, ntimes = manyRounds)(net)._1
+
+    trait ProgramMain extends AggregateProgram {
+      self: SimpleGradientsInterface with ScafiBaseLanguage =>
       override def main(): Double = hopGradient(sense[Boolean]("source"))
-    }, ntimes = manyRounds)(net)._1
+    }
 
     describe("On Standard Network"){
-      it("Should be possible to build a gradient of distances from 0") {
-        net.chgSensorValue("source", Set(0), true)
-        executeOnNet(net)
+      describe("Should be possible to build a gradient of distances from 0") {
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(0), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 2.0,
-          1.0, 1.0, 2.0,
-          2.0, 2.0, infinity
-        )).toMap)(net)
+          assertNetworkValues((0 to 8).zip(List(
+            0.0, 1.0, 2.0,
+            1.0, 1.0, 2.0,
+            2.0, 2.0, infinity
+          )).toMap)(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should be possible to build a gradient of distances from node 4") {
-        net.chgSensorValue("source", Set(4), true)
-        executeOnNet(net)
+      describe("Should be possible to build a gradient of distances from node 4") {
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(4), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          1.0, 1.0, 1.0,
-          1.0, 0.0, 1.0,
-          1.0, 1.0, infinity
-        )).toMap)(net)
+          assertNetworkValues((0 to 8).zip(List(
+            1.0, 1.0, 1.0,
+            1.0, 0.0, 1.0,
+            1.0, 1.0, infinity
+          )).toMap)(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should return a constant field if no source is selected") {
-        executeOnNet(net)
+      describe("Should return a constant field if no source is selected") {
+        def doTest(program: AggregateProgram) {
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          infinity, infinity, infinity,
-          infinity, infinity, infinity,
-          infinity, infinity, infinity
-        )).toMap)(net)
+          assertNetworkValues((0 to 8).zip(List(
+            infinity, infinity, infinity,
+            infinity, infinity, infinity,
+            infinity, infinity, infinity
+          )).toMap)(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should build a gradient for each source, node 0 and 4"){
-        net.chgSensorValue("source", Set(0, 4), true)
-        executeOnNet(net)
+      describe("Should build a gradient for each source, node 0 and 4"){
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(0, 4), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          0.0, 1.0, 1.0,
-          1.0, 0.0, 1.0,
-          1.0, 1.0, infinity
-        )).toMap)(net)
+          assertNetworkValues((0 to 8).zip(List(
+            0.0, 1.0, 1.0,
+            1.0, 0.0, 1.0,
+            1.0, 1.0, infinity
+          )).toMap)(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
-      it("Should be able to react to a change of source"){
-        net.chgSensorValue("source", Set(0), true)
-        executeOnNet(net)
+      describe("Should be able to react to a change of source"){
+        def doTest(program: AggregateProgram) {
+          net.chgSensorValue("source", Set(0), true)
+          executeOnNet(program, net)
 
-        net.chgSensorValue("source", Set(0), false)
-        net.chgSensorValue("source", Set(4), true)
-        executeOnNet(net)
+          net.chgSensorValue("source", Set(0), false)
+          net.chgSensorValue("source", Set(4), true)
+          executeOnNet(program, net)
 
-        assertNetworkValues((0 to 8).zip(List(
-          1.0, 1.0, 1.0,
-          1.0, 0.0, 1.0,
-          1.0, 1.0, infinity
-        )).toMap, Some((d1:Double, d2:Double) => d1===d2 +- 0.01))(net)
+          assertNetworkValues((0 to 8).zip(List(
+            1.0, 1.0, 1.0,
+            1.0, 0.0, 1.0,
+            1.0, 1.0, infinity
+          )).toMap, Some((d1: Double, d2: Double) => d1 === d2 +- 0.01))(net)
+        }
+
+        it(inStandard) {
+          doTest(new TestProgramStandard with ProgramMain)
+        }
+        it(inFC) {
+          doTest(new TestProgramFC with ProgramMain)
+        }
       }
     }
   }
 
   describe("BIS Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgram {
+      testBasicBehaviour(new TestProgramStandard {
         override def main(): (Double, Double) = (BisGradient().from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
       })
     }
@@ -153,7 +251,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
 
   describe("CRF Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgram {
+      testBasicBehaviour(new TestProgramStandard {
         //notice the use of an high raisingSpeed
         override def main(): (Double, Double) = (CrfGradient(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
       })
@@ -162,7 +260,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
 
   describe("Flex Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgram {
+      testBasicBehaviour(new TestProgramStandard {
         override def main(): (Double, Double) = (FlexGradient(epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
       })
     }
@@ -170,14 +268,14 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
 
   describe("SVD Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgram {
+      testBasicBehaviour(new TestProgramStandard {
         override def main(): (Double, Double) = (SvdGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
       })
     }
   }
   describe("ULT Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgram {
+      testBasicBehaviour(new TestProgramStandard {
         override def main(): (Double, Double) = (UltGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
       })
     }
@@ -188,7 +286,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
     val v: TestProgram = new TestProgram {
       override def main(): (Double, Double) = (gradient.from(sense("source")).run(), classicGradient(sense("source")))
     }*/
-  def testBasicBehaviour(v: TestProgram, ntimes: Int = manyManyRounds, tolerance: Double = 0.1): Unit  = {
+  def testBasicBehaviour(v: AggregateProgram, ntimes: Int = manyManyRounds, tolerance: Double = 0.1): Unit  = {
     it("Should be possible to build a gradient of distances on node 0") {
       net.chgSensorValue("source", Set(0), true)
       exec(v, ntimes = ntimes)(net)

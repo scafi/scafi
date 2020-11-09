@@ -9,7 +9,7 @@ trait StdLib_StateManagement{
   self: StandardLibrary.Subcomponent =>
 
   trait StateManagement {
-    self: ScafiStandardLanguage =>
+    self: ScafiBaseLanguage =>
 
     /**
       * Counts the number of rounds, refreshing each time the computation is re-entered.

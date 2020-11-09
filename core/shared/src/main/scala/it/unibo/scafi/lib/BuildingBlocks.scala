@@ -9,7 +9,7 @@ trait StdLib_BuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
   trait BuildingBlocks extends
-         Gradients
+         SimpleGradients_ScafiStandard
     with FieldUtils
     with BlockG
     with BlockC_ScafiStandard

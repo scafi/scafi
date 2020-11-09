@@ -12,16 +12,16 @@ import it.unibo.utils.Filters.expFilter
 trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
 
-  type Metric = ()=>Double
-
   import it.unibo.scafi.languages.TypesInfo.Bounded
 
   implicit val idBounded: Bounded[ID]
 
-  trait Gradients extends GenericUtils with StateManagement {
-    self: ScafiStandardLanguage with StandardSensors with FieldUtils =>
+  trait SimpleGradientsInterface extends GenericUtils with StateManagement {
+    self: ScafiBaseLanguage with StandardSensors with NeighbourhoodSensorReader with LanguageDependant =>
 
-    case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
+    type Metric = ()=>NbrSensorRead[Double]
+
+    case class Gradient(algorithm: (Boolean, Metric) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
 
       def withMetric(m: Metric): Gradient = this.copy(metric = m)
@@ -29,9 +29,45 @@ trait StdLib_Gradients {
       def run(): Double = algorithm(source, metric)
     }
 
-
     val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
-    val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => 1)
+    val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => constantRead(1))
+
+    def classicGradient(source: Boolean, metric: Metric = nbrRange): Double =
+      rep(Double.PositiveInfinity) { case d =>
+        mux(source) {
+          0.0
+        } {
+          minWithMetric(d, metric)
+        }
+      }
+
+    def hopGradient(source: Boolean): Double =
+      rep(Double.PositiveInfinity) {
+        hops => mux(source) {0.0} {1 + neighbourhoodMin(hops, false)
+        }
+      }
+
+    private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric): Double
+  }
+
+  trait SimpleGradients_ScafiStandard extends SimpleGradientsInterface with LanguageDependant_ScafiStandard {
+    self: ScafiStandardLanguage with StandardSensors =>
+
+    override private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric) =
+      minHoodPlus(nbr{d} + metric())
+  }
+
+  trait SimpleGradients_ScafiFC extends SimpleGradientsInterface with LanguageDependant_ScafiFC {
+    self: ScafiFCLanguage with StandardSensors =>
+
+    override private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric) =
+      (nbrField(d) + metric()).minHoodPlus
+  }
+
+  //TODO Gradients_ScafiFC
+  trait GradientsInterface extends SimpleGradientsInterface {
+    self: ScafiStandardLanguage with StandardSensors with FieldUtils with LanguageDependant =>
+
     def BisGradient(commRadius: Double = 0.2,
                     lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(bisGradient(commRadius, lagMetric), source = false, nbrRange)
     def CrfGradient(raisingSpeed: Double = 5,
@@ -42,21 +78,6 @@ trait StdLib_Gradients {
     def SvdGradient(lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(svdGradient(lagMetric), source = false, nbrRange)
     def UltGradient(radius: Double = 0.2,
                     factor: Double = 0.1): Gradient = Gradient(ultGradient(radius, factor), source = false, nbrRange)
-
-    def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
-      rep(Double.PositiveInfinity) { case d =>
-        mux(source) {
-          0.0
-        } {
-          minHoodPlus(nbr(d) + metric())
-        }
-      }
-
-    def hopGradient(source: Boolean): Double =
-      rep(Double.PositiveInfinity) {
-        hops => mux(source) {0.0} {1 + minHood(nbr {hops})
-        }
-      }
 
     def bisGradient(commRadius: Double = 0.2,
                     lagMetric: => Double = nbrLag().toMillis)
@@ -196,7 +217,7 @@ trait StdLib_Gradients {
         case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
           // (1) Let's calculate new values for spaceDistEst and sourceId
           import it.unibo.scafi.languages.TypesInfo.Bounded._
-          val (newSpaceDistEst: Double, newSourceId: ID) = 
+          val (newSpaceDistEst: Double, newSourceId: ID) =
           minHood {
             mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
             { // let's discard neighbours where 'obsolete' flag is true
@@ -273,5 +294,10 @@ trait StdLib_Gradients {
       }
       inertialFilter(Math.max(SvdGradient().from(source).withMetric(metric).run(), BisGradient(radius).from(source).withMetric(metric).run()), factor)
     }
+  }
+
+  trait Gradients_ScafiStandard extends SimpleGradients_ScafiStandard with GradientsInterface {
+    self: ScafiStandardLanguage with StandardSensors with FieldUtils =>
+
   }
 }
