@@ -33,6 +33,7 @@ trait Semantics extends ScafiLanguage with Language with BaseSemantics {
 
     override type NbrSensorRead[A] = A
     override def readNbrSensor[A](name: CNAME): A = nbrvar(name)
+    override def constantRead[A](value: A): A = value
 
     override implicit def withOps[A](base: NbrSensorRead[A]): StandardNbrSensorReadOps[A] =
       new StandardNbrSensorReadOps[A](base)

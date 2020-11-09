@@ -38,6 +38,7 @@ trait Semantics extends ScafiLanguage with Language with BaseSemantics {
 
     override type NbrSensorRead[A] = Field[A]
     override def readNbrSensor[A](name: CNAME): Field[A] = nbrFieldVar(name)
+    override def constantRead[A](value: A): Field[A] = Field(vm.alignedNeighbours().map((_, value)).toMap)
 
     override implicit def withOps[A](base: NbrSensorRead[A]): FCNbrSensorReadOps[A] =
       new FCNbrSensorReadOps[A](base)
