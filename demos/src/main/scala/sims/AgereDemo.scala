@@ -19,7 +19,7 @@ object AgereDemoMain extends Launcher {
   launch()
 }
 
-class AgereDemo extends ScafiStandardAggregateProgram with ScafiStandardLanguageLibraries with BuildingBlocks with SensorDefinitions with TimeUtils {
+class AgereDemo extends ScafiStandardAggregateProgram with BuildingBlocks with SensorDefinitions with TimeUtils {
   /* Parameters */
   val t_fail = (15.seconds)   // Time w/o failures
   val t_act = (5.seconds)     // Time for actuation

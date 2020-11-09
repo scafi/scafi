@@ -22,18 +22,16 @@ trait StandardLibrary extends
     with StdLib_NewProcesses
     with StdLib_DynamicCode { self: Incarnation =>
 
-  trait ScafiStandardLanguageLibraries extends
-         BlockC_ScafiStandard
-    with BlocksWithGC_ScafiStandard
-    with BuildingBlocks_ScafiStandard {
-    self: ScafiStandardLanguage =>
+  trait Libraries {
+    type BlockC <: BlockCInterface
   }
 
-  trait ScafiFCLanguageLibraries extends
-         BlockC_ScafiFC
-    with BlocksWithGC_ScafiFC
-    with BuildingBlocks_ScafiFC {
-    self: ScafiFCLanguage =>
+  object ScafiStandardLibraries extends Libraries {
+    type BlockC = BlockC_ScafiStandard
+  }
+
+  object ScafiFCLibraries extends Libraries {
+    type BlockC = BlockC_ScafiFC
   }
 }
 

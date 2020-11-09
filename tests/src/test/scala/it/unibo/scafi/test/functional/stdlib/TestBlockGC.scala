@@ -1,6 +1,7 @@
 package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.ScafiTestUtils.{exec, manhattanNet, someRounds}
 import org.scalatest._
@@ -11,7 +12,7 @@ class TestBlockGC extends FunSpec with BeforeAndAfterEach {
 
   val defaultNtimes: Int = someRounds
 
-  private[this] trait TestProgram extends AggregateProgram with ScafiStandardLanguage with ScafiStandardLanguageLibraries
+  private[this] trait TestProgram extends AggregateProgram with ScafiStandardLanguage
     with StandardSensors with BlockC with BlocksWithGC
 
   describe("BlockGC") {

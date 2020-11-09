@@ -7,6 +7,7 @@ package frontend.sims.experimental
 
 import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -23,7 +24,7 @@ object CollectionDemo extends App {
 }
 
 @Demo
-class Collection extends ScafiStandardAggregateProgram with ScafiStandardLanguageLibraries with SensorDefinitions with BlockC with BlockG {
+class Collection extends ScafiStandardAggregateProgram with SensorDefinitions with BlockC with BlockG {
 
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))

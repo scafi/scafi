@@ -21,21 +21,21 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
     def hopGradient(source: Boolean): Double
   }
 
-  private[this] trait TestProgramStandard extends AggregateProgram with ScafiStandardLanguage with ScafiStandardLanguageLibraries
-    with StandardSensors with BlockC with TestProgramDefs {
+  private[this] trait TestProgramStandard extends AggregateProgram with ScafiStandardLanguage
+    with StandardSensors with ScafiStandardLibraries.BlockC with TestProgramDefs {
 
     override def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) { hops => {mux(source) {0.0} {1 + minHood(nbr {hops})}}}
   }
 
-  private[this] trait TestProgramFC extends AggregateProgram with ScafiFCLanguage with ScafiFCLanguageLibraries
-    with StandardSensors with BlockC with TestProgramDefs {
+  private[this] trait TestProgramFC extends AggregateProgram with ScafiFCLanguage
+    with StandardSensors with ScafiFCLibraries.BlockC with TestProgramDefs {
 
     override def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) { hops => {mux(source) {0.0} {1 + nbrField{hops}.minHood}}}
   }
 
-  private[this] type ProgramImplDependencies = BlockC with ScafiBaseLanguage with TestProgramDefs
+  private[this] type ProgramImplDependencies = BlockCInterface with ScafiBaseLanguage with TestProgramDefs
 
 
   private val inStandard = "in ScafiStandardLanguage"

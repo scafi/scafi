@@ -6,6 +6,7 @@
 package frontend.sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -28,7 +29,7 @@ object TargetCounting extends App {
   */
 
 @Demo
-class TargetCountingProgram extends ScafiStandardAggregateProgram with ScafiStandardLanguageLibraries with SensorDefinitions
+class TargetCountingProgram extends ScafiStandardAggregateProgram with SensorDefinitions
   with FieldUtils with BlockG with BlockS with BlockC with BlocksWithGC {
 
   def senseTargets: Int = 3
