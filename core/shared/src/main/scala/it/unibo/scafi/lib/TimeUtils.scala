@@ -12,8 +12,8 @@ trait StdLib_TimeUtils {
 
   // scalastyle:off method.name
 
-  trait BlockT {
-    self: ScafiStandardLanguage =>
+  trait BlockTInterface {
+    self: ScafiBaseLanguage with LanguageDependant =>
 
     def T[V](initial: V, floor: V, decay: V => V)
             (implicit ev: Numeric[V]): V =
@@ -47,7 +47,7 @@ trait StdLib_TimeUtils {
     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
-        val clockPerceived = foldhood(clock)(ev.max)(nbr(clock))
+        val clockPerceived = neighbourhoodFold(clock)(ev.max)(clock)
         branch(ev.compare(clockPerceived, clock) <= 0) {
           // I'm currently as fast as the fastest device in the neighborhood, so keep on counting time
           ev.plus(clock, (if (cyclicTimerWithDecay(period, dt)) {
@@ -118,7 +118,9 @@ trait StdLib_TimeUtils {
 
   }
 
-  trait TimeUtils extends BlockT { self: ScafiStandardLanguage with StandardSensors =>
+  trait TimeUtilsInterface extends BlockTInterface {
+    self: ScafiBaseLanguage with StandardSensors with LanguageDependant =>
+
     def sharedTimer(period: FiniteDuration): FiniteDuration =
       sharedTimerWithDecay(period.toMillis, deltaTime().toMillis).seconds
 
@@ -198,4 +200,17 @@ trait StdLib_TimeUtils {
 
   }
 
+  trait BlockT_ScafiStandard extends BlockTInterface with LanguageDependant_ScafiStandard {
+    self: ScafiStandardLanguage =>
+  }
+  trait TimeUtils_ScafiStandard extends TimeUtilsInterface with LanguageDependant_ScafiStandard {
+    self: ScafiStandardLanguage with StandardSensors =>
+  }
+
+  trait BlockT_ScafiFC extends BlockTInterface with LanguageDependant_ScafiFC {
+    self: ScafiFCLanguage =>
+  }
+  trait TimeUtils_ScafiFC extends TimeUtilsInterface with LanguageDependant_ScafiFC {
+    self: ScafiFCLanguage with StandardSensors =>
+  }
 }

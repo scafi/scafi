@@ -60,6 +60,12 @@ trait Language extends BaseLanguage {
       def minHoodPlus[V>:T](implicit ev: Bounded[V]): V =
         withoutSelf.minHood(ev)
 
+      def maxHood[V>:T](implicit ev: Bounded[V]): V  =
+        fold[V](ev.bottom) { case (a, b) => ev.max(a, b) }
+
+      def maxHoodPlus[V>:T](implicit ev: Bounded[V]): V =
+        withoutSelf.maxHood(ev)
+
       def withoutSelf: Field[T] = Field[T](m - mid)
 
       def toMap: Map[ID,T] = m

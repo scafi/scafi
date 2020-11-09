@@ -20,18 +20,25 @@ trait StandardLibrary extends
     with StdLib_GenericUtils
     with StdLib_Processes
     with StdLib_NewProcesses
-    with StdLib_DynamicCode { self: Incarnation =>
+    with StdLib_DynamicCode
+    with StdLib_LanguageDependant { self: Incarnation =>
 
   trait Libraries {
     type BlockC <: BlockCInterface
+    type TimeUtils <: TimeUtilsInterface
+    type BlockT <: BlockTInterface
   }
 
   object ScafiStandardLibraries extends Libraries {
-    type BlockC = BlockC_ScafiStandard
+    override type BlockC = BlockC_ScafiStandard
+    override type TimeUtils = TimeUtils_ScafiStandard
+    override type BlockT = BlockT_ScafiStandard
   }
 
   object ScafiFCLibraries extends Libraries {
-    type BlockC = BlockC_ScafiFC
+    override type BlockC = BlockC_ScafiFC
+    override type TimeUtils = TimeUtils_ScafiFC
+    override type BlockT = BlockT_ScafiFC
   }
 }
 

@@ -309,7 +309,7 @@ trait StdLib_NewProcesses {
     private def none[T]: Option[T] = None
   }
 
-  trait ReplicatedGossip extends CustomSpawn with StandardSensors with TimeUtils with StateManagement {
+  trait ReplicatedGossip extends CustomSpawn with StandardSensors with ScafiStandardLibraries.TimeUtils with StateManagement {
     self: ScafiStandardAggregateProgram =>
 
     def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
@@ -340,7 +340,7 @@ trait StdLib_NewProcesses {
     *   }.withArgs(1000)
     */
   trait ProcessDSL {
-    self: ScafiStandardAggregateProgram with FieldUtils with CustomSpawn with TimeUtils with StateManagement with StandardSensors =>
+    self: ScafiStandardAggregateProgram with FieldUtils with CustomSpawn with ScafiStandardLibraries.TimeUtils with StateManagement with StandardSensors =>
 
     import SpawnInterface._
 

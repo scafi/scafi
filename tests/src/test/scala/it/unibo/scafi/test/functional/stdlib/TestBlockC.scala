@@ -4,11 +4,12 @@ import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.ScafiTestUtils
 import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 
-class TestBlockC extends FunSpec with BeforeAndAfterEach {
+class TestBlockC extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiTestUtils._
 
-  var net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))
+  var net: Network with SimulatorOps = _
   def restartNetwork(): Unit = {
     net = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))
     net.addSensor(name = "source", value = false)
@@ -37,9 +38,6 @@ class TestBlockC extends FunSpec with BeforeAndAfterEach {
 
   private[this] type ProgramImplDependencies = BlockCInterface with ScafiBaseLanguage with TestProgramDefs
 
-
-  private val inStandard = "in ScafiStandardLanguage"
-  private val inFC = "in ScafiFCLanguage"
   describe(s"BlockC") {
     describe("should support findParent") {
       describe("should work with a constant value") {

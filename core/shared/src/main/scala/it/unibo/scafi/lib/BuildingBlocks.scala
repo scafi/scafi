@@ -8,8 +8,16 @@ package it.unibo.scafi.lib
 trait StdLib_BuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
-  trait BuildingBlocks extends Gradients with FieldUtils
-    with BlockG with BlockC_ScafiStandard with BlockS with BlockT with TimeUtils with BlocksWithGC with StateManagement {
-    self: ScafiStandardLanguage with StandardSensors =>
+  trait BuildingBlocks extends
+         Gradients
+    with FieldUtils
+    with BlockG
+    with BlockC_ScafiStandard
+    with BlockS
+    with TimeUtilsInterface
+    with BlocksWithGC
+    with StateManagement
+    with LanguageDependant_ScafiStandard {
+    self: ScafiStandardLanguage with ScafiBaseLanguage with StandardSensors =>
   }
 }
