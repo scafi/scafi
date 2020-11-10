@@ -55,16 +55,39 @@ trait Language extends BaseLanguage {
       def minHood[V>:T](implicit ev: Bounded[V]): V  =
         fold[V](ev.top) { case (a, b) => ev.min(a, b) }
 
-      def minHoodPlus[V>:T](implicit ev: Bounded[V]): V =
-        withoutSelf.minHood(ev)
+      def minHoodPlus[V>:T](implicit ev: Bounded[V]): Option[V] =
+        withoutSelfOption(_.minHood(ev))
+
+      def minimizing[V](toMinimize: T => V)(implicit ev: Bounded[V], idEv: Bounded[ID]): T =
+        (this.map(toMinimize) zip this).toMap.fold[(ID, (V, T))]((idEv.top, (ev.top, this.m.values.head))){ case (a,b) =>
+          if (ev.compare(a._2._1,b._2._1) < 0 || ev.compare(a._2._1,b._2._1) == 0 && idEv.compare(a._1,b._1) <= 0) a else b
+        }._2._2
+
+      def minimizingPlus[V](toMinimize: T => V)(implicit ev: Bounded[V], idEv: Bounded[ID]): Option[T] =
+        withoutSelfOption(_.minimizing(toMinimize)(ev, idEv))
 
       def maxHood[V>:T](implicit ev: Bounded[V]): V  =
         fold[V](ev.bottom) { case (a, b) => ev.max(a, b) }
 
-      def maxHoodPlus[V>:T](implicit ev: Bounded[V]): V =
-        withoutSelf.maxHood(ev)
+      def maxHoodPlus[V>:T](implicit ev: Bounded[V]): Option[V] =
+        withoutSelfOption(_.maxHood(ev))
+
+      def maximizing[V](toMaximize: T => V)(implicit ev: Bounded[V], idEv: Bounded[ID]): T =
+        (this.map(toMaximize) zip this).toMap.fold[(ID, (V, T))]((idEv.bottom, (ev.bottom, this.m.values.head))){ case (a,b) =>
+          if (ev.compare(a._2._1,b._2._1) > 0 || ev.compare(a._2._1,b._2._1) == 0 && idEv.compare(a._1,b._1) >= 0) a else b
+        }._2._2
+
+      def maximizingPlus[V](toMaximize: T => V)(implicit ev: Bounded[V], idEv: Bounded[ID]): Option[T] =
+        withoutSelfOption(_.maximizing(toMaximize)(ev, idEv))
 
       def withoutSelf: Field[T] = Field[T](m - mid)
+
+      private def withoutSelfOption[V](toDo: Field[T] => V): Option[V] =
+        if (this.m.size > 1) {
+          Some(toDo(withoutSelf))
+        } else {
+          None
+        }
 
       /**
        * Zips together the value of two fields on the same area

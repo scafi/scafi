@@ -106,7 +106,7 @@ trait StdLib_BlockG {
     private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double
   }
 
-  trait BlockG_ScafiStandard extends BlockGInterface with FieldUtils with SimpleGradients_ScafiStandard {
+  private[lib] trait BlockG_ScafiStandard extends BlockGInterface with FieldUtils with SimpleGradients_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
 
     override private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
@@ -118,7 +118,7 @@ trait StdLib_BlockG {
       simpleAccFromLowestPotential[Double](g, value, metric, field, _ + accMetric())
   }
 
-  trait BlockG_ScafiFC extends BlockGInterface with SimpleGradients_ScafiFC {
+  private[lib] trait BlockG_ScafiFC extends BlockGInterface with SimpleGradients_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
 
     override private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
@@ -128,11 +128,6 @@ trait StdLib_BlockG {
       doAcc[Double](g, value, metric, field, _ + accMetric())
 
     private[this] def doAcc[V](g: Double, value: V, metric: Metric, field: V, fieldAcc: Field[V] => Field[V]): V =
-      (metric() + nbrField(g)).zip(fieldAcc(nbrField(value))).withoutSelf.fold((Double.MaxValue, field)){case (a, b) =>
-        if (b._1 < a._1)
-          b
-        else
-          a
-      }._2
+      (metric() + nbrField(g)).zip(fieldAcc(nbrField(value))).minimizingPlus(_._1).map(_._2).getOrElse(field)
   }
 }

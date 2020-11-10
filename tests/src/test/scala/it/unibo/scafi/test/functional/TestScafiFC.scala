@@ -33,7 +33,7 @@ class TestScafiFC extends FlatSpec with Matchers {
     def gradient(source: Field[Boolean]): Field[Double] =
       rep(Double.MaxValue){ // automatic local-to-field conversion
         d => mux(source) { 0.0 } {
-          (nbrField(d) + nbrRange).minHoodPlus
+          (nbrField(d) + nbrRange).withoutSelf.minHood
         }
       }
   }

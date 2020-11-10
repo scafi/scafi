@@ -21,7 +21,7 @@ class FCGradient extends AggregateProgram with ScafiFCLanguage with SensorDefini
 
   def gradient(src: Boolean) = rep(Double.PositiveInfinity)(d => {
     mux(src){ 0.0 }{
-      (nbrField(d) + nbrRange).minHoodPlus
+      (nbrField(d) + nbrRange).withoutSelf.minHood
     }
   })
 }

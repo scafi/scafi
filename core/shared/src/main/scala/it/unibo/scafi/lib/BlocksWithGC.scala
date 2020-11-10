@@ -18,12 +18,12 @@ trait StdLib_BlocksWithGC {
       summarize(sink, _ + _, value, 0.0) / summarize(sink, _ + _, 1, 0.0)
   }
 
-  trait BlocksWithGC_ScafiStandard extends BlocksWithGCInterface
+  private[lib] trait BlocksWithGC_ScafiStandard extends BlocksWithGCInterface
     with BlockG_ScafiStandard with BlockC_ScafiStandard with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
   }
 
-  trait BlocksWithGC_ScafiFC extends BlocksWithGCInterface
+  private[lib] trait BlocksWithGC_ScafiFC extends BlocksWithGCInterface
     with BlockG_ScafiFC with BlockC_ScafiFC with LanguageDependant_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
   }

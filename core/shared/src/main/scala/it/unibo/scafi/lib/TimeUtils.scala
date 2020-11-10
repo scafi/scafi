@@ -200,17 +200,17 @@ trait StdLib_TimeUtils {
 
   }
 
-  trait BlockT_ScafiStandard extends BlockTInterface with LanguageDependant_ScafiStandard {
+  private[lib] trait BlockT_ScafiStandard extends BlockTInterface with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage =>
   }
-  trait TimeUtils_ScafiStandard extends TimeUtilsInterface with LanguageDependant_ScafiStandard {
+  private[lib] trait TimeUtils_ScafiStandard extends TimeUtilsInterface with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
   }
 
-  trait BlockT_ScafiFC extends BlockTInterface with LanguageDependant_ScafiFC {
+  private[lib] trait BlockT_ScafiFC extends BlockTInterface with LanguageDependant_ScafiFC {
     self: ScafiFCLanguage =>
   }
-  trait TimeUtils_ScafiFC extends TimeUtilsInterface with LanguageDependant_ScafiFC {
+  private[lib] trait TimeUtils_ScafiFC extends TimeUtilsInterface with LanguageDependant_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
   }
 }

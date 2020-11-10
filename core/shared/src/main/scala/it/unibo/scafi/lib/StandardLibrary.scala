@@ -32,6 +32,7 @@ trait StandardLibrary extends
     type BlockS <: BlockSInterface
     type TimeUtils <: TimeUtilsInterface
     type BlockT <: BlockTInterface
+    type DynamicCode <: DynamicCodeInterface
   }
 
   object ScafiStandardLibraries extends Libraries {
@@ -44,6 +45,7 @@ trait StandardLibrary extends
     override type BlockS = BlockS_ScafiStandard
     override type TimeUtils = TimeUtils_ScafiStandard
     override type BlockT = BlockT_ScafiStandard
+    override type DynamicCode = DynamicCode_ScafiStandard
   }
 
   object ScafiFCLibraries extends Libraries {
@@ -55,6 +57,7 @@ trait StandardLibrary extends
     override type BlockS = BlockS_ScafiFC
     override type TimeUtils = TimeUtils_ScafiFC
     override type BlockT = BlockT_ScafiFC
+    override type DynamicCode = DynamicCode_ScafiFC
   }
 }
 

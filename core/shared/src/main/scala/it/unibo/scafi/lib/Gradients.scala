@@ -50,18 +50,18 @@ trait StdLib_Gradients {
     private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric): Double
   }
 
-  trait SimpleGradients_ScafiStandard extends SimpleGradientsInterface with LanguageDependant_ScafiStandard {
+  private[lib] trait SimpleGradients_ScafiStandard extends SimpleGradientsInterface with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
 
     override private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric) =
       minHoodPlus(nbr{d} + metric())
   }
 
-  trait SimpleGradients_ScafiFC extends SimpleGradientsInterface with LanguageDependant_ScafiFC {
+  private[lib] trait SimpleGradients_ScafiFC extends SimpleGradientsInterface with LanguageDependant_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
 
     override private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric) =
-      (nbrField(d) + metric()).minHoodPlus
+      (nbrField(d) + metric()).withoutSelf.minHood
   }
 
   //TODO Gradients_ScafiFC
@@ -296,7 +296,7 @@ trait StdLib_Gradients {
     }
   }
 
-  trait Gradients_ScafiStandard extends SimpleGradients_ScafiStandard with GradientsInterface {
+  private[lib] trait Gradients_ScafiStandard extends SimpleGradients_ScafiStandard with GradientsInterface {
     self: ScafiStandardLanguage with StandardSensors with FieldUtils =>
 
   }

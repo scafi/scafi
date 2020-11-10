@@ -95,7 +95,7 @@ trait StdLib_BlockS {
     private[StdLib_BlockS] def electLowestUID(d: Double, metric: Metric, halfGrain: Double, inf: (Double, ID), lead: (Double, ID)): (Double, ID)
   }
 
-  trait BlockS_ScafiStandard extends BlockSInterface with BlockG_ScafiStandard {
+  private[lib] trait BlockS_ScafiStandard extends BlockSInterface with BlockG_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
 
     override private[StdLib_BlockS] def electLowestUID(
@@ -119,7 +119,7 @@ trait StdLib_BlockS {
     }
   }
 
-  trait BlockS_ScafiFC extends BlockSInterface with BlockG_ScafiFC {
+  private[lib] trait BlockS_ScafiFC extends BlockSInterface with BlockG_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
 
     override private[StdLib_BlockS] def electLowestUID(
