@@ -1,6 +1,7 @@
 package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import it.unibo.utils.StatisticsUtils.stdDev

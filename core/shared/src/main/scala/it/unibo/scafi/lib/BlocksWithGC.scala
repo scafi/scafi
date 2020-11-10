@@ -8,13 +8,23 @@ package it.unibo.scafi.lib
 trait StdLib_BlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
-  trait BlocksWithGC extends BlockG_ScafiStandard with BlockC_ScafiStandard {
-    self: ScafiStandardLanguage with StandardSensors =>
+  trait BlocksWithGCInterface extends BlockGInterface with BlockCInterface {
+    self: ScafiBaseLanguage with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
 
     def summarize(sink: Boolean, acc: (Double, Double) => Double, local: Double, Null: Double): Double =
       broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
     def average(sink: Boolean, value: Double): Double =
       summarize(sink, _ + _, value, 0.0) / summarize(sink, _ + _, 1, 0.0)
+  }
+
+  trait BlocksWithGC_ScafiStandard extends BlocksWithGCInterface
+    with BlockG_ScafiStandard with BlockC_ScafiStandard with LanguageDependant_ScafiStandard {
+    self: ScafiStandardLanguage with StandardSensors =>
+  }
+
+  trait BlocksWithGC_ScafiFC extends BlocksWithGCInterface
+    with BlockG_ScafiFC with BlockC_ScafiFC with LanguageDependant_ScafiFC {
+    self: ScafiFCLanguage with StandardSensors =>
   }
 }

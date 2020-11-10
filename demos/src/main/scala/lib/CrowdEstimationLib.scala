@@ -6,6 +6,7 @@
 package lib
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import sims.SensorDefinitions
 
 trait CrowdEstimationLib extends BuildingBlocks { self: ScafiStandardAggregateProgram with SensorDefinitions =>

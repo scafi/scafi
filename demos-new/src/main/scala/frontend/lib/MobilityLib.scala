@@ -6,6 +6,7 @@
 package frontend.lib
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.languages.TypesInfo.Bounded
 import frontend.sims.SensorDefinitions
 
