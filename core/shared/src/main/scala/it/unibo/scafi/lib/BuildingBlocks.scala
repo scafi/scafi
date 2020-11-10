@@ -13,8 +13,8 @@ trait StdLib_BuildingBlocks {
     with FieldUtils
     with BlockG_ScafiStandard
     with BlockC_ScafiStandard
-    with BlockS
-    with TimeUtilsInterface
+    with BlockS_ScafiStandard
+    with TimeUtils_ScafiStandard
     with BlocksWithGC
     with StateManagement
     with LanguageDependant_ScafiStandard {

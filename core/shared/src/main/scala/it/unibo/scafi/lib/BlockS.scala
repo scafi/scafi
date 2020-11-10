@@ -12,8 +12,8 @@ trait StdLib_BlockS {
 
   import it.unibo.scafi.languages.TypesInfo._
 
-  trait BlockS extends BlockG_ScafiStandard {
-    self: ScafiStandardLanguage with StandardSensors =>
+  trait BlockSInterface extends BlockGInterface {
+    self: ScafiBaseLanguage with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
 
     def S(grain: Double, metric: Metric): Boolean =
       breakUsingUids(randomUid, grain, metric)
@@ -28,7 +28,7 @@ trait StdLib_BlockS {
     def minId(): ID = {
       val boundedId = implicitly[Bounded[ID]]
       rep(boundedId.top) { mmid =>
-        boundedId.min(mid(), minHood(nbr { mmid }))
+        boundedId.min(mid(), neighbourhoodMin(mmid))
       }
     }
 
@@ -53,7 +53,8 @@ trait StdLib_BlockS {
     // Initially, each device is a candidate leader, competing for leadership.
       uid == rep(uid) { lead: (Double, ID) =>
         // Distance from current device (uid) to the current leader (lead).
-        val dist = G[Double](uid == lead, 0, (_: Double) + metric(), metric)
+        val dist =
+          G_metricAccumulator(uid == lead, 0, metric, metric)
 
         // Initially, current device is candidate, so the distance ('dist')
         // will be 0; the same will be for other devices.
@@ -86,20 +87,49 @@ trait StdLib_BlockS {
           inf
         } {
           // Otherwise, elect the leader with lowest UID.
-          // Note: it works because Tuple2 has an OrderingFoldable where
-          //   the min(t1,t2) is defined according the 1st element, or
-          //   according to the 2nd elem in case of breakeven on the first one.
-          //   (minHood uses min to select the candidate leader tuple)
-          minHood {
-            mux(nbr { d } + metric() >= 0.5 * grain) {
-              nbr { inf }
-            } {
-              nbr { lead }
-            }
-          }
+          electLowestUID(d, metric, 0.5 * grain, inf, lead)
+        }
+      }
+    }
+
+    private[StdLib_BlockS] def electLowestUID(d: Double, metric: Metric, halfGrain: Double, inf: (Double, ID), lead: (Double, ID)): (Double, ID)
+  }
+
+  trait BlockS_ScafiStandard extends BlockSInterface with BlockG_ScafiStandard {
+    self: ScafiStandardLanguage with StandardSensors =>
+
+    override private[StdLib_BlockS] def electLowestUID(
+      d: Double,
+      metric: Metric,
+      halfGrain: Double,
+      inf: (Double, ID),
+      lead: (Double, ID)
+    ): (Double, ID) = {
+      // Note: it works because Tuple2 has an OrderingFoldable where
+      //   the min(t1,t2) is defined according the 1st element, or
+      //   according to the 2nd elem in case of breakeven on the first one.
+      //   (minHood uses min to select the candidate leader tuple)
+      minHood {
+        mux(nbr { d } + metric() >= halfGrain) {
+          nbr { inf }
+        } {
+          nbr { lead }
         }
       }
     }
   }
 
+  trait BlockS_ScafiFC extends BlockSInterface with BlockG_ScafiFC {
+    self: ScafiFCLanguage with StandardSensors =>
+
+    override private[StdLib_BlockS] def electLowestUID(
+      d: Double,
+      metric: Metric,
+      halfGrain: Double,
+      inf: (Double, ID),
+      lead: (Double, ID)
+    ): (Double, ID) = {
+      (nbrField(d) + metric()).conditionalMap(_ >= halfGrain){nbrField(inf)}{nbrField(lead)}.minHood
+    }
+  }
 }

@@ -84,7 +84,7 @@ trait Layers { self: ScafiStandardAggregateProgram =>
   }
 }
 
-class LayerExampleProgram extends ScafiStandardAggregateProgram with SensorDefinitions with Layers with BlockS {
+class LayerExampleProgram extends ScafiStandardAggregateProgram with SensorDefinitions with Layers with ScafiStandardLibraries.BlockS {
   def lowPower = sense1
 
   object L { // Layers

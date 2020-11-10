@@ -47,6 +47,15 @@ trait StdLib_BlockG {
     def G[V](source: Boolean, field: V, acc: V => V, metric: Metric): V =
       Gg[V](ClassicGradient.from(source).withMetric(metric), field, acc)
 
+    def G_metricAccumulator(source: Boolean, field: Double, accMetric: Metric, distanceMetric: Metric): Double = {
+      G_along_withAccumulator[Double](
+        ClassicGradient.from(source).withMetric(distanceMetric).run(),
+        distanceMetric,
+        field,
+        metricAccFromLowestPotential(_, _, _, _, accMetric)
+      )
+    }
+
     /**
       * Curried version of [[G]]
       */
@@ -57,12 +66,7 @@ trait StdLib_BlockG {
       * A field of distance (i.e., a gradient) from a `source`, based on a given `metric`
       */
     def distanceTo(source: Boolean, metric: Metric = nbrRange): Double =
-      G_along_withAccumulator[Double](
-        ClassicGradient.from(source).withMetric(nbrRange).run(),
-        nbrRange,
-        mux(source){0.0}{Double.PositiveInfinity},
-        metricAccFromLowestPotential(_, _, _, _, metric)
-      )
+      G_metricAccumulator(source, mux(source){0.0}{Double.PositiveInfinity}, metric, nbrRange)
 
     /**
       * Hop distance
