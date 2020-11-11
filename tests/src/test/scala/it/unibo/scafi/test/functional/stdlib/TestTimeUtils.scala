@@ -1,11 +1,11 @@
 package it.unibo.scafi.test.functional.stdlib
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
-import ScafiStandardLibraries._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import it.unibo.utils.StatisticsUtils.stdDev
 import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 
 import scala.concurrent.duration._
 
@@ -14,146 +14,205 @@ Still to test:
 - cyclicFunction
 - cyclicFunctionWithDecay
  */
-class TestTimeUtils extends FlatSpec{
+class TestTimeUtils extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiTestUtils._
 
-  val Time_Utils = new ItWord
+  var net: Network with SimulatorOps = _
+  override protected def beforeEach(): Unit = net =  manhattanNet(detachedNodesCoords = Set((2,2)))
 
-  private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
-  }
+  private[this] trait TestProgramStandard extends AggregateProgram with ScafiStandardLanguage
+    with StandardSensors with ScafiStandardLibraries.BuildingBlocks
+  private[this] trait TestProgramFC extends AggregateProgram with ScafiFCLanguage
+    with StandardSensors with ScafiFCLibraries.BuildingBlocks
 
-  private[this] trait TestProgram extends AggregateProgram with ScafiStandardLanguage
-    with StandardSensors with BuildingBlocks
+  type ProgramImplDependencies = ScafiBaseLanguage with BuildingBlocksInterface
 
   val unitaryDecay: Int => Int = _ - 1
   val halving: Int => Int = _ / 2
 
-  Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
-    val testProgram: TestProgram = new TestProgram {
-      override def main(): Long = timerLocalTime(1.second)
+  describe("TimeUtils") {
+    describe("should support timerLocalTime") {
+      trait ProgramMain extends AggregateProgram {
+        self: ProgramImplDependencies =>
+        override def main(): Long = timerLocalTime(1.second)
+      }
+
+      def doTest(program: AggregateProgram) {
+        exec(program, ntimes = someRounds)(net)
+
+        ScafiAssertions.assertNetworkValuesWithPredicate[Long]((id, v) => v > 0.0, "Check timer didn't hit zero yet")()(net)
+
+        val deltaTimeSensor = new StandardTemporalSensorNames {}.LSNS_DELTA_TIME
+        net.addSensor[FiniteDuration](deltaTimeSensor, 0.2.second)
+
+        exec(program, ntimes = someRounds)(net)
+
+        ScafiAssertions.assertNetworkValuesWithPredicate[Long]((id,v) => v == 0.0, "Check timer hit zero")()(net)
+      }
+
+      it(inStandard) {
+        doTest(new TestProgramStandard with ProgramMain)
+      }
+      it(inFC) {
+        doTest(new TestProgramFC with ProgramMain)
+      }
     }
+    describe("should support impulsesEvery") {
+      trait ProgramMain extends AggregateProgram {
+        self: ProgramImplDependencies =>
+        override def main(): Any = rep(0)(_ + (if (impulsesEvery(1 nanosecond)) 1 else 0) )
+      }
 
-    exec(testProgram, ntimes = someRounds)(net)
+      def doTest(program: AggregateProgram): Unit = {
+        exec(program, ntimes = manyManyRounds)(net)
+        assert(net.valueMap[Int]().forall(e => e._2 > 0))
+      }
 
-    ScafiAssertions.assertNetworkValuesWithPredicate[Long]((id, v) => v > 0.0, "Check timer didn't hit zero yet")()(net)
-
-    val deltaTimeSensor = new StandardTemporalSensorNames {}.LSNS_DELTA_TIME
-    net.addSensor[FiniteDuration](deltaTimeSensor, 0.2.second)
-
-    exec(testProgram, ntimes = someRounds)(net)
-
-    ScafiAssertions.assertNetworkValuesWithPredicate[Long]((id,v) => v == 0.0, "Check timer hit zero")()(net)
-  }
-
-  Time_Utils should "support impulsesEvery" in new SimulationContextFixture {
-    exec(new TestProgram {
-      override def main(): Any = rep(0)(_ + (if (impulsesEvery(1 nanosecond)) 1 else 0) )
-    }, ntimes = manyManyRounds)(net)
-
-    assert(net.valueMap[Int]().forall(e => e._2 > 0))
-  }
-
-  Time_Utils should "support sharedTimer" in new SimulationContextFixture {
-    val maxStdDev: Int = 10
-
-    val testProgram: TestProgram = new TestProgram {
-      override def main(): Any = sharedTimer(1 seconds)
+      it(inStandard) {
+        doTest(new TestProgramStandard with ProgramMain)
+      }
+      it(inFC) {
+        doTest(new TestProgramFC with ProgramMain)
+      }
     }
+    describe("should support sharedTimer") {
+      val maxStdDev: Int = 10
 
-    exec(testProgram, ntimes = someRounds)(net)
-    assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
+      trait ProgramMain extends AggregateProgram {
+        self: ProgramImplDependencies =>
+        override def main(): Any = sharedTimer(1 seconds)
+      }
 
-    exec(testProgram, ntimes = manyManyRounds)(net)
-    assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
-  }
+      def doTest(program: AggregateProgram): Unit = {
+        exec(program, ntimes = someRounds)(net)
+        assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
 
-  Time_Utils should "support recentlyTrue" in new SimulationContextFixture {
-    val deltaTimeSensor = new StandardTemporalSensorNames {}.LSNS_DELTA_TIME
-    net.addSensor[Boolean]("rtSense", false)
-    net.addSensor[FiniteDuration](deltaTimeSensor, 1.second)
+        exec(program, ntimes = manyManyRounds)(net)
+        assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
+      }
 
-    val testProgram: TestProgram = new TestProgram {
-      override def main(): Boolean =
-        recentlyTrue(1.second, cond = sense[Boolean]("rtSense"))
+      it(inStandard) {
+        doTest(new TestProgramStandard with ProgramMain)
+      }
+      it(inFC) {
+        doTest(new TestProgramFC with ProgramMain)
+      }
     }
+    describe("should support recentlyTrue") {
+      trait ProgramMain extends AggregateProgram {
+        self: ProgramImplDependencies =>
+        override def main(): Boolean =
+          recentlyTrue(1.second, cond = sense[Boolean]("rtSense"))
+      }
 
-    runProgramInOrder((0 to 8).toSeq, testProgram)(net)
-    assertNetworkValues((0 to 8).zip(List(
-      false, false, false,
-      false, false, false,
-      false, false, false
-    )).toMap, None, "Assert everything false")(net)
+      def doTest(program: AggregateProgram): Unit = {
+        val deltaTimeSensor = new StandardTemporalSensorNames {}.LSNS_DELTA_TIME
+        net.addSensor[Boolean]("rtSense", false)
+        net.addSensor[FiniteDuration](deltaTimeSensor, 1.second)
 
-    net.chgSensorValue("rtSense", Set(0), value = true)
-    net.chgSensorValue(deltaTimeSensor, Set(0), 0.3.seconds)
-    runProgramInOrder(Seq(0,0), testProgram)(net)
-    assertNetworkValues((0 to 8).zip(List(
-      true, false, false,
-      false, false, false,
-      false, false, false
-    )).toMap, None, "Assert true in ID=0")(net)
+        runProgramInOrder((0 to 8).toSeq, program)(net)
+        assertNetworkValues((0 to 8).zip(List(
+          false, false, false,
+          false, false, false,
+          false, false, false
+        )).toMap, None, "Assert everything false")(net)
 
-    net.chgSensorValue("rtSense", Set(0), value = false)
-    runProgramInOrder(Seq(0,0,0), testProgram)(net)
-    assertNetworkValues((0 to 8).zip(List(
-      true, false, false,
-      false, false, false,
-      false, false, false
-    )).toMap, None, "Assert still true in ID=0")(net)
+        net.chgSensorValue("rtSense", Set(0), value = true)
+        net.chgSensorValue(deltaTimeSensor, Set(0), 0.3.seconds)
+        runProgramInOrder(Seq(0,0), program)(net)
+        assertNetworkValues((0 to 8).zip(List(
+          true, false, false,
+          false, false, false,
+          false, false, false
+        )).toMap, None, "Assert true in ID=0")(net)
 
-    runProgramInOrder(Seq(0), testProgram)(net)
-    assertNetworkValues((0 to 8).zip(List(
-      false, false, false,
-      false, false, false,
-      false, false, false
-    )).toMap, None, "Assert back to false in ID=0 (and in the rest of the network)")(net)
-  }
+        net.chgSensorValue("rtSense", Set(0), value = false)
+        runProgramInOrder(Seq(0,0,0), program)(net)
+        assertNetworkValues((0 to 8).zip(List(
+          true, false, false,
+          false, false, false,
+          false, false, false
+        )).toMap, None, "Assert still true in ID=0")(net)
 
-  Time_Utils should("support evaporation") in new SimulationContextFixture {
-    val ceiling: Int = someRounds
+        runProgramInOrder(Seq(0), program)(net)
+        assertNetworkValues((0 to 8).zip(List(
+          false, false, false,
+          false, false, false,
+          false, false, false
+        )).toMap, None, "Assert back to false in ID=0 (and in the rest of the network)")(net)
+      }
 
-    val testProgram: TestProgram = new TestProgram {
-      override def main(): (Int, String) = evaporation(ceiling, "hello")
+      it(inStandard) {
+        doTest(new TestProgramStandard with ProgramMain)
+      }
+      it(inFC) {
+        doTest(new TestProgramFC with ProgramMain)
+      }
     }
+    describe("should support evaporation") {
+      val ceiling: Int = someRounds
 
-    exec(testProgram, ntimes = manyRounds)(net)
-    assert(net.valueMap[(Int, String)]().forall {
-      case (_, (n, "hello")) if n > 0 => true
-      case _ => false
-    })
+      trait ProgramMain extends AggregateProgram {
+        self: ProgramImplDependencies =>
+        override def main(): (Int, String) = evaporation(ceiling, "hello")
+      }
 
-    exec(testProgram, ntimes = manyManyRounds * 3)(net)
-    assertNetworkValues((0 to 8).zip(List(
-      (0, "hello"), (0, "hello"), (0, "hello"),
-      (0, "hello"), (0, "hello"), (0, "hello"),
-      (0, "hello"), (0, "hello"), (0, "hello")
-    )).toMap)(net)
-  }
+      def doTest(program: AggregateProgram): Unit = {
+        exec(program, ntimes = manyRounds)(net)
+        assert(net.valueMap[(Int, String)]().forall {
+          case (_, (n, "hello")) if n > 0 => true
+          case _ => false
+        })
 
-  Time_Utils should("support evaporation - with custom decay") in new SimulationContextFixture {
-    val ceiling: Int = 1000000
+        exec(program, ntimes = manyManyRounds * 3)(net)
+        assertNetworkValues((0 to 8).zip(List(
+          (0, "hello"), (0, "hello"), (0, "hello"),
+          (0, "hello"), (0, "hello"), (0, "hello"),
+          (0, "hello"), (0, "hello"), (0, "hello")
+        )).toMap)(net)
+      }
 
-    val testProgram: TestProgram = new TestProgram {
-      override def main(): (Int, String) = evaporation(ceiling, halving,"hello")
+      it(inStandard) {
+        doTest(new TestProgramStandard with ProgramMain)
+      }
+      it(inFC) {
+        doTest(new TestProgramFC with ProgramMain)
+      }
     }
+    describe("should support evaporation - with custom decay") {
+      val ceiling: Int = 1000000
 
-    exec(testProgram, ntimes = fewRounds)(net)
-    assert(net.valueMap[(Int, String)]().forall {
-      case (_, (n, "hello")) if n > 0 => true
-      case _ => false
-    })
+      trait ProgramMain extends AggregateProgram {
+        self: ProgramImplDependencies =>
+        override def main(): (Int, String) = evaporation(ceiling, halving,"hello")
+      }
 
-    exec(testProgram, ntimes = manyManyRounds)(net)
-    net.valueMap[(Int, String)]().forall {
-      case (_, (0, "hello")) => true
-      case _ => false
+      def doTest(program: AggregateProgram): Unit = {
+        exec(program, ntimes = fewRounds)(net)
+        assert(net.valueMap[(Int, String)]().forall {
+          case (_, (n, "hello")) if n > 0 => true
+          case _ => false
+        })
+
+        exec(program, ntimes = manyManyRounds)(net)
+        net.valueMap[(Int, String)]().forall {
+          case (_, (0, "hello")) => true
+          case _ => false
+        }
+
+        assertNetworkValues((0 to 8).zip(List(
+          (0, "hello"), (0, "hello"), (0, "hello"),
+          (0, "hello"), (0, "hello"), (0, "hello"),
+          (0, "hello"), (0, "hello"), (0, "hello")
+        )).toMap)(net)
+      }
+
+      it(inStandard) {
+        doTest(new TestProgramStandard with ProgramMain)
+      }
+      it(inFC) {
+        doTest(new TestProgramFC with ProgramMain)
+      }
     }
-
-    assertNetworkValues((0 to 8).zip(List(
-      (0, "hello"), (0, "hello"), (0, "hello"),
-      (0, "hello"), (0, "hello"), (0, "hello"),
-      (0, "hello"), (0, "hello"), (0, "hello")
-    )).toMap)(net)
   }
 }
