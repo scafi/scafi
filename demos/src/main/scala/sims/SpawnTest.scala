@@ -17,7 +17,7 @@ object SpawnTestRunner extends Launcher {
   launch()
 }
 
-class SpawnTest extends ScafiStandardAggregateProgram with SensorDefinitions with FieldUtils with BlockG {
+class SpawnTest extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG {
   case class SpawnDef[T](pid: Int,
                          comp: () => T,
                          genCondition: () => Boolean,

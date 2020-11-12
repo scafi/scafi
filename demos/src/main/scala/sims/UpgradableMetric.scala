@@ -20,7 +20,7 @@ object UpgradableMetricDemo extends App {
 }
 
 class UpgradableMetricProgram extends ScafiStandardAggregateProgram with BuildingBlocks with SensorDefinitions with DynamicCode
-  with FieldUtils with BlockG {
+  with BlockG {
   override def main(): Any = {
     val injecter: Injecter[this.type,Double] = () => {
       branch(rep(0)(_+1)<100){

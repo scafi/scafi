@@ -182,7 +182,6 @@ object DoubleUtils {
 }
 
 trait Gradients extends BlockG
-  with FieldUtils
   with TimeUtils
   with StateManagement
   with GenericUtils { self: ScafiStandardAggregateProgram with SensorDefinitions with StandardSensors =>

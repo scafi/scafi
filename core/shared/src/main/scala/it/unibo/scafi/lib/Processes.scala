@@ -24,7 +24,7 @@ trait StdLib_Processes {
     override def toString: String = s"puid$puid"
   }
 
-  trait HFCSpawn extends FieldUtils {
+  trait HFCSpawn {
     self: ScafiStandardLanguage =>
 
     trait Status
@@ -59,8 +59,8 @@ trait StdLib_Processes {
   }
 
   trait Processes {
-    self: ScafiStandardLanguage with StandardSensors with FieldUtils =>
-    import excludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
+    self: ScafiStandardLanguage with StandardSensors =>
+    import ExcludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
 
     val TimeGC: Long = 20
 

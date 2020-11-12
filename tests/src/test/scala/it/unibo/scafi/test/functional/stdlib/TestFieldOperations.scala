@@ -5,7 +5,7 @@ import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
 
 
-class TestFieldUtils extends FlatSpec {
+class TestFieldOperations extends FlatSpec {
   import ScafiAssertions._
   import ScafiTestUtils._
 
@@ -16,7 +16,7 @@ class TestFieldUtils extends FlatSpec {
     val n: Int => Set[Int] = net.neighbourhood
   }
 
-  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors
 
 
   Field_Utils should "support min/maxHoodSelectors" in new SimulationContextFixture {

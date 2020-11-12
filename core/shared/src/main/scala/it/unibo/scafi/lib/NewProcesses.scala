@@ -27,7 +27,7 @@ trait StdLib_NewProcesses {
     val Terminated: Status = TerminatedStatus
   }
 
-  trait CustomSpawn extends SpawnInterface with FieldUtils {
+  trait CustomSpawn extends SpawnInterface {
     self: ScafiStandardAggregateProgram =>
 
     import SpawnInterface._
@@ -340,7 +340,7 @@ trait StdLib_NewProcesses {
     *   }.withArgs(1000)
     */
   trait ProcessDSL {
-    self: ScafiStandardAggregateProgram with FieldUtils with CustomSpawn with ScafiStandardLibraries.TimeUtils with StateManagement with StandardSensors =>
+    self: ScafiStandardAggregateProgram with CustomSpawn with ScafiStandardLibraries.TimeUtils with StateManagement with StandardSensors =>
 
     import SpawnInterface._
 

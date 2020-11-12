@@ -100,62 +100,62 @@ class SparseChoice extends ScafiStandardAggregateProgram with SensorDefinitions 
 }
 
 @Demo
-class SensorNbrRange extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrRange extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField("%.2f".format(nbrRange()))
 }
 
 @Demo
-class SensorCurrTime extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
+class SensorCurrTime extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = currentTime().toString
 }
 
 @Demo
-class SensorTimestamp extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
+class SensorTimestamp extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = timestamp() + "ms"
 }
 
 @Demo
-class SensorCurrPos extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
+class SensorCurrPos extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = currentPosition()
 }
 
 @Demo
-class SensorNbrVector extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrVector extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrVector())
 }
 
 @Demo
-class SensorDeltaTime extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
+class SensorDeltaTime extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = deltaTime().toMillis + "ms"
 }
 
 @Demo
-class SensorNbrDelay extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrDelay extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrDelay().toMillis+"ms")
 }
 
 @Demo
-class SensorNbrLag extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrLag extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = deltaTime().toMillis  + "ms -- " + mid() + " => " + reifyField(nbrLag().toMillis+"ms")
 }
 
 @Demo
-class SensorNbrDelayLag extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrDelayLag extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(s"${nbrDelay().toMillis}ms; ${nbrLag().toMillis}ms")
 }
 
 @Demo
-class CollectNbrsIncludingMyself extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
+class CollectNbrsIncludingMyself extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = includingSelf.unionHood(nbr{mid})
 }
 
 @Demo
-class CollectNbrsExcludingMyself extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils {
+class CollectNbrsExcludingMyself extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = excludingSelf.unionHood(nbr{mid})
 }
 

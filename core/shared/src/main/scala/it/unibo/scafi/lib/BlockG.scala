@@ -106,7 +106,7 @@ trait StdLib_BlockG {
     private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double
   }
 
-  private[lib] trait BlockG_ScafiStandard extends BlockGInterface with FieldUtils with SimpleGradients_ScafiStandard {
+  private[lib] trait BlockG_ScafiStandard extends BlockGInterface with SimpleGradients_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
 
     override private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =

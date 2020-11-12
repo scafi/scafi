@@ -18,7 +18,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
   override protected def beforeEach(): Unit = restartNetwork()
 
 
-  private[this] trait TestProgramStandard extends AggregateProgram with ScafiStandardLanguage with StandardSensors with ScafiStandardLibraries.Gradients with FieldUtils
+  private[this] trait TestProgramStandard extends AggregateProgram with ScafiStandardLanguage with StandardSensors with ScafiStandardLibraries.Gradients
   private[this] trait TestProgramFC extends AggregateProgram with ScafiFCLanguage with StandardSensors with ScafiFCLibraries.SimpleGradients
 
   describe("Classic Gradient") {

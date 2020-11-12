@@ -11,15 +11,22 @@ trait ScafiLanguage {
 }
 
 trait ScafiLanguages
-  extends scafistandard.Semantics with scafistandard.RichLanguage
-  with scafifc.Semantics {
+  extends scafistandard.Semantics with scafistandard.RichLanguage with scafistandard.FieldOperations
+  with scafifc.Semantics with scafifc.FieldOperations {
   self: ExecutionEnvironment =>
 
-  trait ScafiStandardLanguage extends ScafiBaseLanguage with ScafiStandard_ConstructSemantics with ScafiStandard_Builtins {
+  trait ScafiStandardLanguage
+    extends ScafiBaseLanguage
+    with ScafiStandard_ConstructSemantics
+    with ScafiStandard_Builtins
+    with ScafiStandard_FieldOperations {
     self: ExecutionTemplate =>
   }
 
-  trait ScafiFCLanguage extends ScafiBaseLanguage with  ScafiFC_ConstructSemantics {
+  trait ScafiFCLanguage
+    extends ScafiBaseLanguage
+    with ScafiFC_ConstructSemantics
+    with ScafiFC_FieldOperations {
     self: ExecutionTemplate =>
   }
 

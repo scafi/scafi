@@ -20,7 +20,6 @@ trait StdLib_BuildingBlocks {
   }
 
   private[lib] trait BuildingBlocks_ScafiStandard extends BuildingBlocksInterface
-    with FieldUtils
     with SimpleGradients_ScafiStandard
     with BlockG_ScafiStandard
     with BlockC_ScafiStandard

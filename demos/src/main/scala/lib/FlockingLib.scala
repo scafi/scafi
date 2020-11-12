@@ -10,9 +10,8 @@ import it.unibo.scafi.space.Point3D
 
 import scala.util.Random
 
-trait FlockingLib extends FieldUtils with StandardSensors {
+trait FlockingLib extends StandardSensors {
   self: ScafiStandardAggregateProgram =>
-  import includingSelf._
 
   lazy val r: Random = sense[Random](LSNS_RANDOM)
   val SCALE = 1000
@@ -20,7 +19,7 @@ trait FlockingLib extends FieldUtils with StandardSensors {
   def flock(lastVec: (Double, Double), flockingSensor: Seq[Boolean], obstacleSensor: Seq[Boolean], separationDistance: Double,
             attractionForce: Double, alignmentForce: Double, repulsionForce: Double, obstacleForce: Double): (Double, Double) = {
 
-    val n: Map[Int,Point3D] = reifyField[Point3D](nbrVector())
+    val n: Map[Int,Point3D] = includingSelf.reifyField[Point3D](nbrVector())
     val activeNodes = foldhood[Seq[Point3D]](Seq[(Point3D)]())(_ ++ _){
       mux(nbr(getBooleanResult(flockingSensor)))(Seq(n(nbr(mid()))))(Seq())
     }
@@ -101,7 +100,7 @@ trait FlockingLib extends FieldUtils with StandardSensors {
   }
 
   def goToPointWithSeparation(point: (Double,Double), separationDistance: Double): (Double,Double) = {
-    val neighbors = reifyField(nbrVector())
+    val neighbors = includingSelf.reifyField(nbrVector())
 
     val currentPos = currentPosition()
 

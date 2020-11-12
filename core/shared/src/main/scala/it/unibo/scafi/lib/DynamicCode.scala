@@ -60,8 +60,7 @@ trait StdLib_DynamicCode {
   }
 
   private[lib] trait DynamicCode_ScafiStandard extends DynamicCodeInterface
-    with LanguageDependant_ScafiStandard
-    with FieldUtils {
+    with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage =>
 
     private[StdLib_DynamicCode] def procsWithMaxVer[T,R:Bounded](maxVer: Int, procs: List[Fun[T,R]]): (Int, List[Fun[T, R]]) =

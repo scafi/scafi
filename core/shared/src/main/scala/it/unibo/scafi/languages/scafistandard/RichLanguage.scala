@@ -10,28 +10,34 @@ import it.unibo.scafi.languages.scafibase.{RichLanguage => BaseRichLanguage}
  *
  */
 trait RichLanguage extends Language with BaseRichLanguage {
-  self: Core =>
+  self: Core with FieldOperations =>
 
   trait ScafiStandard_Builtins extends ScafiBase_Builtins {
-    this: ScafiStandard_Constructs =>
+    this: ScafiStandard_Constructs with ScafiStandard_FieldOperations =>
 
+    //slightly different from the one in FieldOperations
     def minHoodLoc[A](default: A)(expr: => A)(implicit poglb: PartialOrderingWithGLB[A]): A =
       foldhood[A](default)((x, y) => if (poglb.equiv(x, y)) poglb.gle(x, y) else if (poglb.lt(x, y)) x else y) {
         expr
       }
 
+    //slightly different from the one in FieldOperations
     def minHoodPlusLoc[A](default: A)(expr: => A)(implicit poglb: PartialOrderingWithGLB[A]): A =
       foldhoodPlus[A](default)((x, y) => if (poglb.equiv(x, y)) poglb.gle(x, y) else if (poglb.lt(x, y)) x else y) {
         expr
       }
 
-    def minHood[A](expr: => A)(implicit of: Bounded[A]): A = foldhood[A](of.top)((x, y) => of.min(x, y)) {
-      expr
-    }
+    def minHood[A](expr: => A)(implicit of: Bounded[A]): A =
+      includingSelf.minHood(expr)
 
-    def maxHood[A](expr: => A)(implicit of: Bounded[A]): A = foldhood[A](of.bottom)((x, y) => of.max(x, y)) {
-      expr
-    }
+    def maxHood[A](expr: => A)(implicit of: Bounded[A]): A =
+      includingSelf.maxHood(expr)
+
+    def minHoodPlus[A](expr: => A)(implicit of: Bounded[A]): A =
+      excludingSelf.minHoodPlus(expr)
+
+    def maxHoodPlus[A](expr: => A)(implicit of: Bounded[A]): A =
+      excludingSelf.maxHoodPlus(expr)
 
     def foldhoodPlus[A](init: => A)(aggr: (A, A) => A)(expr: => A): A =
       foldhood(init)(aggr)(mux(mid() == nbr(mid())) {
@@ -39,13 +45,5 @@ trait RichLanguage extends Language with BaseRichLanguage {
       } {
         expr
       })
-
-    def minHoodPlus[A](expr: => A)(implicit of: Bounded[A]): A = foldhoodPlus[A](of.top)((x, y) => of.min(x, y)) {
-      expr
-    }
-
-    def maxHoodPlus[A](expr: => A)(implicit of: Bounded[A]): A = foldhoodPlus[A](of.bottom)((x, y) => of.max(x, y)) {
-      expr
-    }
   }
 }

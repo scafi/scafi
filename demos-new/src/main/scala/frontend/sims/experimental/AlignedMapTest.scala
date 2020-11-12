@@ -23,7 +23,7 @@ object AlignedMapRunner extends App {
   ).launch()
 }
 @Demo
-class AlignedMapTest extends ScafiStandardAggregateProgram with SensorDefinitions with FieldUtils with BlockG {
+class AlignedMapTest extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG {
   override def main() = test1
 
   def test1 = {

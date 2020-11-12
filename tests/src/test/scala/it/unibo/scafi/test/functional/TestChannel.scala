@@ -30,7 +30,7 @@ class TestChannel extends FlatSpec with Matchers {
   val DEST_ID = 0
   val OBSTACLES = Set(5,6,9)
 
-  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with FieldUtils with BlockG {
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BlockG {
     def src = sense[Boolean]("src")
     def dest = sense[Boolean]("dest")
     def obstacle = sense[Boolean]("obstacle")

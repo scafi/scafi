@@ -66,7 +66,7 @@ trait StdLib_Gradients {
 
   //TODO Gradients_ScafiFC
   trait GradientsInterface extends SimpleGradientsInterface {
-    self: ScafiStandardLanguage with StandardSensors with FieldUtils with LanguageDependant =>
+    self: ScafiStandardLanguage with StandardSensors with LanguageDependant =>
 
     def BisGradient(commRadius: Double = 0.2,
                     lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(bisGradient(commRadius, lagMetric), source = false, nbrRange)
@@ -297,7 +297,7 @@ trait StdLib_Gradients {
   }
 
   private[lib] trait Gradients_ScafiStandard extends SimpleGradients_ScafiStandard with GradientsInterface {
-    self: ScafiStandardLanguage with StandardSensors with FieldUtils =>
+    self: ScafiStandardLanguage with StandardSensors =>
 
   }
 }

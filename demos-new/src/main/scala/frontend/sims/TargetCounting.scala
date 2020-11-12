@@ -30,7 +30,7 @@ object TargetCounting extends App {
 
 @Demo
 class TargetCountingProgram extends ScafiStandardAggregateProgram with SensorDefinitions
-  with FieldUtils with BlockG with BlockS with BlockC with BlocksWithGC {
+  with BlockG with BlockS with BlockC with BlocksWithGC {
 
   def senseTargets: Int = 3
 

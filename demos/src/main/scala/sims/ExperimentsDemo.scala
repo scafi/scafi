@@ -26,7 +26,7 @@ object ExperimentsDemo extends Launcher {
   launch()
 }
 
-class ExperimentsProgram extends ScafiStandardAggregateProgram with SensorDefinitions with FieldUtils {
+class ExperimentsProgram extends ScafiStandardAggregateProgram with SensorDefinitions {
   def main = (mid,
     {
       val numSrcNbrs = foldhood(0)(_+_)(if(nbr{sense1}) 1 else 0)

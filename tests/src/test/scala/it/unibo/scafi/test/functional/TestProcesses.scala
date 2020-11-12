@@ -32,7 +32,7 @@ class TestProcesses extends FlatSpec with Matchers {
   }
 
   private[this] class Program extends ScafiStandardAggregateProgram
-    with Processes with FieldUtils with StandardSensors with BlockG with StateManagement {
+    with Processes with StandardSensors with BlockG with StateManagement {
 
     override val TimeGC: Long = 20
 

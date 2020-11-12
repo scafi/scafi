@@ -6,6 +6,7 @@
 package it.unibo.scafi.lib
 
 import it.unibo.scafi.incarnations.Incarnation
+import it.unibo.scafi.languages.Languages_FieldOperations
 
 trait StandardLibrary extends
          StdLib_BlockG
@@ -14,7 +15,6 @@ trait StandardLibrary extends
     with StdLib_BlockS
     with StdLib_BlocksWithGC
     with StdLib_BuildingBlocks
-    with StdLib_FieldUtils
     with StdLib_TimeUtils
     with StdLib_StateManagement
     with StdLib_GenericUtils
