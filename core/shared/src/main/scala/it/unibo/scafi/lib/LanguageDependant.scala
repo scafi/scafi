@@ -10,47 +10,36 @@ trait StdLib_LanguageDependant {
   selfcomp: StandardLibrary.Subcomponent with ScafiLanguages =>
 
   private[lib] trait LanguageDependant {
-    def neighbourhoodMin[A](expr: => A, includingSelf: Boolean = true)(implicit of: Bounded[A]): A
-    def neighbourhoodMax[A](expr: => A, includingSelf: Boolean = true)(implicit of: Bounded[A]): A
-    def neighbourhoodFold[A](init: => A, includingSelf: Boolean = true)(aggr: (A, A) => A)(expr: => A): A
+    self: NeighbourhoodSensorReader with FieldOperationsInterface =>
+
+    def makeField[A](expr: => A): FieldType[A]
+
+    def combineFields[A](condition: FieldType[Boolean])(th: FieldType[A])(el: FieldType[A]): FieldType[A]
+
+    def combineWithRead[F, R, T](field: FieldType[F])(read: NbrSensorRead[R])(combine: (F, R) => T): FieldType[T]
   }
 
   private[lib] trait LanguageDependant_ScafiStandard extends LanguageDependant {
     self: ScafiStandardLanguage =>
-    override def neighbourhoodMin[A](expr: => A, includingSelf: Boolean)(implicit of: Bounded[A]): A =
-      if (includingSelf)
-        minHood(nbr(expr))
-      else
-        minHoodPlus(nbr(expr))
 
-    override def neighbourhoodMax[A](expr: => A, includingSelf: Boolean)(implicit of: Bounded[A]): A =
-      if (includingSelf)
-        maxHood(nbr(expr))
-      else
-        maxHoodPlus(nbr(expr))
-    override def neighbourhoodFold[A](init: => A, includingSelf: Boolean)(aggr: (A, A) => A)(expr: => A): A =
-      if (includingSelf)
-        foldhood(init)(aggr)(nbr(expr))
-      else
-        foldhoodPlus(init)(aggr)(nbr(expr))
+    override def makeField[A](expr: => A): A = nbr(expr)
+
+    override def combineFields[A](condition: Boolean)(th: A)(el: A): A =
+      mux(condition){th}{el}
+
+    override def combineWithRead[F, R, T](field: F)(read: R)(combine: (F, R) => T): T =
+      combine(field, read)
   }
 
   private[lib] trait LanguageDependant_ScafiFC extends LanguageDependant {
     self: ScafiFCLanguage =>
 
-    override def neighbourhoodMin[A](expr: => A, includingSelf: Boolean)(implicit of: Bounded[A]): A =
-      makeField(expr, includingSelf).minHood
-    override def neighbourhoodMax[A](expr: => A, includingSelf: Boolean)(implicit of: Bounded[A]): A =
-      makeField(expr, includingSelf).maxHood
-    override def neighbourhoodFold[A](init: => A, includingSelf: Boolean)(aggr: (A, A) => A)(expr: => A): A =
-      makeField(expr, includingSelf).fold(init)(aggr)
+    override def makeField[A](expr: => A): Field[A] = nbrField(expr)
 
-    private def makeField[A](expr: => A, includeSelf: Boolean): Field[A] = {
-      val field = nbrField(expr)
-      if (includeSelf)
-        field
-      else
-        field.withoutSelf
-    }
+    override def combineFields[A](condition: Field[Boolean])(th: Field[A])(el: Field[A]): Field[A] =
+      condition.compose(th)(el)
+
+    override def combineWithRead[F, R, T](field: Field[F])(read: Field[R])(combine: (F, R) => T): Field[T] =
+      field.zip(read).map{case (f, r) => combine(f, r)}
   }
 }

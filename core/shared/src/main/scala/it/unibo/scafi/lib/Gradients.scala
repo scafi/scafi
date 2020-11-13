@@ -17,7 +17,7 @@ trait StdLib_Gradients {
   implicit val idBounded: Bounded[ID]
 
   trait SimpleGradientsInterface extends GenericUtils with StateManagement {
-    self: ScafiBaseLanguage with StandardSensors with NeighbourhoodSensorReader with LanguageDependant =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with NeighbourhoodSensorReader with LanguageDependant =>
 
     type Metric = ()=>NbrSensorRead[Double]
 
@@ -37,31 +37,23 @@ trait StdLib_Gradients {
         mux(source) {
           0.0
         } {
-          minWithMetric(d, metric)
+          excludingSelf.minHoodPlus(combineWithRead(makeField{d})(metric())(_ + _))
         }
       }
 
     def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) {
-        hops => mux(source) {0.0} {1 + neighbourhoodMin(hops, false)
+        hops => mux(source) {0.0} {1 + excludingSelf.minHoodPlus(makeField(hops))
         }
       }
-
-    private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric): Double
   }
 
   private[lib] trait SimpleGradients_ScafiStandard extends SimpleGradientsInterface with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
-
-    override private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric) =
-      minHoodPlus(nbr{d} + metric())
   }
 
   private[lib] trait SimpleGradients_ScafiFC extends SimpleGradientsInterface with LanguageDependant_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
-
-    override private[StdLib_Gradients] def minWithMetric(d: => Double, metric: Metric) =
-      (nbrField(d) + metric()).withoutSelf.minHood
   }
 
   //TODO Gradients_ScafiFC

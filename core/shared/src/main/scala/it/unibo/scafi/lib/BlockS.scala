@@ -13,7 +13,7 @@ trait StdLib_BlockS {
   import it.unibo.scafi.languages.TypesInfo._
 
   trait BlockSInterface extends BlockGInterface {
-    self: ScafiBaseLanguage with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
 
     def S(grain: Double, metric: Metric): Boolean =
       breakUsingUids(randomUid, grain, metric)
@@ -28,7 +28,7 @@ trait StdLib_BlockS {
     def minId(): ID = {
       val boundedId = implicitly[Bounded[ID]]
       rep(boundedId.top) { mmid =>
-        boundedId.min(mid(), neighbourhoodMin(mmid))
+        boundedId.min(mid(), excludingSelf.minHoodPlus(makeField(mmid)))
       }
     }
 
@@ -87,49 +87,23 @@ trait StdLib_BlockS {
           inf
         } {
           // Otherwise, elect the leader with lowest UID.
-          electLowestUID(d, metric, 0.5 * grain, inf, lead)
+          includingSelf.minHood {
+            combineFields(mapField(combineWithRead(makeField{d})(metric())(_ + _))(_ >= 0.5 * grain)) {
+              makeField { inf }
+            } {
+              makeField { lead }
+            }
+          }
         }
       }
     }
-
-    private[StdLib_BlockS] def electLowestUID(d: Double, metric: Metric, halfGrain: Double, inf: (Double, ID), lead: (Double, ID)): (Double, ID)
   }
 
   private[lib] trait BlockS_ScafiStandard extends BlockSInterface with BlockG_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
-
-    override private[StdLib_BlockS] def electLowestUID(
-      d: Double,
-      metric: Metric,
-      halfGrain: Double,
-      inf: (Double, ID),
-      lead: (Double, ID)
-    ): (Double, ID) = {
-      // Note: it works because Tuple2 has an OrderingFoldable where
-      //   the min(t1,t2) is defined according the 1st element, or
-      //   according to the 2nd elem in case of breakeven on the first one.
-      //   (minHood uses min to select the candidate leader tuple)
-      minHood {
-        mux(nbr { d } + metric() >= halfGrain) {
-          nbr { inf }
-        } {
-          nbr { lead }
-        }
-      }
-    }
   }
 
   private[lib] trait BlockS_ScafiFC extends BlockSInterface with BlockG_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
-
-    override private[StdLib_BlockS] def electLowestUID(
-      d: Double,
-      metric: Metric,
-      halfGrain: Double,
-      inf: (Double, ID),
-      lead: (Double, ID)
-    ): (Double, ID) = {
-      (nbrField(d) + metric()).conditionalMap(_ >= halfGrain){nbrField(inf)}{nbrField(lead)}.minHood
-    }
   }
 }

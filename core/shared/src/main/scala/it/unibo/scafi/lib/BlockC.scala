@@ -18,7 +18,7 @@ trait StdLib_BlockC {
   implicit val idBounded: Bounded[ID]
 
   trait BlockCInterface {
-    self: ScafiBaseLanguage with StandardSensors with LanguageDependant =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with LanguageDependant =>
     /**
       * Collects values down a potential field.
       * @param potential the field providing the direction of the collection process
@@ -31,7 +31,9 @@ trait StdLib_BlockC {
       */
     def C[P: Bounded, V](potential: P, acc: (V, V) => V, local: V, Null: V): V =
       rep(local) { v =>
-        acc(local, collectFromChildren(potential, acc, v, Null))
+        acc(local, excludingSelf.foldhoodTemplate(Null)(acc){
+          combineFields(mapField(makeField{findParent(potential)})(_ == mid())) { makeField(v) } { makeField(Null) }
+        })
       }
 
     /**
@@ -39,7 +41,7 @@ trait StdLib_BlockC {
       * the neighbour with the smallest value of the potential field.
       */
     def findParent[V: Bounded](potential: V): ID = {
-      val (minPotential,devIdWithMinPotential) = neighbourhoodMin((potential, mid()))
+      val (minPotential,devIdWithMinPotential) = includingSelf.minHood(makeField((potential, mid())))
       mux(smaller(minPotential, potential)) {
         devIdWithMinPotential
       } {
@@ -52,7 +54,7 @@ trait StdLib_BlockC {
       *         or None if no such a parent is there (so that the device is parent of itself).
       */
     def findParentOpt[V: Bounded](potential: V): Option[ID] = {
-      val minPotential = neighbourhoodMin((potential, mid()))
+      val minPotential = includingSelf.minHood(makeField((potential, mid())))
       Some(minPotential).filter(p => smaller(p._1, potential)).map(_._2)
     }
 
@@ -103,29 +105,13 @@ trait StdLib_BlockC {
 
     private def smaller[V: Bounded](a: V, b: V): Boolean =
       implicitly[Bounded[V]].compare(a, b) < 0
-
-    //language-dependant
-
-    private[StdLib_BlockC] def collectFromChildren[V, P: Bounded](potential: P, acc: (V, V) => V, v: V, Null: V): V
   }
 
   private[lib] trait BlockC_ScafiStandard extends BlockCInterface with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
-
-    private[StdLib_BlockC] override def collectFromChildren[V, P: Bounded](potential: P, acc: (V, V) => V, v: V, Null: V): V =
-      foldhood(Null)(acc) {
-        mux(nbr(findParent(potential)) == mid()) { nbr(v) } { nbr(Null) }
-      }
   }
 
   private[lib] trait BlockC_ScafiFC extends BlockCInterface with LanguageDependant_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
-
-    private[StdLib_BlockC] override def collectFromChildren[V, P: Bounded](potential: P, acc: (V, V) => V, v: V, Null: V): V =
-      nbrField(findParent(potential)).conditionalMap(_ == mid()) {
-        nbrField(v)
-      } {
-        nbrField(Null)
-      }.fold(Null)(acc)
   }
 }

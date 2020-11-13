@@ -13,7 +13,7 @@ trait StdLib_BlockG {
   import it.unibo.scafi.languages.TypesInfo._
 
   trait BlockGInterface extends SimpleGradientsInterface with GenericUtils with StateManagement {
-    self: ScafiBaseLanguage with StandardSensors with NeighbourhoodSensorReader with LanguageDependant =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with NeighbourhoodSensorReader with StandardSensors with LanguageDependant =>
 
     /**
       * Version of G (Gradient-Cast) that takes a Gradient algorithm as input.
@@ -32,14 +32,18 @@ trait StdLib_BlockG {
       * @return a field that locally provides the value of the gradient-cast (`field` at sources, and an accumulation value along the way)
       */
     def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V =
-      G_along_withAccumulator[V](g, metric, field, simpleAccFromLowestPotential(_, _, _, _, acc))
+      G_along_valueAccumulator[V](g, metric, field, mapField(_)(acc))
 
-    private def G_along_withAccumulator[V](g: Double, metric: Metric, field: V, accumulator: (Double, V, Metric, V) => V): V = {
+    private def G_along_valueAccumulator[V](g: Double, metric: Metric, field: V, valueAccumulator:  FieldType[V] => FieldType[V]): V = {
       rep(field) { case (value) =>
         mux(g==0.0) {
           field
         } {
-          accumulator(g, value, metric, field)
+          excludingSelf.minHoodSelector[Double,V](
+            combineWithRead(makeField{g})(metric())(_ + _)
+          )(
+            valueAccumulator(makeField{value})
+          ).getOrElse(field)
         }
       }
     }
@@ -48,11 +52,11 @@ trait StdLib_BlockG {
       Gg[V](ClassicGradient.from(source).withMetric(metric), field, acc)
 
     def G_metricAccumulator(source: Boolean, field: Double, accMetric: Metric, distanceMetric: Metric): Double = {
-      G_along_withAccumulator[Double](
+      G_along_valueAccumulator[Double](
         ClassicGradient.from(source).withMetric(distanceMetric).run(),
         distanceMetric,
         field,
-        metricAccFromLowestPotential(_, _, _, _, accMetric)
+        combineWithRead(_)(accMetric())(_ + _)
       )
     }
 
@@ -102,32 +106,26 @@ trait StdLib_BlockG {
       !(ds + dt == Double.PositiveInfinity && db == Double.PositiveInfinity) && ds + dt <= db + width
     }
 
-    private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V
-    private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double
+    private def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
+      excludingSelf.minHoodSelector[Double,V](
+        combineWithRead(makeField{g})(metric())(_ + _)
+      )(
+        mapField(makeField{value})(acc)
+      ).getOrElse(field)
+
+    private def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double =
+      excludingSelf.minHoodSelector[Double,Double](
+        combineWithRead(makeField{g})(metric())(_ + _)
+      )(
+        combineWithRead(makeField{value})(accMetric())(_ + _)
+      ).getOrElse(field)
   }
 
   private[lib] trait BlockG_ScafiStandard extends BlockGInterface with SimpleGradients_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
-
-    override private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
-      excludingSelf
-        .minHoodSelector[Double,V](nbr{g} + metric())(acc(nbr{value}))
-        .getOrElse(field)
-
-    override private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double =
-      simpleAccFromLowestPotential[Double](g, value, metric, field, _ + accMetric())
   }
 
   private[lib] trait BlockG_ScafiFC extends BlockGInterface with SimpleGradients_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
-
-    override private[StdLib_BlockG] def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
-      doAcc[V](g, value, metric, field, _.map(acc))
-
-    override private[StdLib_BlockG] def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double =
-      doAcc[Double](g, value, metric, field, _ + accMetric())
-
-    private[this] def doAcc[V](g: Double, value: V, metric: Metric, field: V, fieldAcc: Field[V] => Field[V]): V =
-      (metric() + nbrField(g)).zip(fieldAcc(nbrField(value))).minimizingPlus(_._1).map(_._2).getOrElse(field)
   }
 }

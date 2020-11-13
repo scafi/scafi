@@ -13,7 +13,7 @@ trait StdLib_TimeUtils {
   // scalastyle:off method.name
 
   trait BlockTInterface {
-    self: ScafiBaseLanguage with LanguageDependant =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with LanguageDependant =>
 
     def T[V](initial: V, floor: V, decay: V => V)
             (implicit ev: Numeric[V]): V =
@@ -47,7 +47,7 @@ trait StdLib_TimeUtils {
     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
-        val clockPerceived = neighbourhoodFold(clock)(ev.max)(clock)
+        val clockPerceived = includingSelf.foldhoodTemplate(clock)(ev.max)(makeField(clock))
         branch(ev.compare(clockPerceived, clock) <= 0) {
           // I'm currently as fast as the fastest device in the neighborhood, so keep on counting time
           ev.plus(clock, (if (cyclicTimerWithDecay(period, dt)) {
@@ -119,7 +119,7 @@ trait StdLib_TimeUtils {
   }
 
   trait TimeUtilsInterface extends BlockTInterface {
-    self: ScafiBaseLanguage with StandardSensors with LanguageDependant =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with LanguageDependant =>
 
     def sharedTimer(period: FiniteDuration): FiniteDuration =
       sharedTimerWithDecay(period.toMillis, deltaTime().toMillis).seconds
@@ -203,14 +203,14 @@ trait StdLib_TimeUtils {
   private[lib] trait BlockT_ScafiStandard extends BlockTInterface with LanguageDependant_ScafiStandard {
     self: ScafiStandardLanguage =>
   }
-  private[lib] trait TimeUtils_ScafiStandard extends TimeUtilsInterface with LanguageDependant_ScafiStandard {
+  private[lib] trait TimeUtils_ScafiStandard extends TimeUtilsInterface with BlockT_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
   }
 
   private[lib] trait BlockT_ScafiFC extends BlockTInterface with LanguageDependant_ScafiFC {
     self: ScafiFCLanguage =>
   }
-  private[lib] trait TimeUtils_ScafiFC extends TimeUtilsInterface with LanguageDependant_ScafiFC {
+  private[lib] trait TimeUtils_ScafiFC extends TimeUtilsInterface with BlockT_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
   }
 }

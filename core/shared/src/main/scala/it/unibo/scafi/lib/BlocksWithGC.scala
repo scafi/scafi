@@ -9,7 +9,7 @@ trait StdLib_BlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
   trait BlocksWithGCInterface extends BlockGInterface with BlockCInterface {
-    self: ScafiBaseLanguage with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
 
     def summarize(sink: Boolean, acc: (Double, Double) => Double, local: Double, Null: Double): Double =
       broadcast(sink, C(distanceTo(sink), acc, local, Null))

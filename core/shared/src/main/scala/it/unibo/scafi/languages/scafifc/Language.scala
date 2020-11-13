@@ -48,9 +48,7 @@ trait Language extends BaseLanguage {
        * @return the combination of trueField and falseField
        */
       def conditionalMap[B](condition: T => Boolean)(trueField: Field[B])(falseField: Field[B]): Field[B] =
-        (this zip (trueField zip falseField)) map {case (ownValue, (trueValue, falseValue)) =>
-          if (condition(ownValue)) trueValue else falseValue
-        }
+        map(condition).compose(trueField)(falseField)
 
       def minHood[V>:T](implicit ev: Bounded[V]): V  =
         fold[V](ev.top) { case (a, b) => ev.min(a, b) }
@@ -136,6 +134,19 @@ trait Language extends BaseLanguage {
       def -(f2: Field[T]): Field[T] = f.map2i(f2)(ev.minus(_,_))
       def *(f2: Field[T]): Field[T] = f.map2i(f2)(ev.times(_,_))
       def +/[U](lv: U)(implicit uev: Numeric[U]): Field[Double] = f.map[Double](ev.toDouble(_) + uev.toDouble(lv))
+    }
+
+    implicit class BooleanField(f: Field[Boolean]) {
+      /**
+       * Combines two fields using the values of this field
+       * @param trueField values to use where this field is true
+       * @param falseField values to use where this field is false
+       * @return the combination of trueField and falseField
+       */
+      def compose[A](trueField: Field[A])(falseField: Field[A]): Field[A] =
+        f.zip(trueField.zip(falseField)).map{case (condition, (th, el)) =>
+          if (condition) th else el
+        }
     }
   }
 }

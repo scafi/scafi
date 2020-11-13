@@ -16,7 +16,7 @@ trait StdLib_BuildingBlocks {
     with TimeUtilsInterface
     with BlocksWithGCInterface
     with StateManagement {
-    self: ScafiBaseLanguage with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with LanguageDependant with NeighbourhoodSensorReader =>
   }
 
   private[lib] trait BuildingBlocks_ScafiStandard extends BuildingBlocksInterface
