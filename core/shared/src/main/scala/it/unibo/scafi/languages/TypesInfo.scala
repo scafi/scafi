@@ -104,6 +104,23 @@ object TypesInfo extends Serializable {
             .headOption.map { case (x, y) => ev.compare(x, y) }
             .getOrElse(-1)
       }
+
+    implicit def optionBounded[T](implicit ev: Bounded[T]): Bounded[Option[T]] =
+      new Bounded[Option[T]] {
+        override def top: Option[T] = None
+
+        override def bottom: Option[T] = None
+
+        override def compare(a: Option[T], b: Option[T]): Int =
+          if (a.isDefined && b.isDefined)
+            ev.compare(a.get, b.get)
+          else if (a.isDefined)
+            1
+          else if (b.isDefined)
+            -1
+          else
+            0
+      }
   }
 
   trait PartialOrderingWithGLB[T] extends PartialOrdering[T] {

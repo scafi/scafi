@@ -17,6 +17,13 @@ trait StdLib_LanguageDependant {
     def combineFields[A](condition: FieldType[Boolean])(th: FieldType[A])(el: FieldType[A]): FieldType[A]
 
     def combineWithRead[F, R, T](field: FieldType[F])(read: NbrSensorRead[R])(combine: (F, R) => T): FieldType[T]
+
+    def constantField[A](expr: A): FieldType[A]
+
+    def fieldsAnd(fields: FieldType[Boolean]*): FieldType[Boolean] =
+      fields.tail.fold(fields.head){(a,b) =>
+        mapField(zipFields(a, b)){case (x,y) => x && y}
+      }
   }
 
   private[lib] trait LanguageDependant_ScafiStandard extends LanguageDependant {
@@ -29,6 +36,8 @@ trait StdLib_LanguageDependant {
 
     override def combineWithRead[F, R, T](field: F)(read: R)(combine: (F, R) => T): T =
       combine(field, read)
+
+    override def constantField[A](expr: A): A = expr
   }
 
   private[lib] trait LanguageDependant_ScafiFC extends LanguageDependant {
@@ -41,5 +50,7 @@ trait StdLib_LanguageDependant {
 
     override def combineWithRead[F, R, T](field: Field[F])(read: Field[R])(combine: (F, R) => T): Field[T] =
       field.zip(read).map{case (f, r) => combine(f, r)}
+
+    override def constantField[A](expr: A): Field[A] = nbrField{1}.map(_ => expr)
   }
 }
