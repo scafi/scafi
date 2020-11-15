@@ -19,11 +19,11 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
 
 
   private[this] trait TestProgramStandard extends AggregateProgram with ScafiStandardLanguage with StandardSensors with ScafiStandardLibraries.Gradients
-  private[this] trait TestProgramFC extends AggregateProgram with ScafiFCLanguage with StandardSensors with ScafiFCLibraries.SimpleGradients
+  private[this] trait TestProgramFC extends AggregateProgram with ScafiFCLanguage with StandardSensors with ScafiFCLibraries.Gradients
 
   describe("Classic Gradient") {
     trait ProgramMain extends AggregateProgram {
-      self: SimpleGradientsInterface with ScafiBaseLanguage =>
+      self: GradientsInterface with ScafiBaseLanguage =>
       override def main(): Double = classicGradient(sense("source"))
     }
 
@@ -135,7 +135,7 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       exec(program, ntimes = manyRounds)(net)._1
 
     trait ProgramMain extends AggregateProgram {
-      self: SimpleGradientsInterface with ScafiBaseLanguage =>
+      self: GradientsInterface with ScafiBaseLanguage =>
       override def main(): Double = hopGradient(sense[Boolean]("source"))
     }
 
@@ -241,83 +241,138 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
     }
   }
 
-  /* TODO causes test crash
   describe("BIS Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgramStandard {
-        override def main(): (Double, Double) = (BisGradient().from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
-      })
+      trait ProgramMain extends AggregateProgram {
+        self: GradientsInterface with ScafiBaseLanguage =>
+        override def main(): (Double, Double) = (buildBisGradient().from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      }
+
+      testBasicBehaviour(Seq(
+        (inStandard, new TestProgramStandard with ProgramMain),
+        (inFC, new TestProgramFC with ProgramMain)
+      ))
     }
   }
 
   describe("CRF Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgramStandard {
+      trait ProgramMain extends AggregateProgram {
+        self: GradientsInterface with ScafiBaseLanguage =>
         //notice the use of an high raisingSpeed
-        override def main(): (Double, Double) = (CrfGradient(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
-      })
+        override def main(): (Double, Double) = (buildCrfGradient(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      }
+
+      testBasicBehaviour(Seq(
+        (inStandard, new TestProgramStandard with ProgramMain),
+        (inFC, new TestProgramFC with ProgramMain)
+      ))
     }
   }
 
   describe("Flex Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgramStandard {
-        override def main(): (Double, Double) = (FlexGradient(epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
-      })
+      trait ProgramMain extends AggregateProgram {
+        self: GradientsInterface with ScafiBaseLanguage =>
+        override def main(): (Double, Double) = (buildFlexGradient(epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      }
+
+      testBasicBehaviour(Seq(
+        (inStandard, new TestProgramStandard with ProgramMain),
+        (inFC, new TestProgramFC with ProgramMain)
+      ))
     }
   }
 
   describe("SVD Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgramStandard {
-        override def main(): (Double, Double) = (SvdGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
-      })
+      trait ProgramMain extends AggregateProgram {
+        self: GradientsInterface with ScafiBaseLanguage =>
+        override def main(): (Double, Double) = (buildSvdGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      }
+
+      testBasicBehaviour(Seq(
+        (inStandard, new TestProgramStandard with ProgramMain),
+        (inFC, new TestProgramFC with ProgramMain)
+      ))
     }
   }
   describe("ULT Gradient - refactor") {
     describe("On a manhattan network with SW node detached") {
-      testBasicBehaviour(new TestProgramStandard {
-        override def main(): (Double, Double) = (UltGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
-      })
+      trait ProgramMain extends AggregateProgram {
+        self: GradientsInterface with ScafiBaseLanguage =>
+        override def main(): (Double, Double) = (buildUltGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+      }
+
+      testBasicBehaviour(Seq(
+        (inStandard, new TestProgramStandard with ProgramMain),
+        (inFC, new TestProgramFC with ProgramMain)
+      ))
     }
   }
-   */
 
   /*TODO
   def testBasicBehaviour(gradient: Gradient, ntimes: Int = manyRounds, tolerance: Double = 0.1): Unit  = {
     val v: TestProgram = new TestProgram {
       override def main(): (Double, Double) = (gradient.from(sense("source")).run(), classicGradient(sense("source")))
     }*/
-  def testBasicBehaviour(v: AggregateProgram, ntimes: Int = manyManyRounds, tolerance: Double = 0.1): Unit  = {
-    it("Should be possible to build a gradient of distances on node 0") {
-      net.chgSensorValue("source", Set(0), true)
-      exec(v, ntimes = ntimes)(net)
-      assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+  def testBasicBehaviour(languageProgramList: Seq[(String, AggregateProgram)], ntimes: Int = manyManyRounds, tolerance: Double = 0.1): Unit  = {
+    describe("Should be possible to build a gradient of distances on node 0") {
+      def test(program: AggregateProgram) {
+        net.chgSensorValue("source", Set(0), true)
+        exec(program, ntimes = ntimes)(net)
+        assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+      }
+
+      doTestOnPrograms(test)
     }
-    it("Should be possible to build a gradient of distances on node 4") {
-      net.chgSensorValue("source", Set(4), true)
-      exec(v, ntimes = ntimes)(net)
-      assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+    describe("Should be possible to build a gradient of distances on node 4") {
+      def test(program: AggregateProgram) {
+        net.chgSensorValue("source", Set(4), true)
+        exec(program, ntimes = ntimes)(net)
+        assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+      }
+
+      doTestOnPrograms(test)
     }
-    it("Should return a constant field if no source is selected") {
-      exec(v, ntimes = ntimes)(net)
-      assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+    describe("Should return a constant field if no source is selected") {
+      def test(program: AggregateProgram) {
+        exec(program, ntimes = ntimes)(net)
+        assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+      }
+
+      doTestOnPrograms(test)
     }
-    it("Should build a gradient for each source, node 0 and 4"){
-      net.chgSensorValue("source", Set(0, 4), true)
-      exec(v, ntimes = ntimes)(net)
-      assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+    describe("Should build a gradient for each source, node 0 and 4"){
+      def test(program: AggregateProgram) {
+        net.chgSensorValue("source", Set(0, 4), true)
+        exec(program, ntimes = ntimes)(net)
+        assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+      }
+
+      doTestOnPrograms(test)
     }
-    it("Should be able to react to a change of source"){
-      net.chgSensorValue("source", Set(0), true)
-      exec(v, ntimes = ntimes)(net)
-      assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
-      net.chgSensorValue("source", Set(0), false)
-      net.chgSensorValue("source", Set(4), true)
-      exec(v, ntimes = ntimes)(net)
-      assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+    describe("Should be able to react to a change of source"){
+      def test(program: AggregateProgram) {
+        net.chgSensorValue("source", Set(0), true)
+        exec(program, ntimes = ntimes)(net)
+        assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+        net.chgSensorValue("source", Set(0), false)
+        net.chgSensorValue("source", Set(4), true)
+        exec(program, ntimes = ntimes)(net)
+        assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
+      }
+
+      doTestOnPrograms(test)
     }
 
+    def doTestOnPrograms(test: AggregateProgram => Unit): Unit = {
+      languageProgramList.foreach{ x =>
+        it(x._1) {
+          test(x._2)
+        }
+      }
+    }
   }
 
   def comparePairResult(valueMap:Map[ID, (Double, Double)], tolerance: Double): Boolean = {

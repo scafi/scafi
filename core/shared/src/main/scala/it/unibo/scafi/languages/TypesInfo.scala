@@ -105,22 +105,40 @@ object TypesInfo extends Serializable {
             .getOrElse(-1)
       }
 
-    implicit def optionBounded[T](implicit ev: Bounded[T]): Bounded[Option[T]] =
-      new Bounded[Option[T]] {
-        override def top: Option[T] = None
+    /**
+     * For comparison with Optional value:
+     * - If both are Some compares their value
+     * - If both are None they are equivalent
+     * - Some is smaller than None
+     */
+    def minOptionBounded[T](implicit ev: Bounded[T]): Bounded[Option[T]] =
+      new OptionBounded(false, ev)
 
-        override def bottom: Option[T] = None
+    /**
+     * For comparison with Optional value:
+     * - If both are Some compares their value
+     * - If both are None they are equivalent
+     * - Some is bigger than None
+     */
+    def maxOptionBounded[T](implicit ev: Bounded[T]): Bounded[Option[T]] =
+      new OptionBounded(true, ev)
 
-        override def compare(a: Option[T], b: Option[T]): Int =
-          if (a.isDefined && b.isDefined)
-            ev.compare(a.get, b.get)
-          else if (a.isDefined)
-            1
-          else if (b.isDefined)
-            -1
-          else
-            0
-      }
+    private class OptionBounded[T](wantMax: Boolean, val ev: Bounded[T]) extends Bounded[Option[T]] {
+      override def top: Option[T] = None
+
+      override def bottom: Option[T] = None
+
+      override def compare(a: Option[T], b: Option[T]): Int =
+        if (a.isDefined && b.isDefined)
+          ev.compare(a.get, b.get)
+        else if (a.isDefined)
+          if (wantMax) 1 else -1
+        else if (b.isDefined)
+          if (wantMax) -1 else 1
+        else
+          0
+    }
+
   }
 
   trait PartialOrderingWithGLB[T] extends PartialOrdering[T] {

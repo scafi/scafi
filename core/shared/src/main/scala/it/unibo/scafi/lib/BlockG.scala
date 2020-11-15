@@ -12,7 +12,7 @@ trait StdLib_BlockG {
 
   import it.unibo.scafi.languages.TypesInfo._
 
-  trait BlockGInterface extends SimpleGradientsInterface with GenericUtils with StateManagement {
+  trait BlockGInterface extends GradientsInterface with GenericUtils with StateManagement {
     self: ScafiBaseLanguage with FieldOperationsInterface with NeighbourhoodSensorReader with StandardSensors with LanguageDependant =>
 
     /**
@@ -121,11 +121,11 @@ trait StdLib_BlockG {
       ).getOrElse(field)
   }
 
-  private[lib] trait BlockG_ScafiStandard extends BlockGInterface with SimpleGradients_ScafiStandard {
+  private[lib] trait BlockG_ScafiStandard extends BlockGInterface with Gradients_ScafiStandard {
     self: ScafiStandardLanguage with StandardSensors =>
   }
 
-  private[lib] trait BlockG_ScafiFC extends BlockGInterface with SimpleGradients_ScafiFC {
+  private[lib] trait BlockG_ScafiFC extends BlockGInterface with Gradients_ScafiFC {
     self: ScafiFCLanguage with StandardSensors =>
   }
 }

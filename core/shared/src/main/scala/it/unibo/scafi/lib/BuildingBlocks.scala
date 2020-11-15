@@ -9,7 +9,7 @@ trait StdLib_BuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
   trait BuildingBlocksInterface extends
-         SimpleGradientsInterface
+         GradientsInterface
     with BlockGInterface
     with BlockCInterface
     with BlockSInterface
@@ -20,7 +20,7 @@ trait StdLib_BuildingBlocks {
   }
 
   private[lib] trait BuildingBlocks_ScafiStandard extends BuildingBlocksInterface
-    with SimpleGradients_ScafiStandard
+    with Gradients_ScafiStandard
     with BlockG_ScafiStandard
     with BlockC_ScafiStandard
     with BlockS_ScafiStandard
@@ -32,7 +32,7 @@ trait StdLib_BuildingBlocks {
   }
 
   private[lib] trait BuildingBlocks_ScafiFC extends BuildingBlocksInterface
-    with SimpleGradients_ScafiFC
+    with Gradients_ScafiFC
     with BlockG_ScafiFC
     with BlockC_ScafiFC
     with BlockS_ScafiFC

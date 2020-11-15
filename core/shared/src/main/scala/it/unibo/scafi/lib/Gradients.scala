@@ -16,7 +16,7 @@ trait StdLib_Gradients {
 
   implicit val idBounded: Bounded[ID]
 
-  trait SimpleGradientsInterface extends GenericUtils with StateManagement {
+  trait GradientsInterface extends GenericUtils with StateManagement {
     self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with NeighbourhoodSensorReader with LanguageDependant =>
 
     type Metric = ()=>NbrSensorRead[Double]
@@ -30,7 +30,43 @@ trait StdLib_Gradients {
     }
 
     val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
+
     val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => constantRead(1))
+
+    def BisGradient(commRadius: Double = 0.2,
+                    lagMetric: Metric = nbrLagMillisMetric): Gradient = buildBisGradient(commRadius, lagMetric)
+    def buildBisGradient(commRadius: Double = 0.2,
+                         lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      Gradient(bisGradient(commRadius, lagMetric)(_, _), source = false, nbrRange)
+
+    def CrfGradient(raisingSpeed: Double = 5,
+                    lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      buildCrfGradient(raisingSpeed, lagMetric)
+    def buildCrfGradient(raisingSpeed: Double = 5,
+                    lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      Gradient(crfGradient(raisingSpeed, lagMetric), source = false, nbrRange)
+
+    def FlexGradient(epsilon: Double = 0.5,
+                     delta: Double = 1.0,
+                     communicationRadius: Double = 1.0): Gradient =
+      buildFlexGradient(epsilon, delta, communicationRadius)
+    def buildFlexGradient(epsilon: Double = 0.5,
+                     delta: Double = 1.0,
+                     communicationRadius: Double = 1.0): Gradient =
+      Gradient(flexGradient(epsilon, delta, communicationRadius), source = false, nbrRange)
+
+    def SvdGradient(lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      buildSvdGradient(lagMetric)
+    def buildSvdGradient(lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      Gradient(svdGradient(lagMetric), source = false, nbrRange)
+
+    def UltGradient(radius: Double = 0.2,
+                    factor: Double = 0.1): Gradient =
+      buildUltGradient(radius, factor)
+    def buildUltGradient(radius: Double = 0.2,
+                    factor: Double = 0.1): Gradient =
+      Gradient(ultGradient(radius, factor), source = false, nbrRange)
+
 
     def classicGradient(source: Boolean, metric: Metric = nbrRange): Double =
       rep(Double.PositiveInfinity) { case d =>
@@ -46,37 +82,11 @@ trait StdLib_Gradients {
         hops => mux(source) {0.0} {1 + excludingSelf.minHoodPlus(makeField(hops))
         }
       }
-  }
 
-  private[lib] trait SimpleGradients_ScafiStandard extends SimpleGradientsInterface with LanguageDependant_ScafiStandard {
-    self: ScafiStandardLanguage with StandardSensors =>
-  }
-
-  private[lib] trait SimpleGradients_ScafiFC extends SimpleGradientsInterface with LanguageDependant_ScafiFC {
-    self: ScafiFCLanguage with StandardSensors =>
-  }
-
-  trait GradientsInterface extends SimpleGradientsInterface {
-    self: ScafiBaseLanguage with FieldOperationsInterface with NeighbourhoodSensorReader with StandardSensors with LanguageDependant =>
-
-    def BisGradient(commRadius: Double = 0.2,
-                    lagMetric: Metric = () => nbrLag().map(_.toMillis)): Gradient =
-      Gradient(bisGradient(commRadius, lagMetric), source = false, nbrRange)
-    def CrfGradient(raisingSpeed: Double = 5,
-                    lagMetric: Metric = () => nbrLag().map(_.toMillis)): Gradient =
-      Gradient(crfGradient(raisingSpeed, lagMetric), source = false, nbrRange)
-    def FlexGradient(epsilon: Double = 0.5,
-                     delta: Double = 1.0,
-                     communicationRadius: Double = 1.0): Gradient =
-      Gradient(flexGradient(epsilon, delta, communicationRadius), source = false, nbrRange)
-    def SvdGradient(lagMetric: Metric = () => nbrLag().map(_.toMillis)): Gradient =
-      Gradient(svdGradient(lagMetric), source = false, nbrRange)
-    def UltGradient(radius: Double = 0.2,
-                    factor: Double = 0.1): Gradient =
-      Gradient(ultGradient(radius, factor), source = false, nbrRange)
+    def nbrLagMillisMetric: Metric = () => nbrLag().map(_.toMillis)
 
     def bisGradient(commRadius: Double = 0.2,
-                    lagMetric: Metric = () => nbrLag().map(_.toMillis))
+                    lagMetric: Metric = nbrLagMillisMetric)
                    (source: Boolean,
                     metric: Metric = nbrRange
                    ): Double = {
@@ -91,7 +101,7 @@ trait StdLib_Gradients {
             val newEstimate =
               mapField(zipFields(
                 combineWithRead(makeField{spatialDist})(metric())(_ + _),
-                mapField(makeField{tempDist})(speed * _ - commRadius)
+                mapField(makeField{tempDist})(x => if (speed.isNaN) Double.PositiveInfinity else speed * x - commRadius)
               )) { case (a,b) => Math.max(a, b) }
 
             zipFields(
@@ -104,7 +114,7 @@ trait StdLib_Gradients {
     }
 
     def crfGradient(raisingSpeed: Double = 5,
-                    lagMetric: Metric = () => nbrLag().map(_.toMillis))
+                    lagMetric: Metric = nbrLagMillisMetric)
                    (source: Boolean,
                      metric: Metric = nbrRange
                    ): Double =
@@ -112,7 +122,6 @@ trait StdLib_Gradients {
         case (g, speed) =>
           mux(source){ (0.0, 0.0) }{
             implicit def durationToDouble(fd: FiniteDuration): Double = fd.toMillis.toDouble / 1000.0
-            case class Constraint(gradient: Double, nbrDistance: Double)
 
             val min =
               excludingSelf.minHoodPlus {
@@ -128,7 +137,7 @@ trait StdLib_Gradients {
                 } {
                   constantField(None)
                 }
-              }
+              }(Bounded.minOptionBounded)
 
             if(min.isEmpty){
               (g + raisingSpeed * deltaTime(), raisingSpeed)
@@ -190,7 +199,7 @@ trait StdLib_Gradients {
         }
       }
 
-    def svdGradient(lagMetric: Metric = () => nbrLag().map(_.toMillis))(
+    def svdGradient(lagMetric: Metric = nbrLagMillisMetric)(
                      source: Boolean,
                      metric: Metric = nbrRange
                      ): Double = {
@@ -321,15 +330,15 @@ trait StdLib_Gradients {
           }
         }}
       }
-      inertialFilter(Math.max(SvdGradient().from(source).withMetric(metric).run(), BisGradient(radius).from(source).withMetric(metric).run()), factor)
+      inertialFilter(Math.max(buildSvdGradient().from(source).withMetric(metric).run(), buildBisGradient(radius).from(source).withMetric(metric).run()), factor)
     }
   }
 
-  private[lib] trait Gradients_ScafiStandard extends SimpleGradients_ScafiStandard with GradientsInterface {
+  private[lib] trait Gradients_ScafiStandard extends LanguageDependant_ScafiStandard with GradientsInterface {
     self: ScafiStandardLanguage with StandardSensors =>
   }
 
-  private[lib] trait Gradients_ScafiFC extends SimpleGradients_ScafiFC with GradientsInterface {
+  private[lib] trait Gradients_ScafiFC extends LanguageDependant_ScafiFC with GradientsInterface {
     self: ScafiFCLanguage with StandardSensors =>
   }
 }

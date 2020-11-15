@@ -25,7 +25,6 @@ trait StandardLibrary extends
 
   trait Libraries {
     type BlockG <: BlockGInterface
-    type SimpleGradients <: SimpleGradientsInterface
     type Gradients <: GradientsInterface
     type BlockC <: BlockCInterface
     type BlocksWithGC <: BlocksWithGCInterface
@@ -38,7 +37,6 @@ trait StandardLibrary extends
 
   object ScafiStandardLibraries extends Libraries {
     override type BlockG = BlockG_ScafiStandard
-    override type SimpleGradients = SimpleGradients_ScafiStandard
     override type Gradients = Gradients_ScafiStandard
     override type BlockC = BlockC_ScafiStandard
     override type BlocksWithGC = BlocksWithGC_ScafiStandard
@@ -51,8 +49,7 @@ trait StandardLibrary extends
 
   object ScafiFCLibraries extends Libraries {
     override type BlockG = BlockG_ScafiFC
-    override type SimpleGradients = SimpleGradients_ScafiFC
-    override type Gradients = Gradients_ScafiStandard
+    override type Gradients = Gradients_ScafiFC
     override type BlocksWithGC = BlocksWithGC_ScafiFC
     override type BuildingBlocks = BuildingBlocks_ScafiFC
     override type BlockC = BlockC_ScafiFC
