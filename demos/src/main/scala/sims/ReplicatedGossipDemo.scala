@@ -6,6 +6,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -20,7 +21,7 @@ object ReplicatedGossipDemo extends Launcher {
   launch()
 }
 
-class ReplicatedGossipProgram extends AggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
+class ReplicatedGossipProgram extends ScafiStandardAggregateProgram with StateManagement with SensorDefinitions with GradientAlgorithms with Processes with BlockT
   with HFCSpawn {
   def main: String = {
     val g = classic(sense1)

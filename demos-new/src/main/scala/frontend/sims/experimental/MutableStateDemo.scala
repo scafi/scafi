@@ -5,7 +5,7 @@
 
 package frontend.sims.experimental
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ID}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ID}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -29,7 +29,7 @@ object MutableStateDemo extends App {
   *  - the use of REP to correctly keep track of state.
   */
 @Demo
-class MutableStateProgram extends AggregateProgram {
+class MutableStateProgram extends ScafiStandardAggregateProgram {
   var m1: Map[ID,Int] = Map()
 
   override def main() = {

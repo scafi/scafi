@@ -31,7 +31,7 @@ object Demo5A_Platform extends SpatialServerBasedActorPlatform with BasicSpatial
 
 import demos.{Demo5A_Platform => Platform}
 
-class Demo5A_AggregateProgram extends Platform.AggregateProgram {
+class Demo5A_AggregateProgram extends Platform.ScafiStandardAggregateProgram {
   def hopGradient(source: Boolean): Double = {
     rep(Double.PositiveInfinity){
       hops => { mux(source) { 0.0 } { 1 + minHood(nbr { hops }) } }

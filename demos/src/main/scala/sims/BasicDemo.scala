@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ScafiStandardAggregateProgram
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object BasicDemo extends Launcher {
@@ -17,6 +17,6 @@ object BasicDemo extends Launcher {
   launch()
 }
 
-class BasicProgram extends AggregateProgram {
+class BasicProgram extends ScafiStandardAggregateProgram {
   override def main() = rep(0)(_ + 1) // the aggregate program to run
 }

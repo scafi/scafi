@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 
 import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
 
@@ -16,34 +17,34 @@ import scala.concurrent.duration.Duration
 import scala.util.Random
 
 @Demo
-class Mid extends AggregateProgram {
+class Mid extends ScafiStandardAggregateProgram {
   override def main() = mid()
 }
 
 @Demo
-class Types extends AggregateProgram {
+class Types extends ScafiStandardAggregateProgram {
   override def main() = ("a", 1, List(10,20))
 }
 
 @Demo
-class CountRounds extends AggregateProgram {
+class CountRounds extends ScafiStandardAggregateProgram {
   override def main() = rep(0)(x => x + 1)
 }
 
 @Demo
-class CountNeighbours extends AggregateProgram {
+class CountNeighbours extends ScafiStandardAggregateProgram {
   override def main() = foldhood(0)(_ + _) { nbr { 1 } }
 }
 
 @Demo
-class CountNeighboursExceptMyself extends AggregateProgram {
+class CountNeighboursExceptMyself extends ScafiStandardAggregateProgram {
   override def main() = foldhood(0)(_ + _) {
     if (nbr { mid() } == mid()) 0 else 1
   }
 }
 
 @Demo
-class MaxId extends AggregateProgram {
+class MaxId extends ScafiStandardAggregateProgram {
   override def main() = {
     val maxId = foldhood(Int.MinValue)(Math.max(_, _)) { nbr(mid()) }
     (mid(), maxId)
@@ -51,7 +52,7 @@ class MaxId extends AggregateProgram {
 }
 
 @Demo
-class Gradient extends AggregateProgram with StandardSensors {
+class Gradient extends ScafiStandardAggregateProgram with StandardSensors {
   def isSource = sense[Boolean](SensorName.sensor1)
   def isObstacle = sense[Boolean](SensorName.sensor2)
 
@@ -66,7 +67,7 @@ class Gradient extends AggregateProgram with StandardSensors {
 }
 
 @Demo
-class GradientHop extends AggregateProgram with SensorDefinitions with BlockG  {
+class GradientHop extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG  {
   def isSource = sense[Boolean](SensorName.sensor1)
 
   def hopGradientByG(src: Boolean): Double = Gcurried(src)(0)(_ + 1)(() =>1)
@@ -75,7 +76,7 @@ class GradientHop extends AggregateProgram with SensorDefinitions with BlockG  {
 }
 
 @Demo
-class RouteChannel extends AggregateProgram with SensorDefinitions with BlockG {
+class RouteChannel extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG {
   override def main() = channel1(sense1, sense2, 0.05)
 
   def channel2(source: Boolean, target: Boolean, width: Double): (String, String, String) =
@@ -86,7 +87,7 @@ class RouteChannel extends AggregateProgram with SensorDefinitions with BlockG {
 }
 
 @Demo
-class Timer extends AggregateProgram with StandardSensors with TimeUtils {
+class Timer extends ScafiStandardAggregateProgram with StandardSensors with TimeUtils {
   override def main() = Duration(
     branch(!sense[Boolean](SensorName.sensor1)){ timerLocalTime(Duration(30, TimeUnit.SECONDS)) } { 0 },
     TimeUnit.NANOSECONDS
@@ -94,71 +95,71 @@ class Timer extends AggregateProgram with StandardSensors with TimeUtils {
 }
 
 @Demo
-class SparseChoice extends AggregateProgram with SensorDefinitions with BlockG with BlockS {
+class SparseChoice extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG with BlockS {
   override def main() = S(20, nbrRange) //if(channel(isSource, isDest, 0)) 1 else 0
 }
 
 @Demo
-class SensorNbrRange extends AggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrRange extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField("%.2f".format(nbrRange()))
 }
 
 @Demo
-class SensorCurrTime extends AggregateProgram with StandardSensors with FieldUtils {
+class SensorCurrTime extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = currentTime().toString
 }
 
 @Demo
-class SensorTimestamp extends AggregateProgram with StandardSensors with FieldUtils {
+class SensorTimestamp extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = timestamp() + "ms"
 }
 
 @Demo
-class SensorCurrPos extends AggregateProgram with StandardSensors with FieldUtils {
+class SensorCurrPos extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = currentPosition()
 }
 
 @Demo
-class SensorNbrVector extends AggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrVector extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrVector())
 }
 
 @Demo
-class SensorDeltaTime extends AggregateProgram with StandardSensors with FieldUtils {
+class SensorDeltaTime extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = deltaTime().toMillis + "ms"
 }
 
 @Demo
-class SensorNbrDelay extends AggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrDelay extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(nbrDelay().toMillis+"ms")
 }
 
 @Demo
-class SensorNbrLag extends AggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrLag extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = deltaTime().toMillis  + "ms -- " + mid() + " => " + reifyField(nbrLag().toMillis+"ms")
 }
 
 @Demo
-class SensorNbrDelayLag extends AggregateProgram with StandardSensors with FieldUtils {
-  import excludingSelf.reifyField
+class SensorNbrDelayLag extends ScafiStandardAggregateProgram with StandardSensors {
+  import ExcludingSelf.reifyField
   override def main() = mid() + " => " + reifyField(s"${nbrDelay().toMillis}ms; ${nbrLag().toMillis}ms")
 }
 
 @Demo
-class CollectNbrsIncludingMyself extends AggregateProgram with StandardSensors with FieldUtils {
+class CollectNbrsIncludingMyself extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = includingSelf.unionHood(nbr{mid})
 }
 
 @Demo
-class CollectNbrsExcludingMyself extends AggregateProgram with StandardSensors with FieldUtils {
+class CollectNbrsExcludingMyself extends ScafiStandardAggregateProgram with StandardSensors {
   override def main() = excludingSelf.unionHood(nbr{mid})
 }
 
 @Demo
-class DemoMeanCounter extends AggregateProgram with StandardSensors with GenericUtils {
+class DemoMeanCounter extends ScafiStandardAggregateProgram with StandardSensors with GenericUtils {
   override def main() = meanCounter(if(sense[Random](LSNS_RANDOM).nextDouble() > 0.5) 1 else -1, 50000)
 }

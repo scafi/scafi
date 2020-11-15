@@ -20,7 +20,7 @@ package sims
 
 import java.awt.Color
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ScafiStandardAggregateProgram
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.util.Random
@@ -41,7 +41,7 @@ object Basic3DMovementDemo extends Launcher {
   launch()
 }
 
-class Basic3DMovement extends AggregateProgram with SensorDefinitions {
+class Basic3DMovement extends ScafiStandardAggregateProgram with SensorDefinitions {
   lazy val random: Random = sense[Random](LSNS_RANDOM)
 
   override def main:(Double, Double, Double) = rep(random3DMovement())(behaviour)

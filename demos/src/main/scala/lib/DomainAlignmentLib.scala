@@ -8,7 +8,7 @@ package lib
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import sims.SensorDefinitions
 
-trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
+trait DomainAlignmentLib { self: ScafiStandardAggregateProgram with SensorDefinitions =>
 
   val inf = Double.PositiveInfinity
   def time = rep(0){ _ + 1 }

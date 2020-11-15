@@ -41,7 +41,7 @@ object Demo6C_Platform extends Demo6_Platform with SpatialHybridActorPlatform wi
 
 import demos.{Demo6C_Platform => Platform}
 
-class Demo6C_AggregateProgram extends Platform.AggregateProgram {
+class Demo6C_AggregateProgram extends Platform.ScafiStandardAggregateProgram {
   override def main(): String = "ready"
 }
 

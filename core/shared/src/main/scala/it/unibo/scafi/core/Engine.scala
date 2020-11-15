@@ -16,7 +16,7 @@ import it.unibo.utils.{Interop, Linearizable}
 import scala.collection.{Map => GMap}
 import scala.collection.mutable.{Map => MMap}
 
-trait Engine extends Semantics {
+trait Engine extends ExecutionEnvironment {
 
   override type EXPORT = Export with ExportOps
   override type CONTEXT = Context with ContextOps

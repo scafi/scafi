@@ -24,8 +24,8 @@ trait StdLib_Processes {
     override def toString: String = s"puid$puid"
   }
 
-  trait HFCSpawn extends FieldUtils {
-    self: FieldCalculusSyntax =>
+  trait HFCSpawn {
+    self: ScafiStandardLanguage =>
 
     trait Status
     case object External extends Status // External to the bubble
@@ -59,8 +59,8 @@ trait StdLib_Processes {
   }
 
   trait Processes {
-    self: FieldCalculusSyntax with StandardSensors with FieldUtils =>
-    import excludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
+    self: ScafiStandardLanguage with StandardSensors =>
+    import ExcludingSelf._ // Here, fold operations by default only look at neighbours (i.e., not myself)
 
     val TimeGC: Long = 20
 

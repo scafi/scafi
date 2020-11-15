@@ -13,39 +13,39 @@ trait Demo6_Platform extends ActorPlatform with BasicAbstractActorIncarnation {
 
   trait Demo6DeviceActor extends WeakCodeMobilityDeviceActor {
     override def updateProgram(program: () => Any): Unit = program() match {
-      case ap: AggregateProgram => super.updateProgram(() => ap: ProgramContract)
+      case ap: ScafiStandardAggregateProgram => super.updateProgram(() => ap: ProgramContract)
     }
   }
 
-  val IdleAggregateProgram = () => new AggregateProgram {
+  val IdleAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): String = "IDLE"
   }
-  val StillFieldAggregateProgram = () => new AggregateProgram {
+  val StillFieldAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Int = 1
   }
-  val SourceDetectorAggregateProgram = () => new AggregateProgram {
+  val SourceDetectorAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Boolean = sense(SourceSensorName)
   }
-  val RandomFieldAggregateProgram = () => new AggregateProgram {
+  val RandomFieldAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Double = Math.random()
   }
-  val ConstantRandomFieldAggregateProgram = () => new AggregateProgram {
+  val ConstantRandomFieldAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Double = rep(Math.random()){x => x}
   }
-  val RoundCounterAggregateProgram = () => new AggregateProgram {
+  val RoundCounterAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Int = rep(0) { _ + 1 }
   }
-  val RandomIncreasingFieldAggregateProgram = () => new AggregateProgram {
+  val RandomIncreasingFieldAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Double = rep(0.0){x => x + rep(Math.random()){y=>y} }
   }
-  val NeighborsCountAggregateProgram = () => new AggregateProgram {
+  val NeighborsCountAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Int = foldhoodPlus(0)(_ + _)(1)
   }
-  val BooleanGossipAggregateProgram = () => new AggregateProgram {
+  val BooleanGossipAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Boolean = rep(false)(x =>
       sense[Boolean](SourceSensorName) | foldhoodPlus(false)(_|_)(nbr(x)))
   }
-  val HopGradientAggregateProgram = () => new AggregateProgram {
+  val HopGradientAggregateProgram = () => new ScafiStandardAggregateProgram {
     override def main(): Double = rep(Double.PositiveInfinity) {
       hops => {
         mux(sense(SourceSensorName)) { 0.0 } { 1 + minHood(nbr { hops }) }

@@ -6,13 +6,13 @@
 package it.unibo.scafi.lib
 
 import it.unibo.scafi.incarnations.BasicAbstractIncarnation
+import it.unibo.scafi.languages.TypesInfo.Bounded
 
 class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
   import incarnation._
 
   object BoundedTypeClasses {
     import shapeless.{::, Generic, HList, HNil}
-    import incarnation.Builtins._
 
     implicit val hnilBounded: Bounded[HNil] = new Bounded[HNil] {
       override def top: HNil = HNil

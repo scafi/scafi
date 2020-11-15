@@ -32,7 +32,7 @@ object Demo3_Platform extends BasicAbstractActorIncarnation
 }
 
 // STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-class Demo3_AggregateProgram extends Demo3_Platform.AggregateProgram {
+class Demo3_AggregateProgram extends Demo3_Platform.ScafiStandardAggregateProgram {
   def hopGradient(source: Boolean): Double = {
     rep(Double.PositiveInfinity){
       hops => { mux(source) { 0.0 } { 1+minHood(nbr{ hops }) } }

@@ -21,7 +21,7 @@ trait BasicAbstractActorIncarnation
   override type LSensorName = String
   override type NSensorName = String
   override type DataFactory = DataFactoryContract
-  override type Program = AggregateProgram with ProgramContract
+  override type Program = ScafiStandardAggregateProgram with ProgramContract
   override val interopUID = interopID
   override val linearUID = linearID
 
@@ -80,9 +80,9 @@ trait BasicAbstractActorIncarnation
 
   }
 
-  type ProgramType = AggregateProgram
+  type ProgramType = ScafiStandardAggregateProgram
   override implicit def adaptAggregateProgram(program: ProgramType): ProgramContract =
-    new AggregateProgram with ProgramContract {
+    new ScafiStandardAggregateProgram with ProgramContract {
       override def round(ctx: ComputationContext): ComputationExport = program.round(ctx)
       override def main(): Any = program.main()
     }

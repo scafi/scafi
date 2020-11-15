@@ -7,6 +7,7 @@ package frontend.sims.experimental
 
 import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -22,7 +23,7 @@ object AlignedMapRunner extends App {
   ).launch()
 }
 @Demo
-class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldUtils with BlockG {
+class AlignedMapTest extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG {
   override def main() = test1
 
   def test1 = {

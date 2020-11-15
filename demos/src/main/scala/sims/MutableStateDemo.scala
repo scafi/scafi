@@ -5,7 +5,7 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, ID}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ID}
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 import scala.collection.mutable.{Map => MMap}
@@ -24,7 +24,7 @@ object MutableStateDemo extends Launcher {
   *  - the impact of using mutable fields within AggregatePrograms.
   *  - the use of REP to correctly keep track of state.
   */
-class MutableStateProgram extends AggregateProgram {
+class MutableStateProgram extends ScafiStandardAggregateProgram {
   var m1: Map[ID,Int] = Map()
 
   override def main() = {

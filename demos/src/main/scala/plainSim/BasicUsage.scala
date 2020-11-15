@@ -7,7 +7,7 @@ object MyIncarnation extends BasicAbstractIncarnation
 
 import MyIncarnation._
 
-class BasicUsageProgram extends AggregateProgram  {
+class BasicUsageProgram extends ScafiStandardAggregateProgram  {
   override def main(): Any = rep(0)(_+1)
 }
 

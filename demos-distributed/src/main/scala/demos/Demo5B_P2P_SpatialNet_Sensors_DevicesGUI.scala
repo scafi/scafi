@@ -26,7 +26,7 @@ object Demo5B_Platform extends SpatialP2PActorPlatform with BasicAbstractActorIn
 
 import demos.{Demo5B_Platform => Platform}
 
-class Demo5B_AggregateProgram extends Platform.AggregateProgram {
+class Demo5B_AggregateProgram extends Platform.ScafiStandardAggregateProgram {
   def hopGradient(source: Boolean): Double = {
     rep(Double.PositiveInfinity){
       hops => { mux(source) { 0.0 } { 1 + minHood(nbr { hops }) } }

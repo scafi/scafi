@@ -5,7 +5,8 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{ScafiStandardAggregateProgram, ScafiStandardLibraries}
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object TimerDemo extends Launcher {
@@ -17,6 +18,6 @@ object TimerDemo extends Launcher {
   launch()
 }
 
-class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT {
+class SimpleTimer extends ScafiStandardAggregateProgram with SensorDefinitions with BlockT {
   override def main() = branch(sense1){timer(100)}{0}
 }

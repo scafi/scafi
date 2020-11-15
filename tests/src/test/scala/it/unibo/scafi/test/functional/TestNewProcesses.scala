@@ -7,6 +7,7 @@ package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import ScafiStandardLibraries._
 import org.scalatest._
 
 class TestNewProcesses extends FlatSpec with Matchers {
@@ -37,8 +38,8 @@ class TestNewProcesses extends FlatSpec with Matchers {
 
   case class Pid(dev: ID, k: Long)
 
-  private[this] class Program extends AggregateProgram
-    with CustomSpawn with FieldUtils with StandardSensors with BlockG with StateManagement {
+  private[this] class Program extends ScafiStandardAggregateProgram
+    with CustomSpawn with StandardSensors with BlockG with StateManagement {
     def src = sense[Boolean](SRC)
     def stop = sense[Boolean](STOP)
     def gen1 = sense[Boolean](Gen1)

@@ -20,7 +20,7 @@ object DemoDecentralizedAkkaPlatformCmdLineMain extends App {
   val SENSOR_SRC = "source"
 
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA
-  trait MyAggregateProgram extends AggregateProgram with Serializable {
+  trait MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
     def main() = foldhood(()=>{})((a,b)=>()=>{a();b()}){(nbr { () => print("YYY") })}()
   }
 

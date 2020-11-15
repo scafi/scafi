@@ -23,7 +23,7 @@ object DemoCentralizedAkkaPlatformCmdLineMain extends App {
   val SENSOR_SRC = "source"
 
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA
-  trait MyAggregateProgram extends AggregateProgram with Serializable {
+  trait MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
     def hopGradient(source: Boolean): Int = {
       rep(10){
         hops => { mux(source){ 0 } {

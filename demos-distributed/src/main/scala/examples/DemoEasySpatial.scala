@@ -26,7 +26,7 @@ import scala.util.Random
 // STEP 2: DEFINE MAIN PROGRAM
 object DemoEasySpatial extends CmdLineMain {
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA
-  trait MyAggregateProgram extends AggregateProgram with Serializable {
+  trait MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
     override def main(): Any = foldhood(0){_+_}(1)
   }
 

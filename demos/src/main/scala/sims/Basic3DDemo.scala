@@ -20,7 +20,7 @@ package sims
 
 import java.awt.Color
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ScafiStandardAggregateProgram
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 /**
@@ -59,6 +59,6 @@ object Basic3DDemo extends Launcher {
   launch()
 }
 
-class Basic3DProgram extends AggregateProgram {
+class Basic3DProgram extends ScafiStandardAggregateProgram {
   override def main(): Int = rep(0)(_ + 1)
 }

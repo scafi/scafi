@@ -15,7 +15,7 @@ package examples
 import it.unibo.scafi.incarnations.BasicActorServerBased._
 
 // STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-trait MyAggregateProgram extends AggregateProgram with Serializable {
+trait MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
   override def main(): Any = foldhood(0){_+_}(1)
 }
 

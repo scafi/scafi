@@ -12,16 +12,16 @@ import it.unibo.utils.Filters.expFilter
 trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
 
-  type Metric = ()=>Double
-
-  import Builtins.Bounded
+  import it.unibo.scafi.languages.TypesInfo.Bounded
 
   implicit val idBounded: Bounded[ID]
 
-  trait Gradients extends GenericUtils with StateManagement {
-    self: FieldCalculusSyntax with StandardSensors with BlockG =>
+  trait GradientsInterface extends GenericUtils with StateManagement {
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with NeighbourhoodSensorReader with LanguageDependant =>
 
-    case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
+    type Metric = ()=>NbrSensorRead[Double]
+
+    case class Gradient(algorithm: (Boolean, Metric) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
 
       def withMetric(m: Metric): Gradient = this.copy(metric = m)
@@ -29,37 +29,64 @@ trait StdLib_Gradients {
       def run(): Double = algorithm(source, metric)
     }
 
-
     val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
-    val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => 1)
+
+    val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => constantRead(1))
+
     def BisGradient(commRadius: Double = 0.2,
-                    lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(bisGradient(commRadius, lagMetric), source = false, nbrRange)
+                    lagMetric: Metric = nbrLagMillisMetric): Gradient = buildBisGradient(commRadius, lagMetric)
+    def buildBisGradient(commRadius: Double = 0.2,
+                         lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      Gradient(bisGradient(commRadius, lagMetric)(_, _), source = false, nbrRange)
+
     def CrfGradient(raisingSpeed: Double = 5,
-                    lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(crfGradient(raisingSpeed, lagMetric), source = false, nbrRange)
+                    lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      buildCrfGradient(raisingSpeed, lagMetric)
+    def buildCrfGradient(raisingSpeed: Double = 5,
+                    lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      Gradient(crfGradient(raisingSpeed, lagMetric), source = false, nbrRange)
+
     def FlexGradient(epsilon: Double = 0.5,
                      delta: Double = 1.0,
-                     communicationRadius: Double = 1.0): Gradient = Gradient(flexGradient(epsilon, delta, communicationRadius), source = false, nbrRange)
-    def SvdGradient(lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(svdGradient(lagMetric), source = false, nbrRange)
-    def UltGradient(radius: Double = 0.2,
-                    factor: Double = 0.1): Gradient = Gradient(ultGradient(radius, factor), source = false, nbrRange)
+                     communicationRadius: Double = 1.0): Gradient =
+      buildFlexGradient(epsilon, delta, communicationRadius)
+    def buildFlexGradient(epsilon: Double = 0.5,
+                     delta: Double = 1.0,
+                     communicationRadius: Double = 1.0): Gradient =
+      Gradient(flexGradient(epsilon, delta, communicationRadius), source = false, nbrRange)
 
-    def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
+    def SvdGradient(lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      buildSvdGradient(lagMetric)
+    def buildSvdGradient(lagMetric: Metric = nbrLagMillisMetric): Gradient =
+      Gradient(svdGradient(lagMetric), source = false, nbrRange)
+
+    def UltGradient(radius: Double = 0.2,
+                    factor: Double = 0.1): Gradient =
+      buildUltGradient(radius, factor)
+    def buildUltGradient(radius: Double = 0.2,
+                    factor: Double = 0.1): Gradient =
+      Gradient(ultGradient(radius, factor), source = false, nbrRange)
+
+
+    def classicGradient(source: Boolean, metric: Metric = nbrRange): Double =
       rep(Double.PositiveInfinity) { case d =>
         mux(source) {
           0.0
         } {
-          minHoodPlus(nbr(d) + metric())
+          excludingSelf.minHoodPlus(combineWithRead(makeField{d})(metric())(_ + _))
         }
       }
 
     def hopGradient(source: Boolean): Double =
       rep(Double.PositiveInfinity) {
-        hops => mux(source) {0.0} {1 + minHood(nbr {hops})
+        hops => mux(source) {0.0} {1 + excludingSelf.minHoodPlus(makeField(hops))
         }
       }
 
+    def nbrLagMillisMetric: Metric = () => nbrLag().map(_.toMillis)
+
     def bisGradient(commRadius: Double = 0.2,
-                    lagMetric: => Double = nbrLag().toMillis)
+                    lagMetric: Metric = nbrLagMillisMetric)
                    (source: Boolean,
                     metric: Metric = nbrRange
                    ): Double = {
@@ -70,22 +97,24 @@ trait StdLib_Gradients {
         mux(source) {
           (0.0, 0.0)
         } {
-          minHoodPlus {
-            val newEstimate = Math.max(nbr {
-              spatialDist
-            } + metric(), speed * nbr {
-              tempDist
-            } - commRadius)
-            (newEstimate, nbr {
-              tempDist
-            } + lagMetric / 1000.0)
+          excludingSelf.minHoodPlus {
+            val newEstimate =
+              mapField(zipFields(
+                combineWithRead(makeField{spatialDist})(metric())(_ + _),
+                mapField(makeField{tempDist})(x => if (speed.isNaN) Double.PositiveInfinity else speed * x - commRadius)
+              )) { case (a,b) => Math.max(a, b) }
+
+            zipFields(
+              newEstimate,
+              combineWithRead(makeField{tempDist})(lagMetric()){ (f, r) => f + r / 1000}
+            )
           }
         }
       }._1
     }
 
     def crfGradient(raisingSpeed: Double = 5,
-                    lagMetric: => Double = nbrLag().toMillis)
+                    lagMetric: Metric = nbrLagMillisMetric)
                    (source: Boolean,
                      metric: Metric = nbrRange
                    ): Double =
@@ -93,17 +122,27 @@ trait StdLib_Gradients {
         case (g, speed) =>
           mux(source){ (0.0, 0.0) }{
             implicit def durationToDouble(fd: FiniteDuration): Double = fd.toMillis.toDouble / 1000.0
-            case class Constraint(nbr: ID, gradient: Double, nbrDistance: Double)
 
-            val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
-              val (nbrg, d) = (nbr{g}, metric())
-              mux(nbrg + d + speed * lagMetric <= g){ List(Constraint(nbr{mid()}, nbrg, d)) }{ List() }
-            }
+            val min =
+              excludingSelf.minHoodPlus {
+                val (nbrg, d) = (makeField{g}, metric())
 
-            if(constraints.isEmpty){
+                combineFields[Option[Double]](
+                  //nbrg + d + speed * lagMetric <= g
+                  mapField(
+                    combineWithRead(combineWithRead(nbrg)(d)(_ + _))(lagMetric().map(_ * speed))(_ + _)
+                  )(_ <= g)
+                ) {
+                  mapField(combineWithRead(nbrg)(d)(_ + _))(Some(_))
+                } {
+                  constantField(None)
+                }
+              }(Bounded.minOptionBounded)
+
+            if(min.isEmpty){
               (g + raisingSpeed * deltaTime(), raisingSpeed)
             } else {
-              (constraints.map(c => c.gradient + c.nbrDistance).min, 0.0)
+              (min.get, 0.0)
             }
           }
       }._1
@@ -127,14 +166,23 @@ trait StdLib_Gradients {
                      metric: Metric = nbrRange
                     ): Double =
       rep(Double.PositiveInfinity){ g =>
-        def distance = Math.max(nbrRange(), delta * communicationRadius)
+        def distance = nbrRange().map(Math.max(_, delta * communicationRadius))
 
-        import Builtins.Bounded._ // for min/maximizing over tuples
+        import it.unibo.scafi.languages.TypesInfo.Bounded._ // for min/maximizing over tuples
         val maxLocalSlope: (Double,ID,Double,Double) =
-        maxHood {
-          ((g - nbr{g})/distance, nbr{mid}, nbr{g}, metric())
-        }
-        val constraint = minHoodPlus{ (nbr{g} + distance) }
+          includingSelf.maxHood {
+            mapField(
+              zipFields(
+                zipFields(
+                  combineWithRead(makeField{g})(distance)((nbrG, nbrDistance) => (g - nbrG)/nbrDistance),
+                  makeField{mid}
+                ),
+                combineWithRead(makeField{g})(metric())((_, _))
+              )
+            ){case ((a,b),(c,d)) => (a,b,c,d)}
+          }
+        val constraint =
+          excludingSelf.minHoodPlus { combineWithRead(makeField{g})(distance)(_ + _) }
 
         mux(source){ 0.0 }{
           if(Math.max(communicationRadius, 2*constraint) < g) {
@@ -151,7 +199,7 @@ trait StdLib_Gradients {
         }
       }
 
-    def svdGradient(lagMetric: => Double = nbrLag().toMillis)(
+    def svdGradient(lagMetric: Metric = nbrLagMillisMetric)(
                      source: Boolean,
                      metric: Metric = nbrRange
                      ): Double = {
@@ -195,31 +243,38 @@ trait StdLib_Gradients {
       rep[(Double,Double,ID,Boolean)](loc) {
         case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
           // (1) Let's calculate new values for spaceDistEst and sourceId
-          import Builtins.Bounded._
-          val (newSpaceDistEst: Double, newSourceId: ID) = 
-          minHood {
-            mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
-            { // let's discard neighbours where 'obsolete' flag is true
-              // (unless 'obsolete' flag is true for all the neighbours)
-              (defaultDist, mid())
-            } {
-              // if info is not obsolete OR all nbrs have obsolete info
-              // let's use classic gradient calculation
-              (nbr{spaceDistEst} + metric(), nbr{sourceId})
+          import it.unibo.scafi.languages.TypesInfo.Bounded._
+
+          val  notAllObsolete =
+            excludingSelf.anyHood { makeField{!isObsolete} }
+
+          val (newSpaceDistEst: Double, newSourceId: ID) =
+            includingSelf.minHood {
+              combineFields(mapField(makeField{isObsolete})(_ && notAllObsolete)) {
+                // let's discard neighbours where 'obsolete' flag is true
+                // (unless 'obsolete' flag is true for all the neighbours)
+                constantField{(defaultDist, mid())}
+              } {
+                // if info is not obsolete OR all nbrs have obsolete info
+                // let's use classic gradient calculation
+                zipFields(
+                  combineWithRead(makeField{spaceDistEst})(metric())(_ + _),
+                  makeField{sourceId}
+                )
+              }
             }
-          }
 
           // (2) The most recent timeDistEst for the newSourceId is retrieved
           // by minimising nbrs' values for timeDistEst + their relative time distance
           // (we only consider neighbours that have same value for 'sourceId')
-          val newTimeDistEst = minHood{
-            mux(nbr{sourceId} != newSourceId){
-              // let's discard neighbours with a sourceId different than newSourceId
-              defaultDist
-            } {
-              nbr { timeDistEst } + lagMetric
+          val newTimeDistEst =
+            includingSelf.minHood {
+              combineFields(mapField(makeField{sourceId})(_ != newSourceId)) {
+                constantField{defaultDist}
+              } {
+                combineWithRead(makeField{timeDistEst})(lagMetric())(_ + _)
+              }
             }
-          }
 
           // (3) Let's compute if the newly produced info is to be considered obsolete
           val loop = newSourceId == mid() && newSpaceDistEst < defaultDist
@@ -229,7 +284,11 @@ trait StdLib_Gradients {
               loop || // or, (ii) if the device's value happens to be calculated from itself,
               excludingSelf.anyHood { // or, (iii) if any (not temporally farther) nbr with same sourceId  than
                 //           the device's one has already been claimed obsolete
-                nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
+                fieldsAnd(
+                  makeField{isObsolete},
+                  mapField(makeField{sourceId})(_ == newSourceId),
+                  mapField(combineWithRead(makeField{timeDistEst})(lagMetric())(_ + _))(_ < newTimeDistEst + 0.0001)
+                )
               }
 
           //List[(Double,Double,ID,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
@@ -271,7 +330,15 @@ trait StdLib_Gradients {
           }
         }}
       }
-      inertialFilter(Math.max(SvdGradient().from(source).withMetric(metric).run(), BisGradient(radius).from(source).withMetric(metric).run()), factor)
+      inertialFilter(Math.max(buildSvdGradient().from(source).withMetric(metric).run(), buildBisGradient(radius).from(source).withMetric(metric).run()), factor)
     }
+  }
+
+  private[lib] trait Gradients_ScafiStandard extends LanguageDependant_ScafiStandard with GradientsInterface {
+    self: ScafiStandardLanguage with StandardSensors =>
+  }
+
+  private[lib] trait Gradients_ScafiFC extends LanguageDependant_ScafiFC with GradientsInterface {
+    self: ScafiFCLanguage with StandardSensors =>
   }
 }
