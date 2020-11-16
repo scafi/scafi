@@ -8,6 +8,7 @@ import org.scalatest._
 import org.scalatest.funspec.AnyFunSpec
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /*
 Still to test:
