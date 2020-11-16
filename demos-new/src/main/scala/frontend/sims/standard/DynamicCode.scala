@@ -1,7 +1,6 @@
 package frontend.sims.standard
 
-import frontend.sims.MyDemoLauncher.formatter_evaluation
-import frontend.sims.{SensorDefinitions, UpgradableMetricProgram}
+import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
