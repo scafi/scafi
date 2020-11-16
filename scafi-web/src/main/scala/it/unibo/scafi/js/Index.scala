@@ -3,7 +3,6 @@ package it.unibo.scafi.js
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
-import it.unibo.scafi.js.WebIncarnation.NBR_RANGE
 import it.unibo.scafi.js.{WebIncarnation => web}
 import it.unibo.scafi.space.Point3D
 import org.scalajs.dom
@@ -127,7 +126,7 @@ object Index {
       idArray = nodes,
       nbrMap = mutable.Map(nodes.map((id: Int) => id->(id-3 to id+3+1).filter(x => x>=0 && x<100).toSet).toSeq:_*),
       nbrSensors = {
-        case NBR_RANGE => { case (id,idn) => 1 }
+        case WebIncarnation.NBR_RANGE => { case (id,idn) => 1 }
       },
       localSensors = {
         case "source" => { case id => id == 10 || id == 50 || id == 70 }

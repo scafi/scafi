@@ -10,15 +10,15 @@ trait BasicWebIncarnation extends Incarnation with Simulation {
   override type ID = String
   override type EXECUTION = AggregateInterpreter
 
-  override val LSNS_POSITION: String = "position"
-  override val LSNS_TIME: String = "currentTime"
-  override val LSNS_TIMESTAMP: String = "timestamp"
-  override val LSNS_DELTA_TIME: String = "deltaTime"
-  override val LSNS_RANDOM: String = "randomGenerator"
-  override val NBR_RANGE: String = "nbrRange"
-  override val NBR_DELAY: String = "nbrDelay"
-  override val NBR_LAG: String = "nbrLag"
-  override val NBR_VECTOR: String = "nbrVector"
+  val LSNS_POSITION: String = "position"
+  val LSNS_TIME: String = "currentTime"
+  val LSNS_TIMESTAMP: String = "timestamp"
+  val LSNS_DELTA_TIME: String = "deltaTime"
+  val LSNS_RANDOM: String = "randomGenerator"
+  val NBR_RANGE: String = "nbrRange"
+  val NBR_DELAY: String = "nbrDelay"
+  val NBR_LAG: String = "nbrLag"
+  val NBR_VECTOR: String = "nbrVector"
 
   @transient implicit override val linearID: Linearizable[ID] = new Linearizable[ID] {
     override def toNum(v: ID): Int = Integer.parseInt(v)
@@ -47,4 +47,6 @@ object WebIncarnation extends BasicWebIncarnation
     new Basic3DSpace(elems.toMap) with EuclideanStrategy {
       override val proximityThreshold = range
     }
+
+  override def CNAMEfromString(s: String): String = s
 }
