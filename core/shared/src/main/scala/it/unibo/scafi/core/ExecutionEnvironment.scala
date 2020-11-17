@@ -21,7 +21,7 @@ import scala.util.control.Exception._
   * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
   */
 
-trait ExecutionEnvironment extends Core with Language {
+trait ExecutionEnvironment extends Core {
 
   override type CONTEXT <: Context with ContextOps
   override type EXPORT <: Export with ExportOps

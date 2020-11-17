@@ -1,10 +1,9 @@
 package it.unibo.scafi.languages.scafibase
 
-import it.unibo.scafi.core.ExecutionEnvironment
-import it.unibo.scafi.languages.ScafiLanguage
+import it.unibo.scafi.languages.ScafiLanguages
 
-trait Semantics extends ScafiLanguage with Language {
-  self: ExecutionEnvironment =>
+trait Semantics extends Language {
+  self: ScafiLanguages.Language =>
 
   final case class Rep[A](index: Int) extends Slot
   final case class Scope[K](key: K) extends Slot

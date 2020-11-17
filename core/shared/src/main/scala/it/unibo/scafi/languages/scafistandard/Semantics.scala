@@ -1,13 +1,12 @@
 package it.unibo.scafi.languages.scafistandard
 
-import it.unibo.scafi.core.{Core, ExecutionEnvironment}
-import it.unibo.scafi.languages.ScafiLanguage
+import it.unibo.scafi.languages.ScafiLanguages
 import it.unibo.scafi.languages.scafibase.{Semantics => BaseSemantics}
 
 import scala.language.implicitConversions
 
-trait Semantics extends ScafiLanguage with Language with BaseSemantics {
-  self: ExecutionEnvironment =>
+trait Semantics extends Language with BaseSemantics {
+  self: ScafiLanguages.Language =>
 
   final case class Nbr[A](index: Int) extends Slot
   final case class FoldHood[A](index: Int) extends Slot

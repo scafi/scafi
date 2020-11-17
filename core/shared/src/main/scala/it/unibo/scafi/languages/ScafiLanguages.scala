@@ -2,18 +2,17 @@ package it.unibo.scafi.languages
 
 import it.unibo.scafi.core.ExecutionEnvironment
 
-trait ScafiLanguage {
-  self: ExecutionEnvironment =>
-
-  trait LanguageSemantics {
-    self: ExecutionTemplate =>
-  }
-}
-
 trait ScafiLanguages
   extends scafistandard.Semantics with scafistandard.RichLanguage with scafistandard.FieldOperations
   with scafifc.Semantics with scafifc.FieldOperations {
   self: ExecutionEnvironment =>
+
+  /**
+   * Marker trait for language semantics implementation
+   */
+  trait LanguageSemantics {
+    self: ExecutionTemplate =>
+  }
 
   trait ScafiStandardLanguage
     extends ScafiBaseLanguage
@@ -33,4 +32,8 @@ trait ScafiLanguages
   trait ScafiBaseLanguage extends ScafiBase_ConstructSemantics with ScafiBase_Builtins {
     self: ExecutionTemplate =>
   }
+}
+
+object ScafiLanguages {
+  type Language = ScafiLanguages with ExecutionEnvironment
 }

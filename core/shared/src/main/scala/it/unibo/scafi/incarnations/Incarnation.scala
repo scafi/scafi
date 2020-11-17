@@ -18,7 +18,6 @@ import scala.util.Random
 
 trait Incarnation extends Core
   with Engine
-  with RichLanguage
   with SpaceTimeAwarePlatform
   with BasicSpatialAbstraction
   with TimeAbstraction
