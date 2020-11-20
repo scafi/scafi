@@ -156,5 +156,37 @@ class TestScafiFC extends FlatSpec with Matchers {
       ("ab",  "7"), ("ABB",  "677"),  ("BBB",  "777")
     )).toMap)(net)
   }
+
+
+  ScafiFCLanguage should "support field composition with domain restrictions" in new SimulationContextFixture {
+    val FLAG2 = "flag2"
+    net.addSensor(FLAG2, false)
+    net.chgSensorValue(FLAG2, ids = Set(0,2,4,6,8), value = true)
+    // ACT
+    exec(new TestProgram {
+      override def main(): String = {
+        val phi: Field[String] = nbrField(if(sense[Boolean](FLAG)) "a" else "b")
+        val f1: Field[String] => String = x => aggregate{ x.fold("")(_+_).sorted }
+        val f2: Field[String] => String = x => aggregate{ x.fold("")(_+_).sorted.toUpperCase }
+
+        val phi2: Field[String] = nbrField(mid()).map(_.toString)
+
+        (mux(mid % 3 == 0){f1}{f2})(
+          nbrField(sense[Boolean](FLAG2)).compose(
+            phi
+          )(
+            phi2
+          )
+        )
+      }
+    }, ntimes = someRounds)(net)
+
+    // ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      "3a", "1AA",  "15A",
+      "3ab", "157A" , "5AAB",
+      "3b", "7AB",  "57B"
+    )).toMap)(net)
+  }
 }
 
