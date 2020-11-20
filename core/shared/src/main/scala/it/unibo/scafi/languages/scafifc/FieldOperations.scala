@@ -3,8 +3,8 @@ package it.unibo.scafi.languages.scafifc
 import it.unibo.scafi.core.Core
 import it.unibo.scafi.languages.Languages_FieldOperations
 
-trait FieldOperations extends Languages_FieldOperations {
-  self: Core with Language =>
+trait FieldOperations extends Languages_FieldOperations with Language {
+  self: Core =>
 
   trait ScafiFC_FieldOperations extends FieldOperationsInterface {
     self: ScafiFC_Constructs =>
