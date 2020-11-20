@@ -7,6 +7,7 @@ package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import ScafiStandardLibraries._
 import org.scalatest._
 
 class TestChannel extends FlatSpec with Matchers {
@@ -29,7 +30,7 @@ class TestChannel extends FlatSpec with Matchers {
   val DEST_ID = 0
   val OBSTACLES = Set(5,6,9)
 
-  private[this] trait TestProgram extends AggregateProgram with StandardSensors with FieldUtils with BlockG {
+  private[this] trait TestProgram extends ScafiStandardAggregateProgram with StandardSensors with BlockG {
     def src = sense[Boolean]("src")
     def dest = sense[Boolean]("dest")
     def obstacle = sense[Boolean]("obstacle")

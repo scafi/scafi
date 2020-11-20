@@ -5,6 +5,7 @@
 
 package it.unibo.scafi.incarnations
 
+import it.unibo.scafi.languages.TypesInfo
 import it.unibo.scafi.lib.StandardLibrary
 import it.unibo.scafi.simulation.{Simulation, SpatialSimulation}
 import it.unibo.scafi.space.BasicSpatialAbstraction
@@ -19,8 +20,8 @@ object BasicSimulationIncarnation
   extends BasicAbstractSimulationIncarnation
     with StandardLibrary {
 
-  import Builtins.Bounded
-  override implicit val idBounded: Bounded[ID] = Builtins.Bounded.of_i
+  import it.unibo.scafi.languages.TypesInfo.Bounded
+  override implicit val idBounded: Bounded[ID] = TypesInfo.Bounded.of_i
 }
 
 class BasicAbstractSpatialSimulationIncarnation

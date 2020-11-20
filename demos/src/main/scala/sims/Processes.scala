@@ -6,6 +6,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object ProcessesMain extends Launcher {
@@ -27,7 +28,7 @@ object ProcessesMain extends Launcher {
   * - The second process doesn't even start if launched from the domain of the first process.
   * - There are no 'fence nodes': the separation between internal and external nodes is sharp
   */
-class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients
+class Proc1 extends ScafiStandardAggregateProgram with SensorDefinitions with CustomSpawn with Gradients
   with TimeUtils with StateManagement with GenericUtils with StandardSensors with BlockG {
 
   override def main() = {
@@ -53,7 +54,7 @@ class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn wit
   }
 }
 
-class MultiGradient extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients with GenericUtils
+class MultiGradient extends ScafiStandardAggregateProgram with SensorDefinitions with CustomSpawn with Gradients with GenericUtils
   with TimeUtils with StateManagement with StandardSensors with BlockG {
 
   def isSrc = sense1 || sense2 || sense3 || sense4
@@ -85,7 +86,7 @@ class MultiGradient extends AggregateProgram with SensorDefinitions with CustomS
   }
 }
 
-class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip with Gradients with GenericUtils with StandardSensors with StateManagement with BlockG {
+class ReplGossip extends ScafiStandardAggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip with Gradients with GenericUtils with StandardSensors with StateManagement with BlockG {
 
   def isSrc = sense1 || sense2 || sense3 || sense4
 

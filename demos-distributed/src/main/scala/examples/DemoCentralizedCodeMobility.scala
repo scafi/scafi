@@ -28,7 +28,7 @@ object DemoCentralizedCodeMobilityMain extends App {
   val SENSOR_SRC = "source"
 
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA
-  trait MyAggregateProgram extends AggregateProgram with Serializable {
+  trait MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
     def hopGradient(source: Boolean): Int = {
       rep(10){
         hops => { mux(source){ 0 } {
@@ -85,7 +85,7 @@ object DemoCentralizedCodeMobilityMain extends App {
 
       StdIn.readLine()
 
-      sys.server ! MsgShipProgram(MsgProgram(new AggregateProgram with Serializable {
+      sys.server ! MsgShipProgram(MsgProgram(new ScafiStandardAggregateProgram with Serializable {
         override def main(): Any = "CODE_MOBILITY"
       }, Set(this.getClass)))
     }

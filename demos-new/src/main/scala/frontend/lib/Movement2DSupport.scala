@@ -11,7 +11,7 @@ import it.unibo.scafi.space.Point2D
 
 import scala.util.Random
 
-trait Movement2DSupport { self: AggregateProgram with StandardSensors =>
+trait Movement2DSupport { self: ScafiStandardAggregateProgram with StandardSensors =>
   lazy val random: Random = sense[Random](LSNS_RANDOM)
 
   def randomMovement(): (Double, Double) = {

@@ -3,7 +3,7 @@ import sims.Main16
 
 object TestScafiOnSingleDeviceMain extends App {
 
-  val program: AggregateProgram = new Main16()
+  val program: ScafiStandardAggregateProgram = new Main16()
   val ctx1 = factory.context(
     selfId = 1,
     exports = Map(), /* in generale li otterrò comunicando con altri nodi */

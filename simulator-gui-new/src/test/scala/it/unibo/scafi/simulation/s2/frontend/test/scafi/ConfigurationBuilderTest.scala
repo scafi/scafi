@@ -5,10 +5,10 @@ import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.Simulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiConfiguration
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.ScafiStandardAggregateProgram
 import org.scalatest.{FunSpec, Matchers}
 
-class BasicProgram extends AggregateProgram {
+class BasicProgram extends ScafiStandardAggregateProgram {
   override def main() = rep(0)(_ + 1) // the aggregate program to run
 }
 //noinspection NameBooleanParameters,NameBooleanParameters

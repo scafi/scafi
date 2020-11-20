@@ -6,6 +6,7 @@
 package sims
 
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.frontend.Settings
 import sims.BasicDemo.launch
 
@@ -18,8 +19,8 @@ object UpgradableMetricDemo extends App {
   launch()
 }
 
-class UpgradableMetricProgram extends AggregateProgram with BuildingBlocks with SensorDefinitions with DynamicCode
-  with FieldUtils with BlockG {
+class UpgradableMetricProgram extends ScafiStandardAggregateProgram with BuildingBlocks with SensorDefinitions with DynamicCode
+  with BlockG {
   override def main(): Any = {
     val injecter: Injecter[this.type,Double] = () => {
       branch(rep(0)(_+1)<100){

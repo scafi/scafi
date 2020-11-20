@@ -23,7 +23,7 @@ object DemoCentralizedMain extends App {
   val SENSOR_SRC = "source"
 
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA
-  trait MyAggregateProgram extends AggregateProgram with Serializable {
+  trait MyAggregateProgram extends ScafiStandardAggregateProgram with Serializable {
     def isObstacle = mid()%2==1 // sense("obstacle")
     def numOfNeighbors: Int = foldhood(0)(_+_)(nbr { 1 })
 

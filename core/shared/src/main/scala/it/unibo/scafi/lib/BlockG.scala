@@ -10,10 +10,10 @@ trait StdLib_BlockG {
 
   // scalastyle:off method.name
 
-  import Builtins._
+  import it.unibo.scafi.languages.TypesInfo._
 
-  trait BlockG extends Gradients with FieldUtils with GenericUtils with StateManagement {
-    self: FieldCalculusSyntax with StandardSensors =>
+  trait BlockGInterface extends GradientsInterface with GenericUtils with StateManagement {
+    self: ScafiBaseLanguage with FieldOperationsInterface with NeighbourhoodSensorReader with StandardSensors with LanguageDependant =>
 
     /**
       * Version of G (Gradient-Cast) that takes a Gradient algorithm as input.
@@ -31,14 +31,34 @@ trait StdLib_BlockG {
       * @tparam V type of the value to be accumulated
       * @return a field that locally provides the value of the gradient-cast (`field` at sources, and an accumulation value along the way)
       */
-    def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V = {
+    def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V =
+      G_along_valueAccumulator[V](g, metric, field, mapField(_)(acc))
+
+    private def G_along_valueAccumulator[V](g: Double, metric: Metric, field: V, valueAccumulator:  FieldType[V] => FieldType[V]): V = {
       rep(field) { case (value) =>
-        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g} + metric())(acc(nbr{value})).getOrElse(field) }
+        mux(g==0.0) {
+          field
+        } {
+          excludingSelf.minHoodSelector[Double,V](
+            combineWithRead(makeField{g})(metric())(_ + _)
+          )(
+            valueAccumulator(makeField{value})
+          ).getOrElse(field)
+        }
       }
     }
 
     def G[V](source: Boolean, field: V, acc: V => V, metric: Metric): V =
       Gg[V](ClassicGradient.from(source).withMetric(metric), field, acc)
+
+    def G_metricAccumulator(source: Boolean, field: Double, accMetric: Metric, distanceMetric: Metric): Double = {
+      G_along_valueAccumulator[Double](
+        ClassicGradient.from(source).withMetric(distanceMetric).run(),
+        distanceMetric,
+        field,
+        combineWithRead(_)(accMetric())(_ + _)
+      )
+    }
 
     /**
       * Curried version of [[G]]
@@ -50,12 +70,12 @@ trait StdLib_BlockG {
       * A field of distance (i.e., a gradient) from a `source`, based on a given `metric`
       */
     def distanceTo(source: Boolean, metric: Metric = nbrRange): Double =
-      Gcurried(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
+      G_metricAccumulator(source, mux(source){0.0}{Double.PositiveInfinity}, metric, nbrRange)
 
     /**
       * Hop distance
       */
-    def hopDistance(source: Boolean): Double = distanceTo(source, () =>1)
+    def hopDistance(source: Boolean): Double = distanceTo(source, () => constantRead(1))
 
     /**
       * Broadcast information outward from a source field.
@@ -85,6 +105,27 @@ trait StdLib_BlockG {
       val db = distanceBetween(source, target)
       !(ds + dt == Double.PositiveInfinity && db == Double.PositiveInfinity) && ds + dt <= db + width
     }
+
+    private def simpleAccFromLowestPotential[V](g: Double, value: V, metric: Metric, field: V, acc: V => V): V =
+      excludingSelf.minHoodSelector[Double,V](
+        combineWithRead(makeField{g})(metric())(_ + _)
+      )(
+        mapField(makeField{value})(acc)
+      ).getOrElse(field)
+
+    private def metricAccFromLowestPotential(g: Double, value: Double, metric: Metric, field: Double, accMetric: Metric): Double =
+      excludingSelf.minHoodSelector[Double,Double](
+        combineWithRead(makeField{g})(metric())(_ + _)
+      )(
+        combineWithRead(makeField{value})(accMetric())(_ + _)
+      ).getOrElse(field)
   }
 
+  private[lib] trait BlockG_ScafiStandard extends BlockGInterface with Gradients_ScafiStandard {
+    self: ScafiStandardLanguage with StandardSensors =>
+  }
+
+  private[lib] trait BlockG_ScafiFC extends BlockGInterface with Gradients_ScafiFC {
+    self: ScafiFCLanguage with StandardSensors =>
+  }
 }

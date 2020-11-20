@@ -7,6 +7,7 @@ package frontend.sims.experimental
 
 import frontend.sims.SensorDefinitions
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
+import ScafiStandardLibraries._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationInfo
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.reflection.Demo
@@ -22,7 +23,7 @@ object SpawnTestRunner extends App {
   ).launch()
 }
 @Demo
-class SpawnTest extends AggregateProgram with SensorDefinitions with FieldUtils with BlockG {
+class SpawnTest extends ScafiStandardAggregateProgram with SensorDefinitions with BlockG {
   case class SpawnDef[T](pid: Int,
                          comp: () => T,
                          genCondition: () => Boolean,
@@ -74,7 +75,7 @@ class SpawnTest extends AggregateProgram with SensorDefinitions with FieldUtils 
     }
   }
 
-  import Builtins.Bounded
+  import it.unibo.scafi.languages.TypesInfo.Bounded
   def minHoodSelector[T: Bounded, V](toMinimize: => T)(data: => V): Option[V] = {
     val ord = implicitly[Bounded[T]]
     foldhoodPlus[(T,Option[V])]((ord.top, None))( (x,y) => if(ord.compare(x._1,y._1) <= 0) x else y )((toMinimize, Some(data)))._2

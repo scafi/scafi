@@ -6,6 +6,7 @@
 package it.unibo.scafi.core
 
 import it.unibo.scafi.PlatformDependentConstants
+import it.unibo.scafi.languages.scafistandard.Language
 
 import scala.util.control.Exception._
 
@@ -20,7 +21,7 @@ import scala.util.control.Exception._
   * This is still abstract in that we do not dictate how Context and Export are implemented and optimised internally
   */
 
-trait Semantics extends Core with Language {
+trait ExecutionEnvironment extends Core {
 
   override type CONTEXT <: Context with ContextOps
   override type EXPORT <: Export with ExportOps
@@ -29,15 +30,11 @@ trait Semantics extends Core with Language {
 
   implicit val factory: Factory
 
-  sealed trait Slot {
+  trait Slot {
     def ->(v: Any): (Path,Any) = (factory.path(this), v)
     def /(s: Slot): Path = factory.path(this, s)
   }
-  final case class Nbr[A](index: Int) extends Slot
-  final case class Rep[A](index: Int) extends Slot
   final case class FunCall[A](index: Int, funId: Any) extends Slot
-  final case class FoldHood[A](index: Int) extends Slot
-  final case class Scope[K](key: K) extends Slot
 
   trait Path {
     def push(slot: Slot): Path
@@ -79,75 +76,23 @@ trait Semantics extends Core with Language {
     def main(): MainResult
   }
 
-  trait AggregateProgramSchema extends ProgramSchema {
-    self: Constructs =>
-  }
-
   /**
     * It implements the whole operational semantics.
     */
-  trait ExecutionTemplate extends (CONTEXT => EXPORT) with ConstructsSemantics with ProgramSchema {
-
-    var vm: RoundVM = _
+  trait ExecutionTemplate extends (CONTEXT => EXPORT) with ProgramSchema {
+    def vm: RoundVM = _vm
+    private var _vm: RoundVM = _
 
     def apply(c: CONTEXT): EXPORT = {
       round(c,main())
     }
 
     def round(c: CONTEXT, e: =>Any = main()): EXPORT = {
-      vm = new RoundVMImpl(c)
+      _vm = new RoundVMImpl(c)
       val result = e
-      vm.registerRoot(result)
-      vm.export
+      _vm.registerRoot(result)
+      _vm.export
     }
-  }
-
-  trait ConstructsSemantics extends Constructs {
-    def vm: RoundVM
-
-    override def mid(): ID = vm.self
-
-    override def rep[A](init: =>A)(fun: (A) => A): A = {
-      vm.nest(Rep[A](vm.index))(write = vm.unlessFoldingOnOthers) {
-        vm.locally {
-          fun(vm.previousRoundVal.getOrElse(init))
-        }
-      }
-    }
-
-    override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      vm.nest(FoldHood[A](vm.index))(write = true) { // write export always for performance reason on nesting
-        val nbrField = vm.alignedNeighbours
-          .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
-        vm.isolate { nbrField.fold(vm.locally { init })((x,y) => aggr(x,y) ) }
-      }
-    }
-
-    override def nbr[A](expr: => A): A =
-      vm.nest(Nbr[A](vm.index))(write = vm.onlyWhenFoldingOnSelf) {
-        vm.neighbour match {
-          case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
-          case _  => expr
-        }
-      }
-
-    override def aggregate[T](f: => T): T =
-      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(write = vm.unlessFoldingOnOthers) {
-        vm.neighbour match {
-          case Some(nbr) if nbr != vm.self => vm.loadFunction()()
-          case Some(nbr) if nbr == vm.self => vm.saveFunction(f); f
-          case _ => f
-        }
-      }
-
-    override def align[K,V](key: K)(proc: K => V): V =
-      vm.nest[V](Scope[K](key))(write = vm.unlessFoldingOnOthers, inc = false){
-        proc(key)
-      }
-
-    def sense[A](name: CNAME): A = vm.localSense(name)
-
-    def nbrvar[A](name: CNAME): A = vm.neighbourSense(name)
   }
 
   trait RoundVM {
@@ -166,6 +111,8 @@ trait Semantics extends Core with Language {
     def previousRoundVal[A]: Option[A]
 
     def neighbourVal[A]: A
+
+    def neighbourValOrExpr[A](expr: => A): A
 
     def foldedEval[A](expr: => A)(id: ID): Option[A]
 
@@ -218,6 +165,12 @@ trait Semantics extends Core with Language {
     override def neighbourVal[A]: A = context
       .readSlot[A](neighbour.get, status.path)
       .getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+
+    def neighbourValOrExpr[A](expr: => A): A =
+      neighbour match {
+        case Some(nbr) if nbr != self => neighbourVal
+        case _  => expr
+      }
 
     override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
       handling(classOf[OutOfDomainException]) by (_ => None) apply {
@@ -360,4 +313,31 @@ trait Semantics extends Core with Language {
     override def toString: String = s"NbrSensorUnknownException: $selfId , $name, $nbr"
   }
 
+  /**
+   * Defines the capability of reading local sensors
+   */
+  trait LocalSensorReader {
+    def readLocalSensor[A](name: CNAME): A
+  }
+
+  /**
+   * Defines the capability of reading neighbourhood sensors
+   */
+  trait NeighbourhoodSensorReader {
+    /**
+     * Type for the reading of a neighbourhood sensor.
+     * @tparam A The type of the value read at a single point
+     */
+    type NbrSensorRead[A]
+
+    def readNbrSensor[A](name: CNAME): NbrSensorRead[A]
+
+    def constantRead[A](value: A): NbrSensorRead[A]
+
+    implicit def withOps[A](base: NbrSensorRead[A]): NbrSensorReadWithOps[A]
+
+    trait NbrSensorReadWithOps[A] {
+      def map[B](mappingFunction: A => B): NbrSensorRead[B]
+    }
+  }
 }

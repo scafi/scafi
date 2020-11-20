@@ -21,7 +21,7 @@ import scala.scalajs.js.timers.{SetIntervalHandle, clearInterval, setInterval}
 object Index {
   import org.scalajs.dom._
 
-  class FooProgram extends AggregateProgram with StandardSensors {
+  class FooProgram extends ScafiStandardAggregateProgram with StandardSensors {
     override def main(): Any = rep(Double.PositiveInfinity){ case g =>
       mux(sense[Boolean]("source")){ 0.0 }{
         minHoodPlus { nbr(g) + nbrRange() }
@@ -126,7 +126,7 @@ object Index {
       idArray = nodes,
       nbrMap = mutable.Map(nodes.map((id: Int) => id->(id-3 to id+3+1).filter(x => x>=0 && x<100).toSet).toSeq:_*),
       nbrSensors = {
-        case NBR_RANGE => { case (id,idn) => 1 }
+        case WebIncarnation.NBR_RANGE => { case (id,idn) => 1 }
       },
       localSensors = {
         case "source" => { case id => id == 10 || id == 50 || id == 70 }

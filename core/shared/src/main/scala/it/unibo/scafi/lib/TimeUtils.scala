@@ -12,8 +12,8 @@ trait StdLib_TimeUtils {
 
   // scalastyle:off method.name
 
-  trait BlockT {
-    self: FieldCalculusSyntax =>
+  trait BlockTInterface {
+    self: ScafiBaseLanguage with FieldOperationsInterface with LanguageDependant =>
 
     def T[V](initial: V, floor: V, decay: V => V)
             (implicit ev: Numeric[V]): V =
@@ -43,11 +43,11 @@ trait StdLib_TimeUtils {
     }
 
     /**
-    * Timer synchronized within a neighborhood
-    */
+     * Timer synchronized within a neighborhood
+     */
     def sharedTimerWithDecay[T](period: T, dt: T)(implicit ev: Numeric[T]): T =
       rep(ev.zero) { clock =>
-        val clockPerceived = foldhood(clock)(ev.max)(nbr(clock))
+        val clockPerceived = includingSelf.foldhoodTemplate(clock)(ev.max)(makeField(clock))
         branch(ev.compare(clockPerceived, clock) <= 0) {
           // I'm currently as fast as the fastest device in the neighborhood, so keep on counting time
           ev.plus(clock, (if (cyclicTimerWithDecay(period, dt)) {
@@ -62,12 +62,12 @@ trait StdLib_TimeUtils {
       }
 
     /**
-      * Cyclic timer.
-      *
-      * @param length timeout
-      * @param decay  decay rate
-      * @return true if the timeout is expired, false otherwise
-      */
+     * Cyclic timer.
+     *
+     * @param length timeout
+     * @param decay  decay rate
+     * @return true if the timeout is expired, false otherwise
+     */
     def cyclicTimerWithDecay[T](length: T, decay: T)(implicit ev: Numeric[T]): Boolean =
       rep(length) { left =>
         branch(left == ev.zero) {
@@ -78,11 +78,11 @@ trait StdLib_TimeUtils {
       } == length
 
     /**
-      * Cyclic timer with a default unitary decay
-      *
-      * @param length timeout
-      * @return true if the timeout is expired, false otherwise
-      */
+     * Cyclic timer with a default unitary decay
+     *
+     * @param length timeout
+     * @return true if the timeout is expired, false otherwise
+     */
     def cyclicTimer[T](length: T)(implicit ev: Numeric[T]): Boolean = {
       cyclicTimerWithDecay(length, ev.one)
     }
@@ -107,18 +107,18 @@ trait StdLib_TimeUtils {
       }
 
     /**
-      * Exponential back-off filter.
-      *
-      * @param signal T, signal to be filtered
-      * @param a      T, alpha value
-      * @return T, filtered signal
-      */
+     * Exponential back-off filter.
+     *
+     * @param signal T, signal to be filtered
+     * @param a      T, alpha value
+     * @return T, filtered signal
+     */
     def exponentialBackoffFilter[T](signal: T, a: T)(implicit ev: Numeric[T]): T =
       rep(signal)(s => ev.plus(ev.times(s, a), ev.times(s, ev.minus(ev.one, a))))
-
   }
 
-  trait TimeUtils extends BlockT { self: FieldCalculusSyntax with StandardSensors =>
+  trait TimeUtilsInterface extends BlockTInterface {
+    self: ScafiBaseLanguage with FieldOperationsInterface with StandardSensors with LanguageDependant =>
     def sharedTimer(period: FiniteDuration): FiniteDuration =
       sharedTimerWithDecay(period.toMillis, deltaTime().toMillis).seconds
 
@@ -144,58 +144,70 @@ trait StdLib_TimeUtils {
       }
 
     /**
-      * Evaporation pattern.
-      * Starting from [lenght, info] descends to [0, info] with a custom decay
-      * (The floor values depends on length's type)
-      *
-      * @param length T, duration
-      * @param info   V, information
-      * @param decay  T => T, decay rate
-      * @return [V, T]
-      */
+     * Evaporation pattern.
+     * Starting from [lenght, info] descends to [0, info] with a custom decay
+     * (The floor values depends on length's type)
+     *
+     * @param length T, duration
+     * @param info   V, information
+     * @param decay  T => T, decay rate
+     * @return [V, T]
+     */
     def evaporation[T, V](length: T, decay: T => T, info: V)(implicit ev: Numeric[T]): (T, V) =
       (T(length, decay), info)
 
     /**
-      * Evaporation pattern.
-      * Starting from [lenght, info] descends to [0, info] with a predefined unitary decay
-      * (The floor values depends on length's type)
-      *
-      * @param length T, duration
-      * @param info   V, information
-      * @return [V, T]
-      */
+     * Evaporation pattern.
+     * Starting from [lenght, info] descends to [0, info] with a predefined unitary decay
+     * (The floor values depends on length's type)
+     *
+     * @param length T, duration
+     * @param info   V, information
+     * @return [V, T]
+     */
     def evaporation[T, V](length: T, info: V)(implicit ev: Numeric[T]): (T, V) = {
       (T(length), info)
     }
 
     /**
-      * Periodically invoke a function.
-      *
-      * @param length FiniteDuratrion, timeout
-      * @param f      () -> T, function to be invoked
-      * @param NULL   T, default value
-      * @return       T, apply f if the timeout is expired, NULL otherwise
-      */
+     * Periodically invoke a function.
+     *
+     * @param length FiniteDuratrion, timeout
+     * @param f      () -> T, function to be invoked
+     * @param NULL   T, default value
+     * @return       T, apply f if the timeout is expired, NULL otherwise
+     */
     def cyclicFunction[T](length: FiniteDuration, f:  () => T, NULL: T): T =
       cyclicFunctionWithDecay(length.toNanos, deltaTime().toNanos, f, NULL)
 
     /**
-      * Periodically invoke a function.
-      *
-      * @param length  T, timeout
-      * @param decay   T, decay rate
-      * @param f       () -> V, function to be invoked
-      * @param NULL V, default value
-      * @return V, apply f if the timeout is expired, NULL otherwise
-      */
+     * Periodically invoke a function.
+     *
+     * @param length  T, timeout
+     * @param decay   T, decay rate
+     * @param f       () -> V, function to be invoked
+     * @param NULL V, default value
+     * @return V, apply f if the timeout is expired, NULL otherwise
+     */
     def cyclicFunctionWithDecay[T, V](length: T, decay: T, f: () => V, NULL: V)(implicit ev: Numeric[T]): V =
       branch(cyclicTimerWithDecay(length, decay)) {
         f()
       } {
         NULL
       }
-
   }
 
+  private[lib] trait BlockT_ScafiStandard extends BlockTInterface with LanguageDependant_ScafiStandard {
+    self: ScafiStandardLanguage =>
+  }
+  private[lib] trait TimeUtils_ScafiStandard extends TimeUtilsInterface with BlockT_ScafiStandard {
+    self: ScafiStandardLanguage with StandardSensors =>
+  }
+
+  private[lib] trait BlockT_ScafiFC extends BlockTInterface with LanguageDependant_ScafiFC {
+    self: ScafiFCLanguage =>
+  }
+  private[lib] trait TimeUtils_ScafiFC extends TimeUtilsInterface with BlockT_ScafiFC {
+    self: ScafiFCLanguage with StandardSensors =>
+  }
 }

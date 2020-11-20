@@ -37,7 +37,7 @@ class TestFunctionCall extends FlatSpec with Matchers {
   // 30 31 32 33 34 35
   // For each device, its neighbors are the direct devices at the top/bottom/left/right
 
-  private[this] trait Node extends AggregateProgram {
+  private[this] trait Node extends ScafiStandardAggregateProgram {
     def isObstacle = sense[Boolean]("obstacle")
     def isSource = sense[Boolean]("source")
 

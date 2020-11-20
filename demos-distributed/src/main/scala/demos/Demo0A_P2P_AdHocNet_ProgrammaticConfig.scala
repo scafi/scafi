@@ -19,7 +19,7 @@ import it.unibo.scafi.incarnations.{ BasicActorP2P => Platform }
 
 object Demo0A_Inputs {
   // STEP 2: DEFINE AGGREGATE PROGRAM SCHEMA
-  trait Demo0A_AggregateProgram extends Platform.AggregateProgram {
+  trait Demo0A_AggregateProgram extends Platform.ScafiStandardAggregateProgram {
     override def main(): Any = foldhood(0){_ + _}(1)
   }
 
