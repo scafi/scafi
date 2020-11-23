@@ -46,7 +46,7 @@ class TestTimeUtils extends FlatSpec{
 
   Time_Utils should "support impulsesEvery" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Any = rep(0)(_ + (if (impulsesEvery(1 nanosecond)) 1 else 0) )
+      override def main(): Any = rep(0)(_ + (if (impulsesEvery(1.nanosecond)) 1 else 0) )
     }, ntimes = manyManyRounds)(net)
 
     assert(net.valueMap[Int]().forall(e => e._2 > 0))
@@ -56,7 +56,7 @@ class TestTimeUtils extends FlatSpec{
     val maxStdDev: Int = 10
 
     val testProgram: TestProgram = new TestProgram {
-      override def main(): Any = sharedTimer(1 seconds)
+      override def main(): Any = sharedTimer(1.seconds)
     }
 
     exec(testProgram, ntimes = someRounds)(net)
