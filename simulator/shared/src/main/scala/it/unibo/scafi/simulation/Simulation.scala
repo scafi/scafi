@@ -189,6 +189,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def neighbourhood(id: ID): Set[ID] = nbrMap.getOrElse(id, Set())
 
+    def inputNeighbours(id: ID): Set[ID] = context(id).exports().map(_._1).toSet[ID]
+
     def sensorState(filter: (CNAME,ID) => Boolean = (s,n) => true): Map[CNAME, collection.Map[ID,Any]] =
       lsnsMap.toMap
 

@@ -75,9 +75,10 @@ trait StdLib_EdgeFields {
         val nbrs = vm.alignedNeighbours
         def nbrEdgeValue[A](id: ID): Option[A] = rvm.context.readSlot(id, rvm.status.path)
         val inputEdgeField = new EdgeField[A](
-          nbrs.map(id => id -> nbrEdgeValue[EdgeField[A]](id)
-            .getOrElse(init).m
-            .getOrElse(vm.self, nbrEdgeValue[EdgeField[A]](id).getOrElse(init).default)
+          nbrs.map(nbrId =>
+            nbrId -> nbrEdgeValue[EdgeField[A]](nbrId)
+              .getOrElse(init).m
+              .getOrElse(vm.self, nbrEdgeValue[EdgeField[A]](nbrId).getOrElse(init).default)
           ).toMap,
           init.default)
         val outputEdgeField = f(inputEdgeField)
@@ -93,9 +94,10 @@ trait StdLib_EdgeFields {
         def nbrEdgeValue[A](id: ID): Option[A] = rvm.context.readSlot(id, rvm.status.path)
         val oldEdgeField = rvm.context.readSlot(vm.self, rvm.status.path).getOrElse(init)
         val inputEdgeField = new EdgeField[A](
-          nbrs.map(id => id -> nbrEdgeValue[EdgeField[A]](id)
-            .getOrElse(init).m
-            .getOrElse(vm.self, nbrEdgeValue[EdgeField[A]](id).getOrElse(init).default)
+          nbrs.map(nbrId =>
+            nbrId -> nbrEdgeValue[EdgeField[A]](nbrId)
+              .getOrElse(init).m
+              .getOrElse(vm.self, nbrEdgeValue[EdgeField[A]](nbrId).getOrElse(init).default)
           ).toMap,
           init.default)
         val outputEdgeField = f(ExchangeParams(oldEdgeField, inputEdgeField))
@@ -112,9 +114,11 @@ trait StdLib_EdgeFields {
       EdgeField(ef.m ++ Map[ID,T](mid -> selfValue), ef.default)
 
     // STEP 3: IMPL fnbr (and the other constructs) IN TERMS OF EXCHANGE?
-    def fnbr[A](e: => A): EdgeField[A] =
-      //EdgeField[A](e, includingSelf.reifyField(nbr(e)))
-      exchangeFull((e,e))(p => (e, p.neigh._1))._2
+    def nbrByExchange[A](e: => A): EdgeField[A] =
+      // EdgeField[A](e, includingSelf.reifyField(nbr(e)))
+      // selfSubs(exchangeFull((e,e))(p => (e, p.neigh._1))._2, e)
+      // selfSubs(exchange[(A,A)]((e,e))(n => n.map(en => (e, en._1)))._2, e)
+      exchange[(A,EdgeField[A])]((e,EdgeField.localToField(e)))(n => (e, n.map(_._1)))._2
 
     def repByExchange[A](init: => A)(f: (A) => A): A =
       exchangeFull(init)(p => f(p.old))
