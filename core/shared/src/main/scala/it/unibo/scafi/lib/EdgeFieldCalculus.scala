@@ -68,7 +68,11 @@ trait StdLib_EdgeFields {
     private val EXCHANGE_SLOT = Scope("exchange")
 
     // STEP 2: IMPL exchange
-    def exchange[A](init: EdgeField[A])(f: ExchangeParams[A] => EdgeField[A]): EdgeField[A] = {
+    def exchange[A](init: EdgeField[A])(f: EdgeField[A] => EdgeField[A]): EdgeField[A] = {
+      ???
+    }
+
+    def exchangeFull[A](init: EdgeField[A])(f: ExchangeParams[A] => EdgeField[A]): EdgeField[A] = {
       /*
       branch(true) {
         val thisPath = vm.asInstanceOf[RoundVMImpl].status.path
@@ -89,7 +93,7 @@ trait StdLib_EdgeFields {
     // STEP 3: IMPL fnbr (and the other constructs) IN TERMS OF EXCHANGE?
     def fnbr[A](e: => A): EdgeField[A] =
       //EdgeField[A](e, includingSelf.reifyField(nbr(e)))
-      exchange((e,e))(p => (e, p.neigh._1))._2
+      exchangeFull((e,e))(p => (e, p.neigh._1))._2
 
     def fsns[A](e: => A, defaultA: A): EdgeField[A] =
       EdgeField[A](includingSelf.reifyField(e), defaultA)
