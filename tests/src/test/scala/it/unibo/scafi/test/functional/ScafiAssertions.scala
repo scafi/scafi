@@ -11,9 +11,17 @@ import org.scalatest.Matchers
 
 object ScafiAssertions extends Matchers {
 
-  def assertForAllNodes[T](f: (ID,T) => Boolean, okWhenNotComputed: Boolean = false)
+  def assertForAllNodes[T](f: (ID,T) => Boolean, okWhenNotComputed: Boolean = false, msg: String = "Assert Network Values")
                           (implicit net: Network): Unit ={
-    withClue("Actual network:\n" + net + "\n\n Sample exports:\n" + net.export(0) + "\n" + net.export(1)) {
+    withClue(s"""
+                | ${msg}
+                | Actual network: ${net}
+                | Sensor state: ${net.sensorState()}
+                | Neighborhoods: ${net.ids.map(id => id -> net.neighbourhood(id))}
+                | Sample exports
+                | ID=0 => ${net.export(0)}
+                | ID=1 => ${net.export(1)}
+              """.stripMargin)  {
       net.exports.forall {
         case (id, Some(e)) => f(id, e.root[T]())
         case (id, None) => okWhenNotComputed

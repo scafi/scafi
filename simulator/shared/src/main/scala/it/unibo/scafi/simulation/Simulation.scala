@@ -125,7 +125,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val nbrMap = MMap() ++= idArray.map(lId.toNum(_)).map { i =>
         (lId.fromNum(i), idArray.filter { j =>
           dist(grid(i % rows)(i / rows), grid(lId.toNum(j) % rows)(lId.toNum(j) / rows)) < rng && j != lId.fromNum(i)
-        }.toSet)
+        }.toSet + lId.fromNum(i))
       }
       def nbsExportsInGridFor(i: ID) = MMap[ID, Any]((nbrMap(i) + i).toList.map(
         j => (j -> dist(grid(lId.toNum(i).toInt % rows)(lId.toNum(i) / rows), grid(lId.toNum(j) % rows)(lId.toNum(j) / rows)))

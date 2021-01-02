@@ -65,11 +65,24 @@ trait StdLib_EdgeFields {
     */
 
     // STEP 1C: SLOTS ARE SEALED, SO, UNLESS WORKAROUNDS ARE USED, EXTEND THOSE IN `SEMANTICS`
-    private val EXCHANGE_SLOT = Scope("exchange")
+    private val EXCHANGE_SLOT_NAME = Scope("exchange")
+    private val EXCHANGE_SLOT = Scope(EXCHANGE_SLOT_NAME)
 
     // STEP 2: IMPL exchange
     def exchange[A](init: EdgeField[A])(f: EdgeField[A] => EdgeField[A]): EdgeField[A] = {
-      ???
+      val rvm = vm.asInstanceOf[RoundVMImpl]
+      vm.nest(EXCHANGE_SLOT.copy(index = vm.index))(write = true) {
+        val nbrs = vm.alignedNeighbours
+        def nbrEdgeValue[A](id: ID): Option[A] = rvm.context.readSlot(id, rvm.status.path)
+        val inputEdgeField = new EdgeField[A](
+          nbrs.map(id => id -> nbrEdgeValue[EdgeField[A]](id)
+            .getOrElse(init).m
+            .getOrElse(vm.self, init.default)).toMap,
+          init.default)
+        val outputEdgeField = f(inputEdgeField)
+        // println(s"$mid -> apply exchange to $inputEdgeField ==> $outputEdgeField")
+        outputEdgeField
+      }
     }
 
     def exchangeFull[A](init: EdgeField[A])(f: ExchangeParams[A] => EdgeField[A]): EdgeField[A] = {
@@ -92,7 +105,7 @@ trait StdLib_EdgeFields {
 
     // STEP 2B: CONSIDER ADDING USEFUL BUILT-INS
     def defSubs[T](ef: EdgeField[T], defaultValue: T): EdgeField[T] =
-      EdgeField(ef.m, defaultValue)
+      EdgeField(vm.alignedNeighbours().map(id => id -> ef.m.getOrElse(id, ef.default)).toMap, defaultValue)
 
     def selfSubs[T](ef: EdgeField[T], selfValue: T): EdgeField[T] =
       EdgeField(ef.m ++ Map[ID,T](mid -> selfValue), ef.default)
@@ -125,9 +138,9 @@ trait StdLib_EdgeFields {
       def selfSubs(selfValue: T): EdgeField[T] =
         EdgeField[T](this.m ++ Map[ID,T](mid -> selfValue), this.default)
 
-      def restricted: EdgeField[T] = {
-        val alignedField = fnbr{1}
-        EdgeField(this.m.filter(el => alignedField.m.contains(el._1)), this.default)
+      def restricted: EdgeField[T] = { // TODO: contains on list {
+        val nbrsSet = vm.alignedNeighbours().toSet
+        EdgeField(this.m.filter(el => nbrsSet.contains(el._1)), this.default)
       }
 
       def map[R](o: T=>R): EdgeField[R] =
@@ -141,7 +154,7 @@ trait StdLib_EdgeFields {
         EdgeField(this.m.map { case (i,v) => i -> o(v,f.m(i)) }, o(default, f.default))
 
       def map2i[R,S](f: EdgeField[R])(o: (T,R)=>S): EdgeField[S] =
-        EdgeField(restricted.m.collect { case (i,v) if f.m.contains(i) => i -> o(v,f.m(i)) }, o(default, f.default))
+        map2u(f)(this.default, f.default)(o)
 
       def map2d[R,S](f: EdgeField[R])(defaultr: R)(o: (T,R)=>S): EdgeField[S] =
         EdgeField(this.m.map { case (i,v) => i -> o(v,f.m.getOrElse(i,defaultr)) }, o(default, defaultr))
@@ -166,7 +179,7 @@ trait StdLib_EdgeFields {
 
       def toMap: Map[ID,T] = this.m
 
-      override def toString: String = s"Field[$m]"
+      override def toString: String = s"EdgeField[default=$default, exceptions=$m]"
     }
 
     object EdgeField {
