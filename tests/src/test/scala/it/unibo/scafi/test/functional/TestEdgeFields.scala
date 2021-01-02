@@ -50,9 +50,38 @@ class TestEdgeFields extends FlatSpec with Matchers {
     n
   }
 
+  EdgeFields should "enable keeping track of unidirectional connection times" in new SimulationContextFixture {
+    val p = new TestProgram {
+      override def main(): Int = exchangeFull(0)(p => p.old + defSubs(1,0))
+    }
+
+    runProgramInOrder(Seq(0,1,2), p)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      6,    5,    4,
+      4.5,  3.5,  2.5,
+      3,    2,    1
+    )).toMap)(net)
+  }
+
+  EdgeFields should "enable keeping track of bidirectional connection times" in new SimulationContextFixture {
+    val p = new TestProgram {
+      override def main(): Int = exchange(0)(n => n + defSubs(1,0))
+    }
+
+    runProgramInOrder(Seq(0,1,2), p)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      6,    5,    4,
+      4.5,  3.5,  2.5,
+      3,    2,    1
+    )).toMap)(net)
+  }
+
+  // TODO
   EdgeFields should "subsume nbr" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Double = gradient(sense[Boolean](SRC)) + 1
+      override def main(): Double = ???
     }, ntimes = someRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
@@ -60,6 +89,32 @@ class TestEdgeFields extends FlatSpec with Matchers {
       4.5,  3.5,  2.5,
       3,    2,    1
     )).toMap)(net)
+  }
+
+  // TODO
+  EdgeFields should "subsume rep" in new SimulationContextFixture {
+    val p = new TestProgram {
+      override def main(): Int = repByExchange(0)(_+1)
+    }
+
+    val s = schedulingSequence(net.ids, 1000)
+
+    runProgramInOrder(s, p)(net)
+
+    assertForAllNodes((id,v: Int) => s.count(_==id)==v)(net)
+  }
+
+  // TODO
+  EdgeFields should "subsume share" in new SimulationContextFixture {
+    val p = new TestProgram {
+      override def main(): Int = shareByExchange(0)(_+1)
+    }
+
+    val s = schedulingSequence(net.ids, 1000)
+
+    runProgramInOrder(s, p)(net)
+
+    assertForAllNodes((id,v: Int) => s.count(_==id)==v)(net)
   }
 
   EdgeFields should "support construction of gradients" in new SimulationContextFixture {

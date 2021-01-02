@@ -90,10 +90,23 @@ trait StdLib_EdgeFields {
       ???
     }
 
+    // STEP 2B: CONSIDER ADDING USEFUL BUILT-INS
+    def defSubs[T](ef: EdgeField[T], defaultValue: T): EdgeField[T] =
+      EdgeField(ef.m, defaultValue)
+
+    def selfSubs[T](ef: EdgeField[T], selfValue: T): EdgeField[T] =
+      EdgeField(ef.m ++ Map[ID,T](mid -> selfValue), ef.default)
+
     // STEP 3: IMPL fnbr (and the other constructs) IN TERMS OF EXCHANGE?
     def fnbr[A](e: => A): EdgeField[A] =
       //EdgeField[A](e, includingSelf.reifyField(nbr(e)))
       exchangeFull((e,e))(p => (e, p.neigh._1))._2
+
+    def repByExchange[A](init: => A)(f: (A) => A): A =
+      exchangeFull(init)(p => f(p.old))
+
+    def shareByExchange[A](init: A)(f: A => A): A =
+      exchange(init)(n => f(n))
 
     def fsns[A](e: => A, defaultA: A): EdgeField[A] =
       EdgeField[A](includingSelf.reifyField(e), defaultA)
@@ -103,14 +116,14 @@ trait StdLib_EdgeFields {
       * @param m map from devices to corresponding values
       * @tparam T type of field values
       */
-    class EdgeField[T](private[EdgeField] val m: Map[ID,T], override val default: T) extends Builtins.Defaultable[T] {
+    class EdgeField[T](private[lib] val m: Map[ID,T], override val default: T) extends Builtins.Defaultable[T] {
       implicit val defaultable: Defaultable[T] = this
 
       def defSubs(defaultValue: T): EdgeField[T] =
         EdgeField[T](this.m, defaultValue)
 
       def selfSubs(selfValue: T): EdgeField[T] =
-        EdgeField[T](this.m ++ Map(mid -> selfValue), this.default)
+        EdgeField[T](this.m ++ Map[ID,T](mid -> selfValue), this.default)
 
       def restricted: EdgeField[T] = {
         val alignedField = fnbr{1}
