@@ -66,10 +66,10 @@ class TestEdgeFields extends FlatSpec with Matchers {
 
   EdgeFields should "enable keeping track of bidirectional connection times" in new SimulationContextFixture {
     val p = new TestProgram {
-      override def main(): Map[ID,Int] = exchange(0)(n => n + defSubs(1,0)).toMap
+      override def main(): Map[ID,Int] = exchange(defSubs(0,1))(n => n + defSubs(1,0)).toMap
     }
 
-    val s = Seq(1,0,0,1) // Seq(1,0,1,2,1,2,0,1,2,1,2,0,1)
+    val s = Seq(1,0,0,1,3,4,5,6,7,8) // Seq(1,0,1,2,1,2,0,1,2,1,2,0,1)
       // schedulingSequence(net.ids, 10)
 
     runProgramInOrder(s, p)(net)
@@ -79,7 +79,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         val baseSeq = s.filter(Set(id, nbrId).contains(_))
         val m = if(id != nbrId) baseSeq.sliding(2).count(s => s(0)!=s(1)) else baseSeq.size
         println(s"$id :: $nbrId -> $m")
-        m
+        if(baseSeq.last == nbrId) m - 1 else m
       }).toMap,
       msg = s"Run sequence: ${s}")(net)
   }

@@ -77,7 +77,8 @@ trait StdLib_EdgeFields {
         val inputEdgeField = new EdgeField[A](
           nbrs.map(id => id -> nbrEdgeValue[EdgeField[A]](id)
             .getOrElse(init).m
-            .getOrElse(vm.self, init.default)).toMap,
+            .getOrElse(vm.self, nbrEdgeValue[EdgeField[A]](id).getOrElse(init).default)
+          ).toMap,
           init.default)
         val outputEdgeField = f(inputEdgeField)
         // println(s"$mid -> apply exchange to $inputEdgeField ==> $outputEdgeField")
@@ -86,21 +87,21 @@ trait StdLib_EdgeFields {
     }
 
     def exchangeFull[A](init: EdgeField[A])(f: ExchangeParams[A] => EdgeField[A]): EdgeField[A] = {
-      /*
-      branch(true) {
-        val thisPath = vm.asInstanceOf[RoundVMImpl].status.path
-        val exchangePath = thisPath.push(EXCHANGE_SLOT)
-
-        val params: ExchangeParams[A] = ExchangeParams(
-          old = ???,
-          neigh = ???)
-        val outEdgeField = f(params)
-        outEdgeField
-      }{ init }
-       */
-
-      // EdgeField[A](includingSelf.reifyField(nbr(e)), )
-      ???
+      val rvm = vm.asInstanceOf[RoundVMImpl]
+      vm.nest(EXCHANGE_SLOT.copy(index = vm.index))(write = true) {
+        val nbrs = vm.alignedNeighbours
+        def nbrEdgeValue[A](id: ID): Option[A] = rvm.context.readSlot(id, rvm.status.path)
+        val oldEdgeField = rvm.context.readSlot(vm.self, rvm.status.path).getOrElse(init)
+        val inputEdgeField = new EdgeField[A](
+          nbrs.map(id => id -> nbrEdgeValue[EdgeField[A]](id)
+            .getOrElse(init).m
+            .getOrElse(vm.self, nbrEdgeValue[EdgeField[A]](id).getOrElse(init).default)
+          ).toMap,
+          init.default)
+        val outputEdgeField = f(ExchangeParams(oldEdgeField, inputEdgeField))
+        // println(s"$mid -> apply exchange to $inputEdgeField ==> $outputEdgeField")
+        outputEdgeField
+      }
     }
 
     // STEP 2B: CONSIDER ADDING USEFUL BUILT-INS
@@ -120,6 +121,7 @@ trait StdLib_EdgeFields {
 
     def shareByExchange[A](init: A)(f: A => A): A =
       exchange(init)(n => f(n))
+      // exchangeFull(init)(p => f(p.neigh))
 
     def fsns[A](e: => A, defaultA: A): EdgeField[A] =
       EdgeField[A](includingSelf.reifyField(e), defaultA)
