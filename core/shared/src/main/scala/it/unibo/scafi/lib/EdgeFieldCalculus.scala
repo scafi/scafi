@@ -14,61 +14,14 @@ trait StdLib_EdgeFields {
     self: FieldCalculusSyntax with ExecutionTemplate =>
 
     case class ExchangeParams[T](old: EdgeField[T], neigh: EdgeField[T])
-
-    // STEP 1) CONSIDER HOW REP/NBR ARE IMPLEMENTED
-    /*
-    override def rep[A](init: =>A)(fun: (A) => A): A = {
-      vm.nest(Rep[A](vm.index))(write = vm.unlessFoldingOnOthers) {
-        vm.locally {
-          fun(vm.previousRoundVal.getOrElse(init))
-        }
-      }
+    object ExchangeParams {
+      implicit def fromTuple[T](tuple: (EdgeField[T], EdgeField[T])): ExchangeParams[T] =
+        ExchangeParams(tuple._1, tuple._2)
     }
 
-    override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
-      vm.nest(FoldHood[A](vm.index))(write = true) { // write export always for performance reason on nesting
-        val nbrField = vm.alignedNeighbours
-          .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
-        vm.isolate { nbrField.fold(vm.locally { init })((x,y) => aggr(x,y) ) }
-      }
-    }
-
-    override def nbr[A](expr: => A): A =
-      vm.nest(Nbr[A](vm.index))(write = vm.onlyWhenFoldingOnSelf) {
-        vm.neighbour match {
-          case Some(nbr) if (nbr != vm.self) => vm.neighbourVal
-          case _  => expr
-        }
-      }
-    */
-
-    // STEP 1B: POSSIBLY CONSIDER ALSO THE IMPL OF SHARE
-    /*
-    def nbrpath[A](path: Path)(expr: => A): A = {
-      val tvm = vm.asInstanceOf[RoundVMImpl]
-      vm.nest(Nbr[A](vm.index))(vm.neighbour.map(_ == vm.self).getOrElse(false)) {
-        vm.neighbour match {
-          case Some(nbr) if (nbr != vm.self) => tvm.context
-            .readSlot[A](vm.neighbour.get, path)
-            .getOrElse(throw new OutOfDomainException(tvm.context.selfId, vm.neighbour.get, path))
-          case _ => expr
-        }
-      }
-    }
-
-    def share[A](init: => A)(f: (A, () => A) => A): A = {
-      rep(init){ oldRep =>
-        val repp = vm.asInstanceOf[RoundVMImpl].status.path
-        f(oldRep, () => nbrpath(repp)(oldRep))
-      }
-    }
-    */
-
-    // STEP 1C: SLOTS ARE SEALED, SO, UNLESS WORKAROUNDS ARE USED, EXTEND THOSE IN `SEMANTICS`
     private val EXCHANGE_SLOT_NAME = Scope("exchange")
     private val EXCHANGE_SLOT = Scope(EXCHANGE_SLOT_NAME)
 
-    // STEP 2: IMPL exchange
     def exchange[A](init: EdgeField[A])(f: EdgeField[A] => EdgeField[A]): EdgeField[A] = {
       val rvm = vm.asInstanceOf[RoundVMImpl]
       vm.nest(EXCHANGE_SLOT.copy(index = vm.index))(write = true) {
@@ -85,7 +38,7 @@ trait StdLib_EdgeFields {
           }).toMap,
           init.default)
         val outputEdgeField = f(inputEdgeField)
-        println(s"$mid ${rvm.context} \n \t\t -> apply exchange to $inputEdgeField ==> $outputEdgeField")
+        // println(s"$mid ${rvm.context} \n \t\t -> apply exchange to $inputEdgeField ==> $outputEdgeField")
         outputEdgeField
       }
     }
@@ -109,20 +62,15 @@ trait StdLib_EdgeFields {
       }
     }
 
-    // STEP 2B: CONSIDER ADDING USEFUL BUILT-INS
     def defSubs[T](ef: EdgeField[T], defaultValue: T): EdgeField[T] =
       EdgeField(vm.alignedNeighbours().map(id => id -> ef.m.getOrElse(id, ef.default)).toMap, defaultValue)
 
     def selfSubs[T](ef: EdgeField[T], selfValue: T): EdgeField[T] =
       EdgeField(ef.m ++ Map[ID,T](mid -> selfValue), ef.default)
 
-    // STEP 3: IMPL fnbr (and the other constructs) IN TERMS OF EXCHANGE?
     def nbrByExchange[A](e: => EdgeField[A]): EdgeField[A] =
-      // EdgeField[A](e, includingSelf.reifyField(nbr(e)))
-      // selfSubs(exchangeFull((e,e))(p => (e, p.neigh._1))._2, e)
-      //selfSubs(exchange[(A,A)](e.map2(e)((a,b) => (a,b)))(n => n.map(en => (e, en._1)))._2, e)
-      // exchange[(A,A)](e.map2(e)((_,_)))(n => n.map2(e)((n, e) => (e, n._1))).map(_._2) // Alternative
-      exchange[(A,A)](e.map2(e)((_,_)))(n => n.map(n => (e, n._1))).map(_._2)
+      exchange[(A,A)](e.map2(e)((_,_)))(n => n.map(n => (e, n._1))).map(_._2) // NB: exchange(..)(..)._2 would compile but doesn't work
+
 
     def nbrLocalByExchange[A](e: => A): EdgeField[A] =
       exchange[(A,EdgeField[A])]((e,EdgeField.localToField(e)))(n => (e, n.map(_._1)))._2

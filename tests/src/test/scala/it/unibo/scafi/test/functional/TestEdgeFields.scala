@@ -124,15 +124,12 @@ class TestEdgeFields extends FlatSpec with Matchers {
       msg = s"Run sequence: ${s}")(net)
   }
 
-  // TODO
-  EdgeFields should "subsume nbr" in new SimulationContextFixture {
+  EdgeFields should "subsume nbr (lifted)" in new SimulationContextFixture {
     val p = new TestProgram {
       override def main() = nbrByExchange(mid).toMap //.fold(Double.PositiveInfinity)(Math.min).toInt
     }
 
     val s = List.fill(2)(net.ids).flatten
-
-    println("$$$$$$$$$$$$$$$$$$$$$$$")
 
     runProgramInOrder(s, p)(net)
 
@@ -143,7 +140,22 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )).toMap, msg = s"Run sequence: ${s}")(net)
   }
 
-  // TODO
+  EdgeFields should "subsume nbr (original)" in new SimulationContextFixture {
+    val p = new TestProgram {
+      override def main() = nbrLocalByExchange(mid).toMap //.fold(Double.PositiveInfinity)(Math.min).toInt
+    }
+
+    val s = List.fill(2)(net.ids).flatten
+
+    runProgramInOrder(s, p)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      Map(0->0, 1->1, 3->3),       Map(0->0, 1->1, 2->2, 4->4),       Map(1->1, 2->2, 5->5),
+      Map(0->0, 3->3, 4->4, 6->6), Map(1->1, 3->3, 4->4, 5->5, 7->7), Map(2->2, 4->4, 5->5, 8->8),
+      Map(3->3, 6->6, 7->7),       Map(4->4, 6->6, 7->7, 8->8),       Map(7->7, 5->5, 8->8)
+    )).toMap, msg = s"Run sequence: ${s}")(net)
+  }
+
   EdgeFields should "subsume rep" in new SimulationContextFixture {
     val p = new TestProgram {
       override def main(): Int = repByExchange(0)(_+1)
@@ -156,7 +168,6 @@ class TestEdgeFields extends FlatSpec with Matchers {
     assertForAllNodes((id,v: Int) => s.count(_==id)==v)(net)
   }
 
-  // TODO
   EdgeFields should "subsume share" in new SimulationContextFixture {
     val p = new TestProgram {
       override def main(): Int = shareByExchange(0)(_+1)
