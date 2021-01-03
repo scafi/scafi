@@ -75,14 +75,17 @@ trait StdLib_EdgeFields {
         val nbrs = vm.alignedNeighbours
         def nbrEdgeValue[A](id: ID): Option[A] = rvm.context.readSlot(id, rvm.status.path)
         val inputEdgeField = new EdgeField[A](
-          nbrs.map(nbrId =>
-            nbrId -> nbrEdgeValue[EdgeField[A]](nbrId)
-              .getOrElse(init).m
-              .getOrElse(vm.self, nbrEdgeValue[EdgeField[A]](nbrId).getOrElse(init).default)
-          ).toMap,
+          nbrs.map(nbrId => { // create the edgevalue by getting the contributions from all the neighbours (`nbrs`)
+            println(s"${mid} :: ${nbrId} >> ${nbrEdgeValue[EdgeField[A]](nbrId)}")
+            nbrId -> nbrEdgeValue[EdgeField[A]](nbrId) // get edgevalue received from device `nbrId`
+              .getOrElse(init).m // if there is not an aligned export from `nbrId`, use `init`
+              .getOrElse(vm.self, // from the neighbour's edgevalue, get the value sent to the current device (`self`)
+                nbrEdgeValue[EdgeField[A]](nbrId).getOrElse(init).default // otherwise, provide the default
+              )
+          }).toMap,
           init.default)
         val outputEdgeField = f(inputEdgeField)
-        // println(s"$mid -> apply exchange to $inputEdgeField ==> $outputEdgeField")
+        println(s"$mid ${rvm.context} \n \t\t -> apply exchange to $inputEdgeField ==> $outputEdgeField")
         outputEdgeField
       }
     }
@@ -114,10 +117,14 @@ trait StdLib_EdgeFields {
       EdgeField(ef.m ++ Map[ID,T](mid -> selfValue), ef.default)
 
     // STEP 3: IMPL fnbr (and the other constructs) IN TERMS OF EXCHANGE?
-    def nbrByExchange[A](e: => A): EdgeField[A] =
+    def nbrByExchange[A](e: => EdgeField[A]): EdgeField[A] =
       // EdgeField[A](e, includingSelf.reifyField(nbr(e)))
       // selfSubs(exchangeFull((e,e))(p => (e, p.neigh._1))._2, e)
-      // selfSubs(exchange[(A,A)]((e,e))(n => n.map(en => (e, en._1)))._2, e)
+      //selfSubs(exchange[(A,A)](e.map2(e)((a,b) => (a,b)))(n => n.map(en => (e, en._1)))._2, e)
+      // exchange[(A,A)](e.map2(e)((_,_)))(n => n.map2(e)((n, e) => (e, n._1))).map(_._2) // Alternative
+      exchange[(A,A)](e.map2(e)((_,_)))(n => n.map(n => (e, n._1))).map(_._2)
+
+    def nbrLocalByExchange[A](e: => A): EdgeField[A] =
       exchange[(A,EdgeField[A])]((e,EdgeField.localToField(e)))(n => (e, n.map(_._1)))._2
 
     def repByExchange[A](init: => A)(f: (A) => A): A =
@@ -150,14 +157,13 @@ trait StdLib_EdgeFields {
       }
 
       def map[R](o: T=>R): EdgeField[R] =
-        EdgeField(this.m.mapValues(o), o(default))
+        EdgeField(this.m.map(tp => tp._1 -> o(tp._2)), o(default))
 
-      def map[R](defaultr: R, o: T=>R): EdgeField[R] = {
-        EdgeField(this.m.mapValues(o).toMap, defaultr)
-      }
+      def map[R](defaultr: R, o: T=>R): EdgeField[R] =
+        EdgeField(this.m.map(tp => tp._1 -> o(tp._2)), defaultr)
 
       def map2[R,S](f: EdgeField[R])(o: (T,R)=>S): EdgeField[S] =
-        EdgeField(this.m.map { case (i,v) => i -> o(v,f.m(i)) }, o(default, f.default))
+        EdgeField(this.m.map { case (i,v) => i -> o(v, f.m.getOrElse(i, f.default)) }, o(default, f.default))
 
       def map2i[R,S](f: EdgeField[R])(o: (T,R)=>S): EdgeField[S] =
         map2u(f)(this.default, f.default)(o)
