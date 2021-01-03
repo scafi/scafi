@@ -115,7 +115,6 @@ class TestEdgeFields extends FlatSpec with Matchers {
           baseSeq.size
         } else {
           baseSeq = dropConsecutiveEquals(baseSeq)
-          println(s"${id} :: ${nbrId} (${baseSeq})")
           baseSeq.size + (if (baseSeq.last == nbrId) -1 else 0) - 1
         }
       }).filter(_._2 > 0).toMap,
@@ -209,6 +208,35 @@ class TestEdgeFields extends FlatSpec with Matchers {
       4,  3,  2,
       3,  2,  1,
       2,  1,  0
+    )).toMap)(net)
+  }
+
+  EdgeFields should "support broadcasting" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      def hopGradient(): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
+        mux(sense[Boolean](SRC)){ 0.0 } { n.fold(Double.PositiveInfinity)(Math.min) + 1 }
+      ).toInt
+
+      def broadcast(distance: Int, value: Int) = {
+        val dist: EdgeField[Int] = distance
+        val loc: EdgeField[(Int,Int)] = dist.map2(value)((_,_))
+        exchange[(Int,Int)](loc)(n =>
+          dist.map2(
+            // select the `value` exposed by the neighbour with minimal `distance`
+            n.fold[(Int,Int)](loc)((t1,t2) => if(t1._1 < t2._1) t1 else t2)._2
+          )((_,_))
+        )._2
+      }
+
+      override def main(): Int = branch(mid!=1){ broadcast(hopGradient(), mid) }{ -1 }
+    }, ntimes = manyRounds)(net)
+
+    // ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      8, -1, 8,
+      8, 8, 8,
+      8, 8, 8
     )).toMap)(net)
   }
 
