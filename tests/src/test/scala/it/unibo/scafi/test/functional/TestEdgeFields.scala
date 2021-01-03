@@ -54,8 +54,19 @@ class TestEdgeFields extends FlatSpec with Matchers {
     *
     * NB: In the tests that follow we check the `EdgeField` that is being sent by any given device
     * (so, it differs from event structure representations where edge labels are on incoming edges wrt target events)
+    *
+    * There are 4 cases of sequences (consider two connected devices 0 and 1, and consider 0 as target device),
+    *  depending on what is the starting and ending device ID in the sequence:
+    *
+    * 1) 1-0-0-1 (nbr starts and ends the seq)                ==> [1,0,0] (correct answer: 2, i.e. the num of zeros)
+    * 2) 1-1-0-0 (nbr starts the seq)                         ==> [1,0,0] (same)
+    * 3) 0-0-1-1-0-1 (nbr does not start but ends the seq)    ==> [1,0] (correct answer: 1, i.e., the num of zeros)
+    * 4) 0-0-1-1-0 (nbr does not start not ends the seq)      ==> [1,0] (same)
+    *
+    * The useful part of the sequences are shown to the right. This is kept by keeping the seq after the first occurrance
+    *  of the neighbour, and then counting the num of times that `self` occurs.
+    * For self wrt self itself, just count the num of self events.
     */
-
   EdgeFields should "enable keeping track of unidirectional connection times" in new SimulationContextFixture {
     val p = new TestProgram {
       /**
@@ -64,8 +75,8 @@ class TestEdgeFields extends FlatSpec with Matchers {
       override def main(): Map[ID,Int] = exchangeFull(0)(p => p.old + defSubs(1,0)).toMap
     }
 
-    val s = List(0,3,1,0,0,3,0,1)
-      // schedulingSequence(net.ids, 10).toList
+    val s = //List(1,0,0,1)
+      schedulingSequence(net.ids, 100).toList
 
     runProgramInOrder(s, p)(net)
 
@@ -73,9 +84,12 @@ class TestEdgeFields extends FlatSpec with Matchers {
       try {
         v == (net.inputNeighbours(id)).map(nbrId => nbrId -> {
           val filteredSeq = s.filter(Set(id, nbrId).contains(_))
-          var conns = filteredSeq.count(_ == id)
-          if (id != nbrId && filteredSeq.head == id) conns -= 1
-          conns
+          if(id == nbrId) {
+            filteredSeq.count(_ == id)
+          } else {
+            val relevantSeq = filteredSeq.drop(filteredSeq.indexOf(nbrId)).filter(_ == id)
+            relevantSeq.length
+          }
         }).toMap
       } catch { case e => e.printStackTrace(); true},
       okWhenNotComputed = true,
@@ -103,7 +117,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         val m = if(id == nbrId) baseSeq.size
         else if(id != nbrId && baseSeq.size >= 2) baseSeq.sliding(2).count(s => s(0)!=s(1))
         else 0
-        println(s"$id :: $nbrId -> $m ($baseSeq)")
+        // println(s"$id :: $nbrId -> $m ($baseSeq)")
         m
       }).filter(_._2 > 0).toMap,
       okWhenNotComputed = true,
