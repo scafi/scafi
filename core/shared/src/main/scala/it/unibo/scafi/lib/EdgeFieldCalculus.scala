@@ -154,6 +154,11 @@ trait StdLib_EdgeFields {
 
       implicit def fieldToLocal[T](fv: EdgeField[T]): T =
         fv.m.getOrElse(mid, fv.default)
+
+      /*
+      implicit def tupleToFieldOfTuples[T,U](tp: (EdgeField[T],EdgeField[U])): EdgeField[(T,U)] =
+        tp._1.map2(tp._2)((_,_))
+       */
     }
 
     /**

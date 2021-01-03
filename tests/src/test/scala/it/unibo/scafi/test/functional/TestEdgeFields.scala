@@ -7,6 +7,8 @@ package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
+import org.scalactic.TolerantNumerics
+import org.scalactic.TypeCheckedTripleEquals.convertToCheckingEqualizer
 import org.scalatest._
 
 import scala.collection.{Map => M}
@@ -195,7 +197,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
     assertForAllNodes((id,v: Int) => s.count(_==id)==v)(net)
   }
 
-  EdgeFields should "support construction of gradients" in new SimulationContextFixture {
+  EdgeFields should "support construction of (hop) gradients" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       override def main(): Int = exchange(Double.PositiveInfinity)(n =>
@@ -211,6 +213,30 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
+  EdgeFields should "support construction of gradients" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      def distanceTo(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
+        mux(sense[Boolean](SRC)){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
+      )
+
+      override def main(): Double = distanceTo(sense[Boolean](SRC), fsns(nbrRange, Double.PositiveInfinity))
+    }, ntimes = someRounds)(net)
+
+    implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(0.01)
+    assertNetworkValuesWithPredicate[Double]({
+      case (0, v) if v === 5.0 => true
+      case (1, v) if v === 4.0 => true
+      case (2, v) if v === 3.0 => true
+      case (3, v) if v === 3.5 => true
+      case (4, v) if v === 2.5 => true
+      case (5, v) if v === 1.5 => true
+      case (6, v) if v === 2.0 => true
+      case (7, v) if v === 1.0 => true
+      case (8, v) if v === 0.0 => true
+      case _ => false
+    })()(net)
+  }
   EdgeFields should "support broadcasting" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
@@ -230,6 +256,46 @@ class TestEdgeFields extends FlatSpec with Matchers {
       }
 
       override def main(): Int = branch(mid!=1){ broadcast(hopGradient(), mid) }{ -1 }
+    }, ntimes = manyRounds)(net)
+
+    // ASSERT
+    assertNetworkValues((0 to 8).zip(List(
+      8, -1, 8,
+      8, 8, 8,
+      8, 8, 8
+    )).toMap)(net)
+  }
+
+  EdgeFields should "support information collection (C block)" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      def hopGradient(sink: Boolean): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
+        mux(sink){ 0.0 } { n.fold(Double.PositiveInfinity)(Math.min) + 1 }
+      ).toInt
+
+      def biConnection(): EdgeField[Int] = exchange(0)(n => n + defSubs(1,0))
+
+      def C[P: Builtins.Bounded, V](sink: Boolean, value: V, acc: (V, V) => V, divide: (V,Double) => V): V = {
+        val dist: Int = hopGradient(sink)
+        // Use exchange to handle communication of distances (dist) and collected values
+        exchange[(Int,V)]((dist, value))(n => {
+          // The reliability of a downstream neighbor (with lower values of `dist` wrt self) is estimated by the
+          //   the corresponding connection time.
+          val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
+          // Reliability scores are normalised in `send`, obtaining percetanges
+          val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.fold(0)(_+_)))
+          // Let's collect the `send` scores into `recv` scores for receiving neighbours' messages
+          val recv: EdgeField[Double] = nbrByExchange(send)
+          // Now, values of neighbours (`n.map(_._2)`) are weighted with `recv` scores through given `divide` function
+          val weightedValues: EdgeField[V] = n.map(_._2).map2(recv)((_,_)).map(v => divide(v._1, v._2))
+          // Finally, use `acc` to aggregate neighbours' contributions
+          val collectedValue: V = weightedValues.fold(value)(acc)
+          println(s"${mid} => dist = ${n._1}\n\tconn = $conn\n\tsend = $send\n\trecv = $recv\n\tcollectedValue = $collectedValue\n")
+          (dist : EdgeField[Int]).map2(collectedValue)((_,_))
+        })._2
+      }
+
+      override def main(): Double = C[Int,Double](sense[Boolean](SRC), mid, _+_, (v,d) => v*d)
     }, ntimes = manyRounds)(net)
 
     // ASSERT
