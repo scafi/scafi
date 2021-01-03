@@ -104,21 +104,20 @@ class TestEdgeFields extends FlatSpec with Matchers {
       override def main(): Map[ID,Int] = exchange(0)(n => n + defSubs(1,0)).toMap
     }
 
-    val s = List(0,1,0,1) // Seq(1,0,1,2,1,2,0,1,2,1,2,0,1)
-      // schedulingSequence(net.ids, 10)
+    val s = schedulingSequence(net.ids, 100).toList
 
     runProgramInOrder(s, p)(net)
 
     assertForAllNodes((id,v: Map[ID,Int]) =>
       v == (net.neighbourhood(id)).map(nbrId => nbrId -> {
         var baseSeq = s.filter(Set(id, nbrId).contains(_))
-        if (id != nbrId) { baseSeq = dropConsecutiveEquals(baseSeq) }
-
-        val m = if(id == nbrId) baseSeq.size
-        else if(id != nbrId && baseSeq.size >= 2) baseSeq.sliding(2).count(s => s(0)!=s(1))
-        else 0
-        // println(s"$id :: $nbrId -> $m ($baseSeq)")
-        m
+        if(id == nbrId) {
+          baseSeq.size
+        } else {
+          baseSeq = dropConsecutiveEquals(baseSeq)
+          println(s"${id} :: ${nbrId} (${baseSeq})")
+          baseSeq.size + (if (baseSeq.last == nbrId) -1 else 0) - 1
+        }
       }).filter(_._2 > 0).toMap,
       okWhenNotComputed = true,
       msg = s"Run sequence: ${s}")(net)

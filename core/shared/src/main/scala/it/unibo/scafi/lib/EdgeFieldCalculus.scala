@@ -29,7 +29,6 @@ trait StdLib_EdgeFields {
         def nbrEdgeValue[A](id: ID): Option[A] = rvm.context.readSlot(id, rvm.status.path)
         val inputEdgeField = new EdgeField[A](
           nbrs.map(nbrId => { // create the edgevalue by getting the contributions from all the neighbours (`nbrs`)
-            println(s"${mid} :: ${nbrId} >> ${nbrEdgeValue[EdgeField[A]](nbrId)}")
             nbrId -> nbrEdgeValue[EdgeField[A]](nbrId) // get edgevalue received from device `nbrId`
               .getOrElse(init).m // if there is not an aligned export from `nbrId`, use `init`
               .getOrElse(vm.self, // from the neighbour's edgevalue, get the value sent to the current device (`self`)
