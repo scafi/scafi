@@ -37,7 +37,7 @@ trait StdLib_EdgeFields {
           }).toMap,
           init.default)
         val outputEdgeField = f(inputEdgeField)
-        // println(s"$mid ${rvm.context} \n \t\t -> apply exchange to $inputEdgeField ==> $outputEdgeField")
+        //println(s"$mid ${rvm.status.path} \n ${rvm.context} \n \t\t -> apply exchange to $inputEdgeField ==> $outputEdgeField")
         outputEdgeField
       }
     }
@@ -68,7 +68,7 @@ trait StdLib_EdgeFields {
       EdgeField(ef.m ++ Map[ID,T](mid -> selfValue), ef.default)
 
     def nbrByExchange[A](e: => EdgeField[A]): EdgeField[A] =
-      exchange[(A,A)](e.map2(e)((_,_)))(n => n.map(n => (e, n._1))).map(_._2) // NB: exchange(..)(..)._2 would compile but doesn't work
+      exchange[(A,A)](e.map2(e)((_,_)))(n => n.map2(e){ case (n,e) => (e, n._1) }).map(_._2) // NB: exchange(..)(..)._2 would compile but doesn't work
 
 
     def nbrLocalByExchange[A](e: => A): EdgeField[A] =
@@ -136,6 +136,8 @@ trait StdLib_EdgeFields {
 
       def withoutSelf: EdgeField[T] = EdgeField[T](this.m - mid, this.default)
 
+      def toLocal: T = EdgeField.fieldToLocal(this)
+
       def toMap: Map[ID,T] = this.m
 
       override def toString: String = s"EdgeField[default=$default, exceptions=$m]"
@@ -152,8 +154,9 @@ trait StdLib_EdgeFields {
       implicit def localToField[T](lv: T): EdgeField[T] =
         EdgeField(Map.empty, lv)
 
-      implicit def fieldToLocal[T](fv: EdgeField[T]): T =
+      implicit def fieldToLocal[T](fv: EdgeField[T]): T = {
         fv.m.getOrElse(mid, fv.default)
+      }
 
       /*
       implicit def tupleToFieldOfTuples[T,U](tp: (EdgeField[T],EdgeField[U])): EdgeField[(T,U)] =

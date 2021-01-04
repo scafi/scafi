@@ -29,7 +29,17 @@ class TestEdgeFields extends FlatSpec with Matchers {
       SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.6))
   }
 
-  private[this] trait TestProgram extends AggregateProgram with EdgeFields with StandardSensors
+  private[this] trait TestProgram extends AggregateProgram with EdgeFields with StandardSensors with TestLib
+
+  trait TestLib {
+    self: AggregateProgram with EdgeFields with StandardSensors =>
+
+    def gradient(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
+      mux(source){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
+    )
+
+    def nbrRangeEF: EdgeField[Double] = fsns(nbrRange, Double.PositiveInfinity)
+  }
 
   def SetupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(SRC, false)
@@ -140,6 +150,65 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )).toMap, msg = s"Run sequence: ${s}")(net)
   }
 
+  EdgeFields should "subsume nbr, by ensuring that neighbour-specific messages are shipped" in new SimulationContextFixture {
+    val p = new TestProgram {
+      override def main(): Map[ID, Boolean] = {
+        val edgeValue: EdgeField[Boolean] = if (mid == 0) {
+          EdgeField(Map(1 -> true), false)
+        } else if (mid == 1) {
+          EdgeField(Map(2 -> true), false)
+        } else {
+          EdgeField(Map(), false)
+        }
+        nbrByExchange(edgeValue).toMap
+      }
+    }
+
+    val s = List.fill(3)(Set(0,1,2)).flatten
+
+    runProgramInOrder(s, p)(net)
+
+    assertNetworkValues((0 to 2).zip(List(
+      Map(0 -> false, 1 -> false), Map(0 -> true, 1 -> false, 2 -> false), Map(1 -> true, 2 -> false)
+    )).toMap, msg = s"Run sequence: ${s}")(net)
+  }
+
+  EdgeFields should "subsume nbr (lifted), 2" in new SimulationContextFixture {
+    val p = new TestProgram {
+      override def main() = {
+        val src = sense[Boolean](SRC)
+        val distance = gradient(src, nbrRangeEF)
+        val nbrKey: EdgeField[(Double,ID)] = nbrLocalByExchange((distance, mid))
+        val parent: EdgeField[Boolean] = nbrKey.map(_ == nbrKey.fold[(Double,ID)](nbrKey)((t1,t2) => if(t1._1 < t2._1) t1 else t2))
+        // println(s"${mid} distance = ${nbrLocalByExchange(distance)} \n nbrKey = $nbrKey \n parent = $parent \n nbrByExchange ${nbrByExchange(parent).toMap}")
+        (parent.toMap, nbrByExchange(parent).toMap)
+      }
+    }
+
+    val s = schedulingSequence(net.ids, someRounds)
+
+    runProgramInOrder(s, p)(net)
+
+    val TRUE = true
+    val F = false
+    /* 5.0     4.0     3.0
+        v       v       v
+       3.5     2.5     1.5
+        v       v       v
+       2.0 ->  1.0 ->  0.0 */
+    assertNetworkValues((0 to 8).zip(List(
+      (Map(0->F, 1->F, 3->TRUE),             Map(0->F, 1->F, 3->F)),
+      (Map(0->F, 1->F, 2->F, 4->TRUE),       Map(0->F, 1->F, 2->F, 4->F)),
+      (Map(1->F, 2->F, 5->TRUE),             Map(1->F, 2->F, 5->F)),
+      (Map(0->F, 3->F, 4->F, 6->TRUE),       Map(0->TRUE, 3->F, 4->F, 6->F)),
+      (Map(1->F, 3->F, 4->F, 5->F, 7->TRUE), Map(1->TRUE, 3->F, 4->F, 5->F, 7->F)),
+      (Map(2->F, 4->F, 5->F, 8->TRUE),       Map(2->TRUE, 4->F, 5->F, 8->F)),
+      (Map(3->F, 6->F, 7->TRUE),             Map(3->TRUE, 6->F, 7->F)),
+      (Map(4->F, 6->F, 7->F, 8->TRUE),       Map(4->TRUE, 6->TRUE, 7->F, 8->F)),
+      (Map(7->F, 5->F, 8->TRUE),             Map(7->TRUE, 5->TRUE, 8->TRUE))
+    )).toMap, msg = s"Run sequence: ${s}")(net)
+  }
+
   EdgeFields should "subsume nbr (original)" in new SimulationContextFixture {
     val p = new TestProgram {
       override def main() = nbrLocalByExchange(mid).toMap
@@ -217,7 +286,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
     // ACT
     exec(new TestProgram {
       def distanceTo(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
-        mux(sense[Boolean](SRC)){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
+        mux(source){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
       )
 
       override def main(): Double = distanceTo(sense[Boolean](SRC), fsns(nbrRange, Double.PositiveInfinity))
@@ -237,6 +306,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
       case _ => false
     })()(net)
   }
+
   EdgeFields should "support broadcasting" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
@@ -266,6 +336,45 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
+  EdgeFields should "support optimised broadcasting" in new SimulationContextFixture {
+    exec(new TestProgram {
+      def distanceTo(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
+        mux(sense[Boolean](SRC)){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
+      )
+
+      /**
+        * - Every node receives by a single parent
+        * - Every node transmits to all those neighbours that chose it as a parent
+        * - The parent is chosen as the node with minimum distance
+        */
+      def optimisedBroadcast[T](distance: Double, value: T, Null: T): T = {
+        val nbrKey: EdgeField[(Double,ID)] = nbrLocalByExchange((distance, mid))
+        // `parent` is a Boolean field that holds true for the device that chose the current device as a parent
+        val parent = nbrKey.map(_ == nbrKey.fold[(Double,ID)](nbrKey)((t1,t2) => if(t1._1 < t2._1) t1 else t2))
+        exchange(value)(n => {
+          val _loc = n.map2(nbrLocalByExchange(distance)){ case (v,d) => (v == Null, d, v) }
+            .fold((false, distance, value))((t1,t2) => if(!t1._1 && t2._1) t1 else if(t1._2 < t2._2) t1 else t2)
+          val loc = _loc._3
+          val nbrParent = nbrByExchange(parent)
+          val res = defSubs(selfSubs(nbrParent.map(mux(_) { loc } { Null }), loc), Null)
+          // println(s"${mid} => nbrKey ${nbrKey} \n parent ${parent} \n N ${n} \n _loc ${_loc} \n nbrParent ${nbrParent} \n res ${res}")
+          res
+        })
+      }
+
+      override def main(): Int = branch(mid!=1){
+        val g = distanceTo(sense[Boolean](SRC), fsns(nbrRange, Double.PositiveInfinity))
+        optimisedBroadcast(g, mid, -1)
+      }{ -77 }
+    }, ntimes = manyRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      8, -77, 8,
+      8, 8, 8,
+      8, 8, 8
+    )).toMap)(net)
+  }
+
   EdgeFields should "support information collection (C block)" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
@@ -290,7 +399,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
           val weightedValues: EdgeField[V] = n.map(_._2).map2(recv)((_,_)).map(v => divide(v._1, v._2))
           // Finally, use `acc` to aggregate neighbours' contributions
           val collectedValue: V = weightedValues.fold(value)(acc)
-          println(s"${mid} => dist = ${n._1}\n\tconn = $conn\n\tsend = $send\n\trecv = $recv\n\tcollectedValue = $collectedValue\n")
+          //println(s"${mid} => dist = ${n._1}\n\tconn = $conn\n\tsend = $send\n\trecv = $recv\n\tcollectedValue = $collectedValue\n")
           (dist : EdgeField[Int]).map2(collectedValue)((_,_))
         })._2
       }
