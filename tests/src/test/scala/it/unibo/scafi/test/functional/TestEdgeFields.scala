@@ -34,9 +34,59 @@ class TestEdgeFields extends FlatSpec with Matchers {
   trait TestLib {
     self: AggregateProgram with EdgeFields with StandardSensors =>
 
+    /**
+      * - Every node receives by a single parent
+      * - Every node transmits to all those neighbours that chose it as a parent
+      * - The parent is chosen as the node with minimum distance
+      */
+    def optimisedBroadcast[T](distance: Double, value: T, Null: T): T = {
+      // (default is the self-key)
+      val nbrKey: EdgeField[(Double,ID)] = nbrLocalByExchange((distance, mid))
+      // `parent` is a Boolean field that holds true for the device that chose the current device as a parent
+      //   (default is the true if the self-key is equal to the min-key---this is true only for the source)
+      val parent = nbrKey.map(_ == nbrKey.fold[(Double,ID)](nbrKey)((t1,t2) => if(t1._1 < t2._1) t1 else t2))
+      exchange(value)(n => {
+        val _loc = n.map2(nbrLocalByExchange(distance)){ case (v,d) => (v == Null, d, v) }
+          .fold((false, distance, value))((t1,t2) => if(!t1._1 && t2._1) t1 else if(t1._2 < t2._2) t1 else t2)
+        val loc = _loc._3
+        val nbrParent = nbrByExchange(parent)
+        // (default value of `res` is `Null` for every device except sources)
+        val res = selfSubs(nbrParent.map(mux(_) { loc } { Null }), loc) // defSubs(..., Null) ?
+        // println(s"${mid} => nbrKey ${nbrKey} parent ${parent} N ${n} _loc ${_loc} nbrParent ${nbrParent} res ${res}")
+        res
+      })
+    }
+
+    def hopGradient(src: Boolean): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
+      mux(src){ 0.0 } { n.fold(Double.PositiveInfinity)(Math.min) + 1 }
+    ).toInt
+
     def gradient(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
       mux(source){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
     )
+
+    def biConnection(): EdgeField[Int] = exchange(0)(n => n + defSubs(1,0))
+
+    def Csubj[P: Builtins.Bounded, V](sink: Boolean, value: V, acc: (V, V) => V, divide: (V,Double) => V): V = {
+      val dist: Int = hopGradient(sink)
+      // Use exchange to handle communication of distances (dist) and collected values
+      exchange[(Int,V)]((dist, value))(n => {
+        // The reliability of a downstream neighbor (with lower values of `dist` wrt self) is estimated by the
+        //   the corresponding connection time.
+        // val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
+        val conn: EdgeField[Int] = n.map2(biConnection())((_,_)).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
+        // Reliability scores are normalised in `send`, obtaining percetanges
+        val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.fold(0)(_+_)))
+        // Let's collect the `send` scores into `recv` scores for receiving neighbours' messages
+        val recv: EdgeField[Double] = nbrByExchange(send)
+        // Now, values of neighbours (`n.map(_._2)`) are weighted with `recv` scores through given `divide` function
+        val weightedValues: EdgeField[V] = n.map(_._2).map2(recv)((_,_)).map(v => divide(v._1, v._2))
+        // Finally, use `acc` to aggregate neighbours' contributions
+        val collectedValue: V = weightedValues.fold(value)(acc)
+        // println(s"${mid} => n = $n dist = ${n._1} conn = $conn send = $send recv = $recv weightedvals = $weightedValues collectedValue = $collectedValue")
+        (dist : EdgeField[Int]).map2(collectedValue)((_,_))
+      })._2
+    }
 
     def nbrRangeEF: EdgeField[Double] = fsns(nbrRange, Double.PositiveInfinity)
   }
@@ -310,10 +360,6 @@ class TestEdgeFields extends FlatSpec with Matchers {
   EdgeFields should "support broadcasting" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
-      def hopGradient(): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
-        mux(sense[Boolean](SRC)){ 0.0 } { n.fold(Double.PositiveInfinity)(Math.min) + 1 }
-      ).toInt
-
       def broadcast(distance: Int, value: Int) = {
         val dist: EdgeField[Int] = distance
         val loc: EdgeField[(Int,Int)] = dist.map2(value)((_,_))
@@ -325,7 +371,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         )._2
       }
 
-      override def main(): Int = branch(mid!=1){ broadcast(hopGradient(), mid) }{ -1 }
+      override def main(): Int = branch(mid!=1){ broadcast(hopGradient(sense[Boolean](SRC)), mid) }{ -1 }
     }, ntimes = manyRounds)(net)
 
     // ASSERT
@@ -338,35 +384,8 @@ class TestEdgeFields extends FlatSpec with Matchers {
 
   EdgeFields should "support optimised broadcasting" in new SimulationContextFixture {
     exec(new TestProgram {
-      def distanceTo(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
-        mux(sense[Boolean](SRC)){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
-      )
-
-      /**
-        * - Every node receives by a single parent
-        * - Every node transmits to all those neighbours that chose it as a parent
-        * - The parent is chosen as the node with minimum distance
-        */
-      def optimisedBroadcast[T](distance: Double, value: T, Null: T): T = {
-        // (default is the self-key)
-        val nbrKey: EdgeField[(Double,ID)] = nbrLocalByExchange((distance, mid))
-        // `parent` is a Boolean field that holds true for the device that chose the current device as a parent
-        //   (default is the true if the self-key is equal to the min-key---this is true only for the source)
-        val parent = nbrKey.map(_ == nbrKey.fold[(Double,ID)](nbrKey)((t1,t2) => if(t1._1 < t2._1) t1 else t2))
-        exchange(value)(n => {
-          val _loc = n.map2(nbrLocalByExchange(distance)){ case (v,d) => (v == Null, d, v) }
-            .fold((false, distance, value))((t1,t2) => if(!t1._1 && t2._1) t1 else if(t1._2 < t2._2) t1 else t2)
-          val loc = _loc._3
-          val nbrParent = nbrByExchange(parent)
-          // (default value of `res` is `Null` for every device except sources)
-          val res = selfSubs(nbrParent.map(mux(_) { loc } { Null }), loc) // defSubs(..., Null) ?
-          // println(s"${mid} => nbrKey ${nbrKey} \n parent ${parent} \n N ${n} \n _loc ${_loc} \n nbrParent ${nbrParent} \n res ${res}")
-          res
-        })
-      }
-
       override def main(): Int = branch(mid!=1){
-        val g = distanceTo(sense[Boolean](SRC), fsns(nbrRange, Double.PositiveInfinity))
+        val g = gradient(sense[Boolean](SRC), fsns(nbrRange, Double.PositiveInfinity))
         optimisedBroadcast(g, mid, -1)
       }{ -77 }
     }, ntimes = manyRounds)(net)
@@ -378,37 +397,31 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
+
+  EdgeFields should "support multi-path information collection (Cwmp block)" in new SimulationContextFixture {
+    // ACT
+    exec(new TestProgram {
+      def C[V](sink: Boolean, radius: Double, value: V): V = {
+        ???
+      }
+
+      override def main(): Double = C[Double](sense[Boolean](SRC), 1.0, 1.0)
+    }, ntimes = manyRounds)(net)
+
+    implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(0.1)
+    assertNetworkValuesWithPredicate[Double](
+      {
+        case (8, v) => v === 9.0
+        case _ => true
+      }
+    )()(net)
+  }
+
+
   EdgeFields should "support information collection (C block) with subjective reliability estimates" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
-      def hopGradient(sink: Boolean): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
-        mux(sink){ 0.0 } { n.fold(Double.PositiveInfinity)(Math.min) + 1 }
-      ).toInt
-
-      def biConnection(): EdgeField[Int] = exchange(0)(n => n + defSubs(1,0))
-
-      def C[P: Builtins.Bounded, V](sink: Boolean, value: V, acc: (V, V) => V, divide: (V,Double) => V): V = {
-        val dist: Int = hopGradient(sink)
-        // Use exchange to handle communication of distances (dist) and collected values
-        exchange[(Int,V)]((dist, value))(n => {
-          // The reliability of a downstream neighbor (with lower values of `dist` wrt self) is estimated by the
-          //   the corresponding connection time.
-          // val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
-          val conn: EdgeField[Int] = n.map2(biConnection())((_,_)).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
-          // Reliability scores are normalised in `send`, obtaining percetanges
-          val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.fold(0)(_+_)))
-          // Let's collect the `send` scores into `recv` scores for receiving neighbours' messages
-          val recv: EdgeField[Double] = nbrByExchange(send)
-          // Now, values of neighbours (`n.map(_._2)`) are weighted with `recv` scores through given `divide` function
-          val weightedValues: EdgeField[V] = n.map(_._2).map2(recv)((_,_)).map(v => divide(v._1, v._2))
-          // Finally, use `acc` to aggregate neighbours' contributions
-          val collectedValue: V = weightedValues.fold(value)(acc)
-          // println(s"${mid} => n = $n\n\tdist = ${n._1}\n\tconn = $conn\n\tsend = $send\n\trecv = $recv\n\tweightedvals = $weightedValues\n\tcollectedValue = $collectedValue\n")
-          (dist : EdgeField[Int]).map2(collectedValue)((_,_))
-        })._2
-      }
-
-      override def main(): Double = C[Int,Double](sense[Boolean](SRC), 1, _+_, (v,d) => v*d)
+      override def main(): Double = Csubj[Int,Double](sense[Boolean](SRC), 1, _+_, (v, d) => v*d)
     }, ntimes = manyRounds)(net)
 
     // ASSERT
