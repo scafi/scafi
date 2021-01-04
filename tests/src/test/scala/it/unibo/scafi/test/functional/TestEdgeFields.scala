@@ -348,15 +348,18 @@ class TestEdgeFields extends FlatSpec with Matchers {
         * - The parent is chosen as the node with minimum distance
         */
       def optimisedBroadcast[T](distance: Double, value: T, Null: T): T = {
+        // (default is the self-key)
         val nbrKey: EdgeField[(Double,ID)] = nbrLocalByExchange((distance, mid))
         // `parent` is a Boolean field that holds true for the device that chose the current device as a parent
+        //   (default is the true if the self-key is equal to the min-key---this is true only for the source)
         val parent = nbrKey.map(_ == nbrKey.fold[(Double,ID)](nbrKey)((t1,t2) => if(t1._1 < t2._1) t1 else t2))
         exchange(value)(n => {
           val _loc = n.map2(nbrLocalByExchange(distance)){ case (v,d) => (v == Null, d, v) }
             .fold((false, distance, value))((t1,t2) => if(!t1._1 && t2._1) t1 else if(t1._2 < t2._2) t1 else t2)
           val loc = _loc._3
           val nbrParent = nbrByExchange(parent)
-          val res = defSubs(selfSubs(nbrParent.map(mux(_) { loc } { Null }), loc), Null)
+          // (default value of `res` is `Null` for every device except sources)
+          val res = selfSubs(nbrParent.map(mux(_) { loc } { Null }), loc) // defSubs(..., Null) ?
           // println(s"${mid} => nbrKey ${nbrKey} \n parent ${parent} \n N ${n} \n _loc ${_loc} \n nbrParent ${nbrParent} \n res ${res}")
           res
         })
@@ -375,7 +378,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-  EdgeFields should "support information collection (C block)" in new SimulationContextFixture {
+  EdgeFields should "support information collection (C block) with subjective reliability estimates" in new SimulationContextFixture {
     // ACT
     exec(new TestProgram {
       def hopGradient(sink: Boolean): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
@@ -390,7 +393,8 @@ class TestEdgeFields extends FlatSpec with Matchers {
         exchange[(Int,V)]((dist, value))(n => {
           // The reliability of a downstream neighbor (with lower values of `dist` wrt self) is estimated by the
           //   the corresponding connection time.
-          val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
+          // val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
+          val conn: EdgeField[Int] = n.map2(biConnection())((_,_)).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
           // Reliability scores are normalised in `send`, obtaining percetanges
           val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.fold(0)(_+_)))
           // Let's collect the `send` scores into `recv` scores for receiving neighbours' messages
@@ -399,20 +403,22 @@ class TestEdgeFields extends FlatSpec with Matchers {
           val weightedValues: EdgeField[V] = n.map(_._2).map2(recv)((_,_)).map(v => divide(v._1, v._2))
           // Finally, use `acc` to aggregate neighbours' contributions
           val collectedValue: V = weightedValues.fold(value)(acc)
-          //println(s"${mid} => dist = ${n._1}\n\tconn = $conn\n\tsend = $send\n\trecv = $recv\n\tcollectedValue = $collectedValue\n")
+          // println(s"${mid} => n = $n\n\tdist = ${n._1}\n\tconn = $conn\n\tsend = $send\n\trecv = $recv\n\tweightedvals = $weightedValues\n\tcollectedValue = $collectedValue\n")
           (dist : EdgeField[Int]).map2(collectedValue)((_,_))
         })._2
       }
 
-      override def main(): Double = C[Int,Double](sense[Boolean](SRC), mid, _+_, (v,d) => v*d)
+      override def main(): Double = C[Int,Double](sense[Boolean](SRC), 1, _+_, (v,d) => v*d)
     }, ntimes = manyRounds)(net)
 
     // ASSERT
-    assertNetworkValues((0 to 8).zip(List(
-      8, -1, 8,
-      8, 8, 8,
-      8, 8, 8
-    )).toMap)(net)
+    implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(0.1)
+    assertNetworkValuesWithPredicate[Double](
+      {
+        case (8, v) => v === 9.0
+        case _ => true
+      }
+    )()(net)
   }
 
   private def dropConsecutiveEquals[T](lst: List[T]): List[T] = lst match {
