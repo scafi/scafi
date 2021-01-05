@@ -110,7 +110,14 @@ trait StdLib_EdgeFields {
         EdgeField(this.m.map(tp => tp._1 -> o(tp._2)), defaultr)
 
       def map2[R,S](f: EdgeField[R])(o: (T,R)=>S): EdgeField[S] =
+        EdgeField((this.m.keySet ++ f.m.keySet).map(i => i -> o(this.m.getOrElse(i, this.default), f.m.getOrElse(i, f.default)) ).toMap,
+          o(default, f.default))
+
+      def map2l[R,S](f: EdgeField[R])(o: (T,R)=>S): EdgeField[S] =
         EdgeField(this.m.map { case (i,v) => i -> o(v, f.m.getOrElse(i, f.default)) }, o(default, f.default))
+
+      def map2r[R,S](f: EdgeField[R])(o: (T,R)=>S): EdgeField[S] =
+        EdgeField(f.m.map { case (i,v) => i -> o(this.m.getOrElse(i, this.default), v) }, o(default, f.default))
 
       def map2i[R,S](f: EdgeField[R])(o: (T,R)=>S): EdgeField[S] =
         map2u(f)(this.default, f.default)(o)

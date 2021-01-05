@@ -23,10 +23,11 @@ class TestEdgeFields extends FlatSpec with Matchers {
   val SRC = "source"
   val FLAG = "flag"
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
+  val RANGE_RADIUS = 1.6
 
   private[this] trait SimulationContextFixture {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.6))
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = RANGE_RADIUS))
   }
 
   private[this] trait TestProgram extends AggregateProgram with EdgeFields with StandardSensors with TestLib
@@ -397,21 +398,62 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )).toMap)(net)
   }
 
-
+  /**
+    * In this test, we collect 1 for even devices and 0 for odd devices into the sink node (device with ID=8).
+    * Therefore, we test that the sink node effectively collects 5 (i.e., counting the contributions
+    * of devices with ID = 0, 2, 4, 6, 8)
+    */
   EdgeFields should "support multi-path information collection (Cwmp block)" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
-      def C[V](sink: Boolean, radius: Double, value: V): V = {
-        ???
+      def accumulate[T : Numeric](v: EdgeField[T], l: T): T = /* E.g., MAX: implicitly[Builtins.Bounded[T]].max(v,l) */
+        v.fold(l)(implicitly[Numeric[T]].plus(_,_))
+      def extract(v: Double, w: Double, threshold: Double, Null: Double): Double = //if(w > threshold) v else Null
+        v * w
+
+      def weight(dist: Double, radius: Double): EdgeField[Double] = {
+        val distDiff: EdgeField[Double] = nbrLocalByExchange(dist).map(v => Math.max(dist-v, 0))
+        // println(s"weight: ($radius - ${nbrRangeEF.toLocal}) * (${nbrLocalByExchange(dist)} - $dist)\ndistDiff = $distDiff"+
+        // s"R - D(d,d') = ${EdgeField.localToField(radius).map2(nbrRangeEF)(_ - _)}")
+        val res = EdgeField.localToField(radius).map2(nbrRangeEF)(_ - _).map2(distDiff)(_ * _)
+        // NB: NaN values may arise when `dist`s are Double.PositiveInfinity (e.g., inf - inf = NaN)
+        res.map(v => if(v.isNaN) 0 else v)
       }
 
-      override def main(): Double = C[Double](sense[Boolean](SRC), 1.0, 1.0)
+      def normalize(w: EdgeField[Double]): EdgeField[Double] = {
+        val sum: Double = w.fold(0.0)(_+_)
+        val res = w.map(_ / sum)
+        res.map(v => if(v.isNaN) 0 else v)
+      }
+
+      /**
+        * Weights corresponding to neighbours are calculated in order to penalise devices that are likely to lose
+        *   their “receiving” status, a situation that can happen in two cases:
+        * (1) if the “receiving” device is too close to the edge of proximity
+        *     of the “sending” device, it might step outside of it in the immediate future breaking the connection;
+        * (2) if the potential of the “receiving” device is too close to the potential of the “sending” device,
+        *     their relative role of sender/receiver might be switched in the immediate future, possibly
+        *     creating an “information loop” between the two devices.
+        *  w is positive and symmetric.
+        */
+      def Cwmp(sink: Boolean, radius: Double, value: Double, Null: Double, threshold: Double = 0.1): Double = {
+        var dist = gradient(sink, nbrRangeEF)
+        exchange(value)(n => {
+          val loc: Double = accumulate(selfSubs(n, 0.0),value)
+          val w: EdgeField[Double] = weight(dist, radius)
+          val normalized: EdgeField[Double] = normalize(w)
+          val res: EdgeField[Double] = normalized.map(extract(loc, _, threshold, Null))
+          // println(s"${mid} :: n = $n \n\t loc = $loc \n\t w = $w \n\t normalized = $normalized \n\t res = $res")
+          selfSubs(res, loc)
+        })
+      }
+
+      override def main(): Double = Cwmp(sense[Boolean](SRC), RANGE_RADIUS, if(mid%2==0) 1.0 else 0.0, -1.0)
     }, ntimes = manyRounds)(net)
 
     implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(0.1)
     assertNetworkValuesWithPredicate[Double](
       {
-        case (8, v) => v === 9.0
+        case (8, v) => v === 5.0
         case _ => true
       }
     )()(net)
