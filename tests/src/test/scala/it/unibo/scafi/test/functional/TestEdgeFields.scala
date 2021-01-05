@@ -21,6 +21,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
   val stepx: Double = 1.0
   val stepy: Double = 1.5
   val SRC = "source"
+  val OBSTACLE = "obstacle"
   val FLAG = "flag"
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
   val RANGE_RADIUS = 1.6
@@ -95,6 +96,8 @@ class TestEdgeFields extends FlatSpec with Matchers {
   def SetupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(SRC, false)
     n.chgSensorValue(SRC, ids = Set(8), value = true)
+    n.addSensor(OBSTACLE, false)
+    n.chgSensorValue(OBSTACLE, ids = Set(5), value = true)
     n.addSensor(FLAG, false)
     n.chgSensorValue(FLAG, ids = Set(0,1,2,3,4), value = true)
     n
@@ -478,7 +481,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
 
 
   EdgeFields should "support channels" in new SimulationContextFixture {
-    exec(new TestProgram {
+    val p = new TestProgram {
       def broadcast[T](dist: Double, value: T): T = {
         val loc = (dist, value)
         exchange[(Double,T)](loc)(n => {
@@ -499,16 +502,30 @@ class TestEdgeFields extends FlatSpec with Matchers {
         distanceTo(source, nbrRangeEF) + distanceTo(dest, nbrRangeEF) <= distance(source, dest) + width
       }
 
-      override def main() = branch(mid == 5) { -1 } {
-        if(channel(mid==0, mid==8, 0)) 1 else 0
+      override def main() = branch(sense[Boolean](OBSTACLE)) { -1 } {
+        if(channel(sense[Boolean](SRC), mid==0, 0)) 1 else 0
       }
-    }, ntimes = manyRounds)(net)
+    }
+
+    exec(p, ntimes = manyRounds)(net)
 
     assertNetworkValues((0 to 8).zip(List(
       1, 1, 0,
       1, 1, -1,
       1, 1, 1
-    )).toMap)(net)
+    )).toMap, msg = "Test channel formation")(net)
+
+    net.chgSensorValue(SRC, Set(8), false)
+    net.chgSensorValue(SRC, Set(6), true)
+    net.chgSensorValue(OBSTACLE, Set(3), true)
+
+    exec(p, ntimes = manyRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      1, 1, 0,
+      -1, 1, -1,
+      1, 1, 0
+    )).toMap, msg = "Test channel adaptivity")(net)
   }
 
   private def dropConsecutiveEquals[T](lst: List[T]): List[T] = lst match {
