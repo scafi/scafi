@@ -13,6 +13,7 @@ import org.scalatest._
 
 import scala.collection.{Map => M}
 
+//noinspection ScalaStyle
 class TestEdgeFields extends FlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
@@ -60,11 +61,11 @@ class TestEdgeFields extends FlatSpec with Matchers {
     }
 
     def hopGradient(src: Boolean): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
-      mux(src){ 0.0 } { n.fold(Double.PositiveInfinity)(Math.min) + 1 }
+      mux(src){ 0.0 } { n.withoutSelf.fold(Double.PositiveInfinity)(Math.min) + 1 }
     ).toInt
 
     def gradient(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
-      mux(source){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
+      mux(source){ 0.0 } { (n + metric).withoutSelf.fold(Double.PositiveInfinity)(Math.min) }
     )
 
     def biConnection(): EdgeField[Int] = exchange(0)(n => n + defSubs(1,0))
@@ -78,7 +79,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         // val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
         val conn: EdgeField[Int] = pair(n, biConnection()).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
         // Reliability scores are normalised in `send`, obtaining percetanges
-        val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.fold(0)(_+_)))
+        val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.foldSum))
         // Let's collect the `send` scores into `recv` scores for receiving neighbours' messages
         val recv: EdgeField[Double] = nbrByExchange(send)
         // Now, values of neighbours (`n.map(_._2)`) are weighted with `recv` scores through given `divide` function
@@ -409,7 +410,8 @@ class TestEdgeFields extends FlatSpec with Matchers {
   EdgeFields should "support multi-path information collection (Cwmp block)" in new SimulationContextFixture {
     exec(new TestProgram {
       def accumulate[T : Numeric](v: EdgeField[T], l: T): T = /* E.g., MAX: implicitly[Builtins.Bounded[T]].max(v,l) */
-        v.fold(l)(implicitly[Numeric[T]].plus(_,_))
+        v.foldSum(l)
+
       def extract(v: Double, w: Double, threshold: Double, Null: Double): Double = //if(w > threshold) v else Null
         v * w
 
@@ -423,7 +425,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
       }
 
       def normalize(w: EdgeField[Double]): EdgeField[Double] = {
-        val sum: Double = w.fold(0.0)(_+_)
+        val sum: Double = w.foldSum
         val res = w.map(_ / sum)
         res.map(v => if(v.isNaN) 0 else v)
       }
@@ -439,9 +441,9 @@ class TestEdgeFields extends FlatSpec with Matchers {
         *  w is positive and symmetric.
         */
       def Cwmp(sink: Boolean, radius: Double, value: Double, Null: Double, threshold: Double = 0.1): Double = {
-        var dist = gradient(sink, nbrRangeEF)
+        val dist = gradient(sink, nbrRangeEF)
         exchange(value)(n => {
-          val loc: Double = accumulate(selfSubs(n, 0.0),value)
+          val loc: Double = accumulate(n.withoutSelf, value) // or also: accumulate(selfSubs(n, 0.0),value)
           val w: EdgeField[Double] = weight(dist, radius)
           val normalized: EdgeField[Double] = normalize(w)
           val res: EdgeField[Double] = normalized.map(extract(loc, _, threshold, Null))
@@ -485,7 +487,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
       def broadcast[T](dist: Double, value: T): T = {
         val loc = (dist, value)
         exchange[(Double,T)](loc)(n => {
-          (dist, n.withoutSelf.fold[(Double, T)](loc)((t1, t2) => if (t1._1 < t2._1) t1 else t2)._2)
+          (dist, n.withoutSelf.fold[(Double, T)](loc)((t1, t2) => if (t1._1 <= t2._1) t1 else t2)._2)
         })._2
       }
 

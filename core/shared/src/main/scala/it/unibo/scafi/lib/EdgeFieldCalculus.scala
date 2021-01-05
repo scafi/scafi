@@ -199,6 +199,9 @@ trait StdLib_EdgeFields {
       def -(f2: EdgeField[T]): EdgeField[T] = f.map2i(f2)(ev.minus(_,_))
       def *(f2: EdgeField[T]): EdgeField[T] = f.map2i(f2)(ev.times(_,_))
       def +/[U](lv: U)(implicit uev: Numeric[U]): EdgeField[Double] = f.map[Double](ev.toDouble(_:T) + uev.toDouble(lv))
+
+      def foldSum(init: T): EdgeField[T] = f.fold(init)(ev.plus)
+      def foldSum(): EdgeField[T] = foldSum(ev.zero)
     }
   }
 
