@@ -229,7 +229,7 @@ trait StdLib_Gradients {
               loop || // or, (ii) if the device's value happens to be calculated from itself,
               excludingSelf.anyHood { // or, (iii) if any (not temporally farther) nbr with same sourceId  than
                 //           the device's one has already been claimed obsolete
-                nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
+                nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst} + lagMetric < newTimeDistEst + 0.0001
               }
 
           //List[(Double,Double,ID,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min

@@ -30,7 +30,9 @@ trait StdLib_GenericUtils {
         if (Double.NegativeInfinity < value && value < Double.PositiveInfinity) {
           // Sums value weighed by time
           (old._1 + value*dt, old._2 + dt)
-        } else old
+        } else {
+          old
+        }
       } }
       // E.g., consider these values and deltas: (5.0,2), (6,1), (Inf,2), (7,1), (5,1)
       // You'll finally have (5.0*2 + 6*1 + 7*1 + 5*1) / (2+1+1+1) = 28/5 = 5.6
