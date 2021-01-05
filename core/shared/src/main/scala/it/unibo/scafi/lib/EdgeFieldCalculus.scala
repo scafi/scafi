@@ -84,6 +84,9 @@ trait StdLib_EdgeFields {
     def fsns[A](e: => A, defaultA: A): EdgeField[A] =
       EdgeField[A](includingSelf.reifyField(e), defaultA)
 
+    def pair[A,B](a: EdgeField[A], b: EdgeField[B]): EdgeField[(A,B)] =
+      a.map2(b)((_,_))
+
     /**
       * Basic Field type
       * @param m map from devices to corresponding values
@@ -102,6 +105,15 @@ trait StdLib_EdgeFields {
         val nbrsSet = vm.alignedNeighbours().toSet
         EdgeField(this.m.filter(el => nbrsSet.contains(el._1)), this.default)
       }
+
+      def flatMap[R](f: T => EdgeField[R]): EdgeField[R] =
+        EdgeField(this.m.map { case (id,v) => id -> {
+          val newEdgeField = f(v)
+          newEdgeField.m.getOrElse(id, newEdgeField.default)
+        } }, f(this.default))
+
+      def mapWithId[R](o: (Option[ID],T)=>R): EdgeField[R] =
+        EdgeField(this.m.map(tp => tp._1 -> o(Some(tp._1), tp._2)), o(None, default))
 
       def map[R](o: T=>R): EdgeField[R] =
         EdgeField(this.m.map(tp => tp._1 -> o(tp._2)), o(default))

@@ -476,6 +476,41 @@ class TestEdgeFields extends FlatSpec with Matchers {
     )()(net)
   }
 
+
+  EdgeFields should "support channels" in new SimulationContextFixture {
+    exec(new TestProgram {
+      def broadcast[T](dist: Double, value: T): T = {
+        val loc = (dist, value)
+        exchange[(Double,T)](loc)(n => {
+          (dist, n.withoutSelf.fold[(Double, T)](loc)((t1, t2) => if (t1._1 < t2._1) t1 else t2)._2)
+        })._2
+      }
+
+      def distance(source: Boolean, dest: Boolean): Double = {
+        broadcast(distanceTo(source, nbrRangeEF), distanceTo(dest, nbrRangeEF))
+      }
+
+      def distanceTo(source: Boolean, metric: EdgeField[Double]): Double =
+        exchange(Double.PositiveInfinity)(n =>
+          mux(source){ 0.0 } { (n + metric).withoutSelf.fold(Double.PositiveInfinity)(Math.min) }
+        )
+
+      def channel(source: Boolean, dest: Boolean, width: Double): Boolean = {
+        distanceTo(source, nbrRangeEF) + distanceTo(dest, nbrRangeEF) <= distance(source, dest) + width
+      }
+
+      override def main() = branch(mid == 5) { -1 } {
+        if(channel(mid==0, mid==8, 0)) 1 else 0
+      }
+    }, ntimes = manyRounds)(net)
+
+    assertNetworkValues((0 to 8).zip(List(
+      1, 1, 0,
+      1, 1, -1,
+      1, 1, 1
+    )).toMap)(net)
+  }
+
   private def dropConsecutiveEquals[T](lst: List[T]): List[T] = lst match {
     case a :: b :: tl if a == b => dropConsecutiveEquals(b :: tl)
     case a :: b :: tl => a :: dropConsecutiveEquals(b :: tl)
