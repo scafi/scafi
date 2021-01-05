@@ -412,7 +412,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
       def accumulate[T : Numeric](v: EdgeField[T], l: T): T = /* E.g., MAX: implicitly[Builtins.Bounded[T]].max(v,l) */
         v.foldSum(l)
 
-      def extract(v: Double, w: Double, threshold: Double, Null: Double): Double = //if(w > threshold) v else Null
+      def extract(v: EdgeField[Double], w: EdgeField[Double], threshold: EdgeField[Double], Null: EdgeField[Double]): EdgeField[Double] = //if(w > threshold) v else Null
         v * w
 
       def weight(dist: Double, radius: Double): EdgeField[Double] = {
@@ -446,7 +446,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
           val loc: Double = accumulate(n.withoutSelf, value) // or also: accumulate(selfSubs(n, 0.0),value)
           val w: EdgeField[Double] = weight(dist, radius)
           val normalized: EdgeField[Double] = normalize(w)
-          val res: EdgeField[Double] = normalized.map(extract(loc, _, threshold, Null))
+          val res: EdgeField[Double] = extract(loc, normalized, threshold, Null)
           // println(s"${mid} :: n = $n \n\t loc = $loc \n\t w = $w \n\t normalized = $normalized \n\t res = $res")
           selfSubs(res, loc)
         })
