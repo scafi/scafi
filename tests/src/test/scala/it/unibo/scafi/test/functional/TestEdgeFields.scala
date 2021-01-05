@@ -76,17 +76,17 @@ class TestEdgeFields extends FlatSpec with Matchers {
         // The reliability of a downstream neighbor (with lower values of `dist` wrt self) is estimated by the
         //   the corresponding connection time.
         // val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
-        val conn: EdgeField[Int] = n.map2(biConnection())((_,_)).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
+        val conn: EdgeField[Int] = pair(n, biConnection()).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
         // Reliability scores are normalised in `send`, obtaining percetanges
         val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.fold(0)(_+_)))
         // Let's collect the `send` scores into `recv` scores for receiving neighbours' messages
         val recv: EdgeField[Double] = nbrByExchange(send)
         // Now, values of neighbours (`n.map(_._2)`) are weighted with `recv` scores through given `divide` function
-        val weightedValues: EdgeField[V] = n.map(_._2).map2(recv)((_,_)).map(v => divide(v._1, v._2))
+        val weightedValues: EdgeField[V] = pair(n.map(_._2), recv).map(v => divide(v._1, v._2))
         // Finally, use `acc` to aggregate neighbours' contributions
         val collectedValue: V = weightedValues.fold(value)(acc)
         // println(s"${mid} => n = $n dist = ${n._1} conn = $conn send = $send recv = $recv weightedvals = $weightedValues collectedValue = $collectedValue")
-        (dist : EdgeField[Int]).map2(collectedValue)((_,_))
+        pair(dist : EdgeField[Int], collectedValue)
       })._2
     }
 
@@ -366,12 +366,12 @@ class TestEdgeFields extends FlatSpec with Matchers {
     exec(new TestProgram {
       def broadcast(distance: Int, value: Int) = {
         val dist: EdgeField[Int] = distance
-        val loc: EdgeField[(Int,Int)] = dist.map2(value)((_,_))
+        val loc: EdgeField[(Int,Int)] = pair(dist, value)
         exchange[(Int,Int)](loc)(n =>
-          dist.map2(
+          pair(dist,
             // select the `value` exposed by the neighbour with minimal `distance`
             n.fold[(Int,Int)](loc)((t1,t2) => if(t1._1 < t2._1) t1 else t2)._2
-          )((_,_))
+          )
         )._2
       }
 
