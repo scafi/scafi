@@ -54,7 +54,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         val loc = _loc._3
         val nbrParent = nbrByExchange(parent)
         // (default value of `res` is `Null` for every device except sources)
-        val res = selfSubs(nbrParent.map(mux(_) { loc } { Null }), loc) // defSubs(..., Null) ?
+        val res = selfSubs(muxEdgeField(nbrParent) { loc } { Null }, loc) // defSubs(..., Null) ?
         // println(s"${mid} => nbrKey ${nbrKey} parent ${parent} N ${n} _loc ${_loc} nbrParent ${nbrParent} res ${res}")
         res
       })
@@ -77,7 +77,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         // The reliability of a downstream neighbor (with lower values of `dist` wrt self) is estimated by the
         //   the corresponding connection time.
         // val conn: EdgeField[Int] = mux(n.map(_._1).fold(Int.MaxValue)(Math.min) < dist){ biConnection() }{ 0 }
-        val conn: EdgeField[Int] = pair(n, biConnection()).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
+        val conn: EdgeField[Int] = muxEdgeField(n._1 < EdgeField.localToField(dist)){ biConnection() } { 0 } //pair(n, biConnection()).map{ case (n,biconn) => mux(n._1 < dist){ biconn } { 0 } }
         // Reliability scores are normalised in `send`, obtaining percetanges
         val send: EdgeField[Double] = conn.map(_.toDouble / Math.max(1, conn.foldSum))
         // Let's collect the `send` scores into `recv` scores for receiving neighbours' messages
@@ -376,7 +376,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         )._2
       }
 
-      override def main(): Int = branch(mid!=1){ broadcast(hopGradient(sense[Boolean](SRC)), mid) }{ -1 }
+      override def main(): Int = branchByExchange(mid!=1){ broadcast(hopGradient(sense[Boolean](SRC)), mid) }{ -1 }
     }, ntimes = manyRounds)(net)
 
     // ASSERT
@@ -389,7 +389,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
 
   EdgeFields should "support optimised broadcasting" in new SimulationContextFixture {
     exec(new TestProgram {
-      override def main(): Int = branch(mid!=1){
+      override def main(): Int = branchByExchange(mid!=1){
         val g = gradient(sense[Boolean](SRC), fsns(nbrRange, Double.PositiveInfinity))
         optimisedBroadcast(g, mid, -1)
       }{ -77 }
@@ -452,13 +452,13 @@ class TestEdgeFields extends FlatSpec with Matchers {
         })
       }
 
-      override def main(): Double = Cwmp(sense[Boolean](SRC), RANGE_RADIUS, if(mid%2==0) 1.0 else 0.0, -1.0)
+      override def main(): Double = Cwmp(sense[Boolean](SRC), RANGE_RADIUS, if(mid%2==0) mid else 0.0, -1.0)
     }, ntimes = manyRounds)(net)
 
     implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(0.1)
     assertNetworkValuesWithPredicate[Double](
       {
-        case (8, v) => v === 5.0
+        case (8, v) => v === (0.0+2+4+6+8)
         case _ => true
       }
     )()(net)
@@ -504,7 +504,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
         distanceTo(source, nbrRangeEF) + distanceTo(dest, nbrRangeEF) <= distance(source, dest) + width
       }
 
-      override def main() = branch(sense[Boolean](OBSTACLE)) { -1 } {
+      override def main(): Int = branchByExchange(sense[Boolean](OBSTACLE)) { -1 } {
         if(channel(sense[Boolean](SRC), mid==0, 0)) 1 else 0
       }
     }

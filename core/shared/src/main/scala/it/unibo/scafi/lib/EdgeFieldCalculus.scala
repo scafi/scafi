@@ -81,11 +81,21 @@ trait StdLib_EdgeFields {
       exchange(init)(n => f(n))
       // exchangeFull(init)(p => f(p.neigh))
 
+    def branchByExchange[A](cond: EdgeField[Boolean])(th: => EdgeField[A])(el: => EdgeField[A]): EdgeField[A] =
+      mux(cond)(() => aggregate{ th })(() => aggregate{ el })()
+
     def fsns[A](e: => A, defaultA: A): EdgeField[A] =
       EdgeField[A](includingSelf.reifyField(e), defaultA)
 
     def pair[A,B](a: EdgeField[A], b: EdgeField[B]): EdgeField[(A,B)] =
       a.map2(b)((_,_))
+
+    def muxEdgeField[A](c: EdgeField[Boolean])(thEF: => EdgeField[A])(elEF: => EdgeField[A]): EdgeField[A] = {
+      val (th, el) = (thEF, elEF)
+      c.restricted.mapWithId((optId,v) => optId.map(id => if(v) th.m.getOrElse(id, th.default) else el.m.getOrElse(id, el.default))
+        .getOrElse(if(v) th.default else el.default)
+      )
+    }
 
     /**
       * Basic Field type
@@ -170,6 +180,7 @@ trait StdLib_EdgeFields {
       def apply[T](m: Map[ID,T], defaultValue: T): EdgeField[T] =
         new EdgeField(m, defaultValue)
 
+
       implicit def localToField[T](lv: T): EdgeField[T] =
         EdgeField(Map.empty, lv)
 
@@ -195,13 +206,29 @@ trait StdLib_EdgeFields {
         override def default: Double = 0.0
       }
 
-      def +(f2: EdgeField[T]): EdgeField[T] = f.map2i(f2)(ev.plus(_,_))
-      def -(f2: EdgeField[T]): EdgeField[T] = f.map2i(f2)(ev.minus(_,_))
-      def *(f2: EdgeField[T]): EdgeField[T] = f.map2i(f2)(ev.times(_,_))
+      def +(f2: EdgeField[T]): EdgeField[T] = f.map2(f2)(ev.plus(_,_))
+      def -(f2: EdgeField[T]): EdgeField[T] = f.map2(f2)(ev.minus(_,_))
+      def *(f2: EdgeField[T]): EdgeField[T] = f.map2(f2)(ev.times(_,_))
       def +/[U](lv: U)(implicit uev: Numeric[U]): EdgeField[Double] = f.map[Double](ev.toDouble(_:T) + uev.toDouble(lv))
 
       def foldSum(init: T): EdgeField[T] = f.fold(init)(ev.plus)
       def foldSum(): EdgeField[T] = foldSum(ev.zero)
+
+      def <(g: EdgeField[T]): EdgeField[Boolean] = f.map2(g)(ev.lt(_, _))
+      def <=(g: EdgeField[T]): EdgeField[Boolean] = f.map2(g)(ev.lteq(_, _))
+      def >(g: EdgeField[T]): EdgeField[Boolean] = f.map2(g)(ev.gt(_, _))
+      def >=(g: EdgeField[T]): EdgeField[Boolean] = f.map2(g)(ev.gteq(_, _))
+    }
+
+    implicit class BooleanField(f: EdgeField[Boolean]) {
+      def &&(g: EdgeField[Boolean]): EdgeField[Boolean] = f.map2(g)(_ && _)
+      def ||(g: EdgeField[Boolean]): EdgeField[Boolean] = f.map2(g)(_ || _)
+    }
+
+    implicit class FieldOfTuples[A, B](f: EdgeField[Tuple2[A, B]]) {
+      def _1: EdgeField[A] = f.map(_._1)
+
+      def _2: EdgeField[B] = f.map(_._2)
     }
   }
 
