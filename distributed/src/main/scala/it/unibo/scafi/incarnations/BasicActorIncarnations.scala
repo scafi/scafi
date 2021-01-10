@@ -43,7 +43,7 @@ trait BasicAbstractActorIncarnation
         case Rep(i) => JsObject(Map("type" -> JsString("rep"), "index" -> JsNumber(i)))
         case FunCall(i, funId) => JsObject(Map("type" -> JsString("funcall"), "index" -> JsNumber(i), "funId" -> anyToJs(funId)))
         case FoldHood(i) => JsObject(Map("type" -> JsString("foldhood"), "index" -> JsNumber(i)))
-        case Scope(key) => JsObject(Map("type" -> JsString("scope"), "key" -> anyToJs(key)))
+        case Scope(key, i) => JsObject(Map("type" -> JsString("scope"), "key" -> anyToJs(key), "index" -> JsNumber(i)))
       }
 
       override def reads(json: JsValue): JsResult[Slot] = JsSuccess {

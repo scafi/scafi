@@ -37,7 +37,7 @@ trait Semantics extends Core with Language {
   final case class Rep[A](index: Int) extends Slot
   final case class FunCall[A](index: Int, funId: Any) extends Slot
   final case class FoldHood[A](index: Int) extends Slot
-  final case class Scope[K](key: K) extends Slot
+  final case class Scope[K](key: K, index: Int = 0) extends Slot
 
   trait Path {
     def push(slot: Slot): Path

@@ -87,6 +87,7 @@ trait SimulationPlatform extends SpaceTimeAwarePlatform {
   trait Network {
     def ids: Set[ID]
     def neighbourhood(id: ID): Set[ID]
+    def inputNeighbours(id: ID): Set[ID]
     def localSensor[A](name: CNAME)(id: ID): A
     def nbrSensor[A](name: CNAME)(id: ID)(idn: ID): A
     def export(id: ID): Option[EXPORT]
