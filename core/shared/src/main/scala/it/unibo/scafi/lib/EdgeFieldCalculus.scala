@@ -155,7 +155,7 @@ trait StdLib_EdgeFields {
         restricted.m.values.fold(z)(o)
 
       def reduce[V>:T](o: (V,V)=>V): V =
-        restricted.m.values.reduce(o)
+        fold[V](this.default)(o)
 
       def minHood[V>:T](implicit ev: Bounded[V]): V  =
         fold[V](ev.top) { case (a, b) => ev.min(a, b) }
@@ -213,6 +213,8 @@ trait StdLib_EdgeFields {
 
       def foldSum(init: T): EdgeField[T] = f.fold(init)(ev.plus)
       def foldSum(): EdgeField[T] = foldSum(ev.zero)
+      def foldMin(init: T): EdgeField[T] = f.fold(init)(ev.min)
+      def foldMax(init: T): EdgeField[T] = f.fold(init)(ev.max)
 
       def <(g: EdgeField[T]): EdgeField[Boolean] = f.map2(g)(ev.lt(_, _))
       def <=(g: EdgeField[T]): EdgeField[Boolean] = f.map2(g)(ev.lteq(_, _))

@@ -61,7 +61,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
     }
 
     def hopGradient(src: Boolean): EdgeField[Int] = exchange(Double.PositiveInfinity)(n =>
-      mux(src){ 0.0 } { n.withoutSelf.fold(Double.PositiveInfinity)(Math.min) + 1 }
+      mux(src){ 0.0 } { n.withoutSelf.foldMin(Double.PositiveInfinity) + 1 }
     ).toInt
 
     def gradient(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
@@ -341,7 +341,7 @@ class TestEdgeFields extends FlatSpec with Matchers {
     // ACT
     exec(new TestProgram {
       def distanceTo(source: Boolean, metric: EdgeField[Double]): Double = exchange(Double.PositiveInfinity)(n =>
-        mux(source){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
+        muxEdgeField(source){ 0.0 } { (n + metric).fold(Double.PositiveInfinity)(Math.min) }
       )
 
       override def main(): Double = distanceTo(sense[Boolean](SRC), fsns(nbrRange, Double.PositiveInfinity))
