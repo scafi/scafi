@@ -32,7 +32,7 @@ class Point3D(val x: Double, val y: Double, val z: Double) extends Serializable 
   override def canEqual(otherObject: Any): Boolean = otherObject match {case _: Point3D => true; case _ => false}
 }
 object Point3D {
-  def unapply(d: Point2D): Option[(Double, Double, Double)] = Some(d.x, d.y, d.z)
+  def unapply(d: Point3D): Option[(Double, Double, Double)] = Some(d.x, d.y, d.z)
 
   def apply(x: Double, y: Double, z: Double): Point3D = new Point3D(x,y,z)
 
