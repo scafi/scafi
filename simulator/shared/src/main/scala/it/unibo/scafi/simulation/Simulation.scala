@@ -300,6 +300,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val c = context(idToRun)
       val (_,exp) = idToRun -> ap(c)
       eMap += idToRun -> exp
+      lastRound += idToRun -> Instant.now()
       idToRun -> exp
     }
 
