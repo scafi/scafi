@@ -5,12 +5,14 @@
 
 package sims
 
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, BlockT}
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation._
 import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
+
+import scala.concurrent.duration.DurationInt
 
 object TimerDemo extends Launcher {
   // Configuring simulation
-  Settings.Sim_ProgramClass = "sims.SimpleTimer" // starting class, via Reflection
+  Settings.Sim_ProgramClass = "sims.RecentEvent" // starting class, via Reflection
   Settings.ShowConfigPanel = false // show a configuration panel at startup
   Settings.Sim_NbrRadius = 0.15 // neighbourhood radius
   Settings.Sim_NumNodes = 100 // number of nodes
@@ -19,4 +21,8 @@ object TimerDemo extends Launcher {
 
 class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT {
   override def main() = branch(sense1){timer(100)}{0}
+}
+
+class RecentEvent extends AggregateProgram with SensorDefinitions with TimeUtils with FieldUtils {
+  override def main() = recentlyTrue(10.seconds, includingSelf.anyHood(nbr{ sense1 }))
 }
