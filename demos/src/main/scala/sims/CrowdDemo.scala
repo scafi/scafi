@@ -22,6 +22,15 @@ object CrowdDemo extends Launcher {
   * See papers:
   * - Building blocks for aggregate programming of self-organising applications (Beal, Viroli, 2014)
   * - Aggregate Programming for the Internet of Things (Beal et al., IEEE Computer, 2015)
+  * In the latter, we read:
+  *   - device communicate via once-per-second asynchronous local broadcasts with a range of 100 meters.13,16
+  *   - Our example uses a simple conservative estimate of dangerous crowding via level of service (LoS) ratings,17
+  *     with LoS D (>1.08 people/m2) indicating a crowd and LoS E (>2.17 people/
+  *     m2) in a group of at least 300 people indicating potentially dangerous density. Density is estimated as ρ = |nbrs|/
+  *     pπr2w, where |nbrs| counts neighbors within range r, p estimates the proportion of people with a device running
+  *     the app (about 0.5 percent of marathon attendees), and w estimates the
+  *     fraction of walkable space in the local
+  *     urban environment.
   */
 class Crowd extends AggregateProgram  with SensorDefinitions with BlockG with CrowdEstimationLib {
   override def main(): Any = {

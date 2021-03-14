@@ -59,9 +59,15 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
 
   def crowdTracking(p: Double, r: Double, t: Double) = {
     val crowdRgn = recentTrue(densityEst(p, r)>1.08, t)
-    branch(crowdRgn) { dangerousDensity(p, r) } { none }
+    mux(crowdRgn) { dangerousDensity(p, r) } { none }
   }
 
+  /**
+    * Density is estimated as ρ = |nbrs|/pπr2w, where |nbrs| counts neighbors
+    * within range r, p estimates the proportion of people with a device running
+    * the app (about 0.5 percent of marathon attendees), and w estimates the
+    * fraction of walkable space in the local urban environment.
+    */
   def countNearby(range: Double): Double =  {
     // val human = rep(h <- env.get("role")==0) { h };
     excludingSelf.sumHood(mux(/*human &&*/ nbrRange() < range) { 1 } { 0 })
@@ -91,7 +97,7 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
     val localDensity = densityEstimation(p, range, w)
     val avg = summarize(partition, _+_, localDensity, 0.0) / summarize(partition, _+_, 1.0, 0.0)
     val count = summarize(partition, _+_, 1.0 / p, 0.0)
-    avg > dangerousDensity && count > groupSize
+    broadcast(partition, avg > dangerousDensity && count > groupSize)
   }
 
   /**
@@ -118,7 +124,7 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
                         groupSize: Double,
                         timeFrame: Double): Crowding = {
     val densityEst = densityEstimation(p, range, w)
-    branch(isRecentEvent(densityEst > crowdedDensity, timeFrame)){
+    mux(isRecentEvent(densityEst > crowdedDensity, timeFrame)){
       if(dangerousDensityFull(p, range, dangerousThreshold, groupSize, w)){ Overcrowded } else AtRisk
     }{ Fine }
   }
