@@ -17,7 +17,9 @@ trait StdLib_BlockG {
 
     /**
       * Version of G (Gradient-Cast) that takes a Gradient algorithm as input.
+      * This is motivated by the desire of speeding G up by using
       * @param gradient The gradient algorithm to use -- notice that this encapsulates details about the gradient field (e.g., the sources)
+      * @deprecated As it seems buggy: see {@link #G_along[V](Double,Metric,V,V=>V) G_along} method.
       */
     def Gg[V](gradient: Gradient, field: V, acc: V => V): V =
       G_along(gradient.run(), gradient.metric, field, acc)
@@ -30,6 +32,7 @@ trait StdLib_BlockG {
       * @param acc aggregator
       * @tparam V type of the value to be accumulated
       * @return a field that locally provides the value of the gradient-cast (`field` at sources, and an accumulation value along the way)
+      * @deprecated As it seems buggy.
       */
     def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V = {
       rep(field) { case (value) =>
@@ -37,8 +40,16 @@ trait StdLib_BlockG {
       }
     }
 
-    def G[V](source: Boolean, field: V, acc: V => V, metric: Metric): V =
-      Gg[V](ClassicGradient.from(source).withMetric(metric), field, acc)
+    def G[V](source: Boolean, field: V, acc: V => V, metric: () => Double): V =
+      rep((Double.MaxValue, field)) { case (dist, value) =>
+        mux(source) {
+          (0.0, field)
+        } {
+          excludingSelf
+            .minHoodSelector(nbr { dist } + metric())((nbr { dist } + metric(), acc(nbr { value })))
+            .getOrElse((Double.PositiveInfinity, field))
+        }
+      }._2
 
     /**
       * Curried version of [[G]]
