@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, windows, macos] # todo, add mac and windows
-        jvm_version: [11, 15, 16] # todo, add other java version
+        jvm_version: [11] # todo, add other java version, 15 and 16?
     runs-on: ${{ matrix.os }}-latest
 
     steps:
