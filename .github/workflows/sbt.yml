@@ -16,15 +16,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: ${{ matrix.jvm_version }}
-          distribution: 'adopt'
       ## Sbt part
-      - name: Setup scala
+      - name: Setup Scala and JDK
+        with:
+          java-version: adopt@1.${{ matrix.jvm_version }}
         uses: olafurpg/setup-scala@v11
       - name: Sbt run tests
+        shell: bash # for windows
         run: sbt test
       - name: Clean Sbt data
         run: sbt clean
