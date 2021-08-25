@@ -10,8 +10,8 @@ jobs:
   Build:
     strategy:
       matrix:
-        os: [ubuntu] # todo, add mac and windows
-        jvm_version: [11] # todo, add other java version
+        os: [ubuntu, windows, macos] # todo, add mac and windows
+        jvm_version: [11, 15, 16] # todo, add other java version
     runs-on: ${{ matrix.os }}-latest
 
     steps:
@@ -22,16 +22,15 @@ jobs:
           java-version: ${{ matrix.jvm_version }}
           distribution: 'adopt'
       ## Sbt part
-      - name: Sbt compile
-        run: sbt compile
       - name: Sbt run tests
         run: sbt test
       - name: Clean Sbt data
         run: sbt clean
       ## Gradle part
-      - name: Gradle compile
+      - name: Gradle run tests
         run: ./gradlew build
     ## From https://github.com/AlchemistSimulator/Alchemist/blob/master/.github/workflows/build-and-deploy.yml
+
   Build-Success:
     runs-on: ubuntu-latest
     needs: Build
