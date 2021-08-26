@@ -26,7 +26,7 @@ jobs:
         shell: bash # for windows
         run: sbt test
       - name: Clean Sbt data
-        run: sbt clean
+        run: sbt clean cleanFiles
       ## Gradle part
       - name: Gradle run tests
         run: ./gradlew build
