@@ -17,7 +17,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: scala --version
       ## Sbt part
       - name: Setup Scala and JDK
         with:
