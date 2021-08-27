@@ -23,14 +23,16 @@ jobs:
         with:
           java-version: adopt@1.${{ matrix.jvm_version }}
         uses: olafurpg/setup-scala@v11
+      ## Gradle part
+      - name: Gradle run tests
+        run: ./gradlew build
+      - name: Clean gradle data
+        run: ./gradlew clean
       - name: Sbt run tests
         shell: bash # for windows
         run: sbt test
       - name: Clean Sbt data
         run: sbt clean cleanFiles
-      ## Gradle part
-      - name: Gradle run tests
-        run: ./gradlew build
     ## From https://github.com/AlchemistSimulator/Alchemist/blob/master/.github/workflows/build-and-deploy.yml
 
   Build-Success:
