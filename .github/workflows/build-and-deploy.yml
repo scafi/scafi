@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    #branches: [ master ]
+    branches: [ master, develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
 
 jobs:
   Build-Gradle:
@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu] # todo, add mac and windows ?
-        jvm_version: [11] # todo, add other java version, 15 and 16?
+        jvm_version: [12] # todo, add other java version, 15 and 16?
     runs-on: ${{ matrix.os }}-latest
 
     steps:
@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu] # todo, add mac and windows ?
-        jvm_version: [11] # todo, add other java version, 15 and 16?
+        jvm_version: [12] # todo, add other java version, 15 and 16?
     runs-on: ${{ matrix.os }}-latest
 
     steps:
