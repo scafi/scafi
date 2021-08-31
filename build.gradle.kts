@@ -20,7 +20,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.adtran:scala-multiversion-plugin:1.+")
+        classpath("com.adtran:scala-multiversion-plugin:2.+")
         classpath("org.openjfx:javafx-plugin:0.0.8")
     }
 }

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  Build-Gradle:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu] # todo, add mac and windows ?
+        jvm_version: [12] # todo, add other java version, 15 and 16?
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Scala and JDK
+        with:
+          java-version: adopt@1.${{ matrix.jvm_version }}
+        uses: olafurpg/setup-scala@v11
+      - name: Gradle run tests
+        run: ./gradlew check
+      - name: Create jars
+        run: ./gradlew fatJar
+
+  Build-Sbt:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu] # todo, add mac and windows ?
+        jvm_version: [12] # todo, add other java version, 15 and 16?
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Scala and JDK
+        with:
+          java-version: adopt@1.${{ matrix.jvm_version }}
+        uses: olafurpg/setup-scala@v11
+      - name: Sbt run tests
+        shell: bash # for windows
+        run: sbt test
+
+  Build-Success:
+    runs-on: ubuntu-latest
+    needs: [Build-Gradle, Build-Sbt]
+    steps:
+      - shell: bash
+        run: touch ok
+
+  CI-Complete:
+    needs: Build-Success
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: success
+      - shell: bash
+        run: '[ -f ok ]'
