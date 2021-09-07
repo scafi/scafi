@@ -95,9 +95,18 @@ lazy val noPublishSettings = Seq(
     publishLocal := { }
   )
 
+lazy val scafiJvm: Seq[ProjectReference] = Seq(
+  core, commons, spala, distributed, simulator, `simulator-gui`,
+  `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
+  `simulator-gui-new`, `demos-new`, `demos-distributed`
+)
+lazy val scafiJs: Seq[ProjectReference] = Seq(
+  coreCross.js, commonsCross.js, simulatorCross.js
+)
+
+lazy val scafiProjects = scafiJvm ++ scafiJs
 lazy val scafi = project.in(file("."))
-  .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
-   `simulator-gui-new`, `demos-new`, `demos-distributed`)
+  .aggregate(scafiProjects:_*)
   .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
