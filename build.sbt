@@ -259,24 +259,3 @@ lazy val `demos-new` = project
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
     compileScalastyle := { }
   )
-
-lazy val `scafi-web` = project
-    .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
-    .dependsOn(commonsCross.js, coreCross.js, simulatorCross.js)
-    .settings(
-      name := "scafi-web" ,
-      //mainClass in Compile := Some("it.unibo.scafi.js.Index"),
-      //scalaJSMainModuleInitializer in Compile := Some(org.scalajs.linker.interface.ModuleInitializer.mainMethod("it.unibo.scafi.js.Index","main")),
-      scalaJSUseMainModuleInitializer := true,
-      libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % "1.0.0",
-        // "org.singlespaced" %%% "scalajs-d3" % "0.3.4" // only ScalaJs 0.6
-      ),
-      webpackBundlingMode := BundlingMode.LibraryAndApplication(), // https://scalacenter.github.io/scalajs-bundler/cookbook.html#several-entry-points
-      npmDependencies in Compile ++= Seq(
-        "sigma" -> "2.0.0-alpha32",
-        "jsnetworkx" -> "0.3.4",
-        //"fsevents" -> "1.2.12",
-        "d3" -> "3.5.5" // jsnetworkx leverages d3 v3 (i.e., do not upgrade to v4 or v5)
-      )
-    )
