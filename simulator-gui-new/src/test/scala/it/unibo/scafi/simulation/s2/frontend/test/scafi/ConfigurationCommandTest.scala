@@ -3,9 +3,10 @@ package it.unibo.scafi.simulation.s2.frontend.test.scafi
 import it.unibo.scafi.simulation.s2.frontend.configuration.parser.{ConfigurationMachine, VirtualMachine}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiInformation._
 import it.unibo.scafi.simulation.s2.frontend.launcher.scafi.ListDemo
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class ConfigurationCommandTest extends FunSpec with Matchers {
+class ConfigurationCommandTest extends AnyFunSpec with Matchers {
   ListDemo.packageName = "it.unibo.scafi.simulation.s2.frontend.test.help"
   val checkThat = new ItWord
 

@@ -10,8 +10,10 @@ import it.unibo.scafi.test.CoreTestUtils
 import org.scalatest._
 
 import scala.util.Random
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestByEquivalence extends FunSpec with Matchers {
+class TestByEquivalence extends AnyFunSpec with Matchers {
 
   val checkThat = new ItWord
 

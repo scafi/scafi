@@ -7,13 +7,14 @@ import it.unibo.utils.StatisticsUtils.stdDev
 import org.scalatest._
 
 import scala.concurrent.duration._
+import org.scalatest.flatspec.AnyFlatSpec
 
 /*
 Still to test:
 - cyclicFunction
 - cyclicFunctionWithDecay
  */
-class TestTimeUtils extends FlatSpec{
+class TestTimeUtils extends AnyFlatSpec{
   import ScafiTestUtils._
 
   val Time_Utils = new ItWord

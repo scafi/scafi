@@ -3,8 +3,9 @@ package it.unibo.scafi.test.functional.stdlib
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 
-class TestGradient extends FunSpec with BeforeAndAfterEach {
+class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiAssertions._
   import ScafiTestUtils._
 
@@ -189,12 +190,12 @@ class TestGradient extends FunSpec with BeforeAndAfterEach {
       override def main(): (Double, Double) = (gradient.from(sense("source")).run(), classicGradient(sense("source")))
     }*/
   def testBasicBehaviour(v: TestProgram, ntimes: Int = manyManyRounds, tolerance: Double = 0.1): Unit  = {
-    it("Should be possible to build a gradient of distances on node 0") {
+    it("Should be possible to build a gradient of distances from node 0") {
       net.chgSensorValue("source", Set(0), true)
       exec(v, ntimes = ntimes)(net)
       assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))
     }
-    it("Should be possible to build a gradient of distances on node 4") {
+    it("Should be possible to build a gradient of distances from node 4") {
       net.chgSensorValue("source", Set(4), true)
       exec(v, ntimes = ntimes)(net)
       assert(comparePairResult(net.valueMap[(Double, Double)](), tolerance))

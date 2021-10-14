@@ -2,8 +2,9 @@ package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
-class TestScafiTestUtils extends FlatSpec {
+class TestScafiTestUtils extends AnyFlatSpec {
   import ScafiTestUtils._
 
   val ManhattanNet = new ItWord

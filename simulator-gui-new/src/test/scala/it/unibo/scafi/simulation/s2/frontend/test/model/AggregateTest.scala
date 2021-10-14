@@ -4,10 +4,11 @@ import it.unibo.scafi.simulation.s2.frontend.model.aggregate.AggregateEvent.{Nod
 import it.unibo.scafi.simulation.s2.frontend.model.common.world.CommonWorldEvent._
 import it.unibo.scafi.simulation.s2.frontend.test.help.AbstractWorldImpl
 import it.unibo.scafi.space.Point3D
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 //noinspection NameBooleanParameters
-class AggregateTest extends FunSpec with Matchers {
+class AggregateTest extends AnyFunSpec with Matchers {
   private val checkThat = new ItWord
   private val world = new AbstractWorldImpl
   private val zero = Point3D.Zero

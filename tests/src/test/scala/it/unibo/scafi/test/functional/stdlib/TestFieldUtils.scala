@@ -3,9 +3,10 @@ package it.unibo.scafi.test.functional.stdlib
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 
-class TestFieldUtils extends FlatSpec {
+class TestFieldUtils extends AnyFlatSpec {
   import ScafiAssertions._
   import ScafiTestUtils._
 

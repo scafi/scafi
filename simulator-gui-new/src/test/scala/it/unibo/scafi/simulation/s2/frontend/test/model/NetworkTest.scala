@@ -3,9 +3,10 @@ package it.unibo.scafi.simulation.s2.frontend.test.model
 import it.unibo.scafi.simulation.s2.frontend.model.common.network.ConnectedWorld.NeighbourChanged
 import it.unibo.scafi.simulation.s2.frontend.test.help.platform
 import it.unibo.scafi.space.Point3D
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class NetworkTest extends FunSpec with Matchers {
+class NetworkTest extends AnyFunSpec with Matchers {
   private val checkThat = new ItWord
   private val node = 100
   private val zero = Point3D.Zero

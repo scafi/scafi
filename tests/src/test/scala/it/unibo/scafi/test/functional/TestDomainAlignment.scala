@@ -10,8 +10,10 @@ import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
 
 import scala.collection.{Map => M}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestDomainAlignment extends FlatSpec with Matchers {
+class TestDomainAlignment extends AnyFlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 

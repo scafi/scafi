@@ -6,9 +6,10 @@
 package it.unibo.scafi.test.unit
 
 import it.unibo.scafi.test.CoreTestIncarnation
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestExecutionMachinery extends FunSpec with Matchers {
+class TestExecutionMachinery extends AnyFunSpec with Matchers {
 
   describe("Execution machinery") {
 

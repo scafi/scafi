@@ -9,8 +9,10 @@ import org.scalatest._
 
 import it.unibo.scafi.test.CoreTestIncarnation._
 import it.unibo.scafi.test.CoreTestUtils._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestSemanticsByRound extends FunSpec with Matchers {
+class TestSemanticsByRound extends AnyFunSpec with Matchers {
 
   val LocalValues, Alignment, Exports, FOLDHOOD, NBR, REP, BRANCH, SENSE, MID, NBRVAR, BUILTIN, Nesting, DeferredExports = new ItWord
 

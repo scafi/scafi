@@ -6,13 +6,14 @@ import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.Sca
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 class BasicProgram extends AggregateProgram {
   override def main() = rep(0)(_ + 1) // the aggregate program to run
 }
 //noinspection NameBooleanParameters,NameBooleanParameters
-class ConfigurationBuilderTest extends FunSpec with Matchers{
+class ConfigurationBuilderTest extends AnyFunSpec with Matchers{
 
 
   val checkThat = new ItWord

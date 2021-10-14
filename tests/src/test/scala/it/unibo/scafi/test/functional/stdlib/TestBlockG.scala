@@ -3,9 +3,10 @@ package it.unibo.scafi.test.functional.stdlib
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.{ScafiAssertions, ScafiTestUtils}
 import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 
 
-class TestBlockG extends FunSpec with BeforeAndAfterEach {
+class TestBlockG extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiAssertions._
   import ScafiTestUtils._
 

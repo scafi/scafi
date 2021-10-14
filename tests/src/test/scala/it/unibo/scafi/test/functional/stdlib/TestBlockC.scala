@@ -4,8 +4,9 @@ import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.ScafiTestUtils
 import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 
-class TestBlockC extends FunSpec with BeforeAndAfterEach {
+class TestBlockC extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiTestUtils._
 
   var net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))

@@ -11,8 +11,10 @@ import org.scalatest._
 
 import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestRep extends FlatSpec with Matchers {
+class TestRep extends AnyFlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 

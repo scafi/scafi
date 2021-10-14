@@ -8,8 +8,10 @@ package it.unibo.scafi.test.functional
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestChannel extends FlatSpec with Matchers {
+class TestChannel extends AnyFlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 

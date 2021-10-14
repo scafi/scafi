@@ -7,7 +7,7 @@ package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.test.FunctionalTestIncarnation._
 import it.unibo.scafi.test.functional.ScafiTestUtils.exec
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 
 object ScafiAssertions extends Matchers {
 

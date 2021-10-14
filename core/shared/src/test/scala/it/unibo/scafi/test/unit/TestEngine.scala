@@ -6,10 +6,11 @@
 package it.unibo.scafi.test.unit
 
 import it.unibo.scafi.test.CoreTestIncarnation
-import org.scalatest.{FunSpec, Matchers}
 import it.unibo.scafi.core.{Core, Engine}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestEngine extends FunSpec with Matchers {
+class TestEngine extends AnyFunSpec with Matchers {
 
   describe("ConcreteSemantics") {
 

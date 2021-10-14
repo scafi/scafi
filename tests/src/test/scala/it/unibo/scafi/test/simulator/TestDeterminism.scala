@@ -7,9 +7,10 @@ package it.unibo.scafi.test.simulator
 
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.test.FunctionalTestIncarnation._
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestDeterminism extends FunSuite with Matchers {
+class TestDeterminism extends AnyFunSuite with Matchers {
 
   test("Determinism in network creation"){
     /**

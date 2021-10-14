@@ -6,10 +6,11 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, Com
 import it.unibo.scafi.simulation.s2.frontend.configuration.parser.UnixLikeParser
 import it.unibo.scafi.simulation.s2.frontend.util.Result
 import it.unibo.scafi.simulation.s2.frontend.util.Result.{Fail, Success}
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 //noinspection NameBooleanParameters,NameBooleanParameters,NameBooleanParameters
-class UnixParserTest extends FunSpec with Matchers {
+class UnixParserTest extends AnyFunSpec with Matchers {
   private val checkThat = new ItWord
   private val commandName = "command"
   private val commandNotDescribed = "a-command"

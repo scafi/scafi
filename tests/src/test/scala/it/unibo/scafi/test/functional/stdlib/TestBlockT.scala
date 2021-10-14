@@ -5,6 +5,7 @@ import it.unibo.scafi.test.functional.ScafiAssertions.assertNetworkValues
 import it.unibo.scafi.test.functional.ScafiTestUtils
 import it.unibo.utils.StatisticsUtils._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 
 /*
@@ -12,7 +13,7 @@ Not yet tested:
 - cyclicTimerWithDecay
 - clock
  */
-class TestBlockT extends FlatSpec {
+class TestBlockT extends AnyFlatSpec {
   import ScafiTestUtils._
 
   val Block_T = new ItWord

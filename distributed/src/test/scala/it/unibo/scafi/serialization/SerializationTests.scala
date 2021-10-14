@@ -2,8 +2,8 @@ package it.unibo.scafi.serialization
 
 import it.unibo.scafi.distrib.actor.serialization.BasicSerializers.mapAnyWrites
 import it.unibo.scafi.incarnations.{BasicAbstractActorIncarnation, BasicAbstractIncarnation}
-import org.scalatest.FunSuite
 import play.api.libs.json.{JsValue, Json, Writes}
+import org.scalatest.funsuite.AnyFunSuite
 
 object SerializationTestsIncarnation extends BasicAbstractActorIncarnation {
   override type Time = Nothing
@@ -21,7 +21,7 @@ class SerializationTestProgram extends AggregateProgram  {
   override def main(): Any = rep(0)(_+1)
 }
 
-class SerializationTests extends FunSuite {
+class SerializationTests extends AnyFunSuite {
 
   test("It should be possible to serialize exports"){
     val program = new SerializationTestProgram()
