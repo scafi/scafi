@@ -105,7 +105,8 @@ lazy val scafi = project.in(file("."))
     // Prevents aggregated project (root) to be published
     packagedArtifacts := Map.empty,
     crossScalaVersions := Nil, // NB: Nil to prevent double publishing!
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests,demos,`demos-new`,`demos-distributed`)
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(commons, core, simulator, spala, `simulator-gui`,
+      `stdlib-ext`, `renderer-3d`, distributed)
   )
 
 lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons"))
