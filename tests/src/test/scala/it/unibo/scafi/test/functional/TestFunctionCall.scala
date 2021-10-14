@@ -55,13 +55,12 @@ class TestFunctionCall extends FlatSpec with Matchers {
   }
 
   AggregateFunctionCall should "support restriction, e.g., while counting neighbors" in new SimulationContextFixture {
-    // ARRANGE
     import node._
-    // ACT
+
     var (endNet, _) = runProgram({
       mux(isObstacle)(() => aggregate { -numOfNeighbors } )(() => aggregate { numOfNeighbors })()
     }, ntimes = 1000)(net)
-    // ASSERT
+
     // Expected network: note how the number of neighbors for "obstacle" devices are restricted
     var expectedNet = (0 to 35).zip(List(
       3, 4, 4,  4,  4, 3,

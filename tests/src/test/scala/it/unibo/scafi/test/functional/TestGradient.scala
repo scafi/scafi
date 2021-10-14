@@ -50,11 +50,10 @@ class TestGradient extends FlatSpec with Matchers {
   }
 
   it should "be possible to build a gradient of hops (steps)" in new SimulationContextFixture {
-    // ARRANGE
     import node._
-    // ACT
+
     implicit val (endNet, _) = runProgram { hopGradient(mySensor()==1) } (net)
-    // ASSERT
+
     assertNetworkValues((0 to 8).zip(List(
       4, 3, 2,
       3, 2, 1,
@@ -63,11 +62,10 @@ class TestGradient extends FlatSpec with Matchers {
   }
 
   it should "be possible to build a gradient of distances" in new SimulationContextFixture {
-    // ARRANGE
     import node._
-    // ACT
+
     implicit val (endNet, _) = runProgram { gradient(mySensor()==1) } (net)
-    // ASSERT
+
     assertNetworkValues((0 to 8).zip(List[Double](
       34, 27, 20,
       24, 17, 10,

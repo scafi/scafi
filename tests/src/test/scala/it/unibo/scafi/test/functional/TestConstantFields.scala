@@ -23,18 +23,16 @@ class TestConstantFields extends FlatSpec with Matchers {
   }
 
   it should "evaluate an int constant field" in new SimulationContextFixture {
-    // ARRANGE
     import node._
-    // ACT
+
     implicit val (endNet, _) = runProgram { minHood{1} } (net)
-    // ASSERT
+
     assertForAllNodes[Int]((_,value) => value==1, okWhenNotComputed = true)
   }
 
   it should "evaluate a string constant field" in new SimulationContextFixture {
-    // ACT
     implicit val (endNet, _) = runProgram { "XXX" } (net)
-    // ASSERT
+
     assertForAllNodes[String]((_,value) => value=="XXX", okWhenNotComputed = true)
   }
 

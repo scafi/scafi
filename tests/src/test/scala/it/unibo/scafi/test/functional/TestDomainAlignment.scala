@@ -38,7 +38,6 @@ class TestDomainAlignment extends FlatSpec with Matchers {
   }
 
   Domains should "align properly when mixing branches and nbrs" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         excludingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 }),
@@ -50,7 +49,6 @@ class TestDomainAlignment extends FlatSpec with Matchers {
       )
     }, ntimes = someRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (3,5,Set("a1d1","a4d4")), (5,6,Set("a0d0","a2d2","a4d4")), (1,2,Set("a1d1","a4d4")),
       (4,6,Set("a6c6")       ), (7,7,Set("a0d0","a1d1","a2d2")), (2,2,Set("b8c8","b7c7")),
@@ -59,7 +57,6 @@ class TestDomainAlignment extends FlatSpec with Matchers {
   }
 
   Domains should "align properly when mixing branches and aggregate calls" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = (
         foldhood(0)(_+_){
@@ -70,7 +67,6 @@ class TestDomainAlignment extends FlatSpec with Matchers {
         )
     }, ntimes = fewRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       (0,0,0), (6,6,6), (0,0,0),
       (6,6,6), (0,0,0), (6,6,6),

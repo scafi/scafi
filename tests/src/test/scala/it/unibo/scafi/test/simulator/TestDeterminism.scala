@@ -24,7 +24,6 @@ class TestDeterminism extends FunSuite with Matchers {
     net1.ids.forall(id =>
       net1.neighbourhood(id) == net2.neighbourhood(id)
     ) shouldBe(true)
-
     net1.ids.exists(id =>
       net1.neighbourhood(id) != net3.neighbourhood(id)
     ) shouldBe(true)

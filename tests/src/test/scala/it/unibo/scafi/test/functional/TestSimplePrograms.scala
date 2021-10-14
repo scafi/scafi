@@ -28,22 +28,20 @@ class TestSimplePrograms extends FlatSpec with Matchers {
   }
 
   it should "evaluate a field of node ids" in new SimulationContextFixture {
-    // ARRANGE
     import node._
-    // ACT
+
     implicit val (endNet, _) = runProgram{ mid() } (net)
-    // ASSERT
+
     assertNetworkValues((0 to 8).zip(0 to 8).toMap)
   }
 
   it should "work with sensors" in new SimulationContextFixture {
-    // ARRANGE
     import node._
-    // ACT
+
     implicit val (endNet, _) = runProgram{
       Tuple2(sense[Int]("sensor1"),sense[String]("sensor2"))
     } (net)
-    // ASSERT
+
     assertNetworkValues((0 to 8).zip(List(
       (0,"off"),(1,"off"),(0,"on"),
       (0,"off"),(0,"off"),(0,"off"),

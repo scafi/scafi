@@ -48,12 +48,10 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   ExplicitFields should "support construction of gradients" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Double = gradient(sense[Boolean](SRC)) + 1
     }, ntimes = someRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       6,    5,    4,
       4.5,  3.5,  2.5,
@@ -62,7 +60,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   ExplicitFields should "allow going from smaller to larger domains" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main() = branch(sense[Boolean](FLAG)){
         fnbr(1.0).withoutSelf
@@ -71,7 +68,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
       }.fold(0.0)(_ + _)
     }, ntimes = someRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       2,    3,    1,
       2,    2,   -2,
@@ -90,7 +86,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   ExplicitFields should "support defaults to deal with domain mismatches" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Map[ID,String] = {
         val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
@@ -99,7 +94,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
       }
     }, ntimes = someRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       M(1->"ac", 3->"ac"), M(0->"ac", 2->"ac", 4->"ac"), M(1->"ac"),
       M(4->"ac", 0->"ac"), M(1->"ac", 3->"ac"),          M(5->"bc", 8->"bx"),
@@ -108,7 +102,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   ExplicitFields should "support defaults on both sides to deal with domain mismatches" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Map[ID,String] = {
         val f1: Field[String] = branch(sense[Boolean](FLAG)){ fnbr("a").withoutSelf }{ fnbr("b") }
@@ -117,7 +110,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
       }
     }, ntimes = someRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       M(0->"xc",1->"ac",3->"ac"),         M(0->"ac",1->"xc",2->"ac",4->"ac"),         M(1->"ac",2->"xc",5->"xc"),
       M(0->"ac",3->"xc",4->"ac",6->"xc"), M(1->"ac",3->"ac",4->"xc",5->"xc",7->"xc"), M(2->"xc",4->"xc",5->"bc",8->"bw"),
@@ -126,7 +118,6 @@ class TestExplicitFields extends FlatSpec with Matchers {
   }
 
   ExplicitFields should "support restriction by going from larger to smaller domains" in new SimulationContextFixture {
-    // ACT
     exec(new TestProgram {
       override def main(): Any = {
         val phi: Field[String] = fnbr(if(sense[Boolean](FLAG)) "a" else "b")
@@ -142,13 +133,11 @@ class TestExplicitFields extends FlatSpec with Matchers {
         // -----|
         // 2+5  |  2+5    2+5
 
-
         ((mux(mid%3==0){ f1 }{ f2 })(phi),
           (mux(mid%3==0){ f1 }{ f2 })(phi2))
       }
     }, ntimes = someRounds)(net)
 
-    // ASSERT
     assertNetworkValues((0 to 8).zip(List(
       ("aa", "11"), ("AAA",   "11"),  ("AAB",   "11"),
       ("aab","11"), ("AABB", "677") , ("AABB", "677"),
