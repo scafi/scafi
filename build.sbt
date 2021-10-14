@@ -1,4 +1,6 @@
 import sbt.Keys.target
+import com.typesafe.sbt.SbtGit.GitKeys._
+
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
@@ -79,8 +81,8 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
   organization := "it.unibo.scafi",
-  compileScalastyle := scalastyle.in(Compile).toTask("").value,
-  (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value,
+  compileScalastyle := scalastyle.in(Test).toTask("").value,
+  (test in Test) := ((test in Test) dependsOn compileScalastyle).value,
   (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   assemblyMergeStrategy in assembly := {
     case x =>
@@ -98,7 +100,7 @@ lazy val noPublishSettings = Seq(
 lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
    `simulator-gui-new`, `demos-new`, `demos-distributed`)
-  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin)
+  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
   .settings(
@@ -106,7 +108,10 @@ lazy val scafi = project.in(file("."))
     packagedArtifacts := Map.empty,
     crossScalaVersions := Nil, // NB: Nil to prevent double publishing!
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(commons, core, simulator, spala, `simulator-gui`,
-      `stdlib-ext`, `renderer-3d`, distributed)
+      `stdlib-ext`, `renderer-3d`, distributed),
+    git.remoteRepo := "git@github.com:scafi/doc.git",
+    siteSubdirName in ScalaUnidoc := "latest/api",
+    addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc)
   )
 
 lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons"))

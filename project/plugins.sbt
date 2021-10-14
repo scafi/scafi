@@ -35,3 +35,10 @@ addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.17.0")
 
+// To publish on GH Pages
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
+
+// site generation for sbt
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.3.2")
