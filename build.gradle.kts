@@ -4,7 +4,7 @@ import de.marcphilipp.gradle.nexus.NexusPublishExtension
 plugins {
     idea
     scala
-    id("com.github.alisiikh.scalastyle") version "3.1.0"
+    id("com.github.alisiikh.scalastyle") version "3.4.1"
     id("de.marcphilipp.nexus-publish") version "0.3.0"
     signing
     id("com.palantir.git-version") version "0.12.2"
