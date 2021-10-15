@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu] # todo, add mac and windows ?
-        jvm_version: [12,16] # todo, add other java version, 15 and 16?
+        jvm_version: [12,16] # todo, add other java versions?
     runs-on: ${{ matrix.os }}-latest
 
     steps:
@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu] # todo, add mac and windows ?
-        jvm_version: [12,16] # todo, add other java version, 15 and 16?
+        jvm_version: [12,16] # todo, add other java versions?
     runs-on: ${{ matrix.os }}-latest
 
     steps:
