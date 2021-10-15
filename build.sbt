@@ -34,7 +34,7 @@ lazy val osName = System.getProperty("os.name") match {
 // JavaFX dependencies (Java 11)
 lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "web")
 lazy val javaFX = if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11) {
-  javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % (jdkVersion+".0.2") classifier osName)
+  javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % (jdkVersion+"+") classifier osName)
 } else {
   Seq()
 }
