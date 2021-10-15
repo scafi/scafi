@@ -365,7 +365,7 @@ configure(subprojects.filter { listOf("scafi-simulator-gui", "scafi-simulator-gu
         repositories {
             jcenter()
             mavenCentral()
-            maven { url = uri("http://mvnrepository.com") }
+            maven { url = uri("https://mvnrepository.com") }
             maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
             maven { url = uri("https://oss.sonatype.org/content/repositories/releases") }
         }
