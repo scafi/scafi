@@ -8,18 +8,10 @@ and provides a platform and API for simulating and executing Aggregate Computing
 Please refer to [the ScaFi main website](https://scafi.github.io/) 
  and [ScaFi Documentation](https://scafi.github.io/docs) the for further information.
 
+![workflow-master badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)
+![workflow-develop badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=develop)
 
 ## Overview
-
-### Status Badges
-
-#### Stable branch
-
-[![Build Status](https://travis-ci.org/scafi/scafi.svg?branch=master)](https://travis-ci.org/scafi/scafi)
-
-#### Development branch
-
-[![Build Status](https://travis-ci.org/scafi/scafi.svg?branch=develop)](https://travis-ci.org/scafi/scafi)
 
 ## Notes for application developers
 
