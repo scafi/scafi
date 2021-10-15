@@ -1,5 +1,8 @@
 # ScaFi (**Sca**la **Fi**elds) #
 
+![workflow-master badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)
+![workflow-develop badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=develop)
+
 **ScaFi** is a Scala-based library and framework for Aggregate Programming.
 It implements a variant of the Higher-Order Field Calculus (HOFC) operational semantics,
  which is made available as a usable domain-specific language (DSL),
@@ -7,9 +10,6 @@ and provides a platform and API for simulating and executing Aggregate Computing
 
 Please refer to [the ScaFi main website](https://scafi.github.io/) 
  and [ScaFi Documentation](https://scafi.github.io/docs) the for further information.
-
-![workflow-master badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)
-![workflow-develop badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=develop)
 
 ## Overview
 
