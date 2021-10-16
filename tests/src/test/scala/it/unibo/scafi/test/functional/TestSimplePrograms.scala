@@ -15,9 +15,9 @@ class TestSimplePrograms extends AnyFlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 
-  private[this] trait SimulationContextFixture {
+  private[this] class SimulationContextFixture(seeds: Seeds) {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, 1, 1), rng = 1.5))
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, 1, 1), rng = 1.5, seeds = seeds))
     implicit val node = new BasicAggregateInterpreter
   }
 
@@ -29,24 +29,32 @@ class TestSimplePrograms extends AnyFlatSpec with Matchers {
     n
   }
 
-  it should "evaluate a field of node ids" in new SimulationContextFixture {
-    import node._
-
-    implicit val (endNet, _) = runProgram{ mid() } (net)
-
-    assertNetworkValues((0 to 8).zip(0 to 8).toMap)
+  for(s <- seeds) {
+    val seeds = Seeds(s, s, s)
+    behavior of s"Simple programs for $seeds"
+    it should behave like behaviours(seeds)
   }
 
-  it should "work with sensors" in new SimulationContextFixture {
-    import node._
+  def behaviours(seeds: Seeds): Unit = {
+    it should "evaluate a field of node ids" in new SimulationContextFixture(seeds) {
+      import node._
 
-    implicit val (endNet, _) = runProgram{
-      Tuple2(sense[Int]("sensor1"),sense[String]("sensor2"))
-    } (net)
+      implicit val (endNet, _) = runProgram{ mid() } (net)
 
-    assertNetworkValues((0 to 8).zip(List(
-      (0,"off"),(1,"off"),(0,"on"),
-      (0,"off"),(0,"off"),(0,"off"),
-      (0,"off"),(0,"off"),(1,"on"))).toMap)
+      assertNetworkValues((0 to 8).zip(0 to 8).toMap)
+    }
+
+    it should "work with sensors" in new SimulationContextFixture(seeds) {
+      import node._
+
+      implicit val (endNet, _) = runProgram{
+        Tuple2(sense[Int]("sensor1"),sense[String]("sensor2"))
+      } (net)
+
+      assertNetworkValues((0 to 8).zip(List(
+        (0,"off"),(1,"off"),(0,"on"),
+        (0,"off"),(0,"off"),(0,"off"),
+        (0,"off"),(0,"off"),(1,"on"))).toMap)
+    }
   }
 }

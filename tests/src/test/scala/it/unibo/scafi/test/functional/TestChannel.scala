@@ -22,9 +22,8 @@ class TestChannel extends AnyFlatSpec with Matchers {
   val FLAG = "flag"
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
-  private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = newNet
-    def newNet = SetupNetwork(simulatorFactory.gridLike(GridSettings(4, 4, stepx, stepy), rng = 1.1))
+  private[this] class SimulationContextFixture(seeds: Seeds) {
+    def newNet = SetupNetwork(simulatorFactory.gridLike(GridSettings(4, 4, stepx, stepy), rng = 1.1, seeds = seeds))
   }
 
   val SRC_ID = 15
@@ -47,67 +46,87 @@ class TestChannel extends AnyFlatSpec with Matchers {
     n
   }
 
-  Channel should "be false everywhere when no source or destination is available" in new SimulationContextFixture {
-    assertAlways(new TestProgram {
-      override def main(): Any = channel(false, true, 2)
-    }, ntimes = someRounds) {
-      (id:Int,v:Any) => v==false
-    }(newNet)
-
-    assertAlways(new TestProgram {
-      override def main(): Any = (distanceTo(false), distanceBetween(src, false))
-    }, ntimes = someRounds){
-      (id:Int,v:Any) => v==(Double.PositiveInfinity,Double.PositiveInfinity)
-    }(newNet)
-
-    assertAlways(new TestProgram {
-      override def main(): Any = channel(src, false, 0.5)
-    }, ntimes = someRounds){
-      (id:Int,v:Any) => v==false || id==SRC_ID
-    }(newNet)
+  for(s <- seeds) {
+    val seeds = Seeds(s, s, s)
+    behavior of s"Channel for $seeds"
+    it should behave like behaviours(seeds)
   }
 
-  Channel should "compute a path, if it exists" in new SimulationContextFixture {
-    val (n1,n2,n3) = (newNet, newNet, newNet)
+  def behaviours(seeds: Seeds): Unit = {
+    Channel should "be false everywhere when no source or destination is available" in new SimulationContextFixture(seeds) {
+      assertAlways(new TestProgram {
+        override def main(): Any = channel(false, true, 2)
+      }, ntimes = someRounds) {
+        (id: Int, v: Any) => v == false
+      }(newNet)
 
-    // NOTE: for device 10:  distTo(str) + distTo(dest) < distBetween(src,dest) + w
-    //                       2           + 6            < 6                     + w
-    // So to be included, it needs to be:  w > 2
+      assertAlways(new TestProgram {
+        override def main(): Any = (distanceTo(false), distanceBetween(src, false))
+      }, ntimes = someRounds) {
+        (id: Int, v: Any) => v == (Double.PositiveInfinity, Double.PositiveInfinity)
+      }(newNet)
 
-    exec(new TestProgram {
-      override def main(): Any = branch(obstacle){ false }{ channel(src, dest, 2+0.1) }
-    }, ntimes = manyRounds)(n1)
+      assertAlways(new TestProgram {
+        override def main(): Any = channel(src, false, 0.5)
+      }, ntimes = someRounds) {
+        (id: Int, v: Any) => v == false || id == SRC_ID
+      }(newNet)
+    }
 
-    // ASSERT
-    assertNetworkValues((0 to 15).zip(List(
-      true,  true,  true,  true,
-      true, false, false, true,
-      true, false,  true, true,
-      true,  true,  true, true
-    )).toMap)(n1)
+    Channel should "compute a path, if it exists" in new SimulationContextFixture(seeds) {
+      val (n1, n2, n3) = (newNet, newNet, newNet)
 
-    exec(new TestProgram {
-      override def main(): Any = branch(obstacle){ false }{ channel(src, dest, 2-0.1) }
-    }, ntimes = manyRounds)(n2)
+      // NOTE: for device 10:  distTo(str) + distTo(dest) < distBetween(src,dest) + w
+      //                       2           + 6            < 6                     + w
+      // So to be included, it needs to be:  w > 2
 
-    // ASSERT
-    assertNetworkValues((0 to 15).zip(List(
-      true,  true,  true,  true,
-      true, false, false, true,
-      true, false, false, true,
-      true,  true,  true, true
-    )).toMap)(n2)
+      exec(new TestProgram {
+        override def main(): Any = branch(obstacle) {
+          false
+        } {
+          channel(src, dest, 2 + 0.1)
+        }
+      }, ntimes = manyRounds)(n1)
 
-    exec(new TestProgram {
-      override def main(): Any = branch(obstacle){ false }{ channel(src, dest, 0) }
-    }, ntimes = manyRounds)(n3)
+      // ASSERT
+      assertNetworkValues((0 to 15).zip(List(
+        true, true, true, true,
+        true, false, false, true,
+        true, false, true, true,
+        true, true, true, true
+      )).toMap)(n1)
 
-    // ASSERT
-    assertNetworkValues((0 to 15).zip(List(
-      true,  true,  true,  true,
-      true, false, false, true,
-      true, false, false, true,
-      true,  true,  true, true
-    )).toMap)(n3)
+      exec(new TestProgram {
+        override def main(): Any = branch(obstacle) {
+          false
+        } {
+          channel(src, dest, 2 - 0.1)
+        }
+      }, ntimes = manyRounds)(n2)
+
+      // ASSERT
+      assertNetworkValues((0 to 15).zip(List(
+        true, true, true, true,
+        true, false, false, true,
+        true, false, false, true,
+        true, true, true, true
+      )).toMap)(n2)
+
+      exec(new TestProgram {
+        override def main(): Any = branch(obstacle) {
+          false
+        } {
+          channel(src, dest, 0)
+        }
+      }, ntimes = manyRounds)(n3)
+
+      // ASSERT
+      assertNetworkValues((0 to 15).zip(List(
+        true, true, true, true,
+        true, false, false, true,
+        true, false, false, true,
+        true, true, true, true
+      )).toMap)(n3)
+    }
   }
 }

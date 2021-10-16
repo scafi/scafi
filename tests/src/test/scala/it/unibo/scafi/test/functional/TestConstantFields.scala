@@ -15,27 +15,33 @@ class TestConstantFields extends AnyFlatSpec with Matchers {
   import ScafiAssertions._
   import ScafiTestUtils._
 
-  private[this] trait SimulationContextFixture {
+  private[this] class SimulationContextFixture(seeds: Seeds) {
     implicit val node = new AggregateInterpreter {
       override type MainResult = Any
       override def main() = ???
     }
-    var net: Network with SimulatorOps =
-      simulatorFactory.gridLike(GridSettings(nrows = 10, ncols = 10, stepx = 1, stepy = 1, tolerance = 100), rng = 1)
+    val net: Network with SimulatorOps =
+      simulatorFactory.gridLike(GridSettings(nrows = 10, ncols = 10, stepx = 1, stepy = 1, tolerance = 100), rng = 1, seeds = seeds)
   }
 
-  it should "evaluate an int constant field" in new SimulationContextFixture {
-    import node._
-
-    implicit val (endNet, _) = runProgram { minHood{1} } (net)
-
-    assertForAllNodes[Int]((_,value) => value==1, okWhenNotComputed = true)
+  for(s <- seeds) {
+    val seeds = Seeds(s, s, s)
+    behavior of s"Constant fields for $seeds"
+    it should behave like behaviours(seeds)
   }
 
-  it should "evaluate a string constant field" in new SimulationContextFixture {
-    implicit val (endNet, _) = runProgram { "XXX" } (net)
+  def behaviours(seeds: Seeds): Unit = {
+    it should "evaluate an int constant field" in new SimulationContextFixture(seeds) {
+      import node._
+      implicit val (endNet, _) = runProgram { minHood { 1 } }(net)
+      assertForAllNodes[Int]((_, value) => value == 1, okWhenNotComputed = true)
+    }
 
-    assertForAllNodes[String]((_,value) => value=="XXX", okWhenNotComputed = true)
+    it should "evaluate a string constant field" in new SimulationContextFixture(seeds) {
+      implicit val (endNet, _) = runProgram { "XXX" }(net)
+
+      assertForAllNodes[String]((_, value) => value == "XXX", okWhenNotComputed = true)
+    }
   }
 
 }

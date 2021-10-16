@@ -18,9 +18,9 @@ class TestGradient extends AnyFlatSpec with Matchers {
   val stepx: Double = 7.0
   val stepy: Double = 10.0
 
-  private[this] trait SimulationContextFixture {
+  private[this] class SimulationContextFixture(seeds: Seeds) {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 11))
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 11, seeds = seeds))
     implicit val node = new Node
   }
 
@@ -51,28 +51,35 @@ class TestGradient extends AnyFlatSpec with Matchers {
     n
   }
 
-  it should "be possible to build a gradient of hops (steps)" in new SimulationContextFixture {
-    import node._
-
-    implicit val (endNet, _) = runProgram { hopGradient(mySensor()==1) } (net)
-
-    assertNetworkValues((0 to 8).zip(List(
-      4, 3, 2,
-      3, 2, 1,
-      2, 1, 0
-    )).toMap)
+  for(s <- seeds) {
+    val seeds = Seeds(s, s, s)
+    behavior of s"Gradient for $seeds"
+    it should behave like behaviours(seeds)
   }
 
-  it should "be possible to build a gradient of distances" in new SimulationContextFixture {
-    import node._
+  def behaviours(seeds: Seeds): Unit = {
+    it should "be possible to build a gradient of hops (steps)" in new SimulationContextFixture(seeds) {
+      import node._
 
-    implicit val (endNet, _) = runProgram { gradient(mySensor()==1) } (net)
+      implicit val (endNet, _) = runProgram { hopGradient(mySensor()==1) } (net)
 
-    assertNetworkValues((0 to 8).zip(List[Double](
-      34, 27, 20,
-      24, 17, 10,
-      14, 7,  0
-    )).toMap, Some( (d1:Double, d2:Double) => d1===d2 +- 0.0002 ))
+      assertNetworkValues((0 to 8).zip(List(
+        4, 3, 2,
+        3, 2, 1,
+        2, 1, 0
+      )).toMap)
+    }
+
+    it should "be possible to build a gradient of distances" in new SimulationContextFixture(seeds) {
+      import node._
+
+      implicit val (endNet, _) = runProgram { gradient(mySensor()==1) } (net)
+
+      assertNetworkValues((0 to 8).zip(List[Double](
+        34, 27, 20,
+        24, 17, 10,
+        14, 7,  0
+      )).toMap, Some( (d1:Double, d2:Double) => d1===d2 +- 0.0002 ))
+    }
   }
-
 }

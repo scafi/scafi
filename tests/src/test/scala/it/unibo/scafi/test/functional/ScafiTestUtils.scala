@@ -20,6 +20,8 @@ object ScafiTestUtils {
 
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
+  val seeds = List(187372311) //, 204110176, 129995678, 6155814, 22612812, 61168821, 21228945, 146764631, 94412880, 117623077)
+
   object NetworkDsl {
     case class SensorActivation[T](val name: CNAME, val value: T){
       def inDevices(devs: ID*)(implicit net: Network with SimulatorOps) = net.chgSensorValue(name, devs.toSet, value)
@@ -110,7 +112,8 @@ object ScafiTestUtils {
                     side: Int = 3,
                     step: Int = 1,
                     rng: Double = 1.5,
-                    detachedNodesCoords: Set[(Int, Int)] = Set()
+                    detachedNodesCoords: Set[(Int, Int)] = Set(),
+                    seeds: Seeds = Seeds(newRandomSeed(), newRandomSeed(), newRandomSeed())
                   ): Network with SimulatorOps = {
     var lastDetachedPosition: (Double, Double) = (Int.MaxValue, Int.MaxValue)
     simulatorFactory.gridLike(
@@ -124,10 +127,11 @@ object ScafiTestUtils {
               lastDetachedPosition
             }
             .getOrElse[(Double, Double)](px, py)
-        ), rng = rng)
+        ), rng = rng, seeds = seeds)
   }
 
-  def schedulingSequence(ids: Set[ID], sampleSize: Int, minOccurrences: Map[ID,Int] = Map())(implicit seed: TestingSeed = TestingSeed(System.currentTimeMillis())): Seq[ID] = {
+  def schedulingSequence(ids: Set[ID], sampleSize: Int, minOccurrences: Map[ID,Int] = Map())
+                        (implicit seed: TestingSeed = TestingSeed(System.currentTimeMillis())): Seq[ID] = {
     import scala.collection.JavaConverters._
     val rg = new RandomDataGenerator()
     rg.reSeed(seed.seed)
@@ -137,6 +141,8 @@ object ScafiTestUtils {
     }
     seq
   }
+
+  def newRandomSeed(): Long = System.currentTimeMillis()
 
   implicit class SchedulingSeq(seq: Seq[ID]) {
     def ensureAtLeast(id: ID, k: Int): Seq[ID] = {

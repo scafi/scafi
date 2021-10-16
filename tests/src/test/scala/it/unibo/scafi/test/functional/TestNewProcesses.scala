@@ -29,11 +29,11 @@ class TestNewProcesses extends AnyFlatSpec with Matchers {
 
   import SpawnInterface._
 
-  private[this] trait SimulationContextFixture {
+  private[this] class SimulationContextFixture(seeds: Seeds) {
     implicit val net: NetworkSimulator =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2, seeds = seeds)).asInstanceOf[NetworkSimulator]
     val largeNet: NetworkSimulator =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(20, 20, stepx, stepy), rng = 1.2)).asInstanceOf[NetworkSimulator]
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(20, 20, stepx, stepy), rng = 1.2, seeds = seeds)).asInstanceOf[NetworkSimulator]
     val program = new Program
   }
 
@@ -76,172 +76,180 @@ class TestNewProcesses extends AnyFlatSpec with Matchers {
 
   import NetworkDsl._
 
-  Processes must "not exist if not activated" in new SimulationContextFixture {
-    // ACT: run program comprising spawns
-    exec(program, ntimes = fewRounds)(net)
-
-    // ASSERT: nobody computed a value for any process, i.e., nobody executed any process
-    assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
+  for(s <- seeds) {
+    val seeds = Seeds(s, s, s)
+    behavior of s"Processes for $seeds"
+    it should behave like behaviours(seeds)
   }
 
-  Processes must "exist when activated" in new SimulationContextFixture {
-    // ACT: run program, checking nobody run any process
-    exec(program, ntimes = fewRounds)(net)
-    assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
+  def behaviours(seeds: Seeds): Unit = {
+          Processes must "not exist if not activated" in new SimulationContextFixture(seeds) {
+      // ACT: run program comprising spawns
+      exec(program, ntimes = fewRounds)(net)
 
-    // ACT: activate process 1 from node 8, run program
-    setSensor(Gen1, true).inDevices(8)
-    exec(program, ntimes = someRounds)(net)
+      // ASSERT: nobody computed a value for any process, i.e., nobody executed any process
+      assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
+    }
 
-    val p1 = Pid(8,1)
-    // ASSERT: process 1 has been executed in the network; a correct gradient has stabilised
-    assertNetworkValues((0 to 8).zip(List(
-      Map(p1 -> "4.0"), Map(p1 -> "3.0"), Map(p1 -> "2.0"),
-      Map(p1 -> "3.0"), Map(p1 -> "2.0"), Map(p1 -> "1.0"),
-      Map(p1 -> "2.0"), Map(p1 -> "1.0"), Map(p1 -> "0.0")
-    )).toMap)(net)
-  }
+    Processes must "exist when activated" in new SimulationContextFixture(seeds) {
+      // ACT: run program, checking nobody run any process
+      exec(program, ntimes = fewRounds)(net)
+      assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
 
-  Processes can "have a limited extension" in new SimulationContextFixture {
-    // ARRANGE: activate process 2 from node 0, which is configured to have a limited extension
-    net.chgSensorValue(Gen2, Set(0), true)
+      // ACT: activate process 1 from node 8, run program
+      setSensor(Gen1, true).inDevices(8)
+      exec(program, ntimes = someRounds)(net)
 
-    // ACT: run program
-    exec(program, ntimes = someRounds)(net)
+      val p1 = Pid(8,1)
+      // ASSERT: process 1 has been executed in the network; a correct gradient has stabilised
+      assertNetworkValues((0 to 8).zip(List(
+        Map(p1 -> "4.0"), Map(p1 -> "3.0"), Map(p1 -> "2.0"),
+        Map(p1 -> "3.0"), Map(p1 -> "2.0"), Map(p1 -> "1.0"),
+        Map(p1 -> "2.0"), Map(p1 -> "1.0"), Map(p1 -> "0.0")
+      )).toMap)(net)
+    }
 
-    // ASSERT: check the limited extension of the process, which doesn't reach to gradient source;
-    //         check nodes not covered; the other nodes compute a rising gradient (without source)
-    val p021 = Pid(0,1)
-    assertForAllNodes[ProcsMap]{ (id, m) => m.forall(proc => proc match {
-      case (p021, value) => Set(0,1,2,3,4,6).contains(id) && value.toDouble > 10
-      case _ => Set(5,7,8).contains(id)
-    })}(net)
+    Processes can "have a limited extension" in new SimulationContextFixture(seeds) {
+      // ARRANGE: activate process 2 from node 0, which is configured to have a limited extension
+      net.chgSensorValue(Gen2, Set(0), true)
 
-    // ACT: set new source; continue program execution
-    setSensor(SRC, true).inDevices(4)
-    exec(program, ntimes = someRounds)(net)
+      // ACT: run program
+      exec(program, ntimes = someRounds)(net)
 
-    // ASSERT: check gradient stabilises in the covered area
-    assertNetworkValues((0 to 8).zip(List(
-      Map(p021 -> "2.0"), Map(p021 -> "1.0"), Map(p021 -> "2.0"),
-      Map(p021 -> "1.0"), Map(p021 -> "0.0"), Map(             ),
-      Map(p021 -> "2.0"), Map(             ), Map(             )
-    )).toMap)(net)
-  }
+      // ASSERT: check the limited extension of the process, which doesn't reach to gradient source;
+      //         check nodes not covered; the other nodes compute a rising gradient (without source)
+      val p021 = Pid(0,1)
+      assertForAllNodes[ProcsMap]{ (id, m) => m.forall(proc => proc match {
+        case (p021, value) => Set(0,1,2,3,4,6).contains(id) && value.toDouble > 10
+        case _ => Set(5,7,8).contains(id)
+      })}(net)
 
-  Processes can "be extinguished when stopped being generated" in new SimulationContextFixture {
-    implicit val network = largeNet
+      // ACT: set new source; continue program execution
+      setSensor(SRC, true).inDevices(4)
+      exec(program, ntimes = someRounds)(net)
 
-    // ARRANGE: activate process 1 from node 0
-    setSensor(Gen1, true).inDevices(0)
+      // ASSERT: check gradient stabilises in the covered area
+      assertNetworkValues((0 to 8).zip(List(
+        Map(p021 -> "2.0"), Map(p021 -> "1.0"), Map(p021 -> "2.0"),
+        Map(p021 -> "1.0"), Map(p021 -> "0.0"), Map(             ),
+        Map(p021 -> "2.0"), Map(             ), Map(             )
+      )).toMap)(net)
+    }
 
-    // ACT (process activation)
-    exec(program, ntimes = manyManyRounds)(largeNet)
+    Processes can "be extinguished when stopped being generated" in new SimulationContextFixture(seeds) {
+      implicit val network = largeNet
 
-    // ASSERT
-    val p011 = Pid(0,1)
-    assertForAllNodes[ProcsMap]{ (_,m) => m.contains(p011) && m.size==1}(largeNet)
+      // ARRANGE: activate process 1 from node 0
+      setSensor(Gen1, true).inDevices(0)
 
-    // ACT (process deactivation and garbage collection)
-    setSensor(STOP, true).inDevices(0)
-    exec(program, ntimes = manyManyRounds)(largeNet)
+      // ACT (process activation)
+      exec(program, ntimes = manyManyRounds)(largeNet)
 
-    // ASSERT
-    assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(largeNet)
-  }
+      // ASSERT
+      val p011 = Pid(0,1)
+      assertForAllNodes[ProcsMap]{ (_,m) => m.contains(p011) && m.size==1}(largeNet)
 
-  ManyProcesses must "coexist without interference" in new SimulationContextFixture {
-    // ARRANGE: generate process 1 from node 0 and process 2 from node 6
-    setSensor(Gen1, true).inDevices(0)
-    setSensor(Gen2, true).inDevices(6)
+      // ACT (process deactivation and garbage collection)
+      setSensor(STOP, true).inDevices(0)
+      exec(program, ntimes = manyManyRounds)(largeNet)
 
-    // ACT: run program
-    exec(program, ntimes = someRounds)(net)
+      // ASSERT
+      assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(largeNet)
+    }
 
-    // ASSERT: check both processes running gradients get globally evaluated without interference
-    val p1 = Pid(0,1)
-    val p2 = Pid(6,1)
-    assertNetworkValues((0 to 8).zip(List(
-      Map(p1 -> "0.0", p2 -> "4.0"), Map(p1 -> "1.0"             ), Map(p1 -> "2.0"             ),
-      Map(p1 -> "1.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "3.0"             ),
-      Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "3.0", p2 -> "1.0"), Map(p1 -> "4.0", p2 -> "0.0")
-    )).toMap)(net)
-  }
+    ManyProcesses must "coexist without interference" in new SimulationContextFixture(seeds) {
+      // ARRANGE: generate process 1 from node 0 and process 2 from node 6
+      setSensor(Gen1, true).inDevices(0)
+      setSensor(Gen2, true).inDevices(6)
 
-  Processes should "not conflict when generated from different nodes" in new SimulationContextFixture {
-    // BUT NOTE: sensor gen1 also represents the source for the gradient of process 1
-    // ARRANGE: generate process 1 from both node 0 and node 8
-    setSensor(Gen1, true).inDevices(0)
-    setSensor(Gen1, true).inDevices(8)
+      // ACT: run program
+      exec(program, ntimes = someRounds)(net)
 
-    // ACT: run program
-    exec(program, ntimes = someRounds)(net)
+      // ASSERT: check both processes running gradients get globally evaluated without interference
+      val p1 = Pid(0,1)
+      val p2 = Pid(6,1)
+      assertNetworkValues((0 to 8).zip(List(
+        Map(p1 -> "0.0", p2 -> "4.0"), Map(p1 -> "1.0"             ), Map(p1 -> "2.0"             ),
+        Map(p1 -> "1.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "3.0"             ),
+        Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "3.0", p2 -> "1.0"), Map(p1 -> "4.0", p2 -> "0.0")
+      )).toMap)(net)
+    }
 
-    // ASSERT: result from running process 1
-    val p1 = Pid(0,1)
-    val p2 = Pid(8,1)
-    assertNetworkValues((0 to 8).zip(List(
-      Map(p1 -> "0.0", p2 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"),
-      Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
-      Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0")
-    )).toMap)(net)
+    Processes should "not conflict when generated from different nodes" in new SimulationContextFixture(seeds) {
+      // BUT NOTE: sensor gen1 also represents the source for the gradient of process 1
+      // ARRANGE: generate process 1 from both node 0 and node 8
+      setSensor(Gen1, true).inDevices(0)
+      setSensor(Gen1, true).inDevices(8)
 
-    // ACT: add an additional generator, and continue program execution
-    setSensor(Gen1, true).inDevices(4)
-    exec(program, ntimes = someRounds)(net)
+      // ACT: run program
+      exec(program, ntimes = someRounds)(net)
 
-    // ASSERT: check no conflict when process 1 is generated from multiple nodes possibly activated at different times
-    val p3 = Pid(4,1)
-    assertNetworkValues((0 to 8).zip(List(
-      Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0", p3 -> "2.0"),
-      Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"),
-      Map(p1 -> "2.0", p2 -> "2.0", p3 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0")
-    )).toMap)(net)
-  }
+      // ASSERT: result from running process 1
+      val p1 = Pid(0,1)
+      val p2 = Pid(8,1)
+      assertNetworkValues((0 to 8).zip(List(
+        Map(p1 -> "0.0", p2 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"),
+        Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
+        Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0")
+      )).toMap)(net)
 
-  Processes should "not conflict when generated from the same node" in new SimulationContextFixture {
-    // ARRANGE+ACT: generate process 1 twice from node 0
-    setSensor(Gen2, true).inDevices(7)
-    exec(program, ntimes = someRounds)(net)
-    setSensor(Gen2, false).inDevices(7)
-    exec(program, ntimes = someRounds)(net)
+      // ACT: add an additional generator, and continue program execution
+      setSensor(Gen1, true).inDevices(4)
+      exec(program, ntimes = someRounds)(net)
 
-    // ASSERT: result from running process 1
-    val p1 = Pid(7,1)
-    val p2 = Pid(7,2)
-    assertNetworkValues((0 to 8).zip(List(
-      Map(                        ), Map(p1 -> "3.0", p2 -> "3.0"), Map(                        ),
-      Map(p1 -> "3.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
-      Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0")
-    )).toMap)(net)
-  }
+      // ASSERT: check no conflict when process 1 is generated from multiple nodes possibly activated at different times
+      val p3 = Pid(4,1)
+      assertNetworkValues((0 to 8).zip(List(
+        Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0", p3 -> "2.0"),
+        Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"),
+        Map(p1 -> "2.0", p2 -> "2.0", p3 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0")
+      )).toMap)(net)
+    }
+
+    Processes should "not conflict when generated from the same node" in new SimulationContextFixture(seeds) {
+      // ARRANGE+ACT: generate process 1 twice from node 0
+      setSensor(Gen2, true).inDevices(7)
+      exec(program, ntimes = someRounds)(net)
+      setSensor(Gen2, false).inDevices(7)
+      exec(program, ntimes = someRounds)(net)
+
+      // ASSERT: result from running process 1
+      val p1 = Pid(7,1)
+      val p2 = Pid(7,2)
+      assertNetworkValues((0 to 8).zip(List(
+        Map(                        ), Map(p1 -> "3.0", p2 -> "3.0"), Map(                        ),
+        Map(p1 -> "3.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
+        Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0")
+      )).toMap)(net)
+    }
 
 
-  Processes should "be resilient to partitions: reconnecting node" in new SimulationContextFixture {
-    // ARRANGE: generate process 1 from node 0
-    setSensor(Gen1, true).inDevices(0)
+    Processes should "be resilient to partitions: reconnecting node" in new SimulationContextFixture(seeds) {
+      // ARRANGE: generate process 1 from node 0
+      setSensor(Gen1, true).inDevices(0)
 
-    // ACT: run program
-    exec(program, ntimes = someRounds)(net)
+      // ACT: run program
+      exec(program, ntimes = someRounds)(net)
 
-    // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
-    val nodeNbrhoodToRestore = detachNode(8, net) // detach node
-    setSensor(STOP, true).inDevices(0) // stop generating process 1
-    execProgramFor(program, ntimes = manyRounds)(net)(id => id != 8) // execute except for detached device
+      // ACT: detach node (keeping it alive), turn off generator, and run program (for all except detached node)
+      val nodeNbrhoodToRestore = detachNode(8, net) // detach node
+      setSensor(STOP, true).inDevices(0) // stop generating process 1
+      execProgramFor(program, ntimes = manyRounds)(net)(id => id != 8) // execute except for detached device
 
-    // ASSERT: process 1 has disappeared everywhere except in detached node
-    val p1 = Pid(0,1)
-    assertForAllNodes[ProcsMap]{
-      case (8,m) => m.contains(p1) && m.size==1
-      case (_,m) => m.isEmpty
-    }(net)
+      // ASSERT: process 1 has disappeared everywhere except in detached node
+      val p1 = Pid(0,1)
+      assertForAllNodes[ProcsMap]{
+        case (8,m) => m.contains(p1) && m.size==1
+        case (_,m) => m.isEmpty
+      }(net)
 
-    // ACT: reconnect node and run program globally
-    connectNode(8, nodeNbrhoodToRestore, net)
-    exec(program, ntimes = manyRounds)(net)
+      // ACT: reconnect node and run program globally
+      connectNode(8, nodeNbrhoodToRestore, net)
+      exec(program, ntimes = manyRounds)(net)
 
-    // ASSERT: eventually, the process has disappeared
-    assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
+      // ASSERT: eventually, the process has disappeared
+      assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
+    }
   }
 
   private def S[T](x: T) = Some[T](x)

@@ -24,9 +24,9 @@ class TestDomainAlignment extends AnyFlatSpec with Matchers {
   val FLAG = "flag"
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
-  private[this] trait SimulationContextFixture {
+  private[this] class SimulationContextFixture(seeds: Seeds) {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.5))
+      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.5, seeds = seeds))
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with FieldUtils {
@@ -39,40 +39,48 @@ class TestDomainAlignment extends AnyFlatSpec with Matchers {
     n
   }
 
-  Domains should "align properly when mixing branches and nbrs" in new SimulationContextFixture {
-    exec(new TestProgram {
-      override def main(): Any = (
-        excludingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 }),
-        includingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 } ),
-        excludingSelf.unionHood {
-          branch(s<4)(nbr("a"+mid))(nbr("b"+mid)) +
-            branch(s>0)(nbr("c"+mid))(nbr("d"+mid))
-        }
-      )
-    }, ntimes = someRounds)(net)
-
-    assertNetworkValues((0 to 8).zip(List(
-      (3,5,Set("a1d1","a4d4")), (5,6,Set("a0d0","a2d2","a4d4")), (1,2,Set("a1d1","a4d4")),
-      (4,6,Set("a6c6")       ), (7,7,Set("a0d0","a1d1","a2d2")), (2,2,Set("b8c8","b7c7")),
-      (2,3,Set("a3c3")       ), (3,3,Set("b5c5","b8c8")       ), (0,0,Set("b5c5","b7c7"))
-    )).toMap)(net)
+  for(s <- seeds) {
+    val seeds = Seeds(s, s, s)
+    behavior of s"Domain alignment for $seeds"
+    it should behave like behaviours(seeds)
   }
 
-  Domains should "align properly when mixing branches and aggregate calls" in new SimulationContextFixture {
-    exec(new TestProgram {
-      override def main(): Any = (
-        foldhood(0)(_+_){
-          (branch(mid() % 2 == 1){ () => aggregate{ 1 } }{ () => aggregate{ 0 } })()
-        },
-        foldhood(0)(_+_){ branch (mid % 2 == 1) { 1 } { 0 } },
-        foldhood(0)(_+_){ branch( (() => aggregate { mid })() % 2 == 1){ 1 } { 0 } }
+  def behaviours(seeds: Seeds): Unit = {
+    Domains should "align properly when mixing branches and nbrs" in new SimulationContextFixture(seeds) {
+      exec(new TestProgram {
+        override def main(): Any = (
+          excludingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 }),
+          includingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 } ),
+          excludingSelf.unionHood {
+            branch(s<4)(nbr("a"+mid))(nbr("b"+mid)) +
+              branch(s>0)(nbr("c"+mid))(nbr("d"+mid))
+          }
         )
-    }, ntimes = fewRounds)(net)
+      }, ntimes = someRounds)(net)
 
-    assertNetworkValues((0 to 8).zip(List(
-      (0,0,0), (6,6,6), (0,0,0),
-      (6,6,6), (0,0,0), (6,6,6),
-      (0,0,0), (6,6,6), (0,0,0)
-    )).toMap)(net)
+      assertNetworkValues((0 to 8).zip(List(
+        (3,5,Set("a1d1","a4d4")), (5,6,Set("a0d0","a2d2","a4d4")), (1,2,Set("a1d1","a4d4")),
+        (4,6,Set("a6c6")       ), (7,7,Set("a0d0","a1d1","a2d2")), (2,2,Set("b8c8","b7c7")),
+        (2,3,Set("a3c3")       ), (3,3,Set("b5c5","b8c8")       ), (0,0,Set("b5c5","b7c7"))
+      )).toMap)(net)
+    }
+
+    Domains should "align properly when mixing branches and aggregate calls" in new SimulationContextFixture(seeds) {
+      exec(new TestProgram {
+        override def main(): Any = (
+          foldhood(0)(_+_){
+            (branch(mid() % 2 == 1){ () => aggregate{ 1 } }{ () => aggregate{ 0 } })()
+          },
+          foldhood(0)(_+_){ branch (mid % 2 == 1) { 1 } { 0 } },
+          foldhood(0)(_+_){ branch( (() => aggregate { mid })() % 2 == 1){ 1 } { 0 } }
+          )
+      }, ntimes = fewRounds)(net)
+
+      assertNetworkValues((0 to 8).zip(List(
+        (0,0,0), (6,6,6), (0,0,0),
+        (6,6,6), (0,0,0), (6,6,6),
+          (0,0,0), (6,6,6), (0,0,0)
+        )).toMap)(net)
+    }
   }
 }
