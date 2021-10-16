@@ -7,7 +7,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
 
 // Constants
-val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.2","2.13.1")
+val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.14","2.13.6")
 val akkaVersion = "2.5.31" // NOTE: Akka 2.4.0 REQUIRES Java 8!
 
 // Managed dependencies
