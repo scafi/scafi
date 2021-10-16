@@ -1,5 +1,6 @@
 import sbt.Keys.target
 import com.typesafe.sbt.SbtGit.GitKeys._
+import org.scalastyle.sbt.ScalastylePlugin._
 
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -49,7 +50,7 @@ lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
   licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://scafi.github.io/")),
@@ -81,12 +82,12 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
   organization := "it.unibo.scafi",
-  compileScalastyle := scalastyle.in(Test).toTask("").value,
-  (test in Test) := ((test in Test) dependsOn compileScalastyle).value,
-  (assemblyJarName in assembly) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
-  assemblyMergeStrategy in assembly := {
+  compileScalastyle := (Test / scalastyle).toTask("").value,
+  Test / test := ((Test / test) dependsOn compileScalastyle).value,
+  (assembly / assemblyJarName) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
+  (assembly / assemblyMergeStrategy) := {
     case x =>
-      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   }
 )
@@ -107,11 +108,11 @@ lazy val scafi = project.in(file("."))
     // Prevents aggregated project (root) to be published
     packagedArtifacts := Map.empty,
     crossScalaVersions := Nil, // NB: Nil to prevent double publishing!
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(commons, core, simulator, spala, `simulator-gui`,
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(commons, core, simulator, spala, `simulator-gui`,
       `stdlib-ext`, `renderer-3d`, distributed),
     git.remoteRepo := "git@github.com:scafi/doc.git",
-    siteSubdirName in ScalaUnidoc := "latest/api",
-    addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc)
+    ScalaUnidoc / siteSubdirName := "latest/api",
+    addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
   )
 
 lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons"))
@@ -270,7 +271,7 @@ lazy val `scafi-web` = project
         // "org.singlespaced" %%% "scalajs-d3" % "0.3.4" // only ScalaJs 0.6
       ),
       webpackBundlingMode := BundlingMode.LibraryAndApplication(), // https://scalacenter.github.io/scalajs-bundler/cookbook.html#several-entry-points
-      npmDependencies in Compile ++= Seq(
+      Compile / npmDependencies ++= Seq(
         "sigma" -> "2.0.0-alpha32",
         "jsnetworkx" -> "0.3.4",
         //"fsevents" -> "1.2.12",
