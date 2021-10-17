@@ -12,8 +12,8 @@ class TestFieldUtils extends AnyFlatSpec {
 
   val Field_Utils = new ItWord
 
-  private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
+  private[this] class SimulationContextFixture(seeds: Seeds) {
+    val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds)
     val n: Int => Set[Int] = net.neighbourhood
   }
 
@@ -26,7 +26,7 @@ class TestFieldUtils extends AnyFlatSpec {
   }
 
   def behaviours(seeds: Seeds): Unit = {
-    Field_Utils should "support min/maxHoodSelectors" in new SimulationContextFixture {
+    Field_Utils should "support min/maxHoodSelectors" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Any = (
           excludingSelf.minHoodSelector(nbr(mid()))(nbr(mid())),
@@ -44,7 +44,7 @@ class TestFieldUtils extends AnyFlatSpec {
 
     }
 
-    Field_Utils should "support anyHood" in new SimulationContextFixture {
+    Field_Utils should "support anyHood" in new SimulationContextFixture(seeds) {
       val privateNet: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((0,2), (2,2)))
       privateNet.addSensor[Boolean]("sensor", false)
       privateNet.chgSensorValue("sensor", Set(0, 1, 8), true)
@@ -72,7 +72,7 @@ class TestFieldUtils extends AnyFlatSpec {
 
     }
 
-    Field_Utils should "support everyHood" in new SimulationContextFixture {
+    Field_Utils should "support everyHood" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): (Boolean, Boolean) = (
           excludingSelf.everyHood(mid() == nbr(mid())),
@@ -91,7 +91,7 @@ class TestFieldUtils extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Field_Utils should "support sumHood" in new SimulationContextFixture {
+    Field_Utils should "support sumHood" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): (Int, Int) = (
           excludingSelf.sumHood(1),
@@ -106,7 +106,7 @@ class TestFieldUtils extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Field_Utils should "support sumHood - simplified" in new SimulationContextFixture {
+    Field_Utils should "support sumHood - simplified" in new SimulationContextFixture(seeds) {
       net.addSensor[Int]("snsSumHood", 0)
       net.chgSensorValue("snsSumHood", Set(0,1,2), 10)
 
@@ -141,7 +141,7 @@ class TestFieldUtils extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Field_Utils should "support unionHood" in new SimulationContextFixture {
+    Field_Utils should "support unionHood" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main():(Set[ID], Set[ID]) = (
           excludingSelf.unionHood(nbr(mid())),
@@ -156,7 +156,7 @@ class TestFieldUtils extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Field_Utils should "support mergeHoodFirst" in new SimulationContextFixture {
+    Field_Utils should "support mergeHoodFirst" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main():(Map[ID, ID], Map[ID, ID]) = (
           excludingSelf.mergeHoodFirst(nbr(Map(mid() -> mid()))),
@@ -171,7 +171,7 @@ class TestFieldUtils extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Field_Utils should "support mergeHoodFirst - merge" in new SimulationContextFixture {
+    Field_Utils should "support mergeHoodFirst - merge" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Map[Int, ID] = includingSelf.mergeHoodFirst(nbr(Map(1 -> mid())))
       }, ntimes = someRounds)(net)
@@ -192,7 +192,7 @@ class TestFieldUtils extends AnyFlatSpec {
       })
     }
 
-    Field_Utils should "support mergeHood - merge" in new SimulationContextFixture {
+    Field_Utils should "support mergeHood - merge" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Map[Int, ID] = excludingSelf.mergeHood(nbr(Map(1 -> mid())))((_, y) => y)
       }, ntimes = someRounds)(net)
@@ -203,7 +203,7 @@ class TestFieldUtils extends AnyFlatSpec {
       })
     }
 
-    Field_Utils should "support mergeHood - merge including" in new SimulationContextFixture {
+    Field_Utils should "support mergeHood - merge including" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Map[Int, ID] = includingSelf.mergeHood(nbr(Map(1 -> mid())))((_, y) => y)
       }, ntimes = someRounds)(net)
@@ -214,7 +214,7 @@ class TestFieldUtils extends AnyFlatSpec {
       })
     }
 
-    Field_Utils should "support minHoodLoc" in new SimulationContextFixture {
+    Field_Utils should "support minHoodLoc" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): (Int, Int) = (
           excludingSelf.minHoodLoc(Int.MaxValue)(nbr(mid())),

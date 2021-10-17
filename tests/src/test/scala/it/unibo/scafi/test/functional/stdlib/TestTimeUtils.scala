@@ -19,8 +19,8 @@ class TestTimeUtils extends AnyFlatSpec{
 
   val Time_Utils = new ItWord
 
-  private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
+  private[this] class SimulationContextFixture(seeds: Seeds) {
+    val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds)
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
@@ -35,7 +35,7 @@ class TestTimeUtils extends AnyFlatSpec{
   }
 
   def behaviours(seeds: Seeds): Unit = {
-    Time_Utils should "support timerLocalTime" in new SimulationContextFixture {
+    Time_Utils should "support timerLocalTime" in new SimulationContextFixture(seeds) {
       val testProgram: TestProgram = new TestProgram {
         override def main(): Long = timerLocalTime(1.second)
       }
@@ -52,7 +52,7 @@ class TestTimeUtils extends AnyFlatSpec{
       ScafiAssertions.assertNetworkValuesWithPredicate[Long]((id,v) => v == 0.0, "Check timer hit zero")()(net)
     }
 
-    Time_Utils should "support impulsesEvery" in new SimulationContextFixture {
+    Time_Utils should "support impulsesEvery" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Any = rep(0)(_ + (if (impulsesEvery(1.nanosecond)) 1 else 0) )
       }, ntimes = manyManyRounds)(net)
@@ -60,7 +60,7 @@ class TestTimeUtils extends AnyFlatSpec{
       assert(net.valueMap[Int]().forall(e => e._2 > 0))
     }
 
-    Time_Utils should "support sharedTimer" in new SimulationContextFixture {
+    Time_Utils should "support sharedTimer" in new SimulationContextFixture(seeds) {
       val maxStdDev: Int = 10
 
       val testProgram: TestProgram = new TestProgram {
@@ -74,7 +74,7 @@ class TestTimeUtils extends AnyFlatSpec{
       assert(stdDev(net.valueMap[FiniteDuration]().filterKeys(_ != 8).values.map(_.toMillis)) < maxStdDev)
     }
 
-    Time_Utils should "support recentlyTrue" in new SimulationContextFixture {
+    Time_Utils should "support recentlyTrue" in new SimulationContextFixture(seeds) {
       val deltaTimeSensor = new StandardTemporalSensorNames {}.LSNS_DELTA_TIME
       net.addSensor[Boolean]("rtSense", false)
       net.addSensor[FiniteDuration](deltaTimeSensor, 1.second)
@@ -116,7 +116,7 @@ class TestTimeUtils extends AnyFlatSpec{
       )).toMap, None, "Assert back to false in ID=0 (and in the rest of the network)")(net)
     }
 
-    Time_Utils should("support evaporation") in new SimulationContextFixture {
+    Time_Utils should("support evaporation") in new SimulationContextFixture(seeds) {
       val ceiling: Int = someRounds
 
       val testProgram: TestProgram = new TestProgram {
@@ -137,7 +137,7 @@ class TestTimeUtils extends AnyFlatSpec{
       )).toMap)(net)
     }
 
-    Time_Utils should("support evaporation - with custom decay") in new SimulationContextFixture {
+    Time_Utils should("support evaporation - with custom decay") in new SimulationContextFixture(seeds) {
       val ceiling: Int = 1000000
 
       val testProgram: TestProgram = new TestProgram {

@@ -18,8 +18,8 @@ class TestBlockT extends AnyFlatSpec {
 
   val Block_T = new ItWord
 
-  private[this] trait SimulationContextFixture {
-    val net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)))
+  private[this] class SimulationContextFixture(seeds: Seeds) {
+    val net: Network with SimulatorOps = ScafiTestUtils.manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds)
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with BuildingBlocks
@@ -34,7 +34,7 @@ class TestBlockT extends AnyFlatSpec {
   }
 
   def behaviours(seeds: Seeds): Unit = {
-    Block_T should "support T with unitary decay and 0 floor value" in new SimulationContextFixture {
+    Block_T should "support T with unitary decay and 0 floor value" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Int = T(10, 0, unitaryDecay)
       }, ntimes = someRounds)(net)
@@ -46,7 +46,7 @@ class TestBlockT extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Block_T should "initialize as specified" in new SimulationContextFixture {
+    Block_T should "initialize as specified" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Int = T(10, 0, identity[Int])
       }, ntimes = fewRounds)(net)
@@ -58,7 +58,7 @@ class TestBlockT extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Block_T should "be consistent in intermediate tests" in new SimulationContextFixture {
+    Block_T should "be consistent in intermediate tests" in new SimulationContextFixture(seeds) {
       val ceiling: Int = someRounds
       val testProgram: TestProgram = new TestProgram {
         override def main(): (Int, Int) = (
@@ -80,7 +80,7 @@ class TestBlockT extends AnyFlatSpec {
       assert(net.valueMap[(Int, Int)]().forall { case (_, (decayTimer: Int, roundsPerformed: Int)) => decayTimer == 0})
     }
 
-    Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture {
+    Block_T should "support T with unitary decay and custom floor value" in new SimulationContextFixture(seeds) {
       val floorValue = 1
       exec(new TestProgram {
         override def main(): Int = T(10, floorValue, unitaryDecay)
@@ -93,7 +93,7 @@ class TestBlockT extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Block_T should "support T with unitary decay and negative floor value" in new SimulationContextFixture {
+    Block_T should "support T with unitary decay and negative floor value" in new SimulationContextFixture(seeds) {
       val floorValue: Int = -10
       exec(new TestProgram {
         override def main(): Int = T(10, floorValue, unitaryDecay)
@@ -106,7 +106,7 @@ class TestBlockT extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Block_T should("support timer operation") in new SimulationContextFixture {
+    Block_T should("support timer operation") in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Int = timer(10)
       }, ntimes = someRounds)(net)
@@ -118,7 +118,7 @@ class TestBlockT extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Block_T should "support limitedMemory" in new SimulationContextFixture {
+    Block_T should "support limitedMemory" in new SimulationContextFixture(seeds) {
       val value: Int = 10
       val expValue: Int = -1
       exec(new TestProgram {
@@ -132,7 +132,7 @@ class TestBlockT extends AnyFlatSpec {
       )).toMap)(net)
     }
 
-    Block_T should "support sharedTimerWithDecay" in new SimulationContextFixture {
+    Block_T should "support sharedTimerWithDecay" in new SimulationContextFixture(seeds) {
       val maxStdDev: Int = 10
       exec(new TestProgram {
         override def main(): Int = sharedTimerWithDecay(1, 1)
@@ -142,7 +142,7 @@ class TestBlockT extends AnyFlatSpec {
       assert(stdDev(net.valueMap[Int]().filterKeys(_ != 8).values) < maxStdDev)
     }
 
-    Block_T should "T should restart after branch switch" in new SimulationContextFixture {
+    Block_T should "T should restart after branch switch" in new SimulationContextFixture(seeds) {
       net.addSensor[Boolean]("snsT", false)
       val timeToEstinguish = 10
 
