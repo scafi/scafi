@@ -189,12 +189,11 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       new SpaceAwareSimulator(space, devs, SpaceAwareSimulator.gridRepr(gsettings.nrows), seeds.simulationSeed, seeds.randomSensorSeed)
     }
 
-    // TODO: basicSimulator shouldn't use randomness!!! fix it!!!
     override def basicSimulator(idArray: MArray[ID] = MArray(),
                                 nbrMap: MMap[ID, Set[ID]] = MMap(),
                                 lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap(),
                                 nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK = {
-      val positions = SpaceHelper.randomLocations(SimpleRandomSettings(), idArray.length)
+      val positions = SpaceHelper.randomLocations(SimpleRandomSettings(), idArray.length, CONFIG_SEED)
 
       var lsnsById = Map[ID, Map[CNAME,Any]]()
       var nsnsById = Map[ID, Map[CNAME,Any]]()
