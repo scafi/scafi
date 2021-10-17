@@ -11,7 +11,7 @@ class TestBlockG extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiTestUtils._
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
-    implicit var net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)))
+    implicit var net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds)
     net.addSensor(name = "source", value = false)
     net.addSensor(name = "destination", value = false)
   }
