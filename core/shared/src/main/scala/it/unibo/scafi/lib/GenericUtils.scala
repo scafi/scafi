@@ -5,6 +5,8 @@
 
 package it.unibo.scafi.lib
 
+import java.util.concurrent.TimeUnit
+
 trait StdLib_GenericUtils {
   self: StandardLibrary.Subcomponent =>
 
@@ -13,7 +15,7 @@ trait StdLib_GenericUtils {
 
     def meanCounter(value: Double, frequency: Long): Double = {
       val time = timestamp()
-      val dt = deltaTime().toMillis
+      val dt = deltaTime().toUnit(TimeUnit.MILLISECONDS)
       val count = rep ((0.0,0.0)) { case x => { // (accumulated value, last time)
         // Splits into windows of multiples of 'frequency'
         // and restarts at the beginning of each new window.

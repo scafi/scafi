@@ -50,14 +50,3 @@ jobs:
     steps:
       - shell: bash
         run: touch ok
-
-  CI-Complete:
-    needs: Build-Success
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: success
-      - shell: bash
-        run: '[ -f ok ]'

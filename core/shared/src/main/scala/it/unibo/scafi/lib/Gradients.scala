@@ -9,6 +9,8 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.math.Numeric.DoubleIsFractional
 import it.unibo.utils.Filters.expFilter
 
+import java.util.concurrent.TimeUnit
+
 trait StdLib_Gradients {
   self: StandardLibrary.Subcomponent =>
 
@@ -63,9 +65,8 @@ trait StdLib_Gradients {
                    (source: Boolean,
                     metric: Metric = nbrRange
                    ): Double = {
-      val avgFireInterval = meanCounter(deltaTime().toMillis, 1.second.toMicros)
+      val avgFireInterval = meanCounter(deltaTime().toUnit(TimeUnit.MILLISECONDS), 1.second.toMicros)
       val speed = 1.0 / avgFireInterval
-
       rep((Double.PositiveInfinity, Double.PositiveInfinity)) { case (spatialDist: Double, tempDist: Double) =>
         mux(source) {
           (0.0, 0.0)
