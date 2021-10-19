@@ -42,7 +42,7 @@ jobs:
         uses: olafurpg/setup-scala@v11
       - name: Sbt run tests
         shell: bash # for windows
-        run: sbt test
+        run: sbt +test
 
   Build-Success:
     runs-on: ubuntu-latest
