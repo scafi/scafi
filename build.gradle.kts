@@ -143,6 +143,10 @@ allprojects {
         classpath(sourceSets["test"].runtimeClasspath)
     }
 
+    tasks.withType<Jar> {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+
     tasks {
         "test" { dependsOn("scalaTest") }
     }
@@ -155,7 +159,6 @@ nexusStaging {
     password = System.getenv("SONATYPE_PASSWORD")
 }
 */
-
 subprojects {
     apply(plugin = "de.marcphilipp.nexus-publish")
     apply(plugin = "signing")

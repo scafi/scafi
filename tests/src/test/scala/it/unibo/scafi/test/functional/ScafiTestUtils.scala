@@ -18,7 +18,7 @@ case class TestingSeed(seed: Long)
 
 object ScafiTestUtils {
 
-  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
+  val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 5000)
 
   val seeds = List(187372311) //, 204110176, 129995678, 6155814, 22612812, 61168821, 21228945, 146764631, 94412880, 117623077)
 

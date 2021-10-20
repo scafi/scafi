@@ -35,13 +35,13 @@ trait StdLib_Gradients {
     val ClassicGradient: Gradient = Gradient(classicGradient, source = false, nbrRange)
     val ClassicHopGradient: Gradient = Gradient((src, _) => hopGradient(src), source = false, () => 1)
     def BisGradient(commRadius: Double = 0.2,
-                    lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(bisGradient(commRadius, lagMetric), source = false, nbrRange)
+                    lagMetric: => Double = nbrLag().toUnit(TimeUnit.MILLISECONDS)): Gradient = Gradient(bisGradient(commRadius, lagMetric), source = false, nbrRange)
     def CrfGradient(raisingSpeed: Double = 5,
-                    lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(crfGradient(raisingSpeed, lagMetric), source = false, nbrRange)
+                    lagMetric: => Double = nbrLag().toUnit(TimeUnit.MILLISECONDS)): Gradient = Gradient(crfGradient(raisingSpeed, lagMetric), source = false, nbrRange)
     def FlexGradient(epsilon: Double = 0.5,
                      delta: Double = 1.0,
                      communicationRadius: Double = 1.0): Gradient = Gradient(flexGradient(epsilon, delta, communicationRadius), source = false, nbrRange)
-    def SvdGradient(lagMetric: => Double = nbrLag().toMillis): Gradient = Gradient(svdGradient(lagMetric), source = false, nbrRange)
+    def SvdGradient(lagMetric: => Double = nbrLag().toUnit(TimeUnit.MILLISECONDS)): Gradient = Gradient(svdGradient(lagMetric), source = false, nbrRange)
     def UltGradient(radius: Double = 0.2,
                     factor: Double = 0.1): Gradient = Gradient(ultGradient(radius, factor), source = false, nbrRange)
 
