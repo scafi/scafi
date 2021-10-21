@@ -22,7 +22,7 @@ import scalafx.scene.image.Image
 import scalafx.scene.layout.Pane
 import scalafx.scene.paint.{Color, Paint}
 
-private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
+private[scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
   extends AbstractFXSimulationPane with FXSelectionArea with KeyboardManager {
   //layer used to put background
   private val zeroLayer = 0
@@ -40,7 +40,7 @@ private [scalaFX] class FXSimulationPane (override val drawer : FXOutputPolicy)
   private val network = new Pane
   this.children.add(network)
 
-  private var neighbourToRemove : mutable.ListBuffer[NodeLine] = ListBuffer()
+  private val neighbourToRemove : mutable.ListBuffer[NodeLine] = ListBuffer()
   def nodes : Map[ID,drawer.OUTPUT_NODE] =_nodes.toMap
 
   override def outNode(node: NODE): Unit = {

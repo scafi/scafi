@@ -17,9 +17,9 @@ object SenseImageFXOutput extends FXOutputPolicy {
   private val standardFill : Paint = Color.Black
   initializeScalaFXPlatform()
   def addRepresentation(sens : Any, file : String) = senseToImage += sens -> new ImagePattern(new Image(file))
-  //load drone image
+
   private lazy val image = new Image(ViewSetting.nodeImagePath)
-  private lazy val pattern = new ImagePattern(image)
+
   override type OUTPUT_NODE = StandardFXOutput.OUTPUT_NODE
 
   override def nodeGraphicsNode(node: World#Node): OUTPUT_NODE = StandardFXOutput.nodeGraphicsNode(node)

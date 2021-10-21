@@ -31,7 +31,6 @@ object ScafiSimulationInitializer {
   case class RadiusSimulation(radius : Double = 0.0) extends ScafiSimulationInitializer {
 
     override def create(scafiSimulationSeed : SimulationInfo): ScafiBridge = {
-      val rand : Random = new Random()
       val bridge = scafiSimulationExecutor
       val proto = () => {
         val w = bridge.world

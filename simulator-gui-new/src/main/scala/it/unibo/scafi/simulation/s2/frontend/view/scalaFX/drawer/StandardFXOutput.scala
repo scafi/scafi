@@ -2,12 +2,11 @@ package it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer
 
 import javafx.scene.control.Label
 import javafx.scene.text.Font
-
 import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.s2.frontend.model.sensor.SensorConcept.SensorDevice
 import it.unibo.scafi.simulation.s2.frontend.view.ViewSetting._
 import it.unibo.scafi.simulation.s2.frontend.view.scalaFX._
-
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.StandardFXOutput.graphics
 import scalafx.geometry.{Point2D => FXPoint}
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
@@ -27,29 +26,25 @@ case object StandardFXOutput extends FXOutputPolicy {
   private val radius = 2
   //allow to show multiple label
   private var labelOut = Map.empty[OUTPUT_NODE, List[OUTPUT_NODE]]
-  //label offset between two label
-  private val labelOffset = 15
   //used standard conversion of model shape to scalafx shape
   override def nodeGraphicsNode(node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
   //used to draw device
   override def deviceToGraphicsNode (node: OUTPUT_NODE, dev: DEVICE): Option[OUTPUT_NODE] = drawNode(dev,node)
 
-  override def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = {
-    //if there isn't no device out before i can't change the state of device
-    if(graphicsDevice.isEmpty) return
-    val graphics = graphicsDevice.get
-    dev match {
+  override def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = graphicsDevice match {
+    case Some(graphics) => dev match {
       case SensorDevice(sens) => sens.value[Any] match {
-          //if device was a led sensor i can the state of visibility (true is visible false is hide)
-        case led : Boolean => graphics.setVisible(led)
-          //if it is numeric this strategy update the label text value
-        case numeric : Double => graphics.asInstanceOf[Label].setText(numeric.toInt.toString)
-          //in other case this strategy update the label text value
+        //if device was a led sensor i can the state of visibility (true is visible false is hide)
+        case led: Boolean => graphics.setVisible(led)
+        //if it is numeric this strategy update the label text value
+        case numeric: Double => graphics.asInstanceOf[Label].setText(numeric.toInt.toString)
+        //in other case this strategy update the label text value
         case v => graphics.asInstanceOf[Label].setText(v.toString)
       }
-        //if the device isn't a sensor, this strategy do nothing
+      //if the device isn't a sensor, this strategy do nothing
       case _ =>
     }
+    case None => //if there isn't no device out before I can't change the state of device
   }
 
   private def drawNode (dev: DEVICE, node: OUTPUT_NODE): Option[OUTPUT_NODE] = {
