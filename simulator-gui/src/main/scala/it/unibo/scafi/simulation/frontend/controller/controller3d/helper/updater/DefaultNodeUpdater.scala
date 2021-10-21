@@ -75,7 +75,7 @@ private[controller3d] class DefaultNodeUpdater(controller: Controller3D, gui3d: 
       setSimulationNodePosition(node, newPosition, simulation))
 
   private def updateUI(newPosition: Option[Product3[Double, Double, Double]], updateLedStatus: Boolean, node: Node,
-                       options: UpdateOptions) { //if updateLedStatus == false it forces the led status to false
+                       options: UpdateOptions): Unit = { //if updateLedStatus == false it forces the led status to false
     val nodeId = node.id
     onFX { //IMPORTANT: without it each node update would cause many requests to the javaFx thread
       createOrMoveNode(newPosition, node, options, gui3d)

@@ -31,7 +31,7 @@ trait ConnectedWorld {
       * @param node the node in thw world
       * @param neighbour the neighbour
       */
-    def setNeighbours(node :ID,neighbour :Set[ID])
+    def setNeighbours(node :ID,neighbour :Set[ID]): Unit
   }
   /**
     return the current representation of the network

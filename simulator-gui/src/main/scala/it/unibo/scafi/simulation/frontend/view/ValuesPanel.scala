@@ -27,7 +27,7 @@ class ValuesPanel private[view]() extends JPanel {
   this.setVisible(true)
   private[view] val controller: Controller = Controller.getInstance
 
-  override protected def paintComponent(g: Graphics) {
+  override protected def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
     this.removeAll()
     //g.setColor(Settings.Color_device)
@@ -106,12 +106,12 @@ class ValuesPanel private[view]() extends JPanel {
     g.fillPolygon(xx, yy, 4)
   }
 
-  def increaseFontSize() {
+  def increaseFontSize(): Unit = {
     this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D+1)
     updateFont(this.nodeLabelFont)
   }
 
-  def decreaseFontSize() {
+  def decreaseFontSize(): Unit = {
     this.nodeLabelFont = nodeLabelFont.deriveFont(nodeLabelFont.getSize2D-1)
     updateFont(this.nodeLabelFont)
   }

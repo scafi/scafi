@@ -11,6 +11,6 @@ import scala.language.implicitConversions
 
 package object view {
   implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
-    def actionPerformed(e: ActionEvent) { f(e) }
+    def actionPerformed(e: ActionEvent): Unit = { f(e) }
   }
 }

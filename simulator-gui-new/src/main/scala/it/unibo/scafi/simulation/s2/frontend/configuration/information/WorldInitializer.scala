@@ -13,5 +13,5 @@ trait WorldInitializer[I <: WorldInformation[_,_]] {
     * initialize the world with the seed passed
     * @param worldInfo the world seed
     */
-  def init(worldInfo : I)
+  def init(worldInfo : I): Unit
 }

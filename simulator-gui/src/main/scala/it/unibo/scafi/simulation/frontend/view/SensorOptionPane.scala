@@ -76,11 +76,11 @@ class SensorOptionPane(title: String, controller: GeneralController) extends JDi
   setContentPane(panel)
   setVisible(true)
 
-  def addSensor(sensorName: String) {
+  def addSensor(sensorName: String): Unit = {
     sensorsChoice.addItem(sensorName)
   }
 
-  def addOperator(operator: String) {
+  def addOperator(operator: String): Unit = {
     operators.addItem(operator)
   }
 }

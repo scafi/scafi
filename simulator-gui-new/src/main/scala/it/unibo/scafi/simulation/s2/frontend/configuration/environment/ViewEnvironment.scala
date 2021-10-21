@@ -36,5 +36,5 @@ trait ViewEnvironment[V <: View] {
   /**
     * init the view environment
     */
-  def init()
+  def init(): Unit
 }

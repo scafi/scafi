@@ -18,17 +18,17 @@ class SimulationManagerImpl() extends SimulationManager { self =>
   private var pauseFire: Double = 100.0
   private var simulationThread: Thread = null
 
-  def setPauseFire(pauseFire: Double) {
+  def setPauseFire(pauseFire: Double): Unit = {
     this.pauseFire = pauseFire
   }
 
-  def start() {
+  def start(): Unit = {
     simulationThread = getMyThread
     isStopped = false
     this.simulationThread.start()
   }
 
-  def resume() {
+  def resume(): Unit = {
     i = 0
     this.step_num = Integer.MAX_VALUE
     simulationThread = getMyThread
@@ -39,11 +39,11 @@ class SimulationManagerImpl() extends SimulationManager { self =>
     this.isStopped = true
   }
 
-  def pause() {
+  def pause(): Unit = {
     this.step_num = 0
   }
 
-  def step(num_step: Int) {
+  def step(num_step: Int): Unit = {
     i = 0
     this.step_num = num_step
     simulationThread = getMyThread
@@ -55,7 +55,7 @@ class SimulationManagerImpl() extends SimulationManager { self =>
   private def getMyThread: Thread = {
     new Thread() {
       // Each iteration runs the round for a single node
-      override def run() {
+      override def run(): Unit = {
         while (i < step_num && !self.isStopped) {{
             // Core logic
             runSingleSimulationStep()
@@ -75,7 +75,7 @@ class SimulationManagerImpl() extends SimulationManager { self =>
     }
   }
 
-  private def runSingleSimulationStep() {
+  private def runSingleSimulationStep(): Unit = {
     val exp = simulation.getRunProgram()
     simulation.network.nodes(exp._1).export = exp._2.root()
     updateNodeValue(exp._1)

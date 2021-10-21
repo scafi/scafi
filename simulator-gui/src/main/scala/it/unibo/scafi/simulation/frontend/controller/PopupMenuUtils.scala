@@ -37,7 +37,7 @@ object PopupMenuUtils {
    * @param popupMenu        the popup menu that will fire the events
    * @param toggleNeighbours the function to call whenever the event "Toggle Neighbours" occurs
    * @param controller       an instance of [[GeneralController]] that will receive and handle most of the events */
-  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: GeneralController) {
+  def addPopupObservations(popupMenu: MyPopupMenu, toggleNeighbours: () => Unit, controller: GeneralController): Unit = {
     popupMenu.addObservation("Toggle Neighbours", toListener(_ => toggleNeighbours()))
     popupMenu.addObservation("Id", toListener(_ => controller.setShowValue(NodeValue.ID)))
     popupMenu.addObservation("Export", toListener(_ => controller.setShowValue(NodeValue.EXPORT)))
@@ -99,7 +99,7 @@ object PopupMenuUtils {
   /**Adds the actions to execute whenever a popup "Action" menu is pressed.
    * @param controller an instance of [[GeneralController]] that will receive and handle most of the events
    * @param popupMenu  the popup menu that will fire the events */
-  def addPopupActions(controller: GeneralController, popupMenu: MyPopupMenu) {
+  def addPopupActions(controller: GeneralController, popupMenu: MyPopupMenu): Unit = {
     /* for(Action a :ActionEnum.values()){
                gui.getSimulationPanel().getPopUpMenu().addAction(a.getName(), e->{});
            }*/

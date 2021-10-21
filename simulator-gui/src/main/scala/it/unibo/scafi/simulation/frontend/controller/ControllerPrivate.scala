@@ -20,10 +20,10 @@ class ControllerPrivate (val gui: SimulatorUI) {
   final private val controller: Controller = Controller.getInstance
 
   implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
-    def actionPerformed(e: ActionEvent) { f(e) }
+    def actionPerformed(e: ActionEvent): Unit = { f(e) }
   }
 
-  def setSensor(sensorName: String, value: Any) {
+  def setSensor(sensorName: String, value: Any): Unit = {
     
     val ss: Set[(Node,GuiNode)] = selectedNodes
     ss.foreach(ng => {
@@ -54,7 +54,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     ss.headOption.map(_._1.getSensorValue(s))
   }
 
-  def checkSensor(sensor: String, operator: String, value: String) {
+  def checkSensor(sensor: String, operator: String, value: String): Unit = {
     controller.nodes.values.foreach(kv => {
       val (n,g) = kv
       operator match {
@@ -98,7 +98,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     })
   }
 
-  def calculatedInfo(infoPanel: NodeInfoPanel) {
+  def calculatedInfo(infoPanel: NodeInfoPanel): Unit = {
     controller.nodes.values.foreach(kv => {
       val (n, g) = kv
       if (n.id == infoPanel.getId) {
@@ -115,12 +115,12 @@ class ControllerPrivate (val gui: SimulatorUI) {
     })
   }
 
-  def revalidateSimulationPanel() {
+  def revalidateSimulationPanel(): Unit = {
     gui.getSimulationPanel.revalidate()
     gui.getSimulationPanel.repaint()
   }
 
-  def setImage(sensorName: String, value: Any, g: GuiNode) {
+  def setImage(sensorName: String, value: Any, g: GuiNode): Unit = {
     if (sensorName == SensorEnum.OBSTACLE.name && value.toString == "true") {
       g.setImageButton("sensorOkSelect.png")
     }

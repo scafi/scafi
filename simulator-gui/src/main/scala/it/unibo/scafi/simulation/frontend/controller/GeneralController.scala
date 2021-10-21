@@ -63,7 +63,7 @@ trait GeneralController {
    * @param img the image to be shown
    * @param showed whether the image should be showed or not
    * */
-  def showImage(img: Image, showed: Boolean)
+  def showImage(img: Image, showed: Boolean): Unit
 
   /**
    * @return whether the user is currently trying to select nodes or not

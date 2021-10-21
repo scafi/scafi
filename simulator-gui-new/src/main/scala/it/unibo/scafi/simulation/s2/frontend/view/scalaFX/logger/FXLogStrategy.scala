@@ -19,12 +19,12 @@ trait FXLogStrategy {
     * init the log strategy
     * @param channel the log channel
     */
-  def init(channel : String)
+  def init(channel : String): Unit
 
   /**
     * @param log out the log passed
     */
-  def out(log : Log[_])
+  def out(log : Log[_]): Unit
 }
 
 /**

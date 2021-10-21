@@ -49,7 +49,7 @@ object LogManager extends SimpleSource {
       * @param log the log received
       */
     //TEMPLATE-METHOD
-    protected def processLog(log : Log[_])
+    protected def processLog(log : Log[_]): Unit
   }
 
   /**

@@ -14,19 +14,19 @@ trait Simulation {
 
   def getRunProgram: ()=>(Int,BasicAbstractIncarnation#Export)
 
-  def setRunProgram(program: Any)
+  def setRunProgram(program: Any): Unit
 
-  def setDeltaRound(deltaRound: Double)
+  def setDeltaRound(deltaRound: Double): Unit
 
   def getDeltaRound(): Double
 
-  def setStrategy(strategy: Any)
+  def setStrategy(strategy: Any): Unit
 
   def setSensor(sensor: String, value: Any, nodes: Set[Node] = Set()): Unit
 
   def getSensorValue(s: String): Option[Any]
 
-  def setPosition(n: Node)
+  def setPosition(n: Node): Unit
 
   def setController(controller: GeneralController): Unit
 }

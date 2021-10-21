@@ -224,7 +224,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // ABSTRACT MEMBERS
 
-    def propagateMsgToNeighbors(msg: Any)
+    def propagateMsgToNeighbors(msg: Any): Unit
     var aggregateExecutor: Option[ProgramContract]
 
     // CONCRETE FIELDS

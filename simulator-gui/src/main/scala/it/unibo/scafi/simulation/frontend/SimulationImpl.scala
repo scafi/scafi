@@ -52,14 +52,14 @@ class SimulationImpl(val configurationSeed: Long = System.nanoTime(),
     this.runProgram = () => net.exec(ap)
   }
 
-  def setDeltaRound(deltaRound: Double) {
+  def setDeltaRound(deltaRound: Double): Unit = {
     this.deltaRound = deltaRound
     simulatorManager.setPauseFire(deltaRound)
   }
 
   def getDeltaRound(): Double = this.deltaRound
 
-  def setStrategy(strategy: Any) {
+  def setStrategy(strategy: Any): Unit = {
     this.strategy = strategy
   }
 

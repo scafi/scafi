@@ -17,14 +17,14 @@ class GuiNodeListeners private[view](val node: GuiNode) extends MouseAdapter {
   final private val controller: Controller = Controller.getInstance
   final private val p: Point = new Point
 
-  override def mouseClicked(e: MouseEvent) {
+  override def mouseClicked(e: MouseEvent): Unit = {
     super.mouseClicked(e)
     if (e.getButton == MouseEvent.BUTTON3) {
       repositionsInfoPanel()
     }
   }
 
-  override def mousePressed(e: MouseEvent) {
+  override def mousePressed(e: MouseEvent): Unit = {
     super.mousePressed(e)
     if (!e.isMetaDown) {
       p.x = e.getX
@@ -32,7 +32,7 @@ class GuiNodeListeners private[view](val node: GuiNode) extends MouseAdapter {
     }
   }
 
-  override def mouseDragged(e: MouseEvent) {
+  override def mouseDragged(e: MouseEvent): Unit = {
     super.mouseDragged(e)
     if (!e.isMetaDown) {
       val pos: Point = node.getLocation
@@ -44,7 +44,7 @@ class GuiNodeListeners private[view](val node: GuiNode) extends MouseAdapter {
     }
   }
 
-  private def repositionsInfoPanel() {
+  private def repositionsInfoPanel(): Unit = {
     controller.showInfoPanel(node, true)
     val infoP: NodeInfoPanel = node.getInfoPanel
     val screen: Dimension = Toolkit.getDefaultToolkit.getScreenSize

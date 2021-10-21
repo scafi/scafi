@@ -213,7 +213,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def getSensor(name: CNAME): Option[Any] = sensors.get(name)
 
-    def addSensor[A](name: CNAME, value: A) {
+    def addSensor[A](name: CNAME, value: A): Unit = {
       this.sensors += name -> value
       lsnsMap += (name -> MMap(idArray.map((_: ID) -> value).toSeq: _*))
     }

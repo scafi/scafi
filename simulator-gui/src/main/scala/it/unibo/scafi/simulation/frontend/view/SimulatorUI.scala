@@ -67,7 +67,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
   amap.put("Quit", createAction(e=>System.exit(0)))
 
   this.addComponentListener(new ComponentAdapter() {
-    override def componentResized(e: ComponentEvent) {
+    override def componentResized(e: ComponentEvent): Unit = {
       super.componentResized(e)
       Utils.setDimensionFrame(getSize)
       Controller.getInstance.updateNodePositions()
@@ -88,7 +88,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     return center
   }
 
-  def setSimulationPanel(simPanel: SimulationPanel) {
+  def setSimulationPanel(simPanel: SimulationPanel): Unit = {
     this.remove(center)
     this.add(simPanel, BorderLayout.CENTER)
     center = simPanel

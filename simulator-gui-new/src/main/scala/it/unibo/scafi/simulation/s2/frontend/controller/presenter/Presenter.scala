@@ -13,6 +13,6 @@ trait Presenter[W <: AggregateWorld, OUTPUT <: View] extends Controller[W] {
     * add output to current presenter
     * @param view the output where presenter put changes
     */
-  def output(view : OUTPUT)
+  def output(view : OUTPUT): Unit
 }
 

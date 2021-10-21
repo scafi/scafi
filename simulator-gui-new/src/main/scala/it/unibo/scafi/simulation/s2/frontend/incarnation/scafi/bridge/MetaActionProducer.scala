@@ -20,7 +20,7 @@ trait MetaActionProducer[O] {
     * put the action used to parse any val
     * @param function the function used to parse any vale
     */
-  def valueParser_= (function : (Any) => (Option[O]))
+  def valueParser_= (function : (Any) => (Option[O])): Unit
 
   def apply(id : ID, export : EXPORT) : MetaAction = if(valueParser(export.root()).isDefined) {
     this.apply(id,valueParser(export.root()).get)

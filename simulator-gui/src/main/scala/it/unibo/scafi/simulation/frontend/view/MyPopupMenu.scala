@@ -30,16 +30,16 @@ class MyPopupMenu(controller: GeneralController) extends JPopupMenu {
   observations.setEnabled(false)
   actions.setEnabled(false)
 
-  def addAction(nameAction: String, actlist: ActionListener) {
+  def addAction(nameAction: String, actlist: ActionListener): Unit = {
     val action: JMenuItem = new JMenuItem(nameAction)
     action.addActionListener(actlist)
     actions.add(action)
   }
 
-  def addObservation(nameObservation: String, actlist: ActionListener) {
+  def addObservation(nameObservation: String, actlist: ActionListener): Unit = {
     val observation: JMenuItem = new JMenuItem(nameObservation)
     val actList1: ActionListener = new ActionListener() {
-      def actionPerformed(e: ActionEvent) {
+      def actionPerformed(e: ActionEvent): Unit = {
         actlist.actionPerformed(e)
         var i: Int = 0
         while (i < observations.getItemCount) {

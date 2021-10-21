@@ -39,7 +39,7 @@ trait OutputPolicy {
     * @param dev the device
     * @param graphicsDevice graphics device representation
     */
-  def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice : Option[OUTPUT_NODE])
+  def updateDevice(node : OUTPUT_NODE, dev: DEVICE, graphicsDevice : Option[OUTPUT_NODE]): Unit
 
   /**
     * get the view environment (if present) associated to this output policy and attach it to the view environment

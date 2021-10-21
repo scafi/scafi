@@ -28,7 +28,7 @@ trait ObservableWorld extends World with CommonConcept {
   /**
     * remove all node in the world
     */
-  def clear()
+  def clear(): Unit
 
   //simple factory
   def createObserver(listenEvent : Set[EventType]) : O

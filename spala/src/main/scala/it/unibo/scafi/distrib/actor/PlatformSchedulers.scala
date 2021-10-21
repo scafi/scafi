@@ -24,7 +24,7 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
   trait GenericScheduler { self: Actor =>
     var nextToRun: () => Option[UID]
     def recipientForExecution(id: UID): ActorRef
-    def onDone() {}
+    def onDone(): Unit = {}
 
     val logger = akka.event.Logging(context.system, this)
 

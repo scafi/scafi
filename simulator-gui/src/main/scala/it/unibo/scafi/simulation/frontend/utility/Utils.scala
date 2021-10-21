@@ -149,7 +149,7 @@ object Utils {
     *
     * @param d
     */
-  def setDimensionFrame(d: Dimension) {
+  def setDimensionFrame(d: Dimension): Unit = {
     frameDimension = d
   }
 

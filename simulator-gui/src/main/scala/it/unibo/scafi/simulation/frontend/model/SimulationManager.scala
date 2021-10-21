@@ -5,17 +5,17 @@ import it.unibo.scafi.simulation.frontend.Simulation
 trait SimulationManager {
   var simulation: Simulation
 
-  def setPauseFire(pauseFire: Double)
+  def setPauseFire(pauseFire: Double): Unit
 
   def setUpdateNodeFunction(updateNodeValue: Int => Unit): Unit
 
-  def start()
+  def start(): Unit
 
-  def resume()
+  def resume(): Unit
 
-  def stop()
+  def stop(): Unit
 
-  def pause()
+  def pause(): Unit
 
-  def step(num_step: Int)
+  def step(num_step: Int): Unit
 }

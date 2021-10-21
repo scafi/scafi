@@ -86,7 +86,7 @@ abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicNa
       * @throws IllegalStateException if the simulation is already initialized
       * @param prototype the prototype used to create simulation
       */
-    def initialize(prototype: SIMULATION_PROTOTYPE)
+    def initialize(prototype: SIMULATION_PROTOTYPE): Unit
 
     /**
     * restart the external simulation
@@ -94,6 +94,6 @@ abstract class ExternalSimulation[W <: AggregateWorld](override val asyncLogicNa
     * @throws IllegalStateException if the simulation is never initialize
       * @param prototype the prototype used to restart simulation
     */
-    def restart(prototype: SIMULATION_PROTOTYPE)
+    def restart(prototype: SIMULATION_PROTOTYPE): Unit
   }
 }

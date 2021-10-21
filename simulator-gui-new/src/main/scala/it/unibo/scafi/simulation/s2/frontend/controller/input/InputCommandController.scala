@@ -38,7 +38,7 @@ object InputCommandController extends InputController {
     commands = List.empty
   }
 
-  private def addToUndoAndExec(c : Command ) {
+  private def addToUndoAndExec(c : Command ): Unit = {
     import LogManager._
     //exec the command
     c.make() match {

@@ -22,7 +22,7 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
 
   captureRect = panel.getCaptureRect
 
-  override def mouseClicked(e: MouseEvent) {
+  override def mouseClicked(e: MouseEvent): Unit = {
     super.mouseClicked(e)
     val a: Double = captureRect.x + captureRect.getWidth
     val b: Double = captureRect.y + captureRect.getHeight
@@ -41,7 +41,7 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
     }
   }
 
-  override def mousePressed(e: MouseEvent) {
+  override def mousePressed(e: MouseEvent): Unit = {
     val a: Double = captureRect.x + captureRect.getWidth
     val b: Double = captureRect.y + captureRect.getHeight
     if (!e.isMetaDown) {
@@ -57,11 +57,11 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
     panel.maybeShowPopup(e)
   }
 
-  override def mouseReleased(e: MouseEvent) {
+  override def mouseReleased(e: MouseEvent): Unit = {
     panel.maybeShowPopup(e)
   }
 
-  override def mouseDragged(me: MouseEvent) {
+  override def mouseDragged(me: MouseEvent): Unit = {
     if (flag) {
       // Dragging a selected area
       moveRectangle(me)
@@ -89,7 +89,7 @@ class SimulationPanelMouseListener private[view](val panel: SimulationPanel) ext
     }
   }
 
-  def moveRectangle(e: MouseEvent) {
+  def moveRectangle(e: MouseEvent): Unit = {
     if (!e.isMetaDown) {
       captureRect.setLocation(captureRect.getLocation.x + e.getX - start.x, captureRect.getLocation.y + e.getY - start.y)
       panel.setRectSelection(captureRect)

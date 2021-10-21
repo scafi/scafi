@@ -32,49 +32,49 @@ trait SimulationView extends View {
     * out a set of node that are added or moved
     * @param node the nodes
     */
-  def outNode(node : NODE)
+  def outNode(node : NODE): Unit
 
   /**
     * remove a node into the output
     * @param node the node
     */
-  def removeNode(node : ID)
+  def removeNode(node : ID): Unit
 
   /**
     * out a neighbour of a node
     */
-  def outNeighbour(nodes : (ID,Set[_ <: ID]))
+  def outNeighbour(nodes : (ID,Set[_ <: ID])): Unit
 
   /**
     * remove a set of neighbour of a node
     */
-  def removeNeighbour(nodes : (ID,Set[_ <: ID]))
+  def removeNeighbour(nodes : (ID,Set[_ <: ID])): Unit
 
   /**
     * output the device associated to the node
     * @param node the node
     */
-  def outDevice(node : ID, device : DEVICE)
+  def outDevice(node : ID, device : DEVICE): Unit
 
   /**
     * remove device associated to a node
     * @param node the node
     */
-  def clearDevice(node : ID, name : NAME)
+  def clearDevice(node : ID, name : NAME): Unit
 
   /**
     * set the boundary in the simulation view
     * @param boundary world boundary
     */
-  def boundary_=(boundary : Shape)
+  def boundary_=(boundary : Shape): Unit
 
   /**
     * set wall inside map
     * @param walls the world walls
     */
-  def walls_=(walls : Seq[(Shape, Point3D)])
+  def walls_=(walls : Seq[(Shape, Point3D)]): Unit
   /**
     * apply the changes declared
     */
-  def flush()
+  def flush(): Unit
 }

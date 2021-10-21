@@ -8,7 +8,7 @@ import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.logger.FXLogger
   * allow to configure log system
   */
 trait LogConfiguration {
-  def apply()
+  def apply(): Unit
 }
 
 object LogConfiguration {

@@ -18,12 +18,12 @@ trait Scheduler extends Source {
   /**
     * start to schedule controller
     */
-  def start()
+  def start(): Unit
 
   /**
     * stop to schedule controller
     */
-  def stop()
+  def stop(): Unit
 
   /**
     * time in mills of each tick
@@ -35,7 +35,7 @@ trait Scheduler extends Source {
     * setter of delta value
     * @param d new delta value
     */
-  def delta_=(d : Int)
+  def delta_=(d : Int): Unit
 }
 
 object Scheduler {
@@ -97,6 +97,6 @@ object Scheduler {
       }
     }
     //TEMPLATE METHOD
-    def onTick(float: Float)
+    def onTick(float: Float): Unit
   }
 }

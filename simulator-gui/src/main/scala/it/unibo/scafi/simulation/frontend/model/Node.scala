@@ -17,13 +17,13 @@ trait Node {
 
   def removeNeighbour(neighbour: Node): Boolean
 
-  def removeAllNeghbours()
+  def removeAllNeghbours(): Unit
 
   def sensors: Map[Sensor, Any]
 
   def getSensorValue(sensorName: String): Any
 
-  def setSensor(sensor: Sensor, value: Any)
+  def setSensor(sensor: Sensor, value: Any): Unit
 
-  def setSensor(sensor: String, value: Any)
+  def setSensor(sensor: String, value: Any): Unit
 }
