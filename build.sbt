@@ -101,7 +101,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
-   `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js)
+   `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js, tests.js)
   .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
@@ -133,9 +133,6 @@ lazy val coreCross = crossProject(JSPlatform, JVMPlatform).in(file("core"))
   .settings(
     name := "scafi-core",
     libraryDependencies += scalatest.value
-  )
-  .jsSettings(
-
   )
 
 lazy val core = coreCross.jvm
@@ -206,14 +203,16 @@ lazy val distributed = project
     libraryDependencies += scalatest.value
   )
 
-lazy val tests = project
-  .dependsOn(core, simulator)
+lazy val testsCross = crossProject(JSPlatform, JVMPlatform).in(file("tests"))
+  .dependsOn(coreCross, simulatorCross)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
     name := "scafi-tests",
-    libraryDependencies ++= Seq(scalatest.value, apacheCommonsMath)
+    libraryDependencies ++= Seq(scalatest.value)
   )
+
+lazy val tests = testsCross.jvm
 
 lazy val demos = project
   .dependsOn(core, `stdlib-ext`, simulator, `simulator-gui`)

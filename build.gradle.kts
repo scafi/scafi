@@ -159,6 +159,19 @@ nexusStaging {
     password = System.getenv("SONATYPE_PASSWORD")
 }
 */
+
+fun crossTargetSourceSets(project: Project, sourceSetName: String): List<String> {
+    return listOf(
+        "${project.projectDir}/src/${sourceSetName}/scala",
+        "${project.projectDir}/src/${sourceSetName}/scala" + scalaSuffix.replace("_", "-"),
+        "${project.projectDir}/shared/src/${sourceSetName}/scala",
+        "${project.projectDir}/shared/src/${sourceSetName}/scala" + scalaSuffix.replace("_", "-"),
+        "${project.projectDir}/jvm/src/${sourceSetName}/scala",
+        "${project.projectDir}/jvm/src/${sourceSetName}/scala" + scalaSuffix.replace("_", "-"),
+        "${project.projectDir}/js/src/${sourceSetName}/scala",
+        "${project.projectDir}/js/src/${sourceSetName}/scala" + scalaSuffix.replace("_", "-")
+    )
+}
 subprojects {
     apply(plugin = "de.marcphilipp.nexus-publish")
     apply(plugin = "signing")
@@ -169,20 +182,15 @@ subprojects {
         password.set(System.getenv("SONATYPE_PASSWORD"))
     }
      */
-
     sourceSets {
+        test {
+            scala {
+                srcDirs(crossTargetSourceSets(project, "test"))
+            }
+        }
         main {
-            withConvention(ScalaSourceSet::class) {
-                scala {
-                    srcDirs(listOf(
-                            "${project.projectDir}/src/main/scala",
-                            "${project.projectDir}/src/main/scala" + scalaSuffix.replace("_", "-"),
-                            "${project.projectDir}/shared/src/main/scala",
-                            "${project.projectDir}/shared/src/main/scala" + scalaSuffix.replace("_", "-"),
-                            "${project.projectDir}/jvm/src/main/scala",
-                            "${project.projectDir}/jvm/src/main/scala" + scalaSuffix.replace("_", "-")
-                    ))
-                }
+            scala {
+                srcDirs(crossTargetSourceSets(project, "main"))
             }
         }
     }

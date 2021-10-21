@@ -6,9 +6,7 @@
 package it.unibo.scafi.test.functional
 
 import it.unibo.scafi.config.GridSettings
-import it.unibo.scafi.test.FunctionalTestIncarnation
 import it.unibo.scafi.test.FunctionalTestIncarnation._
-import org.apache.commons.math3.random.{RandomDataGenerator, RandomGenerator}
 
 import scala.annotation.tailrec
 import scala.collection.Map
@@ -132,14 +130,9 @@ object ScafiTestUtils {
 
   def schedulingSequence(ids: Set[ID], sampleSize: Int, minOccurrences: Map[ID,Int] = Map())
                         (implicit seed: TestingSeed = TestingSeed(System.currentTimeMillis())): Seq[ID] = {
-    import scala.collection.JavaConverters._
-    val rg = new RandomDataGenerator()
-    rg.reSeed(seed.seed)
-    var seq = Seq[ID]()
-    for(_ <- 1 to sampleSize) {
-      seq ++= rg.nextSample(ids.asJavaCollection, 1).toSeq.asInstanceOf[Seq[ID]]
-    }
-    seq
+    val rand = new Random(seed.seed)
+    val idsVec = ids.toVector
+    (1 to sampleSize).map(_ => idsVec(rand.nextInt(ids.size)))
   }
 
   def newRandomSeed(): Long = System.currentTimeMillis()
