@@ -288,7 +288,6 @@ trait StdLib_NewProcesses {
           val (result, status) = process(p)(a)
           val newFinished = status == Terminated | includingSelf.anyHood(nbr{finished})
           val terminated = includingSelf.everyHood(nbr{newFinished})
-          val nnbrs = excludingSelf.sumHood(nbr(1))
           val SpawnReturn(newResult, newStatus) = (result, status) match {
             case _ if terminated     => SpawnReturn(None, false)
             case (_,     External)   => SpawnReturn(None, false)

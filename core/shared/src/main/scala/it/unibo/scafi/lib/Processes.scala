@@ -176,9 +176,6 @@ trait StdLib_Processes {
       })
     }
 
-    private def chooseByMin[T,V:Ordering](projection: T => V): (T,T) => T =
-      (t1,t2) => if(implicitly[Ordering[V]].lt(projection(t1), projection(t2))) t1 else t2
-
     private def processWithinLimits(p: ProcessInstance[_]): Boolean =
       p.data.distance + p.process.metric() <= p.process.limit
   }

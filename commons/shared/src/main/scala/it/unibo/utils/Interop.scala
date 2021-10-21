@@ -1,7 +1,7 @@
 package it.unibo.utils
 
 trait Interop[T] {
-  def toString: String
+  def toString(data: T): String
   def fromString(s: String): T
 }
 
