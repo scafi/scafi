@@ -228,21 +228,16 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     * @tparam E the type of node
     */
   class QuadTreeSpace[E](pos : Map[E,P], radius : Double, bound : Option[Bound] = None) extends Space3D[E](pos,radius) {
-    private var nMap: TrieMap[E, Set[E]] = TrieMap.empty
+    private val nMap: TrieMap[E, Set[E]] = TrieMap.empty
     //TODO CREATE AN INDEX THAT INCREASE HIS SIZE WITH NODE POSITIONING
     private val neighbourIndex: NNIndex[E] = NNIndex(pos)
-    override def setLocation(e: E, p: P): Unit = {
-      bound match {
-        case Some(b) => if (!b.accept(p.asInstanceOf[Point3D])) return
-        case _ =>
-      }
+    override def setLocation(e: E, p: P): Unit = if(bound.exists(_.accept(p))) {
       resetNeighbours(e)
       neighbourIndex -= (elemPositions(e))
       neighbourIndex += (p -> e)
       elemPositions += e -> p
       calculateNeighbours(e)
       addNeighbours(e)
-
     }
 
     private def resetNeighbours(e: E): Unit = {nMap.get(e).last.foreach {x => { nMap += x -> (nMap(x) - e) }}}
@@ -266,10 +261,10 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     }
     //TODO CHECK IF TWO ELEMENTS ARE IN THE SAME POSITION
     override def getNeighbors(e: E): Iterable[E] = {
-      if(nMap.get(e).isEmpty) {
+      if(!nMap.contains(e)) {
         calculateNeighbours(e)
       }
-      if(nMap.get(e).isDefined) {
+      if(nMap.contains(e)) {
         nMap(e)
       } else {
         List()
