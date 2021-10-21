@@ -35,7 +35,7 @@ addSbtPlugin("com.github.xuwei-k" % "sbt-class-diagram" % "0.2.1")
 
 // Scala.js plugins
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.1")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.7.1")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
 
