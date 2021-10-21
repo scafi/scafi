@@ -109,11 +109,11 @@ class Controller () extends GeneralController {
     val policyNeighborhood: NbrPolicy = ControllerUtils.getNeighborhoodPolicy()
     val configurationSeed = Settings.ConfigurationSeed
     val simulationSeed = Settings.SimulationSeed
-    val randomSensorSeed = Settings.RandomSensorSeed
+    val randomSeed = Settings.RandomSensorSeed
 
     ControllerUtils.setupSensors(sensorValues)
 
-    val ncols: Long = Math.sqrt(numNodes).round
+    Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
     import it.unibo.scafi.simulation.frontend.SettingsSpace.Topologies._
     if (List(Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar) contains topology) {
@@ -125,18 +125,16 @@ class Controller () extends GeneralController {
       positions = SpaceHelper.randomLocations(SimpleRandomSettings(), numNodes, configurationSeed)
     }
 
-    var i: Int = 0
-    positions.foreach(p =>  {
+    positions.zipWithIndex.foreach { case (p, i) =>
       val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
       val pt = Utils.calculatedGuiNodePosition(node.position)
       guiNode.setNodeLocation(pt.x, pt.y)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
-      i = i + 1
-    })
+    }
 
-    val simulation: Simulation = SimulationImpl(this.simManager)
+    val simulation: Simulation = new SimulationImpl(randomSeed, simulationSeed, this.simManager)
     simulation.setController(this)
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1).toMap, policyNeighborhood)
     simulation.setDeltaRound(deltaRound)

@@ -77,11 +77,6 @@ class GuiNode(val node: Node) extends JInternalFrame {
 
   override def setSize(d: Dimension) {
     super.setSize(d)
-    //val nameImg: String = Paths.get((button.getIcon.asInstanceOf[ImageIcon]).getDescription).getFileName.toString
-    val dividendo: Int = if (getWidth < getHeight) getWidth  else getHeight
-
-    //button.setIcon(Utils.getScaledImage(nameImg, dividendo / 2, dividendo / 2))
-
     if (d.getHeight < (Utils.getFrameDimension.getHeight / 2)) {
       this.valueShow.setFont(DEFAULT_FONT.deriveFont(DEFAULT_FONT.getSize / 2))
     }

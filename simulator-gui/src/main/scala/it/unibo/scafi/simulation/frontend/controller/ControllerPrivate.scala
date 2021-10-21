@@ -6,13 +6,11 @@
 
 package it.unibo.scafi.simulation.frontend.controller
 
-import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.JOptionPane
-
-import it.unibo.scafi.simulation.frontend.model.{Node, NodeValue}
+import it.unibo.scafi.simulation.frontend.model.Node
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.frontend.view.{GuiNode, NodeInfoPanel, SensorOptionPane, SimulatorUI}
+import it.unibo.scafi.simulation.frontend.view.{GuiNode, NodeInfoPanel, SimulatorUI}
 
+import java.awt.event.{ActionEvent, ActionListener}
 import scala.language.implicitConversions
 
 /**
@@ -26,7 +24,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
   }
 
   def setSensor(sensorName: String, value: Any) {
-    var applyAll: Boolean = true
+    
     val ss: Set[(Node,GuiNode)] = selectedNodes
     ss.foreach(ng => {
       setImage(sensorName, value, ng._2)

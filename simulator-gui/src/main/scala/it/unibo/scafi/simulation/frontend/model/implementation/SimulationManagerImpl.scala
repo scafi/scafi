@@ -76,7 +76,7 @@ class SimulationManagerImpl() extends SimulationManager { self =>
   }
 
   private def runSingleSimulationStep() {
-    val exp = simulation.getRunProgram.apply
+    val exp = simulation.getRunProgram()
     simulation.network.nodes(exp._1).export = exp._2.root()
     updateNodeValue(exp._1)
   }
