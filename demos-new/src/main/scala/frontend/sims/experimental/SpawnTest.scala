@@ -41,8 +41,6 @@ class SpawnTest extends AggregateProgram with SensorDefinitions with FieldUtils 
       2 -> SpawnDef(2, ()=>f"${-distanceTo(sense2)}%.1f", genCondition = () => sense2),
       3 -> SpawnDef(3, ()=>f"${distanceTo(sense3)}%.1f", genCondition = () => sense3, limit = 20))
 
-    var keyGen = procs.values.filter(_.genCondition()).map(_.pid)
-
     procs.map { case (pid,proc) => pid -> spawn(proc) }.collect{ case (pid, Some(s)) => (pid,s) }.mkString("; ")
   }
 

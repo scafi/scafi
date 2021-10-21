@@ -1,13 +1,10 @@
 package it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer
 
-import javafx.scene.control.Label
-import javafx.scene.text.Font
-import it.unibo.scafi.space.graphics2D.BasicShape2D.{Circle => InternalCircle, Polygon => InternalPolygon, Rectangle => InternalRectangle}
 import it.unibo.scafi.simulation.s2.frontend.model.sensor.SensorConcept.SensorDevice
 import it.unibo.scafi.simulation.s2.frontend.view.ViewSetting._
 import it.unibo.scafi.simulation.s2.frontend.view.scalaFX._
-import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.StandardFXOutput.graphics
-import scalafx.geometry.{Point2D => FXPoint}
+import javafx.scene.control.Label
+import javafx.scene.text.Font
 import scalafx.scene.Node
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Ellipse
