@@ -218,7 +218,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       lsnsMap += (name -> MMap(idArray.map((_: ID) -> value).toSeq: _*))
     }
 
-    def chgSensorValue[A](name: CNAME, ids: Set[ID], value: A) = ids.foreach { id => lsnsMap(name) += id -> value }
+    def chgSensorValue[A](name: CNAME, ids: Set[ID], value: A): Unit = ids.foreach { id => lsnsMap(name) += id -> value }
 
     override def clearExports(): Unit = eMap.clear()
 
