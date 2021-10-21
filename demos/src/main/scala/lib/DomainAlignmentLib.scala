@@ -36,7 +36,6 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
     val x: (Double,Int) = branch (procs.head.ver < maxp) {
       exec(procs.tail, maxp, curp, nnum, init)
     } { (init(),-1) }
-    val d_nxt = x._1
     val ncurp:Int = x._2
     mux(ncurp<0 && nnum == foldhood(0)(_+_){1}) { (d_cur, procs.head.ver) } { x }
   }

@@ -71,7 +71,6 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
 
   def minHoodPLoc[A](default: A)(expr: => A)(implicit poglb: Ordering[A]): A = {
     import scala.math.Ordered.orderingToOrdered
-    val ordering = implicitly[Ordering[A]]
     foldhoodPlus[A](default)((x, y) => if(x <= y) x else y){expr}
   }
 
@@ -348,7 +347,7 @@ trait GradientAlgorithms extends Gradients
 
   def minHoodPLoc[A](default: A)(expr: => A)(implicit poglb: Ordering[A]): A = {
     import scala.math.Ordered.orderingToOrdered
-    val ordering = implicitly[Ordering[A]]
+    implicitly[Ordering[A]]
     foldhoodPlus[A](default)((x, y) => if(x <= y) x else y){expr}
   }
 
