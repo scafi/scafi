@@ -101,7 +101,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
-   `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js, tests.js)
+   `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js)
   .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
