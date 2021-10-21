@@ -16,7 +16,7 @@ trait StdLib_GenericUtils {
     def meanCounter(value: Double, frequency: Long): Double = {
       val time = timestamp()
       val dt = deltaTime().toUnit(TimeUnit.MILLISECONDS)
-      val count = rep ((0.0,0.0)) { case x => { // (accumulated value, last time)
+      val count = rep ((0.0,0.0)) { case x => // (accumulated value, last time)
         // Splits into windows of multiples of 'frequency'
         // and restarts at the beginning of each new window.
         // E.g., for frequency=5
@@ -32,8 +32,10 @@ trait StdLib_GenericUtils {
         if (Double.NegativeInfinity < value && value < Double.PositiveInfinity) {
           // Sums value weighed by time
           (old._1 + value*dt, old._2 + dt)
-        } else old
-      } }
+        } else {
+          old
+        }
+      }
       // E.g., consider these values and deltas: (5.0,2), (6,1), (Inf,2), (7,1), (5,1)
       // You'll finally have (5.0*2 + 6*1 + 7*1 + 5*1) / (2+1+1+1) = 28/5 = 5.6
       count._1 / count._2
