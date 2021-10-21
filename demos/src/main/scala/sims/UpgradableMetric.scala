@@ -22,10 +22,10 @@ class UpgradableMetricProgram extends AggregateProgram with BuildingBlocks with 
   with FieldUtils with BlockG {
   override def main(): Any = {
     val injecter: Injecter[this.type,Double] = () => {
-      branch(rep(0)(_+1)<100){
+      branch(rep(0)(_ + 1) < 100){
         Fun[this.type,Double](1, (p) => p.nbrRange())
       }{
-        Fun[this.type,Double](1, (p) => p.nbrRange()+5)
+        Fun[this.type,Double](1, (p) => p.nbrRange() + 5)
       }
     }
     val metric = up[this.type,Double](injecter)

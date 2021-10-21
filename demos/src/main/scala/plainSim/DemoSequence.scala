@@ -21,14 +21,14 @@ object DemoSequence extends AggregateProgram with MyLib {
   def gradient(source: Boolean): Double =
     rep(Double.MaxValue){
       distance => mux(source) { 0.0 } {
-        foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE))
+        foldhood(Double.MaxValue)((x,y) => if (x < y) x else y)(nbr{distance} + nbrvar[Double](NBR_RANGE))
       }
     }
 
   def gradient2(source: Boolean): Double =
     rep(Double.MaxValue){
       distance => mux(source) { 0.0 } {
-        minHood{ nbr{distance}+nbrvar[Double](NBR_RANGE) }
+        minHood{ nbr{distance} + nbrvar[Double](NBR_RANGE) }
       }
     }
 
@@ -68,8 +68,8 @@ object DemoSequence extends AggregateProgram with MyLib {
   //def main() = distanceBetween(isSource, sense[Boolean]("obstacle"))
   //def main() = channel(sense("sensor")==1,sense("sensor2")==1,1)
 
-  def isSource = sense[Boolean]("source")
-  def isObstacle = sense[Boolean]("obstacle")
+  def isSource: Boolean = sense[Boolean]("source")
+  def isObstacle: Boolean = sense[Boolean]("obstacle")
 
   //def main() = distanceTo(isSource)
   // The following one is BUGGY
@@ -82,7 +82,7 @@ object DemoSequence extends AggregateProgram with MyLib {
 
   //def main() = (average(isSource, sense[Double]("value")), sense[Double]("value"))
 
-  def potentialField = distanceTo(isSource)
+  def potentialField: Double = distanceTo(isSource)
 
   //def main = (potentialField, mid()+"->"+findParent(potentialField), C[Double](potentialField, _+_, 1, 0.0))
 
@@ -102,7 +102,7 @@ object DemoSequence extends AggregateProgram with MyLib {
   //def main = timer[Int](1000)
   //def main = limitedMemory("xxx", "exp", 1000)
 
-  def main = if(S(3, 1)) "x" else "."
+  def main: MainResult = if(S(3, 1)) "x" else "."
   //def main = minId()
   //def main = S2(3)
 
@@ -123,7 +123,7 @@ object DemoSequence extends AggregateProgram with MyLib {
 
 object DemoSequenceLauncher extends App {
 
-  val net = simulatorFactory.gridLike(GridSettings(6, 4, stepx = 1, stepy = 1), rng = 1.1)
+  val net: NETWORK = simulatorFactory.gridLike(GridSettings(6, 4, stepx = 1, stepy = 1), rng = 1.1)
 
   // For channel:
   /*
@@ -175,7 +175,7 @@ object DemoSequenceLauncher extends App {
   }
   */
 
-  var v = java.lang.System.currentTimeMillis()
+  var v: Long = java.lang.System.currentTimeMillis()
 
   net.executeMany(
     node = DemoSequence,//new HopGradient("source"),

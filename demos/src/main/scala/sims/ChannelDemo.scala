@@ -30,11 +30,11 @@ class Channel extends AggregateProgram  with SensorDefinitions with BlockG {
   def myChannel(source: Boolean, target: Boolean, width: Double): Boolean =
     distanceTo(source) + distanceTo(target) <= distanceBetween(source, target) + width
 
-  override def main() = branch(sense3){false}{myChannel(sense1, sense2, 1)}
+  override def main(): Boolean = branch(sense3){false}{myChannel(sense1, sense2, 1)}
 }
 
 class SelfContainedChannel extends AggregateProgram with SensorDefinitions {
-  override def main() = branch(sense3){false}{channel(sense1, sense2, 5)}
+  override def main(): Boolean = branch(sense3){false}{channel(sense1, sense2, 5)}
 
   type OB[T] = Builtins.Bounded[T]
   def G[V:OB](src: Boolean, field: V, acc: V=>V, metric: =>Double): V =
@@ -54,9 +54,9 @@ class SelfContainedChannel extends AggregateProgram with SensorDefinitions {
   def distBetween(source: Boolean, target: Boolean): Double =
     broadcast(source, gradient(target))
 
-  def dilate(region: Boolean, width: Double) =
+  def dilate(region: Boolean, width: Double): Boolean =
     gradient(region) < width
 
-  def channel(src: Boolean, dest: Boolean, width: Double) =
+  def channel(src: Boolean, dest: Boolean, width: Double): Boolean =
     dilate(gradient(src) + gradient(dest) <= distBetween(src,dest), width)
 }

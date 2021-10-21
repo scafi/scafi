@@ -30,7 +30,7 @@ object ProcessesMain extends Launcher {
 class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients
   with TimeUtils with StateManagement with GenericUtils with StandardSensors with BlockG {
 
-  override def main() = {
+  override def main(): (String, String) = {
     val inf = Double.PositiveInfinity
     val in = "in"
     val out = "out"
@@ -38,7 +38,7 @@ class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn wit
     def limitedGradient(src: Boolean, size: Double, time: Int, start: => Boolean = false, iff: => Boolean = true) =
       rep((out,inf,time,true)){ case (status,g,t,notYetStarted) => {
       branch(start | (src | excludingSelf.anyHood(nbr{status}==in
-        & nbr{g}+nbrRange<size))
+        & nbr{g} + nbrRange<size))
         & iff
         && (t>0 || notYetStarted)){
         (in,classicGradient(src),T(time),false)
@@ -56,11 +56,11 @@ class Proc1 extends AggregateProgram with SensorDefinitions with CustomSpawn wit
 class MultiGradient extends AggregateProgram with SensorDefinitions with CustomSpawn with Gradients with GenericUtils
   with TimeUtils with StateManagement with StandardSensors with BlockG {
 
-  def isSrc = sense1 || sense2 || sense3 || sense4
+  def isSrc: Boolean = sense1 || sense2 || sense3 || sense4
 
   import SpawnInterface._
 
-  override def main() = {
+  override def main(): Map[ID,Double] = {
     /*
     def h(src: ID, limit: Double, g: Double): (Double,Status) =
       (g, if(src==mid && !isSrc) Terminated else if(g>limit) External else Bubble)
@@ -87,12 +87,12 @@ class MultiGradient extends AggregateProgram with SensorDefinitions with CustomS
 
 class ReplGossip extends AggregateProgram with SensorDefinitions with CustomSpawn with ReplicatedGossip with Gradients with GenericUtils with StandardSensors with StateManagement with BlockG {
 
-  def isSrc = sense1 || sense2 || sense3 || sense4
+  def isSrc: Boolean = sense1 || sense2 || sense3 || sense4
 
   import SpawnInterface._
   import scala.concurrent.duration._
 
-  override def main() = {
+  override def main(): Map[Long,Double] = {
     replicated[Boolean,Double](classicGradient(_))(isSrc, (5.seconds).toNanos, 3)
   }
 }

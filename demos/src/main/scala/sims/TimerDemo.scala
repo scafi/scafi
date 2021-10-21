@@ -20,9 +20,9 @@ object TimerDemo extends Launcher {
 }
 
 class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT {
-  override def main() = branch(sense1){timer(100)}{0}
+  override def main(): Int = branch(sense1){timer(100)}{0}
 }
 
 class RecentEvent extends AggregateProgram with SensorDefinitions with TimeUtils with FieldUtils {
-  override def main() = recentlyTrue(10.seconds, includingSelf.anyHood(nbr{ sense1 }))
+  override def main(): Boolean = recentlyTrue(10.seconds, includingSelf.anyHood(nbr{ sense1 }))
 }

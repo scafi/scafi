@@ -19,9 +19,9 @@ object LayerExampleMain extends Launcher {
 
 trait Layers { self: AggregateProgram =>
   class LayerSpec(var variations: Seq[Variation] = Seq.empty) {
-    def befores = variations.filter(_.kind==Before)
-    def afters = variations.filter(_.kind==After)
-    def replacements = variations.filter(_.kind==Replace)
+    def befores: Seq[Variation] = variations.filter(_.kind==Before)
+    def afters: Seq[Variation] = variations.filter(_.kind==After)
+    def replacements: Seq[Variation] = variations.filter(_.kind==Replace)
   }
 
   trait VariationKind
@@ -63,12 +63,12 @@ trait Layers { self: AggregateProgram =>
   case class Layer(name: String, cond: ()=>Boolean, spec: LayerSpec)
 
   var layers: Set[Layer] = Set.empty
-  def activeLayers: Set[Layer] = layers.filter(l => align("active"+l.name){ _ => l.cond() })
+  def activeLayers: Set[Layer] = layers.filter(l => align("active" + l.name){ _ => l.cond() })
   var layeredMethods: Map[String,()=>Any] = Map.empty
 
   def layer(name: String)
            (layerSpec: LayerBuilder => LayerSpec)
-           (when: => Boolean) =
+           (when: => Boolean): Unit =
     layers += Layer(name, ()=>when, layerSpec(new LayerBuilderImpl()))
 
   def layered[T](name: String)(expr: => T): T = try {
@@ -99,7 +99,7 @@ class LayerExampleProgram extends AggregateProgram with SensorDefinitions with L
 
   layer(L.LowPower){_
       .before(M.LeaderElection){
-        k = rep(0)(_+1)
+        k = rep(0)(_ + 1)
         () -> Proceed
       }
       .replace[Boolean](M.LeaderElection){
@@ -111,7 +111,7 @@ class LayerExampleProgram extends AggregateProgram with SensorDefinitions with L
     S(100, nbrRange)
   }
 
-  override def main() = {
+  override def main(): (Boolean, Int) = {
     val leaders = leaderElection()
     (leaders,k)
   }

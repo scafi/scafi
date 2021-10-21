@@ -45,8 +45,8 @@ trait MyLib extends StandardSpatialSensorNames { self: Constructs with Builtins 
     distanceTo(source) + distanceTo(target) <=
       distanceBetween(source,target) + width
 
-  def gradientByG(src: Boolean): Double = G(src, 0.0, (x:Double)=>x+nbrRange(), nbrRange())
-  def hopGradientByG(src: Boolean): Int = G(src, 0, (x:Int)=>x+1, 1)
+  def gradientByG(src: Boolean): Double = G(src, 0.0, (x:Double)=> x + nbrRange(), nbrRange())
+  def hopGradientByG(src: Boolean): Int = G(src, 0, (x:Int) => x + 1, 1)
 
   /**
    * @return the ID of the neighbour whose 'potential' value is minimum
@@ -95,7 +95,7 @@ trait MyLib extends StandardSpatialSensorNames { self: Constructs with Builtins 
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
   def average(sink: Boolean, value: Double): Double =
-    summarize(sink, (a,b)=>{a+b}, value, 0.0) / summarize(sink, (a,b)=>a+b, 1, 0.0)
+    summarize(sink, (a,b) => a + b, value, 0.0) / summarize(sink, (a,b) => a + b, 1, 0.0)
 
   def T[V](initial: V, floor: V, decay: V=>V)
           (implicit ev: Numeric[V]): V = {
@@ -115,11 +115,11 @@ trait MyLib extends StandardSpatialSensorNames { self: Constructs with Builtins 
   }
 
   def timer[V](length: V)
-              (implicit ev: Numeric[V]) =
+              (implicit ev: Numeric[V]): V =
     T[V](length)
 
   def limitedMemory[V,T](value: V, expValue: V, timeout: T)
-                        (implicit ev: Numeric[T]) = {
+                        (implicit ev: Numeric[T]): (V, T) = {
     val t = timer[T](timeout)
     (if(ev.gt(t, ev.zero)) value else expValue, t)
   }
@@ -171,7 +171,7 @@ trait MyLib extends StandardSpatialSensorNames { self: Constructs with Builtins 
     // Initially, each device is a candidate leader, competing for leadership.
     uid == rep(uid) { lead:(Double,ID) =>
       // Distance from current device (uid) to the current leader (lead).
-      val dist = G[Double](uid==lead, 0, (_:Double)+metric, metric)
+      val dist = G[Double](uid==lead, 0, (_:Double) + metric, metric)
 
       // Initially, current device is candidate, so the distance ('dist')
       // will be 0; the same will be for other devices.
@@ -188,7 +188,7 @@ trait MyLib extends StandardSpatialSensorNames { self: Constructs with Builtins 
                           lead:(Double,ID),
                           uid:(Double,ID),
                           grain:Double,
-                          metric: => Double) = {
+                          metric: => Double): (Double, ID) = {
     val inf:(Double,ID) = (Double.PositiveInfinity, uid._2)
     mux(d > grain){
       // If the current device has a distance to the current candidate leader

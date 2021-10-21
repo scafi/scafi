@@ -32,15 +32,15 @@ class ReplicatedGossipProgram extends AggregateProgram with StateManagement with
     val generators = remember{Set(
       ProcessGenerator(
         trigger = () => sense2 && impulsesEvery(startEvery),
-        generator = () => ProcessDef(PID("1"), comp = () => mux[Option[Double]](timer(considerAfter)==0){ Some(classic(src)) }{ None },
-        stopCondition = () => timer(startEvery*numActiveProcs+startEvery/2+considerAfter)==0))
+        generator = () => ProcessDef(PID("1"), comp = () => mux[Option[Double]](timer(considerAfter) == 0){ Some(classic(src)) }{ None },
+        stopCondition = () => timer(startEvery * numActiveProcs + startEvery / 2 + considerAfter) == 0))
     )}
     val replicated = processExecution(generators).values.collect{ case Some(x) => x }
     if(replicated.isEmpty) None else Some(replicated.max)
   }
 
   def replicatedGossip2(src: => Boolean, numActiveProcs: Int, startEvery: FiniteDuration, considerAfter: FiniteDuration): Double = {
-      spawn[Unit,Boolean,Double]( (_) => source => {
+      spawn[Unit,Boolean,Double]((_) => source => {
           val status = mux[Status](timerLocalTime(startEvery * numActiveProcs + startEvery/2 + considerAfter)!=0){
             mux[Status](timerLocalTime(considerAfter)!=0){ Bubble }{ Output }
           }{ External }

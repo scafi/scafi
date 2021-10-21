@@ -14,11 +14,11 @@ import sims.SensorDefinitions
   * This program is used to launch simulations on a grid-like network.
   */
 object DemoAlignment extends AggregateProgram with SensorDefinitions with DomainAlignmentLib {
-  def isSource = sense[Boolean]("source")
+  def isSource: Boolean = sense[Boolean]("source")
 
   //def main() = hopGradientByG(isSource) //
   //def main() = (rep(0)(_+1),"%6.2f".format(testGup))
-  def main() = (rep(0)(_+1),"%6.2f".format(testGsafe))
+  def main(): (Int, String) = (rep(0)(_ + 1),"%6.2f".format(testGsafe))
   //def main() = (rep(0)(_+1),"%6.2f".format(testCRFup))
   //def main() = (rep(0)(_+1),"%6.2f".format(testCRFsafe))
 }
@@ -39,12 +39,12 @@ object DomainAlignmentMain extends App {
 //    nsnsMap = nsnsMap
 //  )
 
-  val net = simulatorFactory.gridLike(GridSettings(15, 15, stepx = 1, stepy = 1, tolerance = 0.3), rng = 1.5)
+  val net: NETWORK = simulatorFactory.gridLike(GridSettings(15, 15, stepx = 1, stepy = 1, tolerance = 0.3), rng = 1.5)
 
   net.addSensor(name = "source", value = false)
   net.chgSensorValue(name = "source", ids = Set(3), value = true)
 
-  var v = java.lang.System.currentTimeMillis()
+  var v: Long = java.lang.System.currentTimeMillis()
 
   net.executeMany(
     node = DemoAlignment,//new HopGradient("source"),

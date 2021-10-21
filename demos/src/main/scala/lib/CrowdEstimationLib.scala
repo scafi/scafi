@@ -50,14 +50,14 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
     rtSub(timer(10) == 0, state, memoryTime)
   }
 
-  def dangerousDensity(p: Double, r: Double) = {
+  def dangerousDensity(p: Double, r: Double): Int = {
     val mr = managementRegions(r*2, nbrRange)
     val danger = average(mr, densityEst(p, r)) > 2.17 &&
       summarize(mr, (_:Double)+(_:Double), 1 / p, 0) > 300
     if(danger) { high } else { low }
   }
 
-  def crowdTracking(p: Double, r: Double, t: Double) = {
+  def crowdTracking(p: Double, r: Double, t: Double): Int = {
     val crowdRgn = recentTrue(densityEst(p, r)>1.08, t)
     mux(crowdRgn) { dangerousDensity(p, r) } { none }
   }
@@ -95,8 +95,8 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
   def dangerousDensityFull(p: Double, range: Double, dangerousDensity: Double, groupSize: Double, w: Double): Boolean = {
     val partition = S(range, nbrRange)
     val localDensity = densityEstimation(p, range, w)
-    val avg = summarize(partition, _+_, localDensity, 0.0) / summarize(partition, _+_, 1.0, 0.0)
-    val count = summarize(partition, _+_, 1.0 / p, 0.0)
+    val avg = summarize(partition, _ + _, localDensity, 0.0) / summarize(partition, _ + _, 1.0, 0.0)
+    val count = summarize(partition, _ + _, 1.0 / p, 0.0)
     broadcast(partition, avg > dangerousDensity && count > groupSize)
   }
 
@@ -146,7 +146,7 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
   case object AtRisk extends Crowding
   case object Fine extends Crowding
 
-  val noAdvice = Point2D(Double.NaN, Double.NaN)
+  val noAdvice: Point2D = Point2D(Double.NaN, Double.NaN)
 
   /**
     * def direction(radius, crowding) {
