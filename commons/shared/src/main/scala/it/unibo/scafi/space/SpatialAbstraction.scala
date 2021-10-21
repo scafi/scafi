@@ -50,13 +50,7 @@ object SpatialAbstraction {
   case class Bound(inclusive: Shape, exclusive: List[(Shape,Point3D)] = List.empty) {
     import optimization._
     def accept(p: Point3D) : Boolean = {
-      val point = p.asInstanceOf[Point3D]
-      if(!inclusive.contains(point)) {
-        false
-      } else if (exclusive.forall(x => !x._1.contains(point - x._2)))
-        true
-      else
-        false
+      inclusive.contains(p) && exclusive.forall(x => !x._1.contains(p - x._2))
     }
   }
 }
