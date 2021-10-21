@@ -23,7 +23,7 @@ import java.util.{Locale, ResourceBundle}
   */
 object ResourceBundleManager {
   private val Separator = "-"
-  private val baseFolder = "bundles//"
+  private val baseFolder = "bundles."
   var locale : Locale = Locale.ENGLISH
 
   /**
