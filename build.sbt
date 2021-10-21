@@ -1,4 +1,5 @@
 import sbt.Keys.target
+import sbt.{Def}
 import com.typesafe.sbt.SbtGit.GitKeys._
 import org.scalastyle.sbt.ScalastylePlugin._
 
@@ -15,7 +16,7 @@ val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel       = "org.apache.bcel"   % "bcel"         % "6.4.1"
 val scalaLogging  = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
-val scalatest  = "org.scalatest"     %% "scalatest"   % "3.1.1"     % "test"
+val scalatest  = Def.setting { "org.scalatest"     %%% "scalatest"   % "3.1.1"     % "test" }
 val scopt      = "com.github.scopt"  %% "scopt"       % "4.0.0-RC2"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.3"
 val playJson   = "com.typesafe.play" %% "play-json"   % "2.8.1"
@@ -100,7 +101,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
-   `simulator-gui-new`, `demos-new`, `demos-distributed`)
+   `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js)
   .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
@@ -131,7 +132,10 @@ lazy val coreCross = crossProject(JSPlatform, JVMPlatform).in(file("core"))
   .settings(commonSettings: _*)
   .settings(
     name := "scafi-core",
-    libraryDependencies += scalatest
+    libraryDependencies += scalatest.value
+  )
+  .jsSettings(
+
   )
 
 lazy val core = coreCross.jvm
@@ -141,7 +145,7 @@ lazy val `stdlib-ext` = project
   .settings(commonSettings: _*)
   .settings(
     name := "scafi-lib-ext",
-    libraryDependencies ++= Seq(scalatest, shapeless)
+    libraryDependencies ++= Seq(scalatest.value, shapeless)
   )
 
 lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform).in(file("simulator"))
@@ -199,7 +203,7 @@ lazy val distributed = project
   .settings(
     name := "scafi-distributed",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
-    libraryDependencies += scalatest
+    libraryDependencies += scalatest.value
   )
 
 lazy val tests = project
@@ -208,7 +212,7 @@ lazy val tests = project
   .settings(noPublishSettings: _*)
   .settings(
     name := "scafi-tests",
-    libraryDependencies ++= Seq(scalatest, apacheCommonsMath)
+    libraryDependencies ++= Seq(scalatest.value, apacheCommonsMath)
   )
 
 lazy val demos = project
@@ -238,7 +242,7 @@ lazy val `simulator-gui-new` = project
   .settings(
     name := "simulator-gui-new",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
-    libraryDependencies ++= Seq(scopt,scalatest,
+    libraryDependencies ++= Seq(scopt,scalatest.value,
       scalaBinaryVersion.value match {
         case "2.13" => "org.scalafx" %% "scalafx" % "12.0.2-R18"
         case _ => "org.scalafx" %% "scalafx" % "8.0.144-R12"

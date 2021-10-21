@@ -205,9 +205,9 @@ class TestSemanticsByRound extends AnyFunSpec with Matchers {
     // ARRANGE
     val ctx1 = ctx(0, Map(), Map("a" -> 1, "b" -> 2))
     // ACT + ASSERT (failure as no sensor 'c' is found)
-    intercept[Exception] { round(ctx1, { sense[Any]("c") }) }
+    intercept[AnyRef] { round(ctx1, { sense[Any]("c") }) }
     // ACT + ASSERT (failure if an existing sensor does not provide desired kind of data)
-    intercept[Exception] { round(ctx1, { sense[Boolean]("a") }) }
+    intercept[AnyRef] { round(ctx1, { sense[Boolean]("a") }) }
   }
 
   MID("should simply evaluate to the ID of the local device") {
@@ -233,9 +233,9 @@ class TestSemanticsByRound extends AnyFunSpec with Matchers {
     val nbsens = Map("a" -> Map(0 -> 0, 1 -> 10, 2 -> 17))
     val ctx1 = ctx(0, Map(1 -> export(/ -> 10)), Map(), nbsens)
     // ACT + ASSERT (failure because of bad type)
-    intercept[Exception]{ round(ctx1, foldhood("")(_+_)(nbrvar[String]("a")) ) }
+    intercept[AnyRef]{ round(ctx1, foldhood("")(_+_)(nbrvar[String]("a")) ) }
     // ACT + ASSERT (failure because not found)
-    intercept[Exception]{ round(ctx1, foldhood(0)(_+_)(nbrvar[Int]("xxx")) ) }
+    intercept[AnyRef]{ round(ctx1, foldhood(0)(_+_)(nbrvar[Int]("xxx")) ) }
   }
 
   BUILTIN("minHood and minHood+, maxHood and maxHood+") {
