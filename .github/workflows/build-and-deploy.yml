@@ -7,25 +7,6 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  Build-Gradle:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu] # todo, add mac and windows ?
-        jvm_version: [12,16] # todo, add other java versions?
-    runs-on: ${{ matrix.os }}-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Scala and JDK
-        with:
-          java-version: adopt@1.${{ matrix.jvm_version }}
-        uses: olafurpg/setup-scala@v11
-      - name: Gradle run tests
-        run: ./gradlew check
-      - name: Create jars
-        run: ./gradlew fatJar
-
   Build-Sbt:
     strategy:
       fail-fast: false
