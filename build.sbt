@@ -48,6 +48,8 @@ lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion
  * - Leverage SONATYPE_USERNAME and SONATYPE_PASSWORD for authentication in Sonatype
  * - Through sbt-dynver (via sbt-release-early), project version is dynamically set based on commit
  */
+releaseEarlyWith in Global := SonatypePublisher
+
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
   publishMavenStyle := true, // ensure POMs are generated and pushed
@@ -66,7 +68,6 @@ inThisBuild(List(
     Developer(id="cric96", name="Gianluca Aguzzi", email="gianluca.aguzzi@unibo.it", url=url("https://cric96.github.io/")),
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
-  releaseEarlyWith := SonatypePublisher,
   releaseEarlyEnableLocalReleases := true,
   publishTo := Some(
     if (isSnapshot.value)
@@ -74,8 +75,6 @@ inThisBuild(List(
     else
       Opts.resolver.sonatypeStaging
   ),
-  pgpPublicRing := file("./.travis/local.pubring.asc"),
-  pgpSecretRing := file("./.travis/local.secring.asc"),
   crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
   scalaVersion :=  crossScalaVersions.value.head, // default version
 ))

@@ -30,4 +30,4 @@ jobs:
     needs: [Build-Sbt]
     steps:
       - shell: bash
-        run: touch ok
+        run: sbt +releaseEarly sonatypeBundleRelease
