@@ -67,7 +67,7 @@ inThisBuild(List(
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
   releaseEarlyWith := SonatypePublisher,
-  //releaseEarlyEnableLocalReleases := true,
+  releaseEarlyEnableLocalReleases := true,
   publishTo := Some(
     if (isSnapshot.value)
       Opts.resolver.sonatypeSnapshots
