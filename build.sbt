@@ -63,6 +63,7 @@ inThisBuild(List(
   ),
   developers := List(
     Developer(id="metaphori", name="Roberto Casadei", email="roby.casadei@unibo.it", url=url("http://robertocasadei.apice.unibo.it")),
+    Developer(id="cric96", name="Gianluca Aguzzi", email="gianluca.aguzzi@unibo.it", url=url("https://cric96.github.io/")),
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
   releaseEarlyWith := SonatypePublisher,
