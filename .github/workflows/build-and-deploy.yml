@@ -27,7 +27,7 @@ jobs:
 
   Build-Success:
     runs-on: ubuntu-latest
-    needs: [Build-Gradle, Build-Sbt]
+    needs: [Build-Sbt]
     steps:
       - shell: bash
         run: touch ok
