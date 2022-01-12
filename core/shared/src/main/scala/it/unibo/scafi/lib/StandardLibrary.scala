@@ -20,7 +20,6 @@ trait StandardLibrary extends
     with StdLib_StateManagement
     with StdLib_GenericUtils
     with StdLib_Processes
-    with StdLib_NewProcesses
     with StdLib_DynamicCode { self: Incarnation => }
 
 object StandardLibrary {
