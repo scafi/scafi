@@ -29,5 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [Build-Sbt]
     steps:
+      - uses: actions/checkout@v2
+      - name: Setup Scala and JDK
+        with:
+          java-version: adopt@1.11
+        uses: olafurpg/setup-scala@v11
       - shell: bash
         run: sbt +releaseEarly sonatypeBundleRelease
