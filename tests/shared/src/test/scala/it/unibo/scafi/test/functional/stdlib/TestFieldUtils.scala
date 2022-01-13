@@ -165,9 +165,9 @@ class TestFieldUtils extends AnyFlatSpec {
 
       def dupNbrs[T](s: Set[T]): Map[T,T] = s.map(v => (v,v)).toMap
       assertNetworkValues((0 to 8).zip(List(
-        (dupNbrs(n(0)), dupNbrs(n(0) + 0), dupNbrs(n(1)), dupNbrs(n(1) + 1), dupNbrs(n(2)), dupNbrs(n(2) + 2)),
-        (dupNbrs(n(3)), dupNbrs(n(3) + 3), dupNbrs(n(4)), dupNbrs(n(4) + 4), dupNbrs(n(5)), dupNbrs(n(5) + 5)),
-        (dupNbrs(n(6)), dupNbrs(n(6) + 6), dupNbrs(n(7)), dupNbrs(n(7) + 7), dupNbrs(n(8)), dupNbrs(n(8) + 8))
+        (dupNbrs(n(0)), dupNbrs(n(0) + 0)), (dupNbrs(n(1)), dupNbrs(n(1) + 1)), (dupNbrs(n(2)), dupNbrs(n(2) + 2)),
+        (dupNbrs(n(3)), dupNbrs(n(3) + 3)), (dupNbrs(n(4)), dupNbrs(n(4) + 4)), (dupNbrs(n(5)), dupNbrs(n(5) + 5)),
+        (dupNbrs(n(6)), dupNbrs(n(6) + 6)), (dupNbrs(n(7)), dupNbrs(n(7) + 7)), (dupNbrs(n(8)), dupNbrs(n(8) + 8))
       )).toMap)(net)
     }
 
