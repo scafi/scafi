@@ -257,7 +257,7 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
       if (e._2._1 === e._2._2 +- tolerance) {
         true
       } else {
-        println(valueMap)
+        info(valueMap.toString())
         fail(s"Error on ${e._1}: expected ${e._2._2} but got ${e._2._1}" )
       }
     })
