@@ -41,7 +41,6 @@ class TestFieldUtils extends AnyFlatSpec {
         (Some(0),0,Some(7),7), (Some(0),0,Some(7),7), (Some(1),1,Some(7),7),
         (Some(3),3,Some(7),7), (Some(3),3,Some(6),7), (None,8,None,8)
       )).toMap)(net)
-
     }
 
     Field_Utils should "support anyHood" in new SimulationContextFixture(seeds) {
@@ -164,10 +163,11 @@ class TestFieldUtils extends AnyFlatSpec {
         )
       }, ntimes = someRounds)(net)
 
+      def dupNbrs[T](s: Set[T]): Map[T,T] = s.map(v => (v,v)).toMap
       assertNetworkValues((0 to 8).zip(List(
-        (n(0).map(e => (e,e)).toMap, (n(0) + 0).map(e => (e,e)).toMap), (n(1).map(e => (e,e)).toMap, (n(1) + 1).map(e => (e,e)).toMap), (n(2).map(e => (e,e)).toMap, (n(2) + 2).map(e => (e,e)).toMap),
-        (n(3).map(e => (e,e)).toMap, (n(3) + 3).map(e => (e,e)).toMap), (n(4).map(e => (e,e)).toMap, (n(4) + 4).map(e => (e,e)).toMap), (n(5).map(e => (e,e)).toMap, (n(5) + 5).map(e => (e,e)).toMap),
-        (n(6).map(e => (e,e)).toMap, (n(6) + 6).map(e => (e,e)).toMap), (n(7).map(e => (e,e)).toMap, (n(7) + 7).map(e => (e,e)).toMap), (n(8).map(e => (e,e)).toMap, (n(8) + 8).map(e => (e,e)).toMap)
+        (dupNbrs(n(0)), dupNbrs(n(0) + 0), dupNbrs(n(1)), dupNbrs(n(1) + 1), dupNbrs(n(2)), dupNbrs(n(2) + 2)),
+        (dupNbrs(n(3)), dupNbrs(n(3) + 3), dupNbrs(n(4)), dupNbrs(n(4) + 4), dupNbrs(n(5)), dupNbrs(n(5) + 5)),
+        (dupNbrs(n(6)), dupNbrs(n(6) + 6), dupNbrs(n(7)), dupNbrs(n(7) + 7), dupNbrs(n(8)), dupNbrs(n(8) + 8))
       )).toMap)(net)
     }
 

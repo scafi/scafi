@@ -46,14 +46,14 @@ class TestFunctionCall extends AnyFlatSpec with Matchers {
     def hopGradient(source: Boolean): Int = {
       rep(Double.PositiveInfinity){
         hops => {
-          mux(source){ 0.0 } { 1+minHood(nbr{ hops }) }
+          mux(source){ 0.0 } { 1 + minHood(nbr{ hops }) }
         }
       }.toInt
       // NOTE 1: Double.PositiveInfinity + 1 = Double.PositiveInfinity
       // NOTE 2: Double.PositiveInfinity.toInt = Int.MaxValue
     }
 
-    def numOfNeighbors: Int = foldhood(0)(_+_)(nbr { 1 })
+    def numOfNeighbors: Int = foldhood(0)(_ + _)(nbr { 1 })
   }
 
   for(s <- seeds) {

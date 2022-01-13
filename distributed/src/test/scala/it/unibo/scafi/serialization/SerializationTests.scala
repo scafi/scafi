@@ -18,7 +18,7 @@ object SerializationTestsIncarnation extends BasicAbstractActorIncarnation {
 import SerializationTestsIncarnation._
 
 class SerializationTestProgram extends AggregateProgram  {
-  override def main(): Any = rep(0)(_+1)
+  override def main(): Any = rep(0)(_ + 1)
 }
 
 class SerializationTests extends AnyFunSuite {

@@ -34,7 +34,7 @@ class TestNeighbors extends AnyFlatSpec with Matchers {
     it should "be possible to count neighbors" in new SimulationContextFixture(seeds) {
       import node._
 
-      implicit val (endNet, _) = runProgram{ foldhood(0)(_+_){1} } (net)
+      implicit val (endNet, _) = runProgram{ foldhood(0)(_ + _){1} } (net)
 
       assertNetworkValues((0 to 8).zip(List(4,6,4,6,9,6,4,6,4)).toMap)
     }
@@ -43,7 +43,7 @@ class TestNeighbors extends AnyFlatSpec with Matchers {
       import node._
 
       implicit val (endNet, _) = runProgram{
-        foldhood(0)(_+_){if (nbr[Int](mid())==mid()) 0 else 1}
+        foldhood(0)(_ + _){if (nbr[Int](mid())==mid()) 0 else 1}
       } (net)
 
       assertNetworkValues((0 to 8).zip(List(3,5,3,5,8,5,3,5,3)).toMap)

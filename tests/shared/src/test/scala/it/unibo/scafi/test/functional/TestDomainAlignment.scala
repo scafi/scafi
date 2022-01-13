@@ -26,14 +26,14 @@ class TestDomainAlignment extends AnyFlatSpec with Matchers {
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.5, seeds = seeds))
+      setupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.5, seeds = seeds))
   }
 
   private[this] trait TestProgram extends AggregateProgram with StandardSensors with FieldUtils {
     def s = if(mid<=2 || mid==4) -1 else if(mid%3==0) 2 else 5
   }
 
-  def SetupNetwork(n: Network with SimulatorOps) = {
+  def setupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(FLAG, false)
     n.chgSensorValue(FLAG, ids = Set(0,1,2,3,4), value = true)
     n
@@ -49,11 +49,11 @@ class TestDomainAlignment extends AnyFlatSpec with Matchers {
     Domains should "align properly when mixing branches and nbrs" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Any = (
-          excludingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 }),
-          includingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)}+branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 } ),
+          excludingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)} + branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 }),
+          includingSelf.sumHood(nbr{ branch(mid<4){nbr(1)}{nbr(0)} + branch(mid%3!=0)(nbr(0))(nbr(1)) + 0 } ),
           excludingSelf.unionHood {
-            branch(s<4)(nbr("a"+mid))(nbr("b"+mid)) +
-              branch(s>0)(nbr("c"+mid))(nbr("d"+mid))
+            branch(s<4)(nbr("a" + mid))(nbr("b" + mid)) +
+              branch(s>0)(nbr("c" + mid))(nbr("d" + mid))
           }
         )
       }, ntimes = someRounds)(net)
@@ -68,11 +68,11 @@ class TestDomainAlignment extends AnyFlatSpec with Matchers {
     Domains should "align properly when mixing branches and aggregate calls" in new SimulationContextFixture(seeds) {
       exec(new TestProgram {
         override def main(): Any = (
-          foldhood(0)(_+_){
+          foldhood(0)(_ + _){
             (branch(mid() % 2 == 1){ () => aggregate{ 1 } }{ () => aggregate{ 0 } })()
           },
-          foldhood(0)(_+_){ branch (mid % 2 == 1) { 1 } { 0 } },
-          foldhood(0)(_+_){ branch( (() => aggregate { mid })() % 2 == 1){ 1 } { 0 } }
+          foldhood(0)(_ + _){ branch (mid % 2 == 1) { 1 } { 0 } },
+          foldhood(0)(_ + _){ branch( (() => aggregate { mid })() % 2 == 1){ 1 } { 0 } }
           )
       }, ntimes = fewRounds)(net)
 

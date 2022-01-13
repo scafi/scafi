@@ -83,6 +83,7 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
   organization := "it.unibo.scafi",
+  Test / scalastyleConfig := file("./scalastyle-test-config.xml"),
   compileScalastyle := (Test / scalastyle).toTask("").value,
   Test / test := ((Test / test) dependsOn compileScalastyle).value,
   (assembly / assemblyJarName) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",

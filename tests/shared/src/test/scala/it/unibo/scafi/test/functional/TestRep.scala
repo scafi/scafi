@@ -37,7 +37,7 @@ class TestRep extends AnyFlatSpec with Matchers {
       import node._
 
       val firingSeq = List(6,0,7,0,8,0,6,8,0,1,1,1,2,2,5,1,0,0,0,0,0)
-      implicit val endNet = runProgramInOrder(firingSeq){ rep(0){_+1} } (net)
+      implicit val endNet = runProgramInOrder(firingSeq){ rep(0){_ + 1} } (net)
 
       assertNetworkValues(Map(0 -> 9, 1 -> 4, 2 -> 2, 5 -> 1, 6 -> 2, 7 -> 1, 8 -> 2))
     }
@@ -47,7 +47,7 @@ class TestRep extends AnyFlatSpec with Matchers {
 
       val firingSeq1 = List(0,8,2,2,8,2,2)
       val endNet1 = runProgramInOrder(firingSeq1){
-        rep("a"){ _ + "b" + rep(""){ _+"c" } }
+        rep("a"){ _ + "b" + rep(""){ _ + "c" } }
       } (net)
 
       assertNetworkValues(Map(0 -> "abc", 8 -> "abcbcc", 2 -> "abcbccbcccbcccc"))(endNet1)
@@ -58,9 +58,9 @@ class TestRep extends AnyFlatSpec with Matchers {
 
       val endNet2 = runProgramInOrder(firingSeq2){
         rep(0){ prev => mux{
-          val x = rep(0){_+1}
+          val x = rep(0){ _ + 1 }
           x!=0 && (x % 3 == 0 || x % 4 == 0)
-        }(prev-1)(prev+1) }
+        }(prev - 1)(prev + 1) }
       } (net)
 
       assertNetworkValues(Map(

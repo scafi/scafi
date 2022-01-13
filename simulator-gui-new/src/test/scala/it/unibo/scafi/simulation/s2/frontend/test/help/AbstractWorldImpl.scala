@@ -28,13 +28,13 @@ class AbstractWorldImpl extends StandardWorldDefinition with AbstractAggregateWo
     def name : String
   }
 
-  object led extends DeviceType {
+  object Led extends DeviceType {
     val name = "Led"
   }
-  object position extends DeviceType {
+  object Position extends DeviceType {
     val name = "Position"
   }
-  object motor extends DeviceType {
+  object Motor extends DeviceType {
     val name = "Motor"
   }
 

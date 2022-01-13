@@ -31,9 +31,9 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)(_+_){ nbr{1} + nbr{2} + nbr{mid()} }
+      foldhood(0)(_ + _){ nbr{1} + nbr{2} + nbr{mid()} }
     }{
-      foldhood(0)(_+_){ nbr{1 + 2 + mid()} }
+      foldhood(0)(_ + _){ nbr{1 + 2 + mid()} }
     }
   }
 
@@ -41,9 +41,9 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)(_+_){ nbr{ mid() + nbr{ mid() } } }
+      foldhood(0)(_ + _){ nbr{ mid() + nbr{ mid() } } }
     }{
-      2 * foldhood(0)(_+_){ nbr{ mid() } }
+      2 * foldhood(0)(_ + _){ nbr{ mid() } }
     }
   }
 
@@ -51,11 +51,11 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)(_+_){
+      foldhood(0)(_ + _){
         rep (nbr{mid()}) { (old) => old }
       }
     }{
-      foldhood(0)(_+_){
+      foldhood(0)(_ + _){
         rep (mid()) { (old) => old }
       }
     }
@@ -65,13 +65,13 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)(_+_){
+      foldhood(0)(_ + _){
         rep (nbr{mid()}) { (old) =>
           old + nbr{old} + nbr{mid()}
         }
       }
     }{
-      foldhood(0)(_+_){1} *
+      foldhood(0)(_ + _){1} *
         rep (mid()) { (old) =>
           old * 2 + mid()
         }
@@ -83,11 +83,11 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)(_+_){
-        foldhood(nbr{mid()})(_+_){1}
+      foldhood(0)(_ + _){
+        foldhood(nbr{mid()})(_ + _){1}
       }
     }{
-      foldhood(0)(_+_){1} * foldhood(mid())(_+_){1}
+      foldhood(0)(_ + _){1} * foldhood(mid())(_ + _){1}
     }
   }
 
@@ -96,11 +96,11 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)(_+_){
-        foldhood(0)(_+_){1}
+      foldhood(0)(_ + _){
+        foldhood(0)(_ + _){1}
       }
     }{
-      Math.pow(foldhood(0)(_+_){1}, 2)
+      Math.pow(foldhood(0)(_ + _){1}, 2)
     }
   }
 
@@ -111,18 +111,18 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     // fold.fold : performance
     // NOTE: pay attention to double overflow
     assertEquivalence(devicesAndNbrs, execSequence, (x:Double,y:Double)=>Math.abs(x-y)/Math.max(Math.abs(x),Math.abs(y))<0.000001){
-      foldhood(0.0)(_+_){
-        foldhood(0.0)(_+_){
-          foldhood(0.0)(_+_){
-            foldhood(0.0)(_+_){
-              foldhood(0.0)(_+_){
-                foldhood(0.0)(_+_){
-                  foldhood(0.0)(_+_){
-                    foldhood(0.0)(_+_){
-                      foldhood(0.0)(_+_){
-                        foldhood(0.0)(_+_){1.0}}}}}}}}}}
+      foldhood(0.0)(_ + _){
+        foldhood(0.0)(_ + _){
+          foldhood(0.0)(_ + _){
+            foldhood(0.0)(_ + _){
+              foldhood(0.0)(_ + _){
+                foldhood(0.0)(_ + _){
+                  foldhood(0.0)(_ + _){
+                    foldhood(0.0)(_ + _){
+                      foldhood(0.0)(_ + _){
+                        foldhood(0.0)(_ + _){1.0}}}}}}}}}}
     }{
-      Math.pow(foldhood(0.0)(_+_){1.0}, 10)
+      Math.pow(foldhood(0.0)(_ + _){1.0}, 10)
     }
   }
 
@@ -130,9 +130,9 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood(0)((x,y) => aggregate { foldhood(0)(_+_){1} + foldhood(0)(_+_){1} + x + y }){1}
+      foldhood(0)((x,y) => aggregate { foldhood(0)(_ + _){1} + foldhood(0)(_ + _){1} + x + y }){1}
     }{
-      foldhood(0)(_+_){1}
+      foldhood(0)(_ + _){1}
     }
   }
 
@@ -150,12 +150,12 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
     val fixture = new Fixture
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
-      foldhood("")(_+_){
+      foldhood("")(_ + _){
         nbr(mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
           nbr(mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
       }
     }{
-      foldhood("")(_+_){
+      foldhood("")(_ + _){
         (mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
           (mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
       }

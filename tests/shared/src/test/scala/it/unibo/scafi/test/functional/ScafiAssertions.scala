@@ -56,10 +56,9 @@ object ScafiAssertions extends Matchers {
               """.stripMargin) {
       net.ids.forall(id => {
         val actualExport = net.export(id)
-        var expected = vals.get(id)
+        val expected = vals.get(id)
         (actualExport, expected) match {
-          case (Some(e), Some(v)) => if(customEq.isDefined) customEq.get(e.root[T](), v)
-            else e.root[T]() == v
+          case (Some(e), Some(v)) => if(customEq.isDefined) { customEq.get(e.root[T](), v) } else { e.root[T]() == v }
           case (None, None) => true
           case (None, _) => false
           case _ => false

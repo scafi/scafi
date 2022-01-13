@@ -20,7 +20,7 @@ class TestGradient extends AnyFlatSpec with Matchers {
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 11, seeds = seeds))
+      setupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 11, seeds = seeds))
     implicit val node = new Node
   }
 
@@ -33,19 +33,19 @@ class TestGradient extends AnyFlatSpec with Matchers {
     def hopGradient(source: Boolean): Int = {
       rep(10){
         hops => { mux(source){ 0 } {
-          1+minHood[Int](nbr[Int]{ hops }) } }
+          1 + minHood[Int](nbr[Int]{ hops }) } }
       }
     }
 
     def gradient(source: Boolean): Double =
       rep(Double.MaxValue){
         distance => mux(source) { 0.0 } {
-          foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance}+nbrvar[Double](NBR_RANGE))
+          foldhood(Double.MaxValue)((x,y)=>if (x<y) x else y)(nbr{distance} + nbrvar[Double](NBR_RANGE))
         }
       }
   }
 
-  def SetupNetwork(n: Network with SimulatorOps) = {
+  def setupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(name = "sensor", value = 0)
     n.chgSensorValue(name = "sensor", ids = Set(8), value = 1)
     n

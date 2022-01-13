@@ -23,7 +23,7 @@ class TestChannel extends AnyFlatSpec with Matchers {
   val (fewRounds, someRounds, manyRounds, manyManyRounds) = (100, 500, 1000, 2000)
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
-    def newNet = SetupNetwork(simulatorFactory.gridLike(GridSettings(4, 4, stepx, stepy), rng = 1.1, seeds = seeds))
+    def newNet = setupNetwork(simulatorFactory.gridLike(GridSettings(4, 4, stepx, stepy), rng = 1.1, seeds = seeds))
   }
 
   val SRC_ID = 15
@@ -36,7 +36,7 @@ class TestChannel extends AnyFlatSpec with Matchers {
     def obstacle = sense[Boolean]("obstacle")
   }
 
-  def SetupNetwork(n: Network with SimulatorOps) = {
+  def setupNetwork(n: Network with SimulatorOps) = {
     n.addSensor[Boolean]("obstacle", false)
     n.chgSensorValue("obstacle", OBSTACLES, true)
     n.addSensor[Boolean]("src", false)

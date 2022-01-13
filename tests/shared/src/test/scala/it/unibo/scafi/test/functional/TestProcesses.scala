@@ -31,9 +31,9 @@ class TestProcesses extends AnyFlatSpec with Matchers {
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
     implicit val net: NetworkSimulator =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2, seeds = seeds)).asInstanceOf[NetworkSimulator]
+      setupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.2, seeds = seeds)).asInstanceOf[NetworkSimulator]
     val largeNet: NetworkSimulator =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(20, 20, stepx, stepy), rng = 1.2, seeds = seeds)).asInstanceOf[NetworkSimulator]
+      setupNetwork(simulatorFactory.gridLike(GridSettings(20, 20, stepx, stepy), rng = 1.2, seeds = seeds)).asInstanceOf[NetworkSimulator]
     val program = new Program
   }
 
@@ -49,14 +49,14 @@ class TestProcesses extends AnyFlatSpec with Matchers {
     override def main(): Any = {
       val k = countChanges(gen1, gen1 || false)
       val procs1 = sspawn[Pid,Unit,String](pid => args => {
-        (""+distanceTo(gen1), if(stop) Terminated else Output)
+        ("" + distanceTo(gen1), if(stop) Terminated else Output)
       }, if(k._2) Set(Pid(mid,k._1)) else Set.empty, ())
 
       val j = countChanges(gen2, gen2 || false)
       val procs2 = sspawn[Pid,Boolean,String](pid => args => {
         val maxExpansion = distanceTo(pid.dev==mid)
         val g = distanceTo(args)
-        (""+g, if(maxExpansion>2.5) External else Output)
+        ("" + g, if(maxExpansion>2.5) External else Output)
       }, if(j._2) Set(Pid(mid,j._1)) else Set.empty, src)
 
       (procs1 ++ procs2)
@@ -65,7 +65,7 @@ class TestProcesses extends AnyFlatSpec with Matchers {
 
   type ProcsMap = Map[Pid,String]
 
-  def SetupNetwork(n: Network with SimulatorOps) = {
+  def setupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(Gen1, false)
     n.addSensor(Gen2, false)
     n.addSensor(SRC, false)
@@ -251,6 +251,4 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
     }
   }
-
-  private def S[T](x: T) = Some[T](x)
 }

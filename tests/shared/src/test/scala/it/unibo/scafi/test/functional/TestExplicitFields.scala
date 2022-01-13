@@ -25,7 +25,7 @@ class TestExplicitFields extends AnyFlatSpec with Matchers {
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.6, seeds = seeds))
+      setupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, stepx, stepy), rng = 1.6, seeds = seeds))
   }
 
   private[this] trait TestLib { self: AggregateProgram with ExplicitFields with StandardSensors =>
@@ -41,7 +41,7 @@ class TestExplicitFields extends AnyFlatSpec with Matchers {
 
   private[this] trait TestProgram extends AggregateProgram with ExplicitFields with StandardSensors with TestLib
 
-  def SetupNetwork(n: Network with SimulatorOps) = {
+  def setupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(SRC, false)
     n.chgSensorValue(SRC, ids = Set(8), value = true)
     n.addSensor(FLAG, false)
@@ -85,7 +85,7 @@ class TestExplicitFields extends AnyFlatSpec with Matchers {
     }
 
     ExplicitFields should "deal with domain mismatches" in new SimulationContextFixture(seeds) {
-      an [Exception] should be thrownBy exec(new TestProgram {
+      an[Exception] should be thrownBy exec(new TestProgram {
         override def main(): Double = {
           val f1 = branch(sense[Boolean](FLAG)){ fnbr(1.0).withoutSelf }{ fnbr(-1.0) }
           val f2 = branch(sense[Boolean](SRC)){ fnbr(10.0) }{ fnbr(0.0) }
@@ -130,11 +130,11 @@ class TestExplicitFields extends AnyFlatSpec with Matchers {
       exec(new TestProgram {
         override def main(): Any = {
           val phi: Field[String] = fnbr(if(sense[Boolean](FLAG)) "a" else "b")
-          val f1 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted }
-          val f2 = (x: Field[String]) => aggregate{ x.fold("")(_+_).sorted.toUpperCase }
+          val f1 = (x: Field[String]) => aggregate{ x.fold("")(_ + _).sorted }
+          val f2 = (x: Field[String]) => aggregate{ x.fold("")(_ + _).sorted.toUpperCase }
 
           val numphi: Field[Int] = fnbr(if(sense[Boolean](FLAG)) 1 else 2)
-          val phi2: Field[String] = branch(mid<=3){ numphi+0 }{ numphi+5 }.map(_.toString)
+          val phi2: Field[String] = branch(mid<=3){ numphi + 0 }{ numphi + 5 }.map(_.toString)
 
           // 1+0  |  1+0    1+0
           //      |------------

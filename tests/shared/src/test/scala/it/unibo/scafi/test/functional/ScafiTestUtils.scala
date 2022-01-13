@@ -36,7 +36,7 @@ object ScafiTestUtils {
     prev
   }
 
-  def restoreNodes(map: Map[ID,Set[ID]], net: NetworkSimulator) = {
+  def restoreNodes(map: Map[ID,Set[ID]], net: NetworkSimulator): Unit = {
     net.nbrMap.clear()
     map.foreach(net.nbrMap += _)
   }
@@ -48,7 +48,7 @@ object ScafiTestUtils {
     nbrs
   }
 
-  def connectNode(id: ID, nbrs: Set[ID], net: NetworkSimulator) = {
+  def connectNode(id: ID, nbrs: Set[ID], net: NetworkSimulator): Unit = {
     net.nbrMap(id) = nbrs
     nbrs.foreach(nbrId => net.nbrMap(nbrId) += id)
   }

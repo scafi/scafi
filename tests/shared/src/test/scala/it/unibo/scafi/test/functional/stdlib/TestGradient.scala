@@ -10,7 +10,7 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiTestUtils._
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
-    implicit var net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds)
+    implicit val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds)
     net.addSensor(name = "source", value = false)
   }
 
@@ -172,7 +172,8 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
     describe("BIS Gradient - refactor") {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
-          override def main(): (Double, Double) = (BisGradient().from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+          override def main(): (Double, Double) =
+            (BisGradient().from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
@@ -181,7 +182,8 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
           //notice the use of an high raisingSpeed
-          override def main(): (Double, Double) = (CrfGradient(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+          override def main(): (Double, Double) =
+            (CrfGradient(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
@@ -189,7 +191,8 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
     describe("Flex Gradient - refactor") {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
-          override def main(): (Double, Double) = (FlexGradient(epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+          override def main(): (Double, Double) =
+            (FlexGradient(epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
@@ -197,14 +200,16 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
     describe("SVD Gradient - refactor") {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
-          override def main(): (Double, Double) = (SvdGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+          override def main(): (Double, Double) =
+            (SvdGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
     describe("ULT Gradient - refactor") {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
-          override def main(): (Double, Double) = (UltGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+          override def main(): (Double, Double) =
+            (UltGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }

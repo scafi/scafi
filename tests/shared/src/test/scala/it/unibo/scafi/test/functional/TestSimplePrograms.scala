@@ -17,11 +17,11 @@ class TestSimplePrograms extends AnyFlatSpec with Matchers {
 
   private[this] class SimulationContextFixture(seeds: Seeds) {
     val net: Network with SimulatorOps =
-      SetupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, 1, 1), rng = 1.5, seeds = seeds))
+      setupNetwork(simulatorFactory.gridLike(GridSettings(3, 3, 1, 1), rng = 1.5, seeds = seeds))
     implicit val node = new BasicAggregateInterpreter
   }
 
-  private[this] def SetupNetwork(n: Network with SimulatorOps) = {
+  private[this] def setupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(name = "sensor1", value = 0)
     n.chgSensorValue(name = "sensor1", ids = Set(1,8), value = 1)
     n.addSensor(name = "sensor2", value = "off")
