@@ -47,23 +47,23 @@ class TestProcesses extends AnyFlatSpec with Matchers {
     def gen2 = sense[Boolean](Gen2)
 
     override def main(): Any = {
-      val k = countChanges(gen1, gen1 || false)
-      val procs1 = sspawn[Pid,Unit,String](pid => args => {
-        ("" + distanceTo(gen1), if(stop) Terminated else Output)
+      val k = countChanges(gen1, gen1)
+      val procs1 = sspawn[Pid,Unit,Double](_ => _ => {
+        (distanceTo(gen1), if(stop) Terminated else Output)
       }, if(k._2) Set(Pid(mid,k._1)) else Set.empty, ())
 
-      val j = countChanges(gen2, gen2 || false)
-      val procs2 = sspawn[Pid,Boolean,String](pid => args => {
+      val j = countChanges(gen2, gen2)
+      val procs2 = sspawn[Pid,Boolean,Double](pid => args => {
         val maxExpansion = distanceTo(pid.dev==mid)
         val g = distanceTo(args)
-        ("" + g, if(maxExpansion>2.5) External else Output)
+        (g, if(maxExpansion>2.5) External else Output)
       }, if(j._2) Set(Pid(mid,j._1)) else Set.empty, src)
 
       (procs1 ++ procs2)
     }
   }
 
-  type ProcsMap = Map[Pid,String]
+  type ProcsMap = Map[Pid,Double]
 
   def setupNetwork(n: Network with SimulatorOps) = {
     n.addSensor(Gen1, false)
@@ -103,9 +103,9 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       val p1 = Pid(8,1)
       // ASSERT: process 1 has been executed in the network; a correct gradient has stabilised
       assertNetworkValues((0 to 8).zip(List(
-        Map(p1 -> "4.0"), Map(p1 -> "3.0"), Map(p1 -> "2.0"),
-        Map(p1 -> "3.0"), Map(p1 -> "2.0"), Map(p1 -> "1.0"),
-        Map(p1 -> "2.0"), Map(p1 -> "1.0"), Map(p1 -> "0.0")
+        Map(p1 -> 4.0), Map(p1 -> 3.0), Map(p1 -> 2.0),
+        Map(p1 -> 3.0), Map(p1 -> 2.0), Map(p1 -> 1.0),
+        Map(p1 -> 2.0), Map(p1 -> 1.0), Map(p1 -> 0.0)
       )).toMap)(net)
     }
 
@@ -130,9 +130,9 @@ class TestProcesses extends AnyFlatSpec with Matchers {
 
       // ASSERT: check gradient stabilises in the covered area
       assertNetworkValues((0 to 8).zip(List(
-        Map(p021 -> "2.0"), Map(p021 -> "1.0"), Map(p021 -> "2.0"),
-        Map(p021 -> "1.0"), Map(p021 -> "0.0"), Map(             ),
-        Map(p021 -> "2.0"), Map(             ), Map(             )
+        Map(p021 -> 2.0), Map(p021 -> 1.0), Map(p021 -> 2.0),
+        Map(p021 -> 1.0), Map(p021 -> 0.0), Map(             ),
+        Map(p021 -> 2.0), Map(             ), Map(             )
       )).toMap)(net)
     }
 
@@ -169,9 +169,9 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       val p1 = Pid(0,1)
       val p2 = Pid(6,1)
       assertNetworkValues((0 to 8).zip(List(
-        Map(p1 -> "0.0", p2 -> "4.0"), Map(p1 -> "1.0"             ), Map(p1 -> "2.0"             ),
-        Map(p1 -> "1.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "3.0"             ),
-        Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "3.0", p2 -> "1.0"), Map(p1 -> "4.0", p2 -> "0.0")
+        Map(p1 -> 0.0, p2 -> 4.0), Map(p1 -> 1.0             ), Map(p1 -> 2.0             ),
+        Map(p1 -> 1.0, p2 -> 3.0), Map(p1 -> 2.0, p2 -> 2.0), Map(p1 -> 3.0            ),
+        Map(p1 -> 2.0, p2 -> 2.0), Map(p1 -> 3.0, p2 -> 1.0), Map(p1 -> 4.0, p2 -> 0.0)
       )).toMap)(net)
     }
 
@@ -188,9 +188,9 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       val p1 = Pid(0,1)
       val p2 = Pid(8,1)
       assertNetworkValues((0 to 8).zip(List(
-        Map(p1 -> "0.0", p2 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"),
-        Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
-        Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0")
+        Map(p1 -> 0.0, p2 -> 0.0), Map(p1 -> 1.0, p2 -> 1.0), Map(p1 -> 2.0, p2 -> 2.0),
+        Map(p1 -> 1.0, p2 -> 1.0), Map(p1 -> 2.0, p2 -> 2.0), Map(p1 -> 1.0, p2 -> 1.0),
+        Map(p1 -> 2.0, p2 -> 2.0), Map(p1 -> 1.0, p2 -> 1.0), Map(p1 -> 0.0, p2 -> 0.0)
       )).toMap)(net)
 
       // ACT: add an additional generator, and continue program execution
@@ -200,9 +200,9 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       // ASSERT: check no conflict when process 1 is generated from multiple nodes possibly activated at different times
       val p3 = Pid(4,1)
       assertNetworkValues((0 to 8).zip(List(
-        Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "2.0", p2 -> "2.0", p3 -> "2.0"),
-        Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"),
-        Map(p1 -> "2.0", p2 -> "2.0", p3 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0", p3 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0", p3 -> "0.0")
+        Map(p1 -> 0.0, p2 -> 0.0, p3 -> 0.0), Map(p1 -> 1.0, p2 -> 1.0, p3 -> 1.0), Map(p1 -> 2.0, p2 -> 2.0, p3 -> 2.0),
+        Map(p1 -> 1.0, p2 -> 1.0, p3 -> 1.0), Map(p1 -> 0.0, p2 -> 0.0, p3 -> 0.0), Map(p1 -> 1.0, p2 -> 1.0, p3 -> 1.0),
+        Map(p1 -> 2.0, p2 -> 2.0, p3 -> 2.0), Map(p1 -> 1.0, p2 -> 1.0, p3 -> 1.0), Map(p1 -> 0.0, p2 -> 0.0, p3 -> 0.0)
       )).toMap)(net)
     }
 
@@ -217,9 +217,9 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       val p1 = Pid(7,1)
       val p2 = Pid(7,2)
       assertNetworkValues((0 to 8).zip(List(
-        Map(                        ), Map(p1 -> "3.0", p2 -> "3.0"), Map(                        ),
-        Map(p1 -> "3.0", p2 -> "3.0"), Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"),
-        Map(p1 -> "2.0", p2 -> "2.0"), Map(p1 -> "1.0", p2 -> "1.0"), Map(p1 -> "0.0", p2 -> "0.0")
+        Map(                        ), Map(p1 -> 3.0, p2 -> 3.0), Map(                        ),
+        Map(p1 -> 3.0, p2 -> 3.0), Map(p1 -> 2.0, p2 -> 2.0), Map(p1 -> 1.0, p2 -> 1.0),
+        Map(p1 -> 2.0, p2 -> 2.0), Map(p1 -> 1.0, p2 -> 1.0), Map(p1 -> 0.0, p2 -> 0.0)
       )).toMap)(net)
     }
 
