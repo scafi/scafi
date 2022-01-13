@@ -30,14 +30,13 @@ class GraphicsLogCommandFactory extends CommandFactory {
       case Some(typeValue : String) => if (logTypeMap.contains(typeValue)) {
         valueType = Some(typeValue)
       } else {
-        return creationFailed(Fail(wrongTypeParameter(typesAccept,Type)))
+        creationFailed(Fail(wrongTypeParameter(typesAccept,Type)))
       }
     }
 
     args.get(Channel) match {
       case Some(channelValue : String) => channel = Some(channelValue)
-      case _ => return creationFailed(Fail(wrongTypeParameter(StringType,Channel)))
-      case _ =>
+      case _ => creationFailed(Fail(wrongTypeParameter(StringType,Channel)))
     }
 
     if(channel.isDefined && valueType.isDefined) {
