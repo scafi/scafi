@@ -88,13 +88,13 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       exec(program, ntimes = fewRounds)(net)
 
       // ASSERT: nobody computed a value for any process, i.e., nobody executed any process
-      assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
+      assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
     }
 
     Processes must "exist when activated" in new SimulationContextFixture(seeds) {
       // ACT: run program, checking nobody run any process
       exec(program, ntimes = fewRounds)(net)
-      assertForAllNodes[ProcsMap]{ (_,m) => m.forall(_._2==None) }(net)
+      assertForAllNodes[ProcsMap]{ (_,m) => m.isEmpty }(net)
 
       // ACT: activate process 1 from node 8, run program
       setSensor(Gen1, true).inDevices(8)
@@ -119,10 +119,10 @@ class TestProcesses extends AnyFlatSpec with Matchers {
       // ASSERT: check the limited extension of the process, which doesn't reach to gradient source;
       //         check nodes not covered; the other nodes compute a rising gradient (without source)
       val p021 = Pid(0,1)
-      assertForAllNodes[ProcsMap]{ (id, m) => m.forall(proc => proc match {
-        case (p021, value) => Set(0,1,2,3,4,6).contains(id) && value.toDouble > 10
-        case _ => Set(5,7,8).contains(id)
-      })}(net)
+      assertForAllNodes[ProcsMap]{ (id, m) => m.forall {
+        case (p021, value) => Set(0, 1, 2, 3, 4, 6).contains(id) && value.toDouble > 10
+        case _ => Set(5, 7, 8).contains(id)
+      }}(net)
 
       // ACT: set new source; continue program execution
       setSensor(SRC, true).inDevices(4)
