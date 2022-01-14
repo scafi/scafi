@@ -44,12 +44,6 @@ lazy val javaFX = if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11) {
 lazy val javaVersion = System.getProperty("java.version").stripPrefix("openjdk")
 lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
 
-/*
- * - Leverage SONATYPE_USERNAME and SONATYPE_PASSWORD for authentication in Sonatype
- * - Through sbt-dynver (via sbt-release-early), project version is dynamically set based on commit
- */
-releaseEarlyWith in Global := SonatypePublisher
-
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
   Test / publishArtifact := false,
@@ -67,7 +61,6 @@ inThisBuild(List(
     Developer(id="cric96", name="Gianluca Aguzzi", email="gianluca.aguzzi@unibo.it", url=url("https://cric96.github.io/")),
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
-  releaseEarlyEnableLocalReleases := true,
   crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
   scalaVersion :=  crossScalaVersions.value.head, // default version
 ))
