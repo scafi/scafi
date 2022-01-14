@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Build-Success:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - uses: olafurpg/setup-scala@v13
+      - run: sbt +publishSigned ci-release
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASS }}
+          PGP_PASSWORD: ${{ secrets.PGP_PASS }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_USER: ${{ secrets.SONATYPE_USERNAME }}
+          BINTRAY_USER: dummy
+          BINTRAY_PASS: dummy
