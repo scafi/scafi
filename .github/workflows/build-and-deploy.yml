@@ -37,8 +37,8 @@ jobs:
       - shell: bash
         run: sbt +releaseEarly sonatypeBundleRelease
         env:
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          PGP_PASSWORD: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASS }}
+          PGP_PASSWORD: ${{ secrets.PGP_PASS }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
