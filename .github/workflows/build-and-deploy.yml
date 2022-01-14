@@ -36,3 +36,12 @@ jobs:
         uses: olafurpg/setup-scala@v11
       - shell: bash
         run: sbt +releaseEarly sonatypeBundleRelease
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_PASSWORD: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_USER: ${{ secrets.SONATYPE_USERNAME }}
+          BINTRAY_USER: dummy
+          BINTRAY_PASS: dummy
