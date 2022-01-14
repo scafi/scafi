@@ -34,6 +34,7 @@ jobs:
         with:
           java-version: adopt@1.11
         uses: olafurpg/setup-scala@v11
+      - uses: olafurpg/setup-gpg@v3
       - shell: bash
         run: sbt +releaseEarly sonatypeBundleRelease
         env:
