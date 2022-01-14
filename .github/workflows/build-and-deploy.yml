@@ -29,14 +29,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [Build-Sbt]
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Scala and JDK
+      - uses: actions/checkout@v2.3.4
         with:
-          java-version: adopt@1.11
-        uses: olafurpg/setup-scala@v11
-      - uses: olafurpg/setup-gpg@v3
-      - shell: bash
-        run: sbt +releaseEarly sonatypeBundleRelease
+          fetch-depth: 0
+      - uses: olafurpg/setup-scala@v13
+      - run: sbt +publishSigned ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASS }}
           PGP_PASSWORD: ${{ secrets.PGP_PASS }}

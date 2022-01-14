@@ -20,7 +20,7 @@ addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
 
 // Provides a customizable release process
 
-addSbtPlugin("ch.epfl.scala" % "sbt-release-early" % "2.1.1+4-9d76569a")
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.9")
 
 // Create a fat JAR of a project with all of its dependencies
 

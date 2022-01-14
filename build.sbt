@@ -52,7 +52,6 @@ releaseEarlyWith in Global := SonatypePublisher
 
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
-  publishMavenStyle := true, // ensure POMs are generated and pushed
   Test / publishArtifact := false,
   pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
   licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
@@ -69,12 +68,6 @@ inThisBuild(List(
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
   releaseEarlyEnableLocalReleases := true,
-  publishTo := Some(
-    if (isSnapshot.value)
-      Opts.resolver.sonatypeSnapshots
-    else
-      Opts.resolver.sonatypeStaging
-  ),
   crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
   scalaVersion :=  crossScalaVersions.value.head, // default version
 ))
