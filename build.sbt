@@ -9,20 +9,20 @@ resolvers += Resolver.typesafeRepo("releases")
 
 // Constants
 val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.14","2.13.6")
-val akkaVersion = "2.5.31" // NOTE: Akka 2.4.0 REQUIRES Java 8!
+val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
 
 // Managed dependencies
 val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel       = "org.apache.bcel"   % "bcel"         % "6.4.1"
-val scalaLogging  = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
+val scalaLogging  = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
 val scalatest  = Def.setting { "org.scalatest"     %%% "scalatest"   % "3.1.1"     % "test" }
 val scopt      = "com.github.scopt"  %% "scopt"       % "4.0.0-RC2"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.3"
-val playJson   = "com.typesafe.play" %% "play-json"   % "2.8.1"
+val playJson   = "com.typesafe.play" %% "play-json"   % "2.9.2"
 val scalafx = "org.scalafx" %% "scalafx" % "12.0.2-R18"
-val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.26"
-val log4 = "log4j" % "log4j" % "1.2.17"
+val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.32"
+val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.17.1"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
 
 // Determine OS version of JavaFX binaries
