@@ -1,7 +1,4 @@
-import sbt.Keys.target
-import sbt.{Def}
-import com.typesafe.sbt.SbtGit.GitKeys._
-import org.scalastyle.sbt.ScalastylePlugin._
+import sbt.Def
 
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -16,12 +13,12 @@ val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
 val bcel       = "org.apache.bcel"   % "bcel"         % "6.4.1"
 val scalaLogging  = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
-val scalatest  = Def.setting { "org.scalatest"     %%% "scalatest"   % "3.1.1"     % "test" }
+val scalatest  = Def.setting { "org.scalatest"     %%% "scalatest"   % "3.2.10"     % "test" }
 val scopt      = "com.github.scopt"  %% "scopt"       % "4.0.0-RC2"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.3"
 val playJson   = "com.typesafe.play" %% "play-json"   % "2.9.2"
-val scalafx = "org.scalafx" %% "scalafx" % "12.0.2-R18"
-val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.32"
+val scalafx = "org.scalafx" %% "scalafx" % "15.0.1-R21"
+val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.33"
 val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.17.1"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
 

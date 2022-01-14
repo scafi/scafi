@@ -10,10 +10,6 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
-// Provide PGP signing (publishSigned)
-
-// addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.2")
-
 // Publish projects to the Maven Central Repository (sonatypeRelease)
 
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
