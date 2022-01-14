@@ -10,6 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: liberica@1.11.0
       - run: sbt +publishSigned ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASS }}
