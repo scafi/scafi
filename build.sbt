@@ -5,7 +5,8 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.typesafeRepo("releases")
 
 // Constants
-val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.14","2.13.6")
+val defaultScalaVersion = "2.11.12"
+val scalaVersionsForCrossCompilation = Seq(defaultScalaVersion,"2.12.14","2.13.6")
 val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
 
 // Managed dependencies
@@ -58,7 +59,7 @@ inThisBuild(List(
     Developer(id="cric96", name="Gianluca Aguzzi", email="gianluca.aguzzi@unibo.it", url=url("https://cric96.github.io/")),
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
-  scalaVersion :=  crossScalaVersions.value.head, // default version
+  scalaVersion :=  defaultScalaVersion,
 ))
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
