@@ -10,7 +10,7 @@ import java.awt.event.{ActionEvent, ActionListener}
 import scala.language.implicitConversions
 
 package object view {
-  implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
+  implicit def toActionListener(f: ActionEvent => Unit): ActionListener = new ActionListener {
     def actionPerformed(e: ActionEvent): Unit = { f(e) }
   }
 }

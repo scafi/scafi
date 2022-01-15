@@ -6,6 +6,7 @@
 package it.unibo.scafi.distrib.actor
 
 import akka.actor.{Actor, ActorRef, Props}
+import akka.event.LoggingAdapter
 
 trait PlatformActors { self: Platform.Subcomponent =>
 
@@ -18,7 +19,7 @@ trait PlatformActors { self: Platform.Subcomponent =>
    * @param settings about the aggregate programming application
    */
   class AggregateApplicationActor(val settings: AggregateApplicationSettings) extends Actor {
-    val logger = akka.event.Logging(context.system, this)
+    val logger: LoggingAdapter = akka.event.Logging(context.system, this)
 
     def receive: Receive = {
       case MsgAddDevice(id, props) => {

@@ -16,7 +16,7 @@ object SenseImageFXOutput extends FXOutputPolicy {
   private var senseToImage : Map[Any,ImagePattern] = Map.empty
   private val standardFill : Paint = Color.Black
   initializeScalaFXPlatform()
-  def addRepresentation(sens : Any, file : String) = senseToImage += sens -> new ImagePattern(new Image(file))
+  def addRepresentation(sens : Any, file : String): Unit = senseToImage += sens -> new ImagePattern(new Image(file))
 
   private lazy val image = new Image(ViewSetting.nodeImagePath)
 

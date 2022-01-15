@@ -97,7 +97,7 @@ class UnixLikeParser (factories : CommandFactory *) extends Parser[String] {
 }
 
 object UnixLikeParser {
-  def NoCommandFound = Fail(international("no-command-found")(KeyFile.Configuration))
+  def NoCommandFound: Fail[String] = Fail(international("no-command-found")(KeyFile.Configuration))
   val Help = "-help"
   val emptyValue = "_"
 }

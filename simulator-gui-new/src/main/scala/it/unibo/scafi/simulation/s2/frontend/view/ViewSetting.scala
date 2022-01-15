@@ -10,7 +10,7 @@ object ViewSetting {
   /*
    * the window configuration, (windowed, full sceeen..)
    */
-  var windowConfiguration = WindowConfiguration.apply(800,600)
+  var windowConfiguration: WindowConfiguration = WindowConfiguration.apply(800,600)
   /**
     * standard label font
     */

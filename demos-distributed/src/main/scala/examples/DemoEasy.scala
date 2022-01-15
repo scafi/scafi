@@ -24,7 +24,7 @@ object DemoEasy extends CmdLineMain {
   override def programBuilder = None//Some(new MyAggregateProgram {})
 
   var k = 0
-  override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade) = {
+  override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = {
     k = k+1
     if(k>=2){
       sys.start()

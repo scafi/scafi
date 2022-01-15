@@ -26,11 +26,11 @@ object AgereDemoMain extends App {
 @Demo
 class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefinitions with TimeUtils {
   /* Parameters */
-  val t_fail = (15.seconds)     // Time w/o failures
-  val t_act = (5.seconds)     // Time for actuation
+  val t_fail: FiniteDuration = (15.seconds)     // Time w/o failures
+  val t_act: FiniteDuration = (5.seconds)     // Time for actuation
   val D_alert = 10.0          // People density threshold
   val radius = 20             // Radius of monitoring areas
-  val meanDist = radius*2     // Mean distance between area leaders
+  val meanDist: Int = radius*2     // Mean distance between area leaders
 
   /* Program result type */
   type Result = (DeviceStatus, IsActing)
@@ -45,7 +45,7 @@ class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefiniti
   case object Idle extends IsActing
 
   /* Core logic */
-  def main = rep[Result]((Ok,Idle)){ case (lastStatus, wasActing) =>
+  def main: Result = rep[Result]((Ok,Idle)){ case (lastStatus, wasActing) =>
     var isActing = if(recentlyTrue(t_act, lastStatus==Alert)) {
       act()
       Acts
@@ -68,11 +68,11 @@ class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefiniti
   }
 
   /* Functions */
-  def senseLocalDensity() = foldhood(0)(_+_){ nbr(1) }
+  def senseLocalDensity(): Int = foldhood(0)(_+_){ nbr(1) }
   def withoutFailuresSince(d: Duration): Boolean = !recentlyTrue(d, sense2)
   def act[T](): Unit = { }
 
   /* Utility functions */
-  def now = System.nanoTime()
+  def now: Long = System.nanoTime()
   def never = Long.MaxValue
 }

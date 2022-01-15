@@ -35,5 +35,5 @@ class LaunchCommandFactory(implicit val scafiConfiguration : ScafiConfigurationB
 object LaunchCommandFactory {
   import it.unibo.scafi.simulation.s2.frontend.configuration.launguage.ResourceBundleManager._
   implicit val key : String = KeyFile.Error
-  def ArgumentProblem = i"argument-problem"
+  def ArgumentProblem: String = i"argument-problem"
 }

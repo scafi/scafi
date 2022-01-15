@@ -19,7 +19,7 @@ import scala.language.implicitConversions
 class ControllerPrivate (val gui: SimulatorUI) {
   final private val controller: Controller = Controller.getInstance
 
-  implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
+  implicit def toActionListener(f: ActionEvent => Unit): ActionListener = new ActionListener {
     def actionPerformed(e: ActionEvent): Unit = { f(e) }
   }
 

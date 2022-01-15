@@ -56,9 +56,9 @@ trait PlatformMessages { self: Platform.Subcomponent =>
   case class MsgNeighborhoodLocations(id: UID, nbrs: Map[UID, String])
   case class MsgGetNeighborhoodExports(id: UID)
   case class MsgNeighborhoodExports(id: UID, nbrs: Map[UID,Option[ComputationExport]]) extends ScafiMessage
-  val MsgGetIds = "msg_get_ids".hashCode
-  val MsgGetExport = "msg_get_export".hashCode
-  val MsgGetNeighbors = "msg_get_neighbors".hashCode
+  val MsgGetIds: Int = "msg_get_ids".hashCode
+  val MsgGetExport: Int = "msg_get_export".hashCode
+  val MsgGetNeighbors: Int = "msg_get_neighbors".hashCode
   case class Ack(id: UID)
 
   // View messages

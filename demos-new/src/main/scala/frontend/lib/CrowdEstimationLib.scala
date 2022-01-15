@@ -44,14 +44,14 @@ trait CrowdEstimationLib extends BuildingBlocks { self: AggregateProgram with Se
     rtSub(timer(10) == 0, state, memoryTime)
   }
 
-  def dangerousDensity(p: Double, r: Double) = {
+  def dangerousDensity(p: Double, r: Double): Int = {
     val mr = managementRegions(r*2, nbrRange)
     val danger = average(mr, densityEst(p, r)) > 2.17 &&
       summarize(mr, (_:Double)+(_:Double), 1 / p, 0) > 300
     if(danger) { high } else { low }
   }
 
-  def crowdTracking(p: Double, r: Double, t: Double) = {
+  def crowdTracking(p: Double, r: Double, t: Double): Int = {
     val crowdRgn = recentTrue(densityEst(p, r)>1.08, t)
     if(crowdRgn) { dangerousDensity(p, r) } else { none }
   }

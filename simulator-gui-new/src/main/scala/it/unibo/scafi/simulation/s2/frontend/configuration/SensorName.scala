@@ -18,11 +18,11 @@ object SensorName {
   /**
     * return the name of all input sensor
     */
-  val inputSensor = List(sensor1,sensor2,sensor3,sensor4)
+  val inputSensor: List[String] = List(sensor1,sensor2,sensor3,sensor4)
   /**
     * return the name of all output sensor
     */
-  val outputSensor = List(output1,output2,output3)
+  val outputSensor: List[String] = List(output1,output2,output3)
 
   /**
     * a method used to change sensor namespace

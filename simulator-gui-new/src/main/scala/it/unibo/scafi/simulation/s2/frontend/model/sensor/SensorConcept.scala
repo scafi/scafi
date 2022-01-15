@@ -21,7 +21,7 @@ trait SensorConcept {
       */
     def stream : SensorStream
 
-    override def toString =  s"Sensor name = $name, value = $value, stream = $stream"
+    override def toString: String =  s"Sensor name = $name, value = $value, stream = $stream"
   }
 
   /**

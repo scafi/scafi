@@ -86,7 +86,7 @@ class ValuesPanel private[view]() extends JPanel {
     })
   }
 
-  def drawDrone(g: Graphics, angle: Double, x: Int, y: Int) = {
+  def drawDrone(g: Graphics, angle: Double, x: Int, y: Int): Unit = {
     var dist = 9
     var newX1 = x + dist * (math.cos(angle * math.Pi / 180.0))
     var newY1 = y + dist * (math.sin(angle * math.Pi / 180.0))

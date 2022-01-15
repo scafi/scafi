@@ -93,7 +93,7 @@ import org.apache.bcel.classfile._
   * Adapted from: http://illegalargumentexception.blogspot.it/2008/04/java-finding-binary-class-dependencies.html
   */
 class DependencyEmitter(var klass: JavaClass) extends EmptyVisitor {
-  var result = Map[String,Array[Byte]]()
+  var result: Map[String,Array[Byte]] = Map[String,Array[Byte]]()
 
   override def visitConstantClass(obj: ConstantClass): Unit = {
     val cp = klass.getConstantPool()

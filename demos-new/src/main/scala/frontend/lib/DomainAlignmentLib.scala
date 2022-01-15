@@ -11,7 +11,7 @@ import frontend.sims.SensorDefinitions
 trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
 
   val inf = Double.PositiveInfinity
-  def time = rep(0){ _ + 1 }
+  def time: Int = rep(0){ _ + 1 }
 
   ///////////////////////////////////////
   // domain-aligned updatable function //
@@ -22,7 +22,7 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
     * @param fun Function
     */
   case class VersionedFunction(ver: Int, fun: ()=>Double) {
-    def max(o: VersionedFunction) = {
+    def max(o: VersionedFunction): VersionedFunction = {
       if (ver > o.ver) this else o
     }
   }
@@ -50,7 +50,7 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
     * @param init Initial version of the function.
     * @return
     */
-  def safeup(metric: ()=>VersionedFunction, init: ()=>Double) = aggregate{
+  def safeup(metric: ()=>VersionedFunction, init: ()=>Double): Double = aggregate{
     (rep ((List[VersionedFunction](), -1, -1, nbr{0.0})) {
       case ((procs:List[VersionedFunction], maxp:Int, curp:Int, field:Double)) => aggregate {
         val y: (Int,List[VersionedFunction]) = foldhood((maxp,procs))( (a,b) => if(a._1>=b._1) a else b){ nbr{(maxp, procs)} }
@@ -67,7 +67,7 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
   // trivial updatable function //
   ////////////////////////////////
 
-  def up(f: ()=>VersionedFunction) = aggregate{
+  def up(f: ()=>VersionedFunction): () => Double = aggregate{
     (rep(f()) {
       (x) => aggregate{foldhood(f())(_.max(_)){nbr{x}}}
     } ).fun
@@ -81,7 +81,7 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
     def +(delta: Double) = {
       RaisingDist(dist+delta, raising)
     }
-    def min(o: RaisingDist) = {
+    def min(o: RaisingDist): RaisingDist = {
       if (raising == o.raising) {
         if (dist < o.dist) this else o
       } else {
@@ -90,7 +90,7 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
     }
   }
 
-  def crfgradient(source: Boolean, metric: ()=>Double) = aggregate{
+  def crfgradient(source: Boolean, metric: ()=>Double): Double = aggregate{
     (rep (RaisingDist(inf,false)) {
       (d) => aggregate{
         val x = foldhood(RaisingDist(inf,false))(_.min(_)){nbr{d} + nbrRange()}
@@ -99,7 +99,7 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
     }).dist
   }
 
-  def gradient(source: Boolean, metric: ()=>Double) = aggregate{
+  def gradient(source: Boolean, metric: ()=>Double): Double = aggregate{
     rep (inf) {
       (dist) => mux(source){ 0.0 } { foldhood(inf)(Math.min(_,_))(metric()+nbr{dist}) }
     }
@@ -127,19 +127,19 @@ trait DomainAlignmentLib { self: AggregateProgram with SensorDefinitions =>
   // selected tests //
   ////////////////////
 
-  def testGup() = {
+  def testGup(): Double = {
     gradient(mid() == 0, () => aggregate{up(()=>injmetric)()})
   }
 
-  def testGsafe() = {
+  def testGsafe(): Double = {
     gradient(mid() == 0, () => aggregate{safeup(()=>injmetric,()=>badmetric)})
   }
 
-  def testCRFup() = {
+  def testCRFup(): Double = {
     crfgradient(mid() == 0, () => aggregate{up(()=>injmetric)()})
   }
 
-  def testCRFsafe() = {
+  def testCRFsafe(): Double = {
     crfgradient(mid() == 0, () => aggregate{safeup(()=>injmetric,()=>badmetric)})
   }
 }

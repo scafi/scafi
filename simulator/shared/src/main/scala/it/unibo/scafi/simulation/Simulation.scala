@@ -205,7 +205,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def exports(): IMap[ID, Option[EXPORT]] = ids.map(id => (id, export(id))).toMap
 
-    protected var sensors = Map[CNAME,Any]()
+    protected var sensors: Map[CNAME,Any] = Map[CNAME,Any]()
 
     // **********************
     // SimulatorOps interface

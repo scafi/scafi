@@ -13,6 +13,7 @@ import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.{FastFXOutput, 
 import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.launcher.ScalaFXLauncher
 
 import scalafx.application.Platform
+import it.unibo.scafi.simulation.s2.frontend.configuration.command.CommandFactory
 
 /**
   * a graphics launcher used to launch scafi simulation
@@ -29,13 +30,13 @@ object GraphicsLauncher extends App {
   val windowConfigurationFactory = new WindowConfigurationCommandFactory
   val logConfiguration = new LogCommandFactory(NoLog,StandardLog,GraphicsLog)
   val renderConfiguration = new RenderCommandFactory
-  val factories = List(radiusFactory,gridFactory,randomFactory,
+  val factories: List[CommandFactory] = List(radiusFactory,gridFactory,randomFactory,
     outputFactory,performanceFactory,windowConfigurationFactory,
     logConfiguration,renderConfiguration)
 
   val parser = new UnixLikeParser(new LaunchCommandFactory :: factories:_*)
   val machine = new ConfigurationMachine(parser)
-  val map = Map(international("world-initializer")(KeyFile.Configuration) -> List(randomFactory,gridFactory))
+  val map: Map[String,List[CommandFactory]] = Map(international("world-initializer")(KeyFile.Configuration) -> List(randomFactory,gridFactory))
   initializeScalaFXPlatform()
   Platform.runLater{new ScalaFXLauncher(factories,map,machine).show()}
 }

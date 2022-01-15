@@ -45,7 +45,7 @@ class ConfigurationPanel(controller: GeneralController) extends JDialog(controll
   nodeNumberField.setColumns(10)
   nodeNumberField.addPropertyChangeListener(this)
   import it.unibo.scafi.simulation.frontend.SettingsSpace.Topologies._
-  var vtop = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
+  var vtop: Vector[String] = Vector[String](Random, Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar)
 
   topologyField = new JComboBox[String](vtop.toArray)
   topologyField.setSelectedItem(Settings.Sim_Topology)

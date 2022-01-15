@@ -113,11 +113,11 @@ trait MyLib extends StandardSensors { self: Constructs with Builtins =>
   }
 
   def timer[V](length: V)
-              (implicit ev: Numeric[V]) =
+              (implicit ev: Numeric[V]): V =
     T[V](length)
 
   def limitedMemory[V,T](value: V, expValue: V, timeout: T)
-                        (implicit ev: Numeric[T]) = {
+                        (implicit ev: Numeric[T]): (V, T) = {
     val t = timer[T](timeout)
     (if(ev.gt(t, ev.zero)) value else expValue, t)
   }
@@ -186,7 +186,7 @@ trait MyLib extends StandardSensors { self: Constructs with Builtins =>
                           lead:(Double,ID),
                           uid:(Double,ID),
                           grain:Double,
-                          metric: => Double) = {
+                          metric: => Double): (Double, ID) = {
     val inf:(Double,ID) = (Double.PositiveInfinity, uid._2)
     mux(d > grain){
       // If the current device has a distance to the current candidate leader

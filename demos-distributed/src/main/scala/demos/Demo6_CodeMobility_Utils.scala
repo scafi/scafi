@@ -17,35 +17,35 @@ trait Demo6_Platform extends ActorPlatform with BasicAbstractActorIncarnation {
     }
   }
 
-  val IdleAggregateProgram = () => new AggregateProgram {
+  val IdleAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): String = "IDLE"
   }
-  val StillFieldAggregateProgram = () => new AggregateProgram {
+  val StillFieldAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Int = 1
   }
-  val SourceDetectorAggregateProgram = () => new AggregateProgram {
+  val SourceDetectorAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Boolean = sense(SourceSensorName)
   }
-  val RandomFieldAggregateProgram = () => new AggregateProgram {
+  val RandomFieldAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Double = Math.random()
   }
-  val ConstantRandomFieldAggregateProgram = () => new AggregateProgram {
+  val ConstantRandomFieldAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Double = rep(Math.random()){x => x}
   }
-  val RoundCounterAggregateProgram = () => new AggregateProgram {
+  val RoundCounterAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Int = rep(0) { _ + 1 }
   }
-  val RandomIncreasingFieldAggregateProgram = () => new AggregateProgram {
+  val RandomIncreasingFieldAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Double = rep(0.0){x => x + rep(Math.random()){y=>y} }
   }
-  val NeighborsCountAggregateProgram = () => new AggregateProgram {
+  val NeighborsCountAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Int = foldhoodPlus(0)(_ + _)(1)
   }
-  val BooleanGossipAggregateProgram = () => new AggregateProgram {
+  val BooleanGossipAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Boolean = rep(false)(x =>
       sense[Boolean](SourceSensorName) | foldhoodPlus(false)(_|_)(nbr(x)))
   }
-  val HopGradientAggregateProgram = () => new AggregateProgram {
+  val HopGradientAggregateProgram: () => AggregateProgram = () => new AggregateProgram {
     override def main(): Double = rep(Double.PositiveInfinity) {
       hops => {
         mux(sense(SourceSensorName)) { 0.0 } { 1 + minHood(nbr { hops }) }

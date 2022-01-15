@@ -20,7 +20,7 @@ class PerformanceCommandFactory(implicit val scafiConfiguration : ScafiConfigura
     FastPolicy.toString -> FastPolicy,
     StandardPolicy.toString -> StandardPolicy
   )
-  val argType = LimitedValueType(performanceMap.keySet.toSeq:_*)
+  val argType: LimitedValueType = LimitedValueType(performanceMap.keySet.toSeq:_*)
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] =
     List(CommandArgDescription(Name,
       argType,

@@ -57,13 +57,13 @@ object MonitoringDemo_Inputs {
     override def main(): Boolean = branch(sense3){false}{channel1(sense1, sense2, 1)}
   }
 
-  val aggregateAppSettings = Platform.AggregateApplicationSettings(
+  val aggregateAppSettings: Platform.AggregateApplicationSettings = Platform.AggregateApplicationSettings(
     name = platformName,
     program = () => Some(new MonitoringDemoProgram())
   )
 
-  val deploymentSubsys1 = Platform.DeploymentSettings(nodes(0).host, nodes(0).port)
-  val deploymentSubsys2 = Platform.DeploymentSettings(nodes(1).host, nodes(1).port)
+  val deploymentSubsys1: Platform.DeploymentSettings = Platform.DeploymentSettings(nodes(0).host, nodes(0).port)
+  val deploymentSubsys2: Platform.DeploymentSettings = Platform.DeploymentSettings(nodes(1).host, nodes(1).port)
 
   val settings1: Platform.Settings = Platform.settingsFactory.defaultSettings().copy(
     aggregate = aggregateAppSettings,
@@ -108,7 +108,7 @@ object MonitoringDemoMain1 extends MonitoringDemoMain(settings1)
 object MonitoringDemoMain2 extends MonitoringDemoMain(settings2)
 
 object MonitoringDemoMonitor extends App {
-  val initializer = RadiusSimulation(
+  val initializer: RadiusSimulation = RadiusSimulation(
     radius = 100,
     platformName = platformName,
     platformNodes = nodes.flatMap(n => n.devices.map(_._1 -> (n.host, n.port))).toMap,

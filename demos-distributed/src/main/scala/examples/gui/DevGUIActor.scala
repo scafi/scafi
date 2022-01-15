@@ -19,6 +19,7 @@ import akka.util.Timeout
 import it.unibo.scafi.distrib.actor._
 
 import scala.util.Success
+import akka.event.LoggingAdapter
 
 class DevGUIActor(val I: BasicAbstractActorIncarnation,
                   private var dev: ActorRef) extends Actor with ActionListener {
@@ -40,7 +41,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
   import context.dispatcher
 
   // Provides the ExecutionContext
-  protected val Log = akka.event.Logging(context.system, this)
+  protected val Log: LoggingAdapter = akka.event.Logging(context.system, this)
 
   var registry: ActorRef = _
 
@@ -249,6 +250,6 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
 }
 
 object DevGUIActor {
-  def props(inc: BasicAbstractActorIncarnation, devActorRef: ActorRef) =
+  def props(inc: BasicAbstractActorIncarnation, devActorRef: ActorRef): Props =
     Props(classOf[DevGUIActor], inc, devActorRef)
 }

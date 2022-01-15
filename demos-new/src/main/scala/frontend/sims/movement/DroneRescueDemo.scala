@@ -17,7 +17,7 @@ import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldI
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation.EXPORT
 
 object DroneRescue extends App {
-  val worldSize = (500,500)
+  val worldSize: (Int, Int) = (500,500)
   val simRadius = 100
   type E = ((Double,Double),Boolean)
   MetaActionProducer.movementDtActionProducer.valueParser = (export : Any) => Some(export.asInstanceOf[E]._1)

@@ -37,7 +37,7 @@ class Demo2_AggregateProgram extends Demo2_Platform.AggregateProgram {
 // STEP 3: DEFINE MAIN PROGRAM
 object Demo2_MainProgram extends Demo2_Platform.CmdLineMain {
   override def onDeviceStarted(dm: Demo2_Platform.DeviceManager,
-                               sys: Demo2_Platform.SystemFacade) = {
+                               sys: Demo2_Platform.SystemFacade): Unit = {
     dm.addSensorValue(Demo2_Platform.LocationSensorName, Point2D(dm.selfId,0))
   }
 }

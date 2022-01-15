@@ -11,7 +11,7 @@ import scalafx.application.Platform
   * standard fx view environment for simulation view
   */
 object ScalaFXEnvironment extends ViewEnvironment[SimulationView] {
-  lazy val standardConfiguration = WindowConfiguration.apply(800,600)
+  lazy val standardConfiguration: WindowConfiguration = WindowConfiguration.apply(800,600)
   var windowConfiguration : WindowConfiguration = standardConfiguration
   //standard value of fx application
   var drawer : FXOutputPolicy = StandardFXOutput

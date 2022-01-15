@@ -125,8 +125,8 @@ object AbstractJsonPlatformSerializer {
 }
 
 object BasicSerializers {
-  val anySerialization = new BasicJsonAnySerialization {}
-  val log = LoggerFactory.getLogger("BasicSerializers")
+  val anySerialization: BasicJsonAnySerialization = new BasicJsonAnySerialization {}
+  val log: Logger = LoggerFactory.getLogger("BasicSerializers")
 
 
   val anyWrites: Writes[Any] = new Writes[Any] {

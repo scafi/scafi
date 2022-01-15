@@ -29,9 +29,9 @@ object SupplyRescue extends App {
   SenseImageFXOutput.addRepresentation(SensorName.sensor4, "file:///sensor3")
   */
   ViewSetting.backgroundColor = Color.Beige
-  val externalBound = Polygon(orientation = 0, Point2D(0,0), Point2D(400,0),Point2D(400,200),Point2D(700,200),Point2D(700,0),
+  val externalBound: Polygon = Polygon(orientation = 0, Point2D(0,0), Point2D(400,0),Point2D(400,200),Point2D(700,200),Point2D(700,0),
     Point2D(1400,0),Point2D(1400,1100),Point2D(400,1100), Point2D(400,900),Point2D(0,900))
-  val worldBound = SpatialAbstraction.Bound(externalBound)
+  val worldBound: SpatialAbstraction.Bound = SpatialAbstraction.Bound(externalBound)
   ScafiProgramBuilder (
     Random(50,1400,1100),
     SimulationInfo(program = classOf[SupplyRescueDemo], metaActions = List(MetaActionProducer.movementDtActionProducer),exportEvaluations = List.empty),

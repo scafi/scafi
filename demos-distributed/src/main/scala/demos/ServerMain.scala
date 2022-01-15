@@ -9,7 +9,7 @@ import examples.gui.ServerGUIActor
 import it.unibo.scafi.incarnations.{ BasicActorServerBased => Platform }
 
 object Server_MainProgram extends Platform.ServerCmdLineMain {
-  override def refineSettings(s: Platform.Settings) = {
+  override def refineSettings(s: Platform.Settings): Platform.Settings = {
     s.copy(profile = s.profile.copy(
       serverGuiActorProps = tm => Some(ServerGUIActor.props(Platform, tm))
     ))

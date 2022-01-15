@@ -28,7 +28,7 @@ class Collection extends AggregateProgram with SensorDefinitions with BlockC wit
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
-  override def main() = summarize(sense1, _ + _, if (sense2) 1.0 else 0.0, 0.0)
+  override def main(): Double = summarize(sense1, _ + _, if (sense2) 1.0 else 0.0, 0.0)
 }
 
 

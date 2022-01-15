@@ -12,11 +12,12 @@ import it.unibo.scafi.space.Point2D
 import javax.swing.{JComponent, JFrame, WindowConstants}
 
 import scala.annotation.tailrec
+import akka.event.LoggingAdapter
 
 trait PlatformView { self: Platform.Subcomponent =>
   class DevsGUIActor() extends Actor {
     val frame = new JFrame("Devices GUI")
-    protected val Log = akka.event.Logging(context.system, this)
+    protected val Log: LoggingAdapter = akka.event.Logging(context.system, this)
     private var devActors: Map[ActorRef, DevInfo] = Map()
 
     buildFrame()

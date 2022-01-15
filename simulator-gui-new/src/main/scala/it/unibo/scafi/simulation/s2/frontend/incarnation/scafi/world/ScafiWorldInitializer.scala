@@ -15,7 +15,7 @@ trait ScafiWorldInitializer extends WorldInitializer[ScafiWorldInformation] {
 }
 object ScafiWorldInitializer {
   type INFO = ScafiWorldInformation
-  val standardShape = Rectangle(2, 2)
+  val standardShape: Rectangle = Rectangle(2, 2)
 
   /**
     * create a random world

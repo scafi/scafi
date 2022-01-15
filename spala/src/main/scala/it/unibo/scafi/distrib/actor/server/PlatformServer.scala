@@ -10,6 +10,7 @@ import it.unibo.scafi.distrib.actor.{GoOn, MsgStart}
 import it.unibo.scafi.distrib.actor.patterns.ObservableActorBehavior
 
 import scala.collection.mutable.{Map => MMap}
+import scala.collection.mutable
 
 trait PlatformServer extends PlatformBehaviors { self: ServerPlatform.Subcomponent =>
 
@@ -28,8 +29,8 @@ trait PlatformServer extends PlatformBehaviors { self: ServerPlatform.Subcompone
     val scheduler: Option[ActorRef]
 
     // CONCRETE MEMBERS
-    val exports = MMap[UID,ComputationExport]()
-    val snsValues = MMap[UID,Map[LSensorName,Any]]()
+    val exports: mutable.Map[UID,ComputationExport] = MMap[UID,ComputationExport]()
+    val snsValues: mutable.Map[UID,Map[LSensorName,Any]] = MMap[UID,Map[LSensorName,Any]]()
 
     def start(): Unit = scheduler.foreach(_ ! GoOn)
 
@@ -114,7 +115,7 @@ trait PlatformServer extends PlatformBehaviors { self: ServerPlatform.Subcompone
     with ObservableServerActor
     with MissingCodeManagementBehavior {
 
-    val neighborhoods = MMap[UID,Set[UID]]()
+    val neighborhoods: mutable.Map[UID,Set[UID]] = MMap[UID,Set[UID]]()
 
     def neighborhood(id: UID): Set[UID] = neighborhoods.getOrElse(id, Set())
 

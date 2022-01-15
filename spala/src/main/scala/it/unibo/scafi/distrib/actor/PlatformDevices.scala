@@ -10,6 +10,7 @@ import akka.actor.{Actor, ActorRef, Cancellable}
 
 import scala.collection.mutable.{Map => MMap}
 import scala.concurrent.duration._
+import scala.collection.mutable
 
 trait PlatformDevices { self: Platform.Subcomponent =>
 
@@ -31,7 +32,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
     var first = false
     var tick: Option[Cancellable] = None
 
-    override val initialDelay = execScope match {
+    override val initialDelay: Option[FiniteDuration] = execScope match {
       case DeviceDelegated(devExec) => devExec match {
         case PeriodicDeviceExecStrategy(initial,_) => initial
         case DelayedDeviceExecStrategy(initial,_) => initial
@@ -42,7 +43,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
 
     // OVERRIDES TO CUSTOM LIFECYCLE
 
-    override var workInterval = 1.day // Ignored in HandleLifecycle()
+    override var workInterval: FiniteDuration = 1.day // Ignored in HandleLifecycle()
     import context.dispatcher
 
     override def handleLifecycle(): Unit = execScope match {
@@ -85,8 +86,8 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait SensingBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
 
-    val sensorValues = MMap[LSensorName, Any]()
-    val nbrSensorValues = MMap[NSensorName, MMap[UID, Any]]()
+    val sensorValues: mutable.Map[LSensorName,Any] = MMap[LSensorName, Any]()
+    val nbrSensorValues: mutable.Map[NSensorName,mutable.Map[UID,Any]] = MMap[NSensorName, MMap[UID, Any]]()
 
     // REACTIVE BEHAVIOR
 
@@ -114,7 +115,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait SensorManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
 
-    val localSensors = MMap[LSensorName, ()=>Any]()
+    val localSensors: mutable.Map[LSensorName,() => Any] = MMap[LSensorName, ()=>Any]()
 
     // REACTIVE BEHAVIOR
 
@@ -138,7 +139,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
   trait ActuatorManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
 
-    val actuators = MMap[LSensorName, (Any)=>Unit]()
+    val actuators: mutable.Map[LSensorName,Any => Unit] = MMap[LSensorName, (Any)=>Unit]()
 
     // REACTIVE BEHAVIOR
 
@@ -163,7 +164,7 @@ trait PlatformDevices { self: Platform.Subcomponent =>
    */
   trait BaseNbrManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
     // FIELDS
-    var nbrs = Map[UID,NbrInfo]()
+    var nbrs: Map[UID,NbrInfo] = Map[UID,NbrInfo]()
 
     // BEHAVIOR METHODS
     def mergeNeighborInfo(idn: UID, info: NbrInfo): Unit = {

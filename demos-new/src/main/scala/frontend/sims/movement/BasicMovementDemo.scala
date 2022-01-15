@@ -47,8 +47,8 @@ class BasicMovement extends AggregateProgram with SensorDefinitions with Flockin
     case RadiusSimulation(radius) => radius * 60.0 / 200
     case _ => 60.0 / 200
   }
-  lazy val centerX = ScafiInformation.configuration.worldInitializer.size._1 / 2
-  lazy val centerY = ScafiInformation.configuration.worldInitializer.size._2 / 2
+  lazy val centerX: Double = ScafiInformation.configuration.worldInitializer.size._1 / 2
+  lazy val centerY: Double = ScafiInformation.configuration.worldInitializer.size._2 / 2
   private val obstacleForce: Double = 400.0
 
   override def main:(Double, Double) = SizeConversion.normalSizeToWorldSize(rep(randomMovement())(behaviour2))

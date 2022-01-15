@@ -41,7 +41,7 @@ object GradientsDemo extends App {
   */
 @Demo
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
-  def main = g2(sense1, sense2)
+  def main: Double = g2(sense1, sense2)
 
   def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
     () => aggregate { Double.PositiveInfinity }
@@ -57,7 +57,7 @@ class GradientWithObstacle extends AggregateProgram with SensorDefinitions with 
 }
 @Demo
 class SteeringProgram extends AggregateProgram with SensorDefinitions {
-  def main = steering(sense1)
+  def main: Point3D = steering(sense1)
 
   def steering(source: Boolean): Point3D = {
     val g = classic(source)
@@ -85,7 +85,7 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
 }
 @Demo
 class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
-  def main = {
+  def main: Boolean = {
     val g = classic(sense1)
     ShortestPath(sense2, g)
   }
@@ -94,7 +94,7 @@ class ShortestPathProgram extends AggregateProgram with Gradients with SensorDef
 @Demo
 class CheckSpeed extends AggregateProgram
     with Gradients with BlockG with SensorDefinitions with GenericUtils with StateManagement {
-  implicit val deftime = new Builtins.Defaultable[Instant] {
+  implicit val deftime: Builtins.Defaultable[Instant] = new Builtins.Defaultable[Instant] {
     override def default: Instant = Instant.now()
   }
 
@@ -116,52 +116,52 @@ class CheckSpeed extends AggregateProgram
 
 @Demo
 class GradientComparison extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
+  override def main(): String = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
 
 @Demo
 class BISGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = gradientBIS(sense1)
+  override def main(): Double = gradientBIS(sense1)
 }
 
 @Demo
 class SVDGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = gradientSVD(sense1)
+  override def main(): Double = gradientSVD(sense1)
 }
 
 @Demo
 class FlexGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = flex(sense1)
+  override def main(): Double = flex(sense1)
 }
 
 @Demo
 class CrfGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = crf(sense1)
+  override def main(): Double = crf(sense1)
 }
 
 @Demo
 class BasicGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = gradient(sense1)
+  override def main(): Double = gradient(sense1)
 }
 
 @Demo
 class ClassicGradient extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = classic(sense1)
+  override def main(): Double = classic(sense1)
 }
 
 @Demo
 class ClassicGradientWithG extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = classicWithG(sense1)
+  override def main(): Double = classicWithG(sense1)
 }
 
 @Demo
 class ClassicGradientWithGv2 extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = classicWithGv2(sense1)
+  override def main(): Double = classicWithGv2(sense1)
 }
 
 @Demo
 class ClassicGradientWithUnboundedG extends AggregateProgram with Gradients with SensorDefinitions {
-  override def main() = classicWithUnboundedG(sense1)
+  override def main(): Double = classicWithUnboundedG(sense1)
 }
 
 @Demo

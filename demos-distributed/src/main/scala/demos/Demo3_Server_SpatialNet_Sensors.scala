@@ -39,13 +39,13 @@ class Demo3_AggregateProgram extends Demo3_Platform.AggregateProgram {
     }
   }
 
-  def main() = hopGradient(sense("source"))
+  def main(): Double = hopGradient(sense("source"))
 }
 
 // STEP 3: DEFINE MAIN PROGRAMS
 object Demo3_MainProgram extends Demo3_Platform.CmdLineMain {
   override def onDeviceStarted(dm: Demo3_Platform.DeviceManager,
-                               sys: Demo3_Platform.SystemFacade) = {
+                               sys: Demo3_Platform.SystemFacade): Unit = {
     val random = new scala.util.Random(System.currentTimeMillis())
     var k = 0
     var positions = (1 to 5).map(_ => random.nextInt(10))
@@ -58,7 +58,7 @@ object Demo3_MainProgram extends Demo3_Platform.CmdLineMain {
 }
 
 object Demo3_ServerMain extends Demo3_Platform.ServerCmdLineMain {
-  override def refineSettings(s: Demo3_Platform.Settings) = {
+  override def refineSettings(s: Demo3_Platform.Settings): Demo3_Platform.Settings = {
     s.copy(profile = s.profile.copy(
       serverGuiActorProps = tm => Some(ServerGUIActor.props(Demo3_Platform, tm))
     ))

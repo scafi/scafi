@@ -25,7 +25,7 @@ object AlignedMapRunner extends App {
 class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldUtils with BlockG {
   override def main() = test1
 
-  def test1 = {
+  def test1: Set[(Int, String)] = {
     var procs = Map(
       1 -> (()=>f"${distanceTo(sense1)}%.1f"),
       2 -> (()=>f"${distanceTo(sense2)}%.1f"),
@@ -47,7 +47,7 @@ class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldU
       yield (k -> align(k) { key => procs(key)() })
   }
 
-  def test2 = {
+  def test2: Traversable[String] = {
     // Proc descriptor
     case class Proc[T](generator: () => Boolean, comp: (Boolean) => T)
 
@@ -76,7 +76,7 @@ class AlignedMapTest extends AggregateProgram with SensorDefinitions with FieldU
     })
   }
 
-  def distanceToWord(src: Boolean) = {
+  def distanceToWord(src: Boolean): String = {
     val dist = distanceTo(src)
     if(dist < 2) "low"
     else if(dist < 10) "med"

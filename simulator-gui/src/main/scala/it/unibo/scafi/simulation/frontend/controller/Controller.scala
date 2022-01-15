@@ -60,7 +60,7 @@ class Controller () extends GeneralController {
     this.observation = obs
   }
 
-  def updateNodePositions() = {
+  def updateNodePositions(): Unit = {
     this.nodes.foreach(x => {
       val (node,guiNode) = x._2
       val dim = Utils.getSizeGuiNode()
@@ -319,6 +319,6 @@ class Controller () extends GeneralController {
   def getSensor(s: String): Option[Any] =
     controllerUtility.getSensorValue(s)
 
-  def checkSensor(sensor: String, operator: String, value: String) =
+  def checkSensor(sensor: String, operator: String, value: String): Unit =
     controllerUtility.checkSensor(sensor, operator, value)
 }

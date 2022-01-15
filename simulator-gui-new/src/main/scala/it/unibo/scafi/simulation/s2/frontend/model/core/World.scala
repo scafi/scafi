@@ -91,7 +91,7 @@ trait World {
       */
     def getDevice(name : NAME) : Option[DEVICE] = devices find {_.name == name}
 
-    override def toString = s"Node id = $id, position = $position, shape = $shape, devices = $devices"
+    override def toString: String = s"Node id = $id, position = $position, shape = $shape, devices = $devices"
   }
   /**
     * a generic immutable device that could be attached to a node

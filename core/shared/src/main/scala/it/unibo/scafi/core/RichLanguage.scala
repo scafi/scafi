@@ -58,19 +58,19 @@ trait RichLanguage extends Language { self: Core =>
 
     object Bounded extends Serializable {
 
-      @transient implicit val of_i = new Bounded[Int] {
+      @transient implicit val of_i: Bounded[Int] = new Bounded[Int] {
         def top: Int = Int.MaxValue
         def bottom: Int = Int.MinValue
         def compare(a: Int, b: Int): Int = a.compareTo(b)
       }
 
-      @transient implicit val of_d = new Bounded[Double] {
+      @transient implicit val of_d: Bounded[Double] = new Bounded[Double] {
         def top: Double = Double.PositiveInfinity
         def bottom: Double = Double.NegativeInfinity
         def compare(a: Double, b: Double): Int = (a-b).signum
       }
 
-      @transient implicit val of_s = new Bounded[String] {
+      @transient implicit val of_s: Bounded[String] = new Bounded[String] {
         def top: String = "Z"
         def bottom: String = "A"
         def compare(a: String, b: String): Int = if (a > b) 1 else if (b < a) -1 else 0

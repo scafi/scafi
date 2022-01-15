@@ -24,14 +24,14 @@ object Demo0A_Inputs {
   }
 
   // STEP 3: DEFINE SETTINGS (E.G., PROGRAMMATICALLY)
-  val aggregateAppSettings = Platform.AggregateApplicationSettings(
+  val aggregateAppSettings: Platform.AggregateApplicationSettings = Platform.AggregateApplicationSettings(
     name = "demo0A",
     program = () => Some(new Demo0A_AggregateProgram {})
   )
-  val deploymentSubsys1 = Platform.DeploymentSettings(host = "127.0.0.1", port = 9000)
-  val deploymentSubsys2 = Platform.DeploymentSettings(host = "127.0.0.1", port = 9500)
+  val deploymentSubsys1: Platform.DeploymentSettings = Platform.DeploymentSettings(host = "127.0.0.1", port = 9000)
+  val deploymentSubsys2: Platform.DeploymentSettings = Platform.DeploymentSettings(host = "127.0.0.1", port = 9500)
 
-  val settings1 = Platform.settingsFactory.defaultSettings().copy(
+  val settings1: Platform.Settings = Platform.settingsFactory.defaultSettings().copy(
     aggregate = aggregateAppSettings,
     platform = Platform.PlatformSettings(
       subsystemDeployment = deploymentSubsys1,
@@ -46,7 +46,7 @@ object Demo0A_Inputs {
     )
   )
 
-  val settings2 = settings1.copy(
+  val settings2: Platform.Settings = settings1.copy(
     platform = Platform.PlatformSettings(
       subsystemDeployment = deploymentSubsys2
     ),

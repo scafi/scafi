@@ -17,7 +17,7 @@ import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.{FastFXOutput, 
   */
 object ScafiInformation {
   implicit val configurationBuilder : ScafiConfigurationBuilder = new ScafiConfigurationBuilder
-  lazy val configuration = configurationBuilder.create().get
+  lazy val configuration: ScafiConfiguration = configurationBuilder.create().get
 
   /**
     * parser unix like used to parse string value in configuration command

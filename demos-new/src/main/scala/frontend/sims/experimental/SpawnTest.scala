@@ -35,7 +35,7 @@ class SpawnTest extends AggregateProgram with SensorDefinitions with FieldUtils 
                           distance: Double = Double.PositiveInfinity,
                           staleValue: Int = 0)
 
-  override def main() = {
+  override def main(): String = {
     var procs = Map(
       1 -> SpawnDef(1, ()=>f"${distanceTo(sense4)}%.1f", genCondition = () => sense1),
       2 -> SpawnDef(2, ()=>f"${-distanceTo(sense2)}%.1f", genCondition = () => sense2),

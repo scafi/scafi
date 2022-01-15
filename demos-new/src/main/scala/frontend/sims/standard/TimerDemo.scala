@@ -28,5 +28,5 @@ object TimerDemo extends App {
   * the same state. if you click 7 the simulation restart (each node show 10000).
   */
 class SimpleTimer extends AggregateProgram with SensorDefinitions with BlockT {
-  override def main() = branch(sense1){timer(10000)}{0}
+  override def main(): Int = branch(sense1){timer(10000)}{0}
 }

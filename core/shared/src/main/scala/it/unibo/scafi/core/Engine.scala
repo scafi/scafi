@@ -22,7 +22,7 @@ trait Engine extends Semantics {
   override type CONTEXT = Context with ContextOps
   override type FACTORY = Factory
 
-  override implicit val factory = new EngineFactory
+  override implicit val factory: EngineFactory = new EngineFactory
 
   class ExportImpl(private var map: Map[Path,Any] = Map()) extends Export with ExportOps with Equals { self: EXPORT =>
     override def put[A](path: Path, value: A) : A = { map += (path -> value); value }
