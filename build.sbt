@@ -58,7 +58,6 @@ inThisBuild(List(
     Developer(id="cric96", name="Gianluca Aguzzi", email="gianluca.aguzzi@unibo.it", url=url("https://cric96.github.io/")),
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
-  crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
   scalaVersion :=  crossScalaVersions.value.head, // default version
 ))
 
@@ -68,6 +67,7 @@ lazy val commonSettings = Seq(
   organization := "it.unibo.scafi",
   Test / scalastyleConfig := file("./scalastyle-test-config.xml"),
   compileScalastyle := (Test / scalastyle).toTask("").value,
+  crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
   Test / test := ((Test / test) dependsOn compileScalastyle).value,
   (assembly / assemblyJarName) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (assembly / assemblyMergeStrategy) := {
@@ -78,10 +78,11 @@ lazy val commonSettings = Seq(
 )
 
 lazy val noPublishSettings = Seq(
-    publishArtifact := false,
-    publish := { },
-    publishLocal := { }
-  )
+  publishArtifact := false,
+  publish := { },
+  publishLocal := { },
+  crossScalaVersions := Seq()
+)
 
 lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
