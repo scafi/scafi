@@ -22,7 +22,7 @@ trait StdLib_Gradients {
 
   val DEFAULT_CRF_RAISING_SPEED: Double = 5
   val DEFAULT_FLEX_CHANGE_TOLERANCE_EPSILON: Double = 0.5
-  val DEFAULT_FLEX_DELTA: Double = 1.0
+  val DEFAULT_FLEX_DELTA: Double = 0.5
   val DEFAULT_ULT_FACTOR: Double = 0.1
 
   trait Gradients extends GenericUtils with StateManagement {

@@ -6,16 +6,15 @@
 package it.unibo.scafi.simulation
 
 import java.time.Instant
-import java.time.temporal.ChronoUnit
+import java.time.temporal.{ChronoField, ChronoUnit, TemporalField}
 import java.util.concurrent.TimeUnit
-
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.platform.SimulationPlatform
 import it.unibo.utils.observer.{SimpleSource, Source}
 
 import scala.collection.immutable.{Queue, Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Random
 
 /**
@@ -169,11 +168,13 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
                          val localSensors: PartialFunction[CNAME, PartialFunction[ID, Any]] = Map.empty,
                          val nbrSensors: PartialFunction[CNAME, PartialFunction[(ID,ID), Any]] = Map.empty,
                          val nbrMap: MMap[ID, Set[ID]] = MMap(),
-                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr
+                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
+                         val timeTick: FiniteDuration = 1.millis
                          ) extends Network with SimulatorOps with SimpleSource {
     self: NETWORK =>
     override type O = SimulationObserver[ID,CNAME]
     protected val eMap: MMap[ID,EXPORT] = MMap()
+    protected var globalClock: Instant = Instant.ofEpochMilli(0)
     protected var lastRound: Map[ID,Instant] = Map()
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
@@ -240,26 +241,26 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         nsnsMap.get(nsns).flatMap(_.get(id)).flatMap(_.get(nbr)).orElse(Some(nbrSensors(nsns)(id, nbr))).map(_.asInstanceOf[T])
 
       override def sense[T](lsns: CNAME): Option[T] = lsns match {
-        case _ if !lsnsMap.get(lsns).flatMap(_.get(id)).isEmpty => lsnsMap(lsns).get(id).map(_.asInstanceOf[T])
+        case _ if lsnsMap.get(lsns).flatMap(_.get(id)).isDefined => lsnsMap(lsns).get(id).map(_.asInstanceOf[T])
         case LSNS_RANDOM => randomSensor.some[T]
-        case LSNS_TIME => Instant.now().some[T]
-        case LSNS_TIMESTAMP => System.currentTimeMillis().some[T]
+        case LSNS_TIME => globalClock.some[T]
+        case LSNS_TIMESTAMP => globalClock.get(ChronoField.MILLI_OF_SECOND).toLong.some[T]
         case LSNS_DELTA_TIME => FiniteDuration(
-          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, Instant.now())).getOrElse(0L),
+          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, globalClock)).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]
         case _ => this.localSensorRetrieve(lsns, id)
       }
 
       override def nbrSense[T](nsns: CNAME)(nbr: ID): Option[T] = nsns match {
         case NBR_LAG => lastRound.get(nbr).map(nbrLast =>
-          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, Instant.now()), TimeUnit.NANOSECONDS)
+          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, globalClock), TimeUnit.NANOSECONDS)
         ).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case NBR_DELAY => lastRound.get(nbr).map(nbrLast =>
           FiniteDuration(
             ChronoUnit.NANOS.between(
               nbrLast.plusNanos(
-                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, Instant.now())).getOrElse(0L)),
-              Instant.now()),
+                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, globalClock)).getOrElse(0L)),
+              globalClock),
           TimeUnit.NANOSECONDS
         )).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case _ => nbrSensorRetrieve(nsns, id, nbr)
@@ -269,9 +270,9 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     def context(id: ID): CONTEXT = new SimulatorContextImpl(id)
 
     def exec(node: EXECUTION, exp: => Any, id: ID): Unit = {
-      val c = context(id)
-      eMap += (id -> node.round(c, exp))
-      lastRound += id -> Instant.now()
+      progress(node, exp, id)
+      tick()
+      updateLocalClock(id)
     }
 
     /**
@@ -300,7 +301,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val c = context(idToRun)
       val (_,exp) = idToRun -> ap(c)
       eMap += idToRun -> exp
-      lastRound += idToRun -> Instant.now()
+      updateLocalClock(idToRun)
+      tick()
       idToRun -> exp
     }
 
@@ -312,6 +314,15 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     }
 
     override def toString: String = toStr(this)
+    /* evaluate the current expression in the given node identified by the id */
+    protected def progress(node: EXECUTION, exp: => Any, id: ID): Unit = {
+      val c = context(id)
+      eMap += (id -> node.round(c, exp))
+    }
+    /* update the world global clock by the static timeTick */
+    protected def tick(): Unit = globalClock = globalClock.plusMillis(timeTick.toMillis)
+    /* update the local node clock to make possible the delta tick computation */
+    protected def updateLocalClock(id: ID): Unit = lastRound += id -> globalClock
   }
   object NetworkSimulator extends Serializable {
     def apply(_idArray: MArray[ID] = MArray(),
