@@ -5,16 +5,18 @@
 
 package it.unibo.scafi.distrib
 
-import scala.language.postfixOps
 import com.typesafe.config.{Config, ConfigFactory, ConfigObject}
-
-import scala.concurrent.duration._
 import java.io.File
 import java.util.concurrent.TimeUnit
+import scala.concurrent.duration._
 
 import it.unibo.utils.Interop
+import org.slf4j.LoggerFactory
 
+// scalastyle:off number.of.methods number.of.types
 trait PlatformSettings { self: Platform.Subcomponent =>
+
+  val DEFAULT_DEPLOYMENT_PORT: Int = 9000
 
   type ProfileSettings <: ConfigurableSettings[ProfileSettings]
   val settingsFactory: SettingsFactory
@@ -38,7 +40,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
   case class DeviceConfigurationSettings(ids: Set[UID] = Set(),
                                          nbs: Map[UID,Set[UID]] = Map())
   case class DeploymentSettings(host: String = "127.0.0.1",
-                                port: Int = 9000)
+                                port: Int = DEFAULT_DEPLOYMENT_PORT)
   case class PlatformSettings(subsystemDeployment: DeploymentSettings = DeploymentSettings(),
                               otherSubsystems: Set[SubsystemSettings] = Set(),
                               loglevel: String = LogLevels.Debug,
@@ -77,10 +79,12 @@ trait PlatformSettings { self: Platform.Subcomponent =>
 
   import scala.collection.JavaConverters._
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   object Settings {
     def fromConfig(path: String): Settings = {
       val config = ConfigFactory.parseFile(new File(path)).withFallback(ConfigFactory.load("aggregate_application_reference.conf"))
-      println("Configuration: " + config.getObject("aggregate"))
+      logger.info("Configuration: " + config.getObject("aggregate"))
       Settings.fromConfig(config.resolve())
     }
 
@@ -94,7 +98,7 @@ trait PlatformSettings { self: Platform.Subcomponent =>
         profile =
           if(c.hasPath("aggregate.profile")) {
             settingsFactory.defaultProfileSettings().fromConfig(c.getObject("aggregate.profile").toConfig)
-          } else s.profile
+          } else { s.profile }
       )
       s
     }
@@ -121,20 +125,21 @@ trait PlatformSettings { self: Platform.Subcomponent =>
       val seed = if(scopeConf.hasPath("seed")) scopeConf.getInt("seed") else System.currentTimeMillis().toInt
       val initialDelay = if(scopeConf.hasPath("initial-delay")) Some(FiniteDuration(scopeConf.getInt("initial-delay"), TimeUnit.MILLISECONDS)) else None
 
-      var scope: ExecScope = null
-      (scopeConf.getString("type"), scopeConf.getString("strategy")) match {
-        case ("global","round-robin") => scope = Global(RoundRobinStrategy)
-        case ("global","random") => scope = Global(RandomExecStrategy(seed))
-        case ("subsystem","round-robin") => scope = SubsystemDelegated(RoundRobinStrategy)
-        case ("subsystem","random") => scope = SubsystemDelegated(RandomExecStrategy(seed))
-        case ("device","delayed") => scope = DeviceDelegated(DelayedDeviceExecStrategy(initialDelay,
-          FiniteDuration(scopeConf.getInt("interval"), TimeUnit.MILLISECONDS)))
-        case ("device","periodic") => scope = DeviceDelegated(PeriodicDeviceExecStrategy(initialDelay,
-          FiniteDuration(scopeConf.getInt("interval"), TimeUnit.MILLISECONDS)))
+      var scope: ExecScope = (scopeConf.getString("type"), scopeConf.getString("strategy")) match {
+        case ("global","round-robin") =>
+          Global(RoundRobinStrategy)
+        case ("global","random") =>
+          Global(RandomExecStrategy(seed))
+        case ("subsystem","round-robin") =>
+          SubsystemDelegated(RoundRobinStrategy)
+        case ("subsystem","random") =>
+          SubsystemDelegated(RandomExecStrategy(seed))
+        case ("device","delayed") =>
+          DeviceDelegated(DelayedDeviceExecStrategy(initialDelay, FiniteDuration(scopeConf.getInt("interval"), TimeUnit.MILLISECONDS)))
+        case ("device","periodic") =>
+          DeviceDelegated(PeriodicDeviceExecStrategy(initialDelay, FiniteDuration(scopeConf.getInt("interval"), TimeUnit.MILLISECONDS)))
       }
-
-      var es = base.copy(scope = scope)
-      es
+      base.copy(scope = scope)
     }
   }
   object PlatformSettings {

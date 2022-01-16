@@ -15,6 +15,7 @@ trait BaseSerializer {
   def fromBinary(bytes: Array[Byte], manifest: String): Option[AnyRef]
 }
 
+// scalastyle:off cyclomatic.complexity
 trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSerialization { self: Platform =>
   import AbstractJsonPlatformSerializer._
 

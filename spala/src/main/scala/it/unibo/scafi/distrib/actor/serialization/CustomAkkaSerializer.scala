@@ -12,7 +12,7 @@ import it.unibo.scafi.distrib.actor.SystemMsgClassNotFound
 class CustomAkkaSerializer(ext: ExtendedActorSystem) extends SerializerWithStringManifest {
   private def incarnationSerializer = CustomAkkaSerializer.incarnationSerializer
 
-  override def identifier: Int = 4096
+  override val identifier: Int = 4096
 
   override def manifest(obj: AnyRef): String = incarnationSerializer.flatMap(_.manifest(obj)).getOrElse(obj.getClass.getName)
 
@@ -22,7 +22,7 @@ class CustomAkkaSerializer(ext: ExtendedActorSystem) extends SerializerWithStrin
   }).getOrElse(Array[Byte]())
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = incarnationSerializer.map(_.fromBinary(bytes, manifest) match {
-    case Some(fb) => ext.log.debug("Deserialized into: "+fb); fb
+    case Some(fb) => ext.log.debug("Deserialized into: " + fb); fb
     case _ => ext.log.debug(s"\nCannot deserialize: " + manifest); SystemMsgClassNotFound(manifest)
   }).getOrElse(None)
 }

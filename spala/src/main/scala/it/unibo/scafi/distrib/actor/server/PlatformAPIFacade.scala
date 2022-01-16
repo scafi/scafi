@@ -18,10 +18,12 @@ trait PlatformAPIFacade { self: ServerPlatform.Subcomponent =>
   /**************************/
   /******** SETTINGS ********/
   /**************************/
+  val DEFAULT_SERVER_PORT: Int = 9000
 
   type ProfileSettings = ServerBasedActorSystemSettings
+
   case class ServerBasedActorSystemSettings(serverHost: String = "127.0.0.1",
-                                            serverPort: Int = 9000,
+                                            serverPort: Int = DEFAULT_SERVER_PORT,
                                             startServer: Boolean = false,
                                             deviceGui: Boolean = false,
                                             serverGui: Boolean = false,

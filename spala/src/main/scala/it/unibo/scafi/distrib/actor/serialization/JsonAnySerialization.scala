@@ -10,6 +10,8 @@ import it.unibo.scafi.space.{Point2D, Point3D}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsArray, JsValue, Json}
 
+// scalastyle:off cyclomatic.complexity
+
 trait JsonAnySerialization {
   def anyToJs: PartialFunction[Any, JsValue]
   def jsToAny: PartialFunction[JsValue, Any]

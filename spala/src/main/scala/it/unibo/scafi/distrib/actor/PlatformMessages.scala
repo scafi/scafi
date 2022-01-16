@@ -14,8 +14,8 @@ import javax.swing.JComponent
 
 import scala.concurrent.duration.FiniteDuration
 
+// scalastyle:off number.of.types number.of.methods
 trait PlatformMessages { self: Platform.Subcomponent =>
-
   // Input/information messages (which provides data to the recipient actor)
   case class MsgLocalSensorValue[T](name: LSensorName, value: T)
   case class MsgSensorValue[T](id: UID, name: LSensorName, value: T)
