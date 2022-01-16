@@ -241,12 +241,12 @@ trait PlatformSettings { self: Platform.Subcomponent =>
 
         val strategy = parts(0) match {
           case "delayed" if np==1 => DelayedDeviceExecStrategy()
-          case "delayed" if np==2 => DelayedDeviceExecStrategy(delay = parts(1).toInt millis)
-          case "delayed" => DelayedDeviceExecStrategy(initial = Some(parts(1).toInt millis), delay = parts(2).toInt millis)
+          case "delayed" if np==2 => DelayedDeviceExecStrategy(delay = parts(1).toInt.millis)
+          case "delayed" => DelayedDeviceExecStrategy(initial = Some(parts(1).toInt.millis), delay = parts(2).toInt.millis)
 
           case "periodic" if np==1 => PeriodicDeviceExecStrategy()
-          case "periodic" if np==2 => PeriodicDeviceExecStrategy(interval = parts(1).toInt millis)
-          case "periodic" => PeriodicDeviceExecStrategy(initial = Some(parts(1).toInt millis), interval = parts(2).toInt millis)
+          case "periodic" if np==2 => PeriodicDeviceExecStrategy(interval = parts(1).toInt.millis)
+          case "periodic" => PeriodicDeviceExecStrategy(initial = Some(parts(1).toInt.millis), interval = parts(2).toInt.millis)
         }
         c.copy(execution = c.execution.copy(scope = DeviceDelegated(strategy)))
       } text("Subsystem-delegated scheduling")
