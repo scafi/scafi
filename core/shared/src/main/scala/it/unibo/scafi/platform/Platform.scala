@@ -19,7 +19,7 @@ trait Platform {
   self: Platform.PlatformDependency =>
 
   trait StandardPlatformSensorNames {
-    val LSNS_RANDOM: CNAME = CNAMEfromString("LSNS_RANDOM")
+    val LSNS_RANDOM: CNAME = cnameFromString("LSNS_RANDOM")
   }
 }
 
@@ -42,11 +42,11 @@ trait TimeAwarePlatform extends Platform {
   }
 
   trait StandardTemporalSensorNames {
-    val LSNS_TIME: CNAME = CNAMEfromString("LSNS_TIME")
-    val LSNS_TIMESTAMP: CNAME = CNAMEfromString("LSNS_TIMESTAMP")
-    val LSNS_DELTA_TIME: CNAME = CNAMEfromString("LSNS_DELTA_TIME")
-    val NBR_LAG: CNAME = CNAMEfromString("NBR_LAG")
-    val NBR_DELAY: CNAME = CNAMEfromString("NBR_DELAY")
+    val LSNS_TIME: CNAME = cnameFromString("LSNS_TIME")
+    val LSNS_TIMESTAMP: CNAME = cnameFromString("LSNS_TIMESTAMP")
+    val LSNS_DELTA_TIME: CNAME = cnameFromString("LSNS_DELTA_TIME")
+    val NBR_LAG: CNAME = cnameFromString("NBR_LAG")
+    val NBR_DELAY: CNAME = cnameFromString("NBR_DELAY")
   }
 }
 
@@ -61,9 +61,9 @@ trait SpaceAwarePlatform extends Platform {
   }
 
   trait StandardSpatialSensorNames {
-    val LSNS_POSITION: CNAME = CNAMEfromString("LSNS_POSITION")
-    val NBR_VECTOR: CNAME = CNAMEfromString("NBR_VECTOR")
-    val NBR_RANGE: CNAME = CNAMEfromString("NBR_RANGE")
+    val LSNS_POSITION: CNAME = cnameFromString("LSNS_POSITION")
+    val NBR_VECTOR: CNAME = cnameFromString("NBR_VECTOR")
+    val NBR_RANGE: CNAME = cnameFromString("NBR_RANGE")
   }
 }
 

@@ -5,6 +5,7 @@
 
 package it.unibo.scafi.lib
 
+// scalastyle:off number.of.methods number.of.types
 trait StdLib_Processes {
   self: StandardLibrary.Subcomponent =>
 
@@ -211,7 +212,7 @@ trait StdLib_Processes {
                               termination: (K,A,R) => Boolean): A => Map[K,R] =
       spawn((k:K) => (a:A) => { val r = process(k)(a); (r,!termination(k,a,r)) }, generation(), _)
 
-    object on {
+    object On {
       def apply[K](set: Set[K]): SpawnKeys[K] = new SpawnKeys(set)
     }
     class SpawnKeys[K](val keys: Set[K]) {
@@ -389,7 +390,7 @@ trait StdLib_Processes {
         new ProcContinuation[K,A,R](keys.toSet, proc)
     }
 
-    object spawn extends GenerationInSpace {
+    object DoSpawn extends GenerationInSpace {
       override def where(pred: Boolean): GenerationInSpaceContinuation = new GenerationInSpaceContinuation(pred)
     }
 

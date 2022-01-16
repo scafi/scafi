@@ -35,7 +35,7 @@ trait BasicAbstractIncarnation extends Incarnation {
     override val NBR_VECTOR: String = "nbrVector"
   }
 
-  override def CNAMEfromString(s: String): CNAME = s
+  override def cnameFromString(s: String): CNAME = s
 
   @transient implicit override val linearID: Linearizable[ID] = new Linearizable[ID] {
     override def toNum(v: ID): Int = v

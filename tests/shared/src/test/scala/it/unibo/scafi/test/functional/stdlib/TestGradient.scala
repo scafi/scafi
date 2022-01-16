@@ -9,12 +9,13 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
   import ScafiAssertions._
   import ScafiTestUtils._
 
+  private val infinity: Double = Double.PositiveInfinity
+  private val communicationRadius = 1.5
+
   private[this] class SimulationContextFixture(seeds: Seeds) {
-    implicit val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds)
+    implicit val net: Network with SimulatorOps = manhattanNet(detachedNodesCoords = Set((2,2)), seeds = seeds, rng = communicationRadius)
     net.addSensor(name = "source", value = false)
   }
-
-  val infinity: Double = Double.PositiveInfinity
 
   for(s <- seeds) {
     val seeds = Seeds(s, s, s)
@@ -173,7 +174,7 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
           override def main(): (Double, Double) =
-            (BisGradient().from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+            (bisGradientBuilder(communicationRadius).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
@@ -183,7 +184,7 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
         testBasicBehaviour(new TestProgram {
           //notice the use of an high raisingSpeed
           override def main(): (Double, Double) =
-            (CrfGradient(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+            (crfGradientBuilder(raisingSpeed = 500).from(sense("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
@@ -192,7 +193,7 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
           override def main(): (Double, Double) =
-            (FlexGradient(epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+            (flexGradientBuilder(communicationRadius, epsilon = 0.05).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
@@ -201,7 +202,7 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
           override def main(): (Double, Double) =
-            (SvdGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+            (svdGradientBuilder().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
@@ -209,7 +210,7 @@ class TestGradient extends AnyFunSpec with BeforeAndAfterEach {
       describe("On a manhattan network with SW node detached") {
         testBasicBehaviour(new TestProgram {
           override def main(): (Double, Double) =
-            (UltGradient().from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
+            (ultGradientBuilder(communicationRadius).from(sense[Boolean]("source")).run(), ClassicGradient.from(sense[Boolean]("source")).run())
         })
       }
     }
