@@ -1,39 +1,44 @@
 package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.command
 
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.Command.onlyMakeCommand
-import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, CommandFactory}
+import it.unibo.scafi.simulation.s2.frontend.configuration.command.Command
+import it.unibo.scafi.simulation.s2.frontend.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiProgramBuilder
 import it.unibo.scafi.simulation.s2.frontend.util.Result
-import it.unibo.scafi.simulation.s2.frontend.util.Result.{Fail, Success}
+import it.unibo.scafi.simulation.s2.frontend.util.Result.Fail
+import it.unibo.scafi.simulation.s2.frontend.util.Result.Success
 
 /**
-  * a factory used a command that launch the scafi simulation
-  * @param scafiConfiguration the scafi configuration builder
-  */
-class LaunchCommandFactory(implicit val scafiConfiguration : ScafiConfigurationBuilder)extends CommandFactory{
+ * a factory used a command that launch the scafi simulation
+ * @param scafiConfiguration
+ *   the scafi configuration builder
+ */
+class LaunchCommandFactory(implicit val scafiConfiguration: ScafiConfigurationBuilder) extends CommandFactory {
   import CommandFactory._
   import LaunchCommandFactory._
   override val name: String = "launch"
 
   override def commandArgsDescription: Seq[CommandFactory.CommandArgDescription] = Seq.empty
 
-  override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = creationSuccessful(onlyMakeCommand(() => {
-    val configuration = scafiConfiguration.create()
-    //if create return none it mean that some argument aren't set
-    if(configuration.isEmpty) {
-      //return fail
-      Fail(ArgumentProblem)
-    } else {
-      //otherwise launch the scafi configuration
-      ScafiProgramBuilder(configuration.get).launch()
-      Success
+  override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = creationSuccessful(
+    onlyMakeCommand { () =>
+      val configuration = scafiConfiguration.create()
+      // if create return none it mean that some argument aren't set
+      if (configuration.isEmpty) {
+        // return fail
+        Fail(ArgumentProblem)
+      } else {
+        // otherwise launch the scafi configuration
+        ScafiProgramBuilder(configuration.get).launch()
+        Success
+      }
     }
-  }))
+  )
 }
 
 object LaunchCommandFactory {
   import it.unibo.scafi.simulation.s2.frontend.configuration.launguage.ResourceBundleManager._
-  implicit val key : String = KeyFile.Error
+  implicit val key: String = KeyFile.Error
   def ArgumentProblem: String = i"argument-problem"
 }

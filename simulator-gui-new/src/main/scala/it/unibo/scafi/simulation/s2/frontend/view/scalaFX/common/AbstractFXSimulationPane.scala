@@ -1,21 +1,21 @@
 package it.unibo.scafi.simulation.s2.frontend.view.scalaFX.common
 
-
 import it.unibo.scafi.simulation.s2.frontend.view.SimulationView
 import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer.FXOutputPolicy
 
 import scalafx.scene.layout.Pane
 
 /**
-  * define a generic interface on a fx simulation pane
-  */
+ * define a generic interface on a fx simulation pane
+ */
 //noinspection AbstractValueInTrait
 
-private [scalaFX] trait AbstractFXSimulationPane extends Pane with SimulationView {
-  val drawer : FXOutputPolicy
+private[scalaFX] trait AbstractFXSimulationPane extends Pane with SimulationView {
+  val drawer: FXOutputPolicy
   /**
-    * get the nodes showed
-    * @return the nodes drawed
-    */
-  def nodes : Map[ID,drawer.OUTPUT_NODE]
+   * get the nodes showed
+   * @return
+   *   the nodes drawed
+   */
+  def nodes: Map[ID, drawer.OUTPUT_NODE]
 }

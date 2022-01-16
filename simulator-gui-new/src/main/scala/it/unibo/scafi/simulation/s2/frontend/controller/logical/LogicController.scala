@@ -4,22 +4,23 @@ import it.unibo.scafi.simulation.s2.frontend.controller.Controller
 import it.unibo.scafi.simulation.s2.frontend.model.aggregate.AggregateWorld
 
 /**
-  * a controller that has a defined logic to change
-  * the world
+ * a controller that has a defined logic to change the world
  *
-  * @tparam W the world observed
-  */
+ * @tparam W
+ *   the world observed
+ */
 trait LogicController[W <: AggregateWorld] extends Controller[W] {
   /**
-    * start the internal logic
-    * @throws IllegalStateException if the simulation is started
-    */
-  def start() : Unit
+   * start the internal logic
+   * @throws IllegalStateException
+   *   if the simulation is started
+   */
+  def start(): Unit
 
   /**
-    * stop the internal logic
-    * @throws IllegalStateException if the simulation is stopped
-    */
-  def stop() : Unit
+   * stop the internal logic
+   * @throws IllegalStateException
+   *   if the simulation is stopped
+   */
+  def stop(): Unit
 }
-

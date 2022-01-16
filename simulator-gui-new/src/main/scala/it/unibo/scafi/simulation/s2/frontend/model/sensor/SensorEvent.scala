@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.s2.frontend.model.common.world.CommonWorldEvent
 object SensorEvent {
 
   /**
-    * an event produced when a sensor value change
-    */
+   * an event produced when a sensor value change
+   */
   object SensorChanged extends EventType
 }

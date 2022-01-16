@@ -1,18 +1,18 @@
 package it.unibo.scafi.simulation.s2.frontend.launcher.scafi
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
+import java.nio.file.Paths
 
 /**
-  * allow to launch simulation by reading file passed
-  * the file must have commad write like unix like to
-  * separate command you must use semicolon
-  */
+ * allow to launch simulation by reading file passed the file must have commad write like unix like to separate command
+ * you must use semicolon
+ */
 object FileLauncher {
-  def apply(path : String) : Unit = {
+  def apply(path: String): Unit = {
     val javaListCommand = Files.readAllLines(Paths.get(path))
     val command = JavaToScalaConversions.toScalaBuffer(javaListCommand).mkString(";")
     println(command)
-    StringLauncher{command}
+    StringLauncher(command)
   }
 }
 
