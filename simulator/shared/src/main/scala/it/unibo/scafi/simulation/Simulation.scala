@@ -271,8 +271,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def exec(node: EXECUTION, exp: => Any, id: ID): Unit = {
       progress(node, exp, id)
-      tick()
-      updateLocalClock(id)
+      sequentialWorldClock(id)
     }
 
     /**
@@ -301,8 +300,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val c = context(idToRun)
       val (_,exp) = idToRun -> ap(c)
       eMap += idToRun -> exp
-      updateLocalClock(idToRun)
-      tick()
+      sequentialWorldClock(idToRun)
       idToRun -> exp
     }
 
@@ -318,6 +316,11 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     protected def progress(node: EXECUTION, exp: => Any, id: ID): Unit = {
       val c = context(id)
       eMap += (id -> node.round(c, exp))
+    }
+    /* update the time as the events can be sequential */
+    protected def sequentialWorldClock(id: ID) = {
+      updateLocalClock(id)
+      tick()
     }
     /* update the world global clock by the static timeTick */
     protected def tick(): Unit = globalClock = globalClock.plusMillis(timeTick.toMillis)
