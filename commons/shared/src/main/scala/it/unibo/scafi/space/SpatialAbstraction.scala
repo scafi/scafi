@@ -225,7 +225,7 @@ trait BasicSpatialAbstraction extends MetricSpatialAbstraction {
     private val nMap: TrieMap[E, Set[E]] = TrieMap.empty
     //TODO CREATE AN INDEX THAT INCREASE HIS SIZE WITH NODE POSITIONING
     private val neighbourIndex: NNIndex[E] = NNIndex(pos)
-    override def setLocation(e: E, p: P): Unit = if(bound.exists(_.accept(p))) {
+    override def setLocation(e: E, p: P): Unit = if(bound.isEmpty || bound.exists(_.accept(p))) {
       resetNeighbours(e)
       neighbourIndex -= (elemPositions(e))
       neighbourIndex += (p -> e)
