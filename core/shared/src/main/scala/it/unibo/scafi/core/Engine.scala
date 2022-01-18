@@ -26,7 +26,7 @@ trait Engine extends Semantics {
 
   class ExportImpl(private var map: Map[Path,Any] = Map.empty) extends Export with ExportOps with Equals { self: EXPORT =>
     override def put[A](path: Path, value: A) : A = { map += (path -> value); value }
-    override def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
+    override def get[A](path: Path): Option[A] = map.get(path).map { case x:A => x }
     override def root[A](): A = get[A](factory.emptyPath()).get
     override def paths : Map[Path,Any] = map
 
@@ -35,7 +35,7 @@ trait Engine extends Semantics {
       case _ => false
     }
 
-    override def canEqual(that: Any): Boolean = that.isInstanceOf[Export]
+    override def canEqual(that: Any): Boolean = that match { case _: Export => true; case _ => false }
 
     override def hashCode(): Int = map.hashCode()
 
@@ -55,7 +55,7 @@ trait Engine extends Semantics {
 
     def matches(p: Path): Boolean = this == p
 
-    def canEqual(other: Any): Boolean = other.isInstanceOf[Path]
+    def canEqual(other: Any): Boolean = other match { case _: Path => true; case _ => false }
 
     override def equals(other: Any): Boolean = {
       other match {
@@ -90,11 +90,14 @@ trait Engine extends Semantics {
                      val nbrSensor: GMap[CNAME,GMap[ID,Any]])
     extends BaseContextImpl(selfId, exports) { self: CONTEXT =>
 
-    override def toString(): String = s"C[\n\tI:$selfId,\n\tE:$exports,\n\tS1:$localSensor,\n\tS2:$nbrSensor\n]"
+    override def toString(): String =
+      s"C[\n\tI:$selfId,\n\tE:$exports,\n\tS1:$localSensor,\n\tS2:$nbrSensor\n]"
 
-    override def sense[T](localSensorName: CNAME): Option[T] = localSensor.get(localSensorName).map(_.asInstanceOf[T])
+    override def sense[T](localSensorName: CNAME): Option[T] =
+      localSensor.get(localSensorName).map { case x:T => x }
 
-    override def nbrSense[T](nbrSensorName: CNAME)(nbr: ID): Option[T] = nbrSensor.get(nbrSensorName).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
+    override def nbrSense[T](nbrSensorName: CNAME)(nbr: ID): Option[T] =
+      nbrSensor.get(nbrSensorName).flatMap(_.get(nbr)).map { case x:T => x }
   }
 
   class EngineFactory extends Factory { self: FACTORY =>

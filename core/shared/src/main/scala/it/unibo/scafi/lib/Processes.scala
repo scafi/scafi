@@ -118,8 +118,8 @@ trait StdLibProcesses {
     trait WithGeneration[K,A,R] { self: Spawn[K,A,R] =>
       override def apply(): Map[K,R] = rep(Set.empty[K], Map.empty[K,R]) { case (keys, res) =>
         val out = self.map {
-          case POut(v, s@GeneratorStatus(ks)) => POut((v,ks.asInstanceOf[Set[K]]),s)
-          case POut(v,s) => POut((v,Set.empty[K]),s)
+          case POut(v, s: GeneratorStatus[K]) => POut[(R,Set[K])]((v, s.newProcs), s)
+          case POut(v,s) => POut[(R,Set[K])]((v, Set.empty[K]),s)
         }.apply()
         (out.flatMap(_._2._2).toSet, out.mapValues(_._1).toMap)
       }._2

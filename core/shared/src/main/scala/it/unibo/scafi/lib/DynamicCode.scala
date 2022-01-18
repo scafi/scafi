@@ -16,7 +16,7 @@ trait StdLibDynamicCode {
       * - If they do note use `aggregate`, they might try to align with functions of other versions,
       *   causing unexpected behaviours and errors.
       */
-    case class Fun[T,R](ver: Int, fun: (T)=>R)
+    final case class Fun[T,R](ver: Int, fun: (T)=>R)
 
     type Injecter[T,R] = () => Fun[T,R]
 
