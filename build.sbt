@@ -61,7 +61,8 @@ inThisBuild(List(
   ),
   scalaVersion :=  defaultScalaVersion,
   scalafixScalaBinaryVersion := "2.12",
-  scapegoatVersion := "1.4.11"
+  scapegoatVersion := "1.4.11",
+  coverageExcludedPackages := "<empty>;demos.*;examples.*;.*frontend.*;sims.*;monitoring.*;plainSim.*;lib.*;.*renderer3d.*"
 ))
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
