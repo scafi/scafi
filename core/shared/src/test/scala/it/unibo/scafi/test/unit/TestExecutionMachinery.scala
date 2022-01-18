@@ -23,7 +23,7 @@ class TestExecutionMachinery extends AnyFunSpec with Matchers {
 
       it("when empty") {
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ASSERT
         status.path shouldEqual /
@@ -33,7 +33,7 @@ class TestExecutionMachinery extends AnyFunSpec with Matchers {
 
       it("should allow un/folding in the context of a neighbor") {
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ASSERT
         status.neighbour shouldBe None
@@ -55,7 +55,7 @@ class TestExecutionMachinery extends AnyFunSpec with Matchers {
 
       it("should work as a stack"){
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ACT
         val s1 = status.push()
@@ -83,7 +83,7 @@ class TestExecutionMachinery extends AnyFunSpec with Matchers {
 
       it("should use indexes to avoid clashes"){
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ASSERT
         status.index shouldBe 0
