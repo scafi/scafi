@@ -45,7 +45,7 @@ trait StdLib_Processes {
     }
 
     def nbrpath[A](path: Path)(expr: => A): A = {
-      val tvm = vm.asInstanceOf[RoundVMImpl]
+      val tvm = vm
       vm.nest(Nbr[A](vm.index))(vm.neighbour.map(_ == vm.self).getOrElse(false)) {
         vm.neighbour match {
           case Some(nbr) if (nbr != vm.self) => tvm.context
@@ -58,7 +58,7 @@ trait StdLib_Processes {
 
     def share[A](init: => A)(f: (A, () => A) => A): A = {
       rep(init){ oldRep =>
-        val repp = vm.asInstanceOf[RoundVMImpl].status.path
+        val repp = vm.status.path
         f(oldRep, () => nbrpath(repp)(oldRep))
       }
     }
@@ -315,7 +315,7 @@ trait StdLib_Processes {
     def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
       processManager[Long, T, R]((pid: Long) => proc(_),
-        generation = () => if (captureChange(lastPid)) Set(lastPid) else Set[Long](),
+        generation = () => if (captureChange(lastPid)) Set(lastPid) else Set.empty[Long],
         termination = (pid, arg, res) => pid < lastPid - numReplicates
       )(argument)
     }
@@ -346,7 +346,7 @@ trait StdLib_Processes {
 
     def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
       val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
-      val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
+      val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set.empty[Long]
       sspawn[Long,T,R]((pid: Long) => (arg) => {
         (proc(arg), if(lastPid - pid < numReplicates){ Output } else { External })
       }, newProcs, argument)

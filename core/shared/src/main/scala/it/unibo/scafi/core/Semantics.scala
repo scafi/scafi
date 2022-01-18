@@ -151,27 +151,44 @@ trait Semantics extends Core with Language {
   }
 
   trait RoundVM {
+    def context: CONTEXT
 
     def exportStack: List[EXPORT]
-    def export: EXPORT
 
-    def registerRoot(v: Any): Unit
+    def status: VMStatus
 
-    def self: ID
+    def export: EXPORT =
+      exportStack.head
 
-    def neighbour: Option[ID]
+    def self: ID =
+      context.selfId
 
-    def index: Int
+    def registerRoot(v: Any): Unit =
+      export.put(factory.emptyPath, v)
 
-    def previousRoundVal[A]: Option[A]
+    def neighbour: Option[ID] =
+      status.neighbour
 
-    def neighbourVal[A]: A
+    def index: Int =
+      status.index
+
+    def previousRoundVal[A]: Option[A] =
+      context.readSlot[A](self, status.path)
+
+    def neighbourVal[A]: A = context
+      .readSlot[A](neighbour.get, status.path)
+      .getOrElse(throw OutOfDomainException(context.selfId, neighbour.get, status.path))
+
+    def localSense[A](name: CNAME): A = context
+      .sense[A](name)
+      .getOrElse(throw new SensorUnknownException(self, name))
+
+    def neighbourSense[A](name: CNAME): A = {
+      RoundVM.ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
+      context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
+    }
 
     def foldedEval[A](expr: => A)(id: ID): Option[A]
-
-    def localSense[A](name: CNAME): A
-
-    def neighbourSense[A](name: CNAME): A
 
     def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A
 
@@ -194,30 +211,20 @@ trait Semantics extends Core with Language {
     def onlyWhenFoldingOnSelf: Boolean = neighbour.map(_==self).getOrElse(false)
   }
 
+  object RoundVM {
+    def ensure(b: => Boolean, s: String): Unit = {
+      b match {
+        case false => throw new Exception(s)
+        case _     =>
+      }
+    }
+  }
+
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
-    import RoundVMImpl.{ensure, Status, StatusImpl}
-
     var aggregateFunctions: Map[Path,()=>Any] = Map.empty
-
     var exportStack: List[EXPORT] = List(factory.emptyExport)
-    def export: EXPORT = exportStack.head
-
-    var status: Status = Status()
+    var status: VMStatus = VMStatus()
     var isolated = false // When true, neighbours are scoped out
-
-    override def registerRoot(v: Any): Unit = export.put(factory.emptyPath, v)
-
-    override def self: ID = context.selfId
-
-    override def neighbour: Option[ID] = status.neighbour
-
-    override def index: Int = status.index
-
-    override def previousRoundVal[A]: Option[A] = context.readSlot[A](self, status.path)
-
-    override def neighbourVal[A]: A = context
-      .readSlot[A](neighbour.get, status.path)
-      .getOrElse(throw OutOfDomainException(context.selfId, neighbour.get, status.path))
 
     override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
       handling(classOf[OutOfDomainException]) by (_ => None) apply {
@@ -229,15 +236,6 @@ trait Semantics extends Core with Language {
           status = status.pop()
         }
       }
-
-    override def localSense[A](name: CNAME): A = context
-      .sense[A](name)
-      .getOrElse(throw new SensorUnknownException(self, name))
-
-    override def neighbourSense[A](name: CNAME): A = {
-      ensure(neighbour.isDefined, "Neighbouring sensor must be queried in a nbr-dependent context.")
-      context.nbrSense(name)(neighbour.get).getOrElse(throw new NbrSensorUnknownException(self, name, neighbour.get))
-    }
 
     override def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A = {
       try {
@@ -303,49 +301,40 @@ trait Semantics extends Core with Language {
     }
   }
 
-  object RoundVMImpl {
-    def ensure(b: => Boolean, s: String): Unit = {
-      b match {
-        case false => throw new Exception(s)
-        case _     =>
-      }
+  trait VMStatus {
+    val path: Path
+    val index: Int
+    val neighbour: Option[ID]
+
+    def isFolding: Boolean
+    def foldInto(id: Option[ID]): VMStatus
+    def foldOut(): VMStatus
+    def nest(s: Slot): VMStatus
+    def incIndex(): VMStatus
+    def push(): VMStatus
+    def pop(): VMStatus
+  }
+
+  object VMStatus {
+    def apply(): VMStatus = VMStatusImpl()
+  }
+
+  private final case class VMStatusImpl(
+                                       path: Path = factory.emptyPath(),
+                                       index: Int = 0,
+                                       neighbour: Option[ID] = None,
+                                       stack: List[(Path, Int, Option[ID])] = List()) extends VMStatus {
+
+    def isFolding: Boolean = neighbour.isDefined
+    def foldInto(id: Option[ID]): VMStatus = VMStatusImpl(path, index, id, stack)
+    def foldOut(): VMStatus = VMStatusImpl(path, index, None, stack)
+    def push(): VMStatus = VMStatusImpl(path, index, neighbour, (path, index, neighbour) :: stack)
+    def pop(): VMStatus = stack match {
+      case (p, i, n) :: s => VMStatusImpl(p, i, n, s)
+      case _           => throw new Exception()
     }
-
-    trait Status {
-      val path: Path
-      val index: Int
-      val neighbour: Option[ID]
-
-      def isFolding: Boolean
-      def foldInto(id: Option[ID]): Status
-      def foldOut(): Status
-      def nest(s: Slot): Status
-      def incIndex(): Status
-      def push(): Status
-      def pop(): Status
-    }
-
-    private final case class StatusImpl(
-                                   path: Path = factory.emptyPath(),
-                                   index: Int = 0,
-                                   neighbour: Option[ID] = None,
-                                   stack: List[(Path, Int, Option[ID])] = List()) extends Status {
-
-      def isFolding: Boolean = neighbour.isDefined
-      def foldInto(id: Option[ID]): Status = StatusImpl(path, index, id, stack)
-      def foldOut(): Status = StatusImpl(path, index, None, stack)
-      def push(): Status = StatusImpl(path, index, neighbour, (path, index, neighbour) :: stack)
-      def pop(): Status = stack match {
-        case (p, i, n) :: s => StatusImpl(p, i, n, s)
-        case _           => throw new Exception()
-      }
-      def nest(s: Slot): Status = StatusImpl(path.push(s), 0, neighbour, stack)
-      def incIndex(): Status = StatusImpl(path, index + 1, neighbour, stack)
-    }
-
-    object Status {
-      def apply(): Status = StatusImpl()
-    }
+    def nest(s: Slot): VMStatus = VMStatusImpl(path.push(s), 0, neighbour, stack)
+    def incIndex(): VMStatus = VMStatusImpl(path, index + 1, neighbour, stack)
   }
 
   final case class OutOfDomainException(selfId: ID, nbr: ID, path: Path) extends Exception() {
