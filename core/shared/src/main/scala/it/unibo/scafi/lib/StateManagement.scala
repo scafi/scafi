@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_StateManagement{
+trait StdLibStateManagement{
   self: StandardLibrary.Subcomponent =>
 
   trait StateManagement {

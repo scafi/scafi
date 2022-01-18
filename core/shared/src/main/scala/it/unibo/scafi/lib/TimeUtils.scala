@@ -7,7 +7,7 @@ package it.unibo.scafi.lib
 
 import scala.concurrent.duration._
 
-trait StdLib_TimeUtils {
+trait StdLibTimeUtils {
   self: StandardLibrary.Subcomponent =>
 
   // scalastyle:off method.name

@@ -6,7 +6,7 @@
 package it.unibo.scafi.lib
 
 // scalastyle:off number.of.methods number.of.types
-trait StdLib_Processes {
+trait StdLibProcesses {
   self: StandardLibrary.Subcomponent =>
 
   trait SpawnInterface {

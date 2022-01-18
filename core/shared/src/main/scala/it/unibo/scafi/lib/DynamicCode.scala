@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_DynamicCode {
+trait StdLibDynamicCode {
   self: StandardLibrary.Subcomponent =>
 
   trait DynamicCode extends FieldUtils {

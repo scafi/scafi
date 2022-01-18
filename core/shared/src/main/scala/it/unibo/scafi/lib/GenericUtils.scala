@@ -7,7 +7,7 @@ package it.unibo.scafi.lib
 
 import java.util.concurrent.TimeUnit
 
-trait StdLib_GenericUtils {
+trait StdLibGenericUtils {
   self: StandardLibrary.Subcomponent =>
 
   trait GenericUtils {

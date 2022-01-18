@@ -11,7 +11,7 @@ import it.unibo.utils.Filters.expFilter
 
 import java.util.concurrent.TimeUnit
 
-trait StdLib_Gradients {
+trait StdLibGradients {
   self: StandardLibrary.Subcomponent =>
 
   type Metric = ()=>Double

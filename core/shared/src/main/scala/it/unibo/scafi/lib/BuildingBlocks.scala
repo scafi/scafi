@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_BuildingBlocks {
+trait StdLibBuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
   trait BuildingBlocks extends Gradients with FieldUtils

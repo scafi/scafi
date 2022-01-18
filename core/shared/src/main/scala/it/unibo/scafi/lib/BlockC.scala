@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_BlockC {
+trait StdLibBlockC {
   selfcomp: StandardLibrary.Subcomponent =>
 
   // scalastyle:off method.name

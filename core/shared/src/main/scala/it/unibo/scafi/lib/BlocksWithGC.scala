@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_BlocksWithGC {
+trait StdLibBlocksWithGC {
   self: StandardLibrary.Subcomponent =>
 
   trait BlocksWithGC extends BlockG with BlockC {
