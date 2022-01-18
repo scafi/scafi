@@ -46,7 +46,7 @@ trait BasicAbstractIncarnation extends Incarnation {
     def fromString(str: String) = str.toInt
   }
   @transient implicit override val interopCNAME: Interop[CNAME] = new Interop[CNAME] {
-    def toString(lsns: CNAME): String = lsns.toString
+    def toString(lsns: CNAME): String = lsns
     def fromString(str: String): CNAME = str
   }
 }

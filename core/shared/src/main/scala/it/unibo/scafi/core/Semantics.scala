@@ -217,7 +217,7 @@ trait Semantics extends Core with Language {
 
     override def neighbourVal[A]: A = context
       .readSlot[A](neighbour.get, status.path)
-      .getOrElse(throw new OutOfDomainException(context.selfId, neighbour.get, status.path))
+      .getOrElse(throw OutOfDomainException(context.selfId, neighbour.get, status.path))
 
     override def foldedEval[A](expr: =>A)(id: ID): Option[A] =
       handling(classOf[OutOfDomainException]) by (_ => None) apply {
@@ -325,7 +325,7 @@ trait Semantics extends Core with Language {
       def pop(): Status
     }
 
-    private case class StatusImpl(
+    private final case class StatusImpl(
                                    path: Path = factory.emptyPath(),
                                    index: Int = 0,
                                    neighbour: Option[ID] = None,
@@ -348,16 +348,15 @@ trait Semantics extends Core with Language {
     }
   }
 
-  case class OutOfDomainException(selfId: ID, nbr: ID, path: Path) extends Exception() {
+  final case class OutOfDomainException(selfId: ID, nbr: ID, path: Path) extends Exception() {
     override def toString: String = s"OutOfDomainException: $selfId , $nbr, $path"
   }
 
-  case class SensorUnknownException(selfId: ID, name: CNAME) extends Exception() {
+  final case class SensorUnknownException(selfId: ID, name: CNAME) extends Exception() {
     override def toString: String = s"SensorUnknownException: $selfId , $name"
   }
 
-  case class NbrSensorUnknownException(selfId: ID, name: CNAME, nbr: ID) extends Exception() {
+  final case class NbrSensorUnknownException(selfId: ID, name: CNAME, nbr: ID) extends Exception() {
     override def toString: String = s"NbrSensorUnknownException: $selfId , $name, $nbr"
   }
-
 }

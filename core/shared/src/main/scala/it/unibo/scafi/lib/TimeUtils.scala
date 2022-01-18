@@ -102,7 +102,7 @@ trait StdLib_TimeUtils {
         branch(impulse) {
           false
         } {
-          timer(d) == 0
+          timer(d) == implicitly[Numeric[T]].zero
         }
       }
 

@@ -94,7 +94,7 @@ trait StdLib_BlockG {
       val ds = distanceTo(source)
       val dt = distanceTo(target)
       val db = distanceBetween(source, target)
-      !(ds + dt == Double.PositiveInfinity && db == Double.PositiveInfinity) && ds + dt <= db + width
+      !((ds + dt).isInfinite && db.isInfinite) && ds + dt <= db + width
     }
   }
 

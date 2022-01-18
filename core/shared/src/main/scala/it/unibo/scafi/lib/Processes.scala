@@ -20,7 +20,7 @@ trait StdLib_Processes {
     case object BubbleStatus extends Status     // Within the bubble
     case object OutputStatus extends Status     // Within the bubble and bubble output producer
     case object TerminatedStatus extends Status // Notifies the willingness to terminate the bubble
-    case class GeneratorStatus[K](newProcs: Set[K]) extends Status
+    final case class GeneratorStatus[K](newProcs: Set[K]) extends Status
 
     val External: Status = ExternalStatus
     val Bubble: Status = BubbleStatus
@@ -33,7 +33,7 @@ trait StdLib_Processes {
 
     import SpawnInterface._
 
-    case class ProcInstance[A, B, C](params: A)(val proc: A => B => C, val value: Option[C] = None)
+    final case class ProcInstance[A, B, C](params: A)(val proc: A => B => C, val value: Option[C] = None)
     {
       def run(args: B): ProcInstance[A,B,C] =
         ProcInstance(params)(proc, { align(puid) { _ => Some(proc.apply(params)(args)) } })
@@ -71,14 +71,14 @@ trait StdLib_Processes {
     }
 
     def runOnSharedKeysWithShare[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
-      share(Map[K, R]())((loc,nbr) => {
+      share(Map.empty[K, R])((loc,nbr) => {
         (includingSelf.unionHoodSet(nbr().keySet ++ params))
           .mapToValues(process.apply(_))
           .collectValues[R] { case (r,true) => r }
       })
 
     def runOnSharedKeys[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
-      rep(Map[K, R]())(map => {
+      rep(Map.empty[K, R])(map => {
         (includingSelf.unionHoodSet(nbr{map}.keySet ++ params))
           .mapToValues(process.apply(_))
           .collectValues[R] { case (r,true) => r }
@@ -88,7 +88,7 @@ trait StdLib_Processes {
       runOnSharedKeysWithShare(align(_){process(_)(args)}, params)
 
     def spawn[K, A, R](process: K => A => (R, Boolean), params: Set[K], args: A): Map[K,R] = {
-      rep(Map[K, R]()) { case map => {
+      rep(Map.empty[K, R]) { case map => {
         // 1. Take active process instances from my neighbours
         val nbrProcs = includingSelf.unionHoodSet(nbr{map}.keySet)
 
@@ -146,7 +146,7 @@ trait StdLib_Processes {
         map.map { case (k,v) => k -> mapLogic(v) }
     }
 
-    case class POut[T](result: T, status: Status)
+    final case class POut[T](result: T, status: Status)
     object POut {
       implicit def fromTuple[T](tp: (T,Status)): POut[T] = POut(tp._1, tp._2)
       implicit def toBasicSpawnTuple[T](pout: POut[T]): (T,Boolean) = (pout.result, pout.status!=External)
@@ -231,7 +231,7 @@ trait StdLib_Processes {
       def value: V
       def filter: Boolean
     }
-    case class SpawnReturn[C](value: C, status: Boolean) extends MapFilter[C] {
+    final case class SpawnReturn[C](value: C, status: Boolean) extends MapFilter[C] {
       override def filter: Boolean = status
     }
 
@@ -240,14 +240,14 @@ trait StdLib_Processes {
       spreadKeys[Key,R](newProcesses){ key => process(key)(args) }
 
     def spreadKeys[K,R](newKeys: Set[K])(mapKey: K => MapFilter[R]): Map[K,R] =
-      share(Map[K,R]()) { case (_, nbrMaps) =>
+      share(Map.empty[K,R]) { case (_, nbrMaps) =>
         (includingSelf.unionHoodSet(nbrMaps().keySet) ++ newKeys).mapAndFilter[R]{ (key: K) =>
           simplyReturn(alignedExecution(mapKey)(key)).filteringExport.iff(_.filter).map(_.value)
         }
       }
 
     def cuspawn[K, A, R](process: K => A => SpawnReturn[R], newKeys: Set[K], args: A): Map[K,R] =
-      share(Map[K,R]()) { case (_, nbrMaps) =>
+      share(Map.empty[K,R]) { case (_, nbrMaps) =>
         (includingSelf.unionHoodSet(nbrMaps().keySet) ++ newKeys).mapAndFilter[R]{ (key: K) =>
           simplyReturn(alignedExecution(process(_:K)(args))(key)).filteringExport.iff(_.filter).map(_.value)
         }

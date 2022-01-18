@@ -28,7 +28,7 @@ trait StdLib_Gradients {
   trait Gradients extends GenericUtils with StateManagement {
     self: FieldCalculusSyntax with StandardSensors with BlockG =>
 
-    case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
+    final case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
 
       def withMetric(m: Metric): Gradient = this.copy(metric = m)
@@ -107,7 +107,7 @@ trait StdLib_Gradients {
         case (g, speed) =>
           mux(source){ (0.0, 0.0) }{
             implicit def durationToDouble(fd: FiniteDuration): Double = fd.toMillis.toDouble / 1000.0
-            case class Constraint(nbr: ID, gradient: Double, nbrDistance: Double)
+            final case class Constraint(nbr: ID, gradient: Double, nbrDistance: Double)
 
             val constraints = foldhoodPlus[List[Constraint]](List.empty)(_ ++ _){
               val (nbrg, d) = (nbr{g}, metric())
@@ -257,10 +257,10 @@ trait StdLib_Gradients {
                     factor: Double = DEFAULT_ULT_FACTOR)
                    (source: Boolean,
                     metric: Metric = nbrRange): Double = {
-      def inertialFilter(value: Double, factor: Double) = {
+      def inertialFilter(value: Double, filterFactor: Double): Double = {
         val dt: Double = deltaTime().toMillis
-        val at: Double = expFilter(dt, factor)
-        val ad: Double = expFilter(Math.abs(value - delay(value)), factor)
+        val at: Double = expFilter(dt, filterFactor)
+        val ad: Double = expFilter(Math.abs(value - delay(value)), filterFactor)
         rep (value) { old => {
           if (!old.isInfinite) {
             val v: Double = Math.signum(old) * Math.min( Math.abs(value - old)/dt, ad/at)
