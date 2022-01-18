@@ -60,7 +60,8 @@ inThisBuild(List(
     Developer(id="mviroli", name="Mirko Viroli", email="mirko.viroli@unibo.it", url=url("http://mirkoviroli.apice.unibo.it"))
   ),
   scalaVersion :=  defaultScalaVersion,
-  scalafixScalaBinaryVersion := "2.12"
+  scalafixScalaBinaryVersion := "2.12",
+  scapegoatVersion := "1.4.11"
 ))
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")

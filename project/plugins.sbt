@@ -10,6 +10,8 @@ addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.1.1")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
+addSbtPlugin("com.github.sbt" % "sbt-cpd" % "2.0.0")
+
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.3")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.34")
