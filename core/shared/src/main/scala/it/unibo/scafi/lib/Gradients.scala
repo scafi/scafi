@@ -257,13 +257,11 @@ trait StdLib_Gradients {
                     factor: Double = DEFAULT_ULT_FACTOR)
                    (source: Boolean,
                     metric: Metric = nbrRange): Double = {
-      //def svd: Double = svdGradient(source, metric)
-      //def bis: Double = bisGradient(commRadius = radius)(source, metric)
       def inertialFilter(value: Double, factor: Double) = {
         val dt: Double = deltaTime().toMillis
         val at: Double = expFilter(dt, factor)
         val ad: Double = expFilter(Math.abs(value - delay(value)), factor)
-        rep (value) {old => {
+        rep (value) { old => {
           if (!old.isInfinite) {
             val v: Double = Math.signum(old) * Math.min( Math.abs(value - old)/dt, ad/at)
             val r = old + v * dt
@@ -271,9 +269,12 @@ trait StdLib_Gradients {
           } else {
             value
           }
-        }}
+        } }
       }
-      inertialFilter(Math.max(svdGradientBuilder().from(source).withMetric(metric).run(), bisGradientBuilder(radius).from(source).withMetric(metric).run()), factor)
+      inertialFilter(Math.max(
+        svdGradientBuilder().from(source).withMetric(metric).run(),
+        bisGradientBuilder(radius).from(source).withMetric(metric).run()
+      ), factor)
     }
   }
 }
