@@ -95,7 +95,7 @@ lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
    `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js, 
    coreCross.native, commonsCross.native, simulatorCross.native, testsCross.native)
-  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin,ScalaNativePlugin)
+  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
   .settings(
@@ -111,7 +111,7 @@ lazy val scafi = project.in(file("."))
 
 lazy val commonsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("commons"))
   .settings(commonSettings: _*)
-  .enablePlugins(ScalaNativePlugin)
+  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-commons"
   )
@@ -124,7 +124,7 @@ lazy val commons = commonsCross.jvm
 lazy val coreCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("core"))
   .dependsOn(commonsCross)
   .settings(commonSettings: _*)
-  .enablePlugins(ScalaNativePlugin)
+  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-core",
     libraryDependencies += scalatest.value
@@ -143,7 +143,7 @@ lazy val `stdlib-ext` = project
 lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("simulator"))
   .dependsOn(coreCross)
   .settings(commonSettings: _*)
-  .enablePlugins(ScalaNativePlugin)
+  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-simulator",
   )
@@ -203,7 +203,7 @@ lazy val testsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
   .dependsOn(coreCross, simulatorCross)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
-  .enablePlugins(ScalaNativePlugin)
+  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-tests",
     libraryDependencies ++= Seq(scalatest.value)
