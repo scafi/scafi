@@ -9,6 +9,9 @@ val defaultScalaVersion = "2.12.14"
 val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.14","2.13.6")
 val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
 
+// Set to false or remove if you want to show stubs as linking errors
+nativeLinkStubs := true
+
 // Managed dependencies
 val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
@@ -90,8 +93,9 @@ lazy val noPublishSettings = Seq(
 
 lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
-   `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js)
-  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin)
+   `simulator-gui-new`, `demos-new`, `demos-distributed`, coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js, 
+   coreCross.native, commonsCross.native, simulatorCross.native, testsCross.native)
+  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin,ScalaNativePlugin)
   .settings(commonSettings:_*)
   .settings(noPublishSettings:_*)
   .settings(
@@ -105,8 +109,9 @@ lazy val scafi = project.in(file("."))
     addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
   )
 
-lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons"))
+lazy val commonsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("commons"))
   .settings(commonSettings: _*)
+  .enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-commons"
   )
@@ -116,9 +121,10 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform).in(file("commons")
 
 lazy val commons = commonsCross.jvm
 
-lazy val coreCross = crossProject(JSPlatform, JVMPlatform).in(file("core"))
+lazy val coreCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("core"))
   .dependsOn(commonsCross)
   .settings(commonSettings: _*)
+  .enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-core",
     libraryDependencies += scalatest.value
@@ -134,9 +140,10 @@ lazy val `stdlib-ext` = project
     libraryDependencies ++= Seq(scalatest.value, shapeless)
   )
 
-lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform).in(file("simulator"))
+lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("simulator"))
   .dependsOn(coreCross)
   .settings(commonSettings: _*)
+  .enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-simulator",
   )
@@ -192,10 +199,11 @@ lazy val distributed = project
     libraryDependencies += scalatest.value
   )
 
-lazy val testsCross = crossProject(JSPlatform, JVMPlatform).in(file("tests"))
+lazy val testsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("tests"))
   .dependsOn(coreCross, simulatorCross)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
+  .enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-tests",
     libraryDependencies ++= Seq(scalatest.value)
