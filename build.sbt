@@ -10,7 +10,7 @@ val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.14","2.13.6")
 val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
 
 // Set to false or remove if you want to show stubs as linking errors
-nativeLinkStubs := true
+nativeLinkStubs := true;
 
 // Managed dependencies
 val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
@@ -118,6 +118,9 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in
   .jsSettings(
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
+  .nativeSettings(
+    libraryDependencies += "io.github.cquiroz" %% "scala-java-time" % "2.2.2"
+  )
 
 lazy val commons = commonsCross.jvm
 
@@ -149,6 +152,9 @@ lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).
   )
   .jsSettings(
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
+  )
+  .nativeSettings(
+    libraryDependencies += "io.github.cquiroz" %% "scala-java-time" % "2.2.2"
   )
 
 lazy val simulator = simulatorCross.jvm

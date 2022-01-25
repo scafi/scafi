@@ -46,6 +46,6 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.20.0")
 
 // Scala Native plugins
 
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.4.2")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.4.3")
 
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.1.0")
