@@ -79,6 +79,11 @@ trait StdLibBlockG {
     def broadcast[V](source: Boolean, field: V, metric: Metric = nbrRange): V =
       Gcurried(source)(field)(v => v)(metric)
 
+    def broadcastAlongGradient[V](g: Gradient, field: V): V = {
+      val g = g.run()
+      excludingSelf.minHoodSelector(nbr { g })(nbr { field }).getOrElse(field)
+    }
+
     /**
       * Distance between `source` to `target` based on `metric`
       */
