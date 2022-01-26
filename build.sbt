@@ -111,7 +111,6 @@ lazy val scafi = project.in(file("."))
 
 lazy val commonsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("commons"))
   .settings(commonSettings: _*)
-  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-commons"
   )
@@ -119,7 +118,7 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
   .nativeSettings(
-    libraryDependencies += "io.github.cquiroz" %% "scala-java-time" % "2.2.2"
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1"
   )
 
 lazy val commons = commonsCross.jvm
@@ -127,7 +126,6 @@ lazy val commons = commonsCross.jvm
 lazy val coreCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("core"))
   .dependsOn(commonsCross)
   .settings(commonSettings: _*)
-  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-core",
     libraryDependencies += scalatest.value
@@ -146,7 +144,6 @@ lazy val `stdlib-ext` = project
 lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(file("simulator"))
   .dependsOn(coreCross)
   .settings(commonSettings: _*)
-  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-simulator",
   )
@@ -154,7 +151,7 @@ lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
   .nativeSettings(
-    libraryDependencies += "io.github.cquiroz" %% "scala-java-time" % "2.2.2"
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1"
   )
 
 lazy val simulator = simulatorCross.jvm
@@ -209,7 +206,6 @@ lazy val testsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
   .dependsOn(coreCross, simulatorCross)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
-  //.enablePlugins(ScalaNativePlugin)
   .settings(
     name := "scafi-tests",
     libraryDependencies ++= Seq(scalatest.value)
