@@ -6,6 +6,6 @@ package it.unibo.scafi
   */
 
 object PlatformDependentConstants {
-  val CallerClassPosition = 4
-  val StackTracePosition = 4
+  val CallerClassPosition = 3
+  val StackTracePosition = 3
 }

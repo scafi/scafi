@@ -268,7 +268,7 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag(): Any = Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
+    override def elicitAggregateFunctionTag(): Any = new Throwable().getStackTrace()(PlatformDependentConstants.StackTracePosition)
     // Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition) // Bad performance
     // sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition) // Better performance but not available in Java 11
     // Since Java 9, use StackWalker
