@@ -1,4 +1,5 @@
 import sbt.Def
+import scala.scalanative.build._
 
 // Resolvers
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -118,7 +119,12 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
   .nativeSettings(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1"
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1",
+    nativeConfig ~= {
+      _.withLTO(LTO.thin)
+      .withMode(Mode.releaseFull)
+      .withGC(GC.commix)
+    }
   )
 
 lazy val commons = commonsCross.jvm
@@ -129,6 +135,13 @@ lazy val coreCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(fi
   .settings(
     name := "scafi-core",
     libraryDependencies += scalatest.value
+  )
+  .nativeSettings(
+    nativeConfig ~= {
+      _.withLTO(LTO.thin)
+      .withMode(Mode.releaseFull)
+      .withGC(GC.commix)
+    }
   )
 
 lazy val core = coreCross.jvm
@@ -151,7 +164,12 @@ lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
   .nativeSettings(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1"
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1",
+    nativeConfig ~= {
+      _.withLTO(LTO.thin)
+      .withMode(Mode.releaseFull)
+      .withGC(GC.commix)
+    }
   )
 
 lazy val simulator = simulatorCross.jvm
@@ -209,6 +227,13 @@ lazy val testsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
   .settings(
     name := "scafi-tests",
     libraryDependencies ++= Seq(scalatest.value)
+  )
+  .nativeSettings(
+    nativeConfig ~= {
+      _.withLTO(LTO.thin)
+      .withMode(Mode.releaseFull)
+      .withGC(GC.commix)
+    }
   )
 
 lazy val tests = testsCross.jvm
