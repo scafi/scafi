@@ -85,6 +85,14 @@ lazy val commonSettings = Seq(
   }
 )
 
+lazy val commonNativeSettings = Seq(
+  nativeConfig ~= {
+      _.withLTO(LTO.none)
+      .withMode(Mode.releaseFull)
+      .withGC(GC.boehm)
+    }
+)
+
 lazy val noPublishSettings = Seq(
   publishArtifact := false,
   publish := { },
@@ -118,13 +126,9 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in
   .jsSettings(
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
+  .nativeSettings(commonNativeSettings: _*)
   .nativeSettings(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1",
-    nativeConfig ~= {
-      _.withLTO(LTO.thin)
-      .withMode(Mode.releaseFull)
-      .withGC(GC.commix)
-    }
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1"
   )
 
 lazy val commons = commonsCross.jvm
@@ -136,13 +140,7 @@ lazy val coreCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(fi
     name := "scafi-core",
     libraryDependencies += scalatest.value
   )
-  .nativeSettings(
-    nativeConfig ~= {
-      _.withLTO(LTO.thin)
-      .withMode(Mode.releaseFull)
-      .withGC(GC.commix)
-    }
-  )
+  .nativeSettings(commonNativeSettings: _*)
 
 lazy val core = coreCross.jvm
 
@@ -163,13 +161,9 @@ lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).
   .jsSettings(
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
   )
+  .nativeSettings(commonNativeSettings: _*)
   .nativeSettings(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1",
-    nativeConfig ~= {
-      _.withLTO(LTO.thin)
-      .withMode(Mode.releaseFull)
-      .withGC(GC.commix)
-    }
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.4.0-M1"
   )
 
 lazy val simulator = simulatorCross.jvm
@@ -228,13 +222,7 @@ lazy val testsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
     name := "scafi-tests",
     libraryDependencies ++= Seq(scalatest.value)
   )
-  .nativeSettings(
-    nativeConfig ~= {
-      _.withLTO(LTO.thin)
-      .withMode(Mode.releaseFull)
-      .withGC(GC.commix)
-    }
-  )
+  .nativeSettings(commonNativeSettings: _*)
 
 lazy val tests = testsCross.jvm
 
