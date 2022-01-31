@@ -88,8 +88,8 @@ lazy val commonSettings = Seq(
 lazy val commonNativeSettings = Seq(
   nativeConfig ~= {
       _.withLTO(LTO.none)
-      .withMode(Mode.releaseFull)
-      .withGC(GC.boehm)
+      .withMode(Mode.releaseFast)
+      .withGC(GC.commix)
     }
 )
 
