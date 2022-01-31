@@ -11,7 +11,7 @@ val scalaVersionsForCrossCompilation = Seq("2.11.12","2.12.14","2.13.6")
 val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
 
 // Set to false or remove if you want to show stubs as linking errors
-nativeLinkStubs := true;
+nativeLinkStubs := false
 
 // Managed dependencies
 val akkaActor  = "com.typesafe.akka" %% "akka-actor"  % akkaVersion
@@ -90,7 +90,9 @@ lazy val commonNativeSettings = Seq(
       _.withLTO(LTO.none)
       .withMode(Mode.releaseFast)
       .withGC(GC.commix)
-    }
+    },
+    // To enable coverage directly in the build
+    coverageEnabled := false
 )
 
 lazy val noPublishSettings = Seq(
@@ -220,7 +222,7 @@ lazy val testsCross = crossProject(JSPlatform, JVMPlatform, NativePlatform).in(f
   .settings(noPublishSettings: _*)
   .settings(
     name := "scafi-tests",
-    libraryDependencies ++= Seq(scalatest.value)
+    libraryDependencies ++= Seq(scalatest.value),
   )
   .nativeSettings(commonNativeSettings: _*)
 
