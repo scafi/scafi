@@ -88,7 +88,7 @@ lazy val commonSettings = Seq(
 lazy val commonNativeSettings = Seq(
   nativeConfig ~= {
       _.withLTO(LTO.none)
-      .withMode(Mode.releaseFast)
+      .withMode(Mode.default)
       .withGC(GC.commix)
     },
     // To enable coverage directly in the build
