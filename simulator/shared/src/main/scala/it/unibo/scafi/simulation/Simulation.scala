@@ -244,7 +244,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         case _ if lsnsMap.get(lsns).flatMap(_.get(id)).isDefined => lsnsMap(lsns).get(id).map(_.asInstanceOf[T])
         case LSNS_RANDOM => randomSensor.some[T]
         case LSNS_TIME => globalClock.some[T]
-        case LSNS_TIMESTAMP => globalClock.get(ChronoField.MILLI_OF_SECOND).toLong.some[T]
+        case LSNS_TIMESTAMP => globalClock.toEpochMilli.some[T]
         case LSNS_DELTA_TIME => FiniteDuration(
           lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, globalClock)).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]
