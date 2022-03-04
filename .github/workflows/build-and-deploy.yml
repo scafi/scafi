@@ -19,7 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, mac, windows] # todo, add mac and windows ?
-        jvm_version: [adopt@1.8, adopt@1.11, openjdk@1.17] # Update using LTSs and latest
+        jvm_version: # Update using LTSs and latest
+          # - adopt@1.8,
+          - adopt@1.11
+          - openjdk@1.17
     runs-on: ${{ matrix.os }}-latest
     concurrency:
       group: ${{ github.workflow }}-build-${{ matrix.os }}-${{ matrix.jvm_version }}-${{ github.event.number || github.ref }}
