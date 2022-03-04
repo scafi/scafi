@@ -2,10 +2,15 @@ name: CI
 
 on:
   push:
-    branches: [master, develop]
-    tags: v*
+    branches-ignore:
+      - 'autodelivery**'
+      - 'bump-**'
+      - 'renovate/**'
+    paths-ignore:
+        - 'CHANGELOG.md'
+        - 'renovate.json'
+        - '.gitignore'
   pull_request:
-    branches: [master, develop]
   workflow_dispatch:
 
 jobs:
