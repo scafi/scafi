@@ -1,7 +1,7 @@
 var workflowCmd = '::set-output name=has-released::'
 var publishCmd = `
-git tag -a -f \${nextRelease.version} \${nextRelease.version} -F CHANGELOG.md
-git push --force origin \${nextRelease.version} || exit 6
+git tag -a -f v\${nextRelease.version} v\${nextRelease.version} -F CHANGELOG.md
+git push --force origin v\${nextRelease.version} || exit 6
 sbt ci-release
 echo '${workflowCmd}true' 
 `
