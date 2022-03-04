@@ -7,7 +7,7 @@ echo '${workflowCmd}true'
 `
 console.log(`${workflowCmd}false`)
 var config = require('semantic-release-preconfigured-conventional-commits');
-config.tagFormat('v${version}')
+config.tagFormat = 'v${version}'
 config.plugins.push(
     ["@semantic-release/exec", {
         "publishCmd": publishCmd,
