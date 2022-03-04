@@ -7,9 +7,9 @@ on:
       - 'bump-**'
       - 'renovate/**'
     paths-ignore:
-        - 'CHANGELOG.md'
-        - 'renovate.json'
-        - '.gitignore'
+      - 'CHANGELOG.md'
+      - 'renovate.json'
+      - '.gitignore'
   pull_request:
   workflow_dispatch:
 
