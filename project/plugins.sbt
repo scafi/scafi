@@ -1,5 +1,9 @@
 logLevel := Level.Warn
 
+// Repo management
+
+addSbtPlugin("uk.co.randomcoding" % "sbt-git-hooks" % "0.2.0")
+
 // Integrations with IDEs
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
