@@ -26,6 +26,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     concurrency:
       group: ${{ github.workflow }}-build-${{ matrix.os }}-${{ matrix.jvm_version }}-${{ github.event.number || github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v2
       - name: Setup Scala and JDK
