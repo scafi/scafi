@@ -28,7 +28,7 @@ jobs:
       group: ${{ github.workflow }}-build-${{ matrix.os }}-${{ matrix.jvm_version }}-${{ github.event.number || github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.4.0
       - name: Setup Scala and JDK
         with:
           java-version: ${{ matrix.jvm_version }}
@@ -40,11 +40,22 @@ jobs:
         shell: bash
         run: sbt +publishLocal
 
+  Try-Doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.4.0
+      - name: Setup Scala and JDK
+        uses: olafurpg/setup-scala@v13
+        with:
+          java-version: openjdk@1.17
+      - name: Sbt generate scaladoc
+        run: sbt unidoc
+
   Coverage:
     runs-on: ubuntu-latest
     needs: [Build-and-Test]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.4.0
       - name: Setup Scala and JDK
         with:
           java-version: ${{ matrix.jvm_version }}
@@ -63,65 +74,33 @@ jobs:
 
   Release:
     runs-on: ubuntu-latest
-    needs: [Build-and-Test]
-    if: github.event_name != 'pull_request' # it avoids to run release on PR for now 
-    #if: startsWith(github.ref, 'refs/tags/v') # run only for tagged commits
+    needs: [Build-and-Test, Try-Doc]
+    if: github.event_name != 'pull_request'
     concurrency:
       group: release
     steps:
-      - uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0
+      - uses: danysk/action-checkout@0.2.1
       - uses: olafurpg/setup-scala@v13
         with:
-          java-version: liberica@1.11.0
-      - run: sbt ci-release
+          java-version: openjdk@1.17
+      - name: Run Semantic-Release
+        run: |
+          npm install
+          npx semantic-release
+        id: release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASS }}
           PGP_PASSWORD: ${{ secrets.PGP_PASS }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-
-
-  Publish-doc-stable:
-    runs-on: ubuntu-latest
-    needs: [Release]
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Scala and JDK
-        with:
-          java-version: ${{ matrix.jvm_version }}
-        uses: olafurpg/setup-scala@v13
-      - name: Sbt generate scaladoc
-        shell: bash # for windows
+          GITHUB_TOKEN: ${{ secrets.DEPLOYMENT_TOKEN }}
+      - if: steps.id.release.has-released
         run: sbt unidoc
-      - name: Deploy to scafi-docs.surge.sh
+      - if: steps.id.release.has-released
         uses: dswistowski/surge-sh-action@v1
         with:
           domain: 'scafi-docs.surge.sh'
-          project: 'target/scala-2.12/unidoc/'
-          login: ${{ secrets.SURGE_LOGIN }}
-          token: ${{ secrets.SURGE_TOKEN }}
-
-  Publish-doc-unstable:
-    runs-on: ubuntu-latest
-    needs: [Release]
-    if: github.ref == 'refs/heads/develop'
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Scala and JDK
-        with:
-          java-version: ${{ matrix.jvm_version }}
-        uses: olafurpg/setup-scala@v13
-      - name: Sbt generate scaladoc
-        shell: bash # for windows
-        run: sbt unidoc
-      - name: Deploy to scafi-docs-unstable.surge.sh
-        uses: dswistowski/surge-sh-action@v1
-        with:
-          domain: 'scafi-docs-unstable.surge.sh'
           project: 'target/scala-2.12/unidoc/'
           login: ${{ secrets.SURGE_LOGIN }}
           token: ${{ secrets.SURGE_TOKEN }}
