@@ -23,7 +23,7 @@ object CollectionDemo extends Launcher {
   * Only devices with sense2 active will
   */
 class CollectAndBranch extends AggregateProgram with SensorDefinitions with BlockC with BlockS with BlockG {
-  override def main() = {
+  override def main(): (ID, List[ID], List[ID]) = {
     val leader = sense1 // S(10, nbrRange)
     val potential = branch(sense2){ distanceTo(leader) }{ Double.PositiveInfinity }
     val coll = C[Double,Set[ID]](potential, _++_, Set(mid), Set()).toList.sorted
@@ -41,7 +41,7 @@ class Collection extends AggregateProgram with SensorDefinitions with BlockC wit
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
-  override def main() = summarize(sense1, _ + _, if (sense2) 1.0 else 0.0, 0.0)
+  override def main(): Double = summarize(sense1, _ + _, if (sense2) 1.0 else 0.0, 0.0)
 }
 
 class CExample extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
@@ -49,8 +49,8 @@ class CExample extends AggregateProgram with SensorDefinitions with BlockC with 
   def summarize(sink: Boolean, acc:(Double,Double)=>Double, local:Double, Null:Double): Double =
     broadcast(sink, C(distanceTo(sink), acc, local, Null))
 
-  def p = distanceTo(sense1)
-  override def main() = s"${p}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
+  def p: Double = distanceTo(sense1)
+  override def main(): String = s"${p}, ${mid()} -> ${findParent(p)}, ${C[Double, Double](p, _ + _, 1, 0.0)}"
 }
 
 class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC with BlockG {
@@ -59,7 +59,7 @@ class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC 
     C[Double, V](distanceTo3(sink), acc, local, Null)
 
   import PartialOrderingWithGLB.pogldouble
-  def distanceTo3(src: Boolean) = G3[Double](src, 0.0, _ + nbrRange, nbrRange)(pogldouble)
+  def distanceTo3(src: Boolean): Double = G3[Double](src, 0.0, _ + nbrRange, nbrRange)(pogldouble)
 
   def G3[V: PartialOrderingWithGLB](source: Boolean, field: V, acc: V => V, metric: => Double): V =
     rep((Double.MaxValue, field)) { case (dist, value) =>
@@ -73,7 +73,7 @@ class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC 
       }
     }._2
 
-  implicit val ofset = new Builtins.Bounded[Set[ID]] {
+  implicit val ofset: Bounded[Set[ID]] = new Builtins.Bounded[Set[ID]] {
     override def top: Set[ID] = Set()
 
     override def bottom: Set[ID] = Set()
@@ -81,5 +81,5 @@ class CollectionIds extends AggregateProgram with SensorDefinitions with BlockC 
     override def compare(a: Set[ID], b: Set[ID]): Int = a.size.compare(b.size)
   }
 
-  override def main() = summarize[Set[ID]](sense1, (_:Set[ID])++(_:Set[ID]), if(sense2) Set(mid()) else Set(), Set())
+  override def main(): Set[ID] = summarize[Set[ID]](sense1, (_:Set[ID])++(_:Set[ID]), if(sense2) Set(mid()) else Set(), Set())
 }

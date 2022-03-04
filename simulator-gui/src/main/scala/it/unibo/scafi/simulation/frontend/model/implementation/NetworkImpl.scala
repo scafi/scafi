@@ -8,7 +8,7 @@ package it.unibo.scafi.simulation.frontend.model.implementation
 import it.unibo.scafi.simulation.frontend.model.{NbrPolicy, Network, Node}
 
 class NetworkImpl(var nodes: Map[Int,Node], var neighbourhoodPolicy: NbrPolicy) extends Network {
-  var neighbours = Map[Node, Set[Node]]()
+  var neighbours: Map[Node,Set[Node]] = Map[Node, Set[Node]]()
 
   def neighbourhood: Map[Node, Set[Node]] = {
     neighbours

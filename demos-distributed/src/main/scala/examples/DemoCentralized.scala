@@ -24,12 +24,12 @@ object DemoCentralizedMain extends App {
 
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA
   trait MyAggregateProgram extends AggregateProgram with Serializable {
-    def isObstacle = mid()%2==1 // sense("obstacle")
+    def isObstacle: Boolean = mid()%2==1 // sense("obstacle")
     def numOfNeighbors: Int = foldhood(0)(_+_)(nbr { 1 })
 
     //override def main(): Any = foldhood(0){_+_}(1)
     //override def main() = mux(isObstacle)(() => aggregate { -numOfNeighbors } )(() => aggregate { numOfNeighbors })()
-    def main() = {
+    def main(): Unit = {
       val midv = mid()
       foldhood(()=>{})((a,b)=>()=>{a();b()}){(nbr { () => print(s"Y${midv}Y") })}()
     }

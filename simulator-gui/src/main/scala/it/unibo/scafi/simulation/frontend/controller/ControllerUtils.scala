@@ -60,7 +60,7 @@ private[controller] object ControllerUtils {
    * @param menuBar the menu bar to enable or disable
    * @param popupMenu the popup menu to enable or disable
    * @return Unit, since it has the side effect of enabling or disabling the menus. */
-  def enableMenu(enabled: Boolean, menuBar: JMenuBar, popupMenu: MyPopupMenu) {
+  def enableMenu(enabled: Boolean, menuBar: JMenuBar, popupMenu: MyPopupMenu): Unit = {
     popupMenu.getSubElements()(1).getComponent.setEnabled(enabled) //menu Observation
     popupMenu.getSubElements()(2).getComponent.setEnabled(enabled) //menu Action
     enableMenuBar(enabled, menuBar)

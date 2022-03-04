@@ -21,7 +21,7 @@ object DemoDecentralizedAkkaPlatformCmdLineMain extends App {
 
   // STEP 3: DEFINE AGGREGATE PROGRAM SCHEMA
   trait MyAggregateProgram extends AggregateProgram with Serializable {
-    def main() = foldhood(()=>{})((a,b)=>()=>{a();b()}){(nbr { () => print("YYY") })}()
+    def main(): Unit = foldhood(()=>{})((a,b)=>()=>{a();b()}){(nbr { () => print("YYY") })}()
   }
 
   // STEP 4: PARSE COMMAND-LINE ARGS TO SETTINGS

@@ -27,13 +27,13 @@ object ExperimentsDemo extends Launcher {
 }
 
 class ExperimentsProgram extends AggregateProgram with SensorDefinitions with FieldUtils {
-  def main = (mid,
+  def main: (ID, Int, Option[ID]) = (mid,
     {
-      val numSrcNbrs = foldhood(0)(_+_)(if(nbr{sense1}) 1 else 0)
+      val numSrcNbrs = foldhood(0)(_ + _)(if(nbr{sense1}) 1 else 0)
       includingSelf.minHoodSelector(nbr{-numSrcNbrs}){ nbr(mid) }
     },
     {
-      val numSrcNbrs = foldhood(0)(_+_)(if(nbr{sense1}) 1 else 0)
+      val numSrcNbrs = foldhood(0)(_ + _)(if(nbr{sense1}) 1 else 0)
       excludingSelf.minHoodSelector(nbr{numSrcNbrs}){ nbr(mid) }
     }
   )

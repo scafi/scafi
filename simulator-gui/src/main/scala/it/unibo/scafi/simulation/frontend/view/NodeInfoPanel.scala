@@ -49,7 +49,7 @@ class NodeInfoPanel(val node: GuiNode) extends JInternalFrame {
     * @param key
     * @param value
     */
-  def addInfo(key: String, value: String) {
+  def addInfo(key: String, value: String): Unit = {
     if (this.sensors.keySet.contains(key)) {
       this.sensors += key -> value
       listSensorPanel.removeAll() //Riaggiungo tutti i sensori
@@ -70,7 +70,7 @@ class NodeInfoPanel(val node: GuiNode) extends JInternalFrame {
     this.repaint()
   }
 
-  def setId(id: Int) {
+  def setId(id: Int): Unit = {
     this.idJl.setText("" + id)
   }
 

@@ -84,7 +84,7 @@ class MenuBarNorth(controller: GeneralController) extends JMenuBar {
   menus = menus :+ simConfig
   menus.foreach(m => add(m))
 
-  override def setEnabled(enabled: Boolean) {
+  override def setEnabled(enabled: Boolean): Unit = {
     super.setEnabled(enabled)
     menus.foreach(m => m.setEnabled(enabled) )
   }

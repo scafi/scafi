@@ -1,29 +1,49 @@
 logLevel := Level.Warn
 
-// Create Eclipse project definitions
+// Repo management
+
+addSbtPlugin("uk.co.randomcoding" % "sbt-git-hooks" % "0.2.0")
+
+// Integrations with IDEs
+
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
-// Provide support for Scalastyle
+// Code quality
+
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.1.1")
+
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
+addSbtPlugin("com.github.sbt" % "sbt-cpd" % "2.0.0")
 
-// Provide PGP signing (publishSigned)
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.2")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.3")
 
-// Publish projects to the Maven Central Repository (sonatypeRelease)
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.34")
 
-// Provides a customizable release process
-addSbtPlugin("ch.epfl.scala" % "sbt-release-early" % "2.1.1+4-9d76569a")
-
-// Create a fat JAR of a project with all of its dependencies
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.7")
+// Project documentation
 
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.2")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.1")
+addSbtPlugin("com.github.xuwei-k" % "sbt-class-diagram" % "0.2.1") // Note: requires Graphviz to be installed
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.3.2")
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
+
+// Packaging
+
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.7")
+
+// Release process
+
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
+
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.9")
+
+// Scala.js plugins
+
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.8.0")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.17.0")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.20.0")

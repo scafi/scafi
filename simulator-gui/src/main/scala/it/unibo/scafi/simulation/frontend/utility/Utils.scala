@@ -25,9 +25,9 @@ object Utils {
   val tif: String = "tif"
   val png: String = "png"
 
-  val klass = this.getClass
+  val klass: Class[_ <: Utils.type] = this.getClass
 
-  def parseSensorValue(str: String) = {
+  def parseSensorValue(str: String): Any = {
     val sensorValueParts = str.split(" ", 2)
 
     var (sensorType,sensorValueStr) = if(sensorValueParts.length==1)
@@ -149,7 +149,7 @@ object Utils {
     *
     * @param d
     */
-  def setDimensionFrame(d: Dimension) {
+  def setDimensionFrame(d: Dimension): Unit = {
     frameDimension = d
   }
 

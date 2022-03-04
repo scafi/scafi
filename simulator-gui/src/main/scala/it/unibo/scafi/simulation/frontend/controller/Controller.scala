@@ -60,7 +60,7 @@ class Controller () extends GeneralController {
     this.observation = obs
   }
 
-  def updateNodePositions() = {
+  def updateNodePositions(): Unit = {
     this.nodes.foreach(x => {
       val (node,guiNode) = x._2
       val dim = Utils.getSizeGuiNode()
@@ -76,14 +76,14 @@ class Controller () extends GeneralController {
 
   override def getObservation: Any=>Boolean = this.observation
 
-  def setGui(simulatorGui: SimulatorUI) {
+  def setGui(simulatorGui: SimulatorUI): Unit = {
     this.gui = simulatorGui
     this.controllerUtility = new ControllerPrivate(gui)
   }
 
   override def getUI: SimulatorUI = gui
 
-  def setSimManager(simManager: SimulationManager) {
+  def setSimManager(simManager: SimulationManager): Unit = {
     this.simManager = simManager
   }
 
@@ -92,7 +92,7 @@ class Controller () extends GeneralController {
 
   def getNodes: Iterable[(Node,GuiNode)] = this.nodes.values
 
-  override def startSimulation() {
+  override def startSimulation(): Unit = {
     /* TODO println("Configuration: \n topology=" + Settings.Sim_Topology +
       "; \n nbr radius=" + Settings.Sim_NbrRadius +
       ";\n numNodes=" + Settings.Sim_NumNodes +
@@ -109,11 +109,11 @@ class Controller () extends GeneralController {
     val policyNeighborhood: NbrPolicy = ControllerUtils.getNeighborhoodPolicy()
     val configurationSeed = Settings.ConfigurationSeed
     val simulationSeed = Settings.SimulationSeed
-    val randomSensorSeed = Settings.RandomSensorSeed
+    val randomSeed = Settings.RandomSensorSeed
 
     ControllerUtils.setupSensors(sensorValues)
 
-    val ncols: Long = Math.sqrt(numNodes).round
+    Math.sqrt(numNodes).round
     var positions: List[Point2D] = List[Point2D]()
     import it.unibo.scafi.simulation.frontend.SettingsSpace.Topologies._
     if (List(Grid, Grid_LoVar, Grid_MedVar, Grid_HighVar) contains topology) {
@@ -125,18 +125,16 @@ class Controller () extends GeneralController {
       positions = SpaceHelper.randomLocations(SimpleRandomSettings(), numNodes, configurationSeed)
     }
 
-    var i: Int = 0
-    positions.foreach(p =>  {
+    positions.zipWithIndex.foreach { case (p, i) =>
       val node: Node = new NodeImpl(i, new Point2D(p.x, p.y))
       val guiNode: GuiNode = new GuiNode(node)
       val pt = Utils.calculatedGuiNodePosition(node.position)
       guiNode.setNodeLocation(pt.x, pt.y)
       this.nodes +=  i -> (node,guiNode)
       //gui.getSimulationPanel.add(guiNode, 0)
-      i = i + 1
-    })
+    }
 
-    val simulation: Simulation = SimulationImpl(this.simManager)
+    val simulation: Simulation = new SimulationImpl(randomSeed, simulationSeed, this.simManager)
     simulation.setController(this)
     simulation.network = new NetworkImpl(this.nodes.mapValues(_._1).toMap, policyNeighborhood)
     simulation.setDeltaRound(deltaRound)
@@ -153,25 +151,25 @@ class Controller () extends GeneralController {
     // TODO: System.out.println("START")
   }
 
-  override def resumeSimulation() {
+  override def resumeSimulation(): Unit = {
     // TODO: System.out.println("RESUME")
     simManager.resume()
   }
 
-  override def stopSimulation() {
+  override def stopSimulation(): Unit = {
     // TODO: System.out.println("STOP")
     simManager.stop()
   }
 
-  override def stepSimulation(n_step: Int) {
+  override def stepSimulation(n_step: Int): Unit = {
     simManager.step(n_step)
   }
 
-  override def pauseSimulation() {
+  override def pauseSimulation(): Unit = {
     simManager.pause()
   }
 
-  override def clearSimulation() {
+  override def clearSimulation(): Unit = {
     simManager.stop()
     gui.setSimulationPanel(new SimulationPanel(this))
     ControllerUtils.enableMenu(enabled = false, gui.getMenuBarNorth, gui.getSimulationPanel.getPopUpMenu)
@@ -179,7 +177,7 @@ class Controller () extends GeneralController {
   }
 
   /* Shows info about the selected node */
-  def showInfoPanel(node: GuiNode, showed: Boolean) {
+  def showInfoPanel(node: GuiNode, showed: Boolean): Unit = {
     if (showed) {
       if (node.getInfoPanel == null) {
         val info: NodeInfoPanel = new NodeInfoPanel(node)
@@ -199,7 +197,7 @@ class Controller () extends GeneralController {
   }
 
   /* Shows background image in the simulation */
-  override def showImage(img: Image, showed: Boolean) {
+  override def showImage(img: Image, showed: Boolean): Unit = {
     if (showed) {
       gui.getSimulationPanel.setBackgroundImage(img)
     }
@@ -209,7 +207,7 @@ class Controller () extends GeneralController {
     controllerUtility.revalidateSimulationPanel()
   }
 
-  def moveNode(guiNode: GuiNode, position: Point) {
+  def moveNode(guiNode: GuiNode, position: Point): Unit = {
     controllerUtility.revalidateSimulationPanel()
     val n = guiNode.node
     n.position = Utils.calculatedNodePosition(position)
@@ -219,7 +217,7 @@ class Controller () extends GeneralController {
       controllerUtility.calculatedInfo(guiNode.getInfoPanel)
   }
 
-  def moveNode(node: Node, guiNode: GuiNode) {
+  def moveNode(node: Node, guiNode: GuiNode): Unit = {
     if(Settings.Sim_realTimeMovementUpdate) controllerUtility.revalidateSimulationPanel()
     simManager.simulation.setPosition(node)
 
@@ -227,7 +225,7 @@ class Controller () extends GeneralController {
       controllerUtility.calculatedInfo(guiNode.getInfoPanel)
   }
 
-  override def setShowValue(kind: NodeValue) {
+  override def setShowValue(kind: NodeValue): Unit = {
     this.valueShowed = kind
   }
 
@@ -268,7 +266,7 @@ class Controller () extends GeneralController {
 
   }
 
-  def updateValue() {
+  def updateValue(): Unit = {
     valueShowed match {
       case NodeValue.ID =>
         nodes.values.foreach { case (n, g) => g.setValueToShow(n.id + "") }
@@ -284,7 +282,7 @@ class Controller () extends GeneralController {
     }
   }
 
-  def selectNodes(area: Rectangle) {
+  def selectNodes(area: Rectangle): Unit = {
     gui.getSimulationPanel.setRectSelection(area)
     var selectedNodes: Set[GuiNode] = Set[GuiNode]()
     nodes.values.foreach(kv => {
@@ -303,7 +301,7 @@ class Controller () extends GeneralController {
     })
   }
 
-  def moveNodeSelect(p: Point) {
+  def moveNodeSelect(p: Point): Unit = {
     nodes.values.foreach(kv => {
       val (n,g) = kv
       if (g.isSelected()) {
@@ -314,13 +312,13 @@ class Controller () extends GeneralController {
     })
   }
 
-  override def setSensor(sensorName: String, value: Any) {
+  override def setSensor(sensorName: String, value: Any): Unit = {
     controllerUtility.setSensor(sensorName, value)
   }
 
   def getSensor(s: String): Option[Any] =
     controllerUtility.getSensorValue(s)
 
-  def checkSensor(sensor: String, operator: String, value: String) =
+  def checkSensor(sensor: String, operator: String, value: String): Unit =
     controllerUtility.checkSensor(sensor, operator, value)
 }

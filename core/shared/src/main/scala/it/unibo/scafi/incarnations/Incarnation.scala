@@ -36,7 +36,11 @@ trait Incarnation extends Core
     override def main(): MainResult = ???
   }
 
-  trait StandardSensors {
+  trait StandardSensorNames extends StandardPlatformSensorNames
+    with StandardTemporalSensorNames
+    with StandardSpatialSensorNames
+
+  trait StandardSensors extends StandardSensorNames {
     self: Constructs =>
 
     /**

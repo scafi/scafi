@@ -11,13 +11,14 @@ import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
 import it.unibo.scafi.space.Point2D
 import javax.swing._
 import java.awt._
+import akka.event.LoggingAdapter
 
 trait DevViewActor extends Actor {
   val I: BasicAbstractActorIncarnation
   var dev: ActorRef
   protected var id: I.UID = _
   protected var devsGUIActor: ActorRef = _
-  protected val Log = akka.event.Logging(context.system, this)
+  protected val Log: LoggingAdapter = akka.event.Logging(context.system, this)
   protected var devComponent, componentSpot: JComponent = _
   protected var lId, lExport: JLabel = _
 

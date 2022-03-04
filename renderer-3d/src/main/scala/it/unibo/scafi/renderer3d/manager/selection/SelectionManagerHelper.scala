@@ -61,7 +61,7 @@ private[selection] object SelectionManagerHelper {
    * @param state the current state of SelectionManager
    * @param event the mouse event that caused this update
    * @param camera the camera in the scene */
-  def updateSelectionVolume(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera) {
+  def updateSelectionVolume(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera): Unit = {
     val initialNodeScreenPosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
     val initialNodePosition = state.initialNode.map(_.getNodePosition).getOrElse(Point3D.Zero)
     val cameraToNodeDistance = initialNodePosition distance camera.getPosition
@@ -80,7 +80,7 @@ private[selection] object SelectionManagerHelper {
    * @param state the current state of SelectionManager
    * @param event the mouse event that caused this update
    * @param camera the camera in the scene */
-  def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera) {
+  def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, event: MouseEvent, camera: Camera): Unit = {
     val initialNodePosition = state.initialNode.map(_.getScreenPosition).getOrElse(Point2D.Zero)
     val positionDifference = (event.getScreenPosition subtract initialNodePosition) multiply 4
     if (isCameraMoreOnXAxis(camera, state)) {
@@ -101,7 +101,7 @@ private[selection] object SelectionManagerHelper {
    * @param state the current state of SelectionManager
    * @param vector the 2d vector specified by the user
    * @param camera the camera in the scene */
-  def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, vector: Point2D, camera: Camera) {
+  def changeSelectVolumeSizes(selectVolume: Node, state: SelectionManagerState, vector: Point2D, camera: Camera): Unit = {
     val finalVector = vector.normalize() multiply  40
     if (isCameraMoreOnXAxis(camera, state)) {
       selectVolume.setScaleZ(finalVector.getX + selectVolume.getScaleZ)

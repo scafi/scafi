@@ -83,5 +83,4 @@ class BlobDroneSystemExplorationDemo extends AggregateProgram with SensorDefinit
       }
     }
   }
-
 }

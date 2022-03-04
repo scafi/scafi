@@ -25,10 +25,10 @@ object DemoDecentralizedByPropertiesConfigMain extends App {
 
   // STEP 4: BUILD SETTINGS FROM CONFIGURATION FILE
   val configPath = "demos/src/main/scala/examples/dec_app1.conf"
-  val s = Settings.fromConfig(configPath)
+  val s: Settings = Settings.fromConfig(configPath)
 
   // STEP 5: SETUP AGGREGATE APPLICATION
-  val sys = PlatformConfigurator.allInOneSetup(s)
+  val sys: SystemFacade = PlatformConfigurator.allInOneSetup(s)
 
   // STEP 6: START SYSTEM
   sys.start()

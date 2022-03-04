@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_ExplicitFields {
+trait StdLibExplicitFields {
   self: StandardLibrary.Subcomponent =>
   import Builtins.Bounded
 

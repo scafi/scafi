@@ -31,7 +31,7 @@ class SimulationPanel(controller: GeneralController) extends JDesktopPane {
   this.addMouseListener(motion)
   this.addMouseMotionListener(motion)
 
-  override def paintComponent(g: Graphics) {
+  override def paintComponent(g: Graphics): Unit = {
     if (bkgImage != null) {
       // Shows background image
       g.drawImage(bkgImage, 0, 0, this.getWidth, this.getHeight, this)
@@ -50,7 +50,7 @@ class SimulationPanel(controller: GeneralController) extends JDesktopPane {
     *
     * @param bkgImage
     */
-  def setBackgroundImage(bkgImage: Image) {
+  def setBackgroundImage(bkgImage: Image): Unit = {
     this.bkgImage = bkgImage
   }
 
@@ -59,17 +59,17 @@ class SimulationPanel(controller: GeneralController) extends JDesktopPane {
     *
     * @param show
     */
-  def showNeighbours(show: Boolean) {
+  def showNeighbours(show: Boolean): Unit = {
     neighborsPanel.setVisible(show)
     this.revalidate()
     this.repaint()
   }
 
-  def toggleNeighbours() {
+  def toggleNeighbours(): Unit = {
     neighborsPanel.setVisible(!neighborsPanel.isVisible)
   }
 
-  def setRectSelection(r: Rectangle) {
+  def setRectSelection(r: Rectangle): Unit = {
     this.captureRect.setRect(r)
   }
 
@@ -77,7 +77,7 @@ class SimulationPanel(controller: GeneralController) extends JDesktopPane {
     return captureRect
   }
 
-  def maybeShowPopup(e: MouseEvent) {
+  def maybeShowPopup(e: MouseEvent): Unit = {
     if (e.isPopupTrigger) {
       popup.show(e.getComponent, e.getX, e.getY)
     }
@@ -87,6 +87,6 @@ class SimulationPanel(controller: GeneralController) extends JDesktopPane {
     return this.popup
   }
 
-  def increaseFontSize() { this.valuesPanel.increaseFontSize() }
-  def decreaseFontSize() { this.valuesPanel.decreaseFontSize() }
+  def increaseFontSize(): Unit = { this.valuesPanel.increaseFontSize() }
+  def decreaseFontSize(): Unit = { this.valuesPanel.decreaseFontSize() }
 }

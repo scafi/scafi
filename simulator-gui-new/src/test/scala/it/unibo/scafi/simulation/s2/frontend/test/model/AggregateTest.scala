@@ -4,15 +4,16 @@ import it.unibo.scafi.simulation.s2.frontend.model.aggregate.AggregateEvent.{Nod
 import it.unibo.scafi.simulation.s2.frontend.model.common.world.CommonWorldEvent._
 import it.unibo.scafi.simulation.s2.frontend.test.help.AbstractWorldImpl
 import it.unibo.scafi.space.Point3D
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 //noinspection NameBooleanParameters
-class AggregateTest extends FunSpec with Matchers {
+class AggregateTest extends AnyFunSpec with Matchers {
   private val checkThat = new ItWord
   private val world = new AbstractWorldImpl
   private val zero = Point3D.Zero
   private val nodeNumber = 100
-  private val devProducer = new world.DeviceBuilder(world.led) :: new world.DeviceBuilder(world.motor) :: Nil
+  private val devProducer = new world.DeviceBuilder(world.Led) :: new world.DeviceBuilder(world.Motor) :: Nil
   private val simpleNodeBuilder = new world.NodeBuilder(id = 0, position = zero)
   checkThat("i can add node in the world") {
     assert(world.insertNode(simpleNodeBuilder))
@@ -36,7 +37,7 @@ class AggregateTest extends FunSpec with Matchers {
     world.clear()
     world.insertNode(nodeBuilder)
     val node = world(0).get
-    val dev = node.getDevice(world.led.name)
+    val dev = node.getDevice(world.Led.name)
     assert(dev.isDefined)
     val fakeDev = node.getDevice("fake")
     assert(fakeDev.isEmpty)
@@ -47,9 +48,9 @@ class AggregateTest extends FunSpec with Matchers {
     world.clear()
     val nodeBuilder = new world.NodeBuilder(id = 0, position = zero, producer = devProducer)
     world.insertNode(nodeBuilder)
-    assert(world.removeDevice(0, world.led.name))
+    assert(world.removeDevice(0, world.Led.name))
     val node = world(0)
-    assert(node.get.getDevice(world.led.name).isEmpty)
+    assert(node.get.getDevice(world.Led.name).isEmpty)
   }
 
   checkThat("i can move node in an aggregate world") {

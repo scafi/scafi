@@ -1,24 +1,27 @@
 package it.unibo.scafi.simulation.s2.frontend.model.aggregate
 
 /**
-  * a skeleton of node in a aggregate world
-  */
+ * a skeleton of node in a aggregate world
+ */
 trait AbstractNodeDefinition extends AggregateConcept {
   self: AbstractNodeDefinition.Dependency =>
   /**
-    * skeleton of a mutable node
-    * @param id the node id
-    * @param position the initial node position
-    * @param shape the node shape
-    */
-  abstract class AbstractMutableNode(val id : ID, var position: P, val shape : Option[S]) extends AggregateMutableNode {
+   * skeleton of a mutable node
+   * @param id
+   *   the node id
+   * @param position
+   *   the initial node position
+   * @param shape
+   *   the node shape
+   */
+  abstract class AbstractMutableNode(val id: ID, var position: P, val shape: Option[S]) extends AggregateMutableNode {
     /**
-      * the internal representation of device collection
-      */
-    protected var devs : Map[NAME,MUTABLE_DEVICE] = Map.empty
+     * the internal representation of device collection
+     */
+    protected var devs: Map[NAME, MUTABLE_DEVICE] = Map.empty
 
     override def addDevice(device: MUTABLE_DEVICE): Boolean = {
-      if(devs.contains(device.name)) {
+      if (devs.contains(device.name)) {
         false
       } else {
         devs += device.name -> device
@@ -27,7 +30,7 @@ trait AbstractNodeDefinition extends AggregateConcept {
     }
 
     override def removeDevice(name: NAME): Boolean = {
-      if(devs.contains(name)) {
+      if (devs.contains(name)) {
         devs -= name
         true
       } else {
@@ -35,18 +38,18 @@ trait AbstractNodeDefinition extends AggregateConcept {
       }
     }
 
-    override def devices: Set[DEVICE] = devs.values.map{_.view}.toSet
+    override def devices: Set[DEVICE] = devs.values.map(_.view).toSet
 
     override def getDevice(name: NAME): Option[DEVICE] = {
       val dev = devs.get(name)
-      if(dev.isEmpty) {
+      if (dev.isEmpty) {
         None
       } else {
         Some(dev.get.view)
       }
     }
 
-    def getMutableDevice(name : NAME) : Option[MUTABLE_DEVICE] = devs.get(name)
+    def getMutableDevice(name: NAME): Option[MUTABLE_DEVICE] = devs.get(name)
 
     def canEqual(other: Any): Boolean = other.isInstanceOf[AbstractMutableNode]
 
@@ -64,17 +67,22 @@ trait AbstractNodeDefinition extends AggregateConcept {
   }
 
   /**
-    * abstract node builder used to create a single instance of node
-    * @param id the node id
-    * @param shape the node shape
-    * @param position the node position
-    * @param deviceProducer a set of device producer
-    */
-  abstract class AbstractNodeBuilder(val id : ID,
-                                     val shape : Option[S] = None,
-                                     val position : P,
-                                     val deviceProducer : Iterable[DEVICE_PRODUCER] = Set.empty
-                                    ) extends RootNodeProducer
+   * abstract node builder used to create a single instance of node
+   * @param id
+   *   the node id
+   * @param shape
+   *   the node shape
+   * @param position
+   *   the node position
+   * @param deviceProducer
+   *   a set of device producer
+   */
+  abstract class AbstractNodeBuilder(
+      val id: ID,
+      val shape: Option[S] = None,
+      val position: P,
+      val deviceProducer: Iterable[DEVICE_PRODUCER] = Set.empty
+  ) extends RootNodeProducer
 
 }
 

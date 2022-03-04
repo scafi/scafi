@@ -24,21 +24,21 @@ object BasicSpatialIncarnation extends BasicAbstractSpatialSimulationIncarnation
 import BasicSpatialIncarnation._
 
 object DemoSpatialLauncher extends App {
-  object DemoSpatial extends AggregateProgram {
+  object DemoSpatial extends AggregateProgram with StandardSensors {
     def mySensor():Int = sense[Int]("sensor")
     def gradient(source: Boolean): Double = rep(Double.MaxValue){
       distance => mux(source) { 0.0 } {
-        minHoodPlus { nbr{distance}+nbrvar[Double](NBR_RANGE) }
+        minHoodPlus { nbr{distance} + nbrvar[Double](NBR_RANGE) }
       }
     }
-    def main() = foldhood(0)(_+_){1} //gradient(mySensor()==1)
+    def main(): Int = foldhood(0)(_ + _){1} //gradient(mySensor()==1)
   }
 
   val (ncols,nrows) = (3,3)
   val (stepx,stepy) = (1,1)
-  val positions = SpaceHelper.gridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
-  val ids = for(i <- 1 to ncols*nrows) yield i
-  val devsToPos = ids.zip(positions).toMap
+  val positions: List[Point2D] = SpaceHelper.gridLocations(GridSettings(nrows,ncols,stepx,stepy,tolerance=0))
+  val ids: IndexedSeq[Int] = for(i <- 1 to ncols*nrows) yield i
+  val devsToPos: Map[Int,Point2D] = ids.zip(positions).toMap
   val net = new SpaceAwareSimulator(
     space = new Basic3DSpace(devsToPos, proximityThreshold = 1.8),
     devs = devsToPos.map { case (d, p) => d -> new DevInfo(d, p,
@@ -49,7 +49,7 @@ object DemoSpatialLauncher extends App {
     randomSensorSeed = System.currentTimeMillis()
     )
 
-  var v = java.lang.System.currentTimeMillis()
+  var v: Long = java.lang.System.currentTimeMillis()
 
   net.executeMany(
     node = DemoSpatial,
@@ -58,7 +58,7 @@ object DemoSpatialLauncher extends App {
       if (i % 1000 == 0) {
         println(net)
         val newv = java.lang.System.currentTimeMillis()
-        println(newv-v)
+        println(newv - v)
         v=newv
       }
       if(i>0 && i % 50000 == 0){

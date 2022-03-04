@@ -12,7 +12,7 @@ import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldI
 
 
 object ChannelMovementDemo extends App {
-  val worldSize = (500,500)
+  val worldSize: (Int, Int) = (500,500)
   val simRadius = 100
   type E = (Boolean,(Double,Double))
   MetaActionProducer.movementDtActionProducer.valueParser = (export : Any) => export match {

@@ -75,13 +75,8 @@ class GuiNode(val node: Node) extends JInternalFrame {
     }
   }
 
-  override def setSize(d: Dimension) {
+  override def setSize(d: Dimension): Unit = {
     super.setSize(d)
-    //val nameImg: String = Paths.get((button.getIcon.asInstanceOf[ImageIcon]).getDescription).getFileName.toString
-    val dividendo: Int = if (getWidth < getHeight) getWidth  else getHeight
-
-    //button.setIcon(Utils.getScaledImage(nameImg, dividendo / 2, dividendo / 2))
-
     if (d.getHeight < (Utils.getFrameDimension.getHeight / 2)) {
       this.valueShow.setFont(DEFAULT_FONT.deriveFont(DEFAULT_FONT.getSize / 2))
     }
@@ -98,7 +93,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
   override def getLocation(): Point =
     return this.point
 
-  def setNodeLocation(x: Int, y: Int) {
+  def setNodeLocation(x: Int, y: Int): Unit = {
     // super.setLocation(x, y)
     point = new Point(x, y)
     if (this.infoPanel != null) {
@@ -107,7 +102,7 @@ class GuiNode(val node: Node) extends JInternalFrame {
   }
 
   @throws[PropertyVetoException]
-  override def setSelected(selected: Boolean) {
+  override def setSelected(selected: Boolean): Unit = {
     // don't call super, otherwise I wouldn't be able to select more than one item
     if (selected) {
       //this.button.setIcon(Utils.getSelectedIcon(button.getIcon))

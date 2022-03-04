@@ -4,10 +4,11 @@ import it.unibo.scafi.simulation.s2.frontend.model.aggregate.AggregateEvent.Node
 import it.unibo.scafi.simulation.s2.frontend.model.sensor.SensorConcept.{sensorInput, sensorOutput}
 import it.unibo.scafi.simulation.s2.frontend.test.help.SensorWorldImpl
 import it.unibo.scafi.space.Point3D
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 //noinspection NameBooleanParameters,NameBooleanParameters,NameBooleanParameters
-class SensorTest extends FunSpec with Matchers {
+class SensorTest extends AnyFunSpec with Matchers {
   private val checkThat = new ItWord
   //sensor world with any type of sensor,
   private  val world = new SensorWorldImpl

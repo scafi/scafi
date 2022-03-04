@@ -9,8 +9,10 @@ import org.scalatest._
 
 import it.unibo.scafi.test.CoreTestIncarnation._
 import it.unibo.scafi.test.CoreTestUtils._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestSemanticsByRound extends FunSpec with Matchers {
+class TestSemanticsByRound extends AnyFunSpec with Matchers {
 
   val LocalValues, Alignment, Exports, FOLDHOOD, NBR, REP, BRANCH, SENSE, MID, NBRVAR, BUILTIN, Nesting, DeferredExports = new ItWord
 
@@ -31,7 +33,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ARRANGE
     val ctx1 = ctx(selfId = 0)
     // ACT + ASSERT (no neighbor is aligned)
-    round(ctx1, { rep(0)(foldhood(_)(_+_)(1)) }).root[Int]() shouldBe 1
+    round(ctx1, { rep(0)(foldhood(_)(_ + _)(1)) }).root[Int]() shouldBe 1
 
     // ARRANGE
     val exp = Map(1 -> export(
@@ -39,14 +41,14 @@ class TestSemanticsByRound extends FunSpec with Matchers {
       Rep(0) / FoldHood(0) -> 1))
     val ctx2 = ctx(selfId = 0, exports = exp)
     // ACT + ASSERT (one neighbor is aligned)
-    round(ctx2, { rep(0)(foldhood(_)(_+_)(1)) }).root[Int]() shouldBe 2
+    round(ctx2, { rep(0)(foldhood(_)(_ + _)(1)) }).root[Int]() shouldBe 2
   }
 
   Exports("should compose") {
     val ctx1 = ctx(selfId = 0, Map(), Map("sensor" -> 5))
     def expr1 = 1
-    def expr2 = rep(7)(_+1)
-    def expr3 = foldhood(0)(_+_)(nbr(sense[Int]("sensor")))
+    def expr2 = rep(7)(_ + 1)
+    def expr3 = foldhood(0)(_ + _)(nbr(sense[Int]("sensor")))
 
     /* Given expr 'e' produces exports 'o'
      * What exports are produced by 'e + e + e + e' ?
@@ -100,7 +102,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
 
     /* Testing more NBRs within foldhood
      */
-    round(ctx1, foldhood(0)(_+_){ nbr(sense[Int]("sensor")) + nbr(sense[Int]("sensor")) }) shouldEqual
+    round(ctx1, foldhood(0)(_ + _){ nbr(sense[Int]("sensor")) + nbr(sense[Int]("sensor")) }) shouldEqual
       export(/ -> 10,
              FoldHood(0) -> 10,
              FoldHood(0) / Nbr(0) -> 5,
@@ -115,7 +117,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
                                FoldHood(0) -> "b"))
     val ctx1 = ctx(selfId = 0, exports = exp1)
     // ACT + ASSERT
-    round(ctx1, foldhood("a")(_+_)("z")).root[String]() shouldBe "azzz"
+    round(ctx1, foldhood("a")(_ + _)("z")).root[String]() shouldBe "azzz"
 
     // ARRANGE
     val exp2 = Map( 2 -> export(/ -> "a",
@@ -124,7 +126,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
                                 FoldHood(0) -> "b"))
     val ctx2 = ctx(selfId = 0, exports = exp2)
     // ACT + ASSERT (should failback to 'init' when neighbors lose alignment within foldhood)
-    round(ctx2, foldhood(-5)(_+_)(if(nbr(false)) 0 else 1)).root[Int]() shouldBe -14
+    round(ctx2, foldhood(-5)(_ + _)(if(nbr(false)){ 0 } else { 1 })).root[Int]() shouldBe -14
   }
 
   NBR("needs not to be nested into fold") {
@@ -144,7 +146,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
                                FoldHood(0) / Nbr(0) -> 2))
     val ctx1 = ctx(selfId = 0, exports = exp1)
     // ACT
-    val res1 = round(ctx1, foldhood(0)(_+_)(if(nbr(mid()) == mid()) 0 else 1))
+    val res1 = round(ctx1, foldhood(0)(_ + _)(if(nbr(mid()) == mid()) 0 else 1))
     // ASSERT
     res1.root[Int]() shouldBe 2
     res1.get(FoldHood(0) / Nbr(0)) shouldBe Some(0)
@@ -154,7 +156,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ARRANGE
     val ctx1 = ctx(selfId = 0)
     // ACT
-    val exp1 = round(ctx1, { rep(9)(_*2) })
+    val exp1 = round(ctx1, { rep(9)(_ * 2) })
     // ASSERT (use initial value)
     exp1.root[Int]() shouldBe 18
     exp1.get(/(Rep(0))) shouldBe Some(18)
@@ -163,7 +165,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     val exp = Map(0 -> export(Rep(0) -> 7))
     val ctx2 = ctx(selfId = 0, exports = exp)
     // ACT
-    val exp2 = round(ctx2, { rep(9)(_*2) })
+    val exp2 = round(ctx2, { rep(9)(_ * 2) })
     // ASSERT (build upon previous state)
     exp2.root[Int]() shouldBe 14
     exp2.get(/(Rep(0))) shouldBe Some(14)
@@ -172,7 +174,7 @@ class TestSemanticsByRound extends FunSpec with Matchers {
   BRANCH("should support domain restriction, thus affecting the structure of exports") {
     // ARRANGE
     def program = {
-      rep(0)(x => { branch(x%2==0)(7)( rep(4)(x => 4) ); x+1 })
+      rep(0)(x => { branch(x%2==0)(7)( rep(4)(x => 4) ); x + 1 })
     }
     // ACT
     val exp = round(ctx(0), program)
@@ -203,9 +205,9 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ARRANGE
     val ctx1 = ctx(0, Map(), Map("a" -> 1, "b" -> 2))
     // ACT + ASSERT (failure as no sensor 'c' is found)
-    intercept[Exception] { round(ctx1, { sense[Any]("c") }) }
+    intercept[AnyRef] { round(ctx1, { sense[Any]("c") }) }
     // ACT + ASSERT (failure if an existing sensor does not provide desired kind of data)
-    intercept[Exception] { round(ctx1, { sense[Boolean]("a") }) }
+    intercept[AnyRef] { round(ctx1, { sense[Boolean]("a") }) }
   }
 
   MID("should simply evaluate to the ID of the local device") {
@@ -231,9 +233,9 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     val nbsens = Map("a" -> Map(0 -> 0, 1 -> 10, 2 -> 17))
     val ctx1 = ctx(0, Map(1 -> export(/ -> 10)), Map(), nbsens)
     // ACT + ASSERT (failure because of bad type)
-    intercept[Exception]{ round(ctx1, foldhood("")(_+_)(nbrvar[String]("a")) ) }
+    intercept[AnyRef]{ round(ctx1, foldhood("")(_ + _)(nbrvar[String]("a")) ) }
     // ACT + ASSERT (failure because not found)
-    intercept[Exception]{ round(ctx1, foldhood(0)(_+_)(nbrvar[Int]("xxx")) ) }
+    intercept[AnyRef]{ round(ctx1, foldhood(0)(_ + _)(nbrvar[Int]("xxx")) ) }
   }
 
   BUILTIN("minHood and minHood+, maxHood and maxHood+") {
@@ -273,12 +275,12 @@ class TestSemanticsByRound extends FunSpec with Matchers {
     // ARRANGE
     val ctx1 = ctx(0, Map(1 -> export(FoldHood(0) -> 7),
                           2 -> export(FoldHood(0) -> 7)))
-    def program1 = foldhood("init")(_+_){ rep(0)(_+1) + "" }
+    def program1 = foldhood("init")(_ + _){ rep(0)(_ + 1) + "" }
 
     val ctx2 = ctx(0, Map(1 -> export(FoldHood(0) -> 7),
                           2 -> export(FoldHood(0) -> 7,
                                       FoldHood(0) / Nbr(0) -> 7)))
-    def program2 = foldhood("init")(_+_){ nbr { rep(0)(_+1) } + "" }
+    def program2 = foldhood("init")(_ + _){ nbr { rep(0)(_ + 1) } + "" }
 
     // ACT + ASSERT
     val exp1 = round(ctx1, program1)
@@ -306,10 +308,10 @@ class TestSemanticsByRound extends FunSpec with Matchers {
                                       FoldHood(0) / Nbr(0) / FoldHood(0) -> 7)))
 
     // ACT + ASSERT
-    round(ctx1, foldhood("init")(_+_){ foldhood(0)(_+_){ 1 } + "" } ).root[String] shouldEqual "init333"
+    round(ctx1, foldhood("init")(_ + _){ foldhood(0)(_ + _){ 1 } + "" } ).root[String] shouldEqual "init333"
 
     assertPossibleFolds("init", List("init","7","2")){
-      round(ctx1, foldhood("init")(_+_){ nbr { foldhood(0)(_+_){ 1 } } + "" } ).root[String]
+      round(ctx1, foldhood("init")(_ + _){ nbr { foldhood(0)(_ + _){ 1 } } + "" } ).root[String]
     }
   }
 
@@ -320,15 +322,15 @@ class TestSemanticsByRound extends FunSpec with Matchers {
         vm.newExportStack
         rep(0){ _ =>
           vm.newExportStack
-          rep(0)(_+1)
+          rep(0)(_ + 1)
           vm.mergeExport
           1
         }
-        foldhood(0)(_+_)(nbr(1))
+        foldhood(0)(_ + _)(nbr(1))
         vm.discardExport
         1
       }
-      foldhood(0)(_+_)(nbr(1))
+      foldhood(0)(_ + _)(nbr(1))
       vm.mergeExport
     })
 

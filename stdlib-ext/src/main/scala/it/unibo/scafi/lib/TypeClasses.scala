@@ -31,7 +31,7 @@ class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
       }
     }
 
-    implicit def genericBounded[A, R](implicit gen: Generic[A] {type Repr = R},
+    implicit def genericBounded[A, R](implicit gen: Generic.Aux[A,R],
                                       reprb: Bounded[R]): Bounded[A] = new Bounded[A] {
       override def top = gen.from(reprb.top)
       override def bottom = gen.from(reprb.bottom)

@@ -27,7 +27,7 @@ trait BasicAbstractActorIncarnation
 
   trait CustomType
 
-  override val platformSerializer = new PlatformSerializer {
+  override val platformSerializer: PlatformSerializer = new PlatformSerializer {
     import it.unibo.scafi.distrib.actor.serialization.BasicSerializers._
 
     override implicit val readsUid: Reads[UID] = (JsPath \ "device-uid").read[String](Reads.StringReads).map(str => interopUID.fromString(str))
@@ -92,11 +92,11 @@ trait BasicAbstractActorIncarnation
 
   implicit def adaptContext(ctx: CONTEXT): ComputationContext =
     new BaseContextImpl(ctx.selfId, ctx.exports()) with ComputationContextContract {
-      override def sense[T](lsns: String): Option[T] = ctx.sense(lsns)
-      override def nbrSense[T](nsns: String)(nbr: Int): Option[T] = ctx.nbrSense(nsns)(nbr)
+      override def sense[T](localSensorName: String): Option[T] = ctx.sense(localSensorName)
+      override def nbrSense[T](nbrSensorName: String)(nbr: Int): Option[T] = ctx.nbrSense(nbrSensorName)(nbr)
     }
 
-  override val dataFactory = new DataFactoryContract {
+  override val dataFactory: DataFactoryContract = new DataFactoryContract {
     override def context(id: UID,
                          exports: Map[UID, ComputationExport],
                          lsns: Map[LSensorName, Any],

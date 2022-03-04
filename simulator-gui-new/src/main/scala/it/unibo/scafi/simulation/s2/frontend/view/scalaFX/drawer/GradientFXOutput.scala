@@ -2,15 +2,14 @@ package it.unibo.scafi.simulation.s2.frontend.view.scalaFX.drawer
 
 import it.unibo.scafi.simulation.s2.frontend.model.sensor.SensorConcept.SensorDevice
 import it.unibo.scafi.simulation.s2.frontend.view.WindowConfiguration
-import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.{ScalaFXEnvironment, modelShapeToFXShape}
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.ScalaFXEnvironment
+import it.unibo.scafi.simulation.s2.frontend.view.scalaFX.modelShapeToFXShape
 
 import scalafx.scene.paint.Color
 
 /**
-  * a output strategy that associated a color to
-  * number, allow to see graphically the result
-  * of computation
-  */
+ * a output strategy that associated a color to number, allow to see graphically the result of computation
+ */
 case object GradientFXOutput extends FXOutputPolicy {
   import WindowConfiguration._
   private lazy val maxValue = ScalaFXEnvironment.windowConfiguration.w
@@ -23,16 +22,17 @@ case object GradientFXOutput extends FXOutputPolicy {
 
   override def updateDevice(node: OUTPUT_NODE, dev: DEVICE, graphicsDevice: Option[OUTPUT_NODE]): Unit = {
     dev match {
-      case SensorDevice(sens) => sens.value[Any] match {
-        case number : Number => node.fillProperty().setValue(numberToColor(number))
-        case _ =>
-      }
+      case SensorDevice(sens) =>
+        sens.value[Any] match {
+          case number: Number => node.fillProperty().setValue(numberToColor(number))
+          case _ =>
+        }
       case _ => None
     }
   }
-  private implicit def numberToColor(v : Number) : Color  = {
-    val doubleValue : Double = v.doubleValue()
-    Color.hsb((doubleValue / maxValue) * maxColor,saturation,light)
+  implicit private def numberToColor(v: Number): Color = {
+    val doubleValue: Double = v.doubleValue()
+    Color.hsb((doubleValue / maxValue) * maxColor, saturation, light)
   }
-  override def nodeGraphicsNode (node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape,node.position)
+  override def nodeGraphicsNode(node: NODE): OUTPUT_NODE = modelShapeToFXShape.apply(node.shape, node.position)
 }

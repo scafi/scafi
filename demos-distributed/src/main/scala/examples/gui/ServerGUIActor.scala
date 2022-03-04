@@ -16,6 +16,7 @@ import scala.concurrent.duration._
 import scala.collection.mutable.{ Map => MMap }
 
 import it.unibo.scafi.distrib.actor._
+import akka.event.LoggingAdapter
 
 class ServerGUIActor(val I: BasicAbstractActorIncarnation,
                               private var tm: ActorRef) extends Actor with ActionListener {
@@ -23,11 +24,11 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
   val height = 400
 
   type ID = I.ID
-  type LSNS = I.LSNS
+  type LSNS = I.CNAME
   type EXPORT = I.EXPORT
 
   val interopId = I.interopID
-  val interopLsns = I.interopLSNS
+  val interopLsns = I.interopCNAME
 
   tm ! MsgAddObserver(self)
 
@@ -37,7 +38,7 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
   import context.dispatcher
 
   // Provides the ExecutionContext
-  protected val Log = akka.event.Logging(context.system, this)
+  protected val Log: LoggingAdapter = akka.event.Logging(context.system, this)
 
   var registry: ActorRef = _
 
@@ -55,11 +56,11 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
   // GUI will update at 100 ms interval
   context.system.scheduler.schedule(1.millis, 100.millis) { self ! GoOn }
 
-  val map = MMap[ID,ActorRef]()
-  val nrounds = MMap[ID,Int]()
-  val neighborhoods = MMap[ID,Set[ID]]()
-  val exports = MMap[ID,EXPORT]()
-  val sensors = MMap[ID,MMap[LSNS,Any]]()
+  val map: mutable.Map[Int,ActorRef] = MMap[ID,ActorRef]()
+  val nrounds: mutable.Map[Int,Int] = MMap[ID,Int]()
+  val neighborhoods: mutable.Map[Int,Set[Int]] = MMap[ID,Set[ID]]()
+  val exports: mutable.Map[Int,I.Export with I.ExportOps] = MMap[ID,EXPORT]()
+  val sensors: mutable.Map[Int,mutable.Map[String,Any]] = MMap[ID,MMap[LSNS,Any]]()
 
   def neighborhood(id: ID): Set[ID] = neighborhoods.getOrElse(id, Set())
 
@@ -85,7 +86,7 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
     case GoOn => { UpdateBlackBoard(); frame.repaint(); frame.revalidate() }
   }
 
-  def receive = workingBehavior.orElse(inputManagementBehavior)
+  def receive: PartialFunction[Any,Unit] = workingBehavior.orElse(inputManagementBehavior)
 
   var toPause: Boolean = true
   override def actionPerformed(e: ActionEvent): Unit = {
@@ -101,7 +102,7 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
     }
   }
 
-  def UpdateBlackBoard() = {
+  def UpdateBlackBoard(): Unit = {
     val _selectedId = devsCombo.getSelectedItem
     if(_selectedId!=null) {
       val selectedId = _selectedId.toString
@@ -162,6 +163,6 @@ class ServerGUIActor(val I: BasicAbstractActorIncarnation,
 }
 
 object ServerGUIActor {
-  def props(inc: BasicAbstractActorIncarnation, server: ActorRef) =
+  def props(inc: BasicAbstractActorIncarnation, server: ActorRef): Props =
     Props(classOf[ServerGUIActor], inc, server)
 }

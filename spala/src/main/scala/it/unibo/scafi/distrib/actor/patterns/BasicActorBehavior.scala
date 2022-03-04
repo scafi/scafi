@@ -6,6 +6,7 @@
 package it.unibo.scafi.distrib.actor.patterns
 
 import akka.actor.Actor
+import akka.event.LoggingAdapter
 
 /**
  * @author Roberto Casadei
@@ -28,7 +29,7 @@ trait BasicActorBehavior { selfActor: Actor =>
 
   /* Utility members */
 
-  val logger = akka.event.Logging(context.system, this)
+  val logger: LoggingAdapter = akka.event.Logging(context.system, this)
 
   /* Behavior */
 

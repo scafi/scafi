@@ -2,6 +2,8 @@
 
 ![workflow-master badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)
 ![workflow-develop badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=develop)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![codecov master](https://codecov.io/gh/scafi/scafi/branch/master/graph/badge.svg?token=RONGUW08K1)](https://codecov.io/gh/scafi/scafi)
 
 **ScaFi** is a Scala-based library and framework for Aggregate Programming.
 It implements a variant of the Higher-Order Field Calculus (HOFC) operational semantics,
@@ -178,14 +180,15 @@ The modules to be imported (e.g., via sbt or Gradle) depend on the use case:
 
 ### Main Researchers and Authors
 
-* Mirko Viroli
 * Roberto Casadei
+* Gianluca Aguzzi
+* Mirko Viroli
 
 ### Research Collaborators
 
 * Ferruccio Damiani
 * Giorgio Audrito
-
+* Danilo Pianini
 
 ## License ##
 

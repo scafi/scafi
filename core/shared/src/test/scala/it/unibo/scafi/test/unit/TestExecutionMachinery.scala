@@ -6,9 +6,10 @@
 package it.unibo.scafi.test.unit
 
 import it.unibo.scafi.test.CoreTestIncarnation
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TestExecutionMachinery extends FunSpec with Matchers {
+class TestExecutionMachinery extends AnyFunSpec with Matchers {
 
   describe("Execution machinery") {
 
@@ -22,7 +23,7 @@ class TestExecutionMachinery extends FunSpec with Matchers {
 
       it("when empty") {
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ASSERT
         status.path shouldEqual /
@@ -32,7 +33,7 @@ class TestExecutionMachinery extends FunSpec with Matchers {
 
       it("should allow un/folding in the context of a neighbor") {
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ASSERT
         status.neighbour shouldBe None
@@ -54,7 +55,7 @@ class TestExecutionMachinery extends FunSpec with Matchers {
 
       it("should work as a stack"){
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ACT
         val s1 = status.push()
@@ -82,7 +83,7 @@ class TestExecutionMachinery extends FunSpec with Matchers {
 
       it("should use indexes to avoid clashes"){
         // ARRANGE
-        val status = RoundVMImpl.Status()
+        val status = VMStatus()
 
         // ASSERT
         status.index shouldBe 0

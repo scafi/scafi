@@ -5,9 +5,10 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, Com
 import it.unibo.scafi.simulation.s2.frontend.configuration.parser.{ConfigurationMachine, Parser, VirtualMachine}
 import it.unibo.scafi.simulation.s2.frontend.util.Result
 import it.unibo.scafi.simulation.s2.frontend.util.Result.{Fail, Success}
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class ConfigurationMachineTest extends FunSpec with Matchers {
+class ConfigurationMachineTest extends AnyFunSpec with Matchers {
   private val checkThat = new ItWord
   private val command = "command"
   private val fakeCommand = "fake"

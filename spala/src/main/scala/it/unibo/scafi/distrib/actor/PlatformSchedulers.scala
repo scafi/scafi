@@ -12,6 +12,8 @@ import akka.actor.{Props, ActorRef, Actor}
 import scala.concurrent.duration._
 import scala.collection.mutable.{ Map => MMap }
 import scala.util.Random
+import akka.event.LoggingAdapter
+import scala.collection.mutable
 
 trait PlatformSchedulers { self: Platform.Subcomponent =>
 
@@ -24,9 +26,9 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
   trait GenericScheduler { self: Actor =>
     var nextToRun: () => Option[UID]
     def recipientForExecution(id: UID): ActorRef
-    def onDone() {}
+    def onDone(): Unit = {}
 
-    val logger = akka.event.Logging(context.system, this)
+    val logger: LoggingAdapter = akka.event.Logging(context.system, this)
 
     def syncReceive: Receive = {
       case GoOn => nextToRun() match { // Someone has required a next scheduling cycle
@@ -60,8 +62,8 @@ trait PlatformSchedulers { self: Platform.Subcomponent =>
                             override val initialDelay: Option[FiniteDuration],
                             override var workInterval: FiniteDuration) extends
   Actor with GenericScheduler with PeriodicBehavior {
-    var ids = Vector[UID]()
-    var map = MMap[UID,ActorRef]()
+    var ids: Vector[UID] = Vector[UID]()
+    var map: mutable.Map[UID,ActorRef] = MMap[UID,ActorRef]()
     var kNext = 0
 
     override def recipientForExecution(id: UID): ActorRef = map(id)

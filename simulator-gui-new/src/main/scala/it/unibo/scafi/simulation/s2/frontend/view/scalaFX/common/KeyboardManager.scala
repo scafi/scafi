@@ -1,6 +1,7 @@
 package it.unibo.scafi.simulation.s2.frontend.view.scalaFX.common
 
-import javafx.scene.input.{KeyCodeCombination, KeyCombination}
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.CommandFactory
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.CommandFactory.CommandArg
@@ -8,12 +9,13 @@ import it.unibo.scafi.simulation.s2.frontend.controller.input.InputCommandContro
 import it.unibo.scafi.simulation.s2.frontend.view.AbstractKeyboardManager
 import it.unibo.scafi.simulation.s2.frontend.view.AbstractKeyboardManager._
 
-import scalafx.scene.input.{KeyCode, KeyEvent}
+import scalafx.scene.input.KeyCode
+import scalafx.scene.input.KeyEvent
 
 /**
-  * scalafx keyboard manager
-  */
-private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
+ * scalafx keyboard manager
+ */
+private[scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
 
   self: AbstractFXSimulationPane with FXSelectionArea =>
   override type KEY_CODE = KeyCode
@@ -33,15 +35,15 @@ private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
   import scalafx.Includes._
 
   self.onKeyPressed = (e: KeyEvent) => {
-    this.abstractToReal.filter{x => x._2 == e.getCode}.foreach{x => computeCommand(x._1)}
-    this.abstractToCombination.filter { x => x._2.`match`(e)}.foreach(x => computeCommand(x._1))
+    this.abstractToReal.filter(x => x._2 == e.getCode).foreach(x => computeCommand(x._1))
+    this.abstractToCombination.filter(x => x._2.`match`(e)).foreach(x => computeCommand(x._1))
     e.consume()
   }
 
-  private def computeCommand(code : AbstractKeyCode): Unit = {
+  private def computeCommand(code: AbstractKeyCode): Unit = {
     this.commandArgs.get(code) match {
-      case Some((factory : CommandFactory,standardArg : CommandArg)) =>
-        val arg : CommandArg = if(this.valueMapped.get(code).isDefined) {
+      case Some((factory: CommandFactory, standardArg: CommandArg)) =>
+        val arg: CommandArg = if (this.valueMapped.get(code).isDefined) {
           standardArg + (this.valueMapped(code) -> selected)
         } else {
           standardArg
@@ -52,4 +54,3 @@ private [scalaFX] trait KeyboardManager extends AbstractKeyboardManager {
   }
 
 }
-

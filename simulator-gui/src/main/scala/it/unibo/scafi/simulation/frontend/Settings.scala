@@ -27,9 +27,9 @@ object Settings {
   var Sim_realTimeMovementUpdate = true
   var Sim_Draw_Sensor_Radius = false
   var Sim_Sensor_Radius = 0.03
-  var SimulationSeed = System.nanoTime()
-  var RandomSensorSeed = System.nanoTime()
-  var ConfigurationSeed = System.nanoTime()
+  var SimulationSeed: Long = System.nanoTime()
+  var RandomSensorSeed: Long = System.nanoTime()
+  var ConfigurationSeed: Long = System.nanoTime()
   var Grid_HiVar_Eps = 0.16
   var Grid_MedVar_Eps = 0.09
   var Grid_LoVar_Eps = 0.02

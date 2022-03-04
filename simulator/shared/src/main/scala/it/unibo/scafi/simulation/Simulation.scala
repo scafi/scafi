@@ -6,16 +6,15 @@
 package it.unibo.scafi.simulation
 
 import java.time.Instant
-import java.time.temporal.ChronoUnit
+import java.time.temporal.{ChronoField, ChronoUnit, TemporalField}
 import java.util.concurrent.TimeUnit
-
 import it.unibo.scafi.config.GridSettings
 import it.unibo.scafi.platform.SimulationPlatform
 import it.unibo.utils.observer.{SimpleSource, Source}
 
 import scala.collection.immutable.{Queue, Map => IMap}
 import scala.collection.mutable.{ArrayBuffer => MArray, Map => MMap}
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Random
 
 /**
@@ -37,21 +36,23 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     self: Network =>
     def context(id: ID): CONTEXT
 
-    def addSensor[A](name: LSNS, value: A)
+    def addSensor[A](name: CNAME, value: A): Unit
 
-    def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A)
+    def chgSensorValue[A](name: CNAME, ids: Set[ID], value: A): Unit
 
-    def clearExports()
+    def clearExports(): Unit
 
-    def exec(node: EXECUTION, exp: => Any, id: ID)
+    def exec(node: EXECUTION, exp: => Any, id: ID): Unit
 
-    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit)
+    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit): Seq[ID]
 
-    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit)
+    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit): Seq[ID]
 
     def execInOrderAndReturn(node: EXECUTION, exp: => Any, firingSeq: Seq[ID]): NETWORK
 
     def exec(ap: CONTEXT=>EXPORT): (ID,EXPORT)
+
+    def valueMap[T](): Map[ID, T] = this.exports().mapValues(_.get.root().asInstanceOf[T]).toMap
   }
 
   case class Seeds(configSeed: Long = System.currentTimeMillis(),
@@ -65,44 +66,44 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def basicSimulator(idArray: MArray[ID] = MArray(),
                        nbrMap: MMap[ID, Set[ID]] = MMap(),
-                       lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                       nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK
+                       lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap(),
+                       nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap()): NETWORK
 
     def simulator(idArray: MArray[ID] = MArray(),
                   nbrMap: MMap[ID, Set[ID]] = MMap(),
-                  localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
-                  nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty
+                  localSensors: PartialFunction[CNAME, PartialFunction[ID, Any]] = Map.empty,
+                  nbrSensors: PartialFunction[CNAME, PartialFunction[(ID,ID), Any]] = Map.empty
                  ): NETWORK
 
     def gridLike(gsettings: GridSettings,
                  rng: Double,
-                 lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                 nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
+                 lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap(),
+                 nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK
   }
 
-  class BasicSimulatorFactory extends SimulatorFactory {
+  class BasicSimulatorFactory extends SimulatorFactory with StandardSpatialSensorNames {
     protected val lId = linearID
 
     def basicSimulator(
                         idArray: MArray[ID] = MArray(),
                         nbrMap: MMap[ID, Set[ID]] = MMap(),
-                        lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                        nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
+                        lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap(),
+                        nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap()
                         ): NETWORK =
       NetworkSimulator(idArray, nbrMap, lsnsMap, nsnsMap, NetworkSimulator.defaultRepr(_), SIM_SEED, RANDOM_SENSOR_SEED)
 
     def simulator(idArray: MArray[ID] = MArray(),
                   nbrMap: MMap[ID, Set[ID]] = MMap(),
-                  localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
-                  nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty
+                  localSensors: PartialFunction[CNAME, PartialFunction[ID, Any]] = Map.empty,
+                  nbrSensors: PartialFunction[CNAME, PartialFunction[(ID,ID), Any]] = Map.empty
                  ): NETWORK =
       new NetworkSimulator(SIM_SEED, RANDOM_SENSOR_SEED, idArray, localSensors, nbrSensors, nbrMap, NetworkSimulator.defaultRepr(_))
 
     def gridLike(gsettings: GridSettings,
                  rng: Double,
-                 lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-                 nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
+                 lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap(),
+                 nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap(),
                  seeds: Seeds = Seeds(CONFIG_SEED, SIM_SEED, RANDOM_SENSOR_SEED)): NETWORK = {
       val GridSettings(rows, cols, stepx, stepy, tolerance, offsx, offsy, mapPos) = gsettings
       val configRandom = new Random(seeds.configSeed)
@@ -164,52 +165,61 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
   class NetworkSimulator(val simulationSeed: Long = 0L,
                          val randomSensorSeed: Long = 0L,
                          val idArray: MArray[ID] = MArray(),
-                         val localSensors: PartialFunction[LSNS, PartialFunction[ID, Any]] = Map.empty,
-                         val nbrSensors: PartialFunction[NSNS, PartialFunction[(ID,ID), Any]] = Map.empty,
+                         val localSensors: PartialFunction[CNAME, PartialFunction[ID, Any]] = Map.empty,
+                         val nbrSensors: PartialFunction[CNAME, PartialFunction[(ID,ID), Any]] = Map.empty,
                          val nbrMap: MMap[ID, Set[ID]] = MMap(),
-                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr
+                         val toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
+                         val timeTick: FiniteDuration = 1.millis
                          ) extends Network with SimulatorOps with SimpleSource {
     self: NETWORK =>
-    override type O = SimulationObserver[ID,LSNS]
+    override type O = SimulationObserver[ID,CNAME]
     protected val eMap: MMap[ID,EXPORT] = MMap()
+    protected var globalClock: Instant = Instant.ofEpochMilli(0)
     protected var lastRound: Map[ID,Instant] = Map()
     protected val simulationRandom = new Random(simulationSeed)
     protected val randomSensor = new Random(randomSensorSeed)
 
-    val lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap()
-    val nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap()
+    val lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap()
+    val nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap()
 
     // *****************
     // Network interface
     // *****************
 
     val ids = idArray.toSet
+
     def neighbourhood(id: ID): Set[ID] = nbrMap.getOrElse(id, Set())
 
-    def localSensor[A](name: LSNS)(id: ID): A =
+    def sensorState(filter: (CNAME,ID) => Boolean = (s,n) => true): Map[CNAME, collection.Map[ID,Any]] =
+      lsnsMap.toMap
+
+    def neighbouringSensorState(filter: (CNAME,ID,ID) => Boolean = (s,n,nbr) => true): collection.Map[CNAME, collection.Map[ID, collection.Map[ID, Any]]] =
+      nsnsMap.toMap
+
+    def localSensor[A](name: CNAME)(id: ID): A =
       lsnsMap.get(name).flatMap(_.get(id)).getOrElse(localSensors(name)(id).asInstanceOf[A]).asInstanceOf[A]
 
-    def nbrSensor[A](name: NSNS)(id: ID)(idn: ID): A =
+    def nbrSensor[A](name: CNAME)(id: ID)(idn: ID): A =
       nsnsMap.get(name).flatMap(_.get(id)).flatMap(_.get(idn)).getOrElse(nbrSensors(name)(id, idn).asInstanceOf[A]).asInstanceOf[A]
 
     def export(id: ID): Option[EXPORT] = eMap.get(id)
 
     def exports(): IMap[ID, Option[EXPORT]] = ids.map(id => (id, export(id))).toMap
 
-    protected var sensors = Map[LSNS,Any]()
+    protected var sensors: Map[CNAME,Any] = Map[CNAME,Any]()
 
     // **********************
     // SimulatorOps interface
     // **********************
 
-    def getSensor(name: LSNS): Option[Any] = sensors.get(name)
+    def getSensor(name: CNAME): Option[Any] = sensors.get(name)
 
-    def addSensor[A](name: LSNS, value: A) {
+    def addSensor[A](name: CNAME, value: A): Unit = {
       this.sensors += name -> value
       lsnsMap += (name -> MMap(idArray.map((_: ID) -> value).toSeq: _*))
     }
 
-    def chgSensorValue[A](name: LSNS, ids: Set[ID], value: A) = ids.foreach { id => lsnsMap(name) += id -> value }
+    def chgSensorValue[A](name: CNAME, ids: Set[ID], value: A): Unit = ids.foreach { id => lsnsMap(name) += id -> value }
 
     override def clearExports(): Unit = eMap.clear()
 
@@ -221,34 +231,36 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         selfId = id,
         exports = getExports(id),
         localSensor = IMap(),
-        nbrSensor = IMap()){
+        nbrSensor = IMap())
+    with StandardTemporalSensorNames with StandardPlatformSensorNames {
       import NetworkSimulator.Optionable
-      def localSensorRetrieve[T](lsns: LSNS, id: ID): Option[T] =
+      def localSensorRetrieve[T](lsns: CNAME, id: ID): Option[T] =
         lsnsMap.get(lsns).flatMap(_.get(id)).orElse(Some(localSensors(lsns)(id))).map (_.asInstanceOf[T] )
 
-      def nbrSensorRetrieve[T](nsns: NSNS, id: ID, nbr: ID): Option[T] =
+      def nbrSensorRetrieve[T](nsns: CNAME, id: ID, nbr: ID): Option[T] =
         nsnsMap.get(nsns).flatMap(_.get(id)).flatMap(_.get(nbr)).orElse(Some(nbrSensors(nsns)(id, nbr))).map(_.asInstanceOf[T])
 
-      override def sense[T](lsns: LSNS): Option[T] = lsns match {
+      override def sense[T](lsns: CNAME): Option[T] = lsns match {
+        case _ if lsnsMap.get(lsns).flatMap(_.get(id)).isDefined => lsnsMap(lsns).get(id).map(_.asInstanceOf[T])
         case LSNS_RANDOM => randomSensor.some[T]
-        case LSNS_TIME => Instant.now().some[T]
-        case LSNS_TIMESTAMP => System.currentTimeMillis().some[T]
+        case LSNS_TIME => globalClock.some[T]
+        case LSNS_TIMESTAMP => globalClock.toEpochMilli.some[T]
         case LSNS_DELTA_TIME => FiniteDuration(
-          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, Instant.now())).getOrElse(0L),
+          lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, globalClock)).getOrElse(0L),
           TimeUnit.NANOSECONDS).some[T]
         case _ => this.localSensorRetrieve(lsns, id)
       }
 
-      override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nsns match {
+      override def nbrSense[T](nsns: CNAME)(nbr: ID): Option[T] = nsns match {
         case NBR_LAG => lastRound.get(nbr).map(nbrLast =>
-          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, Instant.now()), TimeUnit.NANOSECONDS)
+          FiniteDuration(ChronoUnit.NANOS.between(nbrLast, globalClock), TimeUnit.NANOSECONDS)
         ).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case NBR_DELAY => lastRound.get(nbr).map(nbrLast =>
           FiniteDuration(
             ChronoUnit.NANOS.between(
               nbrLast.plusNanos(
-                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, Instant.now())).getOrElse(0L)),
-              Instant.now()),
+                lastRound.get(id).map(t => ChronoUnit.NANOS.between(t, globalClock)).getOrElse(0L)),
+              globalClock),
           TimeUnit.NANOSECONDS
         )).getOrElse(FiniteDuration(0L, TimeUnit.NANOSECONDS)).some[T]
         case _ => nbrSensorRetrieve(nsns, id, nbr)
@@ -258,9 +270,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     def context(id: ID): CONTEXT = new SimulatorContextImpl(id)
 
     def exec(node: EXECUTION, exp: => Any, id: ID): Unit = {
-      val c = context(id)
-      eMap += (id -> node.round(c, exp))
-      lastRound += id -> Instant.now()
+      progress(node, exp, id)
+      sequentialWorldClock(id)
     }
 
     /**
@@ -269,15 +280,18 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
      * @param size The number of executions to be performed
      * @param action An optional action launched after each execution
      */
-    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Unit = {
+    def execMany(node: EXECUTION, exp: => Any, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Seq[ID] = {
+      var executedNodes = Seq[ID]()
       for (i <- 0 until size) {
         val nextIdToRun = idArray(simulationRandom.nextInt(idArray.size))
+        executedNodes :+= nextIdToRun
         exec(node, exp, nextIdToRun)
         action(this, i)
       }
+      executedNodes
     }
 
-    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Unit = {
+    def executeMany(node: EXECUTION, size: Int, action: (Network, Int) => Unit = (n, i) => {}): Seq[ID] = {
       execMany(node, node.main(), size, action)
     }
 
@@ -286,6 +300,7 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
       val c = context(idToRun)
       val (_,exp) = idToRun -> ap(c)
       eMap += idToRun -> exp
+      sequentialWorldClock(idToRun)
       idToRun -> exp
     }
 
@@ -297,12 +312,26 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     }
 
     override def toString: String = toStr(this)
+    /* evaluate the current expression in the given node identified by the id */
+    protected def progress(node: EXECUTION, exp: => Any, id: ID): Unit = {
+      val c = context(id)
+      eMap += (id -> node.round(c, exp))
+    }
+    /* update the time as the events can be sequential */
+    protected def sequentialWorldClock(id: ID) = {
+      updateLocalClock(id)
+      tick()
+    }
+    /* update the world global clock by the static timeTick */
+    protected def tick(): Unit = globalClock = globalClock.plusMillis(timeTick.toMillis)
+    /* update the local node clock to make possible the delta tick computation */
+    protected def updateLocalClock(id: ID): Unit = lastRound += id -> globalClock
   }
   object NetworkSimulator extends Serializable {
     def apply(_idArray: MArray[ID] = MArray(),
               _nbrsMap: MMap[ID, Set[ID]] = MMap(),
-              _lsnsMap: MMap[LSNS, MMap[ID, Any]] = MMap(),
-              _nsnsMap: MMap[NSNS, MMap[ID, MMap[ID, Any]]] = MMap(),
+              _lsnsMap: MMap[CNAME, MMap[ID, Any]] = MMap(),
+              _nsnsMap: MMap[CNAME, MMap[ID, MMap[ID, Any]]] = MMap(),
               _toStr: NetworkSimulator => String = NetworkSimulator.defaultRepr,
               _simulationSeed: Long,
               _randomSensorSeed: Long
@@ -311,8 +340,8 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
         _simulationSeed,
         _randomSensorSeed,
         _idArray,
-        Map.empty : PartialFunction[LSNS,PartialFunction[ID,Any]],
-        Map.empty : PartialFunction[NSNS,PartialFunction[(ID,ID),Any]],
+        Map.empty : PartialFunction[CNAME,PartialFunction[ID,Any]],
+        Map.empty : PartialFunction[CNAME,PartialFunction[(ID,ID),Any]],
         _nbrsMap,
         _toStr
       ) {

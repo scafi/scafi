@@ -42,10 +42,10 @@ object DemoEasySpatial extends CmdLineMain {
     override var workInterval: FiniteDuration = FiniteDuration((100+rnd.nextInt(2000)), TimeUnit.SECONDS)
   }
 
-  override def programBuilder = Some(new MyAggregateProgram {})
+  override def programBuilder: Some[ProgramContract] = Some(new MyAggregateProgram {})
 
   var k = 0
-  override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade) = {
+  override def onDeviceStarted(dm: DeviceManager, sys: SystemFacade): Unit = {
     var j = k
     /*
     dm.addSensor(LocationSensorName, () => {

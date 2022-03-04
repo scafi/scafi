@@ -93,7 +93,7 @@ final case class SimpleNetworkNode(position: Point3D, UID: Int, labelScale: Doub
   override def setFilledSphereRadius(radius: Double): Unit = setSphereRadius(filledSphere, radius, this)
 
   /** See [[it.unibo.scafi.renderer3d.node.NetworkNode#moveNodeTo(scalafx.geometry.Point3D, scalafx.geometry.Point3D, boolean)]] */
-  override def moveNodeTo(position: Point3D, cameraPosition: Point3D, updateMovementDirection: Boolean = false) {
+  override def moveNodeTo(position: Point3D, cameraPosition: Point3D, updateMovementDirection: Boolean = false): Unit = {
     onFX {
       if (updateMovementDirection) {
         showMovement(show = true, node, pyramid, this)

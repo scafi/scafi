@@ -14,6 +14,7 @@ import it.unibo.scafi.distrib.actor.serialization.CustomAkkaSerializer
 
 import scala.concurrent.duration._
 import scala.util.Success
+import it.unibo.scafi.distrib.actor.extensions.CodeMobilityExtensionImpl
 
 trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
 
@@ -32,7 +33,7 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
    * - The [[LoadClassBytes]] utility for getting the bytes of a class
    */
   trait MissingCodeManagementBehavior extends BasicActorBehavior { selfActor: Actor =>
-    val mobilityExt = CodeMobilityExtension(selfActor.context.system)
+    val mobilityExt: CodeMobilityExtensionImpl = CodeMobilityExtension(selfActor.context.system)
     val classloader = mobilityExt.classloader
 
     override def inputManagementBehavior: Receive = super.inputManagementBehavior.orElse {

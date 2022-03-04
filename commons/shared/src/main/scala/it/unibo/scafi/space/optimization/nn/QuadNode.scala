@@ -83,7 +83,7 @@ private[nn] class QuadNode[A] (center: Point3D,
   /** Makes children nodes by partitioning the box into equal sub-boxes
     * and adding a node for each sub-box
     */
-  def makeChildren() {
+  def makeChildren(): Unit = {
     val centerClone = center.copy
     val cPart = partitionBox(centerClone, width)
     val mappedWidth = width * 0.5

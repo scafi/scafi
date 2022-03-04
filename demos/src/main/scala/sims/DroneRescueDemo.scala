@@ -125,5 +125,4 @@ class DroneRescueDemo extends AggregateProgram with SensorDefinitions with Flock
     val pos = currentPosition()
     Math.hypot(point._1 - pos.x, point._2 - pos.y)
   }
-
 }

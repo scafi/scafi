@@ -27,18 +27,18 @@ object GradientsDemo extends Launcher {
 }
 
 class GGradientComparison extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
-  def main =
+  def main: String =
     f"${classicGradient(sense1)}%3.2f,${dist1(sense1)}%3.2f,${dist2(sense1)}%3.2f"
 
   def dist1(source: Boolean, metric: Metric = nbrRange): Double =
-    G2(source)(0.0)(_ + metric())()
+    Gcurried(source)(0.0)(_ + metric())()
 
   def dist2(source: Boolean, metric: Metric = nbrRange): Double =
-    G2(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
+    Gcurried(source)(mux(source){0.0}{Double.PositiveInfinity})(_ + metric())()
 }
 
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
-  def main = g2(sense1, sense2)
+  def main: Double = g2(sense1, sense2)
 
   def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
     () => aggregate { Double.PositiveInfinity }
@@ -54,7 +54,7 @@ class GradientWithObstacle extends AggregateProgram with SensorDefinitions with 
 }
 
 class SteeringProgram extends AggregateProgram with SensorDefinitions {
-  def main = steering(sense1)
+  def main: Point3D = steering(sense1)
 
   def steering(source: Boolean): Point3D = {
     val g = classic(source)
@@ -71,7 +71,6 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
 
   def minHoodPLoc[A](default: A)(expr: => A)(implicit poglb: Ordering[A]): A = {
     import scala.math.Ordered.orderingToOrdered
-    val ordering = implicitly[Ordering[A]]
     foldhoodPlus[A](default)((x, y) => if(x <= y) x else y){expr}
   }
 
@@ -82,15 +81,15 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
 }
 
 class ShortestPathProgram extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  def main = {
+  def main: Boolean = {
     val g = classic(sense1)
-    ShortestPath(sense2, g)
+    shortestPath(sense2, g)
   }
 }
 
 class CheckSpeed extends AggregateProgram
     with GradientAlgorithms with BlockG with SensorDefinitions with GenericUtils with StateManagement {
-  implicit val deftime = new Builtins.Defaultable[Instant] {
+  implicit val deftime: Builtins.Defaultable[Instant] = new Builtins.Defaultable[Instant] {
     override def default: Instant = Instant.now()
   }
 
@@ -111,43 +110,43 @@ class CheckSpeed extends AggregateProgram
 }
 
 class GradientComparison extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
+  override def main(): String = f"${gradientBIS(sense1)}%.1f|${crf(sense1)}%.1f|${classic(sense1)}%.1f"
 }
 
 class BISGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = gradientBIS(sense1)
+  override def main(): Double = gradientBIS(sense1)
 }
 
 class SVDGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = gradientSVD(sense1)
+  override def main(): Double = gradientSVD(sense1)
 }
 
 class FlexGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = flex(sense1)
+  override def main(): Double = flex(sense1)
 }
 
 class CrfGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = crf(sense1)
+  override def main(): Double = crf(sense1)
 }
 
 class BasicGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = gradient(sense1)
+  override def main(): Double = gradient(sense1)
 }
 
 class ClassicGradient extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = classic(sense1)
+  override def main(): Double = classic(sense1)
 }
 
 class ClassicGradientWithG extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = classicWithG(sense1)
+  override def main(): Double = classicWithG(sense1)
 }
 
 class ClassicGradientWithGv2 extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = classicWithGv2(sense1)
+  override def main(): Double = classicWithGv2(sense1)
 }
 
 class ClassicGradientWithUnboundedG extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  override def main() = classicWithUnboundedG(sense1)
+  override def main(): Double = classicWithUnboundedG(sense1)
 }
 
 class DistanceBetween extends AggregateProgram with SensorDefinitions with Gradients with BlockG {
@@ -159,8 +158,8 @@ class DistanceBetween extends AggregateProgram with SensorDefinitions with Gradi
 
 object DoubleUtils {
   case class Precision(p:Double)
-  implicit class DoubleWithAlmostEquals(val d:Double) extends AnyVal {
-    def ~=(d2:Double)(implicit p:Precision) = (d - d2).abs < p.p
+  implicit class DoubleWithAlmostEquals(private val d:Double) extends AnyVal {
+    def ~=(d2:Double)(implicit p:Precision): Boolean = (d - d2).abs < p.p
   }
 }
 
@@ -173,7 +172,7 @@ trait GradientAlgorithms extends Gradients
 
   val typeclasses = new LibExtTypeClasses(it.unibo.scafi.incarnations.BasicSimulationIncarnation).BoundedTypeClasses
 
-  def ShortestPath(source: Boolean, gradient: Double): Boolean =
+  def shortestPath(source: Boolean, gradient: Double): Boolean =
     rep(false)(
       path => mux(source){
         true
@@ -348,7 +347,7 @@ trait GradientAlgorithms extends Gradients
 
   def minHoodPLoc[A](default: A)(expr: => A)(implicit poglb: Ordering[A]): A = {
     import scala.math.Ordered.orderingToOrdered
-    val ordering = implicitly[Ordering[A]]
+    implicitly[Ordering[A]]
     foldhoodPlus[A](default)((x, y) => if(x <= y) x else y){expr}
   }
 
@@ -376,7 +375,7 @@ trait GradientAlgorithms extends Gradients
         foldhoodPlus((Double.PositiveInfinity, field)) { case (data1 @ (d1: Double, v1: V), data2 @ (d2: Double, v2: V)) =>
           import DoubleUtils.DoubleWithAlmostEquals
           implicit val prec = Precision(0.00001)
-          if(d1 ~= d2) ((d1+d2)/2, aggr(v1, v2))
+          if(d1 ~= d2) ((d1 + d2) / 2, aggr(v1, v2))
           else if (d1 < d2) data1 else data2
         } { (nbr {dist} + metric, acc(nbr {value})) }
       }
@@ -388,7 +387,7 @@ trait GradientAlgorithms extends Gradients
       mux(source) {
         0.0
       }{
-        foldhoodPlus(Double.PositiveInfinity)(Math.min(_,_)){ nbr{distance} + nbrRange }
+        foldhoodPlus(Double.PositiveInfinity)(Math.min){ nbr{distance} + nbrRange }
       }
     }
 
@@ -437,7 +436,7 @@ trait GradientAlgorithms extends Gradients
             loop || // or, (ii) if the device's value happens to be calculated from itself,
             excludingSelf.anyHood { // or, (iii) if any (not temporally farther) nbr with same sourceId  than
                                     //           the device's one has already been claimed obsolete
-              nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst}+lagMetric < newTimeDistEst + 0.0001
+              nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst} + lagMetric < newTimeDistEst + 0.0001
             }
 
         List[(Double,Double,Int,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min

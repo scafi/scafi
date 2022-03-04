@@ -7,17 +7,20 @@ package it.unibo.scafi.distrib
 
 import java.net.{URL, URLClassLoader}
 
+import org.slf4j.LoggerFactory
+
 object CodeMobilityUtilities {
   // Apply a generator to create a function with safe decoupled closures
   // See: http://erikerlandson.github.io/blog/2015/03/31/hygienic-closures-for-scala-function-serialization/
   def closureFunction[E,D,R](enclosed: E)(gen: E => (D => R)): D => R = gen(enclosed)
-
-  def log(s: String): Unit = Console.println(s)
 }
 
 class CustomClassLoader(parent: ClassLoader) extends URLClassLoader(Array[URL](), parent) {
   import CustomClassLoaderRegistry._
   import CodeMobilityUtilities._
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
+  private def log(s: String): Unit = logger.debug(s)
 
   override protected def findClass(name: String) : Class[_] = {
     log(s"Looking for class ${name}")
@@ -93,7 +96,7 @@ import org.apache.bcel.classfile._
   * Adapted from: http://illegalargumentexception.blogspot.it/2008/04/java-finding-binary-class-dependencies.html
   */
 class DependencyEmitter(var klass: JavaClass) extends EmptyVisitor {
-  var result = Map[String,Array[Byte]]()
+  var result: Map[String,Array[Byte]] = Map[String,Array[Byte]]()
 
   override def visitConstantClass(obj: ConstantClass): Unit = {
     val cp = klass.getConstantPool()

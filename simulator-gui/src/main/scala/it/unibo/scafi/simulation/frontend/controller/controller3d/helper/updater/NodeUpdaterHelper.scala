@@ -77,7 +77,7 @@ private[updater] object NodeUpdaterHelper {
    * @param node the node that has to be updated
    * @param position the new node's position
    * @param simulation the simulation that has to be read */
-  def setSimulationNodePosition(node: Node, position: Product3[Double, Double, Double], simulation: Simulation) {
+  def setSimulationNodePosition(node: Node, position: Product3[Double, Double, Double], simulation: Simulation): Unit = {
     node.position = new Point3D(position._1, position._2, position._3)
     simulation.setPosition(node)
   }

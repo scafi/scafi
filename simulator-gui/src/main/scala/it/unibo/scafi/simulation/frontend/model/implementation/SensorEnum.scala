@@ -13,20 +13,20 @@ import it.unibo.scafi.simulation.frontend.model.Sensor
 import scala.util.{Success, Try}
 
 object SensorEnum {
-  val SOURCE = Sensor("Source", false)
-  val DESTINATION = Sensor("Destination", false)
-  val TEMPERATURE = Sensor("Temperature", 20.00)
-  val OBSTACLE = Sensor("Obstacle", false)
-  val SENS1 = Sensor("sens1", false)
-  val SENS2 = Sensor("sens2", false)
-  val SENS3 = Sensor("sens3", false)
-  val SENS4 = Sensor("sens4", false)
+  val SOURCE: Sensor = Sensor("Source", false)
+  val DESTINATION: Sensor = Sensor("Destination", false)
+  val TEMPERATURE: Sensor = Sensor("Temperature", 20.00)
+  val OBSTACLE: Sensor = Sensor("Obstacle", false)
+  val SENS1: Sensor = Sensor("sens1", false)
+  val SENS2: Sensor = Sensor("sens2", false)
+  val SENS3: Sensor = Sensor("sens3", false)
+  val SENS4: Sensor = Sensor("sens4", false)
 
   //scalastyle:off magic.number
   private val SOURCE_COLOR = new Color(42, 58, 139)
   private val DESTINATION_COLOR = new Color(139, 58, 42)
   private val OBSTACLE_COLOR = new Color(58, 139, 42)
-  var sensors = Set(SOURCE, DESTINATION, TEMPERATURE, OBSTACLE, SENS1, SENS2, SENS3, SENS4)
+  var sensors: Set[Sensor] = Set(SOURCE, DESTINATION, TEMPERATURE, OBSTACLE, SENS1, SENS2, SENS3, SENS4)
 
   // scalastyle:off magic.number
   /**

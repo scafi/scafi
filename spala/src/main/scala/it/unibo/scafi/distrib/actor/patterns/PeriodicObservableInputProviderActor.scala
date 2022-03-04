@@ -7,6 +7,7 @@ package it.unibo.scafi.distrib.actor.patterns
 
 import akka.actor.Actor
 import it.unibo.scafi.distrib.actor.{GoOn, MsgWithInput}
+import akka.event.LoggingAdapter
 
 /**
  * Abstract actor, which is an [[ObservableActorBehavior]] with [[PeriodicBehavior]], that
@@ -31,7 +32,7 @@ abstract class PeriodicObservableInputProviderActor[K,V](val name: K) extends Ac
 
   /* Utility members */
 
-  protected val logger = akka.event.Logging(context.system, this)
+  protected val logger: LoggingAdapter = akka.event.Logging(context.system, this)
 
   /* Reactive behaviors */
 

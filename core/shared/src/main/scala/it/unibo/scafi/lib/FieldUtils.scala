@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_FieldUtils {
+trait StdLibFieldUtils {
   self: StandardLibrary.Subcomponent =>
 
   import Builtins.Bounded
@@ -22,24 +22,24 @@ trait StdLib_FieldUtils {
       def mapNbrs[T](expr: => T): Map[ID, T] = reifyField(expr)
 
       def reifyField[T](expr: => T): Map[ID, T] =
-        foldhoodTemplate[Map[ID,T]](Map[ID, T]())(_ ++ _) {
+        foldhoodTemplate[Map[ID,T]](Map.empty[ID, T])(_ ++ _) {
           Map(nbr { mid() } -> expr)
         }
 
       def sumHood[T](expr: => T)(implicit numEv: Numeric[T]): T =
-        foldhoodTemplate[T](numEv.zero)(numEv.plus(_,_))(nbr(expr))
+        foldhoodTemplate[T](numEv.zero)(numEv.plus)(expr)
 
       def unionHood[T](expr: => T): Set[T] =
         unionHoodSet(Set(expr))
 
       def unionHoodSet[T](expr: => Iterable[T]): Set[T] =
-        foldhoodTemplate[Set[T]](Set())(_.union(_))(expr.toSet)
+        foldhoodTemplate[Set[T]](Set.empty)(_.union(_))(expr.toSet)
 
       def mergeHoodFirst[K,V](expr: => Map[K,V]): Map[K,V] =
-        mergeHood(expr)((x,y) => x)
+        mergeHood(expr)((x, _) => x)
 
       def mergeHood[K,V](expr: => Map[K,V])(overwritePolicy: (V,V) => V): Map[K,V] = {
-        foldhoodTemplate[Map[K,V]](Map()) { case (m1, m2) =>
+        foldhoodTemplate[Map[K,V]](Map.empty) { case (m1, m2) =>
           var newMap = m1
           m2.keys.foreach(k => newMap += k -> m1.get(k).map(v => overwritePolicy(v, m2(k))).getOrElse(m2(k)))
           newMap

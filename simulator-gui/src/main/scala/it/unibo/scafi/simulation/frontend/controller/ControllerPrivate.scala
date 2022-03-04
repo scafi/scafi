@@ -6,13 +6,11 @@
 
 package it.unibo.scafi.simulation.frontend.controller
 
-import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.JOptionPane
-
-import it.unibo.scafi.simulation.frontend.model.{Node, NodeValue}
+import it.unibo.scafi.simulation.frontend.model.Node
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
-import it.unibo.scafi.simulation.frontend.view.{GuiNode, NodeInfoPanel, SensorOptionPane, SimulatorUI}
+import it.unibo.scafi.simulation.frontend.view.{GuiNode, NodeInfoPanel, SimulatorUI}
 
+import java.awt.event.{ActionEvent, ActionListener}
 import scala.language.implicitConversions
 
 /**
@@ -21,12 +19,12 @@ import scala.language.implicitConversions
 class ControllerPrivate (val gui: SimulatorUI) {
   final private val controller: Controller = Controller.getInstance
 
-  implicit def toActionListener(f: ActionEvent => Unit) = new ActionListener {
-    def actionPerformed(e: ActionEvent) { f(e) }
+  implicit def toActionListener(f: ActionEvent => Unit): ActionListener = new ActionListener {
+    def actionPerformed(e: ActionEvent): Unit = { f(e) }
   }
 
-  def setSensor(sensorName: String, value: Any) {
-    var applyAll: Boolean = true
+  def setSensor(sensorName: String, value: Any): Unit = {
+    
     val ss: Set[(Node,GuiNode)] = selectedNodes
     ss.foreach(ng => {
       setImage(sensorName, value, ng._2)
@@ -56,7 +54,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     ss.headOption.map(_._1.getSensorValue(s))
   }
 
-  def checkSensor(sensor: String, operator: String, value: String) {
+  def checkSensor(sensor: String, operator: String, value: String): Unit = {
     controller.nodes.values.foreach(kv => {
       val (n,g) = kv
       operator match {
@@ -100,7 +98,7 @@ class ControllerPrivate (val gui: SimulatorUI) {
     })
   }
 
-  def calculatedInfo(infoPanel: NodeInfoPanel) {
+  def calculatedInfo(infoPanel: NodeInfoPanel): Unit = {
     controller.nodes.values.foreach(kv => {
       val (n, g) = kv
       if (n.id == infoPanel.getId) {
@@ -117,12 +115,12 @@ class ControllerPrivate (val gui: SimulatorUI) {
     })
   }
 
-  def revalidateSimulationPanel() {
+  def revalidateSimulationPanel(): Unit = {
     gui.getSimulationPanel.revalidate()
     gui.getSimulationPanel.repaint()
   }
 
-  def setImage(sensorName: String, value: Any, g: GuiNode) {
+  def setImage(sensorName: String, value: Any, g: GuiNode): Unit = {
     if (sensorName == SensorEnum.OBSTACLE.name && value.toString == "true") {
       g.setImageButton("sensorOkSelect.png")
     }

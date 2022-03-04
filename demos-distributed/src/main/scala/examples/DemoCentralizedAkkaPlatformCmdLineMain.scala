@@ -31,7 +31,7 @@ object DemoCentralizedAkkaPlatformCmdLineMain extends App {
       }
     }
 
-    def main() = {
+    def main(): Int = {
       Thread.sleep(500)
       hopGradient(sense(SENSOR_SRC))
     }

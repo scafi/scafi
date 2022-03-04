@@ -8,20 +8,20 @@ import javafx.util.converter.IntegerStringConverter
 import scalafx.scene.control.TextField
 
 /**
-  * a text field that accept only integer
-  */
-private [scalaFX] class IntField extends TextField {
-  private val integerFilter = new  UnaryOperator[TextFormatter.Change] {
+ * a text field that accept only integer
+ */
+private[scalaFX] class IntField extends TextField {
+  private val integerFilter = new UnaryOperator[TextFormatter.Change] {
     private val DIGIT_PATTERN = Pattern.compile("\\d*")
     private val FIRST_DIGIT = Pattern.compile("[1-9]")
     override def apply(aT: TextFormatter.Change): TextFormatter.Change = {
       if (DIGIT_PATTERN.matcher(aT.getText).matches) {
         val text = aT.getControlText
-        if(text.isEmpty && FIRST_DIGIT.matcher(aT.getText).matches) {
+        if (text.isEmpty && FIRST_DIGIT.matcher(aT.getText).matches) {
           aT
         } else if (text.nonEmpty) {
           aT
-        }else {
+        } else {
           null
         }
       } else {
@@ -29,7 +29,7 @@ private [scalaFX] class IntField extends TextField {
       }
     }
   }
-  private val formatter = new TextFormatter[Integer](new IntegerStringConverter,IntField.DefaultValue,integerFilter)
+  private val formatter = new TextFormatter[Integer](new IntegerStringConverter, IntField.DefaultValue, integerFilter)
   this.setTextFormatter(formatter)
 }
 

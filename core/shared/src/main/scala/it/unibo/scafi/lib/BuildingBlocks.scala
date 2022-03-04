@@ -5,11 +5,11 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_BuildingBlocks {
+trait StdLibBuildingBlocks {
   self: StandardLibrary.Subcomponent =>
 
   trait BuildingBlocks extends Gradients with FieldUtils
-    with BlockG with BlockC with BlockS with BlockT with BlocksWithGC {
+    with BlockG with BlockC with BlockS with BlockT with TimeUtils with BlocksWithGC with StateManagement {
     self: FieldCalculusSyntax with StandardSensors =>
   }
 

@@ -13,10 +13,7 @@ import it.unibo.scafi.time.BasicTimeAbstraction
 trait BasicAbstractSimulationIncarnation
   extends BasicAbstractIncarnation
   with Simulation
-  with BasicTimeAbstraction {
-
-  override val LSNS_RANDOM: String = "randomGenerator"
-}
+  with BasicTimeAbstraction
 
 object BasicSimulationIncarnation
   extends BasicAbstractSimulationIncarnation

@@ -24,5 +24,5 @@ object BasicDemo extends App {
 }
 @Demo
 class BasicProgram extends AggregateProgram {
-  override def main() = rep(0)(_ + 1) // the aggregate program to run
+  override def main(): Int = rep(0)(_ + 1) // the aggregate program to run
 }

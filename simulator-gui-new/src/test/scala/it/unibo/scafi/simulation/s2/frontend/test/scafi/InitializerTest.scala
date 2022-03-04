@@ -2,12 +2,13 @@ package it.unibo.scafi.simulation.s2.frontend.test.scafi
 
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiWorldInformation
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.{ScafiWorldInitializer, scafiWorld}
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * a test used to check the correctness of scafi world initializer
   */
-class InitializerTest extends FunSpec with Matchers{
+class InitializerTest extends AnyFunSpec with Matchers{
   private val checkThat = new ItWord
   private val world = scafiWorld
   private val node = 100

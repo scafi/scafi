@@ -6,24 +6,28 @@ import it.unibo.scafi.space.Shape
 import it.unibo.scafi.space.SpatialAbstraction.Bound
 
 /**
-  * world information used to initialize a world
-  * @tparam D the type of device producer
-  * @tparam S the shape type
-  */
-trait WorldInformation[D <: AggregateConcept#DeviceProducer,
-                S <: Shape] {
+ * world information used to initialize a world
+ * @tparam D
+ *   the type of device producer
+ * @tparam S
+ *   the shape type
+ */
+trait WorldInformation[D <: AggregateConcept#DeviceProducer, S <: Shape] {
   /**
-    * @return the node shape
-    */
-  def shape : Option[S]
+   * @return
+   *   the node shape
+   */
+  def shape: Option[S]
 
   /**
-    * @return world boundary
-    */
-  def boundary : Option[Bound]
+   * @return
+   *   world boundary
+   */
+  def boundary: Option[Bound]
 
   /**
-    * @return device producers that describe device associated with node
-    */
-  def deviceProducers : Iterable[D]
+   * @return
+   *   device producers that describe device associated with node
+   */
+  def deviceProducers: Iterable[D]
 }

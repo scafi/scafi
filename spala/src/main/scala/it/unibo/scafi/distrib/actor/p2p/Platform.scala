@@ -31,7 +31,7 @@ trait Platform extends BasePlatform
 
   @transient override val settingsFactory = new SettingsFactoryP2P
 
-  @transient override val platformFactory = new DistributedPlatformFactory {
+  @transient override val platformFactory: DistributedPlatformFactory = new DistributedPlatformFactory {
     override def buildPlatformConfigurator(): PlatformConfigurator =
       PlatformConfigurator
   }

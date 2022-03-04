@@ -127,7 +127,6 @@ trait PlatformAPIFacade { self: Platform.Subcomponent =>
 
     override def setupPlatform(s: PlatformSettings,
                                p: ProfileSettings): PlatformFacade = {
-      val d = s.subsystemDeployment
       val config = buildNodeConfiguration(s)
       val ctxClassloader = Thread.currentThread().getContextClassLoader
       val actorSys = ActorSystem("scafi", config, new CustomClassLoader(ctxClassloader))

@@ -5,7 +5,7 @@
 
 package it.unibo.scafi.lib
 
-trait StdLib_DynamicCode {
+trait StdLibDynamicCode {
   self: StandardLibrary.Subcomponent =>
 
   trait DynamicCode extends FieldUtils {
@@ -16,7 +16,7 @@ trait StdLib_DynamicCode {
       * - If they do note use `aggregate`, they might try to align with functions of other versions,
       *   causing unexpected behaviours and errors.
       */
-    case class Fun[T,R](ver: Int, fun: (T)=>R)
+    final case class Fun[T,R](ver: Int, fun: (T)=>R)
 
     type Injecter[T,R] = () => Fun[T,R]
 

@@ -12,8 +12,8 @@ import scala.util.Random
 
 class NodeImpl(val id: Int, var position: Point3D) extends Node {
   var export: Any = ""
-  var neighbours = Set[Node]()
-  var sensors = Map[Sensor, Any](
+  var neighbours: Set[Node] = Set[Node]()
+  var sensors: Map[Sensor,Any] = Map[Sensor, Any](
     SensorEnum.TEMPERATURE -> 0,
     SensorEnum.SOURCE -> false,
     SensorEnum.OBSTACLE -> false,
@@ -25,7 +25,7 @@ class NodeImpl(val id: Int, var position: Point3D) extends Node {
 
   def this(id: Int, position: Point2D) = this(id, new Point3D(position.x, position.y, 0))
 
-  def this(id: Int) {
+  def this(id: Int) = {
     this(id, new Point2D(new Random().nextDouble, new Random().nextDouble))
   }
 
@@ -44,7 +44,7 @@ class NodeImpl(val id: Int, var position: Point3D) extends Node {
     true
   }
 
-  def removeAllNeghbours() =
+  def removeAllNeghbours(): Unit =
     this.neighbours = Set()
 
   def getSensorValue(sensor: String): Any =
@@ -56,9 +56,9 @@ class NodeImpl(val id: Int, var position: Point3D) extends Node {
   def sensorValues: Map[Sensor, Any] =
     this.sensors
 
-  def setSensor(sensor: Sensor, value: Any) =
+  def setSensor(sensor: Sensor, value: Any): Unit =
     this.sensors += sensor -> value
 
-  def setSensor(sensorName: String, value: Any) =
+  def setSensor(sensorName: String, value: Any): Unit =
     this.sensors += new Sensor(sensorName, value) -> value
 }

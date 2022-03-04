@@ -22,9 +22,9 @@ object ExplicitFieldsRun extends App {
 }
 
 class GradientWithExplicitFields extends AggregateProgram with SensorDefinitions with ExplicitFields {
-  override def main() = gradient(sense1)
+  override def main(): Double = gradient(sense1)
 
-  def gradient(src: Boolean) = rep(Double.PositiveInfinity)(d => {
+  def gradient(src: Boolean): Double = rep(Double.PositiveInfinity)(d => {
     mux(src){ 0.0 }{
       (fnbr(d) + fsns(nbrRange)).minHoodPlus
     }

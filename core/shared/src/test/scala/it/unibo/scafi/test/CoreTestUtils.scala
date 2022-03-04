@@ -30,8 +30,9 @@ trait CoreTestUtils {
 
       val exp1 = interpreter.round(currCtx1, program1)
       val exp2 = interpreter.round(currCtx2, program2)
-      if(!comparer(exp1.root(),exp2.root()))
+      if(!comparer(exp1.root(),exp2.root())) {
         throw new Exception(s"Not equivalent: \n$exp1\n$currCtx1\n--------\n$exp2\n$currCtx2")
+      }
       states.put(curr, (exp1, exp2))
     })
     true

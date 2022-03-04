@@ -20,6 +20,7 @@ out
 target/
 project/target
 project/project
+.bsp/
 
 # For Mac OS X
 .DS_Store
@@ -39,3 +40,5 @@ local.*
 
 # For Gradle
 .gradle/
+
+.husky

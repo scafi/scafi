@@ -29,8 +29,8 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
   setContentPane(panel)
   this.setJMenuBar(menuBarNorth)
 
-  val imap = panel.getInputMap()
-  val amap = panel.getActionMap()
+  val imap: InputMap = panel.getInputMap()
+  val amap: ActionMap = panel.getActionMap()
   val ctrl = Controller.getInstance
   imap.put(KeyStroke.getKeyStroke('1'), SensorEnum.SENS1.name)
   amap.put(SensorEnum.SENS1.name, createSensorAction[Boolean](SensorEnum.SENS1.name, default = false, map = !_))
@@ -67,7 +67,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
   amap.put("Quit", createAction(e=>System.exit(0)))
 
   this.addComponentListener(new ComponentAdapter() {
-    override def componentResized(e: ComponentEvent) {
+    override def componentResized(e: ComponentEvent): Unit = {
       super.componentResized(e)
       Utils.setDimensionFrame(getSize)
       Controller.getInstance.updateNodePositions()
@@ -88,7 +88,7 @@ class SimulatorUI() extends JFrame("SCAFI Simulator") {
     return center
   }
 
-  def setSimulationPanel(simPanel: SimulationPanel) {
+  def setSimulationPanel(simPanel: SimulationPanel): Unit = {
     this.remove(center)
     this.add(simPanel, BorderLayout.CENTER)
     center = simPanel

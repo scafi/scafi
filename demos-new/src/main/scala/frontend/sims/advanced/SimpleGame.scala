@@ -106,8 +106,6 @@ object SimpleGame extends App {
   private val specialOutput = new FXOutputPolicy {
     import scalafx.Includes._
     private var score = 0
-    private val offsetScore = -10
-    private lazy val label = new Label("0")
     private val radiusPlayerSize = 5
     private val colorPlayer = Color.OrangeRed
     override type OUTPUT_NODE = StandardFXOutput.OUTPUT_NODE

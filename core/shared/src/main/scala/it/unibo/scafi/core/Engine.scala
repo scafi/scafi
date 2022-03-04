@@ -22,11 +22,11 @@ trait Engine extends Semantics {
   override type CONTEXT = Context with ContextOps
   override type FACTORY = Factory
 
-  override implicit val factory = new EngineFactory
+  override implicit val factory: EngineFactory = new EngineFactory
 
-  class ExportImpl(private var map: Map[Path,Any] = Map()) extends Export with ExportOps with Equals { self: EXPORT =>
+  class ExportImpl(private var map: Map[Path,Any] = Map.empty) extends Export with ExportOps with Equals { self: EXPORT =>
     override def put[A](path: Path, value: A) : A = { map += (path -> value); value }
-    override def get[A](path: Path): Option[A] = map get(path) map (_.asInstanceOf[A])
+    override def get[A](path: Path): Option[A] = map.get(path).map { case x:A => x }
     override def root[A](): A = get[A](factory.emptyPath()).get
     override def paths : Map[Path,Any] = map
 
@@ -35,7 +35,7 @@ trait Engine extends Semantics {
       case _ => false
     }
 
-    override def canEqual(that: Any): Boolean = that.isInstanceOf[Export]
+    override def canEqual(that: Any): Boolean = that match { case _: Export => true; case _ => false }
 
     override def hashCode(): Int = map.hashCode()
 
@@ -55,7 +55,7 @@ trait Engine extends Semantics {
 
     def matches(p: Path): Boolean = this == p
 
-    def canEqual(other: Any): Boolean = other.isInstanceOf[Path]
+    def canEqual(other: Any): Boolean = other match { case _: Path => true; case _ => false }
 
     override def equals(other: Any): Boolean = {
       other match {
@@ -84,36 +84,39 @@ trait Engine extends Semantics {
   }
 
   class ContextImpl(
-      selfId: ID,
-      exports: Iterable[(ID,EXPORT)],
-      val localSensor: GMap[LSNS,Any],
-      val nbrSensor: GMap[NSNS,GMap[ID,Any]])
+                     selfId: ID,
+                     exports: Iterable[(ID,EXPORT)],
+                     val localSensor: GMap[CNAME,Any],
+                     val nbrSensor: GMap[CNAME,GMap[ID,Any]])
     extends BaseContextImpl(selfId, exports) { self: CONTEXT =>
 
-    override def toString(): String = s"C[\n\tI:$selfId,\n\tE:$exports,\n\tS1:$localSensor,\n\tS2:$nbrSensor\n]"
+    override def toString(): String =
+      s"C[\n\tI:$selfId,\n\tE:$exports,\n\tS1:$localSensor,\n\tS2:$nbrSensor\n]"
 
-    override def sense[T](lsns: LSNS): Option[T] = localSensor.get(lsns).map(_.asInstanceOf[T])
+    override def sense[T](localSensorName: CNAME): Option[T] =
+      localSensor.get(localSensorName).map { case x:T => x }
 
-    override def nbrSense[T](nsns: NSNS)(nbr: ID): Option[T] = nbrSensor.get(nsns).flatMap(_.get(nbr)).map(_.asInstanceOf[T])
+    override def nbrSense[T](nbrSensorName: CNAME)(nbr: ID): Option[T] =
+      nbrSensor.get(nbrSensorName).flatMap(_.get(nbr)).map { case x:T => x }
   }
 
   class EngineFactory extends Factory { self: FACTORY =>
-    def /(): Path = emptyPath()
-    def /(s: Slot): Path = path(s)
-    def emptyPath(): Path = new PathImpl(List())
-    def emptyExport(): EXPORT = new ExportImpl
-    def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
-    def export(exps: (Path,Any)*): EXPORT = {
+    override def emptyPath(): Path = new PathImpl(List())
+    override def emptyExport(): EXPORT = new ExportImpl
+    override def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
+    override def export(exps: (Path,Any)*): EXPORT = {
       val exp = new ExportImpl()
       exps.foreach { case (p,v) => exp.put(p,v) }
       exp
     }
-    def context(selfId: ID, exports: Map[ID,EXPORT], lsens: Map[LSNS,Any] = Map(), nbsens: Map[NSNS,Map[ID,Any]] = Map()): CONTEXT =
+    override def context(selfId: ID,
+                         exports: Map[ID,EXPORT],
+                         lsens: Map[CNAME,Any] = Map.empty,
+                         nbsens: Map[CNAME,Map[ID,Any]] = Map.empty): CONTEXT =
       new ContextImpl(selfId, exports, lsens, nbsens)
   }
 
   implicit val linearID: Linearizable[ID]
   implicit val interopID: Interop[ID]
-  implicit val interopLSNS: Interop[LSNS]
-  implicit val interopNSNS: Interop[NSNS]
+  implicit val interopCNAME: Interop[CNAME]
 }

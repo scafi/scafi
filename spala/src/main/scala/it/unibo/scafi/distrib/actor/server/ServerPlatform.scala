@@ -26,7 +26,7 @@ trait ServerPlatform extends BasePlatform
 
   @transient override val settingsFactory = new SettingsFactoryServer
 
-  @transient override val platformFactory = new DistributedPlatformFactory {
+  @transient override val platformFactory: DistributedPlatformFactory = new DistributedPlatformFactory {
     override def buildPlatformConfigurator(): PlatformConfigurator =
       PlatformConfigurator
   }
@@ -35,7 +35,7 @@ trait ServerPlatform extends BasePlatform
   /******** CMD-LINE PARSER ********/
   /*********************************/
 
-  override def extendParser(p: scopt.OptionParser[Settings]) = {
+  override def extendParser(p: scopt.OptionParser[Settings]): Unit = {
     p.head("<scafi distributed system>", "1.0")
 
     p.opt[String]('H', "serverhost") valueName ("<SERVER_HOST>") action { (x, c) =>

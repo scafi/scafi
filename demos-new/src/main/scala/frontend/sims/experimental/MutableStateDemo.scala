@@ -32,7 +32,7 @@ object MutableStateDemo extends App {
 class MutableStateProgram extends AggregateProgram {
   var m1: Map[ID,Int] = Map()
 
-  override def main() = {
+  override def main(): String = {
     m1 += mid -> 2
     val m2 = rep(MMap[ID,Int]()) { x => x }
     m2.put(mid, 9)

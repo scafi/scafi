@@ -16,13 +16,14 @@ import scala.util.Success
 
 trait PlatformAPIFacade { self: HybridPlatform.Subcomponent =>
 
-  /**************************/
+  /**************************/  val DEFAULT_SERVER_PORT = 9000
+
   /******** SETTINGS ********/
   /**************************/
-
   type ProfileSettings = HybridActorSystemSettings
+
   case class HybridActorSystemSettings(serverHost: String = "127.0.0.1",
-                                       serverPort: Int = 9000,
+                                       serverPort: Int = DEFAULT_SERVER_PORT,
                                        startServer: Boolean = false,
                                        deviceGui: Boolean = false,
                                        serverGui: Boolean = false,
@@ -130,13 +131,13 @@ trait PlatformAPIFacade { self: HybridPlatform.Subcomponent =>
                                          profileSettings: ProfileSettings,
                                          execScope: ExecScope): SystemFacade = {
       val appRef = actorSys.actorOf(AggregateApplicationActor.props(appSettings), appSettings.name)
-
-      var sa: ActorRef = null // server actor
-      if(profileSettings.startServer) {
-        sa = startServer(appRef, profileSettings.serverActorProps)
-      } else {
-        sa = lookupServer(appRef, profileSettings)
-      }
+      // server actor
+      var sa: ActorRef =
+        if(profileSettings.startServer) {
+          startServer(appRef, profileSettings.serverActorProps)
+        } else {
+          lookupServer(appRef, profileSettings)
+        }
 
       if(profileSettings.serverGui) {
         profileSettings.serverGuiActorProps(sa).foreach(actorSys.actorOf)

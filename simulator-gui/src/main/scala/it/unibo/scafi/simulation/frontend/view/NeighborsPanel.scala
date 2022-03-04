@@ -22,7 +22,7 @@ class NeighborsPanel private[view]() extends JPanel {
   this.setVisible(true)
   private[view] val controller: Controller = Controller.getInstance
 
-  override protected def paintComponent(g: Graphics) {
+  override protected def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
     if(Settings.Sim_DrawConnections) {
       this.removeAll()

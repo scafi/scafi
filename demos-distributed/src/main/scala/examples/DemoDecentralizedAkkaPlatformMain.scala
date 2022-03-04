@@ -30,7 +30,7 @@ object DemoDecentralizedAkkaPlatformMain extends App {
       }
     }
 
-    def main() = {
+    def main(): Int = {
       Thread.sleep(500)
       hopGradient(sense(SENSOR_SRC))
     }
@@ -38,7 +38,7 @@ object DemoDecentralizedAkkaPlatformMain extends App {
   }
 
   // STEP 4: DEFINE SETTINGS
-  var settings = Settings(
+  var settings: Settings = Settings(
     aggregate = AggregateApplicationSettings(
       name = "test1",
       program = () => Some(new DemoLocalActorProgram {})
@@ -51,17 +51,17 @@ object DemoDecentralizedAkkaPlatformMain extends App {
     ))
 
   // STEP 5: SETUP PLATFORM
-  val platform = PlatformConfigurator.setupPlatform(settings.platform,
+  val platform: PlatformFacade = PlatformConfigurator.setupPlatform(settings.platform,
     settings.profile)
 
   // STEP 6: CREATE AGGREGATE APPLICATION
-  val sys = platform.newAggregateApplication(settings.aggregate,
+  val sys: SystemFacade = platform.newAggregateApplication(settings.aggregate,
     settings.profile,
     settings.execution.scope)
 
   // STEP 7: CREATE AND CONFIGURE DEVICES
-  val dm1 = sys.newDevice(1)
-  val dm2 = sys.newDevice(2)
+  val dm1: DeviceManager = sys.newDevice(1)
+  val dm2: DeviceManager = sys.newDevice(2)
 
   dm1.addSensor(SENSOR_SRC, () => true)
   dm2.addSensor(SENSOR_SRC, () => false)

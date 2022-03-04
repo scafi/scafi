@@ -5,7 +5,7 @@ trait Network {
 
   def neighbourhood: Map[Node, Set[Node]]
 
-  def setNodeNeighbours(id: Int, newNeighbours: Iterable[Int])
+  def setNodeNeighbours(id: Int, newNeighbours: Iterable[Int]): Unit
 
   def setNeighbours(value: Map[Int, Iterable[Int]]): Unit
 
