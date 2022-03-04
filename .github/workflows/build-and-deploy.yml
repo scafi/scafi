@@ -16,7 +16,8 @@ jobs:
         os: [ubuntu, mac, windows] # todo, add mac and windows ?
         jvm_version: [adopt@1.8, adopt@1.11, openjdk@1.17] # Update using LTSs and latest
     runs-on: ${{ matrix.os }}-latest
-
+    concurrency:
+      group: ${{ github.workflow }}-build-${{ matrix.os }}-${{ matrix.jvm_version }}-${{ github.event.number || github.ref }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup Scala and JDK
@@ -56,6 +57,8 @@ jobs:
     needs: [Build-and-Test]
     if: github.event_name != 'pull_request' # it avoids to run release on PR for now 
     #if: startsWith(github.ref, 'refs/tags/v') # run only for tagged commits
+    concurrency:
+      group: release
     steps:
       - uses: actions/checkout@v2.3.4
         with:
