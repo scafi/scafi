@@ -14,14 +14,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, mac, windows] # todo, add mac and windows ?
-        jvm_version: [8, 11, 17] # Update using LTS and latest
+        jvm_version: [adopt@1.8, adopt@1.11, openjdk@1.17] # Update using LTSs and latest
     runs-on: ${{ matrix.os }}-latest
 
     steps:
       - uses: actions/checkout@v2
       - name: Setup Scala and JDK
         with:
-          java-version: adopt@1.${{ matrix.jvm_version }}
+          java-version: ${{ matrix.jvm_version }}
         uses: olafurpg/setup-scala@v13
       - name: Sbt run tests
         shell: bash # for windows
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Scala and JDK
         with:
-          java-version: adopt@1.${{ matrix.jvm_version }}
+          java-version: ${{ matrix.jvm_version }}
         uses: olafurpg/setup-scala@v13
       - name: Sbt run tests
         shell: bash # for windows
@@ -80,7 +80,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Scala and JDK
         with:
-          java-version: adopt@1.${{ matrix.jvm_version }}
+          java-version: ${{ matrix.jvm_version }}
         uses: olafurpg/setup-scala@v13
       - name: Sbt generate scaladoc
         shell: bash # for windows
@@ -101,7 +101,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Scala and JDK
         with:
-          java-version: adopt@1.${{ matrix.jvm_version }}
+          java-version: ${{ matrix.jvm_version }}
         uses: olafurpg/setup-scala@v13
       - name: Sbt generate scaladoc
         shell: bash # for windows
