@@ -1,5 +1,6 @@
 {
   "extends": [
     "github>DanySK/renovate-config"
-  ]
+  ],
+  "assignees": ["metaphori", "cric96"]
 }
