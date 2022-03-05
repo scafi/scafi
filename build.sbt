@@ -20,7 +20,7 @@ val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.8"
 val playJson   = "com.typesafe.play" %% "play-json"   % "2.9.2"
 val scalafx = "org.scalafx" %% "scalafx" % "15.0.1-R21"
 val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.33"
-val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.17.1"
+val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.17.2"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
 
 // Determine OS version of JavaFX binaries
