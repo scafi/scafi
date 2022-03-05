@@ -36,7 +36,7 @@ addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.7")
 
 // Release process
 
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.6")
 
 addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.10")
 
