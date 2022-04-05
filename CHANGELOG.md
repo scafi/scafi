@@ -1,3 +1,36 @@
+## [1.0.0](https://github.com/scafi/scafi/compare/v0.4.0...v1.0.0) (2022-04-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* avoid snapshot release with ci-release (#88)
+
+### Dependency updates
+
+* **deps:** update dependency com.chuusai:shapeless to v2.3.8 ([7d39432](https://github.com/scafi/scafi/commit/7d39432e3b7c7df41a87e9c4bdfbd56bc08f70bd))
+* **deps:** update dependency com.chuusai:shapeless to v2.3.9 ([50744a7](https://github.com/scafi/scafi/commit/50744a74c1087c96661ad2f6785f8ac33f230b05))
+* **deps:** update dependency com.eed3si9n:sbt-assembly to v1 ([4f3aac8](https://github.com/scafi/scafi/commit/4f3aac82f8791442b8a31a9f27a856519222ad4c))
+* **deps:** update dependency com.github.sbt:sbt-ci-release to v1.5.10 ([1dcd849](https://github.com/scafi/scafi/commit/1dcd849510112b1215ffed5b7c7d9d31048b91e2))
+* **deps:** update dependency com.github.scopt:scopt to v4.0.1 ([34d8387](https://github.com/scafi/scafi/commit/34d8387744add053398d48d8138a789a2f597043))
+* **deps:** update dependency org.apache.bcel:bcel to v6.5.0 ([86b1c89](https://github.com/scafi/scafi/commit/86b1c8916ab126239bc170d594e0cc2c60aa7859))
+* **deps:** update dependency org.apache.logging.log4j:log4j-core to v2.17.2 ([54658ff](https://github.com/scafi/scafi/commit/54658ffe619cd7dbe9aabbe987274ef4f07547e9))
+* **deps:** update dependency org.portable-scala:sbt-scalajs-crossproject to v1.1.0 ([bd34ee2](https://github.com/scafi/scafi/commit/bd34ee2400701424afe60e2b4e2a276a8232c6bb))
+* **deps:** update dependency org.portable-scala:sbt-scalajs-crossproject to v1.2.0 ([4a86abc](https://github.com/scafi/scafi/commit/4a86abcbbe9e600629d388dbc11bc6ceab0a665f))
+* **deps:** update dependency org.scala-js:sbt-scalajs to v1.9.0 ([15fe8a3](https://github.com/scafi/scafi/commit/15fe8a3afd202db3a2a9142b586efd6cbc95be68))
+* **deps:** update dependency org.scalafx:scalafx to v16 ([4aca6cb](https://github.com/scafi/scafi/commit/4aca6cb735e7c6e1db64c82147a64f102ad60c91))
+* **deps:** update dependency org.scalafx:scalafx to v17 ([5c448b3](https://github.com/scafi/scafi/commit/5c448b33457a0f820a643ba23055b3fb4281a149))
+* **deps:** update dependency org.slf4j:slf4j-log4j12 to v1.7.36 ([b8074a9](https://github.com/scafi/scafi/commit/b8074a9869c0d9cd8bd893a14f1bbbf91704fd3e))
+* **deps:** update dependency org.xerial.sbt:sbt-sonatype to v2.6 ([428c8b4](https://github.com/scafi/scafi/commit/428c8b4d58ec651ae43789819f3f3cdb72dec97a))
+* **deps:** update dependency org.xerial.sbt:sbt-sonatype to v3 ([05d403c](https://github.com/scafi/scafi/commit/05d403cad8eaddf2bd5f646ca74adb9f098562cf))
+
+
+### Build and continuous integration
+
+* avoid snapshot release with ci-release ([#88](https://github.com/scafi/scafi/issues/88)) ([7c57121](https://github.com/scafi/scafi/commit/7c5712174a3dde4c3021b29350417bfb5cffac77))
+* **deps:** update actions/checkout action to v3 ([e297d4c](https://github.com/scafi/scafi/commit/e297d4c8338d0c98839e2d14f290926bdaa9d1c0))
+* **renovate:** configure Renovate ([#68](https://github.com/scafi/scafi/issues/68)) ([b5bdb87](https://github.com/scafi/scafi/commit/b5bdb87eb70fa30f1dfddb3bddd5ea903151f818))
+* **renovate:** PR assignees should be [@metaphori](https://github.com/metaphori) and [@cric96](https://github.com/cric96) ([1f4d0aa](https://github.com/scafi/scafi/commit/1f4d0aa0188f92719062c956cd8bf12e5e9dfd4f))
+
 ## [0.4.0](https://github.com/scafi/scafi/compare/v0.3.3...v0.4.0) (2022-03-04)
 
 
