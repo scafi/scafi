@@ -22,7 +22,7 @@ class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
 
     implicit def hlistBounded[H, T <: HList](
       implicit hb: Bounded[H],
-      tb: Bounded[T],
+      tb: Bounded[T]
     ): Bounded[H :: T] = new Bounded[H :: T] {
       override def top: ::[H, T] = hb.top :: tb.top
       override def bottom: ::[H, T] = hb.bottom :: tb.bottom
@@ -35,7 +35,7 @@ class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
 
     implicit def genericBounded[A, R](
       implicit gen: Generic.Aux[A,R],
-      reprb: Bounded[R],
+      reprb: Bounded[R]
     ): Bounded[A] = new Bounded[A] {
       override def top = gen.from(reprb.top)
       override def bottom = gen.from(reprb.bottom)
