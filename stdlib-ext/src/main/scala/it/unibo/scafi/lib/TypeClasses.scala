@@ -20,8 +20,10 @@ class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
       override def compare(x: HNil, y: HNil): Int = 0
     }
 
-    implicit def hlistBounded[H, T <: HList](implicit hb: Bounded[H],
-                                             tb: Bounded[T]): Bounded[H :: T] = new Bounded[H :: T] {
+    implicit def hlistBounded[H, T <: HList](
+      implicit hb: Bounded[H],
+      tb: Bounded[T]
+    ): Bounded[H :: T] = new Bounded[H :: T] {
       override def top: ::[H, T] = hb.top :: tb.top
       override def bottom: ::[H, T] = hb.bottom :: tb.bottom
       override def compare(x: ::[H, T], y: ::[H, T]): Int = if (hb.compare(x.head, y.head) != 0) {
@@ -31,8 +33,10 @@ class LibExtTypeClasses(val incarnation: BasicAbstractIncarnation) {
       }
     }
 
-    implicit def genericBounded[A, R](implicit gen: Generic.Aux[A,R],
-                                      reprb: Bounded[R]): Bounded[A] = new Bounded[A] {
+    implicit def genericBounded[A, R](
+      implicit gen: Generic.Aux[A,R],
+      reprb: Bounded[R]
+    ): Bounded[A] = new Bounded[A] {
       override def top = gen.from(reprb.top)
       override def bottom = gen.from(reprb.bottom)
       override def compare(x: A, y: A) = reprb.compare(gen.to(x), gen.to(y))
