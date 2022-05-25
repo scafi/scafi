@@ -1,10 +1,10 @@
 var workflowCmd = '::set-output name=has-released::'
 //CI_COMMIT_TAG to avoid snapshots
 var publishCmd = `
-git tag -a -f v\${nextRelease.version} v\${nextRelease.version} -F CHANGELOG.md
-git push --force origin v\${nextRelease.version} || exit 6
-export CI_COMMIT_TAG="true"
-sbt ci-release
+git tag -a -f v\${nextRelease.version} v\${nextRelease.version} -F CHANGELOG.md  || exit 1
+git push --force origin v\${nextRelease.version} || exit 2
+export CI_COMMIT_TAG="true" || exit 3
+sbt ci-release || exit 4
 echo '${workflowCmd}true' 
 `
 console.log(`${workflowCmd}false`)
