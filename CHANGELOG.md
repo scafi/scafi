@@ -1,3 +1,39 @@
+### [1.0.1](https://github.com/scafi/scafi/compare/v1.0.0...v1.0.1) (2022-05-26)
+
+
+### Bug Fixes
+
+* **ci:** fail the release on release errors ([0a604f1](https://github.com/scafi/scafi/commit/0a604f153a78f86999ca0bb499403b5e80cc7c04))
+
+
+### Style improvements
+
+* **stdlib-ext:** improve indentation ([#97](https://github.com/scafi/scafi/issues/97)) ([90bf009](https://github.com/scafi/scafi/commit/90bf009ad25eecffc72a82a9abf8bc63f479a61a))
+
+
+### Dependency updates
+
+* **deps:** update dependency ch.epfl.scala:sbt-scalafix to v0.10.0 ([d0852f5](https://github.com/scafi/scafi/commit/d0852f585458e823d4df44132a71b9f3db4b7193))
+* **deps:** update dependency com.typesafe.scala-logging:scala-logging to v3.9.5 ([364ecc9](https://github.com/scafi/scafi/commit/364ecc9cdc10d63075ba69f933f995e87b1540ae))
+* **deps:** update dependency org.scalafx:scalafx to v18 ([28a3972](https://github.com/scafi/scafi/commit/28a3972120dff1baf3032e29a67c8e7c7951c392))
+* **deps:** update dependency org.xerial.sbt:sbt-sonatype to v3.9.13 ([57c7af9](https://github.com/scafi/scafi/commit/57c7af951fe497e15967a8b083cc12806380d458))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.6 ([832937c](https://github.com/scafi/scafi/commit/832937ce057eade2ca1e6360c96dd3bb39261147))
+* **deps:** update node.js to 16.15 ([5ac36c4](https://github.com/scafi/scafi/commit/5ac36c4206096dcaa4f31b0e1778d9920a604172))
+
+
+### General maintenance
+
+* **release:** 1.0.1 [skip ci] ([acb00d1](https://github.com/scafi/scafi/commit/acb00d1adcbaf304b6d8d343e36d15d9aff8ae2e)), closes [#97](https://github.com/scafi/scafi/issues/97)
+
+
+### Build and continuous integration
+
+* **deps:** update actions/checkout action to v3.0.1 ([61d3844](https://github.com/scafi/scafi/commit/61d38441d3fc6e77e698c13921fab1017af6a9a1))
+* **deps:** update actions/checkout action to v3.0.2 ([2f05a8a](https://github.com/scafi/scafi/commit/2f05a8aa63b0153ff494928366246a03fe793a26))
+* **deps:** update codecov/codecov-action action to v3 ([5de04de](https://github.com/scafi/scafi/commit/5de04de453ec4b11aa3783dfdf6e975cfc436f9f))
+* **deps:** update codecov/codecov-action action to v3.1.0 ([86778a9](https://github.com/scafi/scafi/commit/86778a9c8febbbccac522076fb7b0c3d08486689))
+* do not force push tags on GitHub if deployment fails ([#101](https://github.com/scafi/scafi/issues/101)) ([3f302de](https://github.com/scafi/scafi/commit/3f302defa8fa8b9cd09b38223b7eac31f7935c16))
+
 ### [1.0.1](https://github.com/scafi/scafi/compare/v1.0.0...v1.0.1) (2022-05-25)
 
 
