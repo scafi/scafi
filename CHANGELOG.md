@@ -1,3 +1,15 @@
+## [1.1.4](https://github.com/scafi/scafi/compare/v1.1.3...v1.1.4) (2022-06-06)
+
+
+### Bug Fixes
+
+* **ci:** update sbt unidoc with the newest scala version ([#108](https://github.com/scafi/scafi/issues/108)) ([fb092c0](https://github.com/scafi/scafi/commit/fb092c0fa0f263cb57d6f719c40598e6e5facd20))
+
+
+### General maintenance
+
+* **readme:** drop unused badge pointing to dead branch ([017a503](https://github.com/scafi/scafi/commit/017a503723bcd77c5471d856d21df38ff6e59e4a))
+
 ## [1.1.3](https://github.com/scafi/scafi/compare/v1.1.2...v1.1.3) (2022-06-06)
 
 
