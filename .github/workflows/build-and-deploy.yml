@@ -103,6 +103,6 @@ jobs:
         uses: dswistowski/surge-sh-action@v1
         with:
           domain: 'scafi-docs.surge.sh'
-          project: 'target/scala-2.12/unidoc/'
+          project: 'target/scala-2.13/unidoc/'
           login: ${{ secrets.SURGE_LOGIN }}
           token: ${{ secrets.SURGE_TOKEN }}
