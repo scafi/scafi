@@ -76,8 +76,9 @@ lazy val noPublishSettings = Seq(
   publishArtifact := false,
   publish := { },
   publishLocal := { },
-  crossScalaVersions := scalaVersionsForCrossCompilation
 )
+
+lazy val noPublishSettingsRoot = noPublishSettings ++ Seq(crossScalaVersions := Seq.empty)
 
 lazy val scafi = project.in(file("."))
   .aggregate(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`, `tests`, `demos`,
