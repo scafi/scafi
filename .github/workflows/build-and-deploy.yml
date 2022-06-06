@@ -97,9 +97,9 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.DEPLOYMENT_TOKEN }}
-      - if: steps.id.release.has-released
+      - if: steps.release.outputs.has-released
         run: sbt unidoc
-      - if: steps.id.release.has-released
+      - if: steps.release.outputs.has-released
         uses: dswistowski/surge-sh-action@v1
         with:
           domain: 'scafi-docs.surge.sh'
