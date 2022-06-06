@@ -1,3 +1,27 @@
+## [1.1.1](https://github.com/scafi/scafi/compare/v1.1.0...v1.1.1) (2022-06-06)
+
+
+### Bug Fixes
+
+* **build:** resolve publishing problem for scalafx ([#104](https://github.com/scafi/scafi/issues/104)) ([62fec44](https://github.com/scafi/scafi/commit/62fec441d48242027470be473cd3f317cf83b574))
+
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.7 ([79dd145](https://github.com/scafi/scafi/commit/79dd1457353c090db3d61985ac64970f48ca0b4d))
+
+## [1.1.0](https://github.com/scafi/scafi/compare/v1.0.1...v1.1.0) (2022-05-26)
+
+
+### Features
+
+* **build:** change default scala version ([#102](https://github.com/scafi/scafi/issues/102)) ([f3d496d](https://github.com/scafi/scafi/commit/f3d496d5ee718330ebb6c504a7ca54af86bc8897))
+
+
+### General maintenance
+
+* casadei's website in developers description for artifact ([765153f](https://github.com/scafi/scafi/commit/765153f509514253ac46c8a7014235a0b9eeed50))
+
 ### [1.0.1](https://github.com/scafi/scafi/compare/v1.0.0...v1.0.1) (2022-05-26)
 
 
