@@ -18,30 +18,21 @@ val scalatest  = Def.setting { "org.scalatest"     %%% "scalatest"   % "3.2.10" 
 val scopt      = "com.github.scopt"  %% "scopt"       % "4.0.1"
 val shapeless  = "com.chuusai"       %% "shapeless"   % "2.3.9"
 val playJson   = "com.typesafe.play" %% "play-json"   % "2.9.2"
-val scalafx = "org.scalafx" %% "scalafx" % "18.0.1-R27"
 val slf4jlog4  = "org.slf4j" % "slf4j-log4j12" % "1.7.36"
 val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.17.2"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
-
-// Determine OS version of JavaFX binaries
-lazy val osName = System.getProperty("os.name") match {
-  case n if n.startsWith("Linux") => "linux"
-  case n if n.startsWith("Mac") => "mac"
-  case n if n.startsWith("Windows") => "win"
-  case _ => throw new Exception("Unknown platform!")
+// ScalaFX dependency management
+val javaFXVersion = Def.setting { if(scalaVersion.value == "2.11.12") "15.0.1" else "18.0.1" }
+val scalaFXVersion = Def.setting { if(javaFXVersion.value == "18.0.1") { "18.0.1-R27"} else { "15.0.1-R21" } }
+lazy val javaFXModules = "base" :: "controls" :: "graphics" :: "media" :: "swing" :: "web" :: Nil
+lazy val platforms = "linux" :: "mac" :: "win" :: Nil
+val scalaFX = Def.setting { "org.scalafx" %% "scalafx" % scalaFXVersion.value }
+val javaFXBinary = Def.setting {
+  for {
+    fxModule <- javaFXModules
+    platform <- platforms
+  } yield ("org.openjfx" % s"javafx-$fxModule" % javaFXVersion.value classifier platform)
 }
-
-// JavaFX dependencies (Java 11)
-lazy val javaFXModules = Seq("base", "controls", "graphics", "media", "swing", "web")
-lazy val javaFX = if(scala.util.Try(jdkVersion.toInt).getOrElse(0) >= 11) {
-  javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % (11 + "+") classifier osName)
-} else {
-  Seq()
-}
-
-lazy val javaVersion = System.getProperty("java.version").stripPrefix("openjdk")
-lazy val jdkVersion = javaVersion.split('.').headOption.getOrElse(if(javaVersion.isEmpty) "11" else javaVersion)
-
 inThisBuild(List(
   sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
   Test / publishArtifact := false,
@@ -71,7 +62,7 @@ lazy val commonSettings = Seq(
   organization := "it.unibo.scafi",
   Test / scalastyleConfig := file("./scalastyle-test-config.xml"),
   compileScalastyle := (Test / scalastyle).toTask("").value,
-  crossScalaVersions := scalaVersionsForCrossCompilation, // "2.13.0-M1"
+  crossScalaVersions := scalaVersionsForCrossCompilation,
   Test / test := ((Test / test) dependsOn compileScalastyle).value,
   (assembly / assemblyJarName) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (assembly / assemblyMergeStrategy) := {
@@ -85,7 +76,7 @@ lazy val noPublishSettings = Seq(
   publishArtifact := false,
   publish := { },
   publishLocal := { },
-  crossScalaVersions := Seq()
+  crossScalaVersions := scalaVersionsForCrossCompilation
 )
 
 lazy val scafi = project.in(file("."))
@@ -160,12 +151,7 @@ lazy val `renderer-3d` = project
   .settings(commonSettings: _*)
   .settings(
     name := "scafi-3d-renderer",
-    libraryDependencies ++= Seq(
-      scalaBinaryVersion.value match {
-        case "2.13" => "org.scalafx" %% "scalafx" % "12.0.2-R18"
-        case _ => "org.scalafx" %% "scalafx" % "8.0.144-R12"
-      },
-      scalaLogging) ++ javaFX
+    libraryDependencies ++= Seq(scalaFX.value, scalaLogging) ++ javaFXBinary.value
   )
 
 lazy val spala = project
@@ -230,12 +216,7 @@ lazy val `simulator-gui-new` = project
   .settings(
     name := "simulator-gui-new",
     //crossScalaVersions := scalaVersionsForCrossCompilation.filter(!_.startsWith("2.13")),
-    libraryDependencies ++= Seq(scopt,scalatest.value,
-      scalaBinaryVersion.value match {
-        case "2.13" => "org.scalafx" %% "scalafx" % "12.0.2-R18"
-        case _ => "org.scalafx" %% "scalafx" % "8.0.144-R12"
-      }
-    ) ++ javaFX,
+    libraryDependencies ++= Seq(scopt, scalatest.value, scalaFX.value) ++ javaFXBinary.value,
     compileScalastyle := { }
   )
 
