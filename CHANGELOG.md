@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/scafi/scafi/compare/v1.1.1...v1.1.2) (2022-06-06)
+
+
+### Documentation
+
+* **ci:** fix the release step output names  ([f38bc80](https://github.com/scafi/scafi/commit/f38bc80ece31983d866df00902acfd6330db8e96))
+
 ## [1.1.1](https://github.com/scafi/scafi/compare/v1.1.0...v1.1.1) (2022-06-06)
 
 
