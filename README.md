@@ -16,8 +16,7 @@ Please refer to [the ScaFi main website](https://scafi.github.io/)
 
 ## Notes for application developers
 
-- NOTE: `scafi-core` and `scafi-simulator` cross-target both the **JVM** and the **JavaScript Platform** (via Scala.js); however, 
- packages for the latter are currently not released.
+- NOTE: `scafi-core` and `scafi-simulator` cross-target both the **JVM** and the **JavaScript Platform** (via Scala.js)
 
 ### Import via Maven/sbt/Gradle
 
