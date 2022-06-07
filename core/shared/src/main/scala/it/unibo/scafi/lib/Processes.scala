@@ -231,6 +231,7 @@ trait StdLibProcesses {
       def value: V
       def filter: Boolean
     }
+
     final case class SpawnReturn[C](value: C, status: Boolean) extends MapFilter[C] {
       override def filter: Boolean = status
     }

@@ -76,6 +76,13 @@ inThisBuild(
   )
 )
 
+lazy val scalacProjectOption = Def.setting {
+  val message = "The outer reference in this type test cannot be checked at run time." // see https://github.com/scala/bug/issues/4440
+  scalaBinaryVersion.value match {
+    case "2.13" | "2.12" => Seq(s"-Wconf:msg=${message}:s")
+    case "2.11" => Seq("-nowarn") // avoid warning for 2.11 since warnings could conflict with 2.12 and 2.13
+  }
+}
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 
 lazy val commonSettings = Seq(
@@ -84,6 +91,7 @@ lazy val commonSettings = Seq(
   compileScalastyle := (Test / scalastyle).toTask("").value,
   crossScalaVersions := scalaVersionsForCrossCompilation,
   Test / test := ((Test / test) dependsOn compileScalastyle).value,
+  scalacOptions ++= scalacProjectOption.value,
   (assembly / assemblyJarName) := s"${name.value}_${CrossVersion.binaryScalaVersion(scalaVersion.value)}-${version.value}-assembly.jar",
   (assembly / assemblyMergeStrategy) := { x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
