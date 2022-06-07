@@ -33,7 +33,6 @@ trait StdLibProcesses {
 
     import SpawnInterface._
 
-    @unchecked // https://github.com/scala/bug/issues/4440
     final case class ProcInstance[A, B, C](params: A)(val proc: A => B => C, val value: Option[C] = None)
     {
       def run(args: B): ProcInstance[A,B,C] =
@@ -147,7 +146,6 @@ trait StdLibProcesses {
         map.map { case (k,v) => k -> mapLogic(v) }
     }
 
-    @unchecked // https://github.com/scala/bug/issues/4440
     final case class POut[T](result: T, status: Status)
     object POut {
       implicit def fromTuple[T](tp: (T,Status)): POut[T] = POut(tp._1, tp._2)
@@ -233,7 +231,7 @@ trait StdLibProcesses {
       def value: V
       def filter: Boolean
     }
-    @unchecked // https://github.com/scala/bug/issues/4440
+
     final case class SpawnReturn[C](value: C, status: Boolean) extends MapFilter[C] {
       override def filter: Boolean = status
     }

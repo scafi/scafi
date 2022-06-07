@@ -28,7 +28,6 @@ trait StdLibGradients {
   trait Gradients extends GenericUtils with StateManagement {
     self: FieldCalculusSyntax with StandardSensors with BlockG =>
 
-    @unchecked // https://github.com/scala/bug/issues/4440
     final case class Gradient(algorithm: (Boolean, () => Double) => Double, source: Boolean = false, metric: Metric = nbrRange) {
       def from(s: Boolean): Gradient = this.copy(source = s)
 
