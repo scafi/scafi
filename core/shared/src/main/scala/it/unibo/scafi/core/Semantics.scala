@@ -290,7 +290,7 @@ trait Semantics extends Core with Language {
       () => aggregateFunctions(localFunctionSlot)() match { case x: T @unchecked => x }
 
     private def localFunctionSlot[T] = status.path.pull().push(FunCall[T]((
-      status.path.head match { case x: FunCall[_] @unchecked => x }).index,
+      (status.path.head: @unchecked) match { case x: FunCall[_] => x }).index,
       FunctionIdPlaceholder)
     )
     private val FunctionIdPlaceholder = "f"
