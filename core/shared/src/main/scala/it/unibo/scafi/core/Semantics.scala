@@ -54,7 +54,7 @@ trait Semantics extends Core with Language {
     def put[A](path: Path, value: A): A
     def get[A](path: Path): Option[A]
     def paths: Map[Path,Any]
-    def getMap[A]: Map[Path, A] = paths.mapValues { case x: A => x }.toMap
+    def getMap[A]: Map[Path, A] = paths.mapValues { case x: A @unchecked => x }.toMap
   }
 
   trait ContextOps { self: CONTEXT =>
@@ -287,9 +287,12 @@ trait Semantics extends Core with Language {
       aggregateFunctions += localFunctionSlot -> (() => f )
 
     override def loadFunction[T](): () => T =
-      () => aggregateFunctions(localFunctionSlot)() match { case x: T => x }
+      () => aggregateFunctions(localFunctionSlot)() match { case x: T @unchecked => x }
 
-    private def localFunctionSlot[T] = status.path.pull().push(FunCall[T]((status.path.head match { case x: FunCall[_] => x }).index, FunctionIdPlaceholder))
+    private def localFunctionSlot[T] = status.path.pull().push(FunCall[T]((
+      status.path.head match { case x: FunCall[_] @unchecked => x }).index,
+      FunctionIdPlaceholder)
+    )
     private val FunctionIdPlaceholder = "f"
 
     override def newExportStack: Any = exportStack = factory.emptyExport() :: exportStack

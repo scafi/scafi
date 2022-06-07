@@ -26,7 +26,7 @@ trait Engine extends Semantics {
 
   class ExportImpl(private var map: Map[Path,Any] = Map.empty) extends Export with ExportOps with Equals { self: EXPORT =>
     override def put[A](path: Path, value: A) : A = { map += (path -> value); value }
-    override def get[A](path: Path): Option[A] = map.get(path).map { case x:A => x }
+    override def get[A](path: Path): Option[A] = map.get(path).map { case x:A @unchecked => x }
     override def root[A](): A = get[A](factory.emptyPath()).get
     override def paths : Map[Path,Any] = map
 
@@ -94,10 +94,10 @@ trait Engine extends Semantics {
       s"C[\n\tI:$selfId,\n\tE:$exports,\n\tS1:$localSensor,\n\tS2:$nbrSensor\n]"
 
     override def sense[T](localSensorName: CNAME): Option[T] =
-      localSensor.get(localSensorName).map { case x:T => x }
+      localSensor.get(localSensorName).map { case x:T @unchecked => x }
 
     override def nbrSense[T](nbrSensorName: CNAME)(nbr: ID): Option[T] =
-      nbrSensor.get(nbrSensorName).flatMap(_.get(nbr)).map { case x:T => x }
+      nbrSensor.get(nbrSensorName).flatMap(_.get(nbr)).map { case x:T @unchecked => x }
   }
 
   class EngineFactory extends Factory { self: FACTORY =>

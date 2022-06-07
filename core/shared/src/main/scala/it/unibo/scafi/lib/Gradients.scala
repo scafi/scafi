@@ -198,7 +198,7 @@ trait StdLibGradients {
         case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
           // (1) Let's calculate new values for spaceDistEst and sourceId
           import Builtins.Bounded._
-          val (newSpaceDistEst: Double, newSourceId: ID) =
+          val (newSpaceDistEst: Double, newSourceId: ID @unchecked) =
           minHood {
             mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
             { // let's discard neighbours where 'obsolete' flag is true
