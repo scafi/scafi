@@ -21,15 +21,15 @@ trait AbstractJsonIncarnationSerializer extends AbstractJsonPlatformSerializer {
     case p:Point2D => Json.obj("type" -> "Point2D", "x" -> anyToJs(p.x), "y" -> anyToJs(p.y))
     case p if p.isInstanceOf[Path] => Json.obj("type" -> "Path", "list" -> anyToJs(p.asInstanceOf[PathImpl].path))
     case s if s.isInstanceOf[Slot] => s match {
-      case n if n.isInstanceOf[Nbr[Any]] =>
+      case n if n.isInstanceOf[Nbr[_]] =>
         Json.obj("type" -> "Slot", "slotType" -> "Nbr", "index" -> n.asInstanceOf[Nbr[Any]].index)
-      case r if r.isInstanceOf[Rep[Any]] =>
+      case r if r.isInstanceOf[Rep[_]] =>
         Json.obj("type" -> "Slot", "slotType" -> "Rep", "index" -> r.asInstanceOf[Rep[Any]].index)
-      case f if f.isInstanceOf[FoldHood[Any]] =>
+      case f if f.isInstanceOf[FoldHood[_]] =>
         Json.obj("type" -> "Slot", "slotType" -> "FoldHood", "index" -> f.asInstanceOf[FoldHood[Any]].index)
-      case f if f.isInstanceOf[FunCall[Any]] => val fun = f.asInstanceOf[FunCall[Any]]
+      case f if f.isInstanceOf[FunCall[_]] => val fun = f.asInstanceOf[FunCall[Any]]
         Json.obj("type" -> "Slot", "slotType" -> "FunCall", "index" -> fun.index, "funId" -> anyToJs(fun.funId))
-      case s if s.isInstanceOf[Scope[Any]] =>
+      case s if s.isInstanceOf[Scope[_]] =>
         Json.obj("type" -> "Slot", "slotType" -> "Scope", "key" -> anyToJs(s.asInstanceOf[Scope[Any]].key))
     }
   }
