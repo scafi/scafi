@@ -40,9 +40,9 @@ trait AbstractJsonPlatformSerializer extends BaseSerializer with JsonMessagesSer
   }
 
   override def toBinary(obj: AnyRef): Option[Array[Byte]] = obj match {
-    case ls: MsgLocalSensorValue[String] => Some(Json.toJson(ls).toString.getBytes)
-    case sv: MsgSensorValue[String] => Some(Json.toJson(sv).toString.getBytes)
-    case ns: MsgNbrSensorValue[String] => Some(Json.toJson(ns).toString.getBytes)
+    case ls: MsgLocalSensorValue[String] @unchecked => Some(Json.toJson(ls).toString.getBytes)
+    case sv: MsgSensorValue[String] @unchecked => Some(Json.toJson(sv).toString.getBytes)
+    case ns: MsgNbrSensorValue[String] @unchecked => Some(Json.toJson(ns).toString.getBytes)
     case ex: MsgExport => Some(Json.toJson(ex).toString.getBytes)
     case es: MsgExports => Some(Json.toJson(es).toString.getBytes)
     case ng: MsgNeighbor => Some(Json.toJson(ng).toString.getBytes)
@@ -154,10 +154,11 @@ object BasicSerializers {
   }
 
   implicit def mapReads[K:Reads, V: Reads]: Reads[Map[K,V]] = new Reads[Map[K,V]] {
-    override def reads(json: JsValue): JsResult[Map[K,V]] = JsSuccess(json match {
+    override def reads(json: JsValue): JsResult[Map[K,V]] = JsSuccess((json: @unchecked) match {
       case JsObject(entries) => Map[K,V](entries.values.map {
         case JsObject(entry) =>
           Tuple2[K,V](entry("key").as[K], entry("value").as[V])
+        case _ => throw new IllegalStateException("It should be an object")
       }.toSeq:_*)
     })
   }
@@ -188,13 +189,14 @@ object BasicSerializers {
   }
 
   def mapAnyReads[K:Reads]: Reads[Map[K,Any]] = new Reads[Map[K,Any]] {
-    override def reads(json: JsValue): JsResult[Map[K,Any]] = JsSuccess(json match {
+    override def reads(json: JsValue): JsResult[Map[K,Any]] = JsSuccess((json: @unchecked) match {
       case JsObject(entries) =>
         Map[K,Any](entries.values.map {
         case JsObject(entry) =>
           val k = entry("key").as[String]
           val jsval = entry("value")
           Tuple2[K,Any](implicitly[Reads[K]].reads(Json.parse(k)).get, anySerialization.jsToAny(jsval))
+        case data => throw new IllegalStateException(s"Wrong object structure, expected a JsObject but receive ${data.getClass.getSimpleName}")
       }.toSeq:_*)
     })
   }
