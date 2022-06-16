@@ -64,7 +64,9 @@ object FPSCounter {
     val elapsedNanoseconds = now - oldFrameTime
     val nanosecondsPerFrame = elapsedNanoseconds / FRAME_TIMES_LENGTH
     val frameRate = 1000000000.0 / nanosecondsPerFrame
-    val maximumTimeDifference = frameTimes.sliding(2).map{ case Seq(x: Long, y: Long, _*) => y - x }.max //use maxOption on scala 2.13
+    val maximumTimeDifference = {
+      frameTimes.sliding(2).collect { case mutable.ArraySeq(x: Long, y: Long, _*) => y - x }.max
+    } //use maxOption on scala 2.13
     tooltip.setText("FPS: %.1f\nMax time: %.1f ms".format(frameRate, maximumTimeDifference/1000000d))
     if(window.isFocused){
       tooltip.show(scene.getChildren.get(0), window.getX + window.getWidth - TOOLTIP_X_POSITION,
