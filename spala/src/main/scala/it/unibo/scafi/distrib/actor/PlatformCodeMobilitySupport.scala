@@ -121,6 +121,7 @@ trait PlatformCodeMobilitySupport { self: Platform.Subcomponent =>
           (aRef ? MsgWithClasses(classes,Some(corr))).onComplete {
             case Success(MsgAck(Some(corr))) =>
               aRef ! msg
+            case _ => throw new IllegalStateException(s"The remote agent ${aRef} does not have the aggregate program")
           }
         }
       }

@@ -50,7 +50,7 @@ trait JsonPrimitiveSerialization extends JsonAnySerialization {
     case d:Double => Json.obj("type" -> "Double", "val" -> d)
     case c:Char => Json.obj("type" -> "Char", "val" -> c.toString)
     case s:String => Json.obj("type" -> "String", "val" -> s)
-    case c: Class[Any] => Json.obj("type" -> "Class", "name" -> c.getName)
+    case c: Class[_] => Json.obj("type" -> "Class", "name" -> c.getName)
     case pt:Point2D => Json.obj("type" -> "Point2D", "x" -> pt.x, "y" -> pt.y)
     case pt:Point3D => Json.obj("type" -> "Point3D", "x" -> pt.x, "y" -> pt.y, "z" -> pt.z)
   }
@@ -83,9 +83,9 @@ trait JsonOptionSerialization extends JsonAnySerialization {
 
 trait JsonCollectionSerialization extends JsonAnySerialization {
   override def anyToJs: PartialFunction[Any, JsValue] = {
-    case l: List[Any] => Json.obj("type" -> "List", "list" -> JsArray(l.map(anyToJs)))
-    case s: Set[Any] => Json.obj("type" -> "Set", "set" -> JsArray(s.toList.map(anyToJs)))
-    case m: Map[Any,Any] => Json.obj("type" -> "Map", "keys" -> anyToJs(m.keys.toList), "values" -> anyToJs(m.values.toList))
+    case l: List[_] => Json.obj("type" -> "List", "list" -> JsArray(l.map(anyToJs)))
+    case s: Set[_] => Json.obj("type" -> "Set", "set" -> JsArray(s.toList.map(anyToJs)))
+    case m: Map[_, _] => Json.obj("type" -> "Map", "keys" -> anyToJs(m.keys.toList), "values" -> anyToJs(m.values.toList))
   }
   override def jsToAny: PartialFunction[JsValue, Any] = {
     case l if (l \ "type").as[String] == "List" => (l \ "list").as[JsArray].value.map(jsToAny).toList
