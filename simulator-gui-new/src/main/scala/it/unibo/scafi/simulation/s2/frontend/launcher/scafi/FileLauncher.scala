@@ -11,7 +11,6 @@ object FileLauncher {
   def apply(path: String): Unit = {
     val javaListCommand = Files.readAllLines(Paths.get(path))
     val command = JavaToScalaConversions.toScalaBuffer(javaListCommand).mkString(";")
-    println(command)
     StringLauncher(command)
   }
 }
