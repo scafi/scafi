@@ -160,7 +160,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
     case _ if extractedValue.isDefined => new Point2D(extractedValue.get.group(1).toDouble, extractedValue.get.group(2).toDouble)
     case "true" | "false" => value.toBoolean
     case _ if value.forall(_.isDigit) => value.toInt
-    case _ if value.forall(c => c == '.' || c.isDigit) => v.toDouble
+    case _ if value.forall(c => c == '.' || c.isDigit) => value.toDouble
     case _ => value
   }
 
