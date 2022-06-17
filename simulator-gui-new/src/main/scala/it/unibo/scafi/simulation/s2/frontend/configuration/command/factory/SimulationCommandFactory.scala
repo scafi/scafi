@@ -40,7 +40,7 @@ class SimulationCommandFactory(simulation: ExternalSimulation[_]) extends Comman
       simulation.stop()
       Success
     } catch {
-      case e => Fail(SimulationCommandFactory.StopError)
+      case throwable: Throwable => Fail(SimulationCommandFactory.StopError)
     }
   }
 
@@ -50,7 +50,7 @@ class SimulationCommandFactory(simulation: ExternalSimulation[_]) extends Comman
       simulation.continue()
       Success
     } catch {
-      case e => Fail(SimulationCommandFactory.ContinueError)
+      case throwable: Throwable => Fail(SimulationCommandFactory.ContinueError)
     }
   }
 }

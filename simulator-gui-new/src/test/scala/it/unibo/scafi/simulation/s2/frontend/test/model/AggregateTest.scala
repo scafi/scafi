@@ -68,7 +68,7 @@ class AggregateTest extends AnyFunSpec with Matchers {
       world.moveNode(-1,Point3D(0,0,0))
       assert(false)
     } catch {
-      case _ =>
+      case _: Throwable =>
     }
   }
   checkThat("i can observe all event") {

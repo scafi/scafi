@@ -17,6 +17,4 @@ case class SimulationInfo(
     program: Class[_],
     metaActions: List[MetaActionProducer[_]] = List.empty,
     exportEvaluations: List[EXPORT_EVALUATION[_]] = List(standardEvaluation)
-) {
-  require(program.newInstance().isInstanceOf[CONTEXT => EXPORT])
-}
+)
