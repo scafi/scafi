@@ -18,21 +18,22 @@
 
 package it.unibo.scafi.simulation.frontend.controller
 
-import java.awt.event.{ActionEvent, ActionListener}
+import com.typesafe.scalalogging.Logger
 
+import java.awt.event.{ActionEvent, ActionListener}
 import it.unibo.scafi.simulation.frontend.model.NodeValue
 import it.unibo.scafi.simulation.frontend.model.implementation.SensorEnum
 import it.unibo.scafi.simulation.frontend.utility.Utils
 import it.unibo.scafi.simulation.frontend.view.{MyPopupMenu, SensorOptionPane}
-import javax.swing.JOptionPane
 
+import javax.swing.JOptionPane
 import scala.util.Try
 
 /**
  * Utility object containing methods that are useful for any class that uses [[MyPopupMenu]].
  * */
 object PopupMenuUtils {
-
+  private val logger = Logger[PopupMenuUtils.type]
   /**Adds the actions to execute whenever the appropriate observation event occurs.
    * @param popupMenu        the popup menu that will fire the events
    * @param toggleNeighbours the function to call whenever the event "Toggle Neighbours" occurs
@@ -80,8 +81,8 @@ object PopupMenuUtils {
         case _ => value.toString==v.toString
       }
     } catch {
-      case throwable: Throwable =>
-        println(s"Cannot manage ${v} for this reason: " + throwable)
+      case exception: Exception =>
+        logger.error(s"Cannot manage ${v} for this reason: " + exception)
         false
     }
     controller.setObservation(obsFun)
