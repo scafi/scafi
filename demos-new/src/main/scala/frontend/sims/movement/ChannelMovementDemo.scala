@@ -15,8 +15,8 @@ object ChannelMovementDemo extends App {
   val worldSize: (Int, Int) = (500,500)
   val simRadius = 100
   type E = (Boolean,(Double,Double))
-  MetaActionProducer.movementDtActionProducer.valueParser = (export : Any) => export match {
-    case (_ , c : (Double, Double)) => Some(c)
+  MetaActionProducer.movementDtActionProducer.valueParser = {
+    case (_, (deltaX: Double, deltaY: Double)) => Some((deltaX, deltaY))
     case _ => None
   }
   val evaluation : EXPORT_EVALUATION [Boolean] = (e : EXPORT) => e.root().asInstanceOf[E]._1

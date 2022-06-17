@@ -25,7 +25,7 @@ trait DevViewActor extends Actor {
   val programs: Map[String, () => I.AggregateProgram] = I.getClass
     .getDeclaredFields
     .map(f => { f.setAccessible(true); f.getName -> f.get(I) })
-    .filter(f => f._2.isInstanceOf[() => I.AggregateProgram])
+    .filter(f => f._2.isInstanceOf[() => _])
     .map(f => f._1 -> f._2.asInstanceOf[() => I.AggregateProgram])
     .toMap
 

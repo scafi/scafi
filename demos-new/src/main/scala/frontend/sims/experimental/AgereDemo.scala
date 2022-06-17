@@ -45,7 +45,7 @@ class AgereDemo extends AggregateProgram with BuildingBlocks with SensorDefiniti
   case object Idle extends IsActing
 
   /* Core logic */
-  def main: Result = rep[Result]((Ok,Idle)){ case (lastStatus, wasActing) =>
+  def main(): Result = rep[Result]((Ok,Idle)){ case (lastStatus, wasActing) =>
     var isActing = if(recentlyTrue(t_act, lastStatus==Alert)) {
       act()
       Acts

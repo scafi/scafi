@@ -41,7 +41,7 @@ object GradientsDemo extends App {
   */
 @Demo
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with Gradients {
-  def main: Double = g2(sense1, sense2)
+  def main(): Double = g2(sense1, sense2)
 
   def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
     () => aggregate { Double.PositiveInfinity }
@@ -57,7 +57,7 @@ class GradientWithObstacle extends AggregateProgram with SensorDefinitions with 
 }
 @Demo
 class SteeringProgram extends AggregateProgram with SensorDefinitions {
-  def main: Point3D = steering(sense1)
+  def main(): Point3D = steering(sense1)
 
   def steering(source: Boolean): Point3D = {
     val g = classic(source)
@@ -85,7 +85,7 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
 }
 @Demo
 class ShortestPathProgram extends AggregateProgram with Gradients with SensorDefinitions {
-  def main: Boolean = {
+  def main(): Boolean = {
     val g = classic(sense1)
     ShortestPath(sense2, g)
   }
@@ -330,7 +330,7 @@ trait Gradients extends BlockG
       mux(source) {
         (0.0, field)
       } {
-        val res = foldhoodPlus((Double.PositiveInfinity, field, mid)) { case (d1 @ (g1: Double, v1: V, id1: ID), d2 @ (g2: Double, v2: V, id2: ID)) =>
+        val res = foldhoodPlus((Double.PositiveInfinity, field, mid)) { case (d1 @ (g1, v1, id1), d2 @ (g2, v2, id2)) =>
           import DoubleUtils.DoubleWithAlmostEquals
           implicit val prec = Precision(0.00001)
           if(g1 ~= g2){
@@ -350,7 +350,7 @@ trait Gradients extends BlockG
       mux(source) {
         (0.0, field)
       } {
-        val res = foldhoodPlus((Double.PositiveInfinity, mid, field)) { case (d1 @ (g1: Double, id1: ID, v1: V), d2 @ (g2: Double, id2: ID, v2: V)) =>
+        val res = foldhoodPlus((Double.PositiveInfinity, mid, field)) { case (d1 @ (g1, id1, v1), d2 @ (g2, id2, v2)) =>
           import scala.math.Ordered.orderingToOrdered
           if((g1,id1) <= (g2,id2)) d1 else d2
         } { (nbr{ dist } + metric, nbr{ mid }, acc(nbr{ value })) }
@@ -385,7 +385,7 @@ trait Gradients extends BlockG
       mux(source) {
         (0.0, field)
       } {
-        foldhoodPlus((Double.PositiveInfinity, field)) { case (data1 @ (d1: Double, v1: V), data2 @ (d2: Double, v2: V)) =>
+        foldhoodPlus((Double.PositiveInfinity, field)) { case (data1 @ (d1, v1), data2 @ (d2, v2)) =>
           import DoubleUtils.DoubleWithAlmostEquals
           implicit val prec = Precision(0.00001)
           if(d1 ~= d2) ((d1+d2)/2, aggr(v1, v2))
