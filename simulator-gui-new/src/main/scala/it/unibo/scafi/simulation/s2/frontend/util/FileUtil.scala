@@ -43,7 +43,7 @@ object FileUtil {
    * @param value
    *   the value to write
    */
-  def write(file: String, value: String): Unit = try {
+  def write(file: String, value: String): Unit = {
     val fw = new FileWriter(file, false)
     try fw.append(value + "\n")
     finally fw.close()

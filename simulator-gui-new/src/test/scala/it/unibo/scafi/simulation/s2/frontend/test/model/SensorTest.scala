@@ -40,7 +40,7 @@ class SensorTest extends AnyFunSpec with Matchers {
       world.changeSensorValue(0,defaultName,"aa")
       fail("i can't change sensor value to another sensor type")
     } catch {
-      case e => assert(true)
+      case _: Throwable => assert(true)
     }
   }
 
@@ -50,7 +50,7 @@ class SensorTest extends AnyFunSpec with Matchers {
       world.changeSensorValue(-1,defaultName,true)
       assert(false)
     } catch {
-      case _ =>
+      case _: Throwable =>
     }
   }
 

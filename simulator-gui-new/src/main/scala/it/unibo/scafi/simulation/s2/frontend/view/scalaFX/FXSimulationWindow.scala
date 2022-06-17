@@ -74,8 +74,6 @@ private[scalaFX] class FXSimulationWindow(
 
   override def name: String = windowConfiguration.name
 
-  override def close(): Unit = this.close()
-
   override def output: SimulationView = simulationPane
   // render entire window
   override def render(): Unit = {

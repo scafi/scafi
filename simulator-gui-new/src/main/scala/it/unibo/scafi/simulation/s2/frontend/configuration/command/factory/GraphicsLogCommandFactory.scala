@@ -36,6 +36,8 @@ class GraphicsLogCommandFactory extends CommandFactory {
         } else {
           creationFailed(Fail(wrongTypeParameter(typesAccept, Type)))
         }
+      case _ =>
+        creationFailed(Fail(wrongTypeParameter(typesAccept, Type)))
     }
 
     args.get(Channel) match {
