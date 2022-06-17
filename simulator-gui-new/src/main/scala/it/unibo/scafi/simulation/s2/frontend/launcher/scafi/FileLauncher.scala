@@ -2,6 +2,7 @@ package it.unibo.scafi.simulation.s2.frontend.launcher.scafi
 
 import java.nio.file.Files
 import java.nio.file.Paths
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 /**
  * allow to launch simulation by reading file passed the file must have commad write like unix like to separate command
@@ -16,8 +17,6 @@ object FileLauncher {
 }
 
 object JavaToScalaConversions {
-  import scala.collection.JavaConverters._
-
-  def toScalaBuffer[A](lst: java.util.List[A]): collection.mutable.Buffer[A] =
-    lst.asScala
+  def toScalaBuffer[A](list: java.util.List[A]): collection.mutable.Buffer[A] =
+    list.asScala
 }
