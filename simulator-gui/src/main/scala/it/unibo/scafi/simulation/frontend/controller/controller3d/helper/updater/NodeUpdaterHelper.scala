@@ -120,7 +120,10 @@ private[updater] object NodeUpdaterHelper {
     gui3d.setNodeColor(node.id, getNodeColorBySensors(node))
 
   private def getNodeColorBySensors(node: Node): Color = {
-    val firstEnabledSensorInNode = node.sensors.toList.sortBy(_._1.name).find(_._2.equals(true)).map(_._1)
+    val firstEnabledSensorInNode = node.sensors.toList
+      .sortBy { case (sensor, _) => sensor.name }
+      .collectFirst { case res @ (_, true) =>  res }
+      .map(_._1)
     firstEnabledSensorInNode.flatMap(SensorEnum.getColor).getOrElse(Settings.Color_device)
   }
 
