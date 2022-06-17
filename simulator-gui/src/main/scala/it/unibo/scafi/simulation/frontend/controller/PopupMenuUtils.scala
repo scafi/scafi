@@ -80,7 +80,9 @@ object PopupMenuUtils {
         case _ => value.toString==v.toString
       }
     } catch {
-      case ex => { println("Errore: " + ex); false }
+      case throwable: Throwable =>
+        println(s"Cannot manage ${v} for this reason: " + throwable)
+        false
     }
     controller.setObservation(obsFun)
   }
