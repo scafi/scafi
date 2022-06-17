@@ -7,6 +7,7 @@ package examples.gui
 
 import java.awt._
 import java.awt.event._
+import akka.pattern.ask
 
 import javax.swing._
 import it.unibo.scafi.incarnations.BasicAbstractActorIncarnation
@@ -20,6 +21,8 @@ import it.unibo.scafi.distrib.actor._
 
 import scala.util.Success
 import akka.event.LoggingAdapter
+
+import scala.util.matching.Regex
 
 class DevGUIActor(val I: BasicAbstractActorIncarnation,
                   private var dev: ActorRef) extends Actor with ActionListener {
@@ -111,46 +114,54 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
 
   var toPause: Boolean = true
   override def actionPerformed(e: ActionEvent): Unit = {
-    val s = e.getSource
-    if(s == bAddNbr){
-      val nbrId = interopId.fromString(JOptionPane.showInputDialog(
-        frame,
-        "Enter neighbor's ID",
-        "Add NBR",
-        JOptionPane.PLAIN_MESSAGE));
-      //dev ! MsgWithExport(nbrId, factory.emptyExport())
-      import akka.pattern.ask
-      implicit val timeout: Timeout = 1.second
+    val source = e.getSource
+    if(source == bAddNbr){
+      handleAddNeighbour()
+    }
+    if(source == bSetSensor){
+      handleSensorButton()
+    }
+  }
 
-      if(registry!=null){
-        (registry ? I.MsgLookup(nbrId)).onComplete {
-          case Success(m:I.MsgDeviceLocation) =>
-            dev ! I.MsgDeviceLocation(m.id, m.ref)
-          case _ => throw new IllegalArgumentException(s"Remote registry ${registry} not found")
-        }
+  private def handleAddNeighbour(): Unit = {
+    val nbrId = interopId.fromString(JOptionPane.showInputDialog(
+      frame,
+      "Enter neighbor's ID",
+      "Add NBR",
+      JOptionPane.PLAIN_MESSAGE));
+    //dev ! MsgWithExport(nbrId, factory.emptyExport())
+    implicit val timeout: Timeout = 1.second
+    if(registry!=null){
+      (registry ? I.MsgLookup(nbrId)).onComplete {
+        case Success(m:I.MsgDeviceLocation) =>
+          dev ! I.MsgDeviceLocation(m.id, m.ref)
+        case _ => throw new IllegalArgumentException(s"Remote registry ${registry} not found")
       }
     }
-    if(s == bSetSensor){
-      val sv = JOptionPane.showInputDialog(
-        frame,
-        "sensorName=value",
-        "Set Sensor Value",
-        JOptionPane.PLAIN_MESSAGE).split('=')
+  }
 
-      if(sv.length==2) {
-        val k = interopLsns.fromString(sv(0).trim)
-        var v = sv(1).trim
-        val posPattern = """\((\d+(?:\.\d+)?);(\d+(?:\.\d+)?)\)""".r
-        val posMatch = posPattern.findFirstMatchIn(v)
-        dev ! I.MsgLocalSensorValue(k, v match {
-          case _ if posMatch.isDefined => new Point2D(posMatch.get.group(1).toDouble, posMatch.get.group(2).toDouble)
-          case "true" | "false" => v.toBoolean
-          case _ if v.forall(_.isDigit) => v.toInt
-          case _ if v.forall(c => c == '.' || c.isDigit) => v.toDouble
-          case _ => v
-        })
-      }
+  private def handleSensorButton(): Unit = {
+    val sv = JOptionPane.showInputDialog(
+      frame,
+      "sensorName=value",
+      "Set Sensor Value",
+      JOptionPane.PLAIN_MESSAGE).split('=')
+
+    if(sv.length==2) {
+      val k = interopLsns.fromString(sv(0).trim)
+      var v = sv(1).trim
+      val posPattern = """\((\d+(?:\.\d+)?);(\d+(?:\.\d+)?)\)""".r
+      val posMatch = posPattern.findFirstMatchIn(v)
+      dev ! I.MsgLocalSensorValue(k, prepareMessage(v, posMatch))
     }
+  }
+
+  private def prepareMessage(value: String, extractedValue: Option[Regex.Match]): Any = value match {
+    case _ if extractedValue.isDefined => new Point2D(extractedValue.get.group(1).toDouble, extractedValue.get.group(2).toDouble)
+    case "true" | "false" => value.toBoolean
+    case _ if value.forall(_.isDigit) => value.toInt
+    case _ if value.forall(c => c == '.' || c.isDigit) => v.toDouble
+    case _ => value
   }
 
   def BuildFrame(): Unit = {
