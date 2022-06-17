@@ -102,7 +102,7 @@ object DemoSequence extends AggregateProgram with MyLib {
   //def main = timer[Int](1000)
   //def main = limitedMemory("xxx", "exp", 1000)
 
-  def main: MainResult = if(S(3, 1)) "x" else "."
+  def main(): MainResult = if(S(3, 1)) "x" else "."
   //def main = minId()
   //def main = S2(3)
 

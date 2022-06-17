@@ -126,6 +126,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
         (registry ? I.MsgLookup(nbrId)).onComplete {
           case Success(m:I.MsgDeviceLocation) =>
             dev ! I.MsgDeviceLocation(m.id, m.ref)
+          case _ => throw new IllegalArgumentException(s"Remote registry ${registry} not found")
         }
       }
     }
@@ -145,7 +146,7 @@ class DevGUIActor(val I: BasicAbstractActorIncarnation,
           case _ if posMatch.isDefined => new Point2D(posMatch.get.group(1).toDouble, posMatch.get.group(2).toDouble)
           case "true" | "false" => v.toBoolean
           case _ if v.forall(_.isDigit) => v.toInt
-          case _ if v.forall(c => c=="." || c.isDigit) => v.toDouble
+          case _ if v.forall(c => c == '.' || c.isDigit) => v.toDouble
           case _ => v
         })
       }

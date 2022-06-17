@@ -44,7 +44,7 @@ object Basic3DMovementDemo extends Launcher {
 class Basic3DMovement extends AggregateProgram with SensorDefinitions {
   lazy val random: Random = sense[Random](LSNS_RANDOM)
 
-  override def main:(Double, Double, Double) = rep(random3DMovement())(behaviour)
+  override def main():(Double, Double, Double) = rep(random3DMovement())(behaviour)
 
   private def behaviour(tuple: (Double, Double, Double)): (Double, Double, Double) =
     mux(sense1) {random3DMovement()} {(.0, .0, .0)}

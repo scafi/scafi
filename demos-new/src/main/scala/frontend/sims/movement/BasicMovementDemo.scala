@@ -51,7 +51,7 @@ class BasicMovement extends AggregateProgram with SensorDefinitions with Flockin
   lazy val centerY: Double = ScafiInformation.configuration.worldInitializer.size._2 / 2
   private val obstacleForce: Double = 400.0
 
-  override def main:(Double, Double) = SizeConversion.normalSizeToWorldSize(rep(randomMovement())(behaviour2))
+  override def main():(Double, Double) = SizeConversion.normalSizeToWorldSize(rep(randomMovement())(behaviour2))
 
   private def behaviour1(tuple: ((Double, Double))): (Double, Double) =
     mux(sense1) {

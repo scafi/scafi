@@ -27,7 +27,7 @@ object GradientsDemo extends Launcher {
 }
 
 class GGradientComparison extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
-  def main: String =
+  def main(): String =
     f"${classicGradient(sense1)}%3.2f,${dist1(sense1)}%3.2f,${dist2(sense1)}%3.2f"
 
   def dist1(source: Boolean, metric: Metric = nbrRange): Double =
@@ -38,7 +38,7 @@ class GGradientComparison extends AggregateProgram with SensorDefinitions with G
 }
 
 class GradientWithObstacle extends AggregateProgram with SensorDefinitions with GradientAlgorithms {
-  def main: Double = g2(sense1, sense2)
+  def main(): Double = g2(sense1, sense2)
 
   def g1(isSrc: Boolean, isObstacle: Boolean): Double = mux(isObstacle){
     () => aggregate { Double.PositiveInfinity }
@@ -54,7 +54,7 @@ class GradientWithObstacle extends AggregateProgram with SensorDefinitions with 
 }
 
 class SteeringProgram extends AggregateProgram with SensorDefinitions {
-  def main: Point3D = steering(sense1)
+  def main(): Point3D = steering(sense1)
 
   def steering(source: Boolean): Point3D = {
     val g = classic(source)
@@ -81,7 +81,7 @@ class SteeringProgram extends AggregateProgram with SensorDefinitions {
 }
 
 class ShortestPathProgram extends AggregateProgram with GradientAlgorithms with SensorDefinitions {
-  def main: Boolean = {
+  def main(): Boolean = {
     val g = classic(sense1)
     shortestPath(sense2, g)
   }
@@ -316,7 +316,7 @@ trait GradientAlgorithms extends Gradients
       mux(source) {
         (0.0, field)
       } {
-        val res = foldhoodPlus((Double.PositiveInfinity, field, mid)) { case (d1 @ (g1: Double, v1: V, id1: ID), d2 @ (g2: Double, v2: V, id2: ID)) =>
+        val res = foldhoodPlus((Double.PositiveInfinity, field, mid)) { case (d1 @ (g1, _, id1), d2 @ (g2, _, id2)) =>
           import DoubleUtils.DoubleWithAlmostEquals
           implicit val prec = Precision(0.00001)
           if(g1 ~= g2){
@@ -336,7 +336,7 @@ trait GradientAlgorithms extends Gradients
       mux(source) {
         (0.0, field)
       } {
-        val res = foldhoodPlus((Double.PositiveInfinity, mid, field)) { case (d1 @ (g1: Double, id1: ID, v1: V), d2 @ (g2: Double, id2: ID, v2: V)) =>
+        val res = foldhoodPlus((Double.PositiveInfinity, mid, field)) { case (d1 @ (g1, id1, _), d2 @ (g2, id2, _)) =>
           import scala.math.Ordered.orderingToOrdered
           if((g1,id1) <= (g2,id2)) d1 else d2
         } { (nbr{ dist } + metric, nbr{ mid }, acc(nbr{ value })) }
@@ -372,7 +372,7 @@ trait GradientAlgorithms extends Gradients
       mux(source) {
         (0.0, field)
       } {
-        foldhoodPlus((Double.PositiveInfinity, field)) { case (data1 @ (d1: Double, v1: V), data2 @ (d2: Double, v2: V)) =>
+        foldhoodPlus((Double.PositiveInfinity, field)) { case (data1 @ (d1, v1), data2 @ (d2, v2)) =>
           import DoubleUtils.DoubleWithAlmostEquals
           implicit val prec = Precision(0.00001)
           if(d1 ~= d2) ((d1 + d2) / 2, aggr(v1, v2))
