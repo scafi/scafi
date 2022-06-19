@@ -1,3 +1,38 @@
+## [1.1.5](https://github.com/scafi/scafi/compare/v1.1.4...v1.1.5) (2022-06-19)
+
+
+### Bug Fixes
+
+* **demos-distributed:** solve the compilation error ([dd50f5c](https://github.com/scafi/scafi/commit/dd50f5ccb11c1bdf8c395096f60bac3788b4082d))
+* **renderer-3d:** avoid pattern matching with the wrong time ([9f45f07](https://github.com/scafi/scafi/commit/9f45f0771fd2980afef5dda1431f7de682a8f789))
+* **simulator-gui-new:** solve conversion problem in cross scala version ([a7a4fe4](https://github.com/scafi/scafi/commit/a7a4fe491e037bcb5648585520813288ba732153))
+
+
+### General maintenance
+
+* **readme:** javascript is officially released ([#109](https://github.com/scafi/scafi/issues/109)) ([ecbfeaa](https://github.com/scafi/scafi/commit/ecbfeaa888219f87492ca9ae6da27fec35d9a325))
+
+
+### Dependency updates
+
+* **deps:** update dependency ch.epfl.scala:sbt-scalafix to v0.10.1 ([c4f7b5f](https://github.com/scafi/scafi/commit/c4f7b5fcca8133c3c5d44ceb45ae59b8ba1c5ab2))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.8 ([a796ca7](https://github.com/scafi/scafi/commit/a796ca78bdfd4e69af92304733d45bee8862912d))
+
+
+### Style improvements
+
+* **build:** simplify the build file merging the scala version cases ([0ca0689](https://github.com/scafi/scafi/commit/0ca068917c5c32f93114d7ba671c8184e4703ba0))
+* **demos:** remove main warnings about unchecked matches ([567347e](https://github.com/scafi/scafi/commit/567347e0376b292090ffc27ba7d0b3bfe7c47815))
+* **demos:** solve other codiga problems ([890e36a](https://github.com/scafi/scafi/commit/890e36afc5d4c66886c223217f8869138377b481))
+* **distributed:** remove main warnings about pattern matching ([0756f2a](https://github.com/scafi/scafi/commit/0756f2afa627a1f0895e9f51a68ab9ea6167c0a6))
+* remove java.awt._ as illegal import ([a1a49b3](https://github.com/scafi/scafi/commit/a1a49b3556fa058167d93099af79173597b434d4))
+* **simulator-gui-new:** avoid deprecated converters ([c15ecaa](https://github.com/scafi/scafi/commit/c15ecaa74d9893b33e933c538ce604241040b3de))
+* **simulator-gui-new:** clean and remove main warnings ([67f8452](https://github.com/scafi/scafi/commit/67f84524ac4f0da7c881e9abe432d76bcb3334cd))
+* **simulator-gui-new:** remove println in FileLauncher ([c5833f6](https://github.com/scafi/scafi/commit/c5833f69616eb710ca8806fdc9120911a6f672ae))
+* **simulator-gui:** fix codiga problems ([beb9d67](https://github.com/scafi/scafi/commit/beb9d67434f1ed95a17891e411754841933349c6))
+* **simulator-gui:** remove main warnings in simulator-gui ([855725f](https://github.com/scafi/scafi/commit/855725f11e603f00bf5fb2e00bebd252136fab27))
+* **spala:** remove the main warning about pattern matching ([d2f2c04](https://github.com/scafi/scafi/commit/d2f2c0422ad4a28f115f4deb1ea9daa395023240))
+
 ## [1.1.4](https://github.com/scafi/scafi/compare/v1.1.3...v1.1.4) (2022-06-06)
 
 
