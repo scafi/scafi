@@ -3,6 +3,7 @@
 ![workflow-master badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![codecov master](https://codecov.io/gh/scafi/scafi/branch/master/graph/badge.svg?token=RONGUW08K1)](https://codecov.io/gh/scafi/scafi)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/it.unibo.scafi/scafi-core_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/it.unibo.scafi/scafi-core_2.13/badge.svg)
 
 **ScaFi** is a Scala-based library and framework for Aggregate Programming.
 It implements a variant of the Higher-Order Field Calculus (HOFC) operational semantics,
@@ -24,7 +25,7 @@ Add the dependency to scafi in your project, e.g., via sbt
 
 ```scala
 // build.sbt
-val scafi_version = "0.3.3"
+val scafi_version = "1.1.5"
 
 val scafi_core  = "it.unibo.scafi" %% "scafi-core"  % scafi_version
 val scafi_simulator  = "it.unibo.scafi" %% "scafi-simulator"  % scafi_version
@@ -39,7 +40,7 @@ or Gradle
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("it.unibo.scafi:scafi-core_2.13:0.3.3")
+    implementation("it.unibo.scafi:scafi-core_2.13:1.1.5")
 }
 ```
 
