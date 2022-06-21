@@ -44,25 +44,6 @@ trait StdLibProcesses {
       val puid: String = s"procInstance_${params.hashCode()}"
     }
 
-    def nbrpath[A](path: Path)(expr: => A): A = {
-      val tvm = vm
-      vm.nest(Nbr[A](vm.index))(vm.neighbour.map(_ == vm.self).getOrElse(false)) {
-        vm.neighbour match {
-          case Some(nbr) if (nbr != vm.self) => tvm.context
-            .readSlot[A](vm.neighbour.get, path)
-            .getOrElse(throw new OutOfDomainException(tvm.context.selfId, vm.neighbour.get, path))
-          case _ => expr
-        }
-      }
-    }
-
-    def share[A](init: => A)(f: (A, () => A) => A): A = {
-      rep(init){ oldRep =>
-        val repp = vm.status.path
-        f(oldRep, () => nbrpath(repp)(oldRep))
-      }
-    }
-
     def exportConditionally[R](f: => (R, Boolean)): (R, Boolean) = {
       vm.newExportStack
       val result = f
