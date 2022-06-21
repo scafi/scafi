@@ -142,39 +142,6 @@ The modules to be imported (e.g., via sbt or Gradle) depend on the use case:
   and either (A) leverage the basic machinery provided by `scafi-simulator`,
   or (B) leverage the ScaFi support provided by Alchemist.
 
-### Release Highlights
-
-**0.3.3** (2020-04-10)
-
-* Cross-compilation to **Scala 2.13** (in addition to 2.11 and 2.12)
-* **Gradle build** in addition to the sbt build
-* 3D Renderer (by @AleGnucci)
-* New simulator GUI (by @cric96)
-* Handle serialization in *spala* and *scafi-distributed* (contribution by @manuelperuzzi)
-* Various library fixes and adjustments
-
-**NOTE: for versions below the project's group ID is `it.unibo.apiceteam.scafi` (rather than the current **`it.unibo.scafi`**)**
-
-**0.3.2** (2018-10-19)
-
-* Aggregate processes with `spawn` constructs
-* Adjustments to operational semantics
-* Refactoring of modules (e.g., `stdlib` brought into `core`)
-* More features in the standard library
-* Bug fixes, tests, etc.
-
-**0.3.0** (2018-03-27)
-
-* `stdlib` module
-* `align` construct
-
-**0.2.0** (2017-06-28)
-
-* Several important adjustments to the core operational semantics (and more tests)
-* Refactoring of the field calculus interpreter
-* A basic graphical simulator (contribution by C. Varini) has been added as a separate module `simulator-gui`
-* Cross compilation for Scala 2.11 and 2.12
-
 ## People
 
 ### Main Researchers and Authors
@@ -188,6 +155,10 @@ The modules to be imported (e.g., via sbt or Gradle) depend on the use case:
 * Ferruccio Damiani
 * Giorgio Audrito
 * Danilo Pianini
+
+## Contributing
+
+Please refer to the [ScaFi Developer Manual](https://scafi.github.io/docs/#scafi-developer-manual).
 
 ## License ##
 
