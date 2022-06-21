@@ -107,13 +107,29 @@ trait Semantics extends Core with Language {
 
     override def mid(): ID = vm.self
 
-    override def rep[A](init: =>A)(fun: (A) => A): A = {
+    def share[A](init: => A)(f: (A, () => A) => A): A = {
+      def nbrpath(path: Path)(expr: => A): A = {
+        val tvm = vm
+        vm.nest(Nbr[A](vm.index))(vm.neighbour.contains(vm.self)) {
+          vm.neighbour match {
+            case Some(nbr) if (nbr != vm.self) => tvm.context
+              .readSlot[A](vm.neighbour.get, path)
+              .getOrElse(throw OutOfDomainException(tvm.context.selfId, vm.neighbour.get, path))
+            case _ => expr
+          }
+        }
+      }
       vm.nest(Rep[A](vm.index))(write = vm.unlessFoldingOnOthers) {
+        val path = vm.status.path
         vm.locally {
-          fun(vm.previousRoundVal.getOrElse(init))
+          val previousRound = vm.previousRoundVal.getOrElse(init)
+          f(previousRound, () => nbrpath(path)(previousRound))
         }
       }
     }
+
+    override def rep[A](init: =>A)(fun: (A) => A): A =
+      share(init) { case (eval, _) => fun(eval)}
 
     override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
       vm.nest(FoldHood[A](vm.index))(write = true) { // write export always for performance reason on nesting
