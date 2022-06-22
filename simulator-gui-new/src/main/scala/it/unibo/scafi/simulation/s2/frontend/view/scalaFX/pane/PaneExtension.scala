@@ -88,7 +88,7 @@ private[scalaFX] object PaneExtension {
     require(pane != null)
     var onDrag = false
     var x, y: Double = 0
-    pane.onMouseDragged = (e) => {
+    pane.onMouseDragged = (e: MouseEvent) => {
       if (onDrag) {
         val attenuationFactor: Double = 1 / (1 / pane.scaleX.value)
         pane.translateX = pane.translateX.value + attenuationFactor * (e.x - x)
@@ -100,7 +100,7 @@ private[scalaFX] object PaneExtension {
         onDrag = true
       }
     }
-    pane.onMouseReleased = (_) => onDrag = false
+    pane.onMouseReleased = (_: MouseEvent) => onDrag = false
   }
 
   /**

@@ -4,7 +4,7 @@ import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorld
 
 object ExportEvaluation {
   /**
-   * allow to valutate export produced by scafi simulation the value produced can be used to put it into a output stream
+   * allow to evaluate export produced by scafi simulation the value produced can be used to put it into a output stream
    * sensor
    */
   type EXPORT_EVALUATION[A] = EXPORT => A
