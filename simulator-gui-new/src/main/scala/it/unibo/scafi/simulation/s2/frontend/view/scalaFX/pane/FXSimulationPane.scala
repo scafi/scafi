@@ -3,7 +3,6 @@ package it.unibo.scafi.simulation.s2.frontend.view.scalaFX.pane
 import java.util.function.Predicate
 import javafx.scene.Node
 import javafx.scene.paint.ImagePattern
-
 import com.sun.javafx.binding.ExpressionHelper
 import it.unibo.scafi.simulation.s2.frontend.view.ViewSetting
 import it.unibo.scafi.simulation.s2.frontend.view.ViewSetting._
@@ -27,6 +26,8 @@ import scalafx.scene.image.Image
 import scalafx.scene.layout.Pane
 import scalafx.scene.paint.Color
 import scalafx.scene.paint.Paint
+
+import java.util.concurrent.Semaphore
 
 private[scalaFX] class FXSimulationPane(override val drawer: FXOutputPolicy)
     extends AbstractFXSimulationPane
@@ -174,21 +175,22 @@ private[scalaFX] class FXSimulationPane(override val drawer: FXOutputPolicy)
   }
 
   override def flush(): Unit = {
+    val lock = new Semaphore(0)
     val changeToApply = changes
     changes = List.empty
     val removing = neighbourToRemove
     Platform.runLater {
       changeToApply foreach { _() }
       if (removing.nonEmpty) {
-        // this.network.children.removeAll(removing:_*)
         removing.foreach(_.unbind())
         this.network.children.removeIf(new Predicate[Node] {
           override def test(t: Node): Boolean = !t.visibleProperty().get()
         })
-
       }
       neighbourToRemove.clear()
+      lock.release()
     }
+    lock.acquire()
   }
 
   override def boundary_=(boundary: Shape): Unit = {

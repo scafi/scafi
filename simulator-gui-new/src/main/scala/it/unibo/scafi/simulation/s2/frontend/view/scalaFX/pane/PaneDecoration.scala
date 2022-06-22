@@ -32,7 +32,6 @@ object PaneDecoration {
   def createMenu(outerPane: Pane, help: String): MenuBar = {
     implicit val keyFile: String = KeyFile.View
     val helpTooltip = new Tooltip(help)
-    helpTooltip.prefWidth = 200
     helpTooltip.wrapText = true
     val menuBar = new MenuBar()
     menuBar.stylesheets.add("style/menu-bar.css")
