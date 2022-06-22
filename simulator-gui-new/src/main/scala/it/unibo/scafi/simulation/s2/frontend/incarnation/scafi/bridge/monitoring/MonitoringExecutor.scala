@@ -17,7 +17,7 @@ object MonitoringExecutor extends SimulationExecutor {
     if (contract.simulation.isDefined) {
       val net = contract.simulation.get
       net.exports().filter(_._2.isDefined).map(n => n._1 -> n._2.get).foreach { node =>
-        exportProduced += node._1 -> node._2
+        exportProduced.updateAndGet(map => map + (node._1 -> node._2))
         if (idsObserved.contains(node._1)) {
           val mapped = node._2.paths.toSeq.map { x =>
             {

@@ -6,7 +6,7 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.command.CommandFactor
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiBridge
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationExecutor
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.scafiSimulationExecutor
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationExecutor
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.s2.frontend.util.Result
 import it.unibo.scafi.simulation.s2.frontend.util.Result.Fail

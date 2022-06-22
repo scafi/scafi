@@ -51,7 +51,7 @@ object MetaActionProducer {
     override def valueParser: Any => Option[(Double, Double)] = action
 
     override def apply(id: Int, dt: (Double, Double)): MetaAction = if (dt != (0.0, 0.0)) {
-      scafiSimulationExecutor.NodeDtMovement(id, dt)
+      ScafiSimulationExecutor.NodeDtMovement(id, dt)
     } else {
       MetaActionManager.EmptyAction
     }
