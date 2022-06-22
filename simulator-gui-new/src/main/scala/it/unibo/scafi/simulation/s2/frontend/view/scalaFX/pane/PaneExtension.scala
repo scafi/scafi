@@ -1,21 +1,17 @@
 package it.unibo.scafi.simulation.s2.frontend.view.scalaFX.pane
 
-import javafx.beans.Observable
-
 import com.sun.javafx.perf.PerformanceTracker
 import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager
 import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager.IntLog
-
+import javafx.beans.Observable
+import javafx.scene.transform.Affine
 import scalafx.Includes._
 import scalafx.animation.TranslateTransition
 import scalafx.application.Platform
-import scalafx.geometry.Bounds
+import scalafx.scene.{Node, Scene}
 import scalafx.scene.input._
-import scalafx.scene.layout.Pane
-import scalafx.scene.layout.Region
+import scalafx.scene.layout.{Pane, Region}
 import scalafx.scene.shape.Rectangle
-import scalafx.scene.Node
-import scalafx.scene.Scene
 import scalafx.util.Duration
 
 /**
@@ -23,7 +19,6 @@ import scalafx.util.Duration
  */
 private[scalaFX] object PaneExtension {
   private val ScaleFactor = 1.1
-  private val minZoomOut = 0.5
 
   /**
    * bind the region size to scene
@@ -74,27 +69,16 @@ private[scalaFX] object PaneExtension {
    */
   def zoomPane(outerNode: Node, innerNode: Node): Unit = {
     require(innerNode != null && outerNode != null)
-
+    val accumulatedScales = new Affine()
+    innerNode.getTransforms.add(accumulatedScales)
     outerNode.onScroll = (e: ScrollEvent) => {
       val scaleFactor = if (e.getDeltaY > 0) ScaleFactor else 1 / ScaleFactor
-      if (!(scaleFactor < ScaleFactor && innerNode.scaleX.value < minZoomOut)) {
-        val oldScale: Double = innerNode.getScaleX
-        val scale: Double = oldScale * scaleFactor
-        val f: Double = (scale / oldScale) - 1
-
-        // determine offset that we will have to move the node
-        val bounds: Bounds = innerNode.localToScene(innerNode.getBoundsInLocal)
-        val dx: Double = e.x - ((bounds.getWidth / 2) + bounds.getMinX)
-        val dy: Double = e.y - ((bounds.getHeight / 2) + bounds.getMinY)
-        // timeline that scales and moves the node
-        innerNode.translateX = innerNode.translateX.value - f * dx
-        innerNode.translateY = innerNode.translateY.value - f * dy
-        innerNode.scaleX = scale
-        innerNode.scaleY = scale
+      if (e.getDeltaY != 0.0) {
+        val parentCoord = innerNode.parentToLocal(e.x, e.y)
+        accumulatedScales.appendScale(scaleFactor, scaleFactor, parentCoord.x, parentCoord.y)
       }
     }
   }
-
   /**
    * create a draggable pane
    * @param pane
@@ -104,7 +88,7 @@ private[scalaFX] object PaneExtension {
     require(pane != null)
     var onDrag = false
     var x, y: Double = 0
-    pane.onMouseDragged = (e: MouseEvent) => {
+    pane.onMouseDragged = (e) => {
       if (onDrag) {
         val attenuationFactor: Double = 1 / (1 / pane.scaleX.value)
         pane.translateX = pane.translateX.value + attenuationFactor * (e.x - x)
@@ -116,7 +100,7 @@ private[scalaFX] object PaneExtension {
         onDrag = true
       }
     }
-    pane.onMouseReleased = (_: MouseEvent) => onDrag = false
+    pane.onMouseReleased = (_) => onDrag = false
   }
 
   /**
