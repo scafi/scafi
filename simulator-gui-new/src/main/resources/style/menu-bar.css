@@ -5,6 +5,7 @@
     -fx-highlight-fill: #ffffff;
     -fx-highlight-text-fill: #ffffff;
     -fx-text-fill: #ffffff;
+    -fx-font-size: 1.2em;
 }
 .menu-bar .menu-item:hover, .menu-bar .menu-item:hover *{
    -fx-background-color: #a0a0a0;

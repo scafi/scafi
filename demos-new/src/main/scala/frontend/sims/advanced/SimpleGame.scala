@@ -11,7 +11,7 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.command.{Command, Com
 import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager
 import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager.IntLog
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationInitializer.RadiusSimulation
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo, scafiSimulationExecutor}
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.{MetaActionProducer, SimulationInfo, ScafiSimulationExecutor}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.{ScafiProgramBuilder, ScafiWorldInformation}
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.ScafiWorldInitializer.Random
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.scafiWorld
@@ -57,7 +57,7 @@ object SimpleGame extends App {
     override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = {
       CommandFactory.easyResultCreation(()=> {
         //in this way i can take current scafi simulation
-        val bridge = scafiSimulationExecutor.contract.simulation.get
+        val bridge = ScafiSimulationExecutor.contract.simulation.get
         val sensor : Direction.Value = args(commandArgName).asInstanceOf[Direction.Value]
         bridge.chgSensorValue("direction",Set(gameId),sensor)
       })
@@ -93,7 +93,7 @@ object SimpleGame extends App {
     override def valueParser_=(function: Any => Option[Boolean]): Unit = {}
 
     override def apply(id: Int, argument: Boolean): MetaActionManager.MetaAction = {
-      val bridge = scafiSimulationExecutor.contract.simulation.get
+      val bridge = ScafiSimulationExecutor.contract.simulation.get
       if(!argument) {
         bridge.NodeChangeSensor(id,"visible",false)
       } else {
@@ -156,7 +156,7 @@ object SimpleGame extends App {
     commandMapping = specialMapping
   ).launch()
   //change the state of player node
-  private val simulation = scafiSimulationExecutor.contract.simulation.get
+  private val simulation = ScafiSimulationExecutor.contract.simulation.get
   simulation.chgSensorValue("player",Set(gameId),true)
   simulation.chgSensorValue("other",Set(gameId),false)
 }
