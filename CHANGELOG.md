@@ -1,3 +1,18 @@
+## [1.1.6](https://github.com/scafi/scafi/compare/v1.1.5...v1.1.6) (2022-06-23)
+
+
+### Bug Fixes
+
+* **new-simulator-gui:** solve problem about GUI zoom ([#118](https://github.com/scafi/scafi/issues/118)) ([67ae64f](https://github.com/scafi/scafi/commit/67ae64fbc3ef8df28285397f51403e081d1994a2))
+
+
+### General maintenance
+
+* codecov ignores ([cf1def4](https://github.com/scafi/scafi/commit/cf1def4d1e21d04e6635df76cb47ffc3da6c56eb))
+* **docs:** add maven central badge and update scafi version ([1f1f554](https://github.com/scafi/scafi/commit/1f1f5549b4144490da2689212dd2e88f996f611d))
+* **readme:** update the main using StandardSensorNames ([3f64f08](https://github.com/scafi/scafi/commit/3f64f08b59e1b311b036f668a1867325d04cb736))
+* update README - remove release notes, link to developer manual for contributors, and minors ([216e508](https://github.com/scafi/scafi/commit/216e508153af6406968f7a4e0416c62997f29885))
+
 ## [1.1.5](https://github.com/scafi/scafi/compare/v1.1.4...v1.1.5) (2022-06-19)
 
 
