@@ -19,7 +19,7 @@ val scopt = "com.github.scopt" %% "scopt" % "4.0.1"
 val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
 val playJson = "com.typesafe.play" %% "play-json" % "2.9.2"
 val slf4jlog4 = "org.slf4j" % "slf4j-log4j12" % "1.7.36"
-val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.17.2"
+val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.18.0"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
 // ScalaFX dependency management
 val javaFXVersion = Def.setting(if (scalaVersion.value == "2.11.12") "15.0.1" else "18.0.1")
