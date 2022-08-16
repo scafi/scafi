@@ -202,7 +202,7 @@ lazy val spala = project
       scopt,
       scalaBinaryVersion.value match {
         case "2.11" => "com.typesafe.play" %% "play-json" % "2.6.9"
-        case "2.12" | "2.13" => "com.typesafe.play" %% "play-json" % "2.8.1"
+        case "2.12" | "2.13" => "com.typesafe.play" %% "play-json" % "2.8.2"
       },
       slf4jlog4,
       log4
