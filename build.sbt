@@ -18,7 +18,7 @@ val scalatest = Def.setting("org.scalatest" %%% "scalatest" % "3.2.10" % "test")
 val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
 val shapeless = "com.chuusai" %% "shapeless" % "2.3.10"
 val playJson = "com.typesafe.play" %% "play-json" % "2.9.3"
-val slf4jlog4 = "org.slf4j" % "slf4j-log4j12" % "2.0.3"
+val slf4jlog4 = "org.slf4j" % "slf4j-log4j12" % "2.0.4"
 val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.19.0"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
 // ScalaFX dependency management
