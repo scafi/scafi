@@ -22,7 +22,7 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.4")
 
 // Project documentation
 
-addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.2")
+addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.3")
 
 addSbtPlugin("com.github.xuwei-k" % "sbt-class-diagram" % "0.2.1") // Note: requires Graphviz to be installed
 
