@@ -32,7 +32,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
 
 // Packaging
 
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.0")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.1")
 
 // Release process
 
