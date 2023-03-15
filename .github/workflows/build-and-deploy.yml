@@ -28,7 +28,7 @@ jobs:
       group: ${{ github.workflow }}-build-${{ matrix.os }}-${{ matrix.jvm_version }}-${{ github.event.number || github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v3.4.0
       - name: Setup Scala and JDK
         with:
           java-version: ${{ matrix.jvm_version }}
@@ -43,7 +43,7 @@ jobs:
   Try-Doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v3.4.0
       - name: Setup Scala and JDK
         uses: olafurpg/setup-scala@v14
         with:
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [Build-and-Test]
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v3.4.0
       - name: Setup Scala and JDK
         uses: olafurpg/setup-scala@v14
         with:
