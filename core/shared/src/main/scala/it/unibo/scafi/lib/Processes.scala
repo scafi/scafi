@@ -73,7 +73,7 @@ trait StdLibProcesses {
     def runOnSharedKeysWithShare[K, A, R](process: K => (R, Boolean), params: Set[K]): Map[K,R] =
       share(Map.empty[K, R])((loc,nbr) => {
         (includingSelf.unionHoodSet(nbr().keySet ++ params))
-          .mapToValues(process.apply(_))
+          .mapToValues(x => exportConditionally(process.apply(x)))
           .collectValues[R] { case (r,true) => r }
       })
 
@@ -181,11 +181,11 @@ trait StdLibProcesses {
     }
 
     def sspawn[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] =
-      spawn2[K,A,Option[R]](k => a => handleOutput(handleTerminationWithRep(process(k)(a))), params, args)
+      spawn2[K,A,Option[R]](k => a => handleOutput(handleTermination(process(k)(a))), params, args)
         .collectValues { case Some(p) => p }
 
     def sspawn2[K, A, R](process: K => A => POut[R], params: Set[K], args: A): Map[K,R] =
-      spawn2[K,A,Option[R]](process.map(handleTerminationWithRep).map(handleOutput), params, args)
+      spawn2[K,A,Option[R]](process.map(handleTermination).map(handleOutput), params, args)
         .collectValues { case Some(p) => p }
 
     def sspawnOld[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
