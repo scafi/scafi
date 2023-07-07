@@ -97,7 +97,12 @@ trait StdLibProcesses {
 
         // 3. Collect all process instances to be executed, execute them and update their state
         (nbrProcs ++ newProcs)
-          .mapToValues { align(_)(process(_)(args)) }.collect { case(pid,res) if res._2 => pid -> res._1 }.toMap
+          .mapToValues { k =>
+            vm.newExportStack
+            val result = align(k)(process(_)(args))
+            if (result._2) vm.mergeExport else vm.discardExport
+            result
+          }.collect { case(pid,res) if res._2 => pid -> res._1 }.toMap
       } }
     }
 
