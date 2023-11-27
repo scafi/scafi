@@ -48,6 +48,18 @@ jobs:
         uses: olafurpg/setup-scala@v13
         with:
           java-version: openjdk@1.17
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+          limit-access-to-users: cric96
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASS }}
+          PGP_PASSWORD: ${{ secrets.PGP_PASS }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.DEPLOYMENT_TOKEN }}
       - name: Sbt generate scaladoc
         run: sbt unidoc
 
@@ -85,16 +97,6 @@ jobs:
       - uses: olafurpg/setup-scala@v13
         with:
           java-version: openjdk@1.17
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: cric96
-        env:
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASS }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
       - name: Run Semantic-Release
         run: |
           npm install
