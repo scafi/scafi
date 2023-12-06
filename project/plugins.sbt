@@ -10,40 +10,40 @@ addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
 // Code quality
 
-addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.1.1")
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.2.2")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-cpd" % "2.0.0")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.3")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.0")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.1")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.1")
 
 // Project documentation
 
-addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.2")
+addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.3")
 
 addSbtPlugin("com.github.xuwei-k" % "sbt-class-diagram" % "0.2.1") // Note: requires Graphviz to be installed
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.3.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.1")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
 
 // Packaging
 
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.2.0")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.5")
 
 // Release process
 
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.13")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.10.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.10")
 
 // Scala.js plugins
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.9.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.10.1")
 
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.2.0")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.20.0")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.21.1")

@@ -11,7 +11,6 @@ import scalafx.scene.shape.Shape
  * show node using image specified in view setting device are showed using {@see StandardFXOutput}
  */
 case object ImageFXOutput extends FXOutputPolicy {
-  // load drone image
   private lazy val image = new Image(ViewSetting.nodeImagePath)
   private lazy val pattern = new ImagePattern(image)
   override type OUTPUT_NODE = StandardFXOutput.OUTPUT_NODE

@@ -12,12 +12,17 @@ import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiBridg
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.SimulationExecutor
 
+import java.util.function.UnaryOperator
+
 object MonitoringExecutor extends SimulationExecutor {
   override protected def asyncLogicExecution(): Unit = {
     if (contract.simulation.isDefined) {
       val net = contract.simulation.get
       net.exports().filter(_._2.isDefined).map(n => n._1 -> n._2.get).foreach { node =>
-        exportProduced += node._1 -> node._2
+        val safeUpdate = new UnaryOperator[Map[ID, EXPORT]] {
+          override def apply(map: Map[ID, EXPORT]): Map[ID, EXPORT] = map + (node._1 -> node._2)
+        }
+        exportProduced.updateAndGet(safeUpdate)
         if (idsObserved.contains(node._1)) {
           val mapped = node._2.paths.toSeq.map { x =>
             {

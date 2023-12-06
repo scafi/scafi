@@ -20,7 +20,7 @@ object ViewSetting {
    */
   var labelFont = "Arial"
   /**
-   * try to fit simulation pane in windos
+   * try to fit simulation pane in window
    */
   var fitting = true
   /**

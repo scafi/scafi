@@ -1,6 +1,6 @@
 package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge
 
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.scafiSimulationExecutor.world
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationExecutor.world
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.world.scafiWorld
 import it.unibo.scafi.simulation.s2.frontend.model.sensor.SensorConcept
 
@@ -31,7 +31,7 @@ object ScafiSimulationInitializer {
   case class RadiusSimulation(radius: Double = 0.0) extends ScafiSimulationInitializer {
 
     override def create(scafiSimulationSeed: SimulationInfo): ScafiBridge = {
-      val bridge = scafiSimulationExecutor
+      val bridge = ScafiSimulationExecutor
       val proto = () => {
         val w = bridge.world
         val nodes: Map[ID, P] = w.nodes.map(n => n.id -> new P(n.position.x, n.position.y, n.position.z)).toMap

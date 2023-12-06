@@ -7,33 +7,33 @@ package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge
 
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
 
+import java.util.concurrent.atomic.AtomicReference
+
 trait SimulationExecutor extends ScafiBridge {
-  protected var exportProduced: Map[ID, EXPORT] = Map()
+  protected val exportProduced = new AtomicReference[Map[ID, EXPORT]](Map.empty)
   override protected val maxDelta: Option[Int] = None
   private val indexToName = (i: Int) => "output" + (i + 1)
   override def onTick(float: Float): Unit = {
-    ()
     // get the modification of simulation logic world
     val simulationMoved = simulationObserver.idMoved
     if (contract.simulation.isDefined) {
       val bridge = contract.simulation.get
-      // for each export produced the bridge valutate export value and produced output associated
-      val exportValutations = simulationInfo.get.exportEvaluations
-      if (exportValutations.nonEmpty) {
+      // for each export produced the bridge evaluates export value and produced output associated
+      val exportEvaluations = simulationInfo.get.exportEvaluations
+      if (exportEvaluations.nonEmpty) {
         var exportToUpdate = Map.empty[ID, EXPORT]
-        exportToUpdate = exportProduced
-        exportProduced = Map.empty
-        // for each export the bridge valutate it and put value in the sensor associated
+        exportToUpdate = exportProduced.getAndSet(Map.empty)
+        // for each export the bridge evaluates it and put value in the sensor associated
         for (export <- exportToUpdate)
-          for (i <- exportValutations.indices)
-            world.changeSensorValue(export._1, indexToName(i), exportValutations(i)(export._2))
+          for (i <- exportEvaluations.indices)
+            world.changeSensorValue(export._1, indexToName(i), exportEvaluations(i)(export._2))
       }
       // used update the gui world network
       var idsNetworkUpdate = Set.empty[Int]
       // check the node move by simulation logic
       simulationMoved foreach { id =>
         val p = contract.simulation.get.space.getLocation(id)
-        // verify if the position is realy changed (the moved can be produced by gui itself)
+        // verify if the position is really changed (the moved can be produced by gui itself)
         world.moveNode(id, p)
         // the id to update in gui network
         idsNetworkUpdate ++= world.network.neighbours(id)

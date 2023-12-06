@@ -12,14 +12,14 @@ val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x
 // Managed dependencies
 val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
-val bcel = "org.apache.bcel" % "bcel" % "6.5.0"
+val bcel = "org.apache.bcel" % "bcel" % "6.7.0"
 val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
-val scalatest = Def.setting("org.scalatest" %%% "scalatest" % "3.2.10" % "test")
-val scopt = "com.github.scopt" %% "scopt" % "4.0.1"
-val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
-val playJson = "com.typesafe.play" %% "play-json" % "2.9.2"
-val slf4jlog4 = "org.slf4j" % "slf4j-log4j12" % "1.7.36"
-val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.17.2"
+val scalatest = Def.setting("org.scalatest" %%% "scalatest" % "3.2.17" % "test")
+val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
+val shapeless = "com.chuusai" %% "shapeless" % "2.3.10"
+val playJson = "com.typesafe.play" %% "play-json" % "2.9.4"
+val slf4jlog4 = "org.slf4j" % "slf4j-log4j12" % "2.0.9"
+val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.22.0"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
 // ScalaFX dependency management
 val javaFXVersion = Def.setting(if (scalaVersion.value == "2.11.12") "15.0.1" else "18.0.1")
@@ -202,7 +202,7 @@ lazy val spala = project
       scopt,
       scalaBinaryVersion.value match {
         case "2.11" => "com.typesafe.play" %% "play-json" % "2.6.9"
-        case "2.12" | "2.13" => "com.typesafe.play" %% "play-json" % "2.8.1"
+        case "2.12" | "2.13" => "com.typesafe.play" %% "play-json" % "2.8.2"
       },
       slf4jlog4,
       log4

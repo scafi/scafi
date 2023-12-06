@@ -4,17 +4,23 @@ import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager
 import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager.Channel
 import it.unibo.scafi.simulation.s2.frontend.controller.logger.LogManager.TreeLog
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiWorldIncarnation._
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.monitoring.MonitoringExecutor.exportProduced
+
+import java.util.function.UnaryOperator
 
 /**
  * scafi bridge implementation, this object execute each tick scafi logic
  */
-object scafiSimulationExecutor extends SimulationExecutor {
+object ScafiSimulationExecutor extends SimulationExecutor {
   import ScafiBridge._
   override protected def asyncLogicExecution(): Unit = {
     if (contract.simulation.isDefined) {
       val net = contract.simulation.get
       val result = net.exec(runningContext)
-      exportProduced += result._1 -> result._2
+      val safeUpdate = new UnaryOperator[Map[ID, EXPORT]] {
+        override def apply(map: Map[ID, EXPORT]): Map[ID, EXPORT] = map + (result._1 -> result._2)
+      }
+      exportProduced.updateAndGet(safeUpdate)
       // verify it there are some id observed to put export
       if (idsObserved.contains(result._1)) {
         // get the path associated to the node

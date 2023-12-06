@@ -2,7 +2,7 @@ package it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.co
 
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.Command
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.CommandFactory
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.scafiSimulationExecutor
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationExecutor
 import it.unibo.scafi.simulation.s2.frontend.util.Result
 import it.unibo.scafi.simulation.s2.frontend.util.Result.Fail
 
@@ -19,7 +19,7 @@ object LookExportCommandFactory extends CommandFactory {
     List(CommandArgDescription(Id, IntType, description = international(name, Id)))
 
   override protected def createPolicy(args: CommandArg): (Result, Option[Command]) = args.get(Id) match {
-    case Some(id: Int) => easyResultCreation(() => scafiSimulationExecutor.observeExport(id))
+    case Some(id: Int) => easyResultCreation(() => ScafiSimulationExecutor.observeExport(id))
     case Some(_) => creationFailed(Fail(wrongTypeParameter(IntType, Id)))
     case _ => creationFailed(Fail(wrongParameterName(Id)))
   }

@@ -5,7 +5,7 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.logger.LogConfigurati
 import it.unibo.scafi.simulation.s2.frontend.configuration.parser.Parser
 import it.unibo.scafi.simulation.s2.frontend.configuration.parser.UnixLikeParser
 import it.unibo.scafi.simulation.s2.frontend.controller.input.InputCommandController
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.scafiSimulationExecutor
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationExecutor
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.ScafiConfiguration.ScafiConfigurationBuilder
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.command._
 import it.unibo.scafi.simulation.s2.frontend.view.OutputPolicy.NoOutput
@@ -42,7 +42,7 @@ object ScafiInformation {
    * parser unix like used to parse string value in runtime command
    */
   val UnixRuntime: Parser[String] = new UnixLikeParser(
-    new SimulationCommandFactory(scafiSimulationExecutor),
+    new SimulationCommandFactory(ScafiSimulationExecutor),
     new SingleMoveCommandFactory,
     new SingleToggleCommandFactory,
     ExitCommandFactory,

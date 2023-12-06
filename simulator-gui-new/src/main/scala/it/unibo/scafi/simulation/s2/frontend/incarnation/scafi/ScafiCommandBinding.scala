@@ -4,7 +4,7 @@ import it.unibo.scafi.simulation.s2.frontend.configuration.SensorName
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.CommandBinding
 import it.unibo.scafi.simulation.s2.frontend.configuration.command.factory.SimulationCommandFactory
 import it.unibo.scafi.simulation.s2.frontend.controller.input.InputCommandController
-import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.scafiSimulationExecutor
+import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.bridge.ScafiSimulationExecutor
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.command.AbstractMoveCommandFactory.MultiMoveCommandFactory
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.command.AbstractMoveCommandFactory
 import it.unibo.scafi.simulation.s2.frontend.incarnation.scafi.configuration.command.AbstractToggleCommandFactory
@@ -19,7 +19,7 @@ import it.unibo.scafi.simulation.s2.frontend.view.AbstractSelectionArea
 object ScafiCommandBinding {
   private val moveFactory = new MultiMoveCommandFactory
   private val toggleFactory = new MultiToggleCommandFactory
-  private val simulationFactory = new SimulationCommandFactory(scafiSimulationExecutor)
+  private val simulationFactory = new SimulationCommandFactory(ScafiSimulationExecutor)
   /**
    * base mapping, allow to modify the state of simulation (start, stop, reset simulation, increase or decrease
    * simulation velocity), use undo command and move the node with selection
