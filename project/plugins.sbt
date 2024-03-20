@@ -18,7 +18,7 @@ addSbtPlugin("com.github.sbt" % "sbt-cpd" % "2.0.0")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.0")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.1")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.0")
 
 // Project documentation
 
