@@ -38,7 +38,7 @@ addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.5")
 
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.10.0")
 
-addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.10")
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 
 // Scala.js plugins
 
