@@ -28,9 +28,9 @@ trait StdLibBlockC {
       * @return the accumulation value for each device according to its position in the potential field
       */
     def C[P: Bounded, V](potential: P, acc: (V, V) => V, local: V, Null: V): V =
-      rep(local) { v =>
+      share(local) { case (_, neighbouringValue) =>
         acc(local, foldhood(Null)(acc) {
-          mux(nbr(findParent(potential)) == mid()) { nbr(v) } { nbr(Null) }
+          mux(nbr(findParent(potential)) == mid()) { neighbouringValue() } { nbr(Null) }
         })
       }
 
