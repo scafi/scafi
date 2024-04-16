@@ -41,12 +41,12 @@ trait StdLibBlockG {
     }
 
     def G[V](source: Boolean, field: V, acc: V => V, metric: () => Double): V =
-      rep((Double.MaxValue, field)) { case (dist, value) =>
+      share((Double.MaxValue, field)) { case ((dist, value), neighbourOperator) =>
         mux(source) {
           (0.0, field)
         } {
           excludingSelf
-            .minHoodSelector(nbr { dist } + metric())((nbr { dist } + metric(), acc(nbr { value })))
+            .minHoodSelector(neighbourOperator()._1 + metric())((neighbourOperator()._1 + metric(), acc(neighbourOperator()._2)))
             .getOrElse((Double.PositiveInfinity, field))
         }
       }._2
