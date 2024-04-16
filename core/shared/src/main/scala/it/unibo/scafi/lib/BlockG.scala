@@ -35,13 +35,13 @@ trait StdLibBlockG {
       * @deprecated As it seems buggy.
       */
     def G_along[V](g: Double, metric: Metric, field: V, acc: V => V): V = {
-      rep(field) { case (value) =>
-        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g} + metric())(acc(nbr{value})).getOrElse(field) }
+      share(field) { case (_, neighbouringValue) =>
+        mux(g==0.0){ field }{ excludingSelf.minHoodSelector[Double,V](nbr{g} + metric())(acc(neighbouringValue())).getOrElse(field) }
       }
     }
 
     def G[V](source: Boolean, field: V, acc: V => V, metric: () => Double): V =
-      share((Double.MaxValue, field)) { case ((dist, value), neighbourOperator) =>
+      share((Double.MaxValue, field)) { case (_, neighbourOperator) =>
         mux(source) {
           (0.0, field)
         } {
