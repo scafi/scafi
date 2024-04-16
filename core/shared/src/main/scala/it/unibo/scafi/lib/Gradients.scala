@@ -59,18 +59,17 @@ trait StdLibGradients {
       Gradient(ultGradient(radius, factor), source = false, nbrRange)
 
     def classicGradient(source: Boolean, metric: () => Double = nbrRange): Double =
-      rep(Double.PositiveInfinity) { case d =>
+      share(Double.PositiveInfinity) { case (_, neighbouringDistance) =>
         mux(source) {
           0.0
         } {
-          minHoodPlus(nbr(d) + metric())
+          minHoodPlus(neighbouringDistance() + metric())
         }
       }
 
     def hopGradient(source: Boolean): Double =
-      rep(Double.PositiveInfinity) {
-        hops => mux(source) {0.0} {1 + minHood(nbr {hops})
-        }
+      share(Double.PositiveInfinity) {
+        case (_, neighbouringHops) => mux(source) {0.0} { 1 + minHood(neighbouringHops()) }
       }
 
     def bisGradient(commRadius: Double,
