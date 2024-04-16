@@ -27,8 +27,8 @@ trait StdLibBlockS {
 
     def minId(): ID = {
       val boundedId = implicitly[Bounded[ID]]
-      rep(boundedId.top) { mmid =>
-        boundedId.min(mid(), minHood(nbr { mmid }))
+      share(boundedId.top) { case (_, neighbouringMid) =>
+        boundedId.min(mid(), minHood(neighbouringMid()))
       }
     }
 
@@ -51,7 +51,7 @@ trait StdLibBlockS {
                        grain: Double,
                        metric: Metric): Boolean =
     // Initially, each device is a candidate leader, competing for leadership.
-      uid == rep(uid) { lead: (Double, ID) =>
+      uid == share(uid) { case (lead: (Double, ID), leadQuery) =>
         // Distance from current device (uid) to the current leader (lead).
         val dist = G[Double](uid == lead, 0, (_: Double) + metric(), metric)
 
@@ -59,7 +59,7 @@ trait StdLibBlockS {
         // will be 0; the same will be for other devices.
         // To solve the conflict, devices abdicate in favor of devices with
         // lowest UID, according to 'distanceCompetition'.
-        distanceCompetition(dist, lead, uid, grain, metric)
+        distanceCompetition(dist, leadQuery, uid, grain, metric)
       }
 
     /**
@@ -68,7 +68,7 @@ trait StdLibBlockS {
       * @return
       */
     def distanceCompetition(d: Double,
-                            lead: (Double, ID),
+                            leadQuery: () => (Double, ID),
                             uid: (Double, ID),
                             grain: Double,
                             metric: Metric): (Double, ID) = {
@@ -94,7 +94,7 @@ trait StdLibBlockS {
             mux(nbr { d } + metric() >= 0.5 * grain) {
               nbr { inf }
             } {
-              nbr { lead }
+              leadQuery()
             }
           }
         }
