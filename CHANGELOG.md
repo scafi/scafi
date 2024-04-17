@@ -1,3 +1,53 @@
+## [1.3.0](https://github.com/scafi/scafi/compare/v1.2.0...v1.3.0) (2024-04-17)
+
+
+### Features
+
+* more classic g and hop g to share ([7d61584](https://github.com/scafi/scafi/commit/7d6158415e29cb458045e3a62cbe17592d277cc0))
+* more g along to share ([4d0d2d6](https://github.com/scafi/scafi/commit/4d0d2d6bcdf4ff605e5d79fd88897d0df9ee43ed))
+* move block C to share ([51452d2](https://github.com/scafi/scafi/commit/51452d2abd08ac758db9ffc26aefc8edee9cd40a))
+* move block S to share ([01ccef0](https://github.com/scafi/scafi/commit/01ccef0d2cb7ecea444727753267935abbae977b))
+* move G to share ([242d93c](https://github.com/scafi/scafi/commit/242d93c25da58246ea8352b1421a44ee0637fc9e))
+
+
+### Dependency updates
+
+* **deps:** update dependency ch.epfl.scala:sbt-scalafix to v0.12.0 ([ed45f85](https://github.com/scafi/scafi/commit/ed45f85be84e1cc3ef2173b03580ca671b1cc111))
+* **deps:** update dependency com.sksamuel.scapegoat:sbt-scapegoat to v1.2.3 ([1c3adee](https://github.com/scafi/scafi/commit/1c3adee4750902c250bdb31026c982d37002f9d5))
+* **deps:** update dependency org.apache.bcel:bcel to v6.8.0 ([d86fe0f](https://github.com/scafi/scafi/commit/d86fe0f512db29c91ff3b1272edbd57493e4fe4c))
+* **deps:** update dependency org.apache.bcel:bcel to v6.8.1 ([0d1375c](https://github.com/scafi/scafi/commit/0d1375c314f360e73efac1c7243cb4ddfeacb37c))
+* **deps:** update dependency org.apache.bcel:bcel to v6.8.2 ([a0d7692](https://github.com/scafi/scafi/commit/a0d76928b1637f0bae838f5220b1bff725878608))
+* **deps:** update dependency org.apache.logging.log4j:log4j-core to v2.22.1 ([b972e13](https://github.com/scafi/scafi/commit/b972e133365acb315dd83adb62336a03493def63))
+* **deps:** update dependency org.apache.logging.log4j:log4j-core to v2.23.0 ([ecabe02](https://github.com/scafi/scafi/commit/ecabe02f8540a6b88b140c9cb1819b2fa4dfcc37))
+* **deps:** update dependency org.apache.logging.log4j:log4j-core to v2.23.1 ([519d7be](https://github.com/scafi/scafi/commit/519d7be4ecfda5075a1291cb0973239d4b396d3a))
+* **deps:** update dependency org.scalatest:scalatest to v3.2.18 ([b8ad91b](https://github.com/scafi/scafi/commit/b8ad91b64574a2fde89bee8841f1030a9ceda83b))
+* **deps:** update dependency org.slf4j:slf4j-log4j12 to v2.0.11 ([10b9ae2](https://github.com/scafi/scafi/commit/10b9ae24851d4b2692e5620bcf653e4335fc150a))
+* **deps:** update dependency org.slf4j:slf4j-log4j12 to v2.0.12 ([c6e3e77](https://github.com/scafi/scafi/commit/c6e3e77f64db53973fc41b310cbd43d5c4dfc427))
+* **deps:** update dependency org.slf4j:slf4j-log4j12 to v2.0.13 ([21d9ef8](https://github.com/scafi/scafi/commit/21d9ef89bae725251289a4a0eae7a5bff9069572))
+* **deps:** update dependency sbt/sbt to v1.9.8 ([ef7f773](https://github.com/scafi/scafi/commit/ef7f7737dd94c8aa9422bb30de3e3d7c0724485b))
+* **deps:** update dependency sbt/sbt to v1.9.9 ([0226e48](https://github.com/scafi/scafi/commit/0226e4894240c2ff7f6b009c7e3ec3d7347bb40b))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.80 ([8e053b6](https://github.com/scafi/scafi/commit/8e053b6a83aee551db3121dcac9f045ff96274f1))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.81 ([1da93da](https://github.com/scafi/scafi/commit/1da93da8730c7b3549e95cd5495ec7c71e2e6cfc))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.82 ([9c0ac73](https://github.com/scafi/scafi/commit/9c0ac73d2c654651450815c05ba6f9f794eaa43b))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.83 ([e513314](https://github.com/scafi/scafi/commit/e513314e53163286f169e0ef8f306dfc36803142))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.84 ([e57fae5](https://github.com/scafi/scafi/commit/e57fae56f2bcc40157884b0aa0d7e011aec3404e))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.85 ([54fa128](https://github.com/scafi/scafi/commit/54fa128ad29139e4cf6ee8574bd7de8c53d7e27b))
+* **deps:** update node.js to 20.11 ([50b7f67](https://github.com/scafi/scafi/commit/50b7f6737492e6b570dffa493ae6dfe234cc8483))
+* **deps:** update node.js to 20.12 ([60345b4](https://github.com/scafi/scafi/commit/60345b4d4f3e343345f2ead212b2b44bb4610c6c))
+
+
+### Build and continuous integration
+
+* **deps:** update codecov/codecov-action action to v3.1.5 ([65fffa1](https://github.com/scafi/scafi/commit/65fffa1b84d3fb50156fbeaf74a99cc63f70b7a1))
+* **deps:** update codecov/codecov-action action to v3.1.6 ([c0bc589](https://github.com/scafi/scafi/commit/c0bc589a571b6eb3b58b992d951bbb3679492660))
+* **deps:** update codecov/codecov-action action to v4 ([5a83c6c](https://github.com/scafi/scafi/commit/5a83c6c61dd77634c7a34c93b9acbbb38cfb0ab1))
+* **deps:** update codecov/codecov-action action to v4.0.1 ([2ce835b](https://github.com/scafi/scafi/commit/2ce835bd654076f6ceb828aaab3f07650ec41c0f))
+* **deps:** update codecov/codecov-action action to v4.0.2 ([1637486](https://github.com/scafi/scafi/commit/163748692056cef99a882d2f90939148899202bd))
+* **deps:** update codecov/codecov-action action to v4.1.0 ([bc179e8](https://github.com/scafi/scafi/commit/bc179e8652bdd2c52ae38580010378fb216db3bf))
+* **deps:** update codecov/codecov-action action to v4.1.1 ([cc6fe8e](https://github.com/scafi/scafi/commit/cc6fe8e427ee193d67bc5c32657b784069d95472))
+* **deps:** update codecov/codecov-action action to v4.2.0 ([dd22f91](https://github.com/scafi/scafi/commit/dd22f919c862d132e75dabd258ae079146a323e0))
+* **deps:** update codecov/codecov-action action to v4.3.0 ([ec4a109](https://github.com/scafi/scafi/commit/ec4a109457c5dd298c4ca51b7672759410e894f9))
+
 ## [1.2.0](https://github.com/scafi/scafi/compare/v1.1.7...v1.2.0) (2023-12-06)
 
 
