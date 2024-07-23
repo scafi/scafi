@@ -12,7 +12,7 @@ val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x
 // Managed dependencies
 val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
-val bcel = "org.apache.bcel" % "bcel" % "6.9.0"
+val bcel = "org.apache.bcel" % "bcel" % "6.10.0"
 val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
 val scalatest = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19" % "test")
 val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
