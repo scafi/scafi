@@ -10,7 +10,7 @@ addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
 // Code quality
 
-addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.2.4")
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.2.6")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
