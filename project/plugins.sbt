@@ -24,7 +24,7 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.13.0")
 
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.3")
 
-addSbtPlugin("com.github.xuwei-k" % "sbt-class-diagram" % "0.2.1") // Note: requires Graphviz to be installed
+addSbtPlugin("com.github.xuwei-k" % "sbt-class-diagram" % "0.3.0") // Note: requires Graphviz to be installed
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.1")
 
