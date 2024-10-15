@@ -18,7 +18,7 @@ val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
 val scalatest = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19" % "test")
 val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
 val shapeless = "com.chuusai" %% "shapeless" % "2.3.12"
-val playJson = "com.typesafe.play" %% "play-json" % "2.9.4"
+val playJson = "com.typesafe.play" %% "play-json" % "2.10.6"
 val slf4jlog4 = "org.slf4j" % "slf4j-log4j12" % "2.0.16"
 val log4 = "org.apache.logging.log4j" % "log4j-core" % "2.24.1"
 val apacheCommonsMath = "org.apache.commons" % "commons-math3" % "3.6.1"
@@ -225,8 +225,8 @@ lazy val spala = project
       bcel,
       scopt,
       scalaBinaryVersion.value match {
-        case "2.11" => "com.typesafe.play" %% "play-json" % "2.6.9"
-        case "2.12" | "2.13" => "com.typesafe.play" %% "play-json" % "2.8.2"
+        case "2.11" => "com.typesafe.play" %% "play-json" % "2.10.6"
+        case "2.12" | "2.13" => "com.typesafe.play" %% "play-json" % "2.10.6"
       },
       slf4jlog4,
       log4
