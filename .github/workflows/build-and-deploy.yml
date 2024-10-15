@@ -85,6 +85,9 @@ jobs:
       - uses: olafurpg/setup-scala@v14
         with:
           java-version: openjdk@1.17
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.8.1 
       - name: Run Semantic-Release
         run: |
           npm install
