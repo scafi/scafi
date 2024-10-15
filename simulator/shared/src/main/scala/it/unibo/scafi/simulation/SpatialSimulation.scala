@@ -149,7 +149,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
     def defaultRepr(_net: NetworkSimulator): String = {
       val net = _net.asInstanceOf[SpaceAwareSimulator]
       net.idArray.sortBy(net.space.getLocation(_)).map {
-        i => net.export(i).map { e => s"$i@${net.space.getLocation(i)}(${e.root()})" }.getOrElse("_")
+        i => net.getExport(i).map { e => s"$i@${net.space.getLocation(i)}(${e.root()})" }.getOrElse("_")
       }.mkString("", "\t", "")
     }
 
@@ -157,7 +157,7 @@ trait SpatialSimulation extends Simulation with SpaceAwarePlatform  {
       val net = _net.asInstanceOf[SpaceAwareSimulator]
 
       net.idArray.sortBy(net.space.getLocation(_)).map {
-        i => net.export(i).map { e => s"$i@${net.space.getLocation(i)}(${e.root()})" }.getOrElse("_")
+        i => net.getExport(i).map { e => s"$i@${net.space.getLocation(i)}(${e.root()})" }.getOrElse("_")
       }
         .zipWithIndex
         .map(z => (if (z._2 % numCols == 0) "\n" else "") + z._1)

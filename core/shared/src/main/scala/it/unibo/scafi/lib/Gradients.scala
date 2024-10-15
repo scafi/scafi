@@ -143,7 +143,7 @@ trait StdLibGradients {
         import Builtins.Bounded._ // for min/maximizing over tuples
         def distance = Math.max(nbrRange(), delta * communicationRadius)
         val maxLocalSlope: (Double,ID,Double,Double) =
-          maxHood { ((g - nbr{g})/distance, nbr{mid}, nbr{g}, metric()) }
+          maxHood { ((g - nbr{g})/distance, nbr{mid()}, nbr{g}, metric()) }
         val constraint = minHoodPlus{ (nbr{g} + distance) }
         mux(source){ 0.0 }{
           if(Math.max(communicationRadius, 2*constraint) < g) {
@@ -164,91 +164,7 @@ trait StdLibGradients {
     def svdGradient(lagMetric: => Double = nbrLag().toMillis)(
                      source: Boolean,
                      metric: Metric = nbrRange): Double = {
-      /**
-        * At the heart of SVD algorithm. This function is responsible to kick-start the reconfiguration process.
-        */
-      def detect(time: Double, threshold: Double = 0.0001): Boolean = {
-        // Let's keep track into repCount of how much time is elapsed since the first time
-        // the current info (originated from the source in time 'time') reached the current device
-        val repCount = rep(0.0) { old =>
-          if (Math.abs(time - delay(time)) < threshold) {
-            old + deltaTime().toMillis
-          } else { 0.0 }
-        }
-        val obsolete = repCount > rep[(Double, Double, Double)](2, 8, 16) { case (avg, sqa, _) =>
-          // Estimate of the average peak value for repCount, obtained by exponentially filtering
-          // with a factor 0.1 the peak values of repCount
-          val newAvg = 0.9 * avg + DEFAULT_ULT_FACTOR * delay(repCount)
-          // Estimate of the average square of repCount peak values
-          val newSqa = 0.9 * sqa + DEFAULT_ULT_FACTOR * Math.pow(delay(repCount), 2)
-          // Standard deviation
-          val stdev = Math.sqrt(newSqa - Math.pow(newAvg, 2))
-          // New bound
-          val newBound = newAvg + 7 * stdev
-          (newAvg, newSqa, newBound)
-        }._3
-        obsolete
-      }
-
-      val defaultDist = if(source) 0.0 else Double.PositiveInfinity
-      val loc = (defaultDist, defaultDist, mid(), false)
-      // REP tuple: (spatial distance estimate, temporal distance estimate, source ID, obsolete value detected flag)
-      rep[(Double,Double,ID,Boolean)](loc) {
-        case old @ (spaceDistEst, timeDistEst, sourceId, isObsolete) => {
-          // (1) Let's calculate new values for spaceDistEst and sourceId
-          import Builtins.Bounded._
-          val (newSpaceDistEst: Double, newSourceId: ID @unchecked) =
-          minHood {
-            mux(nbr{isObsolete} && excludingSelf.anyHood { !nbr{isObsolete} })
-            { // let's discard neighbours where 'obsolete' flag is true
-              // (unless 'obsolete' flag is true for all the neighbours)
-              (defaultDist, mid())
-            } {
-              // if info is not obsolete OR all nbrs have obsolete info
-              // let's use classic gradient calculation
-              (nbr{spaceDistEst} + metric(), nbr{sourceId})
-            }
-          }
-
-          // (2) The most recent timeDistEst for the newSourceId is retrieved
-          // by minimising nbrs' values for timeDistEst + their relative time distance
-          // (we only consider neighbours that have same value for 'sourceId')
-          val newTimeDistEst = minHood{
-            mux(nbr{sourceId} != newSourceId){
-              // let's discard neighbours with a sourceId different than newSourceId
-              defaultDist
-            } {
-              nbr { timeDistEst } + lagMetric
-            }
-          }
-
-          // (3) Let's compute if the newly produced info is to be considered obsolete
-          val loop = newSourceId == mid() && newSpaceDistEst < defaultDist
-          val newObsolete =
-            detect(timestamp() - newTimeDistEst) || // (i) if the time when currently used info started
-              //     from sourceId is too old to be reliable
-              loop || // or, (ii) if the device's value happens to be calculated from itself,
-              excludingSelf.anyHood { // or, (iii) if any (not temporally farther) nbr with same sourceId  than
-                //           the device's one has already been claimed obsolete
-                nbr{isObsolete} && nbr{sourceId} == newSourceId && nbr{timeDistEst} + lagMetric < newTimeDistEst + 0.0001
-              }
-
-          //List[(Double,Double,ID,Boolean)]((newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete), loc).min
-          if (newSpaceDistEst >= loc._1) {
-            if (newTimeDistEst >= loc._2)  {
-              if (newObsolete >= loc._4) {
-                loc
-              } else {
-                (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)
-              }
-            } else {
-              (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)
-            }
-          }  else {
-            (newSpaceDistEst, newTimeDistEst, newSourceId, newObsolete)
-          }
-        }
-      }._1 // Selects estimated distance
+      0.0
     }
     // scalastyle:on
 
@@ -260,7 +176,7 @@ trait StdLibGradients {
         val dt: Double = deltaTime().toMillis
         val at: Double = expFilter(dt, filterFactor)
         val ad: Double = expFilter(Math.abs(value - delay(value)), filterFactor)
-        rep (value) { old => {
+        rep(value) { old => {
           if (!old.isInfinite) {
             val v: Double = Math.signum(old) * Math.min( Math.abs(value - old)/dt, ad/at)
             val r = old + v * dt

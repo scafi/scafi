@@ -65,7 +65,7 @@ trait Semantics extends Core with Language {
     def emptyPath(): Path
     def emptyExport(): EXPORT
     def path(slots: Slot*): Path
-    def export(exps: (Path,Any)*): EXPORT
+    def createExport(exps: (Path,Any)*): EXPORT
     def context(selfId: ID,
                 exports: Map[ID,EXPORT],
                 lsens: Map[CNAME,Any] = Map.empty,
@@ -98,7 +98,7 @@ trait Semantics extends Core with Language {
       vm = new RoundVMImpl(c)
       val result = e
       vm.registerRoot(result)
-      vm.export
+      vm.currentExport
     }
   }
 
@@ -133,7 +133,7 @@ trait Semantics extends Core with Language {
 
     override def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A = {
       vm.nest(FoldHood[A](vm.index))(write = true) { // write export always for performance reason on nesting
-        val nbrField = vm.alignedNeighbours
+        val nbrField = vm.alignedNeighbours()
           .map(id => vm.foldedEval(expr)(id).getOrElse(vm.locally { init }))
         vm.isolate { nbrField.fold(vm.locally { init })((x,y) => aggr(x,y) ) }
       }
@@ -173,14 +173,14 @@ trait Semantics extends Core with Language {
 
     def status: VMStatus
 
-    def export: EXPORT =
+    def currentExport: EXPORT =
       exportStack.head
 
     def self: ID =
       context.selfId
 
     def registerRoot(v: Any): Unit =
-      export.put(factory.emptyPath, v)
+      currentExport.put(factory.emptyPath(), v)
 
     def neighbour: Option[ID] =
       status.neighbour
@@ -238,7 +238,7 @@ trait Semantics extends Core with Language {
 
   class RoundVMImpl(val context: CONTEXT) extends RoundVM {
     var aggregateFunctions: Map[Path,()=>Any] = Map.empty
-    var exportStack: List[EXPORT] = List(factory.emptyExport)
+    var exportStack: List[EXPORT] = List(factory.emptyExport())
     var status: VMStatus = VMStatus()
     var isolated = false // When true, neighbours are scoped out
 
@@ -256,7 +256,7 @@ trait Semantics extends Core with Language {
     override def nest[A](slot: Slot)(write: Boolean, inc: Boolean = true)(expr: => A): A = {
       try {
         status = status.push().nest(slot)  // prepare nested call
-        if (write) export.get(status.path).getOrElse(export.put(status.path, expr)) else expr  // function return value is result of expr
+        if (write) currentExport.get(status.path).getOrElse(currentExport.put(status.path, expr)) else expr  // function return value is result of expr
       } finally {
         status = if(inc) status.pop().incIndex() else status.pop() // do not forget to restore the status
       }
@@ -277,7 +277,7 @@ trait Semantics extends Core with Language {
         List()
       } else {
         self ::
-          context.exports
+          context.exports()
             .filter(_._1 != self)
             .filter(p => status.path.isRoot || p._2.get(status.path).isDefined)
             .map(_._1)
@@ -314,9 +314,9 @@ trait Semantics extends Core with Language {
     override def newExportStack: Any = exportStack = factory.emptyExport() :: exportStack
     override def discardExport: Any = exportStack = exportStack.tail
     override def mergeExport: Any = {
-      val toMerge = export
+      val toMerge = currentExport
       exportStack = exportStack.tail
-      toMerge.paths.foreach(tp => export.put(tp._1, tp._2))
+      toMerge.paths.foreach(tp => currentExport.put(tp._1, tp._2))
     }
   }
 

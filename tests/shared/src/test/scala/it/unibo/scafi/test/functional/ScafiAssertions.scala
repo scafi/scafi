@@ -13,7 +13,7 @@ object ScafiAssertions extends Matchers {
 
   def assertForAllNodes[T](f: (ID,T) => Boolean, okWhenNotComputed: Boolean = false)
                           (implicit net: Network): Unit ={
-    withClue("Actual network:\n" + net + "\n\n Sample exports:\n" + net.export(0) + "\n" + net.export(1)) {
+    withClue("Actual network:\n" + net + "\n\n Sample exports:\n" + net.getExport(0) + "\n" + net.getExport(1)) {
       net.exports.forall {
         case (id, Some(e)) => f(id, e.root[T]())
         case (id, None) => okWhenNotComputed
@@ -26,7 +26,7 @@ object ScafiAssertions extends Matchers {
    */
   def assertKnownNetworkValues[T](vals: Map[ID,Option[T]])(implicit net: Network): Unit ={
     vals.keys.forall(id => {
-      val actualExport = net.export(id)
+      val actualExport = net.getExport(id)
       var expected = vals(id)
       (actualExport, expected) match {
         case (Some(e), Some(v)) => e.root[T]() == v
@@ -49,13 +49,13 @@ object ScafiAssertions extends Matchers {
               | Sensor state: ${net.sensorState()}
               | Neighborhoods: ${net.ids.map(id => id -> net.neighbourhood(id))}
               | Sample exports
-              | ID=0 => ${net.export(0)}
-              | ID=1 => ${net.export(1)}
+              | ID=0 => ${net.getExport(0)}
+              | ID=1 => ${net.getExport(1)}
               |
               | Expected values: ${vals}
               """.stripMargin) {
       net.ids.forall(id => {
-        val actualExport = net.export(id)
+        val actualExport = net.getExport(id)
         val expected = vals.get(id)
         (actualExport, expected) match {
           case (Some(e), Some(v)) => if(customEq.isDefined) { customEq.get(e.root[T](), v) } else { e.root[T]() == v }
@@ -77,11 +77,11 @@ object ScafiAssertions extends Matchers {
          | Sensor state: ${net.sensorState()}
          | Neighborhoods: ${net.ids.map(id => id -> net.neighbourhood(id))}
          | Sample exports
-         | ID=0 => ${net.export(0)}
-         | ID=1 => ${net.export(1)}
+         | ID=0 => ${net.getExport(0)}
+         | ID=1 => ${net.getExport(1)}
         |""".stripMargin) {
       net.ids.forall(id => {
-        val actualExport = net.export(id)
+        val actualExport = net.getExport(id)
         actualExport match {
           case Some(v) => pred(id,v.root[T]())
           case None => passNotComputed

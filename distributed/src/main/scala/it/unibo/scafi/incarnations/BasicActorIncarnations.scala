@@ -70,7 +70,7 @@ trait BasicAbstractActorIncarnation
 
     override implicit val readsExp: Reads[ComputationExport] = new Reads[ComputationExport] {
       override def reads(json: JsValue): JsResult[ComputationExport] = JsSuccess(
-        adaptExport(factory.export(
+        adaptExport(factory.createExport(
           json.as[Map[Path,Any]](mapAnyFormat).toSeq:_*
         ))
       )
