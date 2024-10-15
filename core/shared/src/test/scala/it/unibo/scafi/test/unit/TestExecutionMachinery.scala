@@ -26,7 +26,7 @@ class TestExecutionMachinery extends AnyFunSpec with Matchers {
         val status = VMStatus()
 
         // ASSERT
-        status.path shouldEqual /
+        status.path shouldEqual /()
         status.index shouldBe 0
         status.neighbour shouldBe None
       }
@@ -70,15 +70,15 @@ class TestExecutionMachinery extends AnyFunSpec with Matchers {
 
         s4.index shouldBe 1
         s4.neighbour shouldEqual Some(8)
-        s4.path.matches(/ / Rep(4) / Nbr(2))
+        s4.path.matches(/() / Rep(4) / Nbr(2))
 
         s5.index shouldBe 0
         s5.neighbour shouldBe Some(7)
-        s5.path.matches(/ / Rep(4) / Nbr(2))
+        s5.path.matches(/() / Rep(4) / Nbr(2))
 
         s6.index shouldBe 0
         s6.neighbour shouldEqual None
-        s6.path.matches(/ / Nbr(2))
+        s6.path.matches(/() / Nbr(2))
       }
 
       it("should use indexes to avoid clashes"){

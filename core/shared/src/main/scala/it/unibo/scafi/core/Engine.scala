@@ -74,7 +74,7 @@ trait Engine extends Semantics {
     extends Context with ContextOps { self: CONTEXT =>
 
     private var exportsMap : Map[ID,EXPORT] = _exports.toMap
-    def updateExport(id: ID, export:EXPORT): Unit = exportsMap += id -> export
+    def updateExport(id: ID, exportData: EXPORT): Unit = exportsMap += id -> exportData
 
     override def exports(): Iterable[(ID, EXPORT)] = exportsMap
 
@@ -104,7 +104,7 @@ trait Engine extends Semantics {
     override def emptyPath(): Path = new PathImpl(List())
     override def emptyExport(): EXPORT = new ExportImpl
     override def path(slots: Slot*): Path = new PathImpl(List(slots:_*).reverse)
-    override def export(exps: (Path,Any)*): EXPORT = {
+    override def createExport(exps: (Path,Any)*): EXPORT = {
       val exp = new ExportImpl()
       exps.foreach { case (p,v) => exp.put(p,v) }
       exp

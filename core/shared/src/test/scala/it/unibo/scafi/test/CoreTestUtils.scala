@@ -38,7 +38,7 @@ trait CoreTestUtils {
     true
   }
 
-  implicit val exportEquality = new Equality[EXPORT] {
+  implicit val exportEquality: Equality[EXPORT] = new Equality[EXPORT] {
     override def areEqual(e: EXPORT, b: Any): Boolean = e.paths == (b match {
       case exp: ExportOps => exp.paths
       case _ => b.toString

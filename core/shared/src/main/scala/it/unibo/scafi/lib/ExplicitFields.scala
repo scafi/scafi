@@ -5,6 +5,8 @@
 
 package it.unibo.scafi.lib
 
+import scala.language.implicitConversions
+
 trait StdLibExplicitFields {
   self: StandardLibrary.Subcomponent =>
   import Builtins.Bounded
@@ -56,7 +58,7 @@ trait StdLibExplicitFields {
       def minHoodPlus[V>:T](implicit ev: Bounded[V]): V =
         withoutSelf.minHood(ev)
 
-      def withoutSelf: Field[T] = Field[T](m - mid)
+      def withoutSelf: Field[T] = Field[T](m - mid())
 
       def toMap: Map[ID,T] = m
 
@@ -67,10 +69,10 @@ trait StdLibExplicitFields {
       def apply[T](m: Map[ID,T]): Field[T] = new Field(m)
 
       implicit def localToField[T](lv: T): Field[T] =
-        fnbr(mid).map(_ => lv)
+        fnbr(mid()).map(_ => lv)
 
       implicit def fieldToLocal[T](fv: Field[T]): T =
-        fv.m(mid)
+        fv.m(mid())
     }
 
     /**

@@ -17,7 +17,7 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
 
   val checkThat = new ItWord
 
-  implicit val node = new BasicAggregateInterpreter
+  implicit val node: BasicAggregateInterpreter = new BasicAggregateInterpreter
   import CoreTestUtils._
   import node._
 
@@ -151,13 +151,13 @@ class TestByEquivalence extends AnyFunSpec with Matchers {
 
     assertEquivalence(fixture.devicesAndNbrs, fixture.execSequence){
       foldhood("")(_ + _){
-        nbr(mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
-          nbr(mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+        nbr(mux(mid()%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          nbr(mux(mid()%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
       }
     }{
       foldhood("")(_ + _){
-        (mux(mid%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
-          (mux(mid%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
+        (mux(mid()%2==0){ ()=>aggregate{"a"} }{ ()=>aggregate{"b"} })() +
+          (mux(mid()%2!=0){ ()=>aggregate{"c"} }{ ()=>aggregate{"d"} })()
       }
     }
   }

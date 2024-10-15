@@ -27,21 +27,21 @@ class TestEngine extends AnyFunSpec with Matchers {
         val path1 = factory.path(Nbr(0), Rep(0))
 
         // ASSERT (initial, empty state)
-        exp.get[Nothing](/) shouldBe None
+        exp.get[Nothing](/()) shouldBe None
         exp.get[Nothing](path1) shouldBe None
 
         // ACT + ASSERT (insertion at root path)
-        exp.put(/, "foo")
-        exp.get[String](/) shouldBe Some("foo")
-        exp.get[String](/).get shouldBe exp.root[String]()
+        exp.put(/(), "foo")
+        exp.get[String](/()) shouldBe Some("foo")
+        exp.get[String](/()).get shouldBe exp.root[String]()
 
         // ACT + ASSERT (insertion at different path)
         exp.put(path1, "bar")
         exp.get[String](path1).get shouldBe "bar"
 
         // ACT + ASSERT (overwriting with a different data type)
-        exp.put(/, 77)
-        exp.get[Int](/).get shouldBe 77
+        exp.put(/(), 77)
+        exp.get[Int](/()).get shouldBe 77
       }
     } // END describe("Export implementation")
 
@@ -50,9 +50,9 @@ class TestEngine extends AnyFunSpec with Matchers {
       it ("should support the reading of properties and slots") {
         // ARRANGE
         import factory./
-        val exportForId1 = factory.export(/ -> "one")
+        val exportForId1 = factory.createExport(/() -> "one")
         val pathNbr = factory.emptyPath().push(Nbr(0))
-        val exportForId5 = factory.export(pathNbr -> "five")
+        val exportForId5 = factory.createExport(pathNbr -> "five")
         val ctx = new ContextImpl(
           selfId = 1,
           exports = Map(1 -> exportForId1, 5 -> exportForId5),
@@ -62,14 +62,14 @@ class TestEngine extends AnyFunSpec with Matchers {
 
         // ASSERT on fields
         ctx.selfId shouldBe 1
-        ctx.exports.size shouldBe 2
+        ctx.exports().size shouldBe 2
         ctx.localSensor shouldEqual Map("s1" -> 77, "s2" -> false)
         ctx.nbrSensor shouldEqual Map("x" -> Map(4 -> false))
 
         // ASSERT readslot
-        ctx.readSlot(2, /) shouldBe None
-        ctx.readSlot(1, /) shouldEqual Some("one")
-        ctx.readSlot(5, /) shouldBe None
+        ctx.readSlot(2, /()) shouldBe None
+        ctx.readSlot(1, /()) shouldEqual Some("one")
+        ctx.readSlot(5, /()) shouldBe None
         ctx.readSlot(5, pathNbr) shouldEqual Some("five")
       }
     } // END describe("Context implementation")

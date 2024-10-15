@@ -6,7 +6,8 @@ resolvers += Resolver.typesafeRepo("releases")
 
 // Constants
 val defaultScalaVersion = "2.13.6"
-val scalaVersionsForCrossCompilation = Seq("2.11.12", "2.12.14", defaultScalaVersion)
+val defaultScala3Version = "3.3.4"
+val scalaVersionsForCrossCompilation = Seq("2.12.14", defaultScalaVersion)
 val akkaVersion = "2.5.32" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
 
 // Managed dependencies
@@ -27,6 +28,12 @@ val scalaFXVersion = Def.setting {
   if (javaFXVersion.value == "18.0.1") { "18.0.1-R27" }
   else { "15.0.1-R21" }
 }
+val scalaJsTimeLibrary = Def.setting {
+  scalaBinaryVersion.value match {
+    case "3" => Seq.empty
+    case _ => Seq("org.scala-js" %%% "scalajs-java-time" % "1.0.0")
+  }
+}
 lazy val javaFXModules = "base" :: "controls" :: "graphics" :: "media" :: "swing" :: "web" :: Nil
 lazy val platforms = "linux" :: "mac" :: "win" :: Nil
 val scalaFX = Def.setting("org.scalafx" %% "scalafx" % scalaFXVersion.value)
@@ -36,6 +43,7 @@ val javaFXBinary = Def.setting {
     platform <- platforms
   } yield "org.openjfx" % s"javafx-$fxModule" % javaFXVersion.value classifier platform
 }
+
 inThisBuild(
   List(
     sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
@@ -71,15 +79,16 @@ inThisBuild(
     ),
     scalaVersion := defaultScalaVersion,
     scalafixScalaBinaryVersion := "2.12",
-    scapegoatVersion := "1.4.11",
+    //scapegoatVersion := "2.16",
     coverageExcludedPackages := "<empty>;demos.*;examples.*;.*frontend.*;sims.*;monitoring.*;plainSim.*;lib.*;.*renderer3d.*"
   )
 )
 
+
 lazy val scalacProjectOption = Def.setting {
   val message = "The outer reference in this type test cannot be checked at run time." // see https://github.com/scala/bug/issues/4440
   scalaBinaryVersion.value match {
-    case "2.13" | "2.12" => Seq(s"-Wconf:msg=${message}:s")
+    case "3" | "2.13" | "2.12" => Seq(s"-Wconf:msg=${message}:s")
     case "2.11" => Seq("-nowarn") // avoid warning for 2.11 since warnings could conflict with 2.12 and 2.13
   }
 }
@@ -107,7 +116,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val noPublishSettingsRoot = noPublishSettings ++ Seq(crossScalaVersions := Seq.empty)
 
-lazy val scafiJVM: Seq[ProjectReference] = Seq(core, commons, spala, distributed, simulator, `simulator-gui`,
+lazy val scafiJVM: Seq[ProjectReference] = Seq(core, coreCross3.jvm, commonsScala3.jvm, commons, spala, distributed, simulator, `simulator-gui`,
   `renderer-3d`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`, `demos-distributed`)
 
 lazy val scafiJS: Seq[ProjectReference] = Seq(coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js)
@@ -132,13 +141,34 @@ lazy val scafi = project
 lazy val commonsCross = crossProject(JSPlatform, JVMPlatform)
   .in(file("commons"))
   .settings(commonSettings: _*)
+  .settings(crossScalaVersions := scalaVersionsForCrossCompilation)
   .settings(
     name := "scafi-commons"
   )
   .jsSettings(
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
+    libraryDependencies := scalaJsTimeLibrary.value
   )
 
+lazy val commonsScala3 = crossProject(JVMPlatform)
+  .in(file("commons"))
+  .settings(commonSettings: _*)
+  .settings(crossScalaVersions := Seq(defaultScala3Version))
+  .settings(
+    name := "scafi-commons-3",
+    scalaVersion := defaultScala3Version,
+    libraryDependencies := scalaJsTimeLibrary.value,
+    target := baseDirectory.value / "target" / "scala-3"
+  )
+lazy val coreCross3 = crossProject(JVMPlatform)
+  .in(file("core"))
+  .dependsOn(commonsScala3)
+  .settings(commonSettings: _*)
+  .settings(crossScalaVersions := Seq(defaultScala3Version))
+  .settings(
+    name := "scafi-core-3",
+    libraryDependencies += scalatest.value,
+    target := baseDirectory.value / "target" / "scala-3"
+  )
 lazy val commons = commonsCross.jvm
 
 lazy val coreCross = crossProject(JSPlatform, JVMPlatform)
