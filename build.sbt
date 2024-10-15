@@ -28,12 +28,7 @@ val scalaFXVersion = Def.setting {
   if (javaFXVersion.value == "18.0.1") { "18.0.1-R27" }
   else { "15.0.1-R21" }
 }
-val scalaJsTimeLibrary = Def.setting {
-  scalaBinaryVersion.value match {
-    case "3" => Seq.empty
-    case _ => Seq("org.scala-js" %%% "scalajs-java-time" % "1.0.0")
-  }
-}
+
 lazy val javaFXModules = "base" :: "controls" :: "graphics" :: "media" :: "swing" :: "web" :: Nil
 lazy val platforms = "linux" :: "mac" :: "win" :: Nil
 val scalaFX = Def.setting("org.scalafx" %% "scalafx" % scalaFXVersion.value)
@@ -116,7 +111,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val noPublishSettingsRoot = noPublishSettings ++ Seq(crossScalaVersions := Seq.empty)
 
-lazy val scafiJVM: Seq[ProjectReference] = Seq(core, coreCross3.jvm, commonsScala3.jvm, commons, spala, distributed, simulator, `simulator-gui`,
+lazy val scafiJVM: Seq[ProjectReference] = Seq(core, coreCross3.jvm, commons, commonsScala3.jvm, spala, distributed, simulator, `simulator-gui`,
   `renderer-3d`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`, `demos-distributed`)
 
 lazy val scafiJS: Seq[ProjectReference] = Seq(coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js)
@@ -146,7 +141,7 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform)
     name := "scafi-commons"
   )
   .jsSettings(
-    libraryDependencies := scalaJsTimeLibrary.value
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-java-time" % "1.0.0")
   )
 
 lazy val commonsScala3 = crossProject(JVMPlatform)
@@ -154,9 +149,8 @@ lazy val commonsScala3 = crossProject(JVMPlatform)
   .settings(commonSettings: _*)
   .settings(crossScalaVersions := Seq(defaultScala3Version))
   .settings(
-    name := "scafi-commons-3",
+    name := "scafi-commons",
     scalaVersion := defaultScala3Version,
-    libraryDependencies := scalaJsTimeLibrary.value,
     target := baseDirectory.value / "target" / "scala-3"
   )
 lazy val coreCross3 = crossProject(JVMPlatform)
@@ -165,7 +159,7 @@ lazy val coreCross3 = crossProject(JVMPlatform)
   .settings(commonSettings: _*)
   .settings(crossScalaVersions := Seq(defaultScala3Version))
   .settings(
-    name := "scafi-core-3",
+    name := "scafi-core",
     libraryDependencies += scalatest.value,
     target := baseDirectory.value / "target" / "scala-3"
   )
