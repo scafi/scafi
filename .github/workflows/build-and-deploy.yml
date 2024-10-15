@@ -62,7 +62,7 @@ jobs:
           java-version: openjdk@1.17
       - name: Sbt run tests
         shell: bash # for windows
-        run: sbt coverage test
+        run: sbt coverage +test
       - name: Coverage report
         shell: bash
         run: sbt coverageReport
