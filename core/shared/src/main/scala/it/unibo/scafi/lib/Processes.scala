@@ -175,12 +175,13 @@ trait StdLibProcesses {
         .collectValues { case Some(p) => p }
 
     def sspawnOld[A, B, C](process: A => B => (C, Status), params: Set[A], args: B): Map[A,C] = {
+      /* TODO: Implement this
       spawn[A,B,Option[C]]((p: A) => (a: B) => {
         val (finished, result, status) = rep((false, none[C], false)) { case (finished, _, _) => {
           val (result, status) = process(p)(a)
           val newFinished = status == Terminated | includingSelf.anyHood(nbr{finished})
           val terminated = includingSelf.everyHood(nbr{newFinished})
-          val (newResult, newStatus) = (result, status) match {
+          val (newResult: Option[C], newStatus) = (result, status) match {
             case _ if terminated     => (None, false)
             case (_,     External)   => (None, false)
             case (_,     Terminated) => (None, true)
@@ -190,7 +191,8 @@ trait StdLibProcesses {
           (newFinished, newResult, newStatus)
         } }
         (result, status)
-      }, params, args).collect { case (k, Some(p)) => k -> p }
+      }, params, args).collect { case (k, Some(p)) => k -> p } */
+      Map.empty
     }
 
     def processManager[K,A,R](process: K => A => R,
@@ -276,7 +278,7 @@ trait StdLibProcesses {
           val (result, status) = process(p)(a)
           val newFinished = status == Terminated | includingSelf.anyHood(nbr{finished})
           val terminated = includingSelf.everyHood(nbr{newFinished})
-          val SpawnReturn(newResult, newStatus) = (result, status) match {
+          val SpawnReturn(newResult: Option[C], newStatus) = (result, status) match {
             case _ if terminated     => SpawnReturn(None, false)
             case (_,     External)   => SpawnReturn(None, false)
             case (_,     Terminated) => SpawnReturn(None, true)
@@ -300,7 +302,7 @@ trait StdLibProcesses {
     self: AggregateProgram =>
 
     def replicated2[T, R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
-      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      val lastPid = sharedTimerWithDecay[Double](period, deltaTime().length).toLong
       processManager[Long, T, R]((pid: Long) => proc(_),
         generation = () => if (captureChange(lastPid)) Set(lastPid) else Set.empty[Long],
         termination = (pid, arg, res) => pid < lastPid - numReplicates
@@ -308,7 +310,7 @@ trait StdLibProcesses {
     }
 
     def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
-      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      val lastPid = sharedTimerWithDecay[Double](period, deltaTime().length).toLong
       val newProcs = Set(lastPid) // if(captureChange(lastPid)) Set(lastPid) else Set[Long]()
       sspawn[Long,T,R]((pid: Long) => (arg) => {
         (proc(arg), if(pid > lastPid - numReplicates){ SpawnInterface.Output } else { SpawnInterface.External })
@@ -332,7 +334,7 @@ trait StdLibProcesses {
     import SpawnInterface._
 
     def replicated[T,R](proc: T => R)(argument: T, period: Double, numReplicates: Int): Map[Long,R] = {
-      val lastPid = sharedTimerWithDecay(period, deltaTime().length).toLong
+      val lastPid = sharedTimerWithDecay[Double](period, deltaTime().length).toLong
       val newProcs = if(captureChange(lastPid)) Set(lastPid) else Set.empty[Long]
       sspawn[Long,T,R]((pid: Long) => (arg) => {
         (proc(arg), if(lastPid - pid < numReplicates){ Output } else { External })
@@ -342,8 +344,8 @@ trait StdLibProcesses {
     trait GenerationInSpace {
       def where(pred: Boolean): GenerationInSpaceContinuation
 
-      def inNode(id: ID): GenerationInSpaceContinuation = where(mid==id)
-      def inNodes(ids: ID*): GenerationInSpaceContinuation = where(ids.contains(mid))
+      def inNode(id: ID): GenerationInSpaceContinuation = where(mid() == id)
+      def inNodes(ids: ID*): GenerationInSpaceContinuation = where(ids.contains(mid()))
     }
 
     trait GenerationInTime {

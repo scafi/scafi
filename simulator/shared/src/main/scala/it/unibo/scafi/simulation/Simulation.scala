@@ -202,9 +202,9 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
     def nbrSensor[A](name: CNAME)(id: ID)(idn: ID): A =
       nsnsMap.get(name).flatMap(_.get(id)).flatMap(_.get(idn)).getOrElse(nbrSensors(name)(id, idn).asInstanceOf[A]).asInstanceOf[A]
 
-    def export(id: ID): Option[EXPORT] = eMap.get(id)
+    def getExport(id: ID): Option[EXPORT] = eMap.get(id)
 
-    def exports(): IMap[ID, Option[EXPORT]] = ids.map(id => (id, export(id))).toMap
+    def exports(): IMap[ID, Option[EXPORT]] = ids.map(id => (id, getExport(id))).toMap
 
     protected var sensors: Map[CNAME,Any] = Map[CNAME,Any]()
 
@@ -356,13 +356,13 @@ trait Simulation extends SimulationPlatform { self: SimulationPlatform.PlatformD
 
     def defaultRepr(net: NetworkSimulator): String = {
       net.idArray.map {
-        i => net.export(i).map { e => e.root().toString }.getOrElse("_")
+        i => net.getExport(i).map { e => e.root().toString }.getOrElse("_")
       }.mkString("", "\t", "")
     }
 
     def gridRepr(numCols: Int)(net: NetworkSimulator): String = {
       net.idArray.map {
-        i => net.export(i).map { e => e.root().toString }.getOrElse("_")
+        i => net.getExport(i).map { e => e.root().toString }.getOrElse("_")
       }.zipWithIndex
         .map(z => (if (z._2 % numCols == 0) "\n" else "") + z._1)
         .mkString("", "\t", "")

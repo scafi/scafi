@@ -39,7 +39,7 @@ trait StdLibBlockC {
       * the neighbour with the smallest value of the potential field.
       */
     def findParent[V: Bounded](potential: V): ID = {
-      val (minPotential,devIdWithMinPotential) = minHood { nbr{ (potential, mid) } }
+      val (minPotential,devIdWithMinPotential) = minHood { nbr{ (potential, mid()) } }
       mux(smaller(minPotential, potential)) {
         devIdWithMinPotential
       } {
@@ -52,7 +52,7 @@ trait StdLibBlockC {
       *         or None if no such a parent is there (so that the device is parent of itself).
       */
     def findParentOpt[V: Bounded](potential: V): Option[ID] = {
-      val minPotential = minHood { nbr{ (potential, mid) } }
+      val minPotential = minHood { nbr{ (potential, mid()) } }
       Some(minPotential).filter(p => smaller(p._1, potential)).map(_._2)
     }
 
@@ -99,7 +99,7 @@ trait StdLibBlockC {
       * Collects values as a map by preserving the sources of those values
       */
     def collectValuesByDevices[T](downTo: Double, local: T): Map[ID,T] =
-      collectSets(downTo, Set(mid -> local)).toMap
+      collectSets(downTo, Set(mid() -> local)).toMap
 
     private def smaller[V: Bounded](a: V, b: V): Boolean =
       implicitly[Bounded[V]].compare(a, b) < 0
