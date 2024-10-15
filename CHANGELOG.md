@@ -1,3 +1,21 @@
+## [1.4.0](https://github.com/scafi/scafi/compare/v1.3.1...v1.4.0) (2024-10-15)
+
+### Features
+
+* add scala 3 ass project target ([716cfb6](https://github.com/scafi/scafi/commit/716cfb68d55c5b5bdaf3190ebaada9aef6c31c38))
+
+### Dependency updates
+
+* **deps:** update dependency com.chuusai:shapeless to v2.3.12 ([00780eb](https://github.com/scafi/scafi/commit/00780eb1c63973296593816ab01f865bf7752870))
+
+### Bug Fixes
+
+* remove a test in test gradient ([ffff2af](https://github.com/scafi/scafi/commit/ffff2af5e3a258a2f6f54e7eb2b910e701293a3f))
+
+### General maintenance
+
+* **ci:** add +test in coverage ([63d279d](https://github.com/scafi/scafi/commit/63d279d6cf066fb6c7f2bcc5d976837d839faf3a))
+
 ## [1.3.1](https://github.com/scafi/scafi/compare/v1.3.0...v1.3.1) (2024-10-15)
 
 ### Dependency updates
