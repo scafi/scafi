@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/scafi/scafi/compare/v1.4.0...v1.5.0) (2024-12-18)
+
+### Features
+
+* **build:** better support for scala 3 ([8b173c6](https://github.com/scafi/scafi/commit/8b173c6f0295bd18b1dc877286c665559bdd27e8))
+
 ## [1.4.0](https://github.com/scafi/scafi/compare/v1.3.0...v1.4.0) (2024-12-18)
 
 ### Features
