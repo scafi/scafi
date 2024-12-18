@@ -160,6 +160,7 @@ lazy val coreCross3 = crossProject(JVMPlatform)
   .settings(crossScalaVersions := Seq(defaultScala3Version))
   .settings(
     name := "scafi-core",
+    scalaVersion := defaultScala3Version,
     libraryDependencies += scalatest.value,
     target := baseDirectory.value / "target" / "scala-3"
   )
