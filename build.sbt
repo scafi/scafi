@@ -111,7 +111,7 @@ lazy val noPublishSettings = Seq(
 
 lazy val noPublishSettingsRoot = noPublishSettings ++ Seq(crossScalaVersions := Seq.empty)
 
-lazy val scafiJVM: Seq[ProjectReference] = Seq(core, coreCross3.jvm, commons, commonsScala3.jvm, spala, distributed, simulator, `simulator-gui`,
+lazy val scafiJVM: Seq[ProjectReference] = Seq(core, coreCross3.jvm, commons, commonsScala3.jvm, spala, distributed, simulator, simulatorCross3.jvm, `simulator-gui`,
   `renderer-3d`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`, `demos-distributed`)
 
 lazy val scafiJS: Seq[ProjectReference] = Seq(coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js)
@@ -162,6 +162,17 @@ lazy val coreCross3 = crossProject(JVMPlatform)
     name := "scafi-core",
     scalaVersion := defaultScala3Version,
     libraryDependencies += scalatest.value,
+    target := baseDirectory.value / "target" / "scala-3"
+  )
+
+lazy val simulatorCross3 = crossProject(JVMPlatform)
+  .in(file("simulator"))
+  .dependsOn(coreCross3)
+  .settings(commonSettings: _*)
+  .settings(crossScalaVersions := Seq(defaultScala3Version))
+  .settings(
+    name := "scafi-simulator",
+    scalaVersion := defaultScala3Version,
     target := baseDirectory.value / "target" / "scala-3"
   )
 lazy val commons = commonsCross.jvm
