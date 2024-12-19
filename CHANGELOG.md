@@ -1,3 +1,13 @@
+## [1.6.0](https://github.com/scafi/scafi/compare/v1.5.0...v1.6.0) (2024-12-19)
+
+### Features
+
+* **build:** support scala 3 in simulator ([7a2509c](https://github.com/scafi/scafi/commit/7a2509c26b612bb7b8f4ba35857ce54e089893a9))
+
+### Build and continuous integration
+
+* **deps:** update codecov/codecov-action action to v5.1.2 ([#461](https://github.com/scafi/scafi/issues/461)) ([608f4c4](https://github.com/scafi/scafi/commit/608f4c410caeae57f6948dba7fde8bd95b59ebab))
+
 ## [1.5.0](https://github.com/scafi/scafi/compare/v1.4.0...v1.5.0) (2024-12-18)
 
 ### Features
