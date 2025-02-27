@@ -67,7 +67,7 @@ jobs:
         shell: bash
         run: sbt coverageReport
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5.3.1
+        uses: codecov/codecov-action@v5.4.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
