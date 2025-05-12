@@ -116,6 +116,13 @@ lazy val scafiJVM: Seq[ProjectReference] = Seq(core, coreCross3.jvm, commons, co
 
 lazy val scafiJS: Seq[ProjectReference] = Seq(coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js)
 
+lazy val `scafi-all-jvm` = project
+  .dependsOn(core, commons, spala, distributed, simulator, `simulator-gui`, `renderer-3d`, `stdlib-ext`,`simulator-gui-new`)
+  .settings((assembly / assemblyMergeStrategy) := {
+    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+    case _ => MergeStrategy.first
+  })
+
 lazy val scafi = project
   .in(file("."))
   .aggregate(scafiJVM ++ scafiJS: _*)
@@ -291,6 +298,10 @@ lazy val `simulator-gui-new` = project
   .settings(
     name := "simulator-gui-new",
     libraryDependencies ++= Seq(scopt, scalatest.value, scalaFX.value) ++ javaFXBinary.value,
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case _ => MergeStrategy.first
+    },
     compileScalastyle := {}
   )
 
