@@ -1,9 +1,5 @@
 import sbt.Def
 
-// Resolvers
-resolvers += Resolver.sonatypeRepo("snapshots")
-resolvers += Resolver.typesafeRepo("releases")
-
 // Constants
 val defaultScalaVersion = "2.13.6"
 val defaultScala3Version = "3.7.3"
@@ -41,7 +37,6 @@ val javaFXBinary = Def.setting {
 
 inThisBuild(
   List(
-    sonatypeProfileName := "it.unibo.scafi", // Your profile name of the sonatype account
     Test / publishArtifact := false,
     pomIncludeRepository := { _ => false }, // no repositories show up in the POM file
     licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
@@ -73,7 +68,6 @@ inThisBuild(
       )
     ),
     scalaVersion := defaultScalaVersion,
-    scalafixScalaBinaryVersion := "2.12",
     //scapegoatVersion := "2.16",
     coverageExcludedPackages := "<empty>;demos.*;examples.*;.*frontend.*;sims.*;monitoring.*;plainSim.*;lib.*;.*renderer3d.*"
   )
@@ -119,7 +113,7 @@ lazy val scafiJS: Seq[ProjectReference] = Seq(coreCross.js, commonsCross.js, sim
 lazy val scafi = project
   .in(file("."))
   .aggregate(scafiJVM ++ scafiJS: _*)
-  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin, GhpagesPlugin)
+  .enablePlugins(ScalaUnidocPlugin, ClassDiagramPlugin)
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
@@ -128,7 +122,6 @@ lazy val scafi = project
     crossScalaVersions := Nil, // NB: Nil to prevent double publishing!
     ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(commons, core, simulator, spala, `simulator-gui`,
       `stdlib-ext`, `renderer-3d`, distributed),
-    git.remoteRepo := "git@github.com:scafi/doc.git",
     ScalaUnidoc / siteSubdirName := "latest/api",
     addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
   )
