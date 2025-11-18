@@ -38,7 +38,7 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.11.2")
 
 // Scala.js plugins
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.10.1")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.2")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 
