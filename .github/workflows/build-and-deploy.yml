@@ -79,7 +79,7 @@ jobs:
     concurrency:
       group: release
     steps:
-      - uses: danysk/action-checkout@0.2.27
+      - uses: danysk/action-checkout@0.2.28
         with:
           token: ${{ secrets.DEPLOYMENT_TOKEN }}
       - uses: olafurpg/setup-scala@v14
