@@ -1,10 +1,11 @@
 import sbt.Def
 
 // Constants
-val defaultScalaVersion = "2.13.6"
+val defaultScalaVersion = "2.13.18"
 val defaultScala3Version = "3.7.4"
-val scalaVersionsForCrossCompilation = Seq("2.12.14", defaultScalaVersion)
+val scalaVersionsForCrossCompilation = Seq(defaultScalaVersion)
 val akkaVersion = "2.8.8" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
+val sourcecode = Def.setting("com.lihaoyi" %%% "sourcecode" % "0.4.0")
 
 // Managed dependencies
 val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
@@ -77,8 +78,7 @@ inThisBuild(
 lazy val scalacProjectOption = Def.setting {
   val message = "The outer reference in this type test cannot be checked at run time." // see https://github.com/scala/bug/issues/4440
   scalaBinaryVersion.value match {
-    case "3" | "2.13" | "2.12" => Seq(s"-Wconf:msg=${message}:s")
-    case "2.11" => Seq("-nowarn") // avoid warning for 2.11 since warnings could conflict with 2.12 and 2.13
+    case "3" | "2.13"  => Seq(s"-Wconf:msg=${message}:s")
   }
 }
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
@@ -131,7 +131,10 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform)
   .settings(commonSettings: _*)
   .settings(crossScalaVersions := scalaVersionsForCrossCompilation)
   .settings(
-    name := "scafi-commons"
+    name := "scafi-commons",
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % Provided
+    )
   )
   .jsSettings(
     libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-java-time" % "1.0.0")
@@ -154,7 +157,7 @@ lazy val coreCross3 = crossProject(JVMPlatform)
   .settings(
     name := "scafi-core",
     scalaVersion := defaultScala3Version,
-    libraryDependencies += scalatest.value,
+    libraryDependencies ++= Seq(scalatest.value, sourcecode.value),
     target := baseDirectory.value / "target" / "scala-3"
   )
 
@@ -176,7 +179,7 @@ lazy val coreCross = crossProject(JSPlatform, JVMPlatform)
   .settings(commonSettings: _*)
   .settings(
     name := "scafi-core",
-    libraryDependencies += scalatest.value
+    libraryDependencies ++= Seq(scalatest.value, sourcecode.value)
   )
 
 lazy val core = coreCross.jvm
@@ -230,8 +233,7 @@ lazy val spala = project
       bcel,
       scopt,
       scalaBinaryVersion.value match {
-        case "2.11" => "com.typesafe.play" %% "play-json" % "2.10.8"
-        case "2.12" | "2.13" => "com.typesafe.play" %% "play-json" % "2.10.8"
+        case "2.13" => "com.typesafe.play" %% "play-json" % "2.10.8"
       },
       slf4jlog4,
       log4

@@ -147,8 +147,8 @@ trait Semantics extends Core with Language {
         }
       }
 
-    override def aggregate[T](f: => T): T =
-      vm.nest(FunCall[T](vm.index, vm.elicitAggregateFunctionTag()))(write = vm.unlessFoldingOnOthers) {
+    override def aggregate[T](f: => T)(implicit pos: Position): T =
+      vm.nest(FunCall[T](vm.index, s"${pos.file}:${pos.line}:${pos.col}"))(write = vm.unlessFoldingOnOthers) {
         vm.neighbour match {
           case Some(nbr) if nbr != vm.self => vm.loadFunction()()
           case Some(nbr) if nbr == vm.self => vm.saveFunction(f); f
@@ -211,8 +211,6 @@ trait Semantics extends Core with Language {
     def locally[A](a: => A): A
 
     def alignedNeighbours(): List[ID]
-
-    def elicitAggregateFunctionTag(): Any
 
     def isolate[A](expr: => A): A
 
@@ -284,10 +282,6 @@ trait Semantics extends Core with Language {
             .toList
       }
 
-    override def elicitAggregateFunctionTag(): Any = Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition)
-    // Thread.currentThread().getStackTrace()(PlatformDependentConstants.StackTracePosition) // Bad performance
-    // sun.reflect.Reflection.getCallerClass(PlatformDependentConstants.CallerClassPosition) // Better performance but not available in Java 11
-    // Since Java 9, use StackWalker
 
     override def isolate[A](expr: => A): A = {
       val wasIsolated = this.isolated

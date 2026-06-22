@@ -1,5 +1,7 @@
 logLevel := Level.Warn
 
+libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+
 // Repo management
 
 addSbtPlugin("uk.co.randomcoding" % "sbt-git-hooks" % "0.2.0")
@@ -16,7 +18,7 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-cpd" % "2.0.0")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.4")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.4")
 
@@ -38,8 +40,7 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.11.2")
 
 // Scala.js plugins
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.10.1")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.21.0")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.21.1")

@@ -65,9 +65,9 @@ trait PlatformSettings { self: Platform.Subcomponent =>
 
   sealed trait DeviceExecStrategy
   case class DelayedDeviceExecStrategy(initial: Option[FiniteDuration] = None,
-                                       delay: FiniteDuration = 1 second) extends DeviceExecStrategy
+                                       delay: FiniteDuration = 1.second) extends DeviceExecStrategy
   case class PeriodicDeviceExecStrategy(initial: Option[FiniteDuration] = None,
-                                        interval: FiniteDuration = 1 second) extends DeviceExecStrategy
+                                        interval: FiniteDuration = 1.second) extends DeviceExecStrategy
   object ReactiveDeviceExecStrategy extends DeviceExecStrategy
 
   object LogLevels extends Serializable {

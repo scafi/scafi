@@ -1,24 +1,20 @@
-var workflowCmd = '::set-output name=has-released::'
-//CI_COMMIT_TAG to avoid snapshots
-var publishCmd = `
+import config from 'semantic-release-preconfigured-conventional-commits' with {type: 'json'}
+
+const publishCmd = `
 git tag -a -f v\${nextRelease.version} v\${nextRelease.version} -F CHANGELOG.md  || exit 1
-export CI_COMMIT_TAG="true" || exit 2
-sbt ci-release || exit 3
-git push --force origin v\${nextRelease.version} || exit 4
-echo '${workflowCmd}true' 
+export CI_COMMIT_TAG="true"
+sbt ci-release || exit 2
 `
-console.log(`${workflowCmd}false`)
-var config = require('semantic-release-preconfigured-conventional-commits');
-config.tagFormat = 'v${version}'
 config.plugins.push(
-    ["@semantic-release/exec", {
-        "publishCmd": publishCmd,
-    }],
-    ["@semantic-release/github", {
-        "assets": [
-            { "path": "build/shadow/*-all.jar" },
-        ]
-    }],
+    [
+        "@semantic-release/exec",
+        {
+            "publishCmd": publishCmd,
+        }
+    ],
+    "@semantic-release/github",
     "@semantic-release/git",
 )
-module.exports = config
+config.tagFormat = "v${version}"
+
+export default config
