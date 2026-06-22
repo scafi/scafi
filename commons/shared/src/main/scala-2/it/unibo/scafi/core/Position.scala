@@ -6,14 +6,14 @@ import scala.reflect.macros.blackbox.Context
 case class Position(file: String, line: Int, col: Int)
 
 object Position {
-  implicit def materialize: _root_.it.unibo.scafi.core.Position = macro impl
+  implicit def materialize: Position = macro impl
 
-  def impl(c: Context): c.Expr[_root_.it.unibo.scafi.core.Position] = {
+  def impl(c: Context): c.Expr[Position] = {
     import c.universe._
     val pos = c.enclosingPosition
     val file = pos.source.path
     val line = pos.line
     val col = pos.column
-    c.Expr[_root_.it.unibo.scafi.core.Position](q"_root_.it.unibo.scafi.core.Position($file, $line, $col)")
+    c.Expr[it.unibo.scafi.core.Position](q"_root_.it.unibo.scafi.core.Position($file, $line, $col)")
   }
 }
