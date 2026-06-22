@@ -64,7 +64,7 @@ jobs:
         with:
           token: ${{ secrets.DEPLOYMENT_TOKEN }}
       - name: Install Node
-        uses: actions/setup-node@v6.2.0
+        uses: actions/setup-node@v6.4.0
         with:
           node-version-file: package.json
       - uses: nicolasfara/build-check-deploy-sbt-action@1.0.39
