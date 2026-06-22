@@ -1,3 +1,13 @@
+## [1.8.0](https://github.com/scafi/scafi/compare/v1.7.0...v1.8.0) (2026-06-22)
+
+### Features
+
+* support scala js in scala 3 too ([a2427e1](https://github.com/scafi/scafi/commit/a2427e1692754a74708cc059138bad552b80bf8f))
+
+### Bug Fixes
+
+* remove coverage in scala js runner ([64c0388](https://github.com/scafi/scafi/commit/64c0388bcb15d17dad0c0b2f0a3c0b8c631d3bc7))
+
 ## [1.7.0](https://github.com/scafi/scafi/compare/v1.6.0...v1.7.0) (2026-06-22)
 
 ### Features
