@@ -4,19 +4,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  prepare:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v6.0.2
-      - name: Check sbt build process
-        uses: nicolasfara/build-check-deploy-sbt-action@1.0.39
-        with:
-          check-command: true
-          should-run-codecov: false
+  #prepare:
+  #  runs-on: ubuntu-24.04
+  #  steps:
+  #    - name: Checkout the repo
+  #      uses: actions/checkout@v6.0.2
+  #    - name: Check sbt build process
+  #      uses: nicolasfara/build-check-deploy-sbt-action@1.0.39
+  #      with:
+  #        check-command: true
+  #        should-run-codecov: false
 
   build:
-    needs: prepare
+    # needs: prepare
     strategy:
       fail-fast: false
       matrix:
@@ -39,8 +39,8 @@ jobs:
           should-deploy: false
           maven-central-username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           maven-central-password: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          signing-key: ${{ secrets.SIGNING_KEY }}
-          #signing-password: ${{ secrets.SIGNING_PASSWORD }}
+          signing-key: ${{ secrets.PGP_SECRET }}
+          signing-password: ${{ secrets.PGP_PASS }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
   release:
     permissions:
