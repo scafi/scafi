@@ -137,7 +137,8 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jsSettings(
-    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-java-time" % "1.0.0")
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-java-time" % "1.0.0"),
+    coverageEnabled := false
   )
 
 lazy val commonsScala3 = crossProject(JSPlatform, JVMPlatform)
@@ -150,7 +151,8 @@ lazy val commonsScala3 = crossProject(JSPlatform, JVMPlatform)
     target := baseDirectory.value / "target" / "scala-3"
   )
   .jsSettings(
-    libraryDependencies ++= Seq("io.github.cquiroz" %%% "scala-java-time" % "2.6.0")
+    libraryDependencies ++= Seq("io.github.cquiroz" %%% "scala-java-time" % "2.6.0"),
+    coverageEnabled := false
   )
 lazy val coreCross3 = crossProject(JSPlatform, JVMPlatform)
   .in(file("core"))
@@ -162,6 +164,9 @@ lazy val coreCross3 = crossProject(JSPlatform, JVMPlatform)
     scalaVersion := defaultScala3Version,
     libraryDependencies ++= Seq(scalatest.value, sourcecode.value),
     target := baseDirectory.value / "target" / "scala-3"
+  )
+  .jsSettings(
+    coverageEnabled := false
   )
 
 lazy val simulatorCross3 = crossProject(JSPlatform, JVMPlatform)
@@ -175,7 +180,8 @@ lazy val simulatorCross3 = crossProject(JSPlatform, JVMPlatform)
     target := baseDirectory.value / "target" / "scala-3"
   )
   .jsSettings(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+    coverageEnabled := false
   )
 lazy val commons = commonsCross.jvm
 
@@ -186,6 +192,9 @@ lazy val coreCross = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "scafi-core",
     libraryDependencies ++= Seq(scalatest.value, sourcecode.value)
+  )
+  .jsSettings(
+    coverageEnabled := false
   )
 
 lazy val core = coreCross.jvm
@@ -206,7 +215,8 @@ lazy val simulatorCross = crossProject(JSPlatform, JVMPlatform)
     name := "scafi-simulator"
   )
   .jsSettings(
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0"
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0",
+    coverageEnabled := false
   )
 
 lazy val simulator = simulatorCross.jvm
@@ -262,6 +272,9 @@ lazy val testsCross = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "scafi-tests",
     libraryDependencies ++= Seq(scalatest.value)
+  )
+  .jsSettings(
+    coverageEnabled := false
   )
 
 lazy val tests = testsCross.jvm
