@@ -108,7 +108,7 @@ lazy val noPublishSettingsRoot = noPublishSettings ++ Seq(crossScalaVersions := 
 lazy val scafiJVM: Seq[ProjectReference] = Seq(core, coreCross3.jvm, commons, commonsScala3.jvm, spala, distributed, simulator, simulatorCross3.jvm, `simulator-gui`,
   `renderer-3d`, `stdlib-ext`, `tests`, `demos`, `simulator-gui-new`, `demos-new`, `demos-distributed`)
 
-lazy val scafiJS: Seq[ProjectReference] = Seq(coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js)
+lazy val scafiJS: Seq[ProjectReference] = Seq(coreCross.js, commonsCross.js, simulatorCross.js, testsCross.js, coreCross3.js, commonsScala3.js, simulatorCross3.js)
 
 lazy val scafi = project
   .in(file("."))
@@ -140,7 +140,7 @@ lazy val commonsCross = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-java-time" % "1.0.0")
   )
 
-lazy val commonsScala3 = crossProject(JVMPlatform)
+lazy val commonsScala3 = crossProject(JSPlatform, JVMPlatform)
   .in(file("commons"))
   .settings(commonSettings: _*)
   .settings(crossScalaVersions := Seq(defaultScala3Version))
@@ -149,7 +149,10 @@ lazy val commonsScala3 = crossProject(JVMPlatform)
     scalaVersion := defaultScala3Version,
     target := baseDirectory.value / "target" / "scala-3"
   )
-lazy val coreCross3 = crossProject(JVMPlatform)
+  .jsSettings(
+    libraryDependencies ++= Seq("io.github.cquiroz" %%% "scala-java-time" % "2.6.0")
+  )
+lazy val coreCross3 = crossProject(JSPlatform, JVMPlatform)
   .in(file("core"))
   .dependsOn(commonsScala3)
   .settings(commonSettings: _*)
@@ -161,7 +164,7 @@ lazy val coreCross3 = crossProject(JVMPlatform)
     target := baseDirectory.value / "target" / "scala-3"
   )
 
-lazy val simulatorCross3 = crossProject(JVMPlatform)
+lazy val simulatorCross3 = crossProject(JSPlatform, JVMPlatform)
   .in(file("simulator"))
   .dependsOn(coreCross3)
   .settings(commonSettings: _*)
@@ -170,6 +173,9 @@ lazy val simulatorCross3 = crossProject(JVMPlatform)
     name := "scafi-simulator",
     scalaVersion := defaultScala3Version,
     target := baseDirectory.value / "target" / "scala-3"
+  )
+  .jsSettings(
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
   )
 lazy val commons = commonsCross.jvm
 
