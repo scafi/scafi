@@ -39,8 +39,8 @@ jobs:
           should-deploy: false
           maven-central-username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           maven-central-password: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          signing-key: ${{ secrets.PGP_SECRET }}
-          signing-password: ${{ secrets.PGP_PASS }}
+          signing-key: ${{ secrets.SIGNING_KEY }}
+          #signing-password: ${{ secrets.PGP_PASS }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
   release:
     permissions:
