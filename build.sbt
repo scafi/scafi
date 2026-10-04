@@ -151,7 +151,7 @@ lazy val commonsScala3 = crossProject(JSPlatform, JVMPlatform)
     target := baseDirectory.value / "target" / "scala-3"
   )
   .jsSettings(
-    libraryDependencies ++= Seq("io.github.cquiroz" %%% "scala-java-time" % "2.6.0"),
+    libraryDependencies ++= Seq("io.github.cquiroz" %%% "scala-java-time" % "2.7.0"),
     coverageEnabled := false
   )
 lazy val coreCross3 = crossProject(JSPlatform, JVMPlatform)
@@ -180,7 +180,7 @@ lazy val simulatorCross3 = crossProject(JSPlatform, JVMPlatform)
     target := baseDirectory.value / "target" / "scala-3"
   )
   .jsSettings(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.7.0",
     coverageEnabled := false
   )
 lazy val commons = commonsCross.jvm
