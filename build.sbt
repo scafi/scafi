@@ -10,7 +10,7 @@ val sourcecode = Def.setting("com.lihaoyi" %%% "sourcecode" % "0.4.0")
 // Managed dependencies
 val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
 val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
-val bcel = "org.apache.bcel" % "bcel" % "6.12.0"
+val bcel = "org.apache.bcel" % "bcel" % "6.13.0"
 val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.6"
 val scalatest = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20" % "test")
 val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
