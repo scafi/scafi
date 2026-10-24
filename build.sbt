@@ -5,7 +5,7 @@ val defaultScalaVersion = "2.13.18"
 val defaultScala3Version = "3.7.4"
 val scalaVersionsForCrossCompilation = Seq(defaultScalaVersion)
 val akkaVersion = "2.8.8" // NOTE: Akka 2.4.0 REQUIRES Java 8! NOTE: Akka 2.6.x drops Scala 2.11
-val sourcecode = Def.setting("com.lihaoyi" %%% "sourcecode" % "0.4.0")
+val sourcecode = Def.setting("com.lihaoyi" %%% "sourcecode" % "0.4.4")
 
 // Managed dependencies
 val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
