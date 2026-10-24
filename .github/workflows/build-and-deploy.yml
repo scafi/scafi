@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
-      - uses: nicolasfara/build-check-deploy-sbt-action@1.0.39
+      - uses: nicolasfara/build-check-deploy-sbt-action@1.0.44
         with:
           should-run-codecov: ${{ runner.os == 'Linux' }}
           codecov-directory: "target/"
@@ -67,7 +67,7 @@ jobs:
         uses: actions/setup-node@v6.2.0
         with:
           node-version-file: package.json
-      - uses: nicolasfara/build-check-deploy-sbt-action@1.0.39
+      - uses: nicolasfara/build-check-deploy-sbt-action@1.0.44
         with:
           build-command: true
           check-command: true
