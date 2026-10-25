@@ -1,9 +1,11 @@
+<p align="center"><img src="https://scafi.github.io/imgs/scafi-logo-full.svg" alt="ScaFi logo" width="200"></p>
+
 # ScaFi (**Sca**la **Fi**elds) #
 
 ![workflow-master badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![codecov master](https://codecov.io/gh/scafi/scafi/branch/master/graph/badge.svg?token=RONGUW08K1)](https://codecov.io/gh/scafi/scafi)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/it.unibo.scafi/scafi-core_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/it.unibo.scafi/scafi-core_2.13/badge.svg)
+[![Maven Central](https://img.shields.io/maven-central/v/it.unibo.scafi/scafi-core_3)](https://central.sonatype.com/namespace/it.unibo.scafi)
 
 **ScaFi** is a Scala-based library and framework for Aggregate Programming.
 It implements a variant of the Higher-Order Field Calculus (HOFC) operational semantics,
@@ -11,13 +13,13 @@ It implements a variant of the Higher-Order Field Calculus (HOFC) operational se
 and provides a platform and API for simulating and executing Aggregate Computing systems and applications.
 
 Please refer to [the ScaFi main website](https://scafi.github.io/) 
- and [ScaFi Documentation](https://scafi.github.io/docs) the for further information.
-
-## Overview
+ and [ScaFi Documentation](https://scafi.github.io/docs) for further information.
 
 ## Notes for application developers
 
-- NOTE: `scafi-core` and `scafi-simulator` cross-target both the **JVM** and the **JavaScript Platform** (via Scala.js)
+- ScaFi is published for **Scala 3** (3.7.4) and **Scala 2.13** (2.13.18)
+- `scafi-commons`, `scafi-core`, and `scafi-simulator` cross-target both the **JVM** and the **JavaScript Platform** (via Scala.js), on both Scala versions
+- The other modules (`scafi-simulator-gui`, `spala`, `scafi-distributed`) are available only for Scala 2.13 on the JVM
 
 ### Import via Maven/sbt/Gradle
 
@@ -25,22 +27,27 @@ Add the dependency to scafi in your project, e.g., via sbt
 
 ```scala
 // build.sbt
-val scafi_version = "1.1.5"
+scalaVersion := "3.7.4" // or "2.13.18"
+
+val scafi_version = "1.8.0"
 
 val scafi_core  = "it.unibo.scafi" %% "scafi-core"  % scafi_version
 val scafi_simulator  = "it.unibo.scafi" %% "scafi-simulator"  % scafi_version
+// Scala 2.13 only
 val scafi_simulator_gui  = "it.unibo.scafi" %% "scafi-simulator-gui"  % scafi_version
 val scafi_platform = "it.unibo.scafi" %% "scafi-distributed"  % scafi_version
 
-libraryDependencies ++= Seq(scafi_core, scafi_simulator, scafi_platform)
+libraryDependencies ++= Seq(scafi_core, scafi_simulator)
 ```
+
+For Scala.js projects, use `%%%` instead of `%%`.
 
 or Gradle
 
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("it.unibo.scafi:scafi-core_2.13:1.1.5")
+    implementation("it.unibo.scafi:scafi-core_3:1.8.0") // or scafi-core_2.13
 }
 ```
 
@@ -51,13 +58,13 @@ dependencies {
 As another example, consider the following steps.
 
 **Step 1:** Import or define an **incarnation** (a family of types),
-from which you can import types like `AggregateProgram`
+from which you can import types like `AggregateProgram` and `StandardSensorNames`
 ```scala
 package experiments
 
 // Method #1: Use an incarnation which is already defined
 // (Note: BasicSimulationIncarnation is defined in module 'scafi-simulator')
-import it.unibo.scafi.incarnations.BasicSimulationIncarnation.AggregateProgram
+import it.unibo.scafi.incarnations.BasicSimulationIncarnation.{AggregateProgram, StandardSensorNames}
 
 // Method #2: Define a custom incarnation and import stuff from it
 object MyIncarnation extends it.unibo.scafi.incarnations.BasicAbstractIncarnation
@@ -101,11 +108,11 @@ object MyAggregateProgram extends AggregateProgram with StandardSensorNames{
 ```
 
 **Step 3:** Use ScaFi's internal simulator and GUI 
-(modules **`scafi-simulator`** and **`scafi-simulator-gui`**, respectively) 
+(modules **`scafi-simulator`** and **`scafi-simulator-gui`**, respectively; the GUI requires Scala 2.13)
 to run the program on a predefined network of devices.
 
 ```scala
-import it.unibo.scafi.simulation.gui.{Launcher, Settings}
+import it.unibo.scafi.simulation.frontend.{Launcher, Settings}
 
 object SimulationRunner extends Launcher {
   Settings.Sim_ProgramClass = "experiments.MyAggregateProgram"
