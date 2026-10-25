@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use ScaFi in your research, please cite it as below."
+title: ScaFi
+abstract: A Scala DSL and toolkit for Aggregate Programming.
+type: software
+license: Apache-2.0
+repository-code: https://github.com/scafi/scafi
+url: https://scafi.github.io/
+authors:
+  - given-names: Roberto
+    family-names: Casadei
+  - given-names: Mirko
+    family-names: Viroli
+  - given-names: Gianluca
+    family-names: Aguzzi
+  - given-names: Danilo
+    family-names: Pianini
+preferred-citation:
+  type: article
+  title: "ScaFi: A Scala DSL and Toolkit for Aggregate Programming"
+  authors:
+    - given-names: Roberto
+      family-names: Casadei
+    - given-names: Mirko
+      family-names: Viroli
+    - given-names: Gianluca
+      family-names: Aguzzi
+    - given-names: Danilo
+      family-names: Pianini
+  journal: SoftwareX
+  volume: 20
+  start: 101248
+  year: 2022
+  doi: 10.1016/j.softx.2022.101248
