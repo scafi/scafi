@@ -98,7 +98,7 @@ import MyIncarnation._
 //  from previous computations, sensor data, and exports from neighbours.
 // The export is a tree-like data structure that contains all the information needed
 //  for coordinating with neighbours. It also contains the output of the computation.
-object MyAggregateProgram extends AggregateProgram with StandardSensorNames{
+class MyAggregateProgram extends AggregateProgram with StandardSensorNames{
   // Main program expression driving the ensemble
   // This is run in a loop for each agent
   // According to this expression, coordination messages are automatically generated
