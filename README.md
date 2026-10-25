@@ -1,11 +1,30 @@
-<p align="center"><img src="https://scafi.github.io/imgs/scafi-logo-full.svg" alt="ScaFi logo" width="200"></p>
+<div align="center">
 
-# ScaFi (**Sca**la **Fi**elds) #
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://scafi.github.io/imgs/scafi-wordmark-dark.svg">
+    <img src="https://scafi.github.io/imgs/scafi-wordmark.svg" alt="ScaFi" width="340">
+  </picture>
+</h1>
 
-![workflow-master badge](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+**Sca**la **Fi**elds: the Aggregate Programming toolkit for Scala.
+
+[![Build](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml/badge.svg?branch=master)](https://github.com/scafi/scafi/actions/workflows/build-and-deploy.yml)
 [![codecov master](https://codecov.io/gh/scafi/scafi/branch/master/graph/badge.svg?token=RONGUW08K1)](https://codecov.io/gh/scafi/scafi)
 [![Maven Central](https://img.shields.io/maven-central/v/it.unibo.scafi/scafi-core_3)](https://central.sonatype.com/namespace/it.unibo.scafi)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+<br>
+[![semantic-release](https://img.shields.io/badge/semantic--release-conventionalcommits-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org/en/v1.0.0/)
+
+**[Website](https://scafi.github.io/)** ·
+**[Documentation](https://scafi.github.io/docs/)** ·
+**[Playground](https://scafi.github.io/web/)** ·
+**[Papers](https://scafi.github.io/papers/)**
+
+</div>
+
+---
 
 **ScaFi** is a Scala-based library and framework for Aggregate Programming.
 It implements a variant of the Higher-Order Field Calculus (HOFC) operational semantics,
