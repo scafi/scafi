@@ -26,3 +26,4 @@ Hard rules for working in this repository. They are not suggestions.
 - One short subject line. Add a body only when it is really needed, and keep it to one or two lines.
 - One logical change per commit.
 - No attribution of any kind: no `Co-Authored-By`, no "Generated with" lines, no tool or AI mentions in commits or PRs.
+- Never push directly to `master`: work on a branch and open a pull request with `gh pr create`.
