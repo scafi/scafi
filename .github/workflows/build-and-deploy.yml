@@ -28,7 +28,7 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
       - uses: nicolasfara/build-check-deploy-sbt-action@1.0.39
@@ -60,7 +60,7 @@ jobs:
       )
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
         with:
           token: ${{ secrets.DEPLOYMENT_TOKEN }}
       - name: Install Node
